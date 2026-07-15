@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
@@ -221,29 +222,36 @@ function CheckpointRow({
   onPickFile: () => void;
   onChange: (path: string) => void;
 }) {
+  const trimmedPath = entry.path.trim();
+
   return (
-    <div className="flex items-center gap-2">
-      <input
-        type="text"
-        className="input-base font-mono text-xs flex-1"
-        value={entry.path}
-        onChange={(e) => onChange(e.target.value)}
-        placeholder="path/to/checkpoint.pt"
-      />
-      <button
-        onClick={onPickFile}
-        className="btn-ghost p-1.5 text-canvas-muted hover:text-gray-200"
-        title="Browse"
-      >
-        <FolderOpen size={13} />
-      </button>
-      <button
-        onClick={onRemove}
-        className="btn-ghost p-1.5 text-accent-danger/60 hover:text-accent-danger"
-        title="Remove"
-      >
-        <Trash2 size={13} />
-      </button>
+    <div className="space-y-1">
+      <div className="flex items-center gap-2">
+        <input
+          type="text"
+          className="input-base font-mono text-xs flex-1"
+          value={entry.path}
+          onChange={(e) => onChange(e.target.value)}
+          placeholder="path/to/checkpoint.pt"
+        />
+        <button
+          onClick={onPickFile}
+          className="btn-ghost p-1.5 text-canvas-muted hover:text-gray-200"
+          title="Browse"
+        >
+          <FolderOpen size={13} />
+        </button>
+        <button
+          onClick={onRemove}
+          className="btn-ghost p-1.5 text-accent-danger/60 hover:text-accent-danger"
+          title="Remove"
+        >
+          <Trash2 size={13} />
+        </button>
+      </div>
+      {trimmedPath ? (
+        <PathRunLabelChip path={trimmedPath} className="max-w-full" />
+      ) : null}
     </div>
   );
 }

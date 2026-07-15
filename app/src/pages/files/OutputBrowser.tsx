@@ -41,6 +41,7 @@ import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 
 import { downloadParquetFromCsv } from "../../utils/tableExport";
 import { filterCheckpointEntries, isCheckpointEntry } from "../../utils/checkpoints";
+import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -150,8 +151,9 @@ export function OutputBrowser() {
   const [viewingCheckpoint, setViewingCheckpoint] = useState<DirEntry | null>(null);
 
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
-  const brushLogPath = selectedRun ? (runJsonlPath ?? selectedRun.name) : null;
+  const brushLogPath = selectedRun ? (runJsonlPath ?? selectedRun.path) : null;
   const derivedRunLabel = useLogPathRunLabelBrush(brushLogPath);
+  const parentRunBrushLabel = brushLogPath ? runLabelFromPath(brushLogPath) : null;
 
   const refresh = useCallback(async () => {
     if (!outputPath) return;
@@ -683,9 +685,12 @@ export function OutputBrowser() {
                 </p>
                 {runCheckpoints.map((ckpt) => (
                   <div key={ckpt.path} className="flex items-center gap-2 text-[10px] leading-tight">
-                    <span className="font-mono text-gray-300 truncate flex-1" title={ckpt.name}>
-                      {ckpt.name}
-                    </span>
+                    <PathRunLabelChip
+                      path={ckpt.path}
+                      label={ckpt.name}
+                      brushLabel={parentRunBrushLabel ?? undefined}
+                      className="flex-1 min-w-0 max-w-none text-[10px]"
+                    />
                     <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
                     <button
                       onClick={() => loadInEvalRunner(ckpt.path)}
@@ -760,11 +765,17 @@ export function OutputBrowser() {
 
         {!fileLoading && (fileContent !== null || csvRows !== null || wsrouteBundle !== null || viewingCheckpoint !== null) && (
           <div className="flex items-center gap-3 shrink-0">
-            {viewingPath && LOG_EXTENSIONS.has(viewingExt) ? (
-              <PathRunLabelChip path={viewingPath} className="flex-1" />
-            ) : (
-              <p className="text-xs text-canvas-muted font-mono truncate flex-1">{viewingPath}</p>
-            )}
+            {viewingPath ? (
+              <PathRunLabelChip
+                path={viewingPath}
+                brushLabel={
+                  isCheckpointEntry({ is_dir: false, extension: viewingExt }) && parentRunBrushLabel
+                    ? parentRunBrushLabel
+                    : undefined
+                }
+                className="flex-1"
+              />
+            ) : null}
             {viewingPath && viewingExt === "wsroute" && (
               <button
                 onClick={extractBundleAndOpen}
@@ -830,9 +841,12 @@ export function OutputBrowser() {
 
         {!fileLoading && viewingCheckpoint !== null && (
           <div className="card flex-1 flex flex-col items-center justify-center gap-3 text-sm">
-            <p className="text-gray-300 font-mono text-xs truncate max-w-full px-4">
-              {viewingCheckpoint.name}
-            </p>
+            <PathRunLabelChip
+              path={viewingCheckpoint.path}
+              label={viewingCheckpoint.name}
+              brushLabel={parentRunBrushLabel ?? undefined}
+              className="max-w-full px-4"
+            />
             <p className="text-canvas-muted text-xs">
               {formatBytes(viewingCheckpoint.size_bytes)} checkpoint weight file
             </p>

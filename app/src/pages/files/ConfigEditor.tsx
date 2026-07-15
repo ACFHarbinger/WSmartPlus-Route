@@ -95,6 +95,7 @@ export function ConfigEditor() {
   // Track the last-saved content to detect unsaved edits
   const savedContentRef = useRef("");
   useLogPathRunLabelBrush(filePath);
+  useLogPathRunLabelBrush(diffPath);
 
   const openFile = useCallback(async (target: "primary" | "diff") => {
     const path = (await open({
@@ -410,13 +411,16 @@ export function ConfigEditor() {
       {/* Diff view */}
       {content && viewMode === "diff" && (
         <div className="space-y-3">
-          <button
-            onClick={() => openFile("diff")}
-            className="btn-ghost flex items-center gap-2 text-sm"
-          >
-            <FolderOpen size={13} />
-            {diffPath ? diffPath.split("/").pop() : "Open comparison file…"}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => openFile("diff")}
+              className="btn-ghost flex items-center gap-2 text-sm"
+            >
+              <FolderOpen size={13} />
+              {diffPath ? "Change comparison file…" : "Open comparison file…"}
+            </button>
+            {diffPath ? <PathRunLabelChip path={diffPath} className="max-w-md" /> : null}
+          </div>
 
           {!diffContent && (
             <div className="card text-canvas-muted text-sm">
@@ -426,10 +430,11 @@ export function ConfigEditor() {
 
           {diffContent && (
             <div className="card overflow-auto">
-              <p className="text-xs text-canvas-muted mb-3">
-                {changedKeys.length} difference(s) between{" "}
-                <span className="font-mono">{filePath?.split("/").pop()}</span> and{" "}
-                <span className="font-mono">{diffPath?.split("/").pop()}</span>
+              <p className="text-xs text-canvas-muted mb-3 flex flex-wrap items-center gap-1.5">
+                <span>{changedKeys.length} difference(s) between</span>
+                {filePath ? <PathRunLabelChip path={filePath} /> : null}
+                <span>and</span>
+                {diffPath ? <PathRunLabelChip path={diffPath} /> : null}
               </p>
               <table className="w-full text-xs">
                 <thead>
