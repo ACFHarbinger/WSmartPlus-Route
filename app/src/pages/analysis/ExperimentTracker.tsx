@@ -6,12 +6,11 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
-import { CheckCircle, Download, ExternalLink, Radio, RefreshCw, XCircle } from "lucide-react";
+import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
+import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
 import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
@@ -281,36 +280,26 @@ export function ExperimentTracker() {
 
       {recentHpoId && recentHpoProc && (
         <div className="card border-accent-success/30 space-y-3">
-          <div className="flex items-center gap-2 flex-wrap">
-            {recentHpoRunning ? (
-              <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
-            ) : recentHpoProc.status === "completed" ? (
-              <CheckCircle size={13} className="text-accent-success shrink-0" />
-            ) : (
-              <XCircle size={13} className="text-accent-danger shrink-0" />
-            )}
-            <p className="text-sm text-accent-success font-mono">
-              {recentHpoRunning
+          <TrainHpoLivePanelHeader
+            status={recentHpoRunning ? "running" : recentHpoProc.status}
+            title={
+              recentHpoRunning
                 ? "Live HPO"
                 : recentHpoProc.status === "completed"
                   ? "HPO Complete"
-                  : `HPO ${recentHpoProc.status}`}
-            </p>
-            <span className="text-xs text-canvas-muted font-mono truncate flex-1">
-              {recentHpoId}
-            </span>
-            <TrainHpoRehydrationBadges
-              metricCount={liveMetrics.length}
-              healthCount={liveHealthEntries.length}
-              attentionCount={liveAttentionEntries.length}
-            />
-            <TrainHpoNavMesh
-              showHpoLinks
-              showOutputBrowser={recentHpoDone && recentHpoProc.status === "completed"}
-              outputRunPath={outputRunPath}
-              trainingRunPath={trainingRunPath}
-            />
-          </div>
+                  : `HPO ${recentHpoProc.status}`
+            }
+            processId={recentHpoId}
+            metricCount={liveMetrics.length}
+            healthCount={liveHealthEntries.length}
+            attentionCount={liveAttentionEntries.length}
+            navMesh={{
+              showHpoLinks: true,
+              showOutputBrowser: recentHpoDone && recentHpoProc.status === "completed",
+              outputRunPath,
+              trainingRunPath,
+            }}
+          />
           {recentHpoRunning ? (
             <LiveTrainProgressBar processId={recentHpoId} />
           ) : null}
