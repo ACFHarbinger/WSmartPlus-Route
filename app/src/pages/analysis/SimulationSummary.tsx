@@ -16,6 +16,7 @@ import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
@@ -86,6 +87,7 @@ import {
 
 import { RouteViz } from "../../components/analysis/RouteViz";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
+import { runLabelMapFromPaths } from "../../utils/policyTelemetryTrends";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -1839,6 +1841,7 @@ export function SimulationSummary() {
   const { policy, sampleId } = useGlobalFiltersStore(); // used by filteredEntries
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
+  const derivedRunLabel = useLogPathRunLabelBrush(logPath);
   const [comparisonRuns, setComparisonRuns] = useState<ComparisonRun[]>([]);
   const [routeVizDay, setRouteVizDay] = useState(1);
   const [showFailureOverlay, setShowFailureOverlay] = useState(true);
@@ -2110,6 +2113,11 @@ export function SimulationSummary() {
     handleRunLabelClick,
   } = usePortfolioRunBrush(allRuns);
 
+  const runBrushByPath = useMemo(
+    () => runLabelMapFromPaths(allRuns.map((r) => ({ path: r.path, name: r.label }))),
+    [allRuns]
+  );
+
   const cityComparisonOption = useMemo(
     () =>
       cityComparisonChartOption(buildCityComparisonSeries(cityGroups), {
@@ -2203,7 +2211,13 @@ export function SimulationSummary() {
   return (
     <div className="space-y-4">
       <GlobalFilterBar
-        runLabels={portfolioMode ? portfolioRunLabels : []}
+        runLabels={
+          portfolioMode
+            ? portfolioRunLabels
+            : derivedRunLabel
+              ? [derivedRunLabel]
+              : []
+        }
         cities={portfolioMode ? cityGroups.map(([city]) => city) : []}
         showLogScale
       />
@@ -2256,6 +2270,10 @@ export function SimulationSummary() {
                 key={r.path}
                 className={`flex items-center gap-2 text-xs text-gray-300 rounded px-1 -mx-1 ${
                   activeRunLabel === r.label ? "bg-accent-primary/15" : ""
+                } ${
+                  Boolean(activeRunLabel) && runBrushByPath[r.path] === activeRunLabel
+                    ? "ring-1 ring-accent-secondary/40"
+                    : ""
                 }`}
               >
                 <button
@@ -2802,6 +2820,7 @@ export function SimulationSummary() {
               logScale={logScale}
               initialPolicy={effectiveBrushed?.length === 1 ? effectiveBrushed[0]! : null}
               initialRunLabel={
+                derivedRunLabel ??
                 activeRunLabel ??
                 (brushedRunLabels?.length === 1 ? brushedRunLabels[0]! : null)
               }
