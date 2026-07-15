@@ -7,8 +7,15 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
+import {
+  chartMetricDisplay,
+  chartMetricYAxisType,
+  isLogScaleMetric,
+} from "../../utils/chartLogScale";
 import { ZenMLPipelineView } from "./ZenMLPipelineView";
 import { exportChartPng } from "../../utils/chartExport";
 import { downloadCsv } from "../../utils/tableExport";
@@ -37,6 +44,7 @@ function formatTime(ms: number | null) {
 
 export function ExperimentTracker() {
   const { projectRoot, pythonPath } = useAppStore();
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const [trackingUri, setTrackingUri] = useState(DEFAULT_TRACKING_URI);
   const [experimentName, setExperimentName] = useState(DEFAULT_EXPERIMENT);
   const [runs, setRuns] = useState<MlflowRun[]>([]);
@@ -138,6 +146,8 @@ export function ExperimentTracker() {
       .catch(() => setMetricHistory({}));
   }, [projectRoot, pythonPath, trackingUri, selectedRunIds, selectedMetric]);
 
+  const useMetricLogScale = logScale && !normalizeY && isLogScaleMetric(selectedMetric);
+
   const comparisonOption = useMemo(() => {
     const series = selectedRunIds.map((runId, i) => {
       const points = metricHistory[runId] ?? [];
@@ -153,7 +163,7 @@ export function ExperimentTracker() {
           symbolSize: 4,
           lineStyle: { color: RUN_COLORS[i % RUN_COLORS.length], width: 2 },
           itemStyle: { color: RUN_COLORS[i % RUN_COLORS.length] },
-          data: points.map((p) => [(p.step, (p.value - min) / range)]),
+          data: points.map((p) => [p.step, (p.value - min) / range]),
         };
       }
       return {
@@ -163,9 +173,18 @@ export function ExperimentTracker() {
         symbolSize: 4,
         lineStyle: { color: RUN_COLORS[i % RUN_COLORS.length], width: 2 },
         itemStyle: { color: RUN_COLORS[i % RUN_COLORS.length] },
-        data: points.map((p) => [p.step, p.value]),
+        data: points.map((p) => [
+          p.step,
+          chartMetricDisplay(p.value, selectedMetric, logScale && !normalizeY),
+        ]),
       };
     });
+
+    const yName = normalizeY
+      ? "Normalized"
+      : useMetricLogScale
+        ? `${selectedMetric} (log)`
+        : selectedMetric;
 
     return {
       backgroundColor: "transparent",
@@ -176,15 +195,26 @@ export function ExperimentTracker() {
         axisLabel: { color: "#9090b0", fontSize: 10 },
       },
       yAxis: {
-        type: "value",
-        name: normalizeY ? "Normalized" : selectedMetric,
+        type: useMetricLogScale
+          ? chartMetricYAxisType(selectedMetric, true)
+          : "value",
+        logBase: 10,
+        name: yName,
         axisLabel: { color: "#9090b0", fontSize: 10 },
+        minorSplitLine: { show: false },
       },
       legend: { textStyle: { color: "#9090b0", fontSize: 10 }, top: 0 },
       series,
       tooltip: { trigger: "axis" },
     };
-  }, [selectedRunIds, metricHistory, selectedMetric, normalizeY]);
+  }, [
+    selectedRunIds,
+    metricHistory,
+    selectedMetric,
+    normalizeY,
+    logScale,
+    useMetricLogScale,
+  ]);
 
   if (!projectRoot) {
     return (
@@ -196,6 +226,8 @@ export function ExperimentTracker() {
 
   return (
     <div className="space-y-4">
+      <GlobalFilterBar showLogScale />
+
       {/* MLflow connection */}
       <div className="card space-y-3">
         <div className="flex items-center justify-between flex-wrap gap-2">
@@ -389,6 +421,11 @@ export function ExperimentTracker() {
               Export PNG
             </button>
           </div>
+          <p className="text-[10px] text-canvas-muted">
+            {useMetricLogScale
+              ? "Log-scale y-axis (disabled when Normalize is on)"
+              : "Linear y-axis"}
+          </p>
           <ReactECharts ref={chartRef} option={comparisonOption} style={{ height: 320 }} />
         </div>
       )}
