@@ -894,6 +894,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor — deduplicated inline live/recent header blocks; shared status icon + title + process id + rehydration badges + ``TrainHpoNavMesh`` row (§G.17 / §D.7)
 - [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow header row parity across all five pages (§D.7)
 
+**Delivered (§D.7 — hundred-fifty-sixth pass)**
+
+- [x] ``TrainHpoLivePanel`` — shared header + ``LiveTrainProgressBar`` + ``TrainHpoAnalyticsStrip`` shell for train/HPO live/post-run panels (§G.10 / §G.15 / §G.17 / §G.18 / §A.2 / §A.4 / §D.7)
+- [x] Training Hub + Process Monitor + Training Monitor + HPO Tracker + Experiment Tracker — deduplicated inline live panel card markup; ``card`` vs ``embedded`` variant parity (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Training Hub — ``footer`` process-id row + ``showAnalytics`` / ``analyticsWrapperClassName`` slots preserved via shared panel (§G.10 / §D.7)
+- [x] Training Monitor — ``overlaySelect`` + ``showHealthAttention={false}`` analytics options preserved via shared panel (§G.17 / §A.2 / §A.4 / §D.7)
+- [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow live panel shell parity across all five pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1600,6 +1608,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``metric updates`` label ``text-accent-success`` styling parity with Process Monitor / HPO / Experiment Tracker (hundred-fifty-second pass; §G.10 / §D.7)
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.10 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` shared live panel header row with ``split`` layout + ``activity`` running icon (hundred-fifty-fourth pass; §G.10 / §D.7)
+- [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``footer`` process-id row + ``showAnalytics`` slots (hundred-fifty-sixth pass; §G.10 / §D.7)
 
 ---
 
@@ -1726,6 +1735,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoAnalyticsStrip`` shared analytics strip on selected train/HPO processes (hundred-fifty-first pass; §G.15 / §D.7)
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.15 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` ``muted`` analytics subtitle header + badges-before-nav ordering parity (hundred-fifty-fourth pass; §G.15 / §D.7)
+- [x] ``TrainHpoLivePanel`` ``embedded`` variant for selected train/HPO analytics section (hundred-fifty-sixth pass; §G.15 / §D.7)
 
 ---
 
@@ -1782,6 +1792,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``metric updates`` label on non-checkbox live/recent header + Training Hub accent-success styling (hundred-fifty-second pass; §G.10 / §G.17 / §D.7)
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` deduplicated live/recent header with ``overlaySelect`` ``LIVE_KEY`` checkbox parity (hundred-fifty-fifth pass; §G.17 / §A.2 / §A.4 / §D.7)
+- [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``overlaySelect`` + ``showHealthAttention={false}`` options (hundred-fifty-sixth pass; §G.17 / §A.2 / §A.4 / §D.7)
 
 ---
 
@@ -1817,6 +1828,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] ``TrainHpoAnalyticsStrip`` shared live/post-run analytics strip (hundred-fifty-first pass; §G.18 / §G.17 / §D.7)
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.18 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` deduplicated live HPO header blocks on HPO Tracker + Experiment Tracker (hundred-fifty-fourth pass; §G.18 / §G.17 / §D.7)
+- [x] ``TrainHpoLivePanel`` shared live/post-run panel shell on HPO Tracker + Experiment Tracker (hundred-fifty-sixth pass; §G.18 / §G.17 / §D.7)
 
 ---
 

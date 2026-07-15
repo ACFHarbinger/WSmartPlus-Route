@@ -19,9 +19,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
+import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { GradNormSparkline, LrSparkline } from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
@@ -698,27 +696,24 @@ export function TrainingMonitor() {
 
       {/* Live / recent train-HPO indicator */}
       {recentTrainId && recentTrainProc && (
-        <div className="card border-accent-success/30 space-y-3">
-          <TrainHpoLivePanelHeader
-            status={
-              activeTrainRunning
-                ? "running"
-                : recentTrainCompleted
-                  ? "completed"
-                  : recentTrainProc.status
-            }
-            title={
-              activeTrainRunning
-                ? liveProcessLabel
-                : recentTrainCompleted
-                  ? `${liveTrainProcessLabel(recentTrainId).replace("Live ", "")} Complete`
-                  : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`
-            }
-            processId={recentTrainId}
-            metricCount={effectiveLiveMetrics.length}
-            healthCount={effectiveLiveHealth.length}
-            attentionCount={effectiveLiveAttention.length}
-            overlaySelect={
+        <TrainHpoLivePanel
+          cardClassName="border-accent-success/30"
+          header={{
+            status: activeTrainRunning
+              ? "running"
+              : recentTrainCompleted
+                ? "completed"
+                : recentTrainProc.status,
+            title: activeTrainRunning
+              ? liveProcessLabel
+              : recentTrainCompleted
+                ? `${liveTrainProcessLabel(recentTrainId).replace("Live ", "")} Complete`
+                : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`,
+            processId: recentTrainId,
+            metricCount: effectiveLiveMetrics.length,
+            healthCount: effectiveLiveHealth.length,
+            attentionCount: effectiveLiveAttention.length,
+            overlaySelect:
               activeTrainId || effectiveLiveMetrics.length > 0
                 ? {
                     checked: selected.includes(LIVE_KEY),
@@ -729,34 +724,36 @@ export function TrainingMonitor() {
                           : [LIVE_KEY, ...s]
                       ),
                   }
-                : undefined
-            }
-            navMesh={{
+                : undefined,
+            navMesh: {
               showHpoLinks:
                 activeIsHpo || isHpoProcess(recentTrainId, recentTrainProc.command),
               showOutputBrowser: recentTrainDone && recentTrainCompleted,
               outputRunPath: recentOutputRunPath,
               trainingRunPath: recentTrainingRunPath,
-            }}
-          />
-          {activeTrainRunning && activeTrainId && (
-            <LiveTrainProgressBar
-              processId={activeTrainId}
-              fallbackValue={latestLiveMetric?.epoch}
-            />
-          )}
-          <TrainHpoAnalyticsStrip
-            metrics={effectiveLiveMetrics}
-            healthEntries={effectiveLiveHealth}
-            attentionEntries={effectiveLiveAttention}
-            logScale={logScale}
-            theme={effectiveTheme}
-            exportNamePrefix="training-monitor"
-            isPostRun={recentTrainDone}
-            postRunFallback="Post-run shortcuts — open Output Browser or refresh metrics from the completed run"
-            showHealthAttention={false}
-          />
-        </div>
+            },
+          }}
+          progress={
+            activeTrainRunning && activeTrainId
+              ? {
+                  processId: activeTrainId,
+                  fallbackValue: latestLiveMetric?.epoch,
+                }
+              : undefined
+          }
+          analytics={{
+            metrics: effectiveLiveMetrics,
+            healthEntries: effectiveLiveHealth,
+            attentionEntries: effectiveLiveAttention,
+            logScale,
+            theme: effectiveTheme,
+            exportNamePrefix: "training-monitor",
+            isPostRun: recentTrainDone,
+            postRunFallback:
+              "Post-run shortcuts — open Output Browser or refresh metrics from the completed run",
+            showHealthAttention: false,
+          }}
+        />
       )}
 
       {/* Run selector */}
