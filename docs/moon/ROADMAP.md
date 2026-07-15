@@ -1081,6 +1081,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Explorer — open-file ``PathRunLabelChip`` + ``useTableRunLabelBrush`` on ``explorer_csv`` when CSV lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
 - [x] §G.14–§G.16 file-path run-label brush + ring-highlight parity across Monitor / Algorithm Comparison / Data Explorer (§D.7)
 
+**Delivered (§D.7 — hundred-eightieth pass)**
+
+- [x] Simulation Summary — open-log ``PathRunLabelChip`` ring-highlight + click-to-brush parity with Simulation Monitor (§G.1 / §G.14 / §D.7)
+- [x] Output Browser — selected-run + open-jsonl ``PathRunLabelChip`` ring-highlight + click-to-brush parity with run list (§G.14 / §D.7)
+- [x] OLAP Explorer — custom-ingest ``PathRunLabelChip`` ring-highlight + click-to-brush parity with ingested-table picker (§G.6 / §G.14 / §D.7)
+- [x] §G.14–§G.16 file-path run-label brush + ring-highlight parity across all file-based analysis views (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions

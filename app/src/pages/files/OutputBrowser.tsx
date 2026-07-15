@@ -27,6 +27,7 @@ import {
   Archive,
   ClipboardList,
 } from "lucide-react";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -655,9 +656,12 @@ export function OutputBrowser() {
               Export as .wsroute
             </button>
             <div className="card flex-1 overflow-auto p-1">
-              <p className="text-xs text-canvas-muted px-2 py-1 font-medium truncate">
-                {selectedRun.name}
-              </p>
+              <div className="px-2 py-1 shrink-0">
+                <PathRunLabelChip
+                  path={runJsonlPath ?? selectedRun.path}
+                  className="font-medium"
+                />
+              </div>
               {renderEntries(entries)}
             </div>
             {runMeta && runMeta.length > 0 && (
@@ -757,7 +761,11 @@ export function OutputBrowser() {
 
         {!fileLoading && (fileContent !== null || csvRows !== null || wsrouteBundle !== null || viewingCheckpoint !== null) && (
           <div className="flex items-center gap-3 shrink-0">
-            <p className="text-xs text-canvas-muted font-mono truncate flex-1">{viewingPath}</p>
+            {viewingPath && LOG_EXTENSIONS.has(viewingExt) ? (
+              <PathRunLabelChip path={viewingPath} className="flex-1" />
+            ) : (
+              <p className="text-xs text-canvas-muted font-mono truncate flex-1">{viewingPath}</p>
+            )}
             {viewingPath && viewingExt === "wsroute" && (
               <button
                 onClick={extractBundleAndOpen}
