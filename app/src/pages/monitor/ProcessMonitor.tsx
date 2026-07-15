@@ -18,7 +18,7 @@ import {
   Terminal,
   Trash2,
 } from "lucide-react";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
@@ -180,17 +180,16 @@ function ProcessRow({
 
         <div className="flex-1 min-w-0 space-y-0.5">
           {logPath ? (
-            <div className="flex items-center gap-2 min-w-0">
-              <PathRunLabelChip
-                path={logPath}
-                projectRoot={projectRoot}
-                className="max-w-full flex-1 min-w-0"
-                handoff
-              />
+            <OpenPathToolbar
+              path={logPath}
+              projectRoot={projectRoot}
+              chipClassName="max-w-full flex-1 min-w-0"
+              className="max-w-full min-w-0"
+            >
               <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
                 {id}
               </span>
-            </div>
+            </OpenPathToolbar>
           ) : (
             <p className="text-xs font-mono text-gray-200 truncate">{id}</p>
           )}

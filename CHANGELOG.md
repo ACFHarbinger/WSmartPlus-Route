@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-third pass (§G.1 + §G.12 + §G.15 + §G.18 + §D.7)
+
+Two-hundred-and-thirty-third pass expands ``OpenPathToolbar`` after pass 232 covered
+Training Monitor / Output Browser residual panels. Residual table-row path chips on HPO
+trial log dirs, Experiment Tracker MLflow run dirs, Evaluation Runner / Benchmark Analysis
+results tables, and Process Monitor process rows migrate onto the shared cluster so dense
+list surfaces share one path+handoff shell with meta ``children``.
+
+**React frontend**
+- HPO Tracker trial log-dir cells → ``OpenPathToolbar``; trial number as ``children`` (§G.18 / §D.7)
+- Experiment Tracker MLflow run-dir cells → ``OpenPathToolbar``; run-id meta as ``children`` (§G.18 / §D.7)
+- Evaluation Runner results-table checkpoint cells → ``OpenPathToolbar`` (§G.12 / §D.7)
+- Benchmark Analysis results-table checkpoint cells → ``OpenPathToolbar`` (§G.1 / §G.12 / §D.7)
+- Process Monitor process-row path chips → ``OpenPathToolbar``; process id as ``children`` (§G.15 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.12 / §G.15 / §G.18 residual table-row open-path toolbar parity checked
+- §D.7 ``OpenPathToolbar`` tracker / eval / process-row residual surface expansion checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-second pass (§G.8 + §G.14 + §G.17 + §G.12 + §D.7)
 
 Two-hundred-and-thirty-second pass expands ``OpenPathToolbar`` after pass 231 covered
