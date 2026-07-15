@@ -44,7 +44,7 @@ function mean(arr: number[]) {
 }
 
 export function CityComparison() {
-  const { projectRoot, theme } = useAppStore();
+  const { projectRoot, effectiveTheme: theme } = useAppStore();
   const { policy: filterPolicy, sampleId: filterSample, logScale } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (filterPolicy ? [filterPolicy] : null), [filterPolicy]);
   const {

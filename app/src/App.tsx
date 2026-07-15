@@ -4,6 +4,7 @@ import { Toaster } from "sonner";
 import { Layout } from "./components/layout/Layout";
 import { useHashSync } from "./hooks/useHashSync";
 import { useProcessMonitor } from "./hooks/useProcessMonitor";
+import { useThemeSync } from "./hooks/useThemeSync";
 import { useAppStore } from "./store/app";
 import { useLaunchTriggerStore } from "./store/launchTrigger";
 import { useLayoutStore } from "./store/layout";
@@ -156,7 +157,8 @@ const DIGIT_MODES: AppMode[] = [
 ];
 
 export default function App() {
-  const { theme, setMode, mode } = useAppStore();
+  const { setMode, mode, effectiveTheme } = useAppStore();
+  useThemeSync();
   const commandPaletteOpen = useLayoutStore((s) => s.commandPaletteOpen);
   const setCommandPaletteOpen = useLayoutStore((s) => s.setCommandPaletteOpen);
   const setShortcutsOpen = useLayoutStore((s) => s.setShortcutsOpen);
@@ -220,15 +222,6 @@ export default function App() {
     ];
     for (const mode of modes) prefetchPage(mode);
   }, []);
-
-  // Sync theme class on mount
-  useEffect(() => {
-    if (theme === "dark") {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [theme]);
 
   // Global keyboard shortcuts
   useEffect(() => {
@@ -351,7 +344,7 @@ export default function App() {
         <ActivePage />
       </Layout>
       <Toaster
-        theme={theme}
+        theme={effectiveTheme}
         position="bottom-right"
         toastOptions={{
           classNames: {

@@ -45,7 +45,7 @@ const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"
 
 export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
-  const { setMode, setPendingMapCompare, theme } = useAppStore();
+  const { setMode, setPendingMapCompare, effectiveTheme: theme } = useAppStore();
   const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
   const {

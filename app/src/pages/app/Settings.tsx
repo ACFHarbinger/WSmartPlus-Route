@@ -7,7 +7,7 @@
  * Fields:
  *   Project Root    — the repo root where main.py lives; used by all launchers
  *   Python Path     — override the auto-detected Python executable (blank = auto)
- *   Theme           — dark / light
+ *   Theme           — dark / light / system
  *
  * Validation:
  *   - Project Root: Rust `validate_project_root` checks that main.py exists
@@ -186,7 +186,9 @@ export function Settings() {
       const data = JSON.parse(text) as Record<string, unknown>;
       if (typeof data.projectRoot === "string") setDraftRoot(data.projectRoot);
       if (typeof data.pythonPath === "string") setDraftPython(data.pythonPath);
-      if (data.theme === "dark" || data.theme === "light") setDraftTheme(data.theme);
+      if (data.theme === "dark" || data.theme === "light" || data.theme === "system") {
+        setDraftTheme(data.theme);
+      }
       setRootValidation(IDLE);
       setPythonValidation(IDLE);
       toast.success("Settings imported — review and save to apply");
@@ -259,8 +261,8 @@ export function Settings() {
       {/* Theme */}
       <div className="card space-y-3">
         <h2 className="text-sm font-semibold text-gray-200">Appearance</h2>
-        <div className="flex gap-3">
-          {(["dark", "light"] as const).map((t) => (
+        <div className="flex gap-3 flex-wrap">
+          {(["dark", "light", "system"] as const).map((t) => (
             <label
               key={t}
               className={`flex items-center gap-2 py-2 px-4 rounded-lg border cursor-pointer transition-colors ${
@@ -277,7 +279,9 @@ export function Settings() {
                 onChange={() => setDraftTheme(t)}
                 className="sr-only"
               />
-              <span className="text-sm capitalize">{t}</span>
+              <span className="text-sm capitalize">
+                {t === "system" ? "System" : t}
+              </span>
             </label>
           ))}
         </div>

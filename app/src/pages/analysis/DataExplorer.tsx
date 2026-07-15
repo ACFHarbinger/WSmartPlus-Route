@@ -37,7 +37,7 @@ function distinctColumnValues(rows: CsvRow[], col: string): string[] {
 }
 
 export function DataExplorer() {
-  const { projectRoot, theme } = useAppStore();
+  const { projectRoot, effectiveTheme: theme } = useAppStore();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
