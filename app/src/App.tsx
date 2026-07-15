@@ -306,6 +306,24 @@ export default function App() {
         setMode("experiment_tracker");
         return;
       }
+      // L → Simulation launcher (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "l") {
+        e.preventDefault();
+        setMode("sim_launcher");
+        return;
+      }
+      // D → Data generation wizard (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "d") {
+        e.preventDefault();
+        setMode("data_gen");
+        return;
+      }
+      // V → Evaluation runner (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "v") {
+        e.preventDefault();
+        setMode("eval_runner");
+        return;
+      }
       // P → Process monitor (§G.7 / §D.7)
       if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "p") {
         e.preventDefault();

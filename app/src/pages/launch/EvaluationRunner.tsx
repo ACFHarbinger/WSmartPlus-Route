@@ -28,6 +28,7 @@ import {
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
@@ -669,12 +670,12 @@ export function EvaluationRunner() {
                     : "Evaluating…"}
               </h2>
             </div>
-            <button
-              onClick={() => setMode("process_monitor")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Process Monitor
-            </button>
+            <LauncherNavMesh
+              kind="eval"
+              hideSelf
+              showPostRun={liveRunSummary.allDone && liveRunSummary.aggregate === "completed"}
+              onOpenAnalytics={results.length > 0 ? openInAnalytics : undefined}
+            />
           </div>
 
           <div className="space-y-2">

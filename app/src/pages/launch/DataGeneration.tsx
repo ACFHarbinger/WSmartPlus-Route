@@ -15,6 +15,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -66,7 +67,7 @@ function DemandHistogram({ option, logScale = false }: { option: object; logScal
 }
 
 export function DataGeneration() {
-  const { projectRoot, pythonPath, setMode } = useAppStore();
+  const { projectRoot, pythonPath } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
 
@@ -555,12 +556,11 @@ export function DataGeneration() {
                     : "Generating…"}
                 </h2>
               </div>
-              <button
-                onClick={() => setMode("process_monitor")}
-                className="btn-ghost text-xs text-canvas-muted"
-              >
-                Process Monitor
-              </button>
+              <LauncherNavMesh
+                kind="data_gen"
+                hideSelf
+                showPostRun={isDone && runStatus === "completed"}
+              />
             </div>
             {!isDone && liveProcessId && (
               <LiveTrainProgressBar processId={liveProcessId} />

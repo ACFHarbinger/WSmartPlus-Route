@@ -801,6 +801,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 
 **Effort × Impact**: Very Low effort / Medium impact `[Quick Win]`
 
+**Delivered (§D.7 — hundred-thirty-ninth pass)**
+
+- [x] ``LauncherNavMesh`` — shared cross-page sim / data-gen / eval launcher navigation component; replaces duplicated shortcut buttons on Simulation Launcher, Data Generation Wizard, Evaluation Runner, and Process Monitor (§G.9 / §G.11 / §G.12 / §G.15)
+- [x] ``launcherProcess.ts`` — shared ``isSimProcess`` / ``isGenDataProcess`` / ``isEvalProcess`` helpers for Process Monitor launcher workflow panels
+- [x] Keyboard shortcuts ``L`` → Simulation Launcher, ``D`` → Data Generation, ``V`` → Evaluation Runner; help overlay updated (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -825,7 +831,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 | ------------------------------------------- | -------- | ------ | --------------------------------- |
 | §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]` ✅              |
 | §D.3 Option C (system theme following)      | Very Low | Medium | P0 `[Quick Win]` ✅              |
-| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅ (incl. T/H/E train workflow) |
+| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅ (incl. T/H/E train + L/D/V launcher workflow) |
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0 ✅ (Zustand persist)           |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
@@ -1404,7 +1410,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary (incl. per-day trajectory + policy radar + policy/portfolio parallel coordinates + hierarchy drill-down profit bars + drill-down error-bar whiskers + grouped metric bar whiskers + city-comparison error-bar whiskers + Pareto symlog scatter + policy configuration heatmaps), Benchmark Analysis (incl. portfolio parallel + Pareto panels + graph heatmaps + multi-run metric-bar error-bar whiskers + city-comparison error-bar whiskers + efficiency-ranking error-bar whiskers), Algorithm Comparison (radar + metric bars + error-bar whiskers), City Comparison (city-comparison error-bar whiskers), Evaluation Runner, Training Monitor, Training Hub, HPO Tracker (incl. parallel coordinates objective axis), Experiment Tracker (ZenML step durations + ML loss contour + 3D loss terrain + attention weight heatmaps + attention bipartite graph overlays), Simulation Monitor daily KPI charts + graph topology ACO pheromone edge styling, Data Generation demand histogram, OLAP/Data Explorer auto-charts (incl. symlog profit vs overflows scatter + heatmap visualMap) and pivot heatmaps (§G.1 / §G.7)
 - [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
-- [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
+- [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `T`/`H`/`E` → train/HPO workflow, `L`/`D`/`V` → sim/data-gen/eval launchers, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
 - [x] Keyboard shortcuts help overlay: `KeyboardShortcutsHelp` modal + TopBar button; `Escape` dismisses
 - [x] Lazy-loaded page components: all 17 views behind `React.lazy` + `Suspense` in `App.tsx` (§G.7)
 - [x] Command palette: `CommandPalette` fuzzy-search overlay for all views + actions; `Ctrl+K` / TopBar search button; arrow keys + Enter navigation
@@ -1472,6 +1478,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] On completion: auto-navigate to `simulation_summary` after 5-second countdown with cancel button; countdown driven by `useEffect` on `simStatus === "completed"`; "View Summary →" manual button always shown alongside countdown
 - [x] Session persistence for form values: `useSimLauncherStore` (Zustand `persist`, key `wsroute-sim-launcher`) stores `selectedPolicies`, `area`, `numLoc`, `samples`, `nCores`, `seed`, `distribution`, `extraOverrides`; ephemeral runtime state stays in component state
 - [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live status panel during running simulations (§D.2 / §G.9)
+- [x] ``LauncherNavMesh`` shared navigation + ``Simulation Monitor →`` / ``Simulation Summary →`` post-run shortcuts (hundred-thirty-ninth pass; §D.7)
 
 ---
 
@@ -1513,6 +1520,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
 - [x] Session persistence: `useDataGenStore` (Zustand `persist`, key `wsroute-data-gen`) stores all form fields; ephemeral runtime state stays in component state
 - [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live progress panel during ``gen_data`` runs (§D.2 / §G.11)
+- [x] ``LauncherNavMesh`` + ``Data Explorer →`` post-run shortcut (hundred-thirty-ninth pass; §D.7)
 
 ---
 
@@ -1530,6 +1538,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Inline results bar charts on Evaluation Runner results grid with per-metric PNG export (§G.12)
 - [x] EvaluationRunner inline checkpoint charts follow global ``logScale``: log y-axis on cost/gap/time when on; ``GlobalFilterBar`` toggle above results grid (§G.12 / §G.7)
 - [x] Live progress + ETA (hundred-thirty-eighth pass): per-checkpoint ``LiveTrainProgressBar`` in live progress panel during ``eval`` runs; multi-checkpoint aggregate status + stdout tail (§D.2 / §G.12)
+- [x] ``LauncherNavMesh`` + ``Benchmark Analysis →`` post-run shortcut in live eval panel (hundred-thirty-ninth pass; §D.7)
 
 ---
 
@@ -1589,6 +1598,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process history persistence: `useProcessStore` wrapped in Zustand `persist` middleware; `partialize` strips `logLines` and caps at last 50 completed processes; survives app restart
 - [x] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers — `PROGRESS:{json}` protocol; `getLatestProgress()` scans last 30 log lines; deterministic bar when `total` is known, indeterminate pulse otherwise
 - [x] Process row progress + ETA (hundred-thirty-sixth pass): ``LiveTrainProgressBar`` on each running process row; elapsed + ETA via shared ``processProgress.ts`` helpers (§D.2 / §G.15)
+- [x] ``LauncherNavMesh`` return shortcuts for selected ``test_sim`` / ``gen_data`` / ``eval`` processes (hundred-thirty-ninth pass; §D.7)
 - [x] Cancel any running process (§D.5): button in the process list row; sends SIGTERM (`cancel_process` command already wired in `ProcessRow`)
 - [x] Toast notification on process completion / failure (§D.8): `useProcessMonitor` fires `toast.success/error/info` on terminal status transitions; label derived from `id.split("_")[0]`
 - [x] Training analytics for ``train_`` / ``hpo_`` processes: ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` parsed from process stdout (§A.4 / §A.2 hundred-thirtieth pass)
