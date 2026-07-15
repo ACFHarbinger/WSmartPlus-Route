@@ -1,9 +1,7 @@
 /**
  * Cross-page sim / data-gen / eval launcher shortcuts (§D.7 / §G.9 / §G.11 / §G.12).
  */
-import { useAppStore } from "../../store/app";
-import { useRecentFilesStore } from "../../store/recentFiles";
-import { applyRecentHandoff, type RecentPendingSetters } from "../../utils/recentHandoff";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import type { LauncherKind } from "../../utils/launcherProcess";
 
 export interface LauncherNavMeshProps {
@@ -22,6 +20,11 @@ export interface LauncherNavMeshProps {
   showOutputBrowser?: boolean;
   /** Auto-select this run in Output Browser via ``pendingRunPath``. */
   outputRunPath?: string | null;
+  /**
+   * Post-run sim log (``.jsonl``) for Simulation Summary handoff via
+   * ``pendingLogPath`` (§G.9 / §G.1 / §D.7).
+   */
+  simLogPath?: string | null;
   className?: string;
 }
 
@@ -46,28 +49,10 @@ export function LauncherNavMesh({
   checkpointPath,
   showOutputBrowser = false,
   outputRunPath = null,
+  simLogPath = null,
   className = "",
 }: LauncherNavMeshProps) {
-  const {
-    projectRoot,
-    setMode,
-    setPendingLogPath,
-    setPendingRunPath,
-    setPendingCsvPath,
-    setPendingTrainingRunPath,
-    setPendingCheckpoint,
-    setPendingConfigPath,
-  } = useAppStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
-
-  const pendingSetters: RecentPendingSetters = {
-    pendingLogPath: setPendingLogPath,
-    pendingRunPath: setPendingRunPath,
-    pendingCsvPath: setPendingCsvPath,
-    pendingTrainingRunPath: setPendingTrainingRunPath,
-    pendingCheckpoint: setPendingCheckpoint,
-    pendingConfigPath: setPendingConfigPath,
-  };
+  const { setMode, handoff } = useRecentHandoff();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -90,7 +75,13 @@ export function LauncherNavMesh({
           </button>
           {showPostRun && (
             <button
-              onClick={() => setMode("simulation_summary")}
+              onClick={() => {
+                if (simLogPath) {
+                  handoff(simLogPath, "log");
+                } else {
+                  setMode("simulation_summary");
+                }
+              }}
               className="btn-ghost text-xs text-accent-primary"
             >
               Simulation Summary →
@@ -127,14 +118,7 @@ export function LauncherNavMesh({
           {showPostRun && checkpointPath && (
             <button
               onClick={() => {
-                applyRecentHandoff({
-                  path: checkpointPath,
-                  kind: "checkpoint",
-                  projectRoot,
-                  pushRecent,
-                  setMode,
-                  pendingSetters,
-                });
+                handoff(checkpointPath, "checkpoint");
               }}
               className="btn-ghost text-xs text-accent-secondary"
             >
@@ -156,14 +140,7 @@ export function LauncherNavMesh({
         <button
           onClick={() => {
             if (outputRunPath) {
-              applyRecentHandoff({
-                path: outputRunPath,
-                kind: "run",
-                projectRoot,
-                pushRecent,
-                setMode,
-                pendingSetters,
-              });
+              handoff(outputRunPath, "run");
             } else {
               setMode("output_browser");
             }

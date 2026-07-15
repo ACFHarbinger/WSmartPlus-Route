@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twelfth pass (§G.1 + §G.7 + §G.8 + §G.9 + §G.14 + §G.15 + §G.17 + §D.7)
+
+Two-hundred-and-twelfth pass closes the post-run Simulation Summary log-handoff gap
+left after pass 211 unified ``applyRecentHandoff`` without wiring completed-sim
+``.jsonl`` paths into Summary navigation. ``useRecentHandoff`` consolidates
+pending-path setters and the shared ``handoff(path, kind)`` helper across nav meshes,
+Command Palette, global drop, wsroute import, Output Browser, and Training Monitor.
+``LauncherNavMesh`` accepts ``simLogPath`` so **Simulation Summary →** and the
+Simulation Launcher auto-Summary countdown push recents and set ``pendingLogPath``.
+
+**React frontend**
+- ``useRecentHandoff`` / ``useRecentPendingSetters`` — shared handoff hook (§G.7 / §G.8 / §D.7)
+- ``LauncherNavMesh`` ``simLogPath`` — post-run Summary log handoff (§G.9 / §G.1 / §D.7)
+- Simulation Launcher — auto-nav + nav mesh ``simJsonlPath`` via ``extractJsonlPathFromLogLines`` (§G.9 / §D.7)
+- Process Monitor — sim panel Summary handoff from stdout ``.jsonl`` (§G.15 / §G.9 / §D.7)
+- Call-site migration to ``handoff()`` (nav meshes, palette, drop, import, Output Browser, Training Monitor) (§G.7–§G.15 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.9 / §G.1 post-run Simulation Summary log handoff checked
+- §G.7 / §G.8 shared ``useRecentHandoff`` hook parity checked
+- §D.7 Shared handoff hook relative-path brush/SQL recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-eleventh pass (§G.1 + §G.6 + §G.7 + §G.8 + §G.9–§G.14 + §G.16 + §G.17 + §D.7)
 
 Two-hundred-and-eleventh pass closes the studio-wide recent-file helper gap left after

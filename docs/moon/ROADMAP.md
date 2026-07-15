@@ -1367,6 +1367,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] All page-level ``pushRecent`` call sites migrated to ``makeRecentEntry`` (analytics, launchers, monitors, Config Editor) (§G.1 / §G.6 / §G.10 / §G.12 / §G.13 / §G.16 / §D.7)
 - [x] §G.7 / §G.8 / §G.14 studio-wide ``makeRecentEntry`` / ``applyRecentHandoff`` recent-file parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twelfth pass)**
+
+- [x] ``useRecentHandoff`` / ``useRecentPendingSetters`` — shared React hook for pending-path setters + ``handoff(path, kind)`` (§G.7 / §G.8 / §D.7)
+- [x] ``LauncherNavMesh`` ``simLogPath`` — post-run **Simulation Summary →** hands off ``.jsonl`` via ``pendingLogPath`` + ``makeRecentEntry`` (§G.9 / §G.1 / §D.7)
+- [x] Simulation Launcher — auto-Summary countdown and nav mesh use ``simJsonlPath`` handoff (§G.9 / §G.1 / §D.7)
+- [x] Process Monitor — sim live panel ``simLogPath`` from stdout ``.jsonl`` (§G.15 / §G.9 / §D.7)
+- [x] Nav meshes, Command Palette, global drop, wsroute import, Output Browser, Training Monitor checkpoint load migrate to ``useRecentHandoff`` (§G.7–§G.15 / §G.17 / §D.7)
+- [x] §G.9 / §G.1 post-run Simulation Summary log handoff + shared hook parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions

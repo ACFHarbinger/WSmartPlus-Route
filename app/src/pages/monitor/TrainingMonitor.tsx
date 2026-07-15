@@ -47,13 +47,9 @@ import {
   brushLogPathFromProcessLines,
   outputRunPathFromLogLines,
 } from "../../utils/outputRunPath";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import {
-  applyRecentHandoff,
-  makeRecentEntry,
-  type RecentPendingSetters,
-} from "../../utils/recentHandoff";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 import {
   findActiveLiveTrainProcessId,
   findRecentTrainOrHpoProcessId,
@@ -376,28 +372,12 @@ function RunPanel({
 // ── Main page
 export function TrainingMonitor() {
   const {
-    projectRoot,
-    setMode,
-    setPendingCheckpoint,
     effectiveTheme,
     pendingTrainingRunPath,
     setPendingTrainingRunPath,
-    setPendingLogPath,
-    setPendingRunPath,
-    setPendingCsvPath,
-    setPendingConfigPath,
   } = useAppStore();
+  const { projectRoot, pushRecent, handoff } = useRecentHandoff();
   const { logScale, runLabel: activeRunLabel } = useGlobalFiltersStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
-
-  const pendingSetters: RecentPendingSetters = {
-    pendingLogPath: setPendingLogPath,
-    pendingRunPath: setPendingRunPath,
-    pendingCsvPath: setPendingCsvPath,
-    pendingTrainingRunPath: setPendingTrainingRunPath,
-    pendingCheckpoint: setPendingCheckpoint,
-    pendingConfigPath: setPendingConfigPath,
-  };
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, TrainingMetricsRow[]>>({});
@@ -742,18 +722,9 @@ export function TrainingMonitor() {
 
   const handleLoadCheckpoint = useCallback(
     (checkpointPath: string) => {
-      applyRecentHandoff({
-        path: checkpointPath,
-        kind: "checkpoint",
-        projectRoot,
-        pushRecent,
-        setMode,
-        pendingSetters,
-      });
+      handoff(checkpointPath, "checkpoint");
     },
-    // pending setters are stable Zustand actions
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pushRecent, projectRoot, setMode]
+    [handoff]
   );
 
   if (!projectRoot) {

@@ -34,7 +34,7 @@ import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { useRecentFilesStore, recentKindFromPath } from "../../store/recentFiles";
+import { recentKindFromPath } from "../../store/recentFiles";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
@@ -48,11 +48,8 @@ import {
   parentRunBrushLabelFromCheckpointPath,
 } from "../../utils/checkpoints";
 import { portfolioRunLabel } from "../../utils/arrowPipeline";
-import {
-  applyRecentHandoff,
-  makeRecentEntry,
-  type RecentPendingSetters,
-} from "../../utils/recentHandoff";
+import { makeRecentEntry } from "../../utils/recentHandoff";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -119,33 +116,18 @@ function sortEntries(list: DirEntry[]): DirEntry[] {
 
 export function OutputBrowser() {
   const {
-    projectRoot,
     effectiveTheme: theme,
-    setMode,
-    setPendingLogPath,
     setPendingBenchmarkLogs,
     pendingRunPath,
     setPendingRunPath,
-    setPendingCheckpoint,
-    setPendingConfigPath,
-    setPendingCsvPath,
-    setPendingTrainingRunPath,
   } = useAppStore();
+  const { projectRoot, setMode, pushRecent, handoff } = useRecentHandoff();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
     logScale,
     setPolicy,
   } = useGlobalFiltersStore();
-
-  const pendingSetters: RecentPendingSetters = {
-    pendingLogPath: setPendingLogPath,
-    pendingRunPath: setPendingRunPath,
-    pendingCsvPath: setPendingCsvPath,
-    pendingTrainingRunPath: setPendingTrainingRunPath,
-    pendingCheckpoint: setPendingCheckpoint,
-    pendingConfigPath: setPendingConfigPath,
-  };
 
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
@@ -202,8 +184,6 @@ export function OutputBrowser() {
   useEffect(() => {
     if (outputPath) refresh();
   }, [outputPath, refresh]);
-
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const selectRun = useCallback(async (run: OutputDir) => {
     pushRecent(makeRecentEntry(run.path, "run", projectRoot, run.name));
@@ -381,63 +361,30 @@ export function OutputBrowser() {
 
   const openInSimSummary = useCallback(
     (path: string) => {
-      applyRecentHandoff({
-        path,
-        kind: "log",
-        projectRoot,
-        pushRecent,
-        setMode,
-        pendingSetters,
-      });
+      handoff(path, "log");
     },
-    // pending setters are stable Zustand actions
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pushRecent, projectRoot, setMode]
+    [handoff]
   );
 
   const loadInEvalRunner = useCallback(
     (path: string) => {
-      applyRecentHandoff({
-        path,
-        kind: "checkpoint",
-        projectRoot,
-        pushRecent,
-        setMode,
-        pendingSetters,
-      });
+      handoff(path, "checkpoint");
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pushRecent, projectRoot, setMode]
+    [handoff]
   );
 
   const openInConfigEditor = useCallback(
     (path: string) => {
-      applyRecentHandoff({
-        path,
-        kind: "config",
-        projectRoot,
-        pushRecent,
-        setMode,
-        pendingSetters,
-      });
+      handoff(path, "config");
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pushRecent, projectRoot, setMode]
+    [handoff]
   );
 
   const openInDataExplorer = useCallback(
     (path: string) => {
-      applyRecentHandoff({
-        path,
-        kind: "csv",
-        projectRoot,
-        pushRecent,
-        setMode,
-        pendingSetters,
-      });
+      handoff(path, "csv");
     },
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [pushRecent, projectRoot, setMode]
+    [handoff]
   );
 
   const toggleCompareRun = useCallback((runPath: string) => {
@@ -516,14 +463,7 @@ export function OutputBrowser() {
       });
       toast.success(`Extracted ${result.extracted_files.length} files`);
       if (result.log_path) {
-        applyRecentHandoff({
-          path: result.log_path,
-          kind: "log",
-          projectRoot,
-          pushRecent,
-          setMode,
-          pendingSetters,
-        });
+        handoff(result.log_path, "log");
       } else {
         toast.info("No .jsonl log found in bundle — browse extracted files manually");
       }
@@ -532,8 +472,7 @@ export function OutputBrowser() {
     } finally {
       setBundleExtracting(false);
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [viewingPath, viewingExt, pushRecent, projectRoot, setMode]);
+  }, [viewingPath, viewingExt, handoff]);
 
   const pickOutputDir = useCallback(async () => {
     const path = (await open({ directory: true })) as string | null;

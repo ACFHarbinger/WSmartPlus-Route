@@ -23,10 +23,12 @@ import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useSimLauncherStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import {
   collectPolicyVizFromLogLines,
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
+import { extractJsonlPathFromLogLines } from "../../utils/policyTelemetryTrends";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { collectLatestDayLogsByPolicy } from "../../utils/dayLog";
@@ -123,7 +125,8 @@ function PolicyLiveCard({
 }
 
 export function SimulationLauncher() {
-  const { projectRoot, setMode, effectiveTheme: theme } = useAppStore();
+  const { projectRoot, effectiveTheme: theme } = useAppStore();
+  const { setMode, handoff } = useRecentHandoff();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -236,15 +239,26 @@ export function SimulationLauncher() {
     prevSimStatusRef.current = simStatus;
   }, [simStatus]);
 
+  const liveLogLines = displayProc?.logLines ?? [];
+  const simJsonlPath = useMemo(
+    () => extractJsonlPathFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
+
   useEffect(() => {
     if (navCountdown === null) return;
     if (navCountdown <= 0) {
-      setMode("simulation_summary");
+      // Prefer handing off the completed ``.jsonl`` so Summary auto-loads (§G.9 / §G.1).
+      if (simJsonlPath) {
+        handoff(simJsonlPath, "log");
+      } else {
+        setMode("simulation_summary");
+      }
       return;
     }
     const id = setTimeout(() => setNavCountdown((n) => (n !== null ? n - 1 : null)), 1000);
     return () => clearTimeout(id);
-  }, [navCountdown, setMode]);
+  }, [navCountdown, setMode, handoff, simJsonlPath]);
 
   const launch = useCallback(async () => {
     if (!projectRoot || selectedPolicies.length === 0) return;
@@ -262,7 +276,6 @@ export function SimulationLauncher() {
     if (simNonce > 0) launch();
   }, [simNonce, launch]);
 
-  const liveLogLines = displayProc?.logLines ?? [];
   const liveProcStatus = displayProc?.status ?? null;
   const latestByPolicy = useMemo(
     () => collectLatestDayLogsByPolicy(liveLogLines),
@@ -480,6 +493,7 @@ export function SimulationLauncher() {
               showPostRun: isDone && simStatus === "completed",
               showOutputBrowser: isDone && simStatus === "completed",
               outputRunPath,
+              simLogPath: simJsonlPath,
             },
             navTrailing:
               isDone && simStatus === "completed" && navCountdown !== null ? (
