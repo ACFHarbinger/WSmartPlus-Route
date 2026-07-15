@@ -675,12 +675,14 @@ export function OutputBrowser() {
             </button>
             <div className="card flex-1 overflow-auto p-1">
               <div className="px-2 py-1 shrink-0">
-                <PathRunLabelChip
+                <OpenPathToolbar
                   path={runJsonlPath ?? selectedRun.path}
                   projectRoot={projectRoot}
-                  className="font-medium max-w-none"
-                  handoff={runJsonlPath ? "log" : "run"}
-                  handoffStoredLabel={selectedRun.name}
+                  kind={runJsonlPath ? "log" : "run"}
+                  storedLabel={selectedRun.name}
+                  chipClassName="font-medium max-w-none"
+                  labeled={!!runJsonlPath}
+                  labeledIconSize={12}
                 />
               </div>
               {renderEntries(entries)}
