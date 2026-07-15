@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fourteenth pass (§A.1)
+
+Hundred-fourteenth pass adds a shared ``RouteViz`` ECharts spatial panel for interactive
+route solution visualization, completing ROADMAP §A.1 Option A.
+
+**React frontend**
+- ``RouteViz`` — reusable analysis component: star depot, demand-sized tour nodes,
+  per-vehicle coloured edges, optional failure overlay (overflow / skipped high-fill)
+- ``routeViz.ts`` — ``buildRouteVizOption`` + ``nodeSizeFromDemand`` utilities
+- Simulation Monitor — refactored inline ``RouteMapChart`` to ``RouteViz``
+- Simulation Summary — day scrubber + multi-policy route comparison grid (§A.1 analysis view)
+- PNG/SVG export via ``ChartExportButtons`` (§G.7)
+
+**ROADMAP**
+- §A.1 Option A ECharts route viz checked (Option E already via ``DeckRouteMap``; B/C/D deferred)
+- §D.1 updated — ``RouteViz`` shared across Monitor + Summary
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirteenth pass (§A.2)
 
 Hundred-thirteenth pass adds WandB / TensorBoard attention heatmap logging during

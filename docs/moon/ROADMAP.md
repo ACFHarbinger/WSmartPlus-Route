@@ -43,6 +43,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Effort × Impact**: Medium effort / High impact
 
+**Delivered (§A.1 Option A — hundred-fourteenth pass)**
+
+- [x] ``RouteViz`` React component — shared ECharts spatial panel with star depot, demand-sized tour nodes, per-vehicle coloured edges, and optional failure overlay (overflow / skipped high-fill highlights)
+- [x] ``routeViz.ts`` — ``buildRouteVizOption`` utility; reuses ``resolveBinPositions`` + ``splitVehicleTourIndices``
+- [x] Simulation Monitor — refactored inline ``RouteMapChart`` to ``RouteViz`` (ECharts mode)
+- [x] Simulation Summary — day scrubber + multi-policy route comparison grid in analysis view
+- [x] PNG/SVG export via ``ChartExportButtons`` (§G.7)
+
+**Status**: §A.1 Option A complete — Option E (deck.gl PathLayer) already delivered via ``DeckRouteMap`` (§G.3 / §G.16); Options B/C/D deferred.
+
 ---
 
 ### §A.2 — Attention Map Visualization for Neural Decoders
@@ -190,8 +200,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1 ✅            |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1 ✅            |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1 ✅            |
-| §A.1 Option A (ECharts route viz)        | Medium    | High   | P2              |
-| §A.1 Option E (deck.gl PathLayer)        | High      | High   | P2              |
+| §A.1 Option A (ECharts route viz)        | Medium    | High   | P2 ✅            |
+| §A.1 Option E (deck.gl PathLayer)        | High      | High   | P2 ✅ (§G.3/§G.16) |
 | §A.4 Option B (PyHessian)                | High      | Medium | P3 `[Research]` |
 | §A.6 Option B (counterfactual engine)    | Very High | High   | P3 `[Research]` |
 
@@ -624,7 +634,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
 | §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (Training Hub + Monitor)    |
-| §D.1 Option A (ECharts route panel)         | Medium   | High   | P2 ✅ (Simulation Monitor)        |
+| §D.1 Option A (ECharts route panel)         | Medium   | High   | P2 ✅ (RouteViz + Summary)        |
 | §D.6 Option A (override table)              | Medium   | High   | P2 ✅ (all launchers)             |
 | §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 ✅ (§G.3 / §G.16)              |
 | §D.6 Option B (typed config form)           | High     | High   | P3                                |
@@ -1469,7 +1479,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

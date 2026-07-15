@@ -12,7 +12,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, ChevronUp, ChevronDown, Download, X } from "lucide-react";
+import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download, X } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -84,6 +84,7 @@ import {
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 
+import { RouteViz } from "../../components/analysis/RouteViz";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -1838,6 +1839,7 @@ export function SimulationSummary() {
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
   const [comparisonRuns, setComparisonRuns] = useState<ComparisonRun[]>([]);
+  const [routeVizDay, setRouteVizDay] = useState(1);
   const cityCompareChartRef = useRef<EChartsReact | null>(null);
 
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
@@ -1960,6 +1962,19 @@ export function SimulationSummary() {
     [entries, policy, sampleId]
   );
 
+  const routeVizDays = useMemo(
+    () => [...new Set(filteredEntries.map((e) => e.day))].sort((a, b) => a - b),
+    [filteredEntries]
+  );
+
+  useEffect(() => {
+    if (routeVizDays.length === 0) return;
+    setRouteVizDay((d) => {
+      if (routeVizDays.includes(d)) return d;
+      return routeVizDays[routeVizDays.length - 1];
+    });
+  }, [routeVizDays]);
+
   const stats = useMemo(() => aggregateByPolicy(filteredEntries), [filteredEntries]);
   const policies = useMemo(() => Object.keys(stats), [stats]);
 
@@ -1991,6 +2006,19 @@ export function SimulationSummary() {
     if (!brushed || brushed.length === 0) return corridor;
     return corridor.filter((p) => brushed.includes(p));
   }, [brushed, overflowMax, policies, stats]);
+
+  const routeVizPolicies = useMemo(() => {
+    if (effectiveBrushed?.length) return effectiveBrushed;
+    return policies;
+  }, [effectiveBrushed, policies]);
+
+  const routeVizEntries = useMemo(
+    () =>
+      routeVizPolicies
+        .map((p) => filteredEntries.find((e) => e.policy === p && e.day === routeVizDay))
+        .filter((e): e is DayLogEntry => e != null && (e.data.all_bin_coords?.length ?? 0) > 0),
+    [filteredEntries, routeVizPolicies, routeVizDay]
+  );
 
   const maxOverflow = useMemo(
     () => Math.max(...policies.map((p) => mean(stats[p].overflows)), 0),
@@ -2416,6 +2444,77 @@ export function SimulationSummary() {
                 style={{ height: 240 }}
                 onEvents={{ click: onCityChartClick }}
               />
+            </div>
+          )}
+
+          {routeVizDays.length > 0 && (
+            <div className="space-y-2">
+              <div className="flex items-center justify-between gap-2 flex-wrap">
+                <div>
+                  <p className="text-xs font-semibold text-gray-300">Route Solution (§A.1)</p>
+                  <p className="text-[10px] text-canvas-muted">
+                    ECharts spatial overlay — depot, demand-sized nodes, per-vehicle edges
+                  </p>
+                </div>
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => {
+                      const idx = routeVizDays.indexOf(routeVizDay);
+                      if (idx > 0) setRouteVizDay(routeVizDays[idx - 1]);
+                    }}
+                    disabled={routeVizDays.indexOf(routeVizDay) <= 0}
+                    className="btn-ghost p-1"
+                    title="Previous day"
+                  >
+                    <ChevronLeft size={14} />
+                  </button>
+                  <span className="text-xs font-mono text-gray-300 min-w-[4rem] text-center">
+                    Day {routeVizDay}
+                  </span>
+                  <button
+                    onClick={() => {
+                      const idx = routeVizDays.indexOf(routeVizDay);
+                      if (idx >= 0 && idx < routeVizDays.length - 1) {
+                        setRouteVizDay(routeVizDays[idx + 1]);
+                      }
+                    }}
+                    disabled={routeVizDays.indexOf(routeVizDay) >= routeVizDays.length - 1}
+                    className="btn-ghost p-1"
+                    title="Next day"
+                  >
+                    <ChevronRight size={14} />
+                  </button>
+                  <input
+                    type="range"
+                    min={routeVizDays[0]}
+                    max={routeVizDays[routeVizDays.length - 1]}
+                    value={routeVizDay}
+                    onChange={(e) => setRouteVizDay(Number(e.target.value))}
+                    className="w-28 accent-accent-primary"
+                  />
+                </div>
+              </div>
+              {routeVizEntries.length > 0 ? (
+                <div
+                  className={`grid gap-3 ${
+                    routeVizEntries.length > 1 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+                  }`}
+                >
+                  {routeVizEntries.map((entry) => (
+                    <RouteViz
+                      key={`${entry.policy}-${entry.day}`}
+                      data={entry.data}
+                      title="Route Solution"
+                      subtitle={`${parsePolicyLabel(entry.policy).selectionStrategy} · Day ${entry.day}`}
+                      filenameStem={`route-viz-day${entry.day}-${entry.policy}`}
+                    />
+                  ))}
+                </div>
+              ) : (
+                <p className="text-xs text-canvas-muted py-4 text-center card">
+                  No bin coordinates for day {routeVizDay} — run simulation with coordinate logging enabled.
+                </p>
+              )}
             </div>
           )}
 
