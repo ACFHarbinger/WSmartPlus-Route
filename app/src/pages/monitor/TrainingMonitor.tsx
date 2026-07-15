@@ -344,6 +344,9 @@ function RunPanel({
           path={run.path}
           projectRoot={projectRoot}
           kind="training"
+          label={run.name}
+          brushLabel={run.name}
+          storedLabel={run.name}
           className="flex-1 min-w-0"
         >
           <span className="text-xs text-canvas-muted shrink-0">{metrics.length} epochs</span>

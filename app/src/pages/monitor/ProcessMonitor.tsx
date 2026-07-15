@@ -64,6 +64,7 @@ import {
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
 
+import { dataExplorerPathFromGenData } from "../../utils/genDataPath";
 import {
   brushLogPathFromProcessLines,
   brushLogPathMapFromProcesses,
@@ -410,6 +411,11 @@ export function ProcessMonitor() {
     return outputRunPathFromLogLines(selectedProc.logLines);
   }, [selectedProc, selectedLauncherKind]);
 
+  const dataGenCsvPath = useMemo(() => {
+    if (!selectedProc || selectedLauncherKind !== "data_gen") return null;
+    return dataExplorerPathFromGenData(selectedProc.command, selectedProc.logLines);
+  }, [selectedProc, selectedLauncherKind]);
+
   const trainOutputRunPath = useMemo(() => {
     if (!selectedProc || !selectedIsTrain) return null;
     return outputRunPathFromLogLines(selectedProc.logLines);
@@ -631,6 +637,7 @@ export function ProcessMonitor() {
               showPostRun: selectedProc.status === "completed",
               showOutputBrowser: selectedProc.status === "completed",
               outputRunPath: launcherOutputRunPath,
+              csvPath: dataGenCsvPath,
             },
           }}
           footer={

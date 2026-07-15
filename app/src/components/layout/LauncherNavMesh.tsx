@@ -22,6 +22,12 @@ export interface LauncherNavMeshProps {
   /** Auto-select this run in Output Browser via ``pendingRunPath``. */
   outputRunPath?: string | null;
   /**
+   * Post-run data-gen CSV (sensor file or generated ``.csv``) for Data Explorer
+   * handoff via ``pendingCsvPath`` (§G.11 / §G.6 / §D.7). When unset, the shared
+   * control still navigates to Data Explorer mode-only.
+   */
+  csvPath?: string | null;
+  /**
    * Post-run sim log (``.jsonl``) for Simulation Summary / Monitor handoff via
    * ``pendingLogPath`` (§G.9 / §G.1 / §G.16 / §D.7). When unset, the shared
    * log-handoff control still navigates to each destination mode.
@@ -51,6 +57,7 @@ export function LauncherNavMesh({
   checkpointPath,
   showOutputBrowser = false,
   outputRunPath = null,
+  csvPath = null,
   simLogPath = null,
   className = "",
 }: LauncherNavMeshProps) {
@@ -78,7 +85,7 @@ export function LauncherNavMesh({
       )}
 
       {kind === "data_gen" && showPostRun && (
-        <PathHandoffButtons kind="csv" labeled iconSize={12} />
+        <PathHandoffButtons path={csvPath} kind="csv" labeled iconSize={12} />
       )}
 
       {kind === "eval" && (
