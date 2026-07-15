@@ -888,6 +888,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] HPO Tracker + Experiment Tracker — deduplicated inline live HPO header blocks (§G.18 / §G.17 / §D.7)
 - [x] Process Monitor — ``muted`` analytics subtitle header + badges-before-nav ordering parity (§G.15 / §D.7)
 
+**Delivered (§D.7 — hundred-fifty-fifth pass)**
+
+- [x] ``TrainHpoLivePanelHeader`` — ``overlaySelect`` prop for ``LIVE_KEY`` overlay-chart checkbox on Training Monitor (§G.17 / §A.2 / §A.4 / §D.7)
+- [x] Training Monitor — deduplicated inline live/recent header blocks; shared status icon + title + process id + rehydration badges + ``TrainHpoNavMesh`` row (§G.17 / §D.7)
+- [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow header row parity across all five pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1775,6 +1781,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Post-run health/attention banner counts via rehydrated entries on ``TrainHpoAnalyticsStrip`` (hundred-fifty-second pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``metric updates`` label on non-checkbox live/recent header + Training Hub accent-success styling (hundred-fifty-second pass; §G.10 / §G.17 / §D.7)
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.17 / §A.2 / §A.4 / §D.7)
+- [x] ``TrainHpoLivePanelHeader`` deduplicated live/recent header with ``overlaySelect`` ``LIVE_KEY`` checkbox parity (hundred-fifty-fifth pass; §G.17 / §A.2 / §A.4 / §D.7)
 
 ---
 

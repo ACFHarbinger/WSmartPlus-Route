@@ -8,6 +8,11 @@ import { TrainHpoRehydrationBadges } from "./TrainHpoRehydrationBadges";
 
 export type TrainHpoLiveStatus = "running" | "completed" | "failed" | string;
 
+export interface TrainHpoOverlaySelect {
+  checked: boolean;
+  onChange: () => void;
+}
+
 export interface TrainHpoLivePanelHeaderProps {
   status: TrainHpoLiveStatus;
   title: ReactNode;
@@ -16,6 +21,8 @@ export interface TrainHpoLivePanelHeaderProps {
   healthCount?: number;
   attentionCount?: number;
   navMesh: TrainHpoNavMeshProps;
+  /** Optional overlay-chart checkbox (Training Monitor LIVE_KEY selection). */
+  overlaySelect?: TrainHpoOverlaySelect;
   /** Pulse icon while running: radio (monitor pages) or activity (Training Hub). */
   runningIcon?: "radio" | "activity";
   /** inline = flex-wrap row; split = justify-between title group vs nav (Training Hub). */
@@ -48,6 +55,35 @@ function StatusIcon({
   return <XCircle size={size} className="text-accent-danger shrink-0" />;
 }
 
+function InlineTitleRow({
+  status,
+  title,
+  processId,
+  badges,
+  runningIcon,
+  iconSize,
+}: {
+  status: TrainHpoLiveStatus;
+  title: ReactNode;
+  processId?: string;
+  badges: ReactNode;
+  runningIcon: "radio" | "activity";
+  iconSize: number;
+}) {
+  return (
+    <>
+      <StatusIcon status={status} runningIcon={runningIcon} size={iconSize} />
+      <p className="text-sm text-accent-success font-mono">{title}</p>
+      {processId && (
+        <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">
+          {processId}
+        </span>
+      )}
+      {badges}
+    </>
+  );
+}
+
 export function TrainHpoLivePanelHeader({
   status,
   title,
@@ -56,6 +92,7 @@ export function TrainHpoLivePanelHeader({
   healthCount = 0,
   attentionCount = 0,
   navMesh,
+  overlaySelect,
   runningIcon = "radio",
   layout = "inline",
   titleTone = "mono",
@@ -100,16 +137,32 @@ export function TrainHpoLivePanelHeader({
     );
   }
 
+  const inlineRow = (
+    <InlineTitleRow
+      status={status}
+      title={title}
+      processId={processId}
+      badges={badges}
+      runningIcon={runningIcon}
+      iconSize={iconSize}
+    />
+  );
+
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
-      <StatusIcon status={status} runningIcon={runningIcon} size={iconSize} />
-      <p className="text-sm text-accent-success font-mono">{title}</p>
-      {processId && (
-        <span className="text-xs text-canvas-muted font-mono truncate flex-1">
-          {processId}
-        </span>
+      {overlaySelect ? (
+        <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer flex-1 min-w-0">
+          <input
+            type="checkbox"
+            checked={overlaySelect.checked}
+            onChange={overlaySelect.onChange}
+            className="accent-accent-primary"
+          />
+          {inlineRow}
+        </label>
+      ) : (
+        inlineRow
       )}
-      {badges}
       {nav}
     </div>
   );
