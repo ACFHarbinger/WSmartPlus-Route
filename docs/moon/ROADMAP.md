@@ -1191,11 +1191,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Output Browser: drag-drop `.wsroute` bundle onto file viewer via Tauri `onDragDropEvent` (`useFileDrop` hook); inspects manifest without directory picker
 - [x] Global file drop: `useGlobalFileDrop` in `Layout` extracts `.wsroute` to `assets/output/.imports/` or opens `.jsonl` logs in Simulation Summary from anywhere in the app
 - [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` + `simulation_arrow_sidecar_row_parity` Rust unit tests — create bundle → extract → verify `.jsonl` log content and Arrow sidecar row counts match parsed entries (§G.8)
-- [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts (partial — signed distributables deferred)
-- [x] App version command: `system::get_app_version` surfaced in Settings About (partial — Tauri updater plugin deferred)
-- [x] Update check command: `system::check_for_updates` fetches JSON manifest from `WSMART_UPDATE_URL`; Settings "Check for Updates" button (partial — Tauri updater plugin / signed releases deferred)
+- [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts; `createUpdaterArtifacts: true` emits `.sig` sidecars (partial — code-signing keys deferred)
+- [x] App version command: `system::get_app_version` surfaced in Settings About (§G.8 / §G.19)
+- [x] Update check command: `system::check_for_updates` uses Tauri updater plugin when `WSMART_UPDATER_PUBKEY` + `WSMART_UPDATE_URL` are set; falls back to JSON manifest version compare; Settings "Check for Updates" + conditional "Download & Install" button (§G.8)
+- [x] Signed update install: `system::install_app_update` downloads/installs pending signed update via `tauri-plugin-updater`; `updater:default` capability; example manifest at `app/updater.example.json` (partial — release signing keys + CDN hosting deferred)
 
-**Status**: §G.8 complete — signed distributables and Tauri updater plugin deferred to release engineering.
+**Status**: §G.8 complete — updater plugin wired; code-signing keys and hosted signed releases deferred to release engineering.
 
 ---
 
@@ -1417,7 +1418,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Remaining release-engineering items (signed distributables, Tauri updater plugin) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |
@@ -1426,7 +1427,7 @@ All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the pri
 | ML introspection (§G.5) | ✅ |
 | OLAP explorer (§G.6) | ✅ |
 | UX polish + export surface (§G.7) | ✅ |
-| Data packaging (§G.8) | ✅ (signed releases deferred) |
+| Data packaging (§G.8) | ✅ (signing keys + CDN deferred) |
 | Launchers + monitors (§G.9–§G.15) | ✅ |
 | Streamlit parity pages (§G.16–§G.18) | ✅ |
 | Settings + onboarding (§G.19) | ✅ |

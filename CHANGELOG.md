@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighth pass (§G.8)
+
+Hundred-eighth pass wires the Tauri updater plugin for signed auto-updates, adds
+Settings install UX, and polishes system-theme affordances from the previous pass.
+
+**Rust backend**
+- `tauri-plugin-updater` — desktop plugin init; runtime pubkey from `WSMART_UPDATER_PUBKEY`
+- `check_for_updates` — signed updater path when pubkey + URL configured; JSON manifest fallback
+- `install_app_update` — download/install pending signed update + app restart
+- `PendingUpdate` state — holds discovered update between check and install
+- `tauri.conf.json` — `createUpdaterArtifacts: true`; `updater:default` capability
+
+**React frontend**
+- Settings — "Download & Install" when signed update available; release notes in toast
+- Settings — effective theme hint when System appearance selected; draft sync on external theme change
+- Command palette — "Cycle Theme (Dark / Light / System)" label
+
+**Assets**
+- `app/updater.example.json` — example static Tauri updater manifest
+
+**ROADMAP**
+- §G.8 Tauri updater plugin + signed install flow checked (signing keys + CDN deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventh pass (§D.3 / §G.19)
 
 Hundred-seventh pass adds system theme following (``prefers-color-scheme``), marks all

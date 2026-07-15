@@ -1,0 +1,23 @@
+{
+  "version": "0.2.0",
+  "notes": "Example Tauri updater manifest for WSmart-Route Studio.",
+  "pub_date": "2026-07-15T00:00:00Z",
+  "platforms": {
+    "linux-x86_64": {
+      "signature": "PASTE_CONTENTS_OF_.sig_FILE",
+      "url": "https://releases.example.com/wsmart-route-studio_0.2.0_amd64.AppImage"
+    },
+    "windows-x86_64": {
+      "signature": "PASTE_CONTENTS_OF_.sig_FILE",
+      "url": "https://releases.example.com/wsmart-route-studio_0.2.0_x64-setup.exe"
+    },
+    "darwin-x86_64": {
+      "signature": "PASTE_CONTENTS_OF_.sig_FILE",
+      "url": "https://releases.example.com/wsmart-route-studio_0.2.0_x64.app.tar.gz"
+    },
+    "darwin-aarch64": {
+      "signature": "PASTE_CONTENTS_OF_.sig_FILE",
+      "url": "https://releases.example.com/wsmart-route-studio_0.2.0_aarch64.app.tar.gz"
+    }
+  }
+}

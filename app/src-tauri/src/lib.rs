@@ -2,6 +2,11 @@ mod commands;
 
 use commands::{arrow, data, hpo, mlflow, policies, process, sim_watcher, system, tensor, zenml};
 
+#[cfg(desktop)]
+use std::sync::Mutex;
+
+use tauri::Manager;
+
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
     tauri::Builder::default()
@@ -9,6 +14,21 @@ pub fn run() {
         .plugin(tauri_plugin_store::Builder::default().build())
         .plugin(tauri_plugin_dialog::init())
         .plugin(tauri_plugin_shell::init())
+        .setup(|app| {
+            #[cfg(desktop)]
+            {
+                let mut updater = tauri_plugin_updater::Builder::new();
+                if let Ok(pubkey) = std::env::var("WSMART_UPDATER_PUBKEY") {
+                    let trimmed = pubkey.trim();
+                    if !trimmed.is_empty() {
+                        updater = updater.pubkey(trimmed);
+                    }
+                }
+                app.handle().plugin(updater.build())?;
+                app.manage(system::PendingUpdate(Mutex::new(None)));
+            }
+            Ok(())
+        })
         .invoke_handler(tauri::generate_handler![
             // Data loading
             arrow::csv_to_arrow_ipc,
@@ -61,6 +81,7 @@ pub fn run() {
             system::dump_hydra_config,
             system::get_app_version,
             system::check_for_updates,
+            system::install_app_update,
         ])
         .run(tauri::generate_context!())
         .expect("error while running WSmart-Route Studio");

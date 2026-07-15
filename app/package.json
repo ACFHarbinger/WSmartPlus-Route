@@ -26,6 +26,7 @@
     "@tauri-apps/plugin-notification": "^2",
     "@tauri-apps/plugin-shell": "^2",
     "@tauri-apps/plugin-store": "^2",
+    "@tauri-apps/plugin-updater": "^2.10.1",
     "apache-arrow": "^21.1.0",
     "echarts": "^5",
     "echarts-for-react": "^3",
