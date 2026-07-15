@@ -25,7 +25,9 @@ import {
 } from "../../utils/chartLogScale";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useDataGenStore } from "../../store/launchers";
+import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import type { DatasetPreviewStats, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp", "all"] as const;
@@ -240,6 +242,14 @@ export function DataGeneration() {
   useEffect(() => {
     if (dataGenNonce > 0) launch();
   }, [dataGenNonce, launch]);
+
+  const liveLogLines = useProcessStore((s) =>
+    liveProcessId ? s.processes[liveProcessId]?.logLines ?? [] : []
+  );
+  const outputRunPath = useMemo(
+    () => outputRunPathFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
 
   return (
     <div className="space-y-4 max-w-2xl">
@@ -561,6 +571,7 @@ export function DataGeneration() {
                 hideSelf
                 showPostRun={isDone && runStatus === "completed"}
                 showOutputBrowser={isDone && runStatus === "completed"}
+                outputRunPath={outputRunPath}
               />
             </div>
             {!isDone && liveProcessId && (

@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-third pass (§G.14 + §G.9 + §G.11 + §G.15 + §D.7)
+
+Hundred-forty-third pass completes the launcher → Output Browser workflow by deep-linking
+to the completed run directory parsed from process stdout, and closes Process Monitor
+Output Browser parity for simulation and data-generation processes.
+
+**React frontend**
+- ``outputRunPath.ts`` — ``outputRunPathFromJsonl`` / ``outputRunPathFromLogLines`` derive
+  assets/output run roots from ``.jsonl`` paths in stdout (§G.14 / §G.9 / §G.15)
+- ``LauncherNavMesh`` / ``TrainHpoNavMesh`` — ``outputRunPath`` prop sets ``pendingRunPath``
+  before navigating to Output Browser (§G.14 / §D.7)
+- Simulation Launcher + Data Generation — post-run Output Browser auto-selects the completed
+  run when a log path is present in stdout (§G.9 / §G.11 / §G.14)
+- Process Monitor — ``Output Browser →`` on completed ``test_sim`` / ``gen_data`` processes
+  with the same run deep-link (§G.15 / §G.14)
+- Output Browser — refreshes the run index when ``pendingRunPath`` is set but not yet listed
+  (§G.14)
+
+**ROADMAP**
+- §G.14 ``outputRunPath`` + ``pendingRunPath`` launcher deep-link checked
+- §G.9 Simulation Launcher Output Browser run auto-select checked
+- §G.11 Data Generation Output Browser run auto-select checked
+- §G.15 Process Monitor sim / data-gen Output Browser shortcuts checked
+- §D.7 ``outputRunPath`` navigation mesh checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-second pass (§G.12 + §G.14 + §G.9 + §G.11 + §D.7)
 
 Hundred-forty-second pass closes the reverse eval workflow bridge from Output Browser to

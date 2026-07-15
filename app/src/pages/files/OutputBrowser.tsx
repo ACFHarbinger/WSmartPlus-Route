@@ -270,13 +270,17 @@ export function OutputBrowser() {
   }, [pushRecent, setRunLabel]);
 
   useEffect(() => {
-    if (!pendingRunPath || runs.length === 0) return;
+    if (!pendingRunPath) return;
     const run = runs.find((r) => r.path === pendingRunPath);
     if (run) {
       void selectRun(run);
       setPendingRunPath(null);
+      return;
     }
-  }, [pendingRunPath, runs, setPendingRunPath, selectRun]);
+    if (!loading && outputPath) {
+      void refresh();
+    }
+  }, [pendingRunPath, runs, loading, outputPath, setPendingRunPath, selectRun, refresh]);
 
   const toggleDir = useCallback(async (entry: DirEntry) => {
     setExpandedDirs((prev) => {

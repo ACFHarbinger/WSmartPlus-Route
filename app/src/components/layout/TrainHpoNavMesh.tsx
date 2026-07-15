@@ -10,6 +10,8 @@ export interface TrainHpoNavMeshProps {
   showHpoLinks?: boolean;
   /** Show Output Browser shortcut after a successful run. */
   showOutputBrowser?: boolean;
+  /** Auto-select this run in Output Browser via ``pendingRunPath``. */
+  outputRunPath?: string | null;
   /** When false, only Process Monitor (+ optional output browser) are shown. */
   showTrainLinks?: boolean;
   className?: string;
@@ -19,16 +21,20 @@ export function TrainHpoNavMesh({
   hideHub = false,
   showHpoLinks = false,
   showOutputBrowser = false,
+  outputRunPath = null,
   showTrainLinks = true,
   className = "",
 }: TrainHpoNavMeshProps) {
-  const setMode = useAppStore((s) => s.setMode);
+  const { setMode, setPendingRunPath } = useAppStore();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
       {showOutputBrowser && (
         <button
-          onClick={() => setMode("output_browser")}
+          onClick={() => {
+            if (outputRunPath) setPendingRunPath(outputRunPath);
+            setMode("output_browser");
+          }}
           className="btn-ghost text-xs text-accent-success"
         >
           Output Browser →
