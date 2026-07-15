@@ -35,6 +35,7 @@ import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
 import { findRunJsonl } from "../../utils/outputRunLogs";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { downloadParquetFromCsv } from "../../utils/tableExport";
 import { filterCheckpointEntries, isCheckpointEntry } from "../../utils/checkpoints";
@@ -117,7 +118,6 @@ export function OutputBrowser() {
     runLabel: activeRunLabel,
     logScale,
     setPolicy,
-    setRunLabel,
   } = useGlobalFiltersStore();
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
@@ -148,6 +148,8 @@ export function OutputBrowser() {
   const [viewingCheckpoint, setViewingCheckpoint] = useState<DirEntry | null>(null);
 
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
+  const brushLogPath = selectedRun ? (runJsonlPath ?? selectedRun.name) : null;
+  const derivedRunLabel = useLogPathRunLabelBrush(brushLogPath);
 
   const refresh = useCallback(async () => {
     if (!outputPath) return;
@@ -238,7 +240,6 @@ export function OutputBrowser() {
       const jsonlPath = await findRunJsonl(run.path);
       if (jsonlPath) {
         setRunJsonlPath(jsonlPath);
-        setRunLabel(runLabelFromPath(jsonlPath));
         try {
           const text = await invoke<string>("read_text_file", { path: jsonlPath });
           const acc: Record<string, { overflows: number[]; kgkm: number[]; profit: number[] }> = {};
@@ -261,13 +262,11 @@ export function OutputBrowser() {
           })).sort((a, b) => a.overflows - b.overflows);
           if (kpi.length > 0) setRunKpi(kpi);
         } catch { /* KPI optional */ }
-      } else {
-        setRunLabel(runLabelFromPath(run.name));
       }
     } catch (err) {
       toast.error("Failed to list run directory", { description: String(err) });
     }
-  }, [pushRecent, setRunLabel]);
+  }, [pushRecent]);
 
   useEffect(() => {
     if (!pendingRunPath) return;
@@ -729,10 +728,7 @@ export function OutputBrowser() {
             theme={theme}
             logScale={logScale}
             initialPolicy={activePolicy}
-            initialRunLabel={
-              activeRunLabel ??
-              (runJsonlPath ? runLabelFromPath(runJsonlPath) : runLabelFromPath(selectedRun.name))
-            }
+            initialRunLabel={derivedRunLabel ?? activeRunLabel}
           />
         )}
 
