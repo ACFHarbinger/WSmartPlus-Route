@@ -216,6 +216,7 @@ exclude = [
     "logic/src/pipeline/simulations/wsmart_bin_analysis/notebooks",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/export/notebooks",
     "assets/",
+    "archive/",
 ]
 extend-exclude = [
     "logic/src/pipeline/simulations/wsmart_bin_analysis/notebooks",
