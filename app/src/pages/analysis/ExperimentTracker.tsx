@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
-import { Download, ExternalLink, Radio, RefreshCw } from "lucide-react";
+import { Activity, CheckCircle, Download, ExternalLink, Radio, RefreshCw, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
@@ -16,7 +16,9 @@ import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { findActiveHpoProcessId } from "../../utils/trainingProcess";
+import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
+import { findRecentHpoProcessId } from "../../utils/trainingProcess";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
 import {
@@ -69,23 +71,34 @@ export function ExperimentTracker() {
   const [mlflowUiUrl, setMlflowUiUrl] = useState(DEFAULT_MLFLOW_UI);
   const chartRef = useRef<ReactECharts>(null);
 
-  const activeHpoId = useMemo(() => findActiveHpoProcessId(processes), [processes]);
-  const activeHpoProc = activeHpoId ? processes[activeHpoId] : null;
+  const recentHpoId = useMemo(() => findRecentHpoProcessId(processes), [processes]);
+  const recentHpoProc = recentHpoId ? processes[recentHpoId] : null;
+  const recentHpoRunning = recentHpoProc?.status === "running";
+  const recentHpoDone = recentHpoProc != null && recentHpoProc.status !== "running";
+
+  const outputRunPath = useMemo(
+    () => (recentHpoProc ? outputRunPathFromLogLines(recentHpoProc.logLines) : null),
+    [recentHpoProc]
+  );
+  const trainingRunPath = useMemo(
+    () => (recentHpoProc ? trainingRunPathFromLogLines(recentHpoProc.logLines) : null),
+    [recentHpoProc]
+  );
 
   const liveHealthEntries = useMemo(
     () =>
-      activeHpoProc
-        ? collectTrainingHealthFromLogLines(activeHpoProc.logLines)
+      recentHpoProc
+        ? collectTrainingHealthFromLogLines(recentHpoProc.logLines)
         : [],
-    [activeHpoProc]
+    [recentHpoProc]
   );
 
   const liveAttentionEntries = useMemo(
     () =>
-      activeHpoProc
-        ? collectAttentionVizFromLogLines(activeHpoProc.logLines)
+      recentHpoProc
+        ? collectAttentionVizFromLogLines(recentHpoProc.logLines)
         : [],
-    [activeHpoProc]
+    [recentHpoProc]
   );
 
   const refreshRuns = useCallback(async () => {
@@ -256,17 +269,41 @@ export function ExperimentTracker() {
     <div className="space-y-4">
       <GlobalFilterBar showLogScale />
 
-      {activeHpoId && activeHpoProc && (
+      {recentHpoId && recentHpoProc && (
         <div className="card border-accent-success/30 space-y-3">
           <div className="flex items-center gap-2 flex-wrap">
-            <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
-            <p className="text-sm text-accent-success font-mono">Live HPO</p>
+            {recentHpoRunning ? (
+              <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
+            ) : recentHpoProc.status === "completed" ? (
+              <CheckCircle size={13} className="text-accent-success shrink-0" />
+            ) : (
+              <XCircle size={13} className="text-accent-danger shrink-0" />
+            )}
+            <p className="text-sm text-accent-success font-mono">
+              {recentHpoRunning
+                ? "Live HPO"
+                : recentHpoProc.status === "completed"
+                  ? "HPO Complete"
+                  : `HPO ${recentHpoProc.status}`}
+            </p>
             <span className="text-xs text-canvas-muted font-mono truncate flex-1">
-              {activeHpoId}
+              {recentHpoId}
             </span>
-            <TrainHpoNavMesh showHpoLinks />
+            <TrainHpoNavMesh
+              showHpoLinks
+              showOutputBrowser={recentHpoDone && recentHpoProc.status === "completed"}
+              outputRunPath={outputRunPath}
+              trainingRunPath={trainingRunPath}
+            />
           </div>
-          <LiveTrainProgressBar processId={activeHpoId} />
+          {recentHpoRunning ? (
+            <LiveTrainProgressBar processId={recentHpoId} />
+          ) : (
+            <div className="flex items-center gap-2 text-xs text-canvas-muted">
+              <Activity size={12} />
+              Post-run shortcuts — open Output Browser or Training Monitor for this sweep
+            </div>
+          )}
           <TrainingHealthPanel entries={liveHealthEntries} />
           <RuntimeAttentionPanel
             entries={liveAttentionEntries}

@@ -41,6 +41,38 @@ export function findActiveHpoProcessId(
   return running[0]?.[0] ?? null;
 }
 
+function isRecentTerminalStatus(status: ProcessEntry["status"]): boolean {
+  return status === "completed" || status === "failed" || status === "cancelled";
+}
+
+/** Newest train/HPO process that is running or recently finished (for post-run deep-links). */
+export function findRecentTrainOrHpoProcessId(
+  processes: Record<string, ProcessEntry>
+): string | null {
+  const candidates = Object.entries(processes)
+    .filter(
+      ([id, proc]) =>
+        (proc.status === "running" || isRecentTerminalStatus(proc.status)) &&
+        isTrainOrHpoProcess(id, proc.command)
+    )
+    .sort((a, b) => b[1].startTime - a[1].startTime);
+  return candidates[0]?.[0] ?? null;
+}
+
+/** Newest HPO process that is running or recently finished (HPO Tracker / Experiment Tracker). */
+export function findRecentHpoProcessId(
+  processes: Record<string, ProcessEntry>
+): string | null {
+  const candidates = Object.entries(processes)
+    .filter(
+      ([id, proc]) =>
+        (proc.status === "running" || isRecentTerminalStatus(proc.status)) &&
+        isHpoProcess(id, proc.command)
+    )
+    .sort((a, b) => b[1].startTime - a[1].startTime);
+  return candidates[0]?.[0] ?? null;
+}
+
 export function liveTrainProcessLabel(id: string): string {
   return id.startsWith("hpo_") ? "Live HPO" : "Live Training";
 }
