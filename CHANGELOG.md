@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-third pass (§G.1 / §G.2 / §G.7)
+
+Ninety-third pass fixes grouped kg/km error-bar metric keys and extends log-scale
+whiskers to hierarchy drill-down profit bars.
+
+**React frontend**
+- `GroupedMetricBarChart` — ``metricKey`` prop; kg/km groups pass ``"kg/km"`` so
+  ``errorBarBounds`` uses log axis (not profit) when global ``logScale`` on
+- `PolicyHierarchyPanel` — drill-down profit bars clamp to log floor; Empirical↔Gamma
+  spread whiskers via ``errorBarBounds`` on log-scale profit x-axis
+
+**ROADMAP**
+- §G.1.1 grouped metric bar whiskers on log axis checked (stale "hidden" text removed)
+- §G.2 hierarchy drill-down error-bar whiskers log-scale checked (partial marker removed)
+- §G.7 Global log-scale propagation includes hierarchy drill-down + grouped metric whiskers
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-second pass (§G.1 / §G.5 / §G.7)
 
 Ninety-second pass enables log-scale error-bar whiskers on bar and efficiency

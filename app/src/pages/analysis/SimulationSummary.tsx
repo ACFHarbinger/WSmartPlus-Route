@@ -272,6 +272,7 @@ function GroupedMetricBarChart({
   showErrorBars,
   logScale = false,
   useSymlog = false,
+  metricKey = "profit",
   exportName,
 }: {
   title: string;
@@ -281,6 +282,7 @@ function GroupedMetricBarChart({
   showErrorBars?: boolean;
   logScale?: boolean;
   useSymlog?: boolean;
+  metricKey?: string;
   exportName: string;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
@@ -330,8 +332,8 @@ function GroupedMetricBarChart({
                   }
                 ) => {
                   const g = groups[params.dataIndex];
-                  const metricKey = symlogMode ? "overflows" : "profit";
-                  const bounds = errorBarBounds(g.mean, g.std, metricKey, logScale, symlogMode);
+                  const errKey = symlogMode ? "overflows" : metricKey;
+                  const bounds = errorBarBounds(g.mean, g.std, errKey, logScale, symlogMode);
                   const x = api.coord([params.dataIndex, bounds.center])[0];
                   const yTop = api.coord([params.dataIndex, bounds.high])[1];
                   const yBot = api.coord([params.dataIndex, bounds.low])[1];
@@ -364,7 +366,7 @@ function GroupedMetricBarChart({
           : []),
       ],
     }),
-    [groups, labels, color, showErrorBars, logScale, symlogMode]
+    [groups, labels, color, showErrorBars, logScale, symlogMode, metricKey]
   );
 
   return (
@@ -1138,7 +1140,7 @@ function PolicyHierarchyPanel({
               id: "hierarchy-drill",
               type: "bar" as const,
               data: drillChildren.map((c) => ({
-                value: c.profit,
+                value: logScale ? Math.max(c.profit, 0.001) : c.profit,
                 name: c.name,
                 itemStyle: {
                   opacity: c.policies.some((p) => isHighlighted(p, brushed ?? null)) ? 1 : 0.25,
@@ -1160,9 +1162,10 @@ function PolicyHierarchyPanel({
                     ) => {
                       const c = drillChildren[params.dataIndex];
                       const err = Math.max(c.profitStd, c.distSpread);
-                      const y = api.coord([c.profit, params.dataIndex])[1];
-                      const xLeft = api.coord([Math.max(0, c.profit - err), params.dataIndex])[0];
-                      const xRight = api.coord([c.profit + err, params.dataIndex])[0];
+                      const bounds = errorBarBounds(c.profit, err, "profit", logScale);
+                      const y = api.coord([bounds.center, params.dataIndex])[1];
+                      const xLeft = api.coord([bounds.low, params.dataIndex])[0];
+                      const xRight = api.coord([bounds.high, params.dataIndex])[0];
                       const cap = 4;
                       return {
                         type: "group",
@@ -2356,6 +2359,7 @@ export function SimulationSummary() {
                 color="#34d399"
                 showErrorBars={showErrorBars}
                 logScale={logScale}
+                metricKey="kg/km"
                 exportName="summary-kgkm-city"
               />
             ) : (
@@ -2366,6 +2370,7 @@ export function SimulationSummary() {
                 color="#34d399"
                 showErrorBars={showErrorBars}
                 logScale={logScale}
+                metricKey="kg/km"
                 exportName="summary-kgkm-grouped"
               />
             )}
