@@ -747,7 +747,12 @@ export function TrainingMonitor() {
         <div className="card text-canvas-muted text-sm flex flex-wrap items-center gap-1">
           <span>No training runs found in</span>
           {logsPath ? (
-            <PathRunLabelChip path={logsPath} projectRoot={projectRoot} label="logs" />
+            <OpenPathToolbar
+              path={logsPath}
+              projectRoot={projectRoot}
+              label="logs"
+              handoff={false}
+            />
           ) : null}
           <span>.</span>
         </div>

@@ -7,7 +7,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Database, Download, RefreshCw } from "lucide-react";
 import { ChartExportButtons } from "../common/ChartExportButtons";
-import { PathRunLabelChip } from "../common/PathRunLabelChip";
+import { OpenPathToolbar } from "../common/OpenPathToolbar";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import type {
@@ -211,10 +211,11 @@ export function PolicyTelemetryTrendsPanel({
             </span>
           </p>
           {data?.db_path && (
-            <PathRunLabelChip
+            <OpenPathToolbar
               path={data.db_path}
               projectRoot={projectRoot}
-              className="mt-0.5 max-w-xl"
+              chipClassName="mt-0.5 max-w-xl"
+              handoff={false}
             />
           )}
         </div>

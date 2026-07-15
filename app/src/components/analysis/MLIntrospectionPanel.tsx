@@ -15,7 +15,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import { PathRunLabelChip } from "../common/PathRunLabelChip";
+import { OpenPathToolbar } from "../common/OpenPathToolbar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
@@ -656,7 +656,12 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
           </button>
         )}
         {archivePath && (
-          <PathRunLabelChip path={archivePath} projectRoot={projectRoot} className="max-w-md" />
+          <OpenPathToolbar
+            path={archivePath}
+            projectRoot={projectRoot}
+            chipClassName="max-w-md"
+            handoff={false}
+          />
         )}
       </div>
 

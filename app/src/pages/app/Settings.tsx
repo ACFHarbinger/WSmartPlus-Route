@@ -17,7 +17,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload, RefreshCw, Compass } from "lucide-react";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { useStartupTiming } from "../../hooks/useStartupTiming";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
@@ -239,7 +239,11 @@ export function Settings() {
           </button>
         </div>
         {draftRoot.trim() ? (
-          <PathRunLabelChip path={draftRoot.trim()} className="max-w-full" />
+          <OpenPathToolbar
+            path={draftRoot.trim()}
+            chipClassName="max-w-full"
+            handoff={false}
+          />
         ) : null}
         {!draftRoot && (
           <p className="text-xs text-accent-warning">
@@ -270,10 +274,11 @@ export function Settings() {
           spellCheck={false}
         />
         {draftPython.trim() ? (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={draftPython.trim()}
             projectRoot={draftRoot.trim() || null}
-            className="max-w-full"
+            chipClassName="max-w-full"
+            handoff={false}
           />
         ) : null}
         <ValidationBadge v={pythonValidation} />
@@ -355,10 +360,11 @@ export function Settings() {
           </button>
         </div>
         {importSettingsPath.trim() ? (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={importSettingsPath.trim()}
             projectRoot={draftRoot.trim() || null}
-            className="max-w-full"
+            chipClassName="max-w-full"
+            handoff={false}
           />
         ) : null}
       </div>
@@ -399,10 +405,10 @@ export function Settings() {
           </div>
         )}
         {arrowBenchPath.trim() ? (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={arrowBenchPath.trim()}
             projectRoot={draftRoot.trim() || null}
-            className="max-w-full"
+            chipClassName="max-w-full"
           />
         ) : null}
         <button
