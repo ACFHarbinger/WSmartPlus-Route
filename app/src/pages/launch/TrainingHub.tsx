@@ -367,8 +367,11 @@ export function TrainingHub() {
 
   const evalResult = useMemo(() => {
     if (mode !== "eval" || !displayProc) return null;
-    return collectEvalResultFromLogLines(liveLogLines, evalCheckpointName);
-  }, [mode, displayProc, liveLogLines, evalCheckpointName]);
+    const result = collectEvalResultFromLogLines(liveLogLines, evalCheckpointName);
+    const trimmed = checkpointPath.trim();
+    if (trimmed) result.checkpointPath = trimmed;
+    return result;
+  }, [mode, displayProc, liveLogLines, evalCheckpointName, checkpointPath]);
 
   const openEvalInAnalytics = useCallback(() => {
     if (!evalResult || !hasEvalMetrics(evalResult)) return;

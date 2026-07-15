@@ -381,7 +381,10 @@ export function ProcessMonitor() {
 
   const evalResult = useMemo(() => {
     if (!selectedProc || !selectedIsEval) return null;
-    return collectEvalResultFromLogLines(selectedProc.logLines, evalCheckpointName);
+    const result = collectEvalResultFromLogLines(selectedProc.logLines, evalCheckpointName);
+    const path = checkpointPathFromEvalCommand(selectedProc.command);
+    if (path) result.checkpointPath = path;
+    return result;
   }, [selectedProc, selectedIsEval, evalCheckpointName]);
 
   const evalCheckpointPath = useMemo(() => {

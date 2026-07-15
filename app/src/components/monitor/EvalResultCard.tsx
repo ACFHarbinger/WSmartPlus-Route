@@ -2,7 +2,9 @@
  * Shared eval result card for Process Monitor embedded panels (§G.12 / §G.15 / §D.7).
  */
 import { BarChart3 } from "lucide-react";
+import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import type { EvalResult } from "../../utils/evalResults";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalResultKpiRow } from "./EvalResultKpiRow";
 
 export interface EvalResultCardProps {
@@ -19,7 +21,16 @@ export function EvalResultCard({
   return (
     <div className={`card space-y-2 ${className}`.trim()}>
       <div className="flex items-center justify-between gap-2">
-        <h3 className="text-xs font-semibold text-gray-200">{result.checkpointName}</h3>
+        {result.checkpointPath ? (
+          <PathRunLabelChip
+            path={result.checkpointPath}
+            label={result.checkpointName}
+            brushLabel={parentRunBrushLabelFromCheckpointPath(result.checkpointPath)}
+            className="font-semibold text-gray-200 max-w-full"
+          />
+        ) : (
+          <h3 className="text-xs font-semibold text-gray-200">{result.checkpointName}</h3>
+        )}
         {onOpenAnalytics && (
           <button
             onClick={onOpenAnalytics}

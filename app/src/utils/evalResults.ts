@@ -15,6 +15,7 @@ export const EVAL_RESULT_KEYS = [
 
 export interface EvalResult {
   checkpointName: string;
+  checkpointPath?: string;
   cost?: number;
   gap?: number;
   time?: number;
@@ -128,6 +129,7 @@ export function evalLivePanelTitle({
 export function toEvalAnalyticsRows(results: EvalResult[]): EvalAnalyticsRow[] {
   return results.map((r) => ({
     checkpoint: r.checkpointName,
+    checkpointPath: r.checkpointPath,
     cost: r.cost,
     gap: r.gap,
     time: r.time,
