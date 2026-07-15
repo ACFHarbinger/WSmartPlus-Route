@@ -560,6 +560,7 @@ export function DataGeneration() {
                 kind="data_gen"
                 hideSelf
                 showPostRun={isDone && runStatus === "completed"}
+                showOutputBrowser={isDone && runStatus === "completed"}
               />
             </div>
             {!isDone && liveProcessId && (

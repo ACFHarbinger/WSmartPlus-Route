@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-second pass (§G.12 + §G.14 + §G.9 + §G.11 + §D.7)
+
+Hundred-forty-second pass closes the reverse eval workflow bridge from Output Browser to
+Evaluation Runner, adds shared checkpoint helpers, and extends launcher post-run Output
+Browser shortcuts to simulation and data-generation workflows.
+
+**React frontend**
+- ``checkpoints.ts`` — shared ``isCheckpointEntry`` / ``filterCheckpointEntries`` helpers
+  for Training Monitor and Output Browser (§G.14 / §G.12 / §G.17)
+- Output Browser — auto-expand ``checkpoints/`` on run select; sidebar checkpoint card with
+  **Eval →** shortcuts; file-tree highlight for ``.pt/.ckpt/.pth``; **Load in Eval Runner →**
+  on selected checkpoint files via ``pendingCheckpoint`` (§G.14 / §G.12)
+- Simulation Launcher + Data Generation — ``LauncherNavMesh`` ``Output Browser →`` on
+  completed runs (§G.9 / §G.11 / §G.14 / §D.7)
+- Evaluation Runner — single-checkpoint live panel passes ``checkpointPath`` to
+  ``LauncherNavMesh`` for post-run reload (§G.12 / §D.7)
+
+**ROADMAP**
+- §G.14 Output Browser checkpoint browser + Load in Eval Runner checked
+- §G.12 Evaluation Runner single-checkpoint reload shortcut checked
+- §G.9 Simulation Launcher Output Browser post-run shortcut checked
+- §G.11 Data Generation Output Browser post-run shortcut checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-first pass (§G.12 + §G.14 + §G.15 + §D.7)
 
 Hundred-forty-first pass completes the eval workflow navigation mesh by wiring Output Browser

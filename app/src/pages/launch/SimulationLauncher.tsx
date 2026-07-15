@@ -536,6 +536,7 @@ export function SimulationLauncher() {
                 kind="sim"
                 hideSelf
                 showPostRun={isDone && simStatus === "completed"}
+                showOutputBrowser={isDone && simStatus === "completed"}
               />
             </div>
           </div>

@@ -284,6 +284,11 @@ export function EvaluationRunner() {
   const [logTails, setLogTails] = useState<Record<string, string[]>>({});
   const processes = useProcessStore((s) => s.processes);
 
+  const validCheckpoints = useMemo(
+    () => checkpoints.filter((c) => c.path.trim() !== ""),
+    [checkpoints]
+  );
+
   const liveRunSummary = useMemo(() => {
     if (liveProcessIds.length === 0) return null;
     const statuses = liveProcessIds.map((id) => processes[id]?.status ?? "running");
@@ -300,6 +305,12 @@ export function EvaluationRunner() {
       : "running";
     return { running, completed, failed, allDone, aggregate };
   }, [liveProcessIds, processes]);
+
+  const completedCheckpointPath = useMemo(() => {
+    if (validCheckpoints.length !== 1) return null;
+    if (!liveRunSummary?.allDone || liveRunSummary.aggregate !== "completed") return null;
+    return validCheckpoints[0].path;
+  }, [validCheckpoints, liveRunSummary]);
 
   // Subscribe globally to process:stdout — parse structured eval result JSON lines
   useEffect(() => {
@@ -385,8 +396,6 @@ export function EvaluationRunner() {
     })) as string | null;
     if (path) setDatasetPath(path);
   };
-
-  const validCheckpoints = checkpoints.filter((c) => c.path.trim() !== "");
 
   // Show preview for first checkpoint
   const previewArgs = useMemo(() => {
@@ -658,6 +667,7 @@ export function EvaluationRunner() {
               showOutputBrowser={
                 liveRunSummary.allDone && liveRunSummary.aggregate === "completed"
               }
+              checkpointPath={completedCheckpointPath}
               onOpenAnalytics={results.length > 0 ? openInAnalytics : undefined}
             />
           </div>
