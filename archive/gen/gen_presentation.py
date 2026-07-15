@@ -34,12 +34,12 @@ referenced in json/simulation_analysis_config.json.
 
 A per-slide speaker script can also be generated as a .docx (see
 gen_speaker_script / --speaker-script), rendered via docxtpl from a template
-under logic/gen/templates/.
+under archive/gen/templates/.
 
 Usage
 -----
-    uv run python logic/gen/gen_presentation.py
-    uv run python logic/gen/gen_presentation.py \\
+    uv run python archive/gen/gen_presentation.py
+    uv run python archive/gen/gen_presentation.py \\
         --figures-dir public/figures/simulation/30d \\
         --out assets/windows/wsmart_route_results.pptx \\
         --author "Afonso Fernandes" \\
@@ -2057,7 +2057,7 @@ LINKS_DIR = Path(__file__).resolve().parent / "links"
 
 def generate_vrpp_illustration_fallback(out_path: Path) -> Path:
     """Native fallback for the VRPP illustration: copy the locally stored reference image
-    (see logic/gen/images/vrpp_illustration_source.png) instead of a code-drawn diagram."""
+    (see archive/gen/images/vrpp_illustration_source.png) instead of a code-drawn diagram."""
     src = IMAGES_DIR / "vrpp_illustration_source.png"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, out_path)
@@ -2078,7 +2078,7 @@ NATIVE_DIAGRAM_BUILDERS = {
 
 
 def _load_reference_links() -> dict:
-    """Parse logic/gen/links/reference_image_links.xml -> {key: {"url": ...}}."""
+    """Parse archive/gen/links/reference_image_links.xml -> {key: {"url": ...}}."""
     path = LINKS_DIR / "reference_image_links.xml"
     if not path.exists():
         return {}
@@ -2224,7 +2224,7 @@ def export_results_excel(out_path: Path, results_table: str = "30d") -> None:
 
     wb = openpyxl.Workbook()
     ws = wb.active
-    assert ws is not None    
+    assert ws is not None
     ws.title = "Results"
 
     HDR_FILL = PatternFill("solid", fgColor="1F2D3D")

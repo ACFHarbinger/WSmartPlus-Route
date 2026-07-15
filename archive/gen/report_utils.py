@@ -2,10 +2,10 @@
 Shared helpers for the report-generation scripts (dataset / simulation analysis).
 
 Centralises:
-  - loading of the JSON configurations under logic/gen/json/
-  - loading of matplotlib style sheets under logic/gen/style/
-  - loading of JS snippets under logic/gen/js/
-  - Jinja2 rendering of the markdown templates under logic/gen/jinja/
+  - loading of the JSON configurations under archive/gen/json/
+  - loading of matplotlib style sheets under archive/gen/style/
+  - loading of JS snippets under archive/gen/js/
+  - Jinja2 rendering of the markdown templates under archive/gen/jinja/
   - markdown post-processing (full-width <figure> images, Figure/Table numbering)
 """
 
@@ -27,7 +27,7 @@ PLACEHOLDER = "<!-- [ANALYSIS: Insert your observations here] -->"
 
 
 def load_json(name: str) -> dict:
-    """Load a JSON configuration from logic/gen/json/."""
+    """Load a JSON configuration from archive/gen/json/."""
     return json.loads((JSON_DIR / name).read_text(encoding="utf-8"))
 
 
@@ -51,7 +51,7 @@ def apply_theme(theme: dict) -> None:
 
 
 def load_js(name: str, **subs: str) -> str:
-    """Load a JS snippet from logic/gen/js/, substituting __KEY__ markers."""
+    """Load a JS snippet from archive/gen/js/, substituting __KEY__ markers."""
     js = (JS_DIR / name).read_text(encoding="utf-8")
     for key, val in subs.items():
         js = js.replace(f"__{key.upper()}__", val)
@@ -60,7 +60,7 @@ def load_js(name: str, **subs: str) -> str:
 
 def render_template(name: str, **context) -> str:
     """
-    Render a Jinja2 template from logic/gen/jinja/.
+    Render a Jinja2 template from archive/gen/jinja/.
 
     Templates use non-default delimiters (<% %>, << >>, <# #>) instead of the
     Jinja defaults, since the markdown they emit embeds LaTeX table snippets

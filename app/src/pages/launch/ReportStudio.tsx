@@ -22,8 +22,8 @@ import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { ProcessEntry } from "../../types";
 
-// Batch pipeline location (§H — scheduled to move to archive/gen)
-export const GEN_SCRIPTS_DIR = "logic/gen";
+// Archived batch pipeline location (§H — retired from logic/gen)
+export const GEN_SCRIPTS_DIR = "archive/gen";
 
 const TABS: { id: ReportGenTab; label: string }[] = [
   { id: "dataset", label: "Dataset Analysis" },
