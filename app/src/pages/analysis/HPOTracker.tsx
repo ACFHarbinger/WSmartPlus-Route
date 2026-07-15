@@ -12,7 +12,6 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { toast } from "sonner";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
@@ -563,9 +562,7 @@ export function HPOTracker() {
             <PathRunLabelChip
               path={reportDirPath}
               className="flex-1 min-w-0"
-              trailing={
-                <PathHandoffButtons path={reportDirPath} kind="run" iconSize={11} />
-              }
+              handoff="run"
             />
             <button
               onClick={openReportDir}
@@ -812,13 +809,7 @@ export function HPOTracker() {
                             <PathRunLabelChip
                               path={trialLogDir}
                               className="flex-1 min-w-0"
-                              trailing={
-                                <PathHandoffButtons
-                                  path={trialLogDir}
-                                  kind="training"
-                                  iconSize={11}
-                                />
-                              }
+                              handoff="training"
                             />
                             <span className="text-canvas-muted font-mono text-[10px] shrink-0">
                               #{trial.number}

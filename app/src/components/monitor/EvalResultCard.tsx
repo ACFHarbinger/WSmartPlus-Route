@@ -2,7 +2,6 @@
  * Shared eval result card for Process Monitor embedded panels (§G.12 / §G.15 / §D.7).
  */
 import { BarChart3 } from "lucide-react";
-import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import type { EvalResult } from "../../utils/evalResults";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
@@ -34,13 +33,7 @@ export function EvalResultCard({
               projectRoot
             )}
             className="font-semibold text-gray-200 max-w-full"
-            trailing={
-              <PathHandoffButtons
-                path={result.checkpointPath}
-                kind="checkpoint"
-                iconSize={11}
-              />
-            }
+            handoff="checkpoint"
           />
         ) : (
           <h3 className="text-xs font-semibold text-gray-200">{result.checkpointName}</h3>

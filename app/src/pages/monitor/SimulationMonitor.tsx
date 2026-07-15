@@ -630,9 +630,9 @@ export function SimulationMonitor() {
           <PathRunLabelChip
             path={watchPath}
             projectRoot={projectRoot}
+            handoff="log"
             trailing={
               <>
-                <PathHandoffButtons path={watchPath} kind="log" iconSize={11} />
                 {isWatching && (
                   <RefreshCw size={11} className="animate-spin text-accent-success shrink-0" />
                 )}

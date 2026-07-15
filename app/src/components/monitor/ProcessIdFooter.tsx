@@ -1,7 +1,6 @@
 /**
  * Shared process-id footer row for launcher and train/HPO live panels (§G.9–§G.12 / §G.10 / §G.15 / §G.17 / §G.18 / §D.7).
  */
-import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useAppStore } from "../../store/app";
 
@@ -35,7 +34,7 @@ export function ProcessIdFooter({
           path={logPath}
           projectRoot={effectiveProjectRoot}
           className="flex-1 min-w-0"
-          trailing={<PathHandoffButtons path={logPath} iconSize={11} />}
+          handoff
         />
         {ids.length === 1 && (
           <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
