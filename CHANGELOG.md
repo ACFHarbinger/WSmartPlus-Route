@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-fourth pass (§G.1 / §G.7)
+
+Ninety-fourth pass extends log-scale error-bar whiskers and the shared
+``showErrorBars`` toggle to Benchmark Analysis and Algorithm Comparison.
+
+**React frontend**
+- `BenchmarkAnalysis` — ``showErrorBars`` toggle; single-run efficiency ranking
+  and ``PortfolioEfficiencyRanking`` horizontal kg/km whiskers via
+  ``errorBarBounds`` when global ``logScale`` on
+- `AlgorithmComparison` — ``showErrorBars`` toggle on per-metric bar charts;
+  mean ± std whiskers with log/symlog axis via ``errorBarBounds``
+
+**ROADMAP**
+- §G.1 AlgorithmComparison metric-bar error-bar whiskers log-scale checked
+- §G.1.5 BenchmarkAnalysis efficiency-ranking error-bar whiskers log-scale checked
+- §G.7 Global log-scale propagation includes Benchmark + Algorithm error-bar whiskers
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-third pass (§G.1 / §G.2 / §G.7)
 
 Ninety-third pass fixes grouped kg/km error-bar metric keys and extends log-scale

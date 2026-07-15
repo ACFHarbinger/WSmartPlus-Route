@@ -18,6 +18,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { barOpacity } from "../../utils/chartHighlight";
+import { errorBarBounds } from "../../utils/chartLogScale";
 import { exportChartPng } from "../../utils/chartExport";
 import { symlog } from "../../utils/symlog";
 import { PARETO_PANELS } from "../../utils/paretoPanels";
@@ -56,6 +57,16 @@ interface RunFile {
 
 function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+}
+
+function std(arr: number[]) {
+  if (arr.length < 2) return 0;
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s, x) => s + (x - m) ** 2, 0) / (arr.length - 1));
+}
+
+function fmt(n: number, d = 2) {
+  return Number.isFinite(n) ? n.toFixed(d) : "—";
 }
 
 const SIM_METRICS = [
@@ -206,6 +217,7 @@ export function BenchmarkAnalysis() {
   const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
   const logScale = useGlobalFiltersStore((s) => s.logScale);
+  const [showErrorBars, setShowErrorBars] = useState(false);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
   const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
@@ -330,10 +342,10 @@ export function BenchmarkAnalysis() {
             .map((e) => (e.data as Record<string, number>)["kg/km"])
             .filter((v): v is number => v != null)
         );
-        return { policy: p, value: mean(vals) };
+        return { policy: p, mean: mean(vals), std: std(vals) };
       })
-      .filter((r) => r.value > 0)
-      .sort((a, b) => b.value - a.value);
+      .filter((r) => r.mean > 0)
+      .sort((a, b) => b.mean - a.mean);
   }, [filteredRuns]);
 
   const paretoByPanel = useMemo(() => buildParetoByPanel(filteredRuns), [filteredRuns]);
@@ -388,21 +400,72 @@ export function BenchmarkAnalysis() {
         inverse: true,
         axisLabel: { color: "#9090b0", fontSize: 9 },
       },
+      tooltip: {
+        trigger: "axis",
+        formatter: (params: unknown[]) => {
+          const p = (params as Array<{ dataIndex: number; name: string }>)[0];
+          const r = efficiencyRanking[p.dataIndex];
+          return `${p.name}<br/>${fmt(r.mean)} ± ${fmt(r.std)} kg/km`;
+        },
+      },
       series: [
         {
           type: "bar",
           data: efficiencyRanking.map((r, i) => ({
-            value: logScale ? Math.max(r.value, 0.001) : r.value,
+            value: logScale ? Math.max(r.mean, 0.001) : r.mean,
             itemStyle: {
               color: COLORS[i % COLORS.length],
               opacity: barOpacity(r.policy, brushedPolicies),
             },
           })),
         },
+        ...(showErrorBars
+          ? [
+              {
+                type: "custom" as const,
+                renderItem: (
+                  params: { dataIndex: number },
+                  api: {
+                    coord: (v: [number, number]) => [number, number];
+                    style: (s: object) => object;
+                  }
+                ) => {
+                  const i = params.dataIndex;
+                  const r = efficiencyRanking[i];
+                  const bounds = errorBarBounds(r.mean, r.std, "kg/km", logScale);
+                  const y = api.coord([bounds.center, i])[1];
+                  const xLeft = api.coord([bounds.low, i])[0];
+                  const xRight = api.coord([bounds.high, i])[0];
+                  const cap = 4;
+                  return {
+                    type: "group",
+                    children: [
+                      {
+                        type: "line",
+                        shape: { x1: xLeft, y1: y, x2: xRight, y2: y },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: xLeft, y1: y - cap, x2: xLeft, y2: y + cap },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                      {
+                        type: "line",
+                        shape: { x1: xRight, y1: y - cap, x2: xRight, y2: y + cap },
+                        style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                      },
+                    ],
+                  };
+                },
+                data: efficiencyRanking.map((_, i) => i),
+                z: 10,
+              },
+            ]
+          : []),
       ],
-      tooltip: { trigger: "axis" },
     }),
-    [efficiencyRanking, brushedPolicies, logScale]
+    [efficiencyRanking, brushedPolicies, logScale, showErrorBars]
   );
 
   const makeBarOption = (metricKey: string, metricLabel: string) => {
@@ -496,6 +559,14 @@ export function BenchmarkAnalysis() {
           <button onClick={exportComparisonCsv} className="btn-ghost text-xs flex items-center gap-1">
             <Download size={12} />
             Export CSV
+          </button>
+        )}
+        {efficiencyRanking.length > 0 && (
+          <button
+            onClick={() => setShowErrorBars((v) => !v)}
+            className={`btn-ghost text-xs ${showErrorBars ? "text-accent-secondary" : ""}`}
+          >
+            {showErrorBars ? "Error bars (on)" : "Error bars (off)"}
           </button>
         )}
       </div>
@@ -610,6 +681,7 @@ export function BenchmarkAnalysis() {
       {runs.length >= 2 && efficiencyRanking.length > 0 && (
         <PortfolioEfficiencyRanking
           runs={filteredRuns}
+          showErrorBars={showErrorBars}
           logScale={logScale}
           brushed={brushedPolicies}
           onPolicyClick={handlePolicyClick}

@@ -2,7 +2,7 @@
  * Algorithm Comparison — side-by-side policy metric comparison.
  * Ports Streamlit `algorithms` mode.
  */
-import { useCallback, useEffect, useMemo, useRef } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Download, Map } from "lucide-react";
@@ -15,13 +15,23 @@ import { useSimStore, filterEntries } from "../../store/sim";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { barOpacity } from "../../utils/chartHighlight";
 import { exportChartPng } from "../../utils/chartExport";
-import { radarAxisValue } from "../../utils/chartLogScale";
+import { errorBarBounds, radarAxisValue } from "../../utils/chartLogScale";
 import { symlog } from "../../utils/symlog";
 
 const ALGORITHM_SIM_TABLE = "algorithm_sim";
 
 function mean(arr: number[]) {
   return arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+}
+
+function std(arr: number[]) {
+  if (arr.length < 2) return 0;
+  const m = mean(arr);
+  return Math.sqrt(arr.reduce((s, x) => s + (x - m) ** 2, 0) / (arr.length - 1));
+}
+
+function fmt(n: number, d = 2) {
+  return Number.isFinite(n) ? n.toFixed(d) : "—";
 }
 
 const METRICS = [
@@ -48,6 +58,7 @@ export function AlgorithmComparison() {
   const radarRef = useRef<ReactECharts>(null);
   const barRefs = useRef<Record<string, EChartsReact | null>>({});
   const logScale = useGlobalFiltersStore((s) => s.logScale);
+  const [showErrorBars, setShowErrorBars] = useState(false);
 
   useEffect(() => {
     if (!duckdbReady || !watchPath) return;
@@ -157,6 +168,12 @@ export function AlgorithmComparison() {
           <Map size={12} />
           Compare on Map
         </button>
+        <button
+          onClick={() => setShowErrorBars((v) => !v)}
+          className={`btn-ghost text-xs ${showErrorBars ? "text-accent-secondary" : ""}`}
+        >
+          {showErrorBars ? "Error bars (on)" : "Error bars (off)"}
+        </button>
       </div>
 
       <div className="card">
@@ -189,6 +206,12 @@ export function AlgorithmComparison() {
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {METRICS.map(({ key, label }) => {
           const symlogOverflows = logScale && key === "overflows";
+          const stats = policies.map((p) => {
+            const vals = filtered
+              .filter((e) => e.policy === p)
+              .map((e) => (e.data as Record<string, number>)[key] ?? 0);
+            return { mean: mean(vals), std: std(vals) };
+          });
           const option = {
             backgroundColor: "transparent",
             grid: { left: 50, right: 10, top: 10, bottom: 40 },
@@ -203,15 +226,19 @@ export function AlgorithmComparison() {
               axisLabel: { color: "#9090b0", fontSize: 10 },
               minorSplitLine: { show: false },
             },
+            tooltip: {
+              trigger: "axis",
+              formatter: (params: unknown[]) => {
+                const p = (params as Array<{ dataIndex: number; name: string }>)[0];
+                const s = stats[p.dataIndex];
+                return `${p.name}<br/>${fmt(s.mean)} ± ${fmt(s.std)}`;
+              },
+            },
             series: [
               {
                 type: "bar",
                 data: policies.map((p, i) => {
-                  const raw = mean(
-                    filtered
-                      .filter((e) => e.policy === p)
-                      .map((e) => (e.data as Record<string, number>)[key] ?? 0)
-                  );
+                  const raw = stats[i].mean;
                   const value = !logScale
                     ? raw
                     : symlogOverflows
@@ -226,8 +253,57 @@ export function AlgorithmComparison() {
                   };
                 }),
               },
+              ...(showErrorBars
+                ? [
+                    {
+                      type: "custom" as const,
+                      renderItem: (
+                        params: { dataIndex: number },
+                        api: {
+                          coord: (v: [number, number]) => [number, number];
+                          style: (s: object) => object;
+                        }
+                      ) => {
+                        const i = params.dataIndex;
+                        const s = stats[i];
+                        const bounds = errorBarBounds(
+                          s.mean,
+                          s.std,
+                          key,
+                          logScale,
+                          symlogOverflows
+                        );
+                        const x = api.coord([i, bounds.center])[0];
+                        const yTop = api.coord([i, bounds.high])[1];
+                        const yBot = api.coord([i, bounds.low])[1];
+                        const cap = 5;
+                        return {
+                          type: "group",
+                          children: [
+                            {
+                              type: "line",
+                              shape: { x1: x, y1: yTop, x2: x, y2: yBot },
+                              style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                            },
+                            {
+                              type: "line",
+                              shape: { x1: x - cap, y1: yTop, x2: x + cap, y2: yTop },
+                              style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                            },
+                            {
+                              type: "line",
+                              shape: { x1: x - cap, y1: yBot, x2: x + cap, y2: yBot },
+                              style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                            },
+                          ],
+                        };
+                      },
+                      data: policies.map((_, i) => i),
+                      z: 10,
+                    },
+                  ]
+                : []),
             ],
-            tooltip: { trigger: "axis" },
           };
           return (
             <div key={key} className="card">
