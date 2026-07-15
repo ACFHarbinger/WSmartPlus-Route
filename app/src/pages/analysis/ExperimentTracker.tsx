@@ -6,27 +6,18 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
-import { Activity, CheckCircle, Download, ExternalLink, Radio, RefreshCw, XCircle } from "lucide-react";
+import { CheckCircle, Download, ExternalLink, Radio, RefreshCw, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import {
-  GradNormSparkline,
-  LrSparkline,
-  TrainingMetricSnapshot,
-} from "../../components/monitor/TrainingMetricSparklines";
-import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
-import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
+import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
 import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import {
-  collectTrainingMetricsFromLogLines,
-  postRunTrainingRehydrationMessage,
-} from "../../utils/trainingMetrics";
+import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { findRecentHpoProcessId } from "../../utils/trainingProcess";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
@@ -117,7 +108,7 @@ export function ExperimentTracker() {
         : [],
     [recentHpoProc]
   );
-  const latestLiveMetric = liveMetrics[liveMetrics.length - 1];
+
 
   const refreshRuns = useCallback(async () => {
     if (!projectRoot) return;
@@ -321,38 +312,16 @@ export function ExperimentTracker() {
           </div>
           {recentHpoRunning ? (
             <LiveTrainProgressBar processId={recentHpoId} />
-          ) : (
-            <div className="flex items-center gap-2 text-xs text-canvas-muted">
-              <Activity size={12} />
-              {postRunTrainingRehydrationMessage({
-                metricCount: liveMetrics.length,
-                healthCount: liveHealthEntries.length,
-                attentionCount: liveAttentionEntries.length,
-                fallback:
-                  "Post-run shortcuts — open Output Browser or Training Monitor for this sweep",
-              })}
-            </div>
-          )}
-          {latestLiveMetric && <TrainingMetricSnapshot metric={latestLiveMetric} />}
-          {liveMetrics.length >= 2 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <GradNormSparkline
-                metrics={liveMetrics}
-                logScale={logScale}
-                exportName="experiment-tracker-grad-norm"
-              />
-              <LrSparkline
-                metrics={liveMetrics}
-                logScale={logScale}
-                exportName="experiment-tracker-lr"
-              />
-            </div>
-          )}
-          <TrainingHealthPanel entries={liveHealthEntries} />
-          <RuntimeAttentionPanel
-            entries={liveAttentionEntries}
-            theme={effectiveTheme}
+          ) : null}
+          <TrainHpoAnalyticsStrip
+            metrics={liveMetrics}
+            healthEntries={liveHealthEntries}
+            attentionEntries={liveAttentionEntries}
             logScale={logScale}
+            theme={effectiveTheme}
+            exportNamePrefix="experiment-tracker"
+            isPostRun={!recentHpoRunning}
+            postRunFallback="Post-run shortcuts — open Output Browser or Training Monitor for this sweep"
           />
         </div>
       )}

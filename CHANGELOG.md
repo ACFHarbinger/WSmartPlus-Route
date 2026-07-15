@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-first pass (§G.10 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Hundred-fifty-first pass closes the shared analytics strip gap left after the
+hundred-fiftieth pass (which deduplicated metric snapshots and post-run banners).
+Training Hub, Process Monitor, HPO Tracker, and Experiment Tracker now use the
+shared ``TrainHpoAnalyticsStrip`` component, and Training Monitor's live/recent
+card restores post-run sparklines without requiring ``LIVE_KEY`` selection.
+
+**React frontend**
+- ``TrainHpoAnalyticsStrip`` — shared snapshot + sparklines + health/attention +
+  post-run banner strip for train/HPO live panels (§G.10 / §G.15 / §G.17 / §G.18)
+- Training Hub — ``TrainHpoAnalyticsStrip`` with ``middleContent`` slot for live
+  ``LiveChart``; ``metric updates`` label parity (§G.10 / §D.7)
+- Process Monitor + HPO Tracker + Experiment Tracker — deduplicated inline
+  analytics blocks via ``TrainHpoAnalyticsStrip`` (§G.15 / §G.18 / §D.7)
+- Training Monitor — live/recent card uses ``TrainHpoAnalyticsStrip`` for post-run
+  sparkline rehydration; removes duplicate ``LIVE_KEY`` sparkline panel (§G.17 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub ``TrainHpoAnalyticsStrip`` deduplication checked
+- §G.15 Process Monitor shared analytics strip checked
+- §G.17 Training Monitor live/recent sparkline rehydration checked
+- §G.18 HPO Tracker + Experiment Tracker ``TrainHpoAnalyticsStrip`` checked
+- §D.7 train/HPO workflow analytics strip parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fiftieth pass (§G.18 + §G.17 + §A.2 + §A.4 + §D.7)
 
 Hundred-fiftieth pass closes the analytics snapshot and health/attention banner gap left after the

@@ -862,6 +862,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Hub + Training Monitor + Process Monitor — post-run banner uses shared helper for health/attention rehydration parity (§G.10 / §G.15 / §G.17 / §D.7)
 - [x] §G.18 / §G.17 analytics post-run snapshot + health/attention banner parity across all train/HPO workflow pages (§D.7)
 
+**Delivered (§D.7 — hundred-fifty-first pass)**
+
+- [x] ``TrainHpoAnalyticsStrip`` — shared snapshot + sparklines + health/attention + post-run banner component for train/HPO live panels (§G.10 / §G.15 / §G.17 / §G.18)
+- [x] Training Hub + Process Monitor + HPO Tracker + Experiment Tracker — deduplicated inline analytics blocks; import shared ``TrainHpoAnalyticsStrip`` (§G.10 / §G.15 / §G.18 / §D.7)
+- [x] Training Monitor — live/recent card uses ``TrainHpoAnalyticsStrip`` for post-run sparkline rehydration without ``LIVE_KEY`` selection (§G.17 / §D.7)
+- [x] Training Hub + Training Monitor — ``metric updates`` label parity with Process Monitor / HPO / Experiment Tracker (§G.10 / §G.17 / §D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1564,6 +1571,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Post-run panel persistence via ``findRecentHubProcessId`` (train/HPO/eval) when navigation clears local state (hundred-forty-sixth pass; §G.10 / §D.7)
 - [x] Post-run grad-norm + LR sparklines via ``TrainingMetricSparklines``; ``TrainingMetricSnapshot`` + rehydration banner when train/HPO completes (hundred-forty-ninth pass; §G.17 / §D.7)
 - [x] Post-run health/attention rehydration banner via ``postRunTrainingRehydrationMessage`` (hundred-fiftieth pass; §A.2 / §A.4 / §D.7)
+- [x] ``TrainHpoAnalyticsStrip`` shared live/post-run analytics strip (hundred-fifty-first pass; §G.10 / §D.7)
 
 ---
 
@@ -1687,6 +1695,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor train/HPO ``outputRunPath`` + ``trainingRunPath`` deep-links on ``TrainHpoNavMesh`` (hundred-forty-fourth pass; §G.10 / §G.17 / §D.7)
 - [x] Train/HPO metrics rehydration + grad-norm/LR sparklines on selected processes (hundred-forty-eighth pass; §G.15 / §G.17 / §D.7)
 - [x] Post-run health/attention rehydration banner via ``postRunTrainingRehydrationMessage`` (hundred-fiftieth pass; §A.2 / §A.4 / §D.7)
+- [x] ``TrainHpoAnalyticsStrip`` shared analytics strip on selected train/HPO processes (hundred-fifty-first pass; §G.15 / §D.7)
 
 ---
 
@@ -1737,6 +1746,8 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``TrainingMetricSparklines`` shared grad-norm + LR sparklines used across Process Monitor and analytics pages (hundred-forty-eighth pass; §G.15 / §G.18 / §D.7)
 - [x] Training Monitor deduplicated to shared ``TrainingMetricSparklines`` + ``TrainingMetricSnapshot``; post-run sparkline rehydration banner parity (hundred-forty-ninth pass; §G.10 / §D.7)
 - [x] Post-run health/attention rehydration banner via ``postRunTrainingRehydrationMessage`` (hundred-fiftieth pass; §A.2 / §A.4 / §D.7)
+- [x] Live/recent card ``TrainHpoAnalyticsStrip`` for post-run sparkline rehydration without ``LIVE_KEY`` selection (hundred-fifty-first pass; §G.17 / §D.7)
+- [x] ``metric updates`` label parity across Training Hub + Training Monitor (hundred-fifty-first pass; §G.10 / §D.7)
 
 ---
 
@@ -1769,6 +1780,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] Live metric snapshot row + update count from ``collectTrainingMetricsFromLogLines`` on persisted HPO process stdout (hundred-forty-seventh pass; §G.18 / §G.17 / §D.7)
 - [x] Post-run grad-norm + LR sparklines from persisted HPO stdout via ``TrainingMetricSparklines`` (hundred-forty-eighth pass; §G.18 / §G.17 / §D.7)
 - [x] ``TrainingMetricSnapshot`` deduplication + ``postRunTrainingRehydrationMessage`` health/attention banner parity (hundred-fiftieth pass; §G.17 / §A.2 / §A.4 / §D.7)
+- [x] ``TrainHpoAnalyticsStrip`` shared live/post-run analytics strip (hundred-fifty-first pass; §G.18 / §G.17 / §D.7)
 
 ---
 

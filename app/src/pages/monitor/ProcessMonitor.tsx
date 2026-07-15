@@ -11,7 +11,6 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
-  Activity,
   ArrowDown,
   BarChart3,
   ChevronDown,
@@ -23,8 +22,7 @@ import {
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
-import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
+
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
@@ -36,18 +34,11 @@ import {
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import {
-  collectTrainingMetricsFromLogLines,
-  postRunTrainingRehydrationMessage,
-} from "../../utils/trainingMetrics";
+import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import {
-  GradNormSparkline,
-  LrSparkline,
-  TrainingMetricSnapshot,
-} from "../../components/monitor/TrainingMetricSparklines";
+import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import {
   isSimProcess,
@@ -623,41 +614,15 @@ export function ProcessMonitor() {
             />
           )}
 
-          {latestTrainingMetric && <TrainingMetricSnapshot metric={latestTrainingMetric} />}
-
-          {selectedProc.status !== "running" && (
-            <div className="flex items-center gap-2 text-xs text-canvas-muted">
-              <Activity size={12} />
-              {postRunTrainingRehydrationMessage({
-                metricCount: trainingMetrics.length,
-                healthCount: trainingHealthEntries.length,
-                attentionCount: attentionEntries.length,
-                fallback:
-                  "Post-run shortcuts — open Training Monitor or Output Browser for this run",
-              })}
-            </div>
-          )}
-
-          {trainingMetrics.length >= 2 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <GradNormSparkline
-                metrics={trainingMetrics}
-                logScale={logScale}
-                exportName="process-monitor-grad-norm"
-              />
-              <LrSparkline
-                metrics={trainingMetrics}
-                logScale={logScale}
-                exportName="process-monitor-lr"
-              />
-            </div>
-          )}
-
-          <TrainingHealthPanel entries={trainingHealthEntries} />
-          <RuntimeAttentionPanel
-            entries={attentionEntries}
-            theme={theme}
+          <TrainHpoAnalyticsStrip
+            metrics={trainingMetrics}
+            healthEntries={trainingHealthEntries}
+            attentionEntries={attentionEntries}
             logScale={logScale}
+            theme={theme}
+            exportNamePrefix="process-monitor"
+            isPostRun={selectedProc.status !== "running"}
+            postRunFallback="Post-run shortcuts — open Training Monitor or Output Browser for this run"
           />
         </div>
       )}
