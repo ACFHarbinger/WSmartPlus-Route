@@ -77,6 +77,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Effort × Impact**: Very Low effort (Option A) / High impact
 
+**Delivered (§A.3 Option A — hundred-ninth pass)**
+
+- [x] ``POLICY_VIZ_START:`` stdout + JSONL log marker from ``policy_viz_emit.py`` after route construction / improvement when ``PolicyVizMixin.get_viz_data()`` is non-empty
+- [x] Rust ``parse_policy_viz_line`` + ``load_policy_viz_log`` + ``sim:policy_viz_update`` watcher events
+- [x] Studio ``PolicyTelemetryPanel`` — ECharts cost trajectories, operator histograms, and algorithm-specific charts (ALNS/HGS/ACO/ILS/selector/generic) on Simulation Monitor
+- [x] Live ingest via ``process:stdout`` parser + historical load on log open; PNG/SVG export via ``ChartExportButtons`` (§G.7)
+
+**Status**: §A.3 Option A complete — Option B (2 Hz WebSocket stream) and Option C (SQLite trending) deferred.
+
 ---
 
 ### §A.4 — RL Loss Landscape & Training Health Monitoring
@@ -134,7 +143,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 | Item                                     | Effort    | Impact | Priority        |
 | ---------------------------------------- | --------- | ------ | --------------- |
-| §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0              |
+| §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0 ✅            |
 | §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0              |
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1              |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1              |
@@ -1418,7 +1427,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry delivered in hundred-ninth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

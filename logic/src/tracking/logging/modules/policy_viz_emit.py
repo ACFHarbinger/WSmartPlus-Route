@@ -1,0 +1,141 @@
+"""Policy telemetry bridge for WSmart-Route Studio (§A.3).
+
+Serialises :class:`~logic.src.tracking.viz_mixin.PolicyVizMixin` ring-buffer
+data into ``POLICY_VIZ_START:`` log lines recognised by the Tauri Studio app.
+
+Example:
+    >>> maybe_emit_policy_viz(policy, "ALNS + Ftsp", 0, 1, "run.jsonl")
+"""
+
+from __future__ import annotations
+
+import json
+import sys
+import threading
+from typing import Any, Dict, List, Optional
+
+import logic.src.constants as udef
+from logic.src.utils.infrastructure.setup_sims import deep_sanitize
+
+POLICY_VIZ_MARKER = "POLICY_VIZ_START:"
+
+
+def detect_policy_viz_type(viz_data: Dict[str, List[Any]]) -> str:
+    """Infer algorithm family from telemetry key signatures.
+
+    Mirrors the dispatcher in ``logic.src.ui.components.policy_viz``.
+
+    Args:
+        viz_data: Mapping returned by ``get_viz_data()``.
+
+    Returns:
+        One of ``alns``, ``hgs``, ``aco``, ``ils``, ``selector``, or ``generic``.
+    """
+    if "d_idx" in viz_data:
+        return "alns"
+    if "generation" in viz_data:
+        return "hgs"
+    if "tau_mean" in viz_data:
+        return "aco"
+    if "perturb_mode" in viz_data:
+        return "ils"
+    if "n_selected" in viz_data:
+        return "selector"
+    return "generic"
+
+
+def _collect_viz_sources(source: Any) -> List[Any]:
+    """Gather objects that may expose ``get_viz_data()``."""
+    candidates: List[Any] = []
+    seen: set[int] = set()
+
+    def add(obj: Any) -> None:
+        if obj is None:
+            return
+        oid = id(obj)
+        if oid in seen:
+            return
+        seen.add(oid)
+        candidates.append(obj)
+
+    add(source)
+    for attr in ("engine", "solver", "policy", "_solver", "_engine", "improver"):
+        add(getattr(source, attr, None))
+    return candidates
+
+
+def maybe_emit_policy_viz(
+    source: Any,
+    policy: str,
+    sample_idx: int,
+    day: int,
+    log_path: Optional[str],
+    lock: Optional[threading.Lock] = None,
+) -> bool:
+    """Emit policy telemetry when ``source`` (or a nested engine) recorded data.
+
+    Args:
+        source: Policy, adapter, or route improver instance.
+        policy: Display policy name written to the log line.
+        sample_idx: Simulation sample index.
+        day: Simulation day (1-indexed).
+        log_path: Optional JSONL path for append; stdout is always written.
+        lock: Optional thread lock for safe file appending.
+
+    Returns:
+        True when telemetry was emitted.
+    """
+    for obj in _collect_viz_sources(source):
+        getter = getattr(obj, "get_viz_data", None)
+        if getter is None:
+            continue
+        viz_data = getter()
+        if viz_data:
+            send_policy_viz_to_gui(viz_data, policy, sample_idx, day, log_path, lock)
+            return True
+    return False
+
+
+def send_policy_viz_to_gui(
+    viz_data: Dict[str, List[Any]],
+    policy: str,
+    sample_idx: int,
+    day: int,
+    log_path: Optional[str],
+    lock: Optional[threading.Lock] = None,
+) -> None:
+    """Write a ``POLICY_VIZ_START:`` line to stdout and the simulation log file.
+
+    Args:
+        viz_data: Telemetry dict from ``PolicyVizMixin.get_viz_data()``.
+        policy: Policy display name.
+        sample_idx: Sample index.
+        day: Simulation day.
+        log_path: Optional JSONL path.
+        lock: Optional thread lock.
+    """
+    if not viz_data:
+        return
+
+    payload = deep_sanitize(viz_data)
+    policy_type = detect_policy_viz_type(payload)
+    json_payload = json.dumps(payload, separators=(",", ":"))
+    log_msg = f"{POLICY_VIZ_MARKER}{policy},{sample_idx},{day},{policy_type},{json_payload}"
+
+    print(log_msg, flush=True)
+
+    if not log_path:
+        return
+
+    acquired = lock.acquire(timeout=udef.LOCK_TIMEOUT) if lock is not None else True
+    if not acquired:
+        return
+    try:
+        with open(log_path, "a") as f:
+            f.write(log_msg + "\n")
+            f.flush()
+    except OSError as exc:
+        print(f"Warning: Failed to write policy viz to log file: {exc}", file=sys.stderr)
+    finally:
+        if lock is not None:
+            lock.release()

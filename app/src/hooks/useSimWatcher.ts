@@ -2,7 +2,7 @@ import { useEffect } from "react";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { useSimStore } from "../store/sim";
-import type { DayLogEntry } from "../types";
+import type { DayLogEntry, PolicyVizEntry } from "../types";
 
 /**
  * Starts the Rust file-watcher for a simulation log file and pipes
@@ -13,7 +13,7 @@ import type { DayLogEntry } from "../types";
  * only when new `GUI_DAY_LOG_START:` lines are found — zero unnecessary re-renders.
  */
 export function useSimWatcher(logPath: string | null) {
-  const { addEntry, setWatching } = useSimStore();
+  const { addEntry, addPolicyVizEntry, setWatching } = useSimStore();
 
   useEffect(() => {
     if (!logPath) return;
@@ -21,9 +21,16 @@ export function useSimWatcher(logPath: string | null) {
     let unlisten: (() => void) | undefined;
 
     (async () => {
-      unlisten = await listen<DayLogEntry>("sim:day_update", (event) => {
+      const ulDay = await listen<DayLogEntry>("sim:day_update", (event) => {
         addEntry(event.payload);
       });
+      const ulViz = await listen<PolicyVizEntry>("sim:policy_viz_update", (event) => {
+        addPolicyVizEntry(event.payload);
+      });
+      unlisten = () => {
+        ulDay();
+        ulViz();
+      };
 
       try {
         await invoke("start_sim_watcher", { path: logPath });
@@ -38,5 +45,5 @@ export function useSimWatcher(logPath: string | null) {
       invoke("stop_sim_watcher").catch(() => {});
       setWatching(false);
     };
-  }, [logPath, addEntry, setWatching]);
+  }, [logPath, addEntry, addPolicyVizEntry, setWatching]);
 }

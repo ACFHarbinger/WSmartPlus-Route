@@ -37,6 +37,7 @@ pub fn run() {
             arrow::read_binary_file,
             arrow::path_exists,
             data::load_simulation_log,
+            data::load_policy_viz_log,
             data::load_csv_file,
             data::list_output_dirs,
             data::list_training_runs,

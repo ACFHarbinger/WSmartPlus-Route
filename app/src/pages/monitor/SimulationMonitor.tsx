@@ -42,11 +42,12 @@ import {
 } from "../../utils/chartLogScale";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
 import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
+import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
-import type { BinCoord, DayLogEntry, SimDayData } from "../../types";
+import type { BinCoord, DayLogEntry, PolicyVizEntry, SimDayData } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
 
@@ -428,10 +429,12 @@ function TourTable({ data, day, policy }: { data: SimDayData; day: number; polic
 export function SimulationMonitor() {
   const {
     entries,
+    policyVizEntries,
     selectedDay,
     watchPath,
     isWatching,
     loadEntries,
+    loadPolicyVizEntries,
     setSelectedPolicy,
     setSelectedSample,
     setSelectedDay,
@@ -497,8 +500,12 @@ export function SimulationMonitor() {
   const loadLogFile = useCallback(
     async (path: string, watch = true) => {
       reset();
-      const historical = await invoke<DayLogEntry[]>("load_simulation_log", { path });
+      const [historical, vizHistorical] = await Promise.all([
+        invoke<DayLogEntry[]>("load_simulation_log", { path }),
+        invoke<PolicyVizEntry[]>("load_policy_viz_log", { path }).catch(() => []),
+      ]);
       loadEntries(historical);
+      loadPolicyVizEntries(vizHistorical);
       setActiveLogPath(path);
       if (watch) setWatchPath(path);
       pushRecent({ path, label: recentFileLabel(path), kind: "log" });
@@ -511,7 +518,7 @@ export function SimulationMonitor() {
           .finally(() => setDuckdbLoading(false));
       }
     },
-    [reset, loadEntries, setWatchPath, pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]
+    [reset, loadEntries, loadPolicyVizEntries, setWatchPath, pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]
   );
 
   const openLog = useCallback(async () => {
@@ -1041,6 +1048,15 @@ export function SimulationMonitor() {
               policy={displayEntry.policy}
             />
           )}
+
+          <PolicyTelemetryPanel
+            entries={policyVizEntries}
+            policy={selectedPolicy}
+            sampleId={selectedSample}
+            day={displayDay}
+            theme={theme}
+            logScale={logScale}
+          />
 
           <GraphTopologyPanel
             logPath={activeLogPath}

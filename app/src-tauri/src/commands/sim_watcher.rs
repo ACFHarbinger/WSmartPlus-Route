@@ -17,6 +17,16 @@ pub struct DayLogEntry {
     pub data: serde_json::Value,
 }
 
+/// Policy iteration telemetry from ``PolicyVizMixin`` (§A.3).
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct PolicyVizEntry {
+    pub policy: String,
+    pub sample_id: i32,
+    pub day: i32,
+    pub policy_type: String,
+    pub data: serde_json::Value,
+}
+
 pub fn parse_day_log_line(line: &str) -> Option<DayLogEntry> {
     let line = line.trim();
     if !line.starts_with("GUI_DAY_LOG_START:") {
@@ -33,6 +43,31 @@ pub fn parse_day_log_line(line: &str) -> Option<DayLogEntry> {
     let day: i32 = parts[2].trim().parse().ok()?;
     let data: serde_json::Value = serde_json::from_str(parts[3].trim()).ok()?;
     Some(DayLogEntry { policy, sample_id, day, data })
+}
+
+pub fn parse_policy_viz_line(line: &str) -> Option<PolicyVizEntry> {
+    let line = line.trim();
+    if !line.starts_with("POLICY_VIZ_START:") {
+        return None;
+    }
+    let content = &line["POLICY_VIZ_START:".len()..];
+    // policy, sample_id, day, policy_type, json_payload
+    let parts: Vec<&str> = content.splitn(5, ',').collect();
+    if parts.len() < 5 {
+        return None;
+    }
+    let policy = parts[0].trim().to_string();
+    let sample_id: i32 = parts[1].trim().parse().ok()?;
+    let day: i32 = parts[2].trim().parse().ok()?;
+    let policy_type = parts[3].trim().to_string();
+    let data: serde_json::Value = serde_json::from_str(parts[4].trim()).ok()?;
+    Some(PolicyVizEntry {
+        policy,
+        sample_id,
+        day,
+        policy_type,
+        data,
+    })
 }
 
 /// Global watcher cancellation flag (path → stop signal).
@@ -64,6 +99,9 @@ pub async fn start_sim_watcher(path: String, app: AppHandle) -> Result<(), Strin
                         if let Some(entry) = parse_day_log_line(line) {
                             let _ = app.emit("sim:day_update", &entry);
                         }
+                        if let Some(viz) = parse_policy_viz_line(line) {
+                            let _ = app.emit("sim:policy_viz_update", &viz);
+                        }
                     }
                     lines_seen = lines.len();
                 }
@@ -83,4 +121,27 @@ pub fn stop_sim_watcher() -> Result<(), String> {
         *guard = Some("stop".to_string());
     }
     Ok(())
+}
+
+#[cfg(test)]
+mod tests {
+    use super::{parse_day_log_line, parse_policy_viz_line};
+
+    #[test]
+    fn parse_policy_viz_line_valid() {
+        let line = r#"POLICY_VIZ_START:ALNS + Ftsp,0,2,alns,{"iteration":[0,1],"best_cost":[10.0,9.0]}"#;
+        let entry = parse_policy_viz_line(line).expect("parse");
+        assert_eq!(entry.policy, "ALNS + Ftsp");
+        assert_eq!(entry.sample_id, 0);
+        assert_eq!(entry.day, 2);
+        assert_eq!(entry.policy_type, "alns");
+        assert_eq!(entry.data["best_cost"][0], 10.0);
+    }
+
+    #[test]
+    fn parse_policy_viz_line_ignores_day_log() {
+        let line = r#"GUI_DAY_LOG_START:greedy,0,1,{"profit":10}"#;
+        assert!(parse_policy_viz_line(line).is_none());
+        assert!(parse_day_log_line(line).is_some());
+    }
 }
