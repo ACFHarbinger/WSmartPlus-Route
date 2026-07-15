@@ -83,7 +83,7 @@ class HpoHealthMetricsCallback(Callback):
         self._report_to_ray(grad_norm, entropy, reward, epoch)
 
         if self.trial is not None:
-            self._report_to_optuna(grad_norm, entropy, reward, epoch)
+            self._report_to_optuna(trainer, grad_norm, entropy, reward, epoch)
 
     def _log_to_tracker(
         self,
@@ -130,6 +130,7 @@ class HpoHealthMetricsCallback(Callback):
 
     def _report_to_optuna(
         self,
+        trainer: pl.Trainer,
         grad_norm: Optional[float],
         entropy: Optional[float],
         reward: Optional[float],
@@ -137,6 +138,10 @@ class HpoHealthMetricsCallback(Callback):
     ) -> None:
         if optuna is None or self.trial is None:
             return
+
+        log_dir = getattr(trainer, "log_dir", None)
+        if log_dir and "log_dir" not in self.trial.user_attrs:
+            self.trial.set_user_attr("log_dir", str(log_dir))
 
         if grad_norm is not None:
             self.trial.set_user_attr("last_grad_norm", grad_norm)

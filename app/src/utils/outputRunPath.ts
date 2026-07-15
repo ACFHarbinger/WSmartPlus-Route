@@ -129,6 +129,13 @@ export function mlflowRunDirFromArtifactUri(artifactUri: string): string | null 
   return local;
 }
 
+/** Resolve a local SQLite file path from an Optuna ``sqlite:///`` storage URL (§G.18 / §D.7). */
+export function sqlitePathFromStorageUrl(storageUrl: string): string | null {
+  if (!storageUrl.startsWith("sqlite:///")) return null;
+  const path = storageUrl.slice("sqlite:///".length);
+  return path.trim() || null;
+}
+
 /** Derive log/run path per process id for row path-chip brush parity (§G.15 / §D.7). */
 export function brushLogPathMapFromProcesses(
   processes: Record<string, Pick<ProcessEntry, "logLines" | "command">>,

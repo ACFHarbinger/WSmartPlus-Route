@@ -48,9 +48,11 @@ def test_hpo_health_reports_optuna_user_attrs():
             "val/reward": torch.tensor(-3.2),
         },
     )
+    trainer.log_dir = "/tmp/lightning_logs/trial_0"
 
     cb.on_validation_epoch_end(trainer, MagicMock())
 
+    assert trial.user_attrs["log_dir"] == "/tmp/lightning_logs/trial_0"
     assert trial.user_attrs["last_grad_norm"] == pytest.approx(12.5)
     assert trial.user_attrs["last_entropy"] == pytest.approx(0.08)
     assert trial.user_attrs["grad_norm_epoch_1"] == pytest.approx(12.5)
