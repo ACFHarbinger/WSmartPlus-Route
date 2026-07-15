@@ -562,6 +562,7 @@ export function ProcessMonitor() {
             <EvalCheckpointLiveCard
               procId={selectedProc.id}
               checkpointName={evalCheckpointName}
+              checkpointPath={evalCheckpointPath}
               status={selectedProc.status}
               isRunning={selectedProc.status === "running"}
               result={evalResult ?? undefined}

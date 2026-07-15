@@ -261,7 +261,11 @@ function CheckpointRow({
         </button>
       </div>
       {trimmedPath ? (
-        <PathRunLabelChip path={trimmedPath} className="max-w-full" />
+        <PathRunLabelChip
+          path={trimmedPath}
+          brushLabel={parentRunBrushLabelFromCheckpointPath(trimmedPath)}
+          className="max-w-full"
+        />
       ) : null}
     </div>
   );
@@ -527,6 +531,9 @@ export function EvaluationRunner() {
               <FolderOpen size={13} />
             </button>
           </div>
+          {datasetPath.trim() ? (
+            <PathRunLabelChip path={datasetPath.trim()} className="max-w-full" />
+          ) : null}
         </div>
 
         <div className="flex flex-wrap gap-4">
@@ -686,12 +693,14 @@ export function EvaluationRunner() {
               );
               const isRunning = proc?.status === "running";
               const ckptResult = results.find((r) => r.checkpointName === ckptName);
+              const ckptPath = checkpointPathFromEvalCommand(proc?.command ?? "");
 
               return (
                 <EvalCheckpointLiveCard
                   key={procId}
                   procId={procId}
                   checkpointName={ckptName}
+                  checkpointPath={ckptPath}
                   status={proc?.status}
                   isRunning={isRunning}
                   result={ckptResult}

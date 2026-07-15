@@ -1172,6 +1172,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser + Training Monitor — checkpoint ``brushLabel`` uses shared ``parentRunBrushLabelFromCheckpointPath`` helper (§G.14 / §G.17 / §D.7)
 - [x] §G.12 / §G.1 / §G.8 eval-results + bundle-manifest path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninetieth pass)**
+
+- [x] ``EvalCheckpointLiveCard`` — optional ``checkpointPath`` prop renders ``PathRunLabelChip`` with parent-run ``brushLabel`` on live eval rows (§G.12 / §G.15 / §D.7)
+- [x] Evaluation Runner + Training Hub + Process Monitor — live eval cards pass Hydra checkpoint path to ``EvalCheckpointLiveCard`` (§G.12 / §G.10 / §G.15 / §D.7)
+- [x] Evaluation Runner + Training Hub — eval dataset path ``PathRunLabelChip`` below filled dataset inputs (§G.12 / §G.10 / §D.7)
+- [x] Evaluation Runner + Training Hub — checkpoint input chips use ``parentRunBrushLabelFromCheckpointPath`` ``brushLabel`` parity with results table (§G.12 / §G.10 / §D.7)
+- [x] Data Generation Wizard — TSPLIB instance + sensor CSV source path ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.11 / §D.7)
+- [x] ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` header uses ``PathRunLabelChip`` instead of plain font-mono text (§G.7 / §A.3 / §D.7)
+- [x] §G.12 / §G.10 / §G.11 / §G.15 live-eval + dataset + data-gen source path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1731,6 +1741,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner + Benchmark Analysis eval results tables — ``PathRunLabelChip`` on checkpoint rows with parent-run ``brushLabel`` when Hydra path known (hundred-eighty-ninth pass; §G.12 / §G.1 / §D.7)
 - [x] EvalResultCard + Process Monitor / Training Hub eval panels — checkpoint header ``PathRunLabelChip`` parity (hundred-eighty-ninth pass; §G.10 / §G.12 / §G.15 / §D.7)
 - [x] Output Browser ``.wsroute`` manifest file table — ``PathRunLabelChip`` on bundle member paths with selected-run brush label (hundred-eighty-ninth pass; §G.8 / §G.14 / §D.7)
+- [x] EvalCheckpointLiveCard + launcher eval live panels — ``PathRunLabelChip`` on per-checkpoint live rows when Hydra path known (hundred-ninetieth pass; §G.12 / §G.10 / §G.15 / §D.7)
+- [x] Evaluation Runner + Training Hub eval dataset inputs — ``PathRunLabelChip`` below filled dataset paths (hundred-ninetieth pass; §G.12 / §G.10 / §D.7)
+- [x] Data Generation Wizard TSPLIB + sensor source paths — ``PathRunLabelChip`` on external data source file inputs (hundred-ninetieth pass; §G.11 / §D.7)
+- [x] PolicyTelemetryTrendsPanel SQLite store path — ``PathRunLabelChip`` on ``db_path`` header (hundred-ninetieth pass; §G.7 / §A.3 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
