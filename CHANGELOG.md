@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-tenth pass (§A.5)
+
+Hundred-tenth pass adds Optuna ``optuna.visualization`` Plotly report export to
+``assets/hpo_reports/``, completing ROADMAP §A.5 Option A.
+
+**Python logic**
+- ``hpo_reports.py`` — parallel-coordinates, param-importances, optimisation-history
+  HTML export (+ optional PNG when kaleido installed); ``manifest.json`` metadata
+- ``run_hpo_sim`` — auto-exports reports after HPO completes (≥2 completed trials)
+- Unit tests in ``logic/test/unit/pipeline/simulations/test_hpo_reports.py``
+
+**Rust backend**
+- ``export_optuna_reports`` command — invokes Python export; returns report paths
+
+**React frontend**
+- HPO Tracker — **Export Plotly** button + **Reports** folder open via shell plugin
+
+**ROADMAP**
+- §A.5 Option A Optuna plots checked (Options B/C deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninth pass (§A.3)
 
 Hundred-ninth pass wires ``PolicyVizMixin`` iteration telemetry into the Studio

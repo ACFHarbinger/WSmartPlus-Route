@@ -6,13 +6,14 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Copy, FolderOpen, RefreshCw } from "lucide-react";
+import { open as openUrl } from "@tauri-apps/plugin-shell";
+import { Copy, Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
-import type { OptunaStudyData, OptunaStudySummary } from "../../types";
+import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary } from "../../types";
 
 const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";
 
@@ -187,6 +188,8 @@ export function HPOTracker() {
   const [compareStudy, setCompareStudy] = useState<string | null>(null);
   const [compareStudyData, setCompareStudyData] = useState<OptunaStudyData | null>(null);
   const [loading, setLoading] = useState(false);
+  const [exporting, setExporting] = useState(false);
+  const [lastReportDir, setLastReportDir] = useState<string | null>(null);
   const historyChartRef = useRef<ReactECharts>(null);
   const importanceChartRef = useRef<ReactECharts>(null);
   const crossStudyChartRef = useRef<ReactECharts>(null);
@@ -276,6 +279,41 @@ export function HPOTracker() {
     [studyData, logScale]
   );
 
+  const exportPlotlyReports = useCallback(async () => {
+    if (!projectRoot || !selectedStudy) return;
+    setExporting(true);
+    try {
+      const result = await invoke<HpoReportExportResult>("export_optuna_reports", {
+        storageUrl,
+        studyName: selectedStudy,
+        projectRoot,
+        pythonExecutable: pythonPath || null,
+        outputDir: null,
+      });
+      if (result.report_dir) {
+        setLastReportDir(result.report_dir);
+        toast.success("Plotly HPO reports exported", {
+          description: `${result.files.length} files in ${result.report_dir}`,
+        });
+      } else {
+        toast.info(result.message);
+      }
+    } catch (err) {
+      toast.error("Failed to export HPO reports", { description: String(err) });
+    } finally {
+      setExporting(false);
+    }
+  }, [projectRoot, pythonPath, selectedStudy, storageUrl]);
+
+  const openReportDir = useCallback(async () => {
+    if (!lastReportDir) return;
+    try {
+      await openUrl(lastReportDir);
+    } catch (err) {
+      toast.error("Could not open report folder", { description: String(err) });
+    }
+  }, [lastReportDir]);
+
   const copyBestParams = useCallback(async () => {
     if (!studyData?.best_params) return;
     const lines = Object.entries(studyData.best_params).map(
@@ -349,12 +387,36 @@ export function HPOTracker() {
                 </option>
               ))}
             </select>
-            {studyData && Object.keys(studyData.best_params).length > 0 && (
-              <button onClick={copyBestParams} className="btn-ghost text-xs flex items-center gap-1">
-                <Copy size={12} />
-                Copy best params
-              </button>
-            )}
+            <div className="flex items-center gap-2">
+              {studyData &&
+                studyData.trials.filter((t) => t.state === "COMPLETE").length >= 2 && (
+                  <button
+                    onClick={exportPlotlyReports}
+                    disabled={exporting}
+                    className="btn-ghost text-xs flex items-center gap-1"
+                    title="Export optuna.visualization Plotly HTML to assets/hpo_reports/"
+                  >
+                    <Download size={12} className={exporting ? "animate-pulse" : ""} />
+                    Export Plotly
+                  </button>
+                )}
+              {lastReportDir && (
+                <button
+                  onClick={openReportDir}
+                  className="btn-ghost text-xs flex items-center gap-1"
+                  title="Open report folder in file manager"
+                >
+                  <ExternalLink size={12} />
+                  Reports
+                </button>
+              )}
+              {studyData && Object.keys(studyData.best_params).length > 0 && (
+                <button onClick={copyBestParams} className="btn-ghost text-xs flex items-center gap-1">
+                  <Copy size={12} />
+                  Copy best params
+                </button>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center gap-3">
