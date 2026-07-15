@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eightieth pass (§G.1 + §G.6 + §G.14 + §D.7)
+
+Hundred-eightieth pass closes the remaining file-path run-label brush chip gap left after the
+hundred-seventy-ninth pass (which unified Monitor / Algorithm Comparison / Data Explorer
+``PathRunLabelChip`` parity). Simulation Summary, Output Browser, and OLAP Explorer now share
+the same path-chip ring-highlight + click-to-brush behaviour as Simulation Monitor.
+
+**React frontend**
+- Simulation Summary — open-log ``PathRunLabelChip`` with DuckDB ingest timing badge (§G.1 / §G.14 / §D.7)
+- Output Browser — selected-run ``PathRunLabelChip`` on file-tree header; open-jsonl viewer header
+  chip replaces plain path text (§G.14 / §D.7)
+- OLAP Explorer — custom-ingest ``PathRunLabelChip`` when selected table tracks a source path;
+  ingest timing badge moves to chip trailing slot (§G.6 / §G.14 / §D.7)
+
+**ROADMAP**
+- §G.1 Simulation Summary open-log path-chip run-label brush parity checked
+- §G.6 OLAP Explorer custom-ingest path-chip run-label brush parity checked
+- §G.14 Output Browser selected-run + jsonl viewer path-chip brush parity checked
+- §D.7 file-path run-label brush + ring-highlight parity across all file-based analysis views checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-ninth pass (§G.6 + §G.14 + §G.16 + §D.7)
 
 Hundred-seventy-ninth pass closes the single-log DuckDB run-label brush gap left after the

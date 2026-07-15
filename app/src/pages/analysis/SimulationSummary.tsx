@@ -21,6 +21,7 @@ import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
   chartMetricDisplay,
@@ -2246,13 +2247,17 @@ export function SimulationSummary() {
           </>
         )}
         {logPath && (
-          <span className="text-xs text-canvas-muted font-mono truncate">
-            {logPath.split("/").pop()}
-            {duckdbLoading && " · DuckDB ingesting…"}
-            {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
-              <> · {formatPipelineTimingBadge(lastPipeline)}</>
-            )}
-          </span>
+          <PathRunLabelChip
+            path={logPath}
+            trailing={
+              <>
+                {duckdbLoading && <span className="shrink-0">· DuckDB ingesting…</span>}
+                {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
+                  <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+                )}
+              </>
+            }
+          />
         )}
         {allRuns.length > 1 && (
           <span className="text-xs text-canvas-muted">{allRuns.length} runs loaded</span>

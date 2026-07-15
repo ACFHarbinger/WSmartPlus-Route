@@ -7,6 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -225,11 +226,23 @@ export function OlapExplorer() {
           <FolderOpen size={12} />
           Ingest CSV / JSONL
         </button>
+        {selectedIngestPath && (
+          <PathRunLabelChip
+            path={selectedIngestPath}
+            trailing={
+              !loading && lastPipeline ? (
+                <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+              ) : undefined
+            }
+          />
+        )}
         <span className="text-xs text-canvas-muted flex items-center gap-1">
           <Database size={12} />
           {duckdbReady ? `${tables.length} table(s) in DuckDB-Wasm` : "DuckDB initialising…"}
           {loading && " · ingesting…"}
-          {!loading && lastPipeline && <> · last ingest {formatPipelineTimingBadge(lastPipeline)}</>}
+          {!loading && lastPipeline && !selectedIngestPath && (
+            <> · last ingest {formatPipelineTimingBadge(lastPipeline)}</>
+          )}
         </span>
       </div>
 
