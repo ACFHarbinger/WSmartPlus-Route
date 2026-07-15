@@ -295,6 +295,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - [x] Process Monitor — ``LiveTrainProgressBar`` replaces inline ``PROGRESS:`` row bar; elapsed + ETA parity on all running processes (train/hpo/sim/data gen) (§D.2 / §G.15 / §A.4)
 
+**Delivered (§A.4 Option A — hundred-thirty-seventh pass)**
+
+- [x] Simulation Launcher — ``LiveTrainProgressBar`` in live status panel during running ``test_sim`` processes (§D.2 / §G.9 / §A.4)
+- [x] Data Generation Wizard — ``LiveTrainProgressBar`` in live progress panel during ``gen_data`` runs (§D.2 / §G.11 / §A.4)
+
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
 ---
@@ -820,7 +825,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0 ✅ (Zustand persist)           |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
-| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (Training Hub + Monitor + Process Monitor progress/ETA) |
+| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (all launchers + monitors progress/ETA) |
 | §D.1 Option A (ECharts route panel)         | Medium   | High   | P2 ✅ (RouteViz + Summary)        |
 | §D.6 Option A (override table)              | Medium   | High   | P2 ✅ (all launchers)             |
 | §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 ✅ (§G.3 / §G.16)              |
@@ -1462,6 +1467,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live status display: after launch, subscribes to `process:stdout` events for the spawned process ID; parses `GUI_DAY_LOG_START:` markers; displays a per-policy card grid with day / profit / km / overflows in real time; "View Summary →" and "Process Monitor" navigation buttons shown on completion
 - [x] On completion: auto-navigate to `simulation_summary` after 5-second countdown with cancel button; countdown driven by `useEffect` on `simStatus === "completed"`; "View Summary →" manual button always shown alongside countdown
 - [x] Session persistence for form values: `useSimLauncherStore` (Zustand `persist`, key `wsroute-sim-launcher`) stores `selectedPolicies`, `area`, `numLoc`, `samples`, `nCores`, `seed`, `distribution`, `extraOverrides`; ephemeral runtime state stays in component state
+- [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live status panel during running simulations (§D.2 / §G.9)
 
 ---
 
@@ -1502,6 +1508,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Preview panel: `preview_dataset_stats` Rust command + "Preview .pkl/.pt" button; KPI cards (instances, nodes, demand μ±σ, file size) + ECharts demand histogram with PNG export; demand histogram follows global ``logScale`` via ``GlobalFilterBar`` (§G.11 / §G.7)
 - [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
 - [x] Session persistence: `useDataGenStore` (Zustand `persist`, key `wsroute-data-gen`) stores all form fields; ephemeral runtime state stays in component state
+- [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live progress panel during ``gen_data`` runs (§D.2 / §G.11)
 
 ---
 

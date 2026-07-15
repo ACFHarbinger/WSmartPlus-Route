@@ -15,6 +15,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
@@ -561,6 +562,9 @@ export function DataGeneration() {
                 Process Monitor
               </button>
             </div>
+            {!isDone && liveProcessId && (
+              <LiveTrainProgressBar processId={liveProcessId} />
+            )}
             {logTail.length > 0 && (
               <div className="bg-canvas-bg rounded-lg p-2 space-y-0.5 max-h-36 overflow-auto">
                 {logTail.map((line, i) => (

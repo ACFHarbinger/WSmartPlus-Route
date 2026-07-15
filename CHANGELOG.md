@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-seventh pass (§D.2 + §G.9 + §G.11 + §A.4)
+
+Hundred-thirty-seventh pass extends ``LiveTrainProgressBar`` to the remaining launcher
+live panels so simulation and data-generation runs show the same progress bar, elapsed
+time, and ETA as train/HPO workflows.
+
+**React frontend**
+- Simulation Launcher — ``LiveTrainProgressBar`` in live status panel during running
+  ``test_sim`` processes (§D.2 / §G.9 / §A.4)
+- Data Generation Wizard — ``LiveTrainProgressBar`` in live progress panel during
+  ``gen_data`` runs (§D.2 / §G.11 / §A.4)
+
+**ROADMAP**
+- §A.4 Simulation Launcher + Data Generation ``LiveTrainProgressBar`` checked
+- §D.2 launcher live progress/ETA parity checked
+- §G.9 Simulation Launcher progress + ETA checked
+- §G.11 Data Generation progress + ETA checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-sixth pass (§D.2 + §G.15 + §A.4)
 
 Hundred-thirty-sixth pass closes the Process Monitor progress/ETA gap left after the
