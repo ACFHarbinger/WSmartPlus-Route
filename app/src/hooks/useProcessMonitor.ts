@@ -7,10 +7,15 @@ import {
   sendNotification,
 } from "@tauri-apps/plugin-notification";
 import { toast } from "sonner";
+import { applyStoreRecentHandoff } from "./useRecentHandoff";
 import { useProcessStore } from "../store/process";
 import { useSimStore } from "../store/sim";
+import { outputRunPathFromLogLines } from "../utils/outputRunPath";
+import { extractJsonlPathFromLogLines } from "../utils/policyTelemetryTrends";
 import { parsePolicyVizLine } from "../utils/policyTelemetry";
 import { parseSimFailureLine } from "../utils/simFailure";
+import { isTrainOrHpoProcess } from "../utils/trainingProcess";
+import { trainingRunPathFromLogLines } from "../utils/trainingRunPath";
 import type { ProcessSpawned, StdoutLine, StatusUpdate } from "../types";
 
 async function maybeSendOsNotification(title: string, body: string) {
@@ -27,6 +32,69 @@ async function maybeSendOsNotification(title: string, body: string) {
   } catch {
     // Notification plugin unavailable or denied — toast already shown
   }
+}
+
+/**
+ * Sonner action buttons for process terminal toasts when stdout yields a
+ * navigable artefact (§D.8 / §G.1 / §G.14 / §G.16 / §G.17).
+ */
+function processToastHandoffOptions(id: string): {
+  action?: { label: string; onClick: () => void };
+  cancel?: { label: string; onClick: () => void };
+  duration?: number;
+} {
+  const proc = useProcessStore.getState().processes[id];
+  if (!proc) return {};
+
+  const lines = proc.logLines;
+  const jsonl = extractJsonlPathFromLogLines(lines);
+  if (jsonl) {
+    return {
+      duration: 8000,
+      action: {
+        label: "Summary",
+        onClick: () => {
+          applyStoreRecentHandoff(jsonl, "log");
+        },
+      },
+      cancel: {
+        label: "Monitor",
+        onClick: () => {
+          applyStoreRecentHandoff(jsonl, "log", { mode: "simulation" });
+        },
+      },
+    };
+  }
+
+  if (isTrainOrHpoProcess(id, proc.command)) {
+    const trainPath = trainingRunPathFromLogLines(lines);
+    if (trainPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Training",
+          onClick: () => {
+            applyStoreRecentHandoff(trainPath, "training");
+          },
+        },
+      };
+    }
+  }
+
+  const runPath = outputRunPathFromLogLines(lines);
+  if (runPath) {
+    return {
+      duration: 8000,
+      action: {
+        label: "Output",
+        onClick: () => {
+          applyStoreRecentHandoff(runPath, "run");
+        },
+      },
+    };
+  }
+
+  return {};
 }
 
 /**
@@ -65,23 +133,33 @@ export function useProcessMonitor() {
         updateStatus(id, status, exit_code ?? undefined);
 
         const label = id.split("_")[0];
+        const handoffOpts = processToastHandoffOptions(id);
         if (status === "completed") {
-          toast.success(`${label} completed`, { description: id, duration: 4000 });
-          void maybeSendOsNotification(
-            `${label} completed`,
-            id
-          );
+          toast.success(`${label} completed`, {
+            description: id,
+            duration: handoffOpts.duration ?? 4000,
+            action: handoffOpts.action,
+            cancel: handoffOpts.cancel,
+          });
+          void maybeSendOsNotification(`${label} completed`, id);
         } else if (status === "failed") {
           toast.error(`${label} failed`, {
             description: `${id} — exit ${exit_code ?? "?"}`,
-            duration: 6000,
+            duration: handoffOpts.duration ?? 6000,
+            action: handoffOpts.action,
+            cancel: handoffOpts.cancel,
           });
           void maybeSendOsNotification(
             `${label} failed`,
             `${id} — exit ${exit_code ?? "?"}`
           );
         } else if (status === "cancelled") {
-          toast.info(`${label} cancelled`, { description: id, duration: 3000 });
+          toast.info(`${label} cancelled`, {
+            description: id,
+            duration: handoffOpts.duration ?? 3000,
+            action: handoffOpts.action,
+            cancel: handoffOpts.cancel,
+          });
         }
       });
 

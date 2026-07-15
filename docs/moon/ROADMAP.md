@@ -1440,6 +1440,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Command Palette recent log entries — dual icon handoffs for explicit Summary vs Digital Twin open (§G.7 / §G.1 / §G.16 / §D.7)
 - [x] §G.15 / §G.7 process-row + palette recent-log handoff surface parity with Output Browser run header checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-second pass)**
+
+- [x] ``applyStoreRecentHandoff`` / ``recentPendingSettersFromStore`` — non-React handoff helpers for toast / event handlers (§G.7 / §D.7 / §D.8)
+- [x] ``ProcessIdFooter`` — icon Summary / Monitor handoffs when footer ``logPath`` is a ``.jsonl`` (launcher + Process Monitor live panels) (§G.9 / §G.15 / §G.1 / §G.16 / §D.7)
+- [x] Process completion / failure / cancel toasts — **Summary** + **Monitor** actions when stdout yields a ``.jsonl``; **Training** for train/HPO run paths; **Output** for assets/output run roots (§D.8 / §G.1 / §G.14 / §G.16 / §G.17 / §D.7)
+- [x] §G.9 / §G.15 live-panel footer + §D.8 toast log-handoff surface parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1455,6 +1462,17 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 **Recommendation**: **Option A + B** — the React toast for when the window is focused, Tauri native notification for when the user has switched away. Option C is optional polish.
 
 **Effort × Impact**: Low effort / High impact
+
+**Delivered (§D.8 Option A+B — base)**
+
+- [x] Sonner in-app toasts on process completed / failed / cancelled via ``useProcessMonitor``
+- [x] Tauri native OS notification when the Studio window is not focused
+
+**Delivered (§D.8 — two-hundred-and-twenty-second pass)**
+
+- [x] Completion / failure / cancel toast action buttons hand off into Summary / Monitor (``.jsonl``), Training Monitor (train/HPO path), or Output Browser (run root) via ``applyStoreRecentHandoff`` (§D.8 / §G.1 / §G.14 / §G.16 / §G.17 / §D.7)
+
+**Status**: §D.8 Options A+B complete — Option C (sound) deferred.
 
 ---
 
