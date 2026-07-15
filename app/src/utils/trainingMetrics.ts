@@ -9,7 +9,7 @@ const METRIC_SIGNAL_KEYS = [
   "reward", "grad_norm", "entropy", "epoch", "step",
 ];
 
-function normalizeMetricRow(raw: Record<string, unknown>): TrainingMetricsRow {
+export function normalizeTrainingMetricRow(raw: Record<string, unknown>): TrainingMetricsRow {
   const r = { ...raw } as TrainingMetricsRow;
   if (r.train_loss == null) {
     r.train_loss = (raw["train/rl_loss"] ?? raw["train/il_loss"]) as number | undefined;
@@ -33,7 +33,7 @@ export function parseTrainingMetricLine(line: string): TrainingMetricsRow | null
   try {
     const obj = JSON.parse(text) as Record<string, unknown>;
     if (METRIC_SIGNAL_KEYS.some((k) => typeof obj[k] === "number")) {
-      return normalizeMetricRow(obj);
+      return normalizeTrainingMetricRow(obj);
     }
   } catch {
     // fall through to key=value parsing
@@ -43,7 +43,7 @@ export function parseTrainingMetricLine(line: string): TrainingMetricsRow | null
     for (const [, key, val] of text.matchAll(/(\w[\w/]*)=([0-9.eE+\-]+)/g)) {
       row[key] = parseFloat(val);
     }
-    if (Object.keys(row).length > 0) return normalizeMetricRow(row);
+    if (Object.keys(row).length > 0) return normalizeTrainingMetricRow(row);
   }
   return null;
 }

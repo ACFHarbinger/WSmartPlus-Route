@@ -22,6 +22,7 @@ import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
+import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { findRecentHpoProcessId } from "../../utils/trainingProcess";
 import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary } from "../../types";
 
@@ -236,6 +237,15 @@ export function HPOTracker() {
     [recentHpoProc]
   );
 
+  const liveMetrics = useMemo(
+    () =>
+      recentHpoProc
+        ? collectTrainingMetricsFromLogLines(recentHpoProc.logLines)
+        : [],
+    [recentHpoProc]
+  );
+  const latestLiveMetric = liveMetrics[liveMetrics.length - 1];
+
   const refreshStudies = useCallback(async () => {
     if (!projectRoot) return;
     setLoading(true);
@@ -407,6 +417,11 @@ export function HPOTracker() {
             <span className="text-xs text-canvas-muted font-mono truncate flex-1">
               {recentHpoId}
             </span>
+            {liveMetrics.length > 0 && (
+              <span className="text-xs text-accent-success">
+                {liveMetrics.length} metric updates
+              </span>
+            )}
             <TrainHpoNavMesh
               showHpoLinks
               showOutputBrowser={recentHpoDone && recentHpoProc.status === "completed"}
@@ -420,6 +435,28 @@ export function HPOTracker() {
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
               Post-run shortcuts — open Output Browser or Training Monitor for this sweep
+            </div>
+          )}
+          {latestLiveMetric && (
+            <div className="flex flex-wrap gap-4 text-xs">
+              {latestLiveMetric.epoch != null && (
+                <div>
+                  <span className="text-canvas-muted">Epoch </span>
+                  <span className="font-mono text-gray-200">{latestLiveMetric.epoch}</span>
+                </div>
+              )}
+              {latestLiveMetric.train_loss != null && (
+                <div>
+                  <span className="text-canvas-muted">Train loss </span>
+                  <span className="font-mono text-gray-200">{latestLiveMetric.train_loss.toFixed(4)}</span>
+                </div>
+              )}
+              {latestLiveMetric.val_loss != null && (
+                <div>
+                  <span className="text-canvas-muted">Val loss </span>
+                  <span className="font-mono text-gray-200">{latestLiveMetric.val_loss.toFixed(4)}</span>
+                </div>
+              )}
             </div>
           )}
           <TrainingHealthPanel entries={liveHealthEntries} />
