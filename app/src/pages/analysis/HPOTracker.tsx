@@ -455,7 +455,7 @@ export function HPOTracker() {
           }}
           logLines={recentHpoProc.logLines}
           logTailWaiting={recentHpoRunning}
-          footer={<ProcessIdFooter processId={recentHpoId} />}
+          footer={<ProcessIdFooter processId={recentHpoId} logPath={processLogPath} />}
         />
       )}
 

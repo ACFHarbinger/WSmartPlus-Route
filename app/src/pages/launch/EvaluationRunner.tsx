@@ -650,7 +650,9 @@ export function EvaluationRunner() {
               onOpenAnalytics: results.length > 0 ? openInAnalytics : undefined,
             },
           }}
-          footer={<ProcessIdFooter processIds={displayProcessIds} />}
+          footer={
+            <ProcessIdFooter processIds={displayProcessIds} logPath={liveLogPath} />
+          }
           logLines={singleCheckpointEval ? singleEvalLogLines : undefined}
           logTailWaiting={singleCheckpointEval ? singleEvalLogTailWaiting : false}
         >

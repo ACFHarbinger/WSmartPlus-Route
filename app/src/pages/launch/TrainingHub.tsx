@@ -582,7 +582,7 @@ export function TrainingHub() {
                 evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined,
             },
           }}
-          footer={<ProcessIdFooter processId={displayProcessId} />}
+          footer={<ProcessIdFooter processId={displayProcessId} logPath={liveLogPath} />}
           logLines={liveLogLines}
           logTailWaiting={!isDone}
         >
@@ -665,7 +665,7 @@ export function TrainingHub() {
           }}
           logLines={liveLogLines}
           logTailWaiting={!isDone}
-          footer={<ProcessIdFooter processId={displayProcessId} />}
+          footer={<ProcessIdFooter processId={displayProcessId} logPath={liveLogPath} />}
         />
       )}
     </div>

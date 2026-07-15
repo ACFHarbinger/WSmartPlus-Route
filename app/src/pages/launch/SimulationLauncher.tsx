@@ -498,7 +498,7 @@ export function SimulationLauncher() {
               ? { processId: displayProcessId }
               : undefined
           }
-          footer={<ProcessIdFooter processId={displayProcessId} />}
+          footer={<ProcessIdFooter processId={displayProcessId} logPath={liveLogPath} />}
           logLines={liveLogLines}
           logTailWaiting={!isDone}
         >

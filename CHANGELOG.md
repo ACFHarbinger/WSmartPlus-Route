@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-third pass (§G.7 + §G.15 + §G.9–§G.18 + §D.7)
+
+Hundred-eighty-third pass closes the process-row and live-panel footer path-chip gap left after the
+hundred-eighty-second pass (which unified launcher/monitor card header ``PathRunLabelChip`` parity).
+Process Monitor list rows, live panel footers on all launcher/monitor workflow pages, and Command
+Palette recent files now share ``PathRunLabelChip`` ring-highlight + click-to-brush behaviour.
+
+**React frontend**
+- ``processLogPathKind`` / ``brushLogPathMapFromProcesses`` — derive per-process log/run paths from
+  stdout for row + footer path-chip brush (§G.15 / §D.7)
+- Process Monitor — process list rows render ``PathRunLabelChip`` when stdout resolves a log path;
+  ring-highlight parity preserved (§G.15 / §D.7)
+- ``ProcessIdFooter`` — optional ``logPath`` prop renders ``PathRunLabelChip`` with muted
+  process-id suffix (§G.9–§G.18 / §D.7)
+- Simulation Launcher + Data Generation + Evaluation Runner + Training Hub + Training Monitor +
+  HPO Tracker + Experiment Tracker — live panel footers pass ``logPath`` from process stdout
+  (§G.9–§G.18 / §D.7)
+- Command Palette — recent log/run/csv entries use ``PathRunLabelChip`` ring-highlight +
+  click-to-brush parity (§G.7 / §D.7)
+
+**ROADMAP**
+- §G.15 Process Monitor process-row path-chip run-label brush + ring-highlight parity checked
+- §G.9–§G.18 launcher/monitor live panel footer path-chip brush parity checked
+- §G.7 Command Palette recent-file path-chip brush parity checked
+- §D.7 process-based workflow path-chip run-label brush parity across all launcher/monitor pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-second pass (§G.9–§G.18 + §G.1 + §D.7)
 
 Hundred-eighty-second pass closes the launcher/monitor card header path-chip gap left after the

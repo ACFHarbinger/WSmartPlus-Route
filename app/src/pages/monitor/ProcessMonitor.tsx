@@ -18,6 +18,7 @@ import {
   Terminal,
   Trash2,
 } from "lucide-react";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
@@ -60,7 +61,11 @@ import {
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
 
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import {
+  brushLogPathFromProcessLines,
+  brushLogPathMapFromProcesses,
+  outputRunPathFromLogLines,
+} from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 
 /**
@@ -122,11 +127,13 @@ function ProcessRow({
   id,
   selected,
   runBrushActive,
+  logPath,
   onSelect,
 }: {
   id: string;
   selected: boolean;
   runBrushActive?: boolean;
+  logPath?: string | null;
   onSelect: () => void;
 }) {
   const proc = useProcessStore((s) => s.processes[id]);
@@ -166,8 +173,12 @@ function ProcessRow({
       >
         <StatusPill status={proc.status} />
 
-        <div className="flex-1 min-w-0">
-          <p className="text-xs font-mono text-gray-200 truncate">{id}</p>
+        <div className="flex-1 min-w-0 space-y-0.5">
+          {logPath ? (
+            <PathRunLabelChip path={logPath} className="max-w-full" />
+          ) : (
+            <p className="text-xs font-mono text-gray-200 truncate">{id}</p>
+          )}
           <p className="text-xs text-canvas-muted truncate">{proc.command}</p>
         </div>
 
@@ -329,6 +340,11 @@ export function ProcessMonitor() {
     [ids, processes]
   );
 
+  const processLogPathById = useMemo(
+    () => brushLogPathMapFromProcesses(processes, ids),
+    [ids, processes]
+  );
+
   useEffect(() => {
     if (policyVizEntries.length > 0) {
       setTelemetryTrendsKey((k) => k + 1);
@@ -438,6 +454,7 @@ export function ProcessMonitor() {
           runBrushActive={
             Boolean(activeRunLabel) && processRunBrushById[id] === activeRunLabel
           }
+          logPath={processLogPathById[id]}
           onSelect={() => setSelectedId((prev) => (prev === id ? null : id))}
         />
       ))}
@@ -460,7 +477,9 @@ export function ProcessMonitor() {
               outputRunPath: launcherOutputRunPath,
             },
           }}
-          footer={<ProcessIdFooter processId={selectedProc.id} />}
+          footer={
+            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+          }
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
         >
@@ -523,7 +542,9 @@ export function ProcessMonitor() {
                 evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined,
             },
           }}
-          footer={<ProcessIdFooter processId={selectedProc.id} />}
+          footer={
+            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+          }
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
         >
@@ -563,7 +584,9 @@ export function ProcessMonitor() {
               outputRunPath: launcherOutputRunPath,
             },
           }}
-          footer={<ProcessIdFooter processId={selectedProc.id} />}
+          footer={
+            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+          }
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
         />
@@ -613,7 +636,9 @@ export function ProcessMonitor() {
           }}
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
-          footer={<ProcessIdFooter processId={selectedProc.id} />}
+          footer={
+            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+          }
         />
       )}
     </div>
