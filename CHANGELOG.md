@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fifth pass (§G.6 + §G.7 + §G.8 + §G.14 + §D.7)
+
+Two-hundred-and-fifth pass closes the Command Palette on-open label refresh and
+Output Browser inline file-open recent-file gaps left after pass 204 unified
+portfolio load and bundle/drop handoff labels. ``refreshRecentLabels`` re-derives
+persisted recent log/run/csv labels via ``portfolioRunLabel`` when the palette
+opens or ``projectRoot`` changes. Command Palette CSV entries hand off through
+``pendingCsvPath``; Output Browser inline ``.jsonl`` / ``.csv`` tree opens push
+recent files with ``portfolioRunLabel``.
+
+**React frontend**
+- ``recentFiles`` store — ``refreshRecentLabels`` via ``portfolioRunLabel`` on palette open / ``projectRoot`` change (§G.7 / §D.7)
+- Command Palette — ``refreshRecentLabels`` on open; ``pendingCsvPath`` handoff for recent CSV (§G.7 / §G.6 / §D.7)
+- Data Explorer — consume ``pendingCsvPath`` on mount for Command Palette CSV parity (§G.6 / §D.7)
+- Output Browser — ``pushRecent`` on inline ``.jsonl`` / ``.csv`` file open via ``portfolioRunLabel`` (§G.14 / §G.8 / §D.7)
+
+**ROADMAP**
+- §G.7 Command Palette on-open recent-file label refresh checked
+- §G.6 Data Explorer ``pendingCsvPath`` Command Palette CSV handoff checked
+- §G.14 Output Browser inline file-open recent-file ``portfolioRunLabel`` parity checked
+- §D.7 Recent-file label refresh + inline file-open relative-path brush/SQL parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fourth pass (§G.1 + §G.1.6 + §G.7 + §G.8 + §G.14 + §D.7)
 
 Two-hundred-and-fourth pass closes the portfolio load, bundle/drop import, and

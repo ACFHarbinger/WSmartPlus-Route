@@ -6,6 +6,7 @@ import { useHashSync } from "./hooks/useHashSync";
 import { useProcessMonitor } from "./hooks/useProcessMonitor";
 import { useThemeSync } from "./hooks/useThemeSync";
 import { useAppStore } from "./store/app";
+import { useRecentFilesStore } from "./store/recentFiles";
 import { useLaunchTriggerStore } from "./store/launchTrigger";
 import { useLayoutStore } from "./store/layout";
 import { useDuckDbInit } from "./hooks/useDuckDbInit";
@@ -157,7 +158,8 @@ const DIGIT_MODES: AppMode[] = [
 ];
 
 export default function App() {
-  const { setMode, mode, effectiveTheme } = useAppStore();
+  const { setMode, mode, effectiveTheme, projectRoot } = useAppStore();
+  const refreshRecentLabels = useRecentFilesStore((s) => s.refreshRecentLabels);
   useThemeSync();
   const commandPaletteOpen = useLayoutStore((s) => s.commandPaletteOpen);
   const setCommandPaletteOpen = useLayoutStore((s) => s.setCommandPaletteOpen);
@@ -169,6 +171,10 @@ export default function App() {
 
   useHashSync();
   useDuckDbInit();
+
+  useEffect(() => {
+    refreshRecentLabels(projectRoot);
+  }, [projectRoot, refreshRecentLabels]);
 
   // Warm all lazy route + vendor chunks on startup (§G.7)
   useEffect(() => {

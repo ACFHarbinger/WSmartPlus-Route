@@ -2,7 +2,7 @@
  * Data Explorer — browse and inspect simulation output CSV files.
  * Ports Streamlit `data_explorer` mode.
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { ChevronDown, ChevronUp } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -45,7 +45,7 @@ function distinctColumnValues(rows: CsvRow[], col: string): string[] {
 }
 
 export function DataExplorer() {
-  const { projectRoot, effectiveTheme: theme } = useAppStore();
+  const { projectRoot, pendingCsvPath, setPendingCsvPath, effectiveTheme: theme } = useAppStore();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -66,35 +66,48 @@ export function DataExplorer() {
   const [filterText, setFilterText] = useState("");
   const PAGE_SIZE = 50;
 
+  const loadCsv = useCallback(
+    async (path: string) => {
+      const loaded = await invoke<CsvFile>("load_csv_file", { path });
+      setFile(loaded);
+      setPage(0);
+      setSortCol(null);
+      setSortDir("asc");
+      setFilterText("");
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "csv",
+      });
+
+      if (duckdbReady) {
+        setLoading(true);
+        try {
+          const timing = await runCsvArrowPipeline(path, "explorer_csv", projectRoot);
+          setLastPipeline(timing);
+        } catch (err) {
+          console.warn("DuckDB ingest failed:", err);
+        } finally {
+          setLoading(false);
+        }
+      }
+    },
+    [pushRecent, duckdbReady, projectRoot, setLastPipeline, setLoading]
+  );
+
   const openCsv = useCallback(async () => {
     const path = (await open({
       filters: [{ name: "CSV Files", extensions: ["csv"] }],
     })) as string | null;
     if (!path) return;
-    const loaded = await invoke<CsvFile>("load_csv_file", { path });
-    setFile(loaded);
-    setPage(0);
-    setSortCol(null);
-    setSortDir("asc");
-    setFilterText("");
-    pushRecent({
-      path,
-      label: portfolioRunLabel(path, undefined, projectRoot),
-      kind: "csv",
-    });
+    await loadCsv(path);
+  }, [loadCsv]);
 
-    if (duckdbReady) {
-      setLoading(true);
-      try {
-        const timing = await runCsvArrowPipeline(path, "explorer_csv", projectRoot);
-        setLastPipeline(timing);
-      } catch (err) {
-        console.warn("DuckDB ingest failed:", err);
-      } finally {
-        setLoading(false);
-      }
-    }
-  }, [pushRecent, duckdbReady, projectRoot, setLastPipeline, setLoading]);
+  useEffect(() => {
+    if (!pendingCsvPath) return;
+    void loadCsv(pendingCsvPath);
+    setPendingCsvPath(null);
+  }, [pendingCsvPath, setPendingCsvPath, loadCsv]);
 
   const policyCol = useMemo(
     () => (file ? headerCol(file.headers, /^policy$/i) : undefined),
