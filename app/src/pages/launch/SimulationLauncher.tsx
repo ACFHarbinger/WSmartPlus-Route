@@ -30,7 +30,7 @@ import {
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { collectLatestDayLogsByPolicy } from "../../utils/dayLog";
-import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
+import { findRecentLauncherProcessId, simLivePanelTitle } from "../../utils/launcherProcess";
 import type { DayLogEntry, SimPolicyEntry, ProcessStatus } from "../../types";
 
 /** Fallback when project root is unset or registry load fails. */
@@ -475,11 +475,10 @@ export function SimulationLauncher() {
         <LauncherLivePanel
           header={{
             status: isDone ? (simStatus ?? "running") : "running",
-            title: isDone
-              ? simStatus === "completed"
-                ? "Run Complete"
-                : `Run ${simStatus}`
-              : "Live Status",
+            title: simLivePanelTitle({
+              isRunning: !isDone,
+              status: simStatus ?? undefined,
+            }),
             navMesh: {
               kind: "sim",
               hideSelf: true,

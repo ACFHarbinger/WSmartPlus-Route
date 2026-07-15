@@ -82,3 +82,33 @@ export function findRecentEvalProcessIds(
     .sort((a, b) => a[1].startTime - b[1].startTime)
     .map(([id]) => id);
 }
+
+/** Shared live/post-run sim panel title for Simulation Launcher and Process Monitor (§G.9 / §G.15 / §D.7). */
+export function simLivePanelTitle({
+  isRunning,
+  status,
+}: {
+  isRunning: boolean;
+  status?: string;
+}): string {
+  if (isRunning) return "Live Status";
+
+  const finalStatus = status ?? "completed";
+  if (finalStatus === "completed") return "Run Complete";
+  return `Run ${finalStatus}`;
+}
+
+/** Shared live/post-run data-gen panel title for Data Generation and Process Monitor (§G.11 / §G.15 / §D.7). */
+export function dataGenLivePanelTitle({
+  isRunning,
+  status,
+}: {
+  isRunning: boolean;
+  status?: string;
+}): string {
+  if (isRunning) return "Generating…";
+
+  const finalStatus = status ?? "completed";
+  if (finalStatus === "completed") return "Generation Complete";
+  return `Generation ${finalStatus}`;
+}

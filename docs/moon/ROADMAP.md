@@ -996,6 +996,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — selected ``eval`` embedded section uses dynamic ``evalLivePanelTitle`` instead of static ``Eval results`` subtitle (§G.12 / §G.15 / §D.7)
 - [x] §G.10 / §G.12 / §G.15 eval launcher live panel title parity across Training Hub, Evaluation Runner, and Process Monitor (§D.7)
 
+**Delivered (§D.7 — hundred-sixty-ninth pass)**
+
+- [x] ``simLivePanelTitle`` — shared live/post-run sim panel title helper in ``launcherProcess.ts`` (§G.9 / §G.15 / §D.7)
+- [x] ``dataGenLivePanelTitle`` — shared live/post-run data-gen panel title helper in ``launcherProcess.ts`` (§G.11 / §G.15 / §D.7)
+- [x] Simulation Launcher + Data Generation — deduplicated inline sim/data-gen live title strings; import shared title helpers (§G.9 / §G.11 / §D.7)
+- [x] Process Monitor — selected ``test_sim`` / ``gen_data`` embedded sections use dynamic title helpers instead of static subtitles (§G.9 / §G.11 / §G.15 / §D.7)
+- [x] §G.9 / §G.11 / §G.15 sim + data-gen launcher live panel title parity across Simulation Launcher, Data Generation, and Process Monitor (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1674,6 +1682,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherLivePanel`` shared live/post-run panel shell with ``navTrailing`` auto-summary countdown slot (hundred-fifty-seventh pass; §G.9 / §D.7)
 - [x] ``ProcessIdFooter`` shared process-id footer row on Simulation Launcher live panel (hundred-fifty-eighth pass; §G.9 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on Simulation Launcher live panel via ``LauncherLivePanel`` (hundred-sixty-fourth pass; §G.9 / §D.7)
+- [x] ``simLivePanelTitle`` shared sim live panel title helper; Simulation Launcher imports shared title (hundred-sixty-ninth pass; §G.9 / §D.7)
 
 ---
 
@@ -1736,6 +1745,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherLivePanel`` shared live progress panel shell (hundred-fifty-seventh pass; §G.11 / §D.7)
 - [x] ``ProcessIdFooter`` ``footer`` process-id row on Data Generation live panel (hundred-fifty-eighth pass; §G.11 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on Data Generation live panel via ``LauncherLivePanel`` (hundred-sixty-fourth pass; §G.11 / §D.7)
+- [x] ``dataGenLivePanelTitle`` shared data-gen live panel title helper; Data Generation imports shared title (hundred-sixty-ninth pass; §G.11 / §D.7)
 
 ---
 
@@ -1861,6 +1871,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor eval embedded section passes ``logLines`` to ``LauncherLivePanel`` instead of inline ``ProcessLogTail`` on ``EvalCheckpointLiveCard`` (hundred-sixty-fifth pass; §G.12 / §G.15 / §D.7)
 - [x] ``LauncherNavMesh`` ``Training Hub →`` shortcut on selected ``eval`` embedded section (hundred-sixty-seventh pass; §G.12 / §G.15 / §D.7)
 - [x] Process Monitor eval embedded section uses dynamic ``evalLivePanelTitle`` instead of static ``Eval results`` subtitle (hundred-sixty-eighth pass; §G.12 / §G.15 / §D.7)
+- [x] Process Monitor sim embedded section uses dynamic ``simLivePanelTitle`` instead of static ``Policy telemetry`` subtitle (hundred-sixty-ninth pass; §G.9 / §G.15 / §D.7)
+- [x] Process Monitor data-gen embedded section uses dynamic ``dataGenLivePanelTitle`` instead of static ``Data generation workflow`` subtitle (hundred-sixty-ninth pass; §G.11 / §G.15 / §D.7)
 
 ---
 
