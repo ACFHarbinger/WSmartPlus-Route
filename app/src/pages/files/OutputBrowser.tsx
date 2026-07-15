@@ -6,7 +6,7 @@
  *   - File tree inside a selected run (from list_dir)
  *   - Run metadata card: auto-loads pruned_config.yaml and shows key fields
  *   - File viewer: CSV → DataExplorer-style table; YAML/text → raw view
- *   - "Open in Sim Summary" button for .jsonl log files
+ *   - "Open in Sim Summary" / "Open in Simulation Monitor" buttons for .jsonl logs
  *   - "Open in Data Explorer" button for .csv files
  *   - "Open in Config Editor" button for YAML / TOML / cfg / ini files
  */
@@ -23,6 +23,7 @@ import {
   ChevronRight,
   ChevronDown,
   BarChart2,
+  Map,
   Save,
   Trash2,
   Package,
@@ -361,6 +362,14 @@ export function OutputBrowser() {
   const openInSimSummary = useCallback(
     (path: string) => {
       handoff(path, "log");
+    },
+    [handoff]
+  );
+
+  /** Digital Twin handoff via shared mode override (§G.16 / §G.14 / §D.7). */
+  const openInSimulationMonitor = useCallback(
+    (path: string) => {
+      handoff(path, "log", { mode: "simulation" });
     },
     [handoff]
   );
@@ -874,13 +883,22 @@ export function OutputBrowser() {
               </button>
             )}
             {viewingPath && LOG_EXTENSIONS.has(viewingExt) && (
-              <button
-                onClick={() => openInSimSummary(viewingPath)}
-                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
-              >
-                <BarChart2 size={12} />
-                Open in Sim Summary
-              </button>
+              <>
+                <button
+                  onClick={() => openInSimSummary(viewingPath)}
+                  className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
+                >
+                  <BarChart2 size={12} />
+                  Open in Sim Summary →
+                </button>
+                <button
+                  onClick={() => openInSimulationMonitor(viewingPath)}
+                  className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
+                >
+                  <Map size={12} />
+                  Open in Simulation Monitor →
+                </button>
+              </>
             )}
             {viewingPath && CONFIG_EXTENSIONS.has(viewingExt) && (
               <button

@@ -11,6 +11,7 @@ import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -53,6 +54,7 @@ const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"
 export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
   const { projectRoot, setMode, setPendingMapCompare, effectiveTheme: theme } = useAppStore();
+  const { handoff } = useRecentHandoff();
   const { policy, sampleId, runLabel, setPolicy } = useGlobalFiltersStore();
   useLogPathRunLabelBrush(watchPath);
   const sourceRunLabel = useMemo(
@@ -137,8 +139,13 @@ export function AlgorithmComparison() {
       layout: policies.length === 2 ? "split" : "overlay",
       mapMode: "deckgl",
     });
-    setMode("simulation");
-  }, [policies, setMode, setPendingMapCompare]);
+    // Prefer log handoff so Digital Twin reloads + recents stay in sync (§G.16 / §D.7).
+    if (watchPath) {
+      handoff(watchPath, "log", { mode: "simulation" });
+    } else {
+      setMode("simulation");
+    }
+  }, [policies, watchPath, handoff, setMode, setPendingMapCompare]);
 
   const handlePolicyClick = useCallback(
     (name: string) => {
