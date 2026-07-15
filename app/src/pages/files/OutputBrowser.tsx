@@ -40,7 +40,11 @@ import { findRunJsonl } from "../../utils/outputRunLogs";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 
 import { downloadParquetFromCsv } from "../../utils/tableExport";
-import { filterCheckpointEntries, isCheckpointEntry } from "../../utils/checkpoints";
+import {
+  filterCheckpointEntries,
+  isCheckpointEntry,
+  parentRunBrushLabelFromCheckpointPath,
+} from "../../utils/checkpoints";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 
 function formatBytes(b: number) {
@@ -688,7 +692,7 @@ export function OutputBrowser() {
                     <PathRunLabelChip
                       path={ckpt.path}
                       label={ckpt.name}
-                      brushLabel={parentRunBrushLabel ?? undefined}
+                      brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path)}
                       className="flex-1 min-w-0 max-w-none text-[10px]"
                     />
                     <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
@@ -769,8 +773,8 @@ export function OutputBrowser() {
               <PathRunLabelChip
                 path={viewingPath}
                 brushLabel={
-                  isCheckpointEntry({ is_dir: false, extension: viewingExt }) && parentRunBrushLabel
-                    ? parentRunBrushLabel
+                  isCheckpointEntry({ is_dir: false, extension: viewingExt })
+                    ? parentRunBrushLabelFromCheckpointPath(viewingPath)
                     : undefined
                 }
                 className="flex-1"
@@ -844,7 +848,7 @@ export function OutputBrowser() {
             <PathRunLabelChip
               path={viewingCheckpoint.path}
               label={viewingCheckpoint.name}
-              brushLabel={parentRunBrushLabel ?? undefined}
+              brushLabel={parentRunBrushLabelFromCheckpointPath(viewingCheckpoint.path)}
               className="max-w-full px-4"
             />
             <p className="text-canvas-muted text-xs">
@@ -895,7 +899,13 @@ export function OutputBrowser() {
               <tbody className="divide-y divide-canvas-border">
                 {wsrouteBundle.files.map((f) => (
                   <tr key={f.path} className="hover:bg-canvas-hover">
-                    <td className="py-1.5 px-3 font-mono text-gray-300">{f.path}</td>
+                    <td className="py-1.5 px-3 max-w-md">
+                      <PathRunLabelChip
+                        path={f.path}
+                        brushLabel={parentRunBrushLabel ?? undefined}
+                        className="max-w-full"
+                      />
+                    </td>
                     <td className="py-1.5 px-3 text-right text-canvas-muted">{formatBytes(f.size_bytes)}</td>
                   </tr>
                 ))}

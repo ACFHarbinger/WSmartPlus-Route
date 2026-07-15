@@ -11,6 +11,40 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-ninth pass (§G.12 + §G.1 + §G.8 + §G.10 + §G.15 + §D.7)
+
+Hundred-eighty-ninth pass closes the post-eval results and bundle-manifest path-chip
+gaps left after the hundred-eighty-eighth pass (which unified eval-checkpoint input
+``PathRunLabelChip`` parity across Output Browser, Evaluation Runner, Training Hub,
+and Configuration Editor). Eval results tables, ``EvalResultCard`` headers, and
+``.wsroute`` manifest file rows now share ``PathRunLabelChip`` ring-highlight +
+click-to-brush behaviour with analysis views.
+
+**React frontend**
+- ``parentRunBrushLabelFromCheckpointPath`` — shared helper deriving parent-run brush
+  label from ``checkpoints/`` path segments (§G.12 / §G.14 / §G.17 / §D.7)
+- ``EvalResult`` / ``EvalAnalyticsRow`` — optional ``checkpointPath`` propagated from
+  Hydra eval command via ``checkpointPathFromEvalCommand`` (§G.12 / §G.1 / §D.7)
+- Evaluation Runner — post-eval results table renders ``PathRunLabelChip`` when
+  checkpoint path is known; parent-run ``brushLabel`` parity with input rows (§G.12 / §D.7)
+- Benchmark Analysis — eval results panel checkpoint column ``PathRunLabelChip``
+  ring-highlight + click-to-brush parity (§G.1 / §G.12 / §D.7)
+- ``EvalResultCard`` — checkpoint header chip on Process Monitor + Training Hub eval
+  panels when path known (§G.10 / §G.12 / §G.15 / §D.7)
+- Output Browser — ``.wsroute`` manifest file table rows use ``PathRunLabelChip``
+  with selected-run brush label (§G.8 / §G.14 / §D.7)
+- Output Browser + Training Monitor — checkpoint ``brushLabel`` uses shared
+  ``parentRunBrushLabelFromCheckpointPath`` helper (§G.14 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.12 Evaluation Runner eval-results table path-chip brush parity checked
+- §G.1 Benchmark Analysis eval-results panel path-chip brush parity checked
+- §G.8 Output Browser wsroute manifest file-table path-chip brush parity checked
+- §G.10 / §G.15 EvalResultCard checkpoint header path-chip brush parity checked
+- §D.7 eval-results + bundle-manifest path-chip run-label brush parity across Eval Runner, Benchmark Analysis, and Output Browser checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-eighth pass (§G.14 + §G.12 + §G.10 + §G.13 + §D.7)
 
 Hundred-eighty-eighth pass closes the eval-checkpoint and Output Browser artefact

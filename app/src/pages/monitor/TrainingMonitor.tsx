@@ -32,7 +32,7 @@ import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines, parseAttentionVizLine } from "../../utils/attentionViz";
-import { filterCheckpointEntries } from "../../utils/checkpoints";
+import { filterCheckpointEntries, parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import {
   collectTrainingHealthFromLogLines,
   parseTrainingHealthLine,
@@ -298,7 +298,7 @@ function CheckpointBrowser({
             <PathRunLabelChip
               path={ckpt.path}
               label={ckpt.name}
-              brushLabel={runLabelFromPath(runPath)}
+              brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path)}
               className="flex-1 min-w-0 max-w-none"
             />
             <span className="text-xs text-canvas-muted shrink-0">

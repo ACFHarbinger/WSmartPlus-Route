@@ -1161,6 +1161,17 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Configuration Editor — diff comparison file ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on ``diffPath``; diff summary uses chips for both files (§G.13 / §D.7)
 - [x] §G.14 / §G.12 / §G.10 eval checkpoint path-chip run-label brush + ring-highlight parity across Output Browser, Eval Runner, and Training Hub checked (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-ninth pass)**
+
+- [x] ``parentRunBrushLabelFromCheckpointPath`` — shared helper deriving parent-run brush label from ``checkpoints/`` path segments (§G.12 / §G.14 / §G.17 / §D.7)
+- [x] ``EvalResult`` / ``EvalAnalyticsRow`` — optional ``checkpointPath`` field propagated from Hydra eval command via ``checkpointPathFromEvalCommand`` (§G.12 / §G.1 / §D.7)
+- [x] Evaluation Runner — post-eval results table renders ``PathRunLabelChip`` when checkpoint path is known; parent-run ``brushLabel`` parity with input rows (§G.12 / §D.7)
+- [x] Benchmark Analysis — eval results panel checkpoint column ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.1 / §G.12 / §D.7)
+- [x] ``EvalResultCard`` — checkpoint header chip on Process Monitor + Training Hub eval panels when path known (§G.10 / §G.12 / §G.15 / §D.7)
+- [x] Output Browser — ``.wsroute`` manifest file table rows use ``PathRunLabelChip`` with selected-run brush label (§G.8 / §G.14 / §D.7)
+- [x] Output Browser + Training Monitor — checkpoint ``brushLabel`` uses shared ``parentRunBrushLabelFromCheckpointPath`` helper (§G.14 / §G.17 / §D.7)
+- [x] §G.12 / §G.1 / §G.8 eval-results + bundle-manifest path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1717,6 +1728,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser checkpoint browser + file viewer — ``PathRunLabelChip`` on checkpoint sidebar rows, artefact viewer header, and checkpoint preview with parent-run brush label (hundred-eighty-eighth pass; §G.14 / §G.12 / §D.7)
 - [x] Evaluation Runner + Training Hub eval checkpoint inputs — ``PathRunLabelChip`` below filled checkpoint paths for click-to-brush parity (hundred-eighty-eighth pass; §G.12 / §G.10 / §D.7)
 - [x] Configuration Editor diff comparison file — ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on ``diffPath``; diff summary chip parity (hundred-eighty-eighth pass; §G.13 / §D.7)
+- [x] Evaluation Runner + Benchmark Analysis eval results tables — ``PathRunLabelChip`` on checkpoint rows with parent-run ``brushLabel`` when Hydra path known (hundred-eighty-ninth pass; §G.12 / §G.1 / §D.7)
+- [x] EvalResultCard + Process Monitor / Training Hub eval panels — checkpoint header ``PathRunLabelChip`` parity (hundred-eighty-ninth pass; §G.10 / §G.12 / §G.15 / §D.7)
+- [x] Output Browser ``.wsroute`` manifest file table — ``PathRunLabelChip`` on bundle member paths with selected-run brush label (hundred-eighty-ninth pass; §G.8 / §G.14 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

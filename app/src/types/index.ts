@@ -239,6 +239,7 @@ export interface BenchmarkLogRef {
 
 export interface EvalAnalyticsRow {
   checkpoint: string;
+  checkpointPath?: string;
   cost?: number;
   gap?: number;
   time?: number;

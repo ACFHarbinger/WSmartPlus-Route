@@ -26,6 +26,7 @@ import {
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
@@ -39,6 +40,7 @@ import type { ProcessStatus } from "../../types";
 import {
   type EvalResult,
   checkpointLabelFromEvalProcess,
+  checkpointPathFromEvalCommand,
   collectEvalResultFromLogLines,
   evalLivePanelTitle,
   hasEvalMetrics,
@@ -191,8 +193,17 @@ function ResultsGrid({
           <tbody className="divide-y divide-canvas-border/30">
             {results.map((r) => (
               <tr key={r.checkpointName} className="hover:bg-canvas-hover/40">
-                <td className="py-1.5 pr-4 font-mono text-gray-300 truncate max-w-[200px]">
-                  {r.checkpointName}
+                <td className="py-1.5 pr-4 max-w-[240px]">
+                  {r.checkpointPath ? (
+                    <PathRunLabelChip
+                      path={r.checkpointPath}
+                      label={r.checkpointName}
+                      brushLabel={parentRunBrushLabelFromCheckpointPath(r.checkpointPath)}
+                      className="max-w-full"
+                    />
+                  ) : (
+                    <span className="font-mono text-gray-300 truncate">{r.checkpointName}</span>
+                  )}
                 </td>
                 {numKeys.map((k) => (
                   <td key={k} className="py-1.5 px-3 text-right font-mono text-gray-400">
@@ -309,6 +320,8 @@ export function EvaluationRunner() {
           proc?.logLines ?? [],
           checkpointName
         );
+        const checkpointPath = checkpointPathFromEvalCommand(proc?.command ?? "");
+        if (checkpointPath) result.checkpointPath = checkpointPath;
         return hasEvalMetrics(result) ? result : null;
       })
       .filter((r): r is EvalResult => r != null);

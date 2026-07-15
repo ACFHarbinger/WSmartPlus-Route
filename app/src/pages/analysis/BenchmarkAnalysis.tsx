@@ -45,6 +45,8 @@ import {
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
@@ -182,7 +184,18 @@ function EvalResultsPanel({
           <tbody className="divide-y divide-canvas-border/30">
             {rows.map((r) => (
               <tr key={r.checkpoint} className="hover:bg-canvas-hover/40">
-                <td className="py-1.5 px-3 font-mono text-gray-300">{r.checkpoint}</td>
+                <td className="py-1.5 px-3 max-w-[240px]">
+                  {r.checkpointPath ? (
+                    <PathRunLabelChip
+                      path={r.checkpointPath}
+                      label={r.checkpoint}
+                      brushLabel={parentRunBrushLabelFromCheckpointPath(r.checkpointPath)}
+                      className="max-w-full"
+                    />
+                  ) : (
+                    <span className="font-mono text-gray-300">{r.checkpoint}</span>
+                  )}
+                </td>
                 {EVAL_METRICS.map(({ key }) => (
                   <td key={key} className="py-1.5 px-3 text-right font-mono text-gray-400">
                     {typeof r[key] === "number" ? (r[key] as number).toFixed(4) : "—"}
