@@ -698,7 +698,16 @@ export function OutputBrowser() {
                 <PathRunLabelChip
                   path={runJsonlPath ?? selectedRun.path}
                   projectRoot={projectRoot}
-                  className="font-medium"
+                  className="font-medium max-w-none"
+                  trailing={
+                    runJsonlPath ? (
+                      <LogHandoffButtons
+                        path={runJsonlPath}
+                        storedLabel={selectedRun.name}
+                        iconSize={11}
+                      />
+                    ) : undefined
+                  }
                 />
               </div>
               {renderEntries(entries)}

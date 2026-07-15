@@ -11,6 +11,22 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twentieth pass (§G.1 + §G.14 + §G.16 + §D.7)
+
+Two-hundred-and-twentieth pass closes the Output Browser run-select log-handoff gap
+left after pass 218 put dual handoffs on the JSONL file viewer. Selecting a run that
+has a discovered ``runJsonlPath`` now shows icon Summary / Monitor controls on the
+file-tree header so analytics can open without browsing into the log file first.
+
+**React frontend**
+- Output Browser — selected-run tree header ``LogHandoffButtons`` when ``runJsonlPath`` known (§G.14 / §G.1 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.14 run-select log-handoff surface parity with JSONL file viewer checked
+- §D.7 Output Browser run-header handoff coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-nineteenth pass (§G.1 + §G.9 + §G.15 + §G.16 + §D.7)
 
 Two-hundred-and-nineteenth pass continues the shared log-handoff control migration

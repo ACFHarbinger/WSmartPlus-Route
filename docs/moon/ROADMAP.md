@@ -1428,6 +1428,11 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Launcher + Process Monitor sim panels inherit shared log-handoff control through ``simLogPath`` (§G.9 / §G.15 / §G.16 / §D.7)
 - [x] §G.9 / §G.15 launcher nav-mesh ``LogHandoffButtons`` migration checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twentieth pass)**
+
+- [x] Output Browser — selected-run tree header exposes icon Summary / Monitor handoffs when ``runJsonlPath`` is discovered (no need to open the ``.jsonl`` file first) (§G.14 / §G.1 / §G.16 / §D.7)
+- [x] §G.14 run-select log-handoff surface parity with JSONL file viewer checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
