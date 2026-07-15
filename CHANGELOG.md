@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-fifth pass (§G.17 + §G.18 + §G.14 + §D.7)
+
+Hundred-forty-fifth pass extends post-run ``outputRunPath`` / ``trainingRunPath`` deep-linking to
+the HPO Tracker, Experiment Tracker, and Training Monitor — closing the gap left after the
+hundred-forty-fourth pass (which wired deep-links on Training Hub and Process Monitor only).
+
+**React frontend**
+- ``trainingProcess.ts`` — ``findRecentHpoProcessId`` + ``findRecentTrainOrHpoProcessId`` retain
+  the newest train/HPO process after completion for post-run navigation panels (§G.17 / §G.18)
+- HPO Tracker — live panel persists after HPO completion; ``TrainHpoNavMesh`` post-run
+  ``outputRunPath`` + ``trainingRunPath`` deep-links (§G.18 / §G.14 / §G.17 / §D.7)
+- Experiment Tracker — same post-run deep-link parity as HPO Tracker (§G.18 / §D.7)
+- Training Monitor — recent train/HPO panel with post-run ``TrainHpoNavMesh`` deep-links;
+  auto-refresh run index + select completed run from stdout ``trainingRunPath`` (§G.17 / §G.10)
+
+**ROADMAP**
+- §G.18 HPO Tracker + Experiment Tracker post-run deep-links checked
+- §G.17 Training Monitor post-run deep-link + auto-select checked
+- §G.14 ``outputRunPath`` analytics-page parity checked
+- §D.7 train/HPO navigation mesh post-run parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-fourth pass (§G.10 + §G.12 + §G.14 + §G.15 + §G.17 + §D.7)
 
 Hundred-forty-fourth pass extends run deep-linking beyond ``.jsonl`` stdout paths and

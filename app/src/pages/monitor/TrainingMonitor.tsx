@@ -17,7 +17,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw } from "lucide-react";
+import { Activity, CheckCircle, ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
@@ -30,8 +30,11 @@ import { useProcessStore } from "../../store/process";
 import { parseAttentionVizLine } from "../../utils/attentionViz";
 import { filterCheckpointEntries } from "../../utils/checkpoints";
 import { parseTrainingHealthLine } from "../../utils/trainingHealth";
+import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import {
   findActiveLiveTrainProcessId,
+  findRecentTrainOrHpoProcessId,
   isHpoProcess,
   liveTrainProcessLabel,
 } from "../../utils/trainingProcess";
@@ -515,6 +518,25 @@ export function TrainingMonitor() {
   const activeTrainRunning =
     activeTrainId != null && processes[activeTrainId]?.status === "running";
 
+  const recentTrainId = useMemo(
+    () => findRecentTrainOrHpoProcessId(processes),
+    [processes]
+  );
+  const recentTrainProc = recentTrainId ? processes[recentTrainId] : null;
+  const recentTrainDone =
+    recentTrainProc != null && recentTrainProc.status !== "running";
+  const recentTrainCompleted = recentTrainProc?.status === "completed";
+  const recentOutputRunPath = useMemo(
+    () =>
+      recentTrainProc ? outputRunPathFromLogLines(recentTrainProc.logLines) : null,
+    [recentTrainProc]
+  );
+  const recentTrainingRunPath = useMemo(
+    () =>
+      recentTrainProc ? trainingRunPathFromLogLines(recentTrainProc.logLines) : null,
+    [recentTrainProc]
+  );
+
   // Subscribe to stdout of the active training process and accumulate live rows
   useEffect(() => {
     if (!activeTrainId) {
@@ -658,6 +680,31 @@ export function TrainingMonitor() {
     setPendingTrainingRunPath,
   ]);
 
+  useEffect(() => {
+    if (!recentTrainCompleted || !recentTrainingRunPath) return;
+    const run = runs.find((r) => r.path === recentTrainingRunPath);
+    if (run) {
+      setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
+      void loadMetrics(run);
+      void loadHealth(run);
+      void loadAttention(run);
+      return;
+    }
+    if (!loading && logsPath) {
+      void discover();
+    }
+  }, [
+    recentTrainCompleted,
+    recentTrainingRunPath,
+    runs,
+    loading,
+    logsPath,
+    discover,
+    loadMetrics,
+    loadHealth,
+    loadAttention,
+  ]);
+
   const toggleRun = useCallback(
     (run: TrainingRun) => {
       setSelected((s) =>
@@ -753,37 +800,64 @@ export function TrainingMonitor() {
         </div>
       )}
 
-      {/* Live training indicator */}
-      {activeTrainId && (
+      {/* Live / recent train-HPO indicator */}
+      {recentTrainId && recentTrainProc && (
         <div className="card border-accent-success/30 space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer flex-1 min-w-0">
-              <input
-                type="checkbox"
-                checked={selected.includes(LIVE_KEY)}
-                onChange={() =>
-                  setSelected((s) =>
-                    s.includes(LIVE_KEY) ? s.filter((k) => k !== LIVE_KEY) : [LIVE_KEY, ...s]
-                  )
-                }
-                className="accent-accent-primary"
-              />
-              <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
-              <span className="text-sm text-accent-success font-mono flex-1">{liveProcessLabel}</span>
-              <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{activeTrainId}</span>
-              <span className="text-xs text-accent-success">
-                {metricsMap[LIVE_KEY]?.length ?? 0} updates
-              </span>
-            </label>
-            <TrainHpoNavMesh showHpoLinks={activeIsHpo} />
+            {activeTrainId ? (
+              <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer flex-1 min-w-0">
+                <input
+                  type="checkbox"
+                  checked={selected.includes(LIVE_KEY)}
+                  onChange={() =>
+                    setSelected((s) =>
+                      s.includes(LIVE_KEY) ? s.filter((k) => k !== LIVE_KEY) : [LIVE_KEY, ...s]
+                    )
+                  }
+                  className="accent-accent-primary"
+                />
+                <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
+                <span className="text-sm text-accent-success font-mono flex-1">{liveProcessLabel}</span>
+                <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
+                <span className="text-xs text-accent-success">
+                  {metricsMap[LIVE_KEY]?.length ?? 0} updates
+                </span>
+              </label>
+            ) : (
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                {recentTrainCompleted ? (
+                  <CheckCircle size={13} className="text-accent-success shrink-0" />
+                ) : (
+                  <XCircle size={13} className="text-accent-danger shrink-0" />
+                )}
+                <span className="text-sm text-accent-success font-mono flex-1">
+                  {recentTrainCompleted
+                    ? liveTrainProcessLabel(recentTrainId).replace("Live ", "") + " Complete"
+                    : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`}
+                </span>
+                <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
+              </div>
+            )}
+            <TrainHpoNavMesh
+              showHpoLinks={activeIsHpo || isHpoProcess(recentTrainId, recentTrainProc.command)}
+              showOutputBrowser={recentTrainDone && recentTrainCompleted}
+              outputRunPath={recentOutputRunPath}
+              trainingRunPath={recentTrainingRunPath}
+            />
           </div>
-          {activeTrainRunning && (
+          {activeTrainRunning && activeTrainId && (
             <LiveTrainProgressBar
               processId={activeTrainId}
               fallbackValue={
                 metricsMap[LIVE_KEY]?.[metricsMap[LIVE_KEY].length - 1]?.epoch
               }
             />
+          )}
+          {recentTrainDone && (
+            <div className="flex items-center gap-2 text-xs text-canvas-muted">
+              <Activity size={12} />
+              Post-run shortcuts — open Output Browser or refresh metrics from the completed run
+            </div>
           )}
         </div>
       )}

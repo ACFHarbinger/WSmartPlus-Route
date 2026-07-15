@@ -825,6 +825,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``trainingRunPath.ts`` + ``pendingTrainingRunPath`` — Training Monitor deep-link from completed train/HPO processes (§G.10 / §G.17 / §D.7)
 - [x] Evaluation Runner + Process Monitor eval — ``outputRunPath`` deep-link parity on completed eval workflows (§G.12 / §G.14 / §G.15)
 
+**Delivered (§D.7 — hundred-forty-fifth pass)**
+
+- [x] ``findRecentHpoProcessId`` / ``findRecentTrainOrHpoProcessId`` — retain newest train/HPO process after completion for post-run panels (§G.17 / §G.18 / §D.7)
+- [x] HPO Tracker + Experiment Tracker — post-run ``outputRunPath`` + ``trainingRunPath`` on ``TrainHpoNavMesh`` when HPO sweep completes (§G.18 / §G.14 / §G.17 / §D.7)
+- [x] Training Monitor — post-run deep-link parity on live/recent train panel; auto-refresh + select completed run from ``trainingRunPath`` (§G.17 / §G.10 / §D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1687,6 +1693,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] **Column normalization**: `normalizeMetricRow()` maps Lightning CSV aliases (`train/rl_loss` → `train_loss`, `val/cost` → `val_loss`, `lr-Adam` → `lr`) applied at both CSV load time and live stdout parse time; same normalization applied to `TrainingHub.tsx`
 - [x] **Streamlit parity check**: Lightning CSV columns `train_loss`, `val_loss`, `reward`, `grad_norm`, `lr`, `epoch`, `step` all rendered; aliased column variants covered by `normalizeMetricRow`
 - [x] ``pendingTrainingRunPath`` auto-select when opened from Training Hub / Process Monitor train/HPO shortcuts (hundred-forty-fourth pass; §G.10 / §G.15 / §D.7)
+- [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on live/recent train panel; auto-select completed run from stdout ``trainingRunPath`` (hundred-forty-fifth pass; §G.10 / §G.14 / §D.7)
 
 ---
 
@@ -1715,6 +1722,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] **Training Hub navigation mesh** (hundred-thirty-fourth pass): Training Monitor / Process Monitor / HPO Tracker / Experiment Tracker ``Training Hub →`` during live train/HPO workflows — completes bidirectional cross-page shortcuts (§G.10 / §G.15 / §G.17 / §G.18)
 - [x] **Live epoch progress + ETA** (hundred-thirty-fifth pass): ``LiveTrainProgressBar`` on Training Hub / Training Monitor / HPO Tracker / Experiment Tracker; ``processProgress.ts`` shared with Process Monitor (§D.2 / §G.17 / §G.18)
 - [x] **Train/HPO keyboard shortcuts** (hundred-thirty-fifth pass): ``T`` Training Monitor · ``H`` Training Hub · ``E`` Experiment Tracker (§D.7)
+- [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on HPO Tracker + Experiment Tracker live panels when sweep completes (hundred-forty-fifth pass; §G.14 / §G.17 / §D.7)
 
 ---
 
