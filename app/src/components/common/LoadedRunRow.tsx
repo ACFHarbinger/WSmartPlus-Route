@@ -2,9 +2,9 @@
  * Portfolio / comparison loaded-run row with ``PathRunLabelChip`` brush parity (§G.1 / §G.14 / §D.7).
  */
 import { useMemo, type ReactNode } from "react";
-import { BarChart2, Map as MapIcon, X } from "lucide-react";
+import { X } from "lucide-react";
+import { LogHandoffButtons } from "./LogHandoffButtons";
 import { PathRunLabelChip } from "./PathRunLabelChip";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useAppStore } from "../../store/app";
 import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
@@ -41,7 +41,6 @@ export function LoadedRunRow({
   className = "",
 }: Props) {
   const storeProjectRoot = useAppStore((s) => s.projectRoot);
-  const { handoff } = useRecentHandoff();
   const effectiveProjectRoot = projectRoot ?? storeProjectRoot;
   const resolvedPath = useMemo(
     () => resolveLocalProjectPath(path, effectiveProjectRoot) ?? path,
@@ -74,32 +73,7 @@ export function LoadedRunRow({
         trailing={
           logHandoffs || trailing ? (
             <>
-              {logHandoffs && (
-                <span className="flex items-center gap-0.5 shrink-0">
-                  <button
-                    type="button"
-                    title="Open in Simulation Summary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handoff(path, "log", { storedLabel: label });
-                    }}
-                    className="btn-ghost p-0.5 text-accent-primary"
-                  >
-                    <BarChart2 size={11} />
-                  </button>
-                  <button
-                    type="button"
-                    title="Open in Simulation Monitor"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      handoff(path, "log", { storedLabel: label, mode: "simulation" });
-                    }}
-                    className="btn-ghost p-0.5 text-accent-secondary"
-                  >
-                    <MapIcon size={11} />
-                  </button>
-                </span>
-              )}
+              {logHandoffs && <LogHandoffButtons path={path} storedLabel={label} />}
               {trailing}
             </>
           ) : undefined
