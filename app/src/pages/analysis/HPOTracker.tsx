@@ -387,6 +387,12 @@ export function HPOTracker() {
               Training Monitor →
             </button>
             <button
+              onClick={() => setMode("experiment_tracker")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Experiment Tracker →
+            </button>
+            <button
               onClick={() => setMode("process_monitor")}
               className="btn-ghost text-xs text-canvas-muted"
             >

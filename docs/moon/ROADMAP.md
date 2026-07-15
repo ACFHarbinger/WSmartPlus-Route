@@ -105,6 +105,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Experiment Tracker — ``RuntimeAttentionPanel`` during live ``hpo_*`` runs; ``HPO Tracker →`` + ``Process Monitor →`` shortcuts (§G.18 / §A.2)
 - [x] Training Monitor / Process Monitor / HPO Tracker — cross-page navigation shortcuts for live train/HPO workflows (§G.15 / §G.17 / §G.18 / §A.2)
 
+**Delivered (§A.2 Option A — hundred-thirty-third pass)**
+
+- [x] Experiment Tracker — ``Training Monitor →`` shortcut during live ``hpo_*`` runs (§G.18 / §A.2)
+- [x] Training Monitor / HPO Tracker / Process Monitor / Training Hub — ``Experiment Tracker →`` shortcut when live HPO active (§G.10 / §G.15 / §G.17 / §G.18 / §A.2)
+
 **Status**: §A.2 Options A+C complete — Option B (BertViz) deferred.
 
 ---
@@ -265,6 +270,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - [x] Experiment Tracker — ``TrainingHealthPanel`` during live ``hpo_*`` runs (§G.18 / §A.4)
 - [x] Training Hub — ``liveTrainProcessLabel`` for Live HPO header; ``HPO Tracker →`` shortcut during live HPO (§G.10 / §A.4)
+
+**Delivered (§A.4 Option A — hundred-thirty-third pass)**
+
+- [x] Training Hub — ``Experiment Tracker →`` shortcut during live HPO; ``Process Monitor →`` label parity (§G.10 / §A.4)
 
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
@@ -1617,6 +1626,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] **Live HPO analytics** (§A.4 / §A.2 hundred-thirty-first pass): ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` when an ``hpo_*`` process is running; ``Process Monitor →`` navigation shortcut
 - [x] **Experiment Tracker live HPO analytics** (§A.4 / §A.2 hundred-thirty-second pass): health + attention panels during live ``hpo_*``; ``HPO Tracker →`` + ``Process Monitor →`` shortcuts
 - [x] **Cross-page train/HPO navigation** (hundred-thirty-second pass): Training Monitor ``Process Monitor →`` + ``HPO Tracker →``; HPO Tracker ``Training Monitor →``; Process Monitor ``Training Monitor →`` + ``HPO Tracker →`` for ``hpo_*`` processes
+- [x] **Experiment Tracker navigation mesh** (hundred-thirty-third pass): Experiment Tracker ``Training Monitor →``; HPO Tracker / Training Monitor / Process Monitor / Training Hub ``Experiment Tracker →`` when live HPO active (§G.10 / §G.15 / §G.17 / §G.18)
 
 ---
 

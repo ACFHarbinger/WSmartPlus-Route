@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-third pass (§A.4 + §A.2)
+
+Hundred-thirty-third pass completes the live HPO navigation mesh by wiring
+``Experiment Tracker →`` shortcuts across all train/HPO workflow pages and
+adding the missing ``Training Monitor →`` shortcut on Experiment Tracker.
+
+**React frontend**
+- Experiment Tracker — ``Training Monitor →`` navigation shortcut during live
+  ``hpo_*`` runs (§G.18 / §A.2)
+- HPO Tracker — ``Experiment Tracker →`` navigation shortcut during live HPO
+  (§G.18 / §A.2)
+- Training Monitor — ``Experiment Tracker →`` when live HPO active (§G.17 / §A.2)
+- Process Monitor — ``Experiment Tracker →`` for selected ``hpo_*`` processes
+  (§G.15 / §A.2)
+- Training Hub — ``Experiment Tracker →`` during live HPO; ``Process Monitor →``
+  label parity (§G.10 / §A.4)
+
+**ROADMAP**
+- §A.2 Experiment Tracker + live HPO ``Experiment Tracker →`` mesh checked
+- §A.4 Training Hub Experiment Tracker shortcut + Process Monitor label checked
+- §G.18 Experiment Tracker navigation mesh checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-second pass (§A.4 + §A.2)
 
 Hundred-thirty-second pass completes §G.18 Experiment Tracker live HPO analytics and adds

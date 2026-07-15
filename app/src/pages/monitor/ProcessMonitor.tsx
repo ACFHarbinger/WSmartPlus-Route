@@ -486,12 +486,20 @@ export function ProcessMonitor() {
               Training Monitor →
             </button>
             {isHpoProcess(selectedProc.id, selectedProc.command) && (
-              <button
-                onClick={() => setMode("hpo_tracker")}
-                className="btn-ghost text-xs text-canvas-muted"
-              >
-                HPO Tracker →
-              </button>
+              <>
+                <button
+                  onClick={() => setMode("hpo_tracker")}
+                  className="btn-ghost text-xs text-canvas-muted"
+                >
+                  HPO Tracker →
+                </button>
+                <button
+                  onClick={() => setMode("experiment_tracker")}
+                  className="btn-ghost text-xs text-canvas-muted"
+                >
+                  Experiment Tracker →
+                </button>
+              </>
             )}
           </div>
           <TrainingHealthPanel entries={trainingHealthEntries} />
