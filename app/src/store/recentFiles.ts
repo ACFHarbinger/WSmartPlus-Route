@@ -2,7 +2,7 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { portfolioRunLabel } from "../utils/arrowPipeline";
 
-export type RecentFileKind = "log" | "run" | "csv";
+export type RecentFileKind = "log" | "run" | "csv" | "training";
 
 export interface RecentFile {
   path: string;

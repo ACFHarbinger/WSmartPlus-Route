@@ -1312,6 +1312,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser — ``pushRecent`` via ``portfolioRunLabel`` on inline ``.jsonl`` / ``.csv`` file open in run tree viewer (§G.14 / §G.8 / §D.7)
 - [x] §G.7 / §G.14 recent-file label refresh + inline file-open ``portfolioRunLabel`` parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-sixth pass)**
+
+- [x] ``RecentFileKind`` — ``training`` kind for Lightning log directories alongside log/run/csv (§G.17 / §G.7 / §D.7)
+- [x] Training Monitor — ``pushRecent`` via ``portfolioRunLabel`` on run select, ``pendingTrainingRunPath`` consume, and post-run auto-select; filter-bar labels use ``portfolioRunLabel`` (§G.17 / §D.7)
+- [x] Command Palette — open recent training runs via ``pendingTrainingRunPath`` + Training Monitor mode (§G.7 / §G.17 / §D.7)
+- [x] ``LauncherNavMesh`` + ``TrainHpoNavMesh`` — Output Browser / Training Monitor handoff ``pushRecent`` via ``portfolioRunLabel`` (§G.9–§G.12 / §G.15 / §G.17 / §D.7)
+- [x] §G.17 / §G.7 Training Monitor + nav-mesh recent-file ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1908,6 +1916,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``refreshRecentLabels`` store action — persisted recent-file labels re-derived on palette open + ``projectRoot`` change (two-hundred-and-fifth pass; §G.7 / §D.7)
 - [x] Command Palette CSV handoff — ``pendingCsvPath`` + Data Explorer consume for recent CSV open parity (two-hundred-and-fifth pass; §G.6 / §G.7 / §D.7)
 - [x] Output Browser inline file open recent-file push — ``.jsonl`` / ``.csv`` tree viewer ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-fifth pass; §G.14 / §G.8 / §D.7)
+- [x] ``RecentFileKind`` ``training`` — Lightning log directory recent-file kind (two-hundred-and-sixth pass; §G.17 / §G.7 / §D.7)
+- [x] Training Monitor run select + ``pendingTrainingRunPath`` + post-run auto-select recent-file push — ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-sixth pass; §G.17 / §D.7)
+- [x] Command Palette training recent-file handoff — ``pendingTrainingRunPath`` + Training Monitor mode (two-hundred-and-sixth pass; §G.7 / §G.17 / §D.7)
+- [x] Launcher / train-HPO nav-mesh Output Browser + Training Monitor handoff recent-file push — ``portfolioRunLabel`` (two-hundred-and-sixth pass; §G.9–§G.12 / §G.15 / §G.17 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

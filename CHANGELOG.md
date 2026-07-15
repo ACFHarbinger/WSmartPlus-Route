@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-sixth pass (§G.7 + §G.9–§G.12 + §G.15 + §G.17 + §D.7)
+
+Two-hundred-and-sixth pass closes the Training Monitor and launcher/train-HPO
+nav-mesh recent-file gaps left after pass 205 unified Command Palette label
+refresh and Output Browser inline open. ``RecentFileKind`` gains ``training``
+for Lightning log directories. Training Monitor pushes recent files via
+``portfolioRunLabel`` on run select, ``pendingTrainingRunPath`` consume, and
+post-run auto-select. Command Palette opens training recents into Training
+Monitor; ``LauncherNavMesh`` and ``TrainHpoNavMesh`` push Output Browser /
+Training Monitor handoff paths with the same relative-path labels.
+
+**React frontend**
+- ``recentFiles`` store — ``training`` kind for Lightning log directories (§G.17 / §G.7 / §D.7)
+- Training Monitor — ``pushRecent`` via ``portfolioRunLabel`` on select / pending / post-run auto-select; filter-bar ``portfolioRunLabel`` parity (§G.17 / §D.7)
+- Command Palette — recent training handoff via ``pendingTrainingRunPath`` (§G.7 / §G.17 / §D.7)
+- ``LauncherNavMesh`` + ``TrainHpoNavMesh`` — Output Browser / Training Monitor handoff ``pushRecent`` via ``portfolioRunLabel`` (§G.9–§G.12 / §G.15 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.17 Training Monitor recent-file ``portfolioRunLabel`` parity checked
+- §G.7 Command Palette training recent-file handoff checked
+- §G.9–§G.12 / §G.15 nav-mesh Output Browser + Training Monitor handoff recent-file parity checked
+- §D.7 Training Monitor + nav-mesh relative-path brush/SQL recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fifth pass (§G.6 + §G.7 + §G.8 + §G.14 + §D.7)
 
 Two-hundred-and-fifth pass closes the Command Palette on-open label refresh and
