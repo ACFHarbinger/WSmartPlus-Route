@@ -42,7 +42,7 @@ export const useSimLauncherStore = create<SimLauncherState>()(
 // ── Training Hub (§G.10)
 
 interface TrainHubState {
-  trainMode: "train" | "hpo" | "eval";
+  trainMode: "train" | "hpo" | "meta" | "eval";
   problem: string;
   seed: number;
   wandb: boolean;
@@ -54,6 +54,11 @@ interface TrainHubState {
   hpoTrials: number;
   hpoMethod: string;
   hpoWorkers: number;
+  metaStrategy: string;
+  metaLr: number;
+  metaHistoryLength: number;
+  mrlBatchSize: number;
+  mrlStep: number;
   checkpointPath: string;
   evalDataset: string;
   evalSamples: number;
@@ -76,6 +81,11 @@ export const useTrainHubStore = create<TrainHubState>()(
       hpoTrials: 50,
       hpoMethod: "nsgaii",
       hpoWorkers: 1,
+      metaStrategy: "hrl",
+      metaLr: 0.000005,
+      metaHistoryLength: 10,
+      mrlBatchSize: 256,
+      mrlStep: 10,
       checkpointPath: "",
       evalDataset: "",
       evalSamples: 10,
