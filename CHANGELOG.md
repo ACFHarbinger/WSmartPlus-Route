@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-fifth pass (§G.6)
+
+Seventy-fifth pass closes §G.6 auto-chart Pareto polish: frontier step-line overlay on
+labeled scatter, log-scale overflows axis toggle, and line-chart cross-filter / type
+override for time-series queries.
+
+**React frontend**
+- `queryAutoChart` — Pareto frontier step-line + frontier point highlight on labeled
+  scatter; ``logScale`` option for overflows axis; line chart in ``suggestChartAlternatives()``
+- `SqlQueryPanel` — log overflows toggle; line point click → ``onDaySelect``; ignore
+  Pareto front line clicks on scatter
+
+**ROADMAP**
+- §G.6 Pareto frontier step-line overlay checked
+- §G.6 Auto-chart log-scale overflows toggle checked
+- §G.6 Auto-chart line cross-filter + line type override checked
+- §G.6 marked complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-fourth pass (§G.6)
 
 Seventy-fourth pass completes §G.6 pre-built query templates and auto-chart scatter

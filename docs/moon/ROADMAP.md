@@ -1086,6 +1086,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter/heatmap suggestion below results (§G.6)
 - [x] Pivot table UI: drag dimensions/measures onto row/column/value wells: `PivotTablePanel` draggable column chips + HTML5 drop wells for row/column/value + agg selector + heatmap on `SqlQueryPanel` (§G.6)
 - [x] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally: pivot/result row click sets `useGlobalFiltersStore` policy; `GlobalFilterBar` policy highlights matching SQL rows + dims pivot heatmap rows via `highlightRowLabels` (§G.6)
+- [x] Auto-chart Pareto frontier step-line overlay: labeled profit vs overflows scatter highlights frontier points + dashed ``paretoStepLine()`` (§G.6)
+- [x] Auto-chart log-scale toggle on overflows scatter axis (§G.6 / §G.1 partial)
+- [x] Auto-chart line cross-filter: time-series point click → ``onDaySelect`` when ``xKey`` is ``day`` (§G.6)
+- [x] Auto-chart line type in override alternatives for day/epoch/step queries (§G.6)
+
+**Status**: §G.6 complete — all checklist items delivered.
 
 ---
 
