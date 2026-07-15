@@ -40,16 +40,17 @@ import {
   chartMetricYAxisType,
   isLogScaleMetric,
 } from "../../utils/chartLogScale";
-import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
+
 import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
 import { FailureAnalysisPanel } from "../../components/analysis/FailureAnalysisPanel";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
+import { RouteViz } from "../../components/analysis/RouteViz";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import { filterFailureEntries } from "../../utils/simFailure";
-import type { BinCoord, DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
+import type { DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
 
@@ -84,139 +85,6 @@ const POLICY_COLORS = [
   "#6366f1", "#34d399", "#f87171", "#fbbf24",
   "#a78bfa", "#fb923c", "#38bdf8", "#f472b6",
 ];
-
-function fillColor(pct: number): string {
-  if (pct >= 100) return "#f87171";
-  if (pct >= 80) return "#fbbf24";
-  return "#34d399";
-}
-
-/** Resolve bin coordinates — use lat/lng when present, else circular layout by index. */
-function resolvePositions(
-  bins: BinCoord[]
-): Map<number, [number, number]> {
-  const hasGeo = bins.some((b) => b.lat != null && b.lng != null);
-  const map = new Map<number, [number, number]>();
-  if (hasGeo) {
-    for (const b of bins) {
-      if (b.lat != null && b.lng != null) map.set(b.id, [b.lng, b.lat]);
-    }
-    return map;
-  }
-  const n = bins.length;
-  for (let i = 0; i < n; i++) {
-    const angle = (2 * Math.PI * i) / Math.max(n, 1);
-    map.set(bins[i].id, [Math.cos(angle), Math.sin(angle)]);
-  }
-  return map;
-}
-
-// ── ECharts route map preview (§G.16 — Cartesian fallback when deck.gl unavailable)
-function RouteMapChart({ data }: { data: SimDayData }) {
-  const chartRef = useRef<ReactECharts>(null);
-  const { all_bin_coords, tour_indices, bin_state_c, mandatory } = data;
-
-  const option = useMemo(() => {
-    if (!all_bin_coords?.length) return null;
-
-    const positions = resolvePositions(all_bin_coords);
-    const mandatorySet = new Set(mandatory ?? []);
-    const tourSet = new Set(tour_indices ?? []);
-
-    const idleBins = all_bin_coords
-      .filter((b) => b.id >= 0 && !tourSet.has(b.id))
-      .map((b) => {
-        const pos = positions.get(b.id);
-        return pos ? { value: pos, name: `#${b.id}` } : null;
-      })
-      .filter(Boolean);
-
-    const tourStops = (tour_indices ?? []).map((binId) => {
-      const pos = positions.get(binId);
-      const fill = bin_state_c?.[binId] ?? 0;
-      const pct = Math.min(100, fill * 100);
-      return pos
-        ? {
-            value: pos,
-            name: `#${binId}`,
-            itemStyle: { color: fillColor(pct) },
-            symbolSize: mandatorySet.has(binId) ? 12 : 9,
-          }
-        : null;
-    }).filter(Boolean);
-
-    const depot = all_bin_coords.find((b) => b.id === -1);
-    const depotPos = depot ? positions.get(-1) : null;
-
-    const segments = splitVehicleTourIndices(data);
-    const vehiclePaths = segments.map((segment, vi) => {
-      const pathCoords: [number, number][] = [];
-      if (depotPos) pathCoords.push(depotPos);
-      for (const binId of segment) {
-        const pos = positions.get(binId);
-        if (pos) pathCoords.push(pos);
-      }
-      if (depotPos && pathCoords.length > 1) pathCoords.push(depotPos);
-      const [r, g, b] = VEHICLE_COLORS_RGB[vi % VEHICLE_COLORS_RGB.length];
-      return {
-        name: segments.length > 1 ? `Vehicle ${vi + 1}` : "Route",
-        type: "line" as const,
-        data: pathCoords,
-        lineStyle: { color: `rgb(${r},${g},${b})`, width: 2 },
-        symbol: "none",
-        z: 1,
-      };
-    });
-
-    return {
-      backgroundColor: "transparent",
-      grid: { left: 40, right: 20, top: 20, bottom: 30 },
-      xAxis: { type: "value", scale: true, axisLabel: { color: "#9090b0", fontSize: 10 } },
-      yAxis: { type: "value", scale: true, axisLabel: { color: "#9090b0", fontSize: 10 } },
-      series: [
-        ...vehiclePaths,
-        {
-          name: "Bins",
-          type: "scatter",
-          data: idleBins,
-          symbolSize: 5,
-          itemStyle: { color: "#4b5563" },
-          z: 2,
-        },
-        {
-          name: "Tour stops",
-          type: "scatter",
-          data: tourStops,
-          z: 3,
-        },
-        ...(depotPos
-          ? [{
-              name: "Depot",
-              type: "scatter" as const,
-              data: [{ value: depotPos, name: "Depot" }],
-              symbolSize: 14,
-              itemStyle: { color: "#a78bfa" },
-              z: 4,
-            }]
-          : []),
-      ],
-      tooltip: { trigger: "item" },
-      legend: { textStyle: { color: "#9090b0", fontSize: 9 }, top: 0 },
-    };
-  }, [all_bin_coords, tour_indices, bin_state_c, mandatory]);
-
-  if (!option) return null;
-
-  return (
-    <div className="card space-y-2">
-      <div className="flex items-center justify-between">
-        <p className="text-xs text-canvas-muted">Route Map Preview</p>
-        <ChartExportButtons chartRef={chartRef} filenameStem="route-map" />
-      </div>
-      <ReactECharts ref={chartRef} option={option} style={{ height: 280 }} />
-    </div>
-  );
-}
 
 // ── Metric timeseries chart — supports multi-policy overlay
 function MetricTimeseries({
@@ -1043,12 +911,22 @@ export function SimulationMonitor() {
                 {mapRoutes.map((route) => (
                   <div key={route.id} className="space-y-1">
                     <p className="text-xs font-mono text-canvas-muted px-1">{route.label}</p>
-                    <RouteMapChart data={route.data} />
+                    <RouteViz
+                      data={route.data}
+                      title="Route Map Preview"
+                      subtitle={route.label}
+                      filenameStem="route-map"
+                    />
                   </div>
                 ))}
               </div>
             ) : displayEntry ? (
-              <RouteMapChart data={displayEntry.data} />
+              <RouteViz
+                data={displayEntry.data}
+                title="Route Map Preview"
+                subtitle={`Day ${displayDay} · ${displayEntry.policy}`}
+                filenameStem="route-map"
+              />
             ) : null
           ) : null}
           {showBinFill && <BinFillStrip data={displayEntry.data} />}
