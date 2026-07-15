@@ -17,12 +17,11 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { CheckCircle, ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw, XCircle } from "lucide-react";
+import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
+import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
 import { GradNormSparkline, LrSparkline } from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
@@ -699,68 +698,47 @@ export function TrainingMonitor() {
 
       {/* Live / recent train-HPO indicator */}
       {recentTrainId && recentTrainProc && (
-        <div className="card border-accent-success/30 space-y-2">
-          <div className="flex items-center gap-2 flex-wrap">
-            {activeTrainId || effectiveLiveMetrics.length > 0 ? (
-              <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer flex-1 min-w-0">
-                <input
-                  type="checkbox"
-                  checked={selected.includes(LIVE_KEY)}
-                  onChange={() =>
-                    setSelected((s) =>
-                      s.includes(LIVE_KEY) ? s.filter((k) => k !== LIVE_KEY) : [LIVE_KEY, ...s]
-                    )
+        <div className="card border-accent-success/30 space-y-3">
+          <TrainHpoLivePanelHeader
+            status={
+              activeTrainRunning
+                ? "running"
+                : recentTrainCompleted
+                  ? "completed"
+                  : recentTrainProc.status
+            }
+            title={
+              activeTrainRunning
+                ? liveProcessLabel
+                : recentTrainCompleted
+                  ? `${liveTrainProcessLabel(recentTrainId).replace("Live ", "")} Complete`
+                  : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`
+            }
+            processId={recentTrainId}
+            metricCount={effectiveLiveMetrics.length}
+            healthCount={effectiveLiveHealth.length}
+            attentionCount={effectiveLiveAttention.length}
+            overlaySelect={
+              activeTrainId || effectiveLiveMetrics.length > 0
+                ? {
+                    checked: selected.includes(LIVE_KEY),
+                    onChange: () =>
+                      setSelected((s) =>
+                        s.includes(LIVE_KEY)
+                          ? s.filter((k) => k !== LIVE_KEY)
+                          : [LIVE_KEY, ...s]
+                      ),
                   }
-                  className="accent-accent-primary"
-                />
-                {activeTrainRunning ? (
-                  <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
-                ) : recentTrainCompleted ? (
-                  <CheckCircle size={13} className="text-accent-success shrink-0" />
-                ) : (
-                  <XCircle size={13} className="text-accent-danger shrink-0" />
-                )}
-                <span className="text-sm text-accent-success font-mono flex-1">
-                  {activeTrainRunning
-                    ? liveProcessLabel
-                    : recentTrainCompleted
-                      ? `${liveTrainProcessLabel(recentTrainId).replace("Live ", "")} Complete`
-                      : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`}
-                </span>
-                <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
-                <TrainHpoRehydrationBadges
-                  metricCount={effectiveLiveMetrics.length}
-                  healthCount={effectiveLiveHealth.length}
-                  attentionCount={effectiveLiveAttention.length}
-                />
-              </label>
-            ) : (
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                {recentTrainCompleted ? (
-                  <CheckCircle size={13} className="text-accent-success shrink-0" />
-                ) : (
-                  <XCircle size={13} className="text-accent-danger shrink-0" />
-                )}
-                <span className="text-sm text-accent-success font-mono flex-1">
-                  {recentTrainCompleted
-                    ? liveTrainProcessLabel(recentTrainId).replace("Live ", "") + " Complete"
-                    : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`}
-                </span>
-                <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
-                <TrainHpoRehydrationBadges
-                  metricCount={effectiveLiveMetrics.length}
-                  healthCount={effectiveLiveHealth.length}
-                  attentionCount={effectiveLiveAttention.length}
-                />
-              </div>
-            )}
-            <TrainHpoNavMesh
-              showHpoLinks={activeIsHpo || isHpoProcess(recentTrainId, recentTrainProc.command)}
-              showOutputBrowser={recentTrainDone && recentTrainCompleted}
-              outputRunPath={recentOutputRunPath}
-              trainingRunPath={recentTrainingRunPath}
-            />
-          </div>
+                : undefined
+            }
+            navMesh={{
+              showHpoLinks:
+                activeIsHpo || isHpoProcess(recentTrainId, recentTrainProc.command),
+              showOutputBrowser: recentTrainDone && recentTrainCompleted,
+              outputRunPath: recentOutputRunPath,
+              trainingRunPath: recentTrainingRunPath,
+            }}
+          />
           {activeTrainRunning && activeTrainId && (
             <LiveTrainProgressBar
               processId={activeTrainId}

@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-fifth pass (§G.17 + §A.2 + §A.4 + §D.7)
+
+Hundred-fifty-fifth pass closes the Training Monitor live panel header gap left after the
+hundred-fifty-fourth pass (which deduplicated ``TrainHpoLivePanelHeader`` across Training Hub,
+HPO Tracker, Experiment Tracker, and Process Monitor). Training Monitor now shares the same
+header component with optional ``overlaySelect`` for ``LIVE_KEY`` multi-run overlay checkbox
+parity, completing train/HPO workflow header row consistency across all five pages.
+
+**React frontend**
+- ``TrainHpoLivePanelHeader`` — ``overlaySelect`` prop wraps inline title row in a checkbox
+  label for Training Monitor ``LIVE_KEY`` overlay selection (§G.17 / §A.2 / §A.4 / §D.7)
+- Training Monitor — deduplicated inline live/recent header blocks; shared status icon +
+  title + process id + rehydration badges + ``TrainHpoNavMesh`` row (§G.17 / §D.7)
+- Live/recent card ``space-y-3`` spacing parity with other train/HPO workflow pages (§G.17 / §D.7)
+
+**ROADMAP**
+- §G.17 Training Monitor ``TrainHpoLivePanelHeader`` + ``overlaySelect`` checked
+- §A.2 / §A.4 live panel header + nav mesh parity on Training Monitor checked
+- §D.7 train/HPO workflow header row parity across all five pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-fourth pass (§G.10 + §G.15 + §G.17 + §G.18 + §A.2 + §A.4 + §D.7)
 
 Hundred-fifty-fourth pass closes the live panel header parity gap left after the
