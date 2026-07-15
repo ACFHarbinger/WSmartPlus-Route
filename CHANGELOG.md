@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-seventh pass (§G.6 / §G.7)
+
+Sixty-seventh pass promotes portfolio city brushing to global filter state with
+bookmarkable deep links, and adds SQL result row search with filtered export.
+
+**React frontend**
+- `useGlobalFiltersStore` — `brushedCity` + `setBrushedCity`; cleared on filter reset
+  and mutually exclusive with ``runLabel`` selections
+- `usePortfolioRunBrush` — city brush reads/writes global store (fixes filter bar /
+  chart desync when run selector changes)
+- `GlobalFilterBar` — city/scale dropdown when ≥2 city groups loaded on portfolio views
+- `useHashSync` — serializes ``brushedCity`` as ``c`` URL hash param
+- `SqlQueryPanel` — row filter search box; CSV export respects active filter + sort
+
+**ROADMAP**
+- §G.6 Portfolio global city/scale filter bar checked
+- §G.6 SQL result grid row filter + filtered CSV export checked
+- §G.7 Bookmarkable city brush URL hash sync checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-sixth pass (§G.6 / §G.7)
 
 Sixty-sixth pass unifies portfolio ``run_label`` brushing with the global filter store

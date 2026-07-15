@@ -9,12 +9,23 @@ import { useSimStore, uniquePolicies, uniqueSamples } from "../../store/sim";
 interface Props {
   /** Portfolio ``run_label`` options when a multi-run table is active (§G.6). */
   runLabels?: string[];
+  /** City/scale group options for portfolio city brush (§G.6). */
+  cities?: string[];
 }
 
-export function GlobalFilterBar({ runLabels = [] }: Props) {
+export function GlobalFilterBar({ runLabels = [], cities = [] }: Props) {
   const { entries } = useSimStore();
-  const { policy, sampleId, runLabel, setPolicy, setSampleId, setRunLabel, reset } =
-    useGlobalFiltersStore();
+  const {
+    policy,
+    sampleId,
+    runLabel,
+    brushedCity,
+    setPolicy,
+    setSampleId,
+    setRunLabel,
+    setBrushedCity,
+    reset,
+  } = useGlobalFiltersStore();
 
   const policies = uniquePolicies(entries);
   const samples = uniqueSamples(entries);
@@ -24,7 +35,9 @@ export function GlobalFilterBar({ runLabels = [] }: Props) {
     policy == null &&
     sampleId == null &&
     runLabel == null &&
-    runLabels.length === 0
+    brushedCity == null &&
+    runLabels.length === 0 &&
+    cities.length === 0
   ) {
     return null;
   }
@@ -61,11 +74,30 @@ export function GlobalFilterBar({ runLabels = [] }: Props) {
         </select>
       )}
 
+      {cities.length > 1 && (
+        <select
+          className="select-base w-36 text-xs"
+          value={brushedCity ?? ""}
+          onChange={(e) => {
+            setRunLabel(null);
+            setBrushedCity(e.target.value || null);
+          }}
+        >
+          <option value="">All cities</option>
+          {cities.map((city) => (
+            <option key={city} value={city}>{city}</option>
+          ))}
+        </select>
+      )}
+
       {runLabels.length > 0 && (
         <select
           className="select-base w-44 text-xs"
           value={runLabel ?? ""}
-          onChange={(e) => setRunLabel(e.target.value || null)}
+          onChange={(e) => {
+            setBrushedCity(null);
+            setRunLabel(e.target.value || null);
+          }}
         >
           <option value="">All runs</option>
           {runLabels.map((label) => (
@@ -74,7 +106,7 @@ export function GlobalFilterBar({ runLabels = [] }: Props) {
         </select>
       )}
 
-      {(policy || sampleId != null || runLabel) && (
+      {(policy || sampleId != null || runLabel || brushedCity) && (
         <button
           onClick={reset}
           className="btn-ghost text-xs flex items-center gap-1 text-canvas-muted"

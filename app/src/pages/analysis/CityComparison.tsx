@@ -187,7 +187,10 @@ export function CityComparison() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar runLabels={runs.length > 1 ? portfolioRunLabels : []} />
+      <GlobalFilterBar
+        runLabels={runs.length > 1 ? portfolioRunLabels : []}
+        cities={runs.length > 1 ? cityGroups.map(([city]) => city) : []}
+      />
 
       <div className="flex items-center gap-3 flex-wrap">
         <button onClick={() => void addRun()} className="btn-primary flex items-center gap-2 text-xs">

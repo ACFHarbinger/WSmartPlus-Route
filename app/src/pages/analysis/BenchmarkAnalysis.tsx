@@ -434,7 +434,10 @@ export function BenchmarkAnalysis() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar runLabels={filteredRuns.length > 1 ? portfolioRunLabels : []} />
+      <GlobalFilterBar
+        runLabels={filteredRuns.length > 1 ? portfolioRunLabels : []}
+        cities={filteredRuns.length > 1 ? cityGroups.map(([city]) => city) : []}
+      />
 
       {evalRows && evalRows.length > 0 && (
         <EvalResultsPanel rows={evalRows} onDismiss={() => setEvalRows(null)} />

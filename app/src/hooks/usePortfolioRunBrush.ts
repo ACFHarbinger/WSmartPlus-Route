@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo } from "react";
 import { useGlobalFiltersStore } from "../store/filters";
 import type { CityRunSlice } from "../utils/cityComparison";
 
@@ -10,8 +10,7 @@ export function usePortfolioRunBrush(
   runs: CityRunSlice[],
   cityGroups: Array<[string, CityRunSlice[]]>
 ) {
-  const { runLabel, setRunLabel } = useGlobalFiltersStore();
-  const [brushedCity, setBrushedCity] = useState<string | null>(null);
+  const { runLabel, brushedCity, setRunLabel, setBrushedCity } = useGlobalFiltersStore();
 
   const runLabels = useMemo(() => runs.map((r) => r.label), [runs]);
 
@@ -26,9 +25,9 @@ export function usePortfolioRunBrush(
   const handleCityClick = useCallback(
     (city: string) => {
       setRunLabel(null);
-      setBrushedCity((current) => (current === city ? null : city));
+      setBrushedCity(brushedCity === city ? null : city);
     },
-    [setRunLabel]
+    [brushedCity, setRunLabel, setBrushedCity]
   );
 
   const handleRunLabelClick = useCallback(
@@ -36,7 +35,7 @@ export function usePortfolioRunBrush(
       setBrushedCity(null);
       setRunLabel(runLabel === label ? null : label);
     },
-    [runLabel, setRunLabel]
+    [runLabel, setRunLabel, setBrushedCity]
   );
 
   return {

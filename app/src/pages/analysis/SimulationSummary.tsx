@@ -2085,7 +2085,10 @@ export function SimulationSummary() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar runLabels={portfolioMode ? portfolioRunLabels : []} />
+      <GlobalFilterBar
+        runLabels={portfolioMode ? portfolioRunLabels : []}
+        cities={portfolioMode ? cityGroups.map(([city]) => city) : []}
+      />
 
       <div className="flex items-center gap-3 flex-wrap">
         <button onClick={openLog} className="btn-primary flex items-center gap-2">

@@ -63,6 +63,7 @@ export function SqlQueryPanel({
   const [rows, setRows] = useState<Record<string, unknown>[]>([]);
   const [sortCol, setSortCol] = useState<string | null>(null);
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
+  const [filterText, setFilterText] = useState("");
 
   const templates = useMemo(
     () => sqlTemplates(tableName, { portfolio: portfolioMode, algorithm: algorithmMode }),
@@ -94,6 +95,7 @@ export function SqlQueryPanel({
         const result = await queryDuckDb<Record<string, unknown>>(nextSql);
         setRows(result);
         setSortCol(null);
+        setFilterText("");
       } catch (err) {
         setError(String(err));
         setRows([]);
@@ -133,6 +135,14 @@ export function SqlQueryPanel({
     });
   }, [rows, sortCol, sortDir]);
 
+  const filteredRows = useMemo(() => {
+    const q = filterText.trim().toLowerCase();
+    if (!q) return sortedRows;
+    return sortedRows.filter((row) =>
+      columns.some((c) => String(row[c] ?? "").toLowerCase().includes(q))
+    );
+  }, [sortedRows, filterText, columns]);
+
   const runQuery = useCallback(async () => {
     setRunning(true);
     setError(null);
@@ -140,6 +150,7 @@ export function SqlQueryPanel({
       const result = await queryDuckDb<Record<string, unknown>>(sql);
       setRows(result);
       setSortCol(null);
+      setFilterText("");
     } catch (err) {
       setError(String(err));
       setRows([]);
@@ -153,9 +164,9 @@ export function SqlQueryPanel({
     downloadCsv(
       "duckdb-query.csv",
       columns,
-      sortedRows.map((row) => columns.map((c) => String(row[c] ?? "")))
+      filteredRows.map((row) => columns.map((c) => String(row[c] ?? "")))
     );
-  }, [columns, sortedRows]);
+  }, [columns, filteredRows]);
 
   const toggleSort = (col: string) => {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
@@ -302,7 +313,11 @@ export function SqlQueryPanel({
               </button>
             )}
             {rows.length > 0 && (
-              <span className="text-xs text-canvas-muted">{rows.length} row(s)</span>
+              <span className="text-xs text-canvas-muted">
+                {filterText.trim()
+                  ? `${filteredRows.length.toLocaleString()} / ${rows.length.toLocaleString()} row(s)`
+                  : `${rows.length.toLocaleString()} row(s)`}
+              </span>
             )}
             {profitCol && onProfitRange && rows.length > 0 && (
               <button onClick={applyProfitBrush} className="btn-ghost text-xs">
@@ -333,6 +348,16 @@ export function SqlQueryPanel({
           )}
 
           {sortedRows.length > 0 && (
+            <input
+              type="search"
+              value={filterText}
+              onChange={(e) => setFilterText(e.target.value)}
+              placeholder="Filter rows…"
+              className="input-base w-full max-w-xs text-xs"
+            />
+          )}
+
+          {filteredRows.length > 0 && (
             <div className="overflow-auto max-h-64 rounded-lg border border-canvas-border">
               <table className="w-full text-xs">
                 <thead className="bg-canvas-elevated sticky top-0">
@@ -353,7 +378,7 @@ export function SqlQueryPanel({
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-canvas-border">
-                  {sortedRows.slice(0, 200).map((row, i) => {
+                  {filteredRows.slice(0, 200).map((row, i) => {
                     const highlighted = rowMatchesHighlight(row);
                     const isActive =
                       (policyCol &&
