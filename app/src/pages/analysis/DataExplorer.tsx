@@ -8,10 +8,12 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
+import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
@@ -53,7 +55,6 @@ export function DataExplorer() {
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
     useDuckDbStore();
   const [file, setFile] = useState<CsvFile | null>(null);
-  const derivedRunLabel = useLogPathRunLabelBrush(file?.path ?? null);
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(0);
   const [sortCol, setSortCol] = useState<string | null>(null);
@@ -107,6 +108,12 @@ export function DataExplorer() {
   const csvRunLabels = useMemo(
     () => (file && runLabelCol ? distinctColumnValues(file.rows, runLabelCol) : []),
     [file, runLabelCol]
+  );
+  const derivedRunLabel = useLogPathRunLabelBrush(file?.path ?? null);
+  const derivedTableRunLabel = useTableRunLabelBrush(
+    lastPipeline?.tableName === "explorer_csv" ? "explorer_csv" : null,
+    csvRunLabels,
+    Boolean(runLabelCol)
   );
   const csvCities = useMemo(() => {
     if (!file) return [];
@@ -238,7 +245,9 @@ export function DataExplorer() {
               ? csvRunLabels
               : derivedRunLabel
                 ? [derivedRunLabel]
-                : []
+                : derivedTableRunLabel
+                  ? [derivedTableRunLabel]
+                  : []
           }
           cities={csvCities.length > 1 ? csvCities : []}
           showLogScale
@@ -252,16 +261,23 @@ export function DataExplorer() {
         </button>
         {file && (
           <>
-            <span className="text-xs text-canvas-muted">
-              {file.path.split("/").pop()} · {file.rows.length.toLocaleString()} rows
-              {hasActiveBrush && hasBrushColumns && (
-                <> · {exportRows.length.toLocaleString()} brushed</>
-              )}
-              {loading && " · DuckDB ingesting…"}
-              {!loading && lastPipeline?.tableName === "explorer_csv" && (
-                <> · {formatPipelineTimingBadge(lastPipeline)}</>
-              )}
-            </span>
+            <PathRunLabelChip
+              path={file.path}
+              trailing={
+                <>
+                  <span className="shrink-0">
+                    · {file.rows.length.toLocaleString()} rows
+                    {hasActiveBrush && hasBrushColumns && (
+                      <> · {exportRows.length.toLocaleString()} brushed</>
+                    )}
+                    {loading && " · DuckDB ingesting…"}
+                    {!loading && lastPipeline?.tableName === "explorer_csv" && (
+                      <> · {formatPipelineTimingBadge(lastPipeline)}</>
+                    )}
+                  </span>
+                </>
+              }
+            />
             <button
               onClick={() =>
                 downloadCsv(
@@ -317,7 +333,8 @@ export function DataExplorer() {
           initialRunLabel={
             activeRunLabel ??
             (csvRunLabels.length === 1 ? csvRunLabels[0]! : null) ??
-            derivedRunLabel
+            derivedRunLabel ??
+            derivedTableRunLabel
           }
         />
       )}
@@ -327,11 +344,20 @@ export function DataExplorer() {
           tableName={lastPipeline.tableName}
           theme={theme}
           highlightPolicies={highlightPolicies}
-          highlightRunLabels={highlightRunLabels}
-          brushSqlSync={hasBrushColumns}
-          autoRunOnBrushSync={hasBrushColumns}
-          portfolioMode={Boolean(runLabelCol)}
-          portfolioRunLabels={csvRunLabels}
+          highlightRunLabels={
+            highlightRunLabels ??
+            (derivedTableRunLabel ? [derivedTableRunLabel] : null)
+          }
+          brushSqlSync={hasBrushColumns || Boolean(derivedTableRunLabel)}
+          autoRunOnBrushSync={hasBrushColumns || Boolean(derivedTableRunLabel)}
+          portfolioMode={Boolean(runLabelCol) || Boolean(derivedTableRunLabel)}
+          portfolioRunLabels={
+            csvRunLabels.length > 0
+              ? csvRunLabels
+              : derivedTableRunLabel
+                ? [derivedTableRunLabel]
+                : []
+          }
         />
       )}
 
