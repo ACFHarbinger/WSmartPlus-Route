@@ -1,9 +1,10 @@
 import { create } from "zustand";
-import type { DayLogEntry } from "../types";
+import type { DayLogEntry, PolicyVizEntry } from "../types";
 
 interface SimState {
   // All entries from the current log file
   entries: DayLogEntry[];
+  policyVizEntries: PolicyVizEntry[];
   // Selected filters (mirrors Streamlit sidebar controls)
   selectedPolicy: string | null;
   selectedSample: number | null;
@@ -13,7 +14,9 @@ interface SimState {
   isWatching: boolean;
 
   addEntry: (entry: DayLogEntry) => void;
+  addPolicyVizEntry: (entry: PolicyVizEntry) => void;
   loadEntries: (entries: DayLogEntry[]) => void;
+  loadPolicyVizEntries: (entries: PolicyVizEntry[]) => void;
   setSelectedPolicy: (policy: string | null) => void;
   setSelectedSample: (sample: number | null) => void;
   setSelectedDay: (day: number | null) => void;
@@ -24,6 +27,7 @@ interface SimState {
 
 export const useSimStore = create<SimState>((set) => ({
   entries: [],
+  policyVizEntries: [],
   selectedPolicy: null,
   selectedSample: null,
   selectedDay: null,
@@ -42,7 +46,21 @@ export const useSimStore = create<SimState>((set) => ({
       return exists ? s : { entries: [...s.entries, entry] };
     }),
 
+  addPolicyVizEntry: (entry) =>
+    set((s) => {
+      const exists = s.policyVizEntries.some(
+        (e) =>
+          e.policy === entry.policy &&
+          e.sample_id === entry.sample_id &&
+          e.day === entry.day &&
+          e.policy_type === entry.policy_type
+      );
+      return exists ? s : { policyVizEntries: [...s.policyVizEntries, entry] };
+    }),
+
   loadEntries: (entries) => set({ entries }),
+
+  loadPolicyVizEntries: (entries) => set({ policyVizEntries: entries }),
 
   setSelectedPolicy: (selectedPolicy) => set({ selectedPolicy }),
   setSelectedSample: (selectedSample) => set({ selectedSample }),
@@ -53,6 +71,7 @@ export const useSimStore = create<SimState>((set) => ({
   reset: () =>
     set({
       entries: [],
+      policyVizEntries: [],
       selectedPolicy: null,
       selectedSample: null,
       selectedDay: null,

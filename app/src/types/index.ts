@@ -33,6 +33,18 @@ export interface DayLogEntry {
   data: SimDayData;
 }
 
+// ── Policy telemetry (PolicyVizMixin → Studio §A.3) ─────────────────────────
+
+export type PolicyVizType = "alns" | "hgs" | "aco" | "ils" | "selector" | "generic";
+
+export interface PolicyVizEntry {
+  policy: string;
+  sample_id: number;
+  day: number;
+  policy_type: PolicyVizType;
+  data: Record<string, Array<number | string | boolean>>;
+}
+
 // ── Training log types ───────────────────────────────────────────────────────
 
 export interface TrainingRun {

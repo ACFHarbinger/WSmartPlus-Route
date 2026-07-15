@@ -179,6 +179,17 @@ class RouteConstructionAction(SimulationAction):
             # Preserve updated multi-day state for the next simulation day
             context["multi_day_context"] = updated_multi_day
 
+            from logic.src.tracking.logging.modules.policy_viz_emit import maybe_emit_policy_viz
+
+            maybe_emit_policy_viz(
+                adapter,
+                str(context.get("display_name") or context.get("policy_name") or full_policy),
+                int(context.get("sample_id", 0)),
+                int(context.get("day", 0)),
+                context.get("realtime_log_path"),
+                context.get("lock"),
+            )
+
             # Legacy caching for regular selection
             if "regular" in full_policy:
                 context["cached"] = extra_output

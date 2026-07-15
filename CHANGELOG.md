@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninth pass (§A.3)
+
+Hundred-ninth pass wires ``PolicyVizMixin`` iteration telemetry into the Studio
+Simulation Monitor, completing ROADMAP §A.3 Option A.
+
+**Python logic**
+- ``policy_viz_emit.py`` — ``POLICY_VIZ_START:`` marker emission to stdout + JSONL log
+- ``route_construction`` / ``route_improvement`` actions call ``maybe_emit_policy_viz()`` after solver runs
+- Unit tests in ``logic/test/unit/tracking/test_policy_viz_emit.py``
+
+**Rust backend**
+- ``parse_policy_viz_line`` + ``PolicyVizEntry`` struct in ``sim_watcher.rs``
+- ``load_policy_viz_log`` command; ``sim:policy_viz_update`` watcher events
+
+**React frontend**
+- ``PolicyTelemetryPanel`` — algorithm-dispatched ECharts (ALNS/HGS/ACO/ILS/selector/generic)
+- ``policyTelemetry.ts`` — marker parse + chart builders with EMA smoothing
+- Simulation Monitor — panel below route/tour detail; historical + live ingest
+- ``useProcessMonitor`` — stdout ``POLICY_VIZ_START:`` lines → sim store
+
+**ROADMAP**
+- §A.3 Option A PolicyVizMixin → Studio checked (Options B/C deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighth pass (§G.8)
 
 Hundred-eighth pass wires the Tauri updater plugin for signed auto-updates, adds

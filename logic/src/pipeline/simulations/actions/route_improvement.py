@@ -241,5 +241,16 @@ class RouteImprovementAction(SimulationAction):
                             phase=SearchPhase.IMPROVEMENT,
                             improvement_metrics=metrics,
                         )
+
+                from logic.src.tracking.logging.modules.policy_viz_emit import maybe_emit_policy_viz
+
+                maybe_emit_policy_viz(
+                    processor,
+                    str(context.get("display_name") or context.get("policy_name") or "unknown"),
+                    int(context.get("sample_id", 0)),
+                    int(context.get("day", 0)),
+                    context.get("realtime_log_path"),
+                    context.get("lock"),
+                )
             except Exception as e:
                 logger.warning(f"Route improvement skipped due to error: {e}")

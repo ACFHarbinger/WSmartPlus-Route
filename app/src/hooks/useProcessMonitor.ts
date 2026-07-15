@@ -8,6 +8,8 @@ import {
 } from "@tauri-apps/plugin-notification";
 import { toast } from "sonner";
 import { useProcessStore } from "../store/process";
+import { useSimStore } from "../store/sim";
+import { parsePolicyVizLine } from "../utils/policyTelemetry";
 import type { ProcessSpawned, StdoutLine, StatusUpdate } from "../types";
 
 async function maybeSendOsNotification(title: string, body: string) {
@@ -47,6 +49,10 @@ export function useProcessMonitor() {
 
       const ulStdout = await listen<StdoutLine>("process:stdout", (event) => {
         appendLog(event.payload.id, event.payload.line);
+        const viz = parsePolicyVizLine(event.payload.line);
+        if (viz) {
+          useSimStore.getState().addPolicyVizEntry(viz);
+        }
       });
 
       const ulStatus = await listen<StatusUpdate>("process:status", (event) => {
