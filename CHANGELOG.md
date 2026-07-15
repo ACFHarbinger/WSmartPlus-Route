@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-third pass (§G.7 + §G.9 + §G.10 + §G.14 + §G.15 + §G.17 + §D.7 + §D.8)
+
+Two-hundred-and-twenty-third pass extends path-handoff surface parity beyond
+``.jsonl`` dual Summary / Monitor icons (pass 222). Process rows, live-panel
+footers, and Command Palette recents now hand off training dirs, run roots,
+CSVs, checkpoints, and configs via a shared ``PathHandoffButtons`` control.
+Train/HPO completion toasts gain dual **Training** + **Output** actions when
+stdout yields both artefacts.
+
+**React frontend**
+- ``PathHandoffButtons`` — kind-aware handoffs (log dual + single-icon non-log) (§G.7 / §G.14 / §G.15 / §G.17 / §D.7)
+- Process Monitor process rows — non-log path chips use ``PathHandoffButtons`` (§G.15 / §G.10 / §G.17 / §D.7)
+- ``ProcessIdFooter`` — path-kind handoffs for training / run / log chips (§G.9 / §G.15 / §D.7)
+- Command Palette — recent entries of all known kinds show icon handoffs (§G.7 / §D.7)
+- Process train/HPO toasts — dual **Training** + **Output** when both paths present (§D.8 / §G.17 / §G.14 / §D.7)
+
+**ROADMAP**
+- §G.15 / §G.7 non-log path-handoff surface parity checked
+- §D.8 train/HPO dual toast actions documented
+- §D.7 path-kind handoff coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-second pass (§G.1 + §G.9 + §G.14 + §G.15 + §G.16 + §G.17 + §D.7 + §D.8)
 
 Two-hundred-and-twenty-second pass continues log-handoff surface parity after pass 221

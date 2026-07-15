@@ -1447,6 +1447,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process completion / failure / cancel toasts — **Summary** + **Monitor** actions when stdout yields a ``.jsonl``; **Training** for train/HPO run paths; **Output** for assets/output run roots (§D.8 / §G.1 / §G.14 / §G.16 / §G.17 / §D.7)
 - [x] §G.9 / §G.15 live-panel footer + §D.8 toast log-handoff surface parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-third pass)**
+
+- [x] ``PathHandoffButtons`` — path-kind handoff control: dual Summary / Monitor for ``.jsonl`` via ``LogHandoffButtons``; single-icon Training / Output / Data Explorer / Eval / Config for other ``RecentFileKind`` values (§G.7 / §G.14 / §G.15 / §G.17 / §D.7)
+- [x] Process Monitor process rows + ``ProcessIdFooter`` — non-log path chips (training dirs, run roots) expose matching handoff icons, not only ``.jsonl`` (§G.15 / §G.9 / §G.10 / §G.17 / §D.7)
+- [x] Command Palette recent entries — all known kinds show icon handoffs (logs keep dual Summary / Monitor) (§G.7 / §D.7)
+- [x] Process train/HPO toasts — dual **Training** + **Output** actions when both paths are present in stdout (§D.8 / §G.17 / §G.14 / §D.7)
+- [x] §G.15 / §G.7 non-log path-handoff surface parity with log dual-handoff surfaces checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1471,6 +1479,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 **Delivered (§D.8 — two-hundred-and-twenty-second pass)**
 
 - [x] Completion / failure / cancel toast action buttons hand off into Summary / Monitor (``.jsonl``), Training Monitor (train/HPO path), or Output Browser (run root) via ``applyStoreRecentHandoff`` (§D.8 / §G.1 / §G.14 / §G.16 / §G.17 / §D.7)
+
+**Delivered (§D.8 — two-hundred-and-twenty-third pass)**
+
+- [x] Train/HPO completion toasts expose dual **Training** + **Output** actions when stdout yields both a training run path and an assets/output root (§D.8 / §G.17 / §G.14 / §D.7)
 
 **Status**: §D.8 Options A+B complete — Option C (sound) deferred.
 
