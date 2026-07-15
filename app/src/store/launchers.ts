@@ -190,9 +190,12 @@ export const useSystemToolsStore = create<SystemToolsState>()(
 // ── Report & Presentation Generator (§H interim — archived logic/gen pipeline)
 
 export type ReportGenTab = "dataset" | "simulation" | "presentation";
+export type ReportGenEngine = "native" | "legacy";
 
 interface ReportGenState {
   tab: ReportGenTab;
+  /** "native" runs the in-app §H generator; "legacy" spawns the archived Python scripts. */
+  engine: ReportGenEngine;
   theme: "default" | "dark" | "light";
   // dataset analysis
   dsNpzCsv: string;
@@ -240,6 +243,7 @@ export const useReportGenStore = create<ReportGenState>()(
   persist(
     (set) => ({
       tab: "simulation" as ReportGenTab,
+      engine: "native" as ReportGenEngine,
       theme: "default" as const,
       dsNpzCsv: "",
       dsTdCsv: "",
