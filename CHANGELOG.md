@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-sixth pass (§G.18 + §D.7)
+
+Hundred-eighty-sixth pass closes the HPO Tracker path-chip gap left after the
+hundred-eighty-fifth pass (which unified Experiment Tracker MLflow/output-dir
+``PathRunLabelChip`` parity). Optuna trial health rows, storage DB path, exported
+report directory, and ``GlobalFilterBar`` ``runLabels`` now share
+``PathRunLabelChip`` ring-highlight + click-to-brush behaviour with analysis views.
+
+**React frontend**
+- ``trialLogDirFromUserAttrs`` / ``sqlitePathFromStorageUrl`` — resolve Optuna trial
+  ``log_dir`` user attribute and local SQLite storage path for path-chip brush
+  (§G.18 / §D.7)
+- HPO Tracker — trial health table rows render ``PathRunLabelChip`` when trial
+  ``log_dir`` is known; muted trial-number suffix parity with Process Monitor
+  (§G.18 / §D.7)
+- HPO Tracker — Optuna storage DB + exported Plotly report directory
+  ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.18 / §D.7)
+- HPO Tracker — ``GlobalFilterBar`` ``runLabels`` from selected trials, post-run
+  ``trainingRunPath`` / ``outputRunPath``, or live process brush (§G.18 / §D.7)
+
+**Python backend**
+- ``HpoHealthMetricsCallback`` — persist ``log_dir`` on Optuna trial user attributes
+  from Lightning ``trainer.log_dir`` (§G.18 / §A.4 / §D.7)
+
+**ROADMAP**
+- §G.18 HPO Tracker trial-table path-chip run-label brush + ring-highlight parity checked
+- §G.18 HPO Tracker storage/report path-chip brush parity checked
+- §D.7 tracker-page path-chip run-label brush parity across all HPO workflow views checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-fifth pass (§G.18 + §D.7)
 
 Hundred-eighty-fifth pass closes the Experiment Tracker path-chip gap left after the

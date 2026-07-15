@@ -1133,6 +1133,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Experiment Tracker — ``GlobalFilterBar`` ``runLabels`` from selected MLflow runs when no live process brush is active (§G.18 / §D.7)
 - [x] §G.18 Experiment Tracker MLflow + output-dir path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-sixth pass)**
+
+- [x] ``trialLogDirFromUserAttrs`` / ``sqlitePathFromStorageUrl`` — resolve Optuna trial ``log_dir`` user attribute and local SQLite storage path for path-chip brush (§G.18 / §D.7)
+- [x] ``HpoHealthMetricsCallback`` — persist ``log_dir`` on Optuna trial user attributes from Lightning ``trainer.log_dir`` (§G.18 / §A.4 / §D.7)
+- [x] HPO Tracker — trial health table rows render ``PathRunLabelChip`` when trial ``log_dir`` is known; muted trial-number suffix parity with Process Monitor (§G.18 / §D.7)
+- [x] HPO Tracker — Optuna storage DB + exported Plotly report directory ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.18 / §D.7)
+- [x] HPO Tracker — ``GlobalFilterBar`` ``runLabels`` from selected trials, post-run ``trainingRunPath`` / ``outputRunPath``, or live process brush (§G.18 / §D.7)
+- [x] §G.18 HPO Tracker trial-table + storage/report path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1683,6 +1692,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor process rows + live panel footers — ``PathRunLabelChip`` when stdout resolves a log path; Command Palette recent files path-chip brush parity (hundred-eighty-third pass; §G.7 / §G.15 / §D.7)
 - [x] Training Monitor run discovery list + per-run panel headers — ``LoadedRunRow`` + ``PathRunLabelChip`` on Lightning log directories; Process Monitor row muted process-id suffix (hundred-eighty-fourth pass; §G.17 / §G.15 / §D.7)
 - [x] Experiment Tracker MLflow run table + output directory list — ``PathRunLabelChip`` / ``LoadedRunRow`` on ``artifact_uri`` and ``assets/output`` paths; ``GlobalFilterBar`` ``runLabels`` from selected MLflow runs (hundred-eighty-fifth pass; §G.18 / §G.14 / §D.7)
+- [x] HPO Tracker trial health table + storage/report paths — ``PathRunLabelChip`` on trial ``log_dir``, SQLite storage URL, and exported Plotly report directory; ``GlobalFilterBar`` ``runLabels`` from selected trials + post-run paths (hundred-eighty-sixth pass; §G.18 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

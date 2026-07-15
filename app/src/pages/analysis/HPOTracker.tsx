@@ -12,6 +12,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { toast } from "sonner";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { useAppStore } from "../../store/app";
@@ -19,11 +20,17 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import {
+  brushLogPathFromProcessLines,
+  outputRunPathFromLogLines,
+  sqlitePathFromStorageUrl,
+} from "../../utils/outputRunPath";
+import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
+import { trialLogDirFromUserAttrs } from "../../utils/trialRunPath";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/trainingProcess";
-import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary } from "../../types";
+import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary, OptunaTrial } from "../../types";
 
 const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";
 
@@ -191,11 +198,13 @@ function buildParallelOption(study: OptunaStudyData, logScale = false) {
 export function HPOTracker() {
   const { projectRoot, pythonPath, effectiveTheme } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
+  const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
   const processes = useProcessStore((s) => s.processes);
   const [storageUrl, setStorageUrl] = useState(DEFAULT_STORAGE);
   const [studies, setStudies] = useState<OptunaStudySummary[]>([]);
   const [selectedStudy, setSelectedStudy] = useState<string | null>(null);
   const [studyData, setStudyData] = useState<OptunaStudyData | null>(null);
+  const [selectedTrialNumbers, setSelectedTrialNumbers] = useState<number[]>([]);
   const [compareStudy, setCompareStudy] = useState<string | null>(null);
   const [compareStudyData, setCompareStudyData] = useState<OptunaStudyData | null>(null);
   const [loading, setLoading] = useState(false);
@@ -255,6 +264,39 @@ export function HPOTracker() {
     [recentHpoProc]
   );
 
+  const storageDbPath = useMemo(() => sqlitePathFromStorageUrl(storageUrl), [storageUrl]);
+
+  const trialBrushLabel = useCallback((trial: OptunaTrial): string | null => {
+    const logDir = trialLogDirFromUserAttrs(trial.user_attrs);
+    return logDir ? runLabelFromPath(logDir) : null;
+  }, []);
+
+  const filterRunLabels = useMemo(() => {
+    if (processRunLabel) return [processRunLabel];
+    if (trainingRunPath) return [runLabelFromPath(trainingRunPath)];
+    if (outputRunPath) return [runLabelFromPath(outputRunPath)];
+    const labels = selectedTrialNumbers
+      .map((n) => studyData?.trials.find((t) => t.number === n))
+      .filter((t): t is OptunaTrial => t != null)
+      .map(trialBrushLabel)
+      .filter((l): l is string => l != null);
+    return labels.length > 0 ? labels : [];
+  }, [
+    processRunLabel,
+    trainingRunPath,
+    outputRunPath,
+    selectedTrialNumbers,
+    studyData,
+    trialBrushLabel,
+  ]);
+
+  const toggleTrial = useCallback((trialNumber: number) => {
+    setSelectedTrialNumbers((prev) =>
+      prev.includes(trialNumber)
+        ? prev.filter((n) => n !== trialNumber)
+        : [...prev, trialNumber]
+    );
+  }, []);
 
   const refreshStudies = useCallback(async () => {
     if (!projectRoot) return;
@@ -303,6 +345,10 @@ export function HPOTracker() {
   useEffect(() => {
     if (selectedStudy && projectRoot) loadStudy(selectedStudy);
   }, [selectedStudy]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  useEffect(() => {
+    setSelectedTrialNumbers([]);
+  }, [selectedStudy]);
 
   useEffect(() => {
     if (!compareStudy || !projectRoot) {
@@ -405,10 +451,7 @@ export function HPOTracker() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar
-        showLogScale
-        runLabels={processRunLabel ? [processRunLabel] : []}
-      />
+      <GlobalFilterBar showLogScale runLabels={filterRunLabels} />
 
       {recentHpoId && recentHpoProc && (
         <TrainHpoLivePanel
@@ -482,6 +525,26 @@ export function HPOTracker() {
             Refresh
           </button>
         </div>
+        {storageDbPath && (
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[10px] text-canvas-muted shrink-0">Storage DB</span>
+            <PathRunLabelChip path={storageDbPath} className="flex-1 min-w-0" />
+          </div>
+        )}
+        {lastReportDir && (
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-[10px] text-canvas-muted shrink-0">Reports</span>
+            <PathRunLabelChip path={lastReportDir} className="flex-1 min-w-0" />
+            <button
+              onClick={openReportDir}
+              className="btn-ghost text-xs flex items-center gap-1 shrink-0"
+              title="Open report folder in file manager"
+            >
+              <ExternalLink size={12} />
+              Open
+            </button>
+          </div>
+        )}
       </div>
 
       {studies.length > 0 && (
@@ -513,16 +576,7 @@ export function HPOTracker() {
                     Export Plotly
                   </button>
                 )}
-              {lastReportDir && (
-                <button
-                  onClick={openReportDir}
-                  className="btn-ghost text-xs flex items-center gap-1"
-                  title="Open report folder in file manager"
-                >
-                  <ExternalLink size={12} />
-                  Reports
-                </button>
-              )}
+
               {studyData && Object.keys(studyData.best_params).length > 0 && (
                 <button onClick={copyBestParams} className="btn-ghost text-xs flex items-center gap-1">
                   <Copy size={12} />
@@ -674,7 +728,8 @@ export function HPOTracker() {
             <table className="w-full text-xs">
               <thead>
                 <tr className="text-left text-canvas-muted border-b border-canvas-border">
-                  <th className="py-2 pr-3">#</th>
+                  <th className="py-2 pr-3 w-8" />
+                  <th className="py-2 pr-3">Trial</th>
                   <th className="py-2 pr-3">State</th>
                   <th className="py-2 pr-3">Objective</th>
                   <th className="py-2 pr-3">Grad Norm</th>
@@ -685,6 +740,11 @@ export function HPOTracker() {
               <tbody>
                 {studyData.trials.map((trial) => {
                   const attrs = trial.user_attrs ?? {};
+                  const trialLogDir = trialLogDirFromUserAttrs(attrs);
+                  const brushLabel = trialBrushLabel(trial);
+                  const brushActive = Boolean(
+                    brushLabel && activeRunLabel && activeRunLabel === brushLabel
+                  );
                   const gradNorm = attrs.last_grad_norm;
                   const entropy = attrs.last_entropy;
                   const healthPruned = attrs.health_pruned;
@@ -695,9 +755,37 @@ export function HPOTracker() {
                   return (
                     <tr
                       key={trial.number}
-                      className="border-b border-canvas-border/50 text-gray-200"
+                      className={`border-b border-canvas-border/50 text-gray-200 hover:bg-canvas-hover cursor-pointer ${
+                        selectedTrialNumbers.includes(trial.number) || brushActive
+                          ? "bg-canvas-hover/60"
+                          : ""
+                      } ${brushActive ? "ring-1 ring-inset ring-accent-secondary/30" : ""}`}
+                      onClick={() => toggleTrial(trial.number)}
                     >
-                      <td className="py-1.5 pr-3 font-mono">{trial.number}</td>
+                      <td className="py-1.5 pr-3">
+                        <input
+                          type="checkbox"
+                          className="accent-accent-primary"
+                          checked={selectedTrialNumbers.includes(trial.number)}
+                          onChange={() => toggleTrial(trial.number)}
+                          onClick={(e) => e.stopPropagation()}
+                        />
+                      </td>
+                      <td className="py-1.5 pr-3">
+                        {trialLogDir ? (
+                          <div className="flex items-center gap-2 min-w-0">
+                            <PathRunLabelChip
+                              path={trialLogDir}
+                              className="flex-1 min-w-0"
+                            />
+                            <span className="text-canvas-muted font-mono text-[10px] shrink-0">
+                              #{trial.number}
+                            </span>
+                          </div>
+                        ) : (
+                          <span className="font-mono">#{trial.number}</span>
+                        )}
+                      </td>
                       <td className="py-1.5 pr-3">{trial.state}</td>
                       <td className="py-1.5 pr-3 font-mono">
                         {trial.value != null ? trial.value.toFixed(4) : "—"}
