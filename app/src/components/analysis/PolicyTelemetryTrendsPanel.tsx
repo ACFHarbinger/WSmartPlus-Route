@@ -116,6 +116,10 @@ export function PolicyTelemetryTrendsPanel({
     () => (globalPolicy ? [globalPolicy] : null),
     [globalPolicy]
   );
+  const brushFilter = useMemo(
+    () => ({ policy: globalPolicy, runLabel: globalRunLabel }),
+    [globalPolicy, globalRunLabel]
+  );
 
   const handlePolicyBrush = useCallback(
     (name: string) => {
@@ -135,17 +139,17 @@ export function PolicyTelemetryTrendsPanel({
     [rows]
   );
   const compareOption = useMemo(
-    () => buildTrendComparisonOption(filteredRows, theme, logScale),
-    [filteredRows, theme, logScale]
+    () => buildTrendComparisonOption(rows, theme, logScale, brushFilter),
+    [rows, theme, logScale, brushFilter]
   );
   const stepsOption = useMemo(
-    () => buildTrendStepsOption(filteredRows.slice(0, 12), theme),
-    [filteredRows, theme]
+    () => buildTrendStepsOption(rows.slice(0, 12), theme, brushFilter),
+    [rows, theme, brushFilter]
   );
   const trajectoryOption = useMemo(
     () =>
-      buildTrendTrajectoryOption(filteredSeries, theme, logScale, smoothTrajectories),
-    [filteredSeries, theme, logScale, smoothTrajectories]
+      buildTrendTrajectoryOption(allSeries, theme, logScale, smoothTrajectories, brushFilter),
+    [allSeries, theme, logScale, smoothTrajectories, brushFilter]
   );
 
   const handleComparisonClick = useCallback(
@@ -288,6 +292,11 @@ export function PolicyTelemetryTrendsPanel({
           No persisted telemetry yet. Run a simulation with ALNS, HGS, or another
           ``PolicyVizMixin`` solver — snapshots are written to ``assets/telemetry.db`` on each emit.
         </p>
+      ) : filteredRows.length === 0 && (globalPolicy || globalRunLabel) ? (
+        <p className="text-xs text-canvas-muted">
+          No telemetry rows match the active global brush. Clear the brush or select a different
+          policy / run.
+        </p>
       ) : (
         <>
           {trajectoryOption ? (
@@ -358,7 +367,7 @@ export function PolicyTelemetryTrendsPanel({
                 </tr>
               </thead>
               <tbody>
-                {rows.slice(0, 20).map((row) => {
+                {filteredRows.slice(0, 20).map((row) => {
                   const runKey = trendRowRunKey(row);
                   const dimmed =
                     !isHighlighted(row.policy, brushedPolicies) ||

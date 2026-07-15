@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Map } from "lucide-react";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
@@ -320,6 +321,14 @@ export function AlgorithmComparison() {
           );
         })}
       </div>
+
+      {watchPath && (
+        <PolicyTelemetryTrendsPanel
+          theme={theme}
+          logScale={logScale}
+          initialPolicy={brushedPolicies?.length === 1 ? brushedPolicies[0]! : null}
+        />
+      )}
 
       {watchPath && duckdbReady && (
         <SqlQueryPanel

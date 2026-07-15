@@ -83,7 +83,7 @@ export function RuntimeAttentionPanel({ entries, theme, logScale = false }: Prop
             {sorted.length !== 1 ? "s" : ""} loaded
           </p>
         </div>
-        <ChartExportButtons chartRef={chartRef} basename="runtime-attention" />
+        <ChartExportButtons chartRef={chartRef} filenameStem="runtime-attention" />
       </div>
 
       <div className="flex flex-wrap items-center gap-3 text-xs">

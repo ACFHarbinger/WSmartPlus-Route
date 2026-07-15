@@ -793,7 +793,11 @@ export function BenchmarkAnalysis() {
       )}
 
       {runs.length >= 1 && (
-        <PolicyTelemetryTrendsPanel theme={theme} logScale={logScale} />
+        <PolicyTelemetryTrendsPanel
+          theme={theme}
+          logScale={logScale}
+          initialPolicy={brushedPolicies?.length === 1 ? brushedPolicies[0]! : null}
+        />
       )}
 
       {runs.length >= 1 && duckdbReady && (
