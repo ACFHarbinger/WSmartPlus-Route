@@ -381,7 +381,11 @@ export function OutputBrowser() {
     for (const runPath of compareSelection) {
       const run = runs.find((r) => r.path === runPath);
       const jsonl = await findRunJsonl(runPath);
-      if (jsonl && run) refs.push({ path: jsonl, label: run.name });
+      if (jsonl && run) {
+        const label = portfolioRunLabel(jsonl, run.name, projectRoot);
+        refs.push({ path: jsonl, label });
+        pushRecent({ path: jsonl, label, kind: "log" });
+      }
     }
     if (refs.length < 2) {
       toast.error("Need at least 2 runs with .jsonl logs to compare");
@@ -390,7 +394,7 @@ export function OutputBrowser() {
     setPendingBenchmarkLogs(refs);
     setMode("benchmark");
     toast.success(`Comparing ${refs.length} runs in Benchmark Analysis`);
-  }, [compareSelection, runs, setPendingBenchmarkLogs, setMode]);
+  }, [compareSelection, runs, projectRoot, pushRecent, setPendingBenchmarkLogs, setMode]);
 
   const exportRunAsBundle = useCallback(async () => {
     if (!selectedRun) return;

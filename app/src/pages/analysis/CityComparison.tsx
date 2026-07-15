@@ -168,9 +168,11 @@ export function CityComparison() {
       for (const ref of pendingBenchmarkLogs) {
         try {
           const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
+          const label = portfolioRunLabel(ref.path, ref.label, projectRoot);
+          pushRecent({ path: ref.path, label, kind: "log" });
           loaded.push({
             path: ref.path,
-            label: portfolioRunLabel(ref.path, ref.label, projectRoot),
+            label,
             entries,
           });
         } catch {
@@ -180,7 +182,7 @@ export function CityComparison() {
       if (loaded.length) setRuns(loaded);
       setPendingBenchmarkLogs(null);
     })();
-  }, [pendingBenchmarkLogs, projectRoot, setPendingBenchmarkLogs]);
+  }, [pendingBenchmarkLogs, projectRoot, pushRecent, setPendingBenchmarkLogs]);
 
   const onChartClick = useCallback(
     (params: { name?: string }) => {
