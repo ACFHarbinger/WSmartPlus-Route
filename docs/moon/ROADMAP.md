@@ -1011,6 +1011,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — selected ``train_`` / ``hpo_`` embedded sections use dynamic ``trainHpoLivePanelTitle`` instead of static ``Training analytics`` subtitle (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
 - [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow live panel title parity across all five pages (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-first pass)**
+
+- [x] ``TrainHpoLivePanelHeader`` — ``runLabel`` prop for Process Monitor embedded run-label suffix parity with ``LauncherLivePanelHeader`` (§G.15 / §D.7)
+- [x] ``TrainHpoLivePanel`` — ``embedded`` variant defaults ``titleTone: muted`` + ``showLiveSuffix: true`` for train/HPO analytics subtitles (§G.15 / §D.7)
+- [x] Process Monitor — eval + data-gen + train/HPO embedded sections pass ``runLabel`` + live suffix; process row ring highlight + global ``run_label`` brush sync for all workflow kinds (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] §G.15 Process Monitor embedded run-label + live suffix parity across sim, data-gen, eval, and train/HPO workflow sections (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1882,6 +1889,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor sim embedded section uses dynamic ``simLivePanelTitle`` instead of static ``Policy telemetry`` subtitle (hundred-sixty-ninth pass; §G.9 / §G.15 / §D.7)
 - [x] Process Monitor data-gen embedded section uses dynamic ``dataGenLivePanelTitle`` instead of static ``Data generation workflow`` subtitle (hundred-sixty-ninth pass; §G.11 / §G.15 / §D.7)
 - [x] Process Monitor train/HPO embedded section uses dynamic ``trainHpoLivePanelTitle`` instead of static ``Training analytics`` subtitle (hundred-seventieth pass; §G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Process Monitor eval + data-gen embedded sections pass ``runLabel`` + live suffix parity with sim panel (hundred-seventy-first pass; §G.11 / §G.12 / §G.15 / §D.7)
+- [x] Process Monitor train/HPO embedded section uses muted subtitle header + ``runLabel`` + live suffix via ``TrainHpoLivePanel`` ``embedded`` defaults (hundred-seventy-first pass; §G.15 / §D.7)
+- [x] Process Monitor process row ring highlight + global ``run_label`` brush sync for all workflow kinds (hundred-seventy-first pass; §G.15 / §D.7)
 
 ---
 

@@ -31,6 +31,8 @@ export interface TrainHpoLivePanelHeaderProps {
   titleTone?: "mono" | "heading" | "muted";
   /** Append · live suffix when status is running (Process Monitor analytics header). */
   showLiveSuffix?: boolean;
+  /** Process Monitor: accent-secondary run label suffix (parity with LauncherLivePanelHeader). */
+  runLabel?: string | null;
   className?: string;
 }
 
@@ -97,6 +99,7 @@ export function TrainHpoLivePanelHeader({
   layout = "inline",
   titleTone = "mono",
   showLiveSuffix = false,
+  runLabel,
   className = "",
 }: TrainHpoLivePanelHeaderProps) {
   const iconSize = titleTone === "heading" ? 14 : 13;
@@ -127,6 +130,9 @@ export function TrainHpoLivePanelHeader({
       <div className={`flex items-center gap-2 flex-wrap ${className}`}>
         <p className="text-xs text-canvas-muted flex-1 min-w-0">
           {title}
+          {runLabel && (
+            <span className="ml-2 text-accent-secondary">· {runLabel}</span>
+          )}
           {showLiveSuffix && status === "running" && (
             <span className="ml-2 text-accent-success">· live</span>
           )}

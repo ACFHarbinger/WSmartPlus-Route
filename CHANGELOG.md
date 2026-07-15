@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-first pass (§G.9 + §G.11 + §G.12 + §G.15 + §D.7)
+
+Hundred-seventy-first pass closes the Process Monitor embedded run-label and live-suffix
+gap left after the hundred-seventieth pass (which unified train/HPO live panel titles).
+Eval, data-gen, and train/HPO embedded sections now match the sim panel's muted subtitle
+header with run label and · live suffix; global run brush sync applies to all workflow kinds.
+
+**React frontend**
+- ``TrainHpoLivePanelHeader`` — ``runLabel`` prop for embedded run-label suffix parity with
+  ``LauncherLivePanelHeader`` (§G.15 / §D.7)
+- ``TrainHpoLivePanel`` — ``embedded`` variant defaults ``titleTone: muted`` +
+  ``showLiveSuffix: true`` for train/HPO analytics subtitles (§G.15 / §D.7)
+- Process Monitor — eval + data-gen + train/HPO embedded sections pass ``runLabel``;
+  process row ring highlight + global ``run_label`` brush sync for all workflow kinds
+  (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher Process Monitor sim run-label parity checked (embedded section)
+- §G.11 Data Generation Process Monitor run-label parity checked
+- §G.12 Evaluation Runner Process Monitor run-label parity checked
+- §G.15 Process Monitor embedded run-label + live suffix parity across all workflow kinds checked
+- §D.7 Process Monitor embedded header run-label + live suffix parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventieth pass (§G.10 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Hundred-seventieth pass closes the train/HPO live panel title gap left after the
