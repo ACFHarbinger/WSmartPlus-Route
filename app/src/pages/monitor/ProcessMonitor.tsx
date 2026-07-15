@@ -4,12 +4,27 @@
  * Each process row shows: status badge, ID, command, PID, start time, live duration.
  * Selecting a row expands the scrollable log viewer with auto-scroll toggle.
  * Cancel button sends SIGTERM via Rust's `cancel_process` command.
+ *
+ * §A.3 Option C: ``test_sim`` processes surface live + cross-run policy telemetry panels.
  */
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { Square, ChevronDown, ChevronUp, Terminal, ArrowDown, Trash2 } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
+import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { StatusPill } from "../../components/ui/StatusPill";
+import {
+  collectPolicyVizFromLogLines,
+  uniquePolicyVizPolicies,
+} from "../../utils/policyTelemetry";
+import {
+  extractJsonlPathFromLogLines,
+  runLabelFromPath,
+} from "../../utils/policyTelemetryTrends";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -96,7 +111,15 @@ function useLiveDuration(startTime: number, stopped: boolean): string {
   return `${Math.floor(m / 60)}h ${m % 60}m`;
 }
 
-function ProcessRow({ id }: { id: string }) {
+function ProcessRow({
+  id,
+  selected,
+  onSelect,
+}: {
+  id: string;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const proc = useProcessStore((s) => s.processes[id]);
   const removeProcess = useProcessStore((s) => s.removeProcess);
   const [expanded, setExpanded] = useState(false);
@@ -120,9 +143,18 @@ function ProcessRow({ id }: { id: string }) {
   if (!proc) return null;
 
   return (
-    <div className="border border-canvas-border rounded-xl overflow-hidden">
+    <div
+      className={`border rounded-xl overflow-hidden ${
+        selected ? "border-accent-secondary/60" : "border-canvas-border"
+      }`}
+    >
       {/* Table row */}
-      <div className="flex items-center gap-3 px-4 py-2.5 bg-canvas-surface hover:bg-canvas-hover">
+      <div
+        className={`flex items-center gap-3 px-4 py-2.5 hover:bg-canvas-hover cursor-pointer ${
+          selected ? "bg-accent-primary/10" : "bg-canvas-surface"
+        }`}
+        onClick={onSelect}
+      >
         <StatusPill status={proc.status} />
 
         <div className="flex-1 min-w-0">
@@ -145,7 +177,10 @@ function ProcessRow({ id }: { id: string }) {
         <div className="flex items-center gap-2 shrink-0">
           {proc.status === "running" && (
             <button
-              onClick={cancel}
+              onClick={(e) => {
+                e.stopPropagation();
+                void cancel();
+              }}
               className="flex items-center gap-1 text-xs text-accent-danger hover:text-accent-danger/80 btn-ghost py-1 px-2"
             >
               <Square size={11} />
@@ -154,7 +189,10 @@ function ProcessRow({ id }: { id: string }) {
           )}
           {stopped && (
             <button
-              onClick={() => removeProcess(id)}
+              onClick={(e) => {
+                e.stopPropagation();
+                removeProcess(id);
+              }}
               className="btn-ghost p-1.5 text-canvas-muted hover:text-accent-danger"
               title="Remove from history"
             >
@@ -163,7 +201,10 @@ function ProcessRow({ id }: { id: string }) {
           )}
           <button
             className="btn-ghost p-1.5 text-canvas-muted"
-            onClick={() => setExpanded((v) => !v)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setExpanded((v) => !v);
+            }}
             title={expanded ? "Collapse log" : "Expand log"}
           >
             {expanded ? <ChevronUp size={13} /> : <ChevronDown size={13} />}
@@ -238,9 +279,23 @@ function ProcessRow({ id }: { id: string }) {
   );
 }
 
+function isTestSimProcess(command: string): boolean {
+  return /\btest_sim\b/.test(command);
+}
+
 export function ProcessMonitor() {
   const processes = useProcessStore((s) => s.processes);
   const clearCompleted = useProcessStore((s) => s.clearCompleted);
+  const { effectiveTheme: theme } = useAppStore();
+  const {
+    policy: activePolicy,
+    runLabel: activeRunLabel,
+    logScale,
+    setPolicy,
+    setRunLabel,
+  } = useGlobalFiltersStore();
+  const [selectedId, setSelectedId] = useState<string | null>(null);
+  const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
 
   const ids = Object.keys(processes).sort(
     (a, b) => (processes[b].startTime ?? 0) - (processes[a].startTime ?? 0)
@@ -248,6 +303,49 @@ export function ProcessMonitor() {
 
   const running = ids.filter((id) => processes[id].status === "running").length;
   const completed = ids.length - running;
+
+  useEffect(() => {
+    if (selectedId && !processes[selectedId]) {
+      setSelectedId(null);
+    }
+  }, [selectedId, processes]);
+
+  const selectedProc = selectedId ? processes[selectedId] : null;
+  const selectedIsSim = selectedProc ? isTestSimProcess(selectedProc.command) : false;
+
+  const policyVizEntries = useMemo(
+    () => (selectedProc ? collectPolicyVizFromLogLines(selectedProc.logLines) : []),
+    [selectedProc]
+  );
+
+  const vizPolicies = useMemo(
+    () => uniquePolicyVizPolicies(policyVizEntries),
+    [policyVizEntries]
+  );
+
+  const selectedPolicy = activePolicy ?? vizPolicies[0] ?? null;
+
+  const processRunLabel = useMemo(() => {
+    if (!selectedProc) return null;
+    const jsonl = extractJsonlPathFromLogLines(selectedProc.logLines);
+    if (jsonl) return runLabelFromPath(jsonl);
+    return runLabelFromPath(selectedProc.id);
+  }, [selectedProc]);
+
+  useEffect(() => {
+    if (!selectedIsSim || !processRunLabel) return;
+    if (!activeRunLabel) {
+      setRunLabel(processRunLabel);
+    }
+  }, [selectedIsSim, processRunLabel, activeRunLabel, setRunLabel]);
+
+  useEffect(() => {
+    if (policyVizEntries.length > 0) {
+      setTelemetryTrendsKey((k) => k + 1);
+    }
+  }, [policyVizEntries.length, selectedProc?.logLines.length]);
+
+  const policyVizLive = selectedProc?.status === "running";
 
   if (ids.length === 0) {
     return (
@@ -261,6 +359,12 @@ export function ProcessMonitor() {
 
   return (
     <div className="space-y-3">
+      <GlobalFilterBar
+        policies={vizPolicies.length > 0 ? vizPolicies : undefined}
+        runLabels={processRunLabel ? [processRunLabel] : []}
+        showLogScale
+      />
+
       <div className="flex items-center gap-3">
         <p className="text-sm text-canvas-muted">
           {ids.length} process{ids.length !== 1 ? "es" : ""}
@@ -279,8 +383,60 @@ export function ProcessMonitor() {
       </div>
 
       {ids.map((id) => (
-        <ProcessRow key={id} id={id} />
+        <ProcessRow
+          key={id}
+          id={id}
+          selected={selectedId === id}
+          onSelect={() => setSelectedId((prev) => (prev === id ? null : id))}
+        />
       ))}
+
+      {selectedIsSim && selectedProc && (
+        <div className="space-y-3 pt-2 border-t border-canvas-border">
+          <p className="text-xs text-canvas-muted">
+            Policy telemetry for <span className="font-mono text-gray-300">{selectedProc.id}</span>
+            {processRunLabel && (
+              <span className="ml-2 text-accent-secondary">· {processRunLabel}</span>
+            )}
+          </p>
+
+          {vizPolicies.length > 1 && (
+            <div className="flex flex-wrap gap-1.5">
+              {vizPolicies.map((pol) => (
+                <button
+                  key={pol}
+                  onClick={() => setPolicy(activePolicy === pol ? null : pol)}
+                  className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-colors ${
+                    selectedPolicy === pol
+                      ? "border-accent-secondary text-accent-secondary bg-accent-secondary/10"
+                      : "border-canvas-border text-gray-400 hover:text-gray-200"
+                  }`}
+                >
+                  {pol}
+                </button>
+              ))}
+            </div>
+          )}
+
+          <PolicyTelemetryPanel
+            entries={policyVizEntries}
+            policy={selectedPolicy}
+            sampleId={null}
+            day={null}
+            theme={theme}
+            logScale={logScale}
+            live={policyVizLive}
+          />
+
+          <PolicyTelemetryTrendsPanel
+            theme={theme}
+            logScale={logScale}
+            refreshKey={telemetryTrendsKey}
+            initialPolicy={selectedPolicy}
+            initialRunLabel={processRunLabel}
+          />
+        </div>
+      )}
     </div>
   );
 }
