@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-second pass (§G.10 + §G.17 + §A.2 + §A.4 + §D.7)
+
+Hundred-fifty-second pass closes the post-run banner and metric-label parity gap left after the
+hundred-fifty-first pass (which deduplicated ``TrainHpoAnalyticsStrip`` across train/HPO workflow
+pages). Training Monitor now feeds rehydrated health and attention entries into the shared strip
+for accurate ``postRunTrainingRehydrationMessage`` counts while keeping page-level panels
+separate, and both Training Hub and Training Monitor align ``metric updates`` label styling and
+visibility with Process Monitor / HPO Tracker / Experiment Tracker.
+
+**React frontend**
+- Training Monitor — ``TrainHpoAnalyticsStrip`` receives ``effectiveLiveHealth`` +
+  ``effectiveLiveAttention`` for post-run banner counts; ``showHealthAttention={false}`` preserves
+  page-level ``TrainingHealthPanel`` / ``RuntimeAttentionPanel`` (§G.17 / §A.2 / §A.4 / §D.7)
+- Training Monitor — ``metric updates`` label on non-checkbox live/recent header when metrics are
+  rehydrated from ``useProcessStore`` (§G.17 / §D.7)
+- Training Hub — ``metric updates`` label uses ``text-accent-success`` styling parity (§G.10 / §D.7)
+
+**ROADMAP**
+- §G.17 Training Monitor post-run health/attention banner counts checked
+- §G.10 Training Hub metric updates styling parity checked
+- §A.2 / §A.4 post-run attention/health rehydration banner counts checked
+- §D.7 train/HPO workflow metric label parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-first pass (§G.10 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Hundred-fifty-first pass closes the shared analytics strip gap left after the

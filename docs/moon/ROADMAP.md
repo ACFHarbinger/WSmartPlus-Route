@@ -869,6 +869,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor — live/recent card uses ``TrainHpoAnalyticsStrip`` for post-run sparkline rehydration without ``LIVE_KEY`` selection (§G.17 / §D.7)
 - [x] Training Hub + Training Monitor — ``metric updates`` label parity with Process Monitor / HPO / Experiment Tracker (§G.10 / §G.17 / §D.7)
 
+**Delivered (§D.7 — hundred-fifty-second pass)**
+
+- [x] Training Monitor — ``TrainHpoAnalyticsStrip`` receives rehydrated ``healthEntries`` + ``attentionEntries`` for post-run banner counts while page-level panels remain separate (``showHealthAttention={false}``) (§G.17 / §A.2 / §A.4 / §D.7)
+- [x] Training Monitor — ``metric updates`` label on non-checkbox live/recent header when metrics are rehydrated from process store (§G.17 / §D.7)
+- [x] Training Hub — ``metric updates`` label uses ``text-accent-success`` styling parity with Process Monitor / HPO / Experiment Tracker (§G.10 / §D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1572,6 +1578,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Post-run grad-norm + LR sparklines via ``TrainingMetricSparklines``; ``TrainingMetricSnapshot`` + rehydration banner when train/HPO completes (hundred-forty-ninth pass; §G.17 / §D.7)
 - [x] Post-run health/attention rehydration banner via ``postRunTrainingRehydrationMessage`` (hundred-fiftieth pass; §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoAnalyticsStrip`` shared live/post-run analytics strip (hundred-fifty-first pass; §G.10 / §D.7)
+- [x] ``metric updates`` label ``text-accent-success`` styling parity with Process Monitor / HPO / Experiment Tracker (hundred-fifty-second pass; §G.10 / §D.7)
 
 ---
 
@@ -1748,6 +1755,8 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Post-run health/attention rehydration banner via ``postRunTrainingRehydrationMessage`` (hundred-fiftieth pass; §A.2 / §A.4 / §D.7)
 - [x] Live/recent card ``TrainHpoAnalyticsStrip`` for post-run sparkline rehydration without ``LIVE_KEY`` selection (hundred-fifty-first pass; §G.17 / §D.7)
 - [x] ``metric updates`` label parity across Training Hub + Training Monitor (hundred-fifty-first pass; §G.10 / §D.7)
+- [x] Post-run health/attention banner counts via rehydrated entries on ``TrainHpoAnalyticsStrip`` (hundred-fifty-second pass; §G.17 / §A.2 / §A.4 / §D.7)
+- [x] ``metric updates`` label on non-checkbox live/recent header + Training Hub accent-success styling (hundred-fifty-second pass; §G.10 / §G.17 / §D.7)
 
 ---
 

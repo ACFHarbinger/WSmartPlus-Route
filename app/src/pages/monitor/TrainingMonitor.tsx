@@ -744,6 +744,11 @@ export function TrainingMonitor() {
                     : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`}
                 </span>
                 <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
+                {effectiveLiveMetrics.length > 0 && (
+                  <span className="text-xs text-accent-success">
+                    {effectiveLiveMetrics.length} metric updates
+                  </span>
+                )}
               </div>
             )}
             <TrainHpoNavMesh
@@ -761,6 +766,8 @@ export function TrainingMonitor() {
           )}
           <TrainHpoAnalyticsStrip
             metrics={effectiveLiveMetrics}
+            healthEntries={effectiveLiveHealth}
+            attentionEntries={effectiveLiveAttention}
             logScale={logScale}
             theme={effectiveTheme}
             exportNamePrefix="training-monitor"
