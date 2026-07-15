@@ -5,18 +5,21 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Database, RefreshCw } from "lucide-react";
+import { Database, Download, RefreshCw } from "lucide-react";
 import { ChartExportButtons } from "../common/ChartExportButtons";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import type {
   PolicyTelemetryTrends,
   PolicyTrajectoryTrends,
   PolicyVizType,
 } from "../../types";
+import { isHighlighted } from "../../utils/chartHighlight";
 import {
   buildTrendComparisonOption,
   buildTrendStepsOption,
   buildTrendTrajectoryOption,
+  exportPolicyTelemetryTrendsCsv,
   formatTrendMetric,
   policyVizTypeLabel,
 } from "../../utils/policyTelemetryTrends";
@@ -26,14 +29,21 @@ interface Props {
   logScale?: boolean;
   /** Bump to reload trends after live telemetry emission. */
   refreshKey?: number;
+  /** Pre-select trajectory policy filter (e.g. Simulation Monitor selection). */
+  initialPolicy?: string | null;
 }
 
 export function PolicyTelemetryTrendsPanel({
   theme,
   logScale = false,
   refreshKey = 0,
+  initialPolicy = null,
 }: Props) {
   const { projectRoot, pythonPath } = useAppStore();
+  const globalPolicy = useGlobalFiltersStore((s) => s.policy);
+  const globalRunLabel = useGlobalFiltersStore((s) => s.runLabel);
+  const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
+  const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
   const compareRef = useRef<EChartsReact | null>(null);
   const stepsRef = useRef<EChartsReact | null>(null);
   const trajectoryRef = useRef<EChartsReact | null>(null);
@@ -80,7 +90,31 @@ export function PolicyTelemetryTrendsPanel({
     void loadTrends();
   }, [loadTrends, refreshKey]);
 
+  useEffect(() => {
+    if (initialPolicy && !selectedPolicy) {
+      setSelectedPolicy(initialPolicy);
+    }
+  }, [initialPolicy, selectedPolicy]);
+
   const rows = data?.rows ?? [];
+  const brushedPolicies = useMemo(
+    () => (globalPolicy ? [globalPolicy] : null),
+    [globalPolicy]
+  );
+
+  const handlePolicyBrush = useCallback(
+    (name: string) => {
+      setPolicy(globalPolicy === name ? null : name);
+    },
+    [globalPolicy, setPolicy]
+  );
+
+  const handleRunBrush = useCallback(
+    (label: string) => {
+      setRunLabel(globalRunLabel === label ? null : label);
+    },
+    [globalRunLabel, setRunLabel]
+  );
   const policyNames = useMemo(
     () => [...new Set(rows.map((r) => r.policy))].sort(),
     [rows]
@@ -161,6 +195,16 @@ export function PolicyTelemetryTrendsPanel({
             <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
             Refresh
           </button>
+          {rows.length > 0 && (
+            <button
+              type="button"
+              className="btn-secondary text-xs py-1 px-2 inline-flex items-center gap-1"
+              onClick={() => exportPolicyTelemetryTrendsCsv(rows)}
+            >
+              <Download size={12} />
+              Export CSV
+            </button>
+          )}
         </div>
       </div>
 
@@ -238,18 +282,39 @@ export function PolicyTelemetryTrendsPanel({
                 </tr>
               </thead>
               <tbody>
-                {rows.slice(0, 20).map((row) => (
-                  <tr key={row.id} className="border-t border-canvas-border/60">
-                    <td className="px-2 py-1.5 text-canvas-muted">{row.run_label ?? "—"}</td>
-                    <td className="px-2 py-1.5 truncate max-w-[12rem]" title={row.policy}>
-                      {row.policy}
-                    </td>
-                    <td className="px-2 py-1.5">{policyVizTypeLabel(row.policy_type)}</td>
-                    <td className="px-2 py-1.5">{row.day}</td>
-                    <td className="px-2 py-1.5">{row.step_count}</td>
-                    <td className="px-2 py-1.5">{formatTrendMetric(row)}</td>
-                  </tr>
-                ))}
+                {rows.slice(0, 20).map((row) => {
+                  const runKey = row.run_label ?? row.log_path;
+                  const dimmed =
+                    !isHighlighted(row.policy, brushedPolicies) ||
+                    (globalRunLabel != null && runKey !== globalRunLabel);
+                  return (
+                    <tr
+                      key={row.id}
+                      className={`border-t border-canvas-border/60 transition-opacity ${
+                        dimmed ? "opacity-35" : "opacity-100"
+                      }`}
+                    >
+                      <td
+                        className="px-2 py-1.5 text-canvas-muted cursor-pointer hover:text-accent-primary"
+                        onClick={() => handleRunBrush(runKey)}
+                        title="Click to brush run"
+                      >
+                        {row.run_label ?? "—"}
+                      </td>
+                      <td
+                        className="px-2 py-1.5 truncate max-w-[12rem] cursor-pointer hover:text-accent-primary"
+                        title={`${row.policy} — click to brush policy`}
+                        onClick={() => handlePolicyBrush(row.policy)}
+                      >
+                        {row.policy}
+                      </td>
+                      <td className="px-2 py-1.5">{policyVizTypeLabel(row.policy_type)}</td>
+                      <td className="px-2 py-1.5">{row.day}</td>
+                      <td className="px-2 py-1.5">{row.step_count}</td>
+                      <td className="px-2 py-1.5">{formatTrendMetric(row)}</td>
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

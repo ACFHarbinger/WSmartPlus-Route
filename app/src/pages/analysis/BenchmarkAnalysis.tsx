@@ -42,6 +42,7 @@ import {
   formatPipelineTimingBadge,
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -789,6 +790,10 @@ export function BenchmarkAnalysis() {
             onEvents={{ click: onChartClick }}
           />
         </div>
+      )}
+
+      {runs.length >= 1 && (
+        <PolicyTelemetryTrendsPanel theme={theme} logScale={logScale} />
       )}
 
       {runs.length >= 1 && duckdbReady && (

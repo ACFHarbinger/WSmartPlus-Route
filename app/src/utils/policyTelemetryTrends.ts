@@ -4,6 +4,7 @@
 import type { EChartsOption } from "echarts";
 import type { PolicyTelemetryTrendRow, PolicyTrajectorySeries } from "../types";
 import { ema, policyVizTypeLabel } from "./policyTelemetry";
+import { downloadCsv } from "./tableExport";
 
 const CHART_COLORS = ["#60a5fa", "#fbbf24", "#4ade80", "#f87171", "#c084fc", "#94a3b8"];
 
@@ -118,6 +119,15 @@ export function formatTrendMetric(row: PolicyTelemetryTrendRow): string {
   return `${row.final_metric.toLocaleString(undefined, { maximumFractionDigits: 3 })} (${name})`;
 }
 
+/** Union solver step indices (iteration / generation) across trajectory series. */
+export function unionTrajectoryX(series: PolicyTrajectorySeries[]): number[] {
+  const seen = new Set<number>();
+  for (const item of series) {
+    for (const x of item.x) seen.add(x);
+  }
+  return [...seen].sort((a, b) => a - b);
+}
+
 export function buildTrendTrajectoryOption(
   series: PolicyTrajectorySeries[],
   theme: "dark" | "light",
@@ -127,8 +137,8 @@ export function buildTrendTrajectoryOption(
   if (series.length === 0) return null;
 
   const metricName = series[0]?.metric_name ?? "metric";
-  const maxLen = Math.max(...series.map((s) => s.x.length));
-  const xLabels = Array.from({ length: maxLen }, (_, i) => String(i));
+  const xValues = unionTrajectoryX(series);
+  const xLabels = xValues.map(String);
 
   return {
     backgroundColor: "transparent",
@@ -148,7 +158,7 @@ export function buildTrendTrajectoryOption(
     },
     xAxis: {
       type: "category",
-      name: "step",
+      name: "solver step",
       data: xLabels,
       axisLabel: { color: theme === "dark" ? "#9ca3af" : "#6b7280", fontSize: 10 },
     },
@@ -160,20 +170,56 @@ export function buildTrendTrajectoryOption(
       splitLine: { lineStyle: { color: theme === "dark" ? "#1f2937" : "#e5e7eb" } },
     },
     series: series.map((item, idx) => {
-      const values = smooth ? ema(item.y) : item.y;
-      const padded: Array<number | null> = [...values];
-      while (padded.length < maxLen) padded.push(null);
+      const lookup = new Map(item.x.map((x, i) => [x, item.y[i]]));
+      const aligned: Array<number | null> = xValues.map((x) => lookup.get(x) ?? null);
+      let data: Array<number | null> = aligned;
+      if (smooth) {
+        const defined = aligned.filter((v): v is number => v != null);
+        const smoothed = ema(defined);
+        let j = 0;
+        data = aligned.map((v) => (v == null ? null : smoothed[j++]!));
+      }
       return {
         name: item.label,
         type: "line" as const,
-        smooth: smooth,
+        smooth,
         showSymbol: false,
-        data: padded,
+        data,
         lineStyle: { width: 2 },
         itemStyle: { color: CHART_COLORS[idx % CHART_COLORS.length] },
       };
     }),
   };
+}
+
+export function exportPolicyTelemetryTrendsCsv(rows: PolicyTelemetryTrendRow[]): void {
+  downloadCsv(
+    "policy-telemetry-trends.csv",
+    [
+      "run_label",
+      "log_path",
+      "policy",
+      "policy_type",
+      "day",
+      "sample_idx",
+      "step_count",
+      "final_metric",
+      "metric_name",
+      "emitted_at",
+    ],
+    rows.map((row) => [
+      row.run_label ?? "",
+      row.log_path,
+      row.policy,
+      row.policy_type,
+      row.day,
+      row.sample_idx,
+      row.step_count,
+      row.final_metric ?? "",
+      row.metric_name ?? "",
+      row.emitted_at,
+    ])
+  );
 }
 
 export { policyVizTypeLabel };
