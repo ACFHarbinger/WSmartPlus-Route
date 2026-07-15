@@ -187,12 +187,20 @@ function policyTooltipFooter(
   return lines.join("<br/>");
 }
 
-function ConfigMetaBanner({ logPath, logMeta }: { logPath: string; logMeta: LogPathMeta }) {
+function ConfigMetaBanner({
+  logPath,
+  logMeta,
+  projectRoot,
+}: {
+  logPath: string;
+  logMeta: LogPathMeta;
+  projectRoot: string | null;
+}) {
   return (
     <div className="card flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-canvas-muted">
       <span className="font-semibold text-gray-300">Run config</span>
       <span>{formatLogMeta(logMeta)}</span>
-      <PathRunLabelChip path={logPath} className="opacity-70" />
+      <PathRunLabelChip path={logPath} projectRoot={projectRoot} className="opacity-70" />
     </div>
   );
 }
@@ -2245,6 +2253,7 @@ export function SimulationSummary() {
         {logPath && (
           <PathRunLabelChip
             path={logPath}
+            projectRoot={projectRoot}
             trailing={
               <>
                 {duckdbLoading && <span className="shrink-0">· DuckDB ingesting…</span>}
@@ -2270,6 +2279,7 @@ export function SimulationSummary() {
               <LoadedRunRow
                 key={r.path}
                 path={r.path}
+                projectRoot={projectRoot}
                 label={r.label}
                 activeRunLabel={activeRunLabel}
                 onRemove={() => removeComparisonRun(r.path)}
@@ -2290,7 +2300,9 @@ export function SimulationSummary() {
 
       {policies.length > 0 && (
         <>
-          {logPath && <ConfigMetaBanner logPath={logPath} logMeta={logMeta} />}
+          {logPath && (
+            <ConfigMetaBanner logPath={logPath} logMeta={logMeta} projectRoot={projectRoot} />
+          )}
 
           <PolicyBrushBar
             policies={policies}

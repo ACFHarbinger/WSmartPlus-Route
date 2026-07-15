@@ -37,6 +37,7 @@ import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
 import { findRunJsonl } from "../../utils/outputRunLogs";
+import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 
 import { downloadParquetFromCsv } from "../../utils/tableExport";
@@ -157,7 +158,9 @@ export function OutputBrowser() {
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
   const brushLogPath = selectedRun ? (runJsonlPath ?? selectedRun.path) : null;
   const derivedRunLabel = useLogPathRunLabelBrush(brushLogPath);
-  const parentRunBrushLabel = brushLogPath ? runLabelFromPath(brushLogPath) : null;
+  const parentRunBrushLabel = brushLogPath
+    ? runLabelFromPath(resolveLocalProjectPath(brushLogPath, projectRoot) ?? brushLogPath)
+    : null;
 
   const refresh = useCallback(async () => {
     if (!outputPath) return;
@@ -549,6 +552,7 @@ export function OutputBrowser() {
             <LoadedRunRow
               key={r.path}
               path={r.path}
+              projectRoot={projectRoot}
               label={r.name}
               activeRunLabel={activeRunLabel}
               selected={selectedRun?.path === r.path}

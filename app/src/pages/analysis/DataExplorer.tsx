@@ -263,6 +263,7 @@ export function DataExplorer() {
           <>
             <PathRunLabelChip
               path={file.path}
+              projectRoot={projectRoot}
               trailing={
                 <>
                   <span className="shrink-0">

@@ -610,6 +610,7 @@ export function SimulationMonitor() {
         {watchPath && (
           <PathRunLabelChip
             path={watchPath}
+            projectRoot={projectRoot}
             trailing={
               <>
                 {isWatching && (

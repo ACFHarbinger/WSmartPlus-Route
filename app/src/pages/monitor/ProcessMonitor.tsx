@@ -128,12 +128,14 @@ function ProcessRow({
   selected,
   runBrushActive,
   logPath,
+  projectRoot,
   onSelect,
 }: {
   id: string;
   selected: boolean;
   runBrushActive?: boolean;
   logPath?: string | null;
+  projectRoot: string | null;
   onSelect: () => void;
 }) {
   const proc = useProcessStore((s) => s.processes[id]);
@@ -176,7 +178,11 @@ function ProcessRow({
         <div className="flex-1 min-w-0 space-y-0.5">
           {logPath ? (
             <div className="flex items-center gap-2 min-w-0">
-              <PathRunLabelChip path={logPath} className="max-w-full flex-1 min-w-0" />
+              <PathRunLabelChip
+                path={logPath}
+                projectRoot={projectRoot}
+                className="max-w-full flex-1 min-w-0"
+              />
               <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
                 {id}
               </span>
@@ -463,6 +469,7 @@ export function ProcessMonitor() {
             Boolean(activeRunLabel) && processRunBrushById[id] === activeRunLabel
           }
           logPath={processLogPathById[id]}
+          projectRoot={projectRoot}
           onSelect={() => setSelectedId((prev) => (prev === id ? null : id))}
         />
       ))}
