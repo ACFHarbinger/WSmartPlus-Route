@@ -11,6 +11,45 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-sixth pass (§G.7 + §G.9–§G.18 + §G.15 + §G.6 + §D.7)
+
+Hundred-ninety-sixth pass closes the derived run-label and live-panel relative-path
+resolution gaps left after the hundred-ninety-fifth pass (which unified portfolio
+``LoadedRunRow`` / open-file ``PathRunLabelChip`` ``projectRoot`` parity).
+``runLabelFromLogLines``, ``runLabelMapFrom*``, and ``pathRunLabelBrushActive`` now
+resolve paths against ``projectRoot`` before ``run_label`` derivation. Process stdout
+brush sync, Process Monitor row ring-highlight, OLAP ingest-table picker highlight,
+HPO post-run filter labels, Command Palette recent files, and live-panel footer/header
+log-path chips share ``projectRoot``-resolved brush parity.
+
+**React frontend**
+- ``runLabelFromLogLines`` / ``runLabelMapFromProcesses`` / ``runLabelMapFromPaths`` /
+  ``runLabelMapFromTablePaths`` / ``pathRunLabelBrushActive`` — optional ``projectRoot``
+  resolves relative paths before ``run_label`` derivation (§G.7 / §G.15 / §G.16 / §D.7)
+- ``useProcessRunLabelBrush`` — resolves stdout log paths against ``useAppStore``
+  ``projectRoot`` before global ``run_label`` brush sync (§G.9–§G.18 / §D.7)
+- Process Monitor — ``runLabelMapFromProcesses`` passes ``projectRoot`` for process-row
+  ring-highlight parity (§G.15 / §D.7)
+- OLAP Explorer — ``runLabelMapFromTablePaths`` passes ``projectRoot`` for ingest-table
+  picker ring-highlight parity (§G.6 / §D.7)
+- HPO Tracker — ``GlobalFilterBar`` ``runLabels`` from ``projectRoot``-resolved post-run
+  ``trainingRunPath`` / ``outputRunPath`` (§G.18 / §D.7)
+- Command Palette — recent log/run/csv ``PathRunLabelChip`` entries pass ``projectRoot``
+  (§G.7 / §D.7)
+- ``ProcessIdFooter`` + ``LauncherLivePanelHeader`` + ``TrainHpoLivePanelHeader`` —
+  optional ``projectRoot`` prop + store fallback on live-panel log-path suffix chips
+  (§G.9–§G.18 / §D.7)
+
+**ROADMAP**
+- §G.7 derived run-label utility relative-path resolution checked
+- §G.9–§G.18 ``useProcessRunLabelBrush`` + live-panel header/footer path-chip brush parity checked
+- §G.15 Process Monitor process-row relative-path ring-highlight parity checked
+- §G.6 OLAP Explorer ingest-table picker relative-path ring-highlight parity checked
+- §G.18 HPO Tracker post-run ``GlobalFilterBar`` relative-path run-label parity checked
+- §D.7 derived run-label + live-panel relative-path path-chip run-label brush parity across Command Palette, Process Monitor, OLAP Explorer, HPO Tracker, and launcher/train/HPO live panels checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-fifth pass (§G.1 + §G.6 + §G.14–§G.17 + §G.15 + §G.16 + §D.7)
 
 Hundred-ninety-fifth pass closes the portfolio and open-file relative-path resolution

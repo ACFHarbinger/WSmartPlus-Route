@@ -18,7 +18,8 @@ function matchQuery(query: string, label: string, keywords?: string): boolean {
 }
 
 export function CommandPalette() {
-  const { setMode, theme, setTheme, setPendingLogPath, setPendingRunPath } = useAppStore();
+  const { projectRoot, setMode, theme, setTheme, setPendingLogPath, setPendingRunPath } =
+    useAppStore();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
     useLayoutStore();
   const recentFiles = useRecentFilesStore((s) => s.files);
@@ -153,7 +154,11 @@ export function CommandPalette() {
                     className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm text-gray-300 hover:bg-canvas-hover"
                   >
                     {file.kind === "log" || file.kind === "run" || file.kind === "csv" ? (
-                      <PathRunLabelChip path={file.path} className="flex-1 min-w-0" />
+                      <PathRunLabelChip
+                        path={file.path}
+                        projectRoot={projectRoot}
+                        className="flex-1 min-w-0"
+                      />
                     ) : (
                       <span className="truncate">{file.label}</span>
                     )}

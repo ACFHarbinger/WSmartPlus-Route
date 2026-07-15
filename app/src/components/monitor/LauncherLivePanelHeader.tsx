@@ -4,6 +4,7 @@
 import type { ReactNode } from "react";
 import { Activity, CheckCircle, XCircle } from "lucide-react";
 import { RunLabelHeaderSuffix } from "../common/PathRunLabelChip";
+import { useAppStore } from "../../store/app";
 import { LauncherNavMesh, type LauncherNavMeshProps } from "../layout/LauncherNavMesh";
 
 export type LauncherLiveStatus = "running" | "completed" | "failed" | string;
@@ -18,6 +19,8 @@ export interface LauncherLivePanelHeaderProps {
   runLabel?: string | null;
   /** When set, renders ``PathRunLabelChip`` for click-to-brush parity (§G.9–§G.15 / §D.7). */
   logPath?: string | null;
+  /** Resolve relative log paths against project root before brush (§G.9–§G.15 / §D.7). */
+  projectRoot?: string | null;
   /** Embedded variant: append · live when status is running. */
   showLiveSuffix?: boolean;
   /** Card variant: optional trailing content beside nav mesh (e.g. sim countdown). */
@@ -42,10 +45,13 @@ export function LauncherLivePanelHeader({
   variant = "card",
   runLabel,
   logPath,
+  projectRoot,
   showLiveSuffix = true,
   navTrailing,
   className = "",
 }: LauncherLivePanelHeaderProps) {
+  const storeProjectRoot = useAppStore((s) => s.projectRoot);
+  const effectiveProjectRoot = projectRoot ?? storeProjectRoot;
   const nav = <LauncherNavMesh {...navMesh} />;
 
   if (variant === "embedded") {
@@ -53,7 +59,12 @@ export function LauncherLivePanelHeader({
       <div className={`flex items-center gap-2 flex-wrap ${className}`}>
         <p className="text-xs text-canvas-muted flex-1 min-w-0 flex items-center flex-wrap gap-x-1">
           <span>{title}</span>
-          <RunLabelHeaderSuffix logPath={logPath} runLabel={runLabel} tone="muted" />
+          <RunLabelHeaderSuffix
+            logPath={logPath}
+            runLabel={runLabel}
+            projectRoot={effectiveProjectRoot}
+            tone="muted"
+          />
           {showLiveSuffix && status === "running" && (
             <span className="ml-2 text-accent-success">· live</span>
           )}
@@ -69,7 +80,11 @@ export function LauncherLivePanelHeader({
         <StatusIcon status={status} size={14} />
         <h2 className="text-sm font-semibold text-gray-200 flex items-center flex-wrap gap-x-1">
           <span>{title}</span>
-          <RunLabelHeaderSuffix logPath={logPath} runLabel={runLabel} />
+          <RunLabelHeaderSuffix
+            logPath={logPath}
+            runLabel={runLabel}
+            projectRoot={effectiveProjectRoot}
+          />
           {showLiveSuffix && status === "running" && (
             <span className="ml-2 text-xs font-normal text-accent-success">· live</span>
           )}

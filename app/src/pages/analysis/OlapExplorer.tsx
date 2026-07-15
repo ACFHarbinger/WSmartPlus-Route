@@ -72,9 +72,9 @@ export function OlapExplorer() {
   const tableBrushByName = useMemo(
     () => ({
       ...runLabelMapFromSingleTableLabels(tableRunLabelsByName),
-      ...runLabelMapFromTablePaths(ingestedTablePaths),
+      ...runLabelMapFromTablePaths(ingestedTablePaths, projectRoot),
     }),
-    [tableRunLabelsByName, ingestedTablePaths]
+    [tableRunLabelsByName, ingestedTablePaths, projectRoot]
   );
 
   const handleRunLabelClick = useCallback(

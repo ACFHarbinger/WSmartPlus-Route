@@ -4,6 +4,7 @@
 import type { ReactNode } from "react";
 import { Activity, CheckCircle, Radio, XCircle } from "lucide-react";
 import { RunLabelHeaderSuffix } from "../common/PathRunLabelChip";
+import { useAppStore } from "../../store/app";
 import { TrainHpoNavMesh, type TrainHpoNavMeshProps } from "../layout/TrainHpoNavMesh";
 import { TrainHpoRehydrationBadges } from "./TrainHpoRehydrationBadges";
 
@@ -36,6 +37,8 @@ export interface TrainHpoLivePanelHeaderProps {
   runLabel?: string | null;
   /** When set, renders ``PathRunLabelChip`` for click-to-brush parity (§G.10–§G.18 / §D.7). */
   logPath?: string | null;
+  /** Resolve relative log paths against project root before brush (§G.10–§G.18 / §D.7). */
+  projectRoot?: string | null;
   className?: string;
 }
 
@@ -109,8 +112,11 @@ export function TrainHpoLivePanelHeader({
   showLiveSuffix = false,
   runLabel,
   logPath,
+  projectRoot,
   className = "",
 }: TrainHpoLivePanelHeaderProps) {
+  const storeProjectRoot = useAppStore((s) => s.projectRoot);
+  const effectiveProjectRoot = projectRoot ?? storeProjectRoot;
   const iconSize = titleTone === "heading" ? 14 : 13;
   const badges = (
     <TrainHpoRehydrationBadges
@@ -123,7 +129,11 @@ export function TrainHpoLivePanelHeader({
 
   const titleSuffix = (
     <>
-      <RunLabelHeaderSuffix logPath={logPath} runLabel={runLabel} />
+      <RunLabelHeaderSuffix
+        logPath={logPath}
+        runLabel={runLabel}
+        projectRoot={effectiveProjectRoot}
+      />
       {showLiveSuffix && status === "running" && (
         <span className="ml-2 text-xs font-normal text-accent-success">· live</span>
       )}
@@ -151,7 +161,12 @@ export function TrainHpoLivePanelHeader({
       <div className={`flex items-center gap-2 flex-wrap ${className}`}>
         <p className="text-xs text-canvas-muted flex-1 min-w-0 flex items-center flex-wrap gap-x-1">
           <span>{title}</span>
-          <RunLabelHeaderSuffix logPath={logPath} runLabel={runLabel} tone="muted" />
+          <RunLabelHeaderSuffix
+            logPath={logPath}
+            runLabel={runLabel}
+            projectRoot={effectiveProjectRoot}
+            tone="muted"
+          />
           {showLiveSuffix && status === "running" && (
             <span className="ml-2 text-accent-success">· live</span>
           )}

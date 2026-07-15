@@ -347,8 +347,8 @@ export function ProcessMonitor() {
   );
 
   const processRunBrushById = useMemo(
-    () => runLabelMapFromProcesses(processes, ids),
-    [ids, processes]
+    () => runLabelMapFromProcesses(processes, ids, projectRoot),
+    [ids, processes, projectRoot]
   );
 
   const processLogPathById = useMemo(

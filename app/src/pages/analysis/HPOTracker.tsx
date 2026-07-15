@@ -286,8 +286,15 @@ export function HPOTracker() {
 
   const filterRunLabels = useMemo(() => {
     if (processRunLabel) return [processRunLabel];
-    if (trainingRunPath) return [runLabelFromPath(trainingRunPath)];
-    if (outputRunPath) return [runLabelFromPath(outputRunPath)];
+    if (trainingRunPath) {
+      const resolved =
+        resolveLocalProjectPath(trainingRunPath, projectRoot) ?? trainingRunPath;
+      return [runLabelFromPath(resolved)];
+    }
+    if (outputRunPath) {
+      const resolved = resolveLocalProjectPath(outputRunPath, projectRoot) ?? outputRunPath;
+      return [runLabelFromPath(resolved)];
+    }
     const labels = selectedTrialNumbers
       .map((n) => studyData?.trials.find((t) => t.number === n))
       .filter((t): t is OptunaTrial => t != null)
@@ -298,6 +305,7 @@ export function HPOTracker() {
     processRunLabel,
     trainingRunPath,
     outputRunPath,
+    projectRoot,
     selectedTrialNumbers,
     studyData,
     trialBrushLabel,
