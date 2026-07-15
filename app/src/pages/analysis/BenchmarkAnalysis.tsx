@@ -721,6 +721,7 @@ export function BenchmarkAnalysis() {
                 label={r.label}
                 activeRunLabel={activeRunLabel}
                 onRemove={() => removeRun(r.path)}
+                logHandoffs
                 trailing={
                   <span className="ml-auto text-canvas-muted shrink-0">{r.entries.length} days</span>
                 }

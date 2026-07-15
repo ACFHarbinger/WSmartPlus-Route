@@ -1391,6 +1391,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Algorithm Comparison — **Compare on Map** hands off ``watchPath`` with mode override so Digital Twin reloads + recents stay in sync (§G.16 / §D.7)
 - [x] §G.14 / §G.1 / §G.16 analytics + Output Browser Simulation Monitor log-handoff mode-override parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-fifteenth pass)**
+
+- [x] ``LoadedRunRow`` — optional ``logHandoffs`` Summary + Simulation Monitor buttons via shared mode override (§G.1 / §G.16 / §D.7)
+- [x] Benchmark Analysis — portfolio loaded-run rows open Summary / Digital Twin (§G.1 / §D.7)
+- [x] City Comparison — portfolio loaded-run rows open Summary / Digital Twin (§G.1.6 / §D.7)
+- [x] Simulation Summary — comparison-run rows open Summary / Digital Twin (§G.1 / §D.7)
+- [x] §G.1 / §G.1.6 portfolio loaded-run log-handoff mode-override parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
