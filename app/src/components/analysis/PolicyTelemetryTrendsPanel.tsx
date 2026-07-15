@@ -37,6 +37,8 @@ interface Props {
   refreshKey?: number;
   /** Pre-select trajectory policy filter (e.g. Simulation Monitor selection). */
   initialPolicy?: string | null;
+  /** Pre-apply global run_label brush (e.g. portfolio single-run selection). */
+  initialRunLabel?: string | null;
 }
 
 export function PolicyTelemetryTrendsPanel({
@@ -44,6 +46,7 @@ export function PolicyTelemetryTrendsPanel({
   logScale = false,
   refreshKey = 0,
   initialPolicy = null,
+  initialRunLabel = null,
 }: Props) {
   const { projectRoot, pythonPath } = useAppStore();
   const globalPolicy = useGlobalFiltersStore((s) => s.policy);
@@ -71,6 +74,7 @@ export function PolicyTelemetryTrendsPanel({
           projectRoot,
           pythonExecutable: pythonPath || null,
           policyType: policyType || null,
+          runLabel: globalRunLabel || null,
           limit: 200,
         }),
         invoke<PolicyTrajectoryTrends>("load_policy_trajectory_trends", {
@@ -78,6 +82,7 @@ export function PolicyTelemetryTrendsPanel({
           pythonExecutable: pythonPath || null,
           policy: selectedPolicy || null,
           policyType: policyType || null,
+          runLabel: globalRunLabel || null,
           limit: 12,
         }),
       ]);
@@ -90,7 +95,7 @@ export function PolicyTelemetryTrendsPanel({
     } finally {
       setLoading(false);
     }
-  }, [projectRoot, pythonPath, policyType, selectedPolicy]);
+  }, [projectRoot, pythonPath, policyType, selectedPolicy, globalRunLabel]);
 
   useEffect(() => {
     void loadTrends();
@@ -102,7 +107,14 @@ export function PolicyTelemetryTrendsPanel({
     }
   }, [initialPolicy, selectedPolicy]);
 
+  useEffect(() => {
+    if (initialRunLabel && !globalRunLabel) {
+      setRunLabel(initialRunLabel);
+    }
+  }, [initialRunLabel, globalRunLabel, setRunLabel]);
+
   const rows = data?.rows ?? [];
+  const displayStepRows = useMemo(() => rows.slice(0, 12), [rows]);
   const allSeries = trajectories?.series ?? [];
   const filteredRows = useMemo(
     () => filterTrendRows(rows, globalPolicy, globalRunLabel),
@@ -143,8 +155,8 @@ export function PolicyTelemetryTrendsPanel({
     [rows, theme, logScale, brushFilter]
   );
   const stepsOption = useMemo(
-    () => buildTrendStepsOption(rows.slice(0, 12), theme, brushFilter),
-    [rows, theme, brushFilter]
+    () => buildTrendStepsOption(displayStepRows, theme, brushFilter),
+    [displayStepRows, theme, brushFilter]
   );
   const trajectoryOption = useMemo(
     () =>
@@ -165,12 +177,12 @@ export function PolicyTelemetryTrendsPanel({
 
   const handleStepsClick = useCallback(
     (params: { dataIndex?: number }) => {
-      const row = params.dataIndex != null ? filteredRows[params.dataIndex] : undefined;
+      const row = params.dataIndex != null ? displayStepRows[params.dataIndex] : undefined;
       if (!row) return;
       handlePolicyBrush(row.policy);
       handleRunBrush(trendRowRunKey(row));
     },
-    [filteredRows, handlePolicyBrush, handleRunBrush]
+    [displayStepRows, handlePolicyBrush, handleRunBrush]
   );
 
   const handleTrajectoryClick = useCallback(

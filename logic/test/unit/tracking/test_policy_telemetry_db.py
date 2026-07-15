@@ -113,6 +113,33 @@ def test_query_trajectory_series_roundtrip():
     assert series["run_label"] == "run_traj"
 
 
+def test_query_trends_filters_run_label():
+    db.persist_policy_viz_snapshot(
+        {"iteration": [0, 1], "best_cost": [10.0, 9.0]},
+        "ALNS-A",
+        0,
+        1,
+        "alns",
+        "/tmp/run_alpha.jsonl",
+    )
+    db.persist_policy_viz_snapshot(
+        {"iteration": [0, 1], "best_cost": [20.0, 18.0]},
+        "ALNS-B",
+        0,
+        1,
+        "alns",
+        "/tmp/run_beta.jsonl",
+    )
+
+    alpha = db.query_policy_telemetry_trends(run_label="run_alpha")
+    assert len(alpha["rows"]) == 1
+    assert alpha["rows"][0]["policy"] == "ALNS-A"
+
+    beta_traj = db.query_policy_trajectory_series(run_label="run_beta")
+    assert len(beta_traj["series"]) == 1
+    assert beta_traj["series"][0]["policy"] == "ALNS-B"
+
+
 def test_query_trajectory_series_filters_policy_type():
     db.persist_policy_viz_snapshot(
         {"iteration": [0, 1], "best_cost": [10.0, 9.0]},

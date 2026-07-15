@@ -797,6 +797,9 @@ export function BenchmarkAnalysis() {
           theme={theme}
           logScale={logScale}
           initialPolicy={brushedPolicies?.length === 1 ? brushedPolicies[0]! : null}
+          initialRunLabel={
+            brushedRunLabels?.length === 1 ? brushedRunLabels[0]! : null
+          }
         />
       )}
 

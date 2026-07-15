@@ -7,6 +7,7 @@ import { useCallback, useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
@@ -30,6 +31,8 @@ const CUSTOM_TABLE_PREFIX = "olap_";
 export function OlapExplorer() {
   const { effectiveTheme: theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
+  const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const {
     ready: duckdbReady,
     loading,
@@ -204,6 +207,17 @@ export function OlapExplorer() {
             ))}
           </div>
         </div>
+      )}
+
+      {duckdbReady && (
+        <PolicyTelemetryTrendsPanel
+          theme={theme}
+          logScale={logScale}
+          initialPolicy={activePolicy}
+          initialRunLabel={
+            activeRunLabel ?? (runLabels.length === 1 ? runLabels[0]! : null)
+          }
+        />
       )}
 
       {duckdbReady && selectedTable && (
