@@ -843,6 +843,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor — post-run metrics/health/attention rehydrate from ``useProcessStore`` log lines; ``LIVE_KEY`` overlay chart persists after completion (§G.17 / §D.7)
 - [x] HPO Tracker + Experiment Tracker — live metric snapshot row from persisted process stdout (§G.18 / §G.17 / §D.7)
 
+**Delivered (§D.7 — hundred-forty-eighth pass)**
+
+- [x] ``TrainingMetricSparklines`` — shared ``GradNormSparkline`` + ``LrSparkline`` + ``TrainingMetricSnapshot`` for train/HPO analytics panels (§G.15 / §G.17 / §G.18)
+- [x] Process Monitor — train/HPO metrics rehydrate from ``useProcessStore``; grad-norm + LR sparklines persist after completion (§G.15 / §D.7)
+- [x] HPO Tracker + Experiment Tracker — post-run grad-norm + LR sparklines from persisted HPO stdout (§G.18 / §G.17 / §D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1664,6 +1670,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor ``Output Browser →`` on completed ``test_sim`` / ``gen_data`` processes with run deep-link (hundred-forty-third pass; §G.9 / §G.11 / §G.14 / §D.7)
 - [x] Process Monitor eval ``outputRunPath`` deep-link parity (hundred-forty-fourth pass; §G.12 / §G.14 / §D.7)
 - [x] Process Monitor train/HPO ``outputRunPath`` + ``trainingRunPath`` deep-links on ``TrainHpoNavMesh`` (hundred-forty-fourth pass; §G.10 / §G.17 / §D.7)
+- [x] Train/HPO metrics rehydration + grad-norm/LR sparklines on selected processes (hundred-forty-eighth pass; §G.15 / §G.17 / §D.7)
 
 ---
 
@@ -1711,6 +1718,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``pendingTrainingRunPath`` auto-select when opened from Training Hub / Process Monitor train/HPO shortcuts (hundred-forty-fourth pass; §G.10 / §G.15 / §D.7)
 - [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on live/recent train panel; auto-select completed run from stdout ``trainingRunPath`` (hundred-forty-fifth pass; §G.10 / §G.14 / §D.7)
 - [x] Post-run metrics/health/attention rehydration from ``useProcessStore`` when live streaming state clears; multi-run overlay chart persists via ``effectiveLiveMetrics`` (hundred-forty-seventh pass; §G.17 / §D.7)
+- [x] ``TrainingMetricSparklines`` shared grad-norm + LR sparklines used across Process Monitor and analytics pages (hundred-forty-eighth pass; §G.15 / §G.18 / §D.7)
 
 ---
 
@@ -1741,6 +1749,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] **Train/HPO keyboard shortcuts** (hundred-thirty-fifth pass): ``T`` Training Monitor · ``H`` Training Hub · ``E`` Experiment Tracker (§D.7)
 - [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on HPO Tracker + Experiment Tracker live panels when sweep completes (hundred-forty-fifth pass; §G.14 / §G.17 / §D.7)
 - [x] Live metric snapshot row + update count from ``collectTrainingMetricsFromLogLines`` on persisted HPO process stdout (hundred-forty-seventh pass; §G.18 / §G.17 / §D.7)
+- [x] Post-run grad-norm + LR sparklines from persisted HPO stdout via ``TrainingMetricSparklines`` (hundred-forty-eighth pass; §G.18 / §G.17 / §D.7)
 
 ---
 

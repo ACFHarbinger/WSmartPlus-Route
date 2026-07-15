@@ -11,6 +11,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
+  Activity,
   ArrowDown,
   BarChart3,
   ChevronDown,
@@ -35,9 +36,15 @@ import {
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
+import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import {
+  GradNormSparkline,
+  LrSparkline,
+  TrainingMetricSnapshot,
+} from "../../components/monitor/TrainingMetricSparklines";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import {
   isSimProcess,
@@ -338,6 +345,12 @@ export function ProcessMonitor() {
 
   const policyVizLive = selectedProc?.status === "running";
 
+  const trainingMetrics = useMemo(
+    () => (selectedProc ? collectTrainingMetricsFromLogLines(selectedProc.logLines) : []),
+    [selectedProc]
+  );
+  const latestTrainingMetric = trainingMetrics[trainingMetrics.length - 1];
+
   const trainingHealthEntries = useMemo(
     () => (selectedProc ? collectTrainingHealthFromLogLines(selectedProc.logLines) : []),
     [selectedProc]
@@ -593,7 +606,46 @@ export function ProcessMonitor() {
               outputRunPath={trainOutputRunPath}
               trainingRunPath={trainRunPath}
             />
+            {trainingMetrics.length > 0 && (
+              <span className="text-xs text-accent-success">
+                {trainingMetrics.length} metric updates
+              </span>
+            )}
           </div>
+
+          {selectedProc.status === "running" && (
+            <LiveTrainProgressBar
+              processId={selectedProc.id}
+              fallbackValue={latestTrainingMetric?.epoch}
+            />
+          )}
+
+          {latestTrainingMetric && <TrainingMetricSnapshot metric={latestTrainingMetric} />}
+
+          {selectedProc.status !== "running" && (
+            <div className="flex items-center gap-2 text-xs text-canvas-muted">
+              <Activity size={12} />
+              {trainingMetrics.length > 0
+                ? "Post-run metrics rehydrated from process store — sparklines persist after completion"
+                : "Post-run shortcuts — open Training Monitor or Output Browser for this run"}
+            </div>
+          )}
+
+          {trainingMetrics.length >= 2 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <GradNormSparkline
+                metrics={trainingMetrics}
+                logScale={logScale}
+                exportName="process-monitor-grad-norm"
+              />
+              <LrSparkline
+                metrics={trainingMetrics}
+                logScale={logScale}
+                exportName="process-monitor-lr"
+              />
+            </div>
+          )}
+
           <TrainingHealthPanel entries={trainingHealthEntries} />
           <RuntimeAttentionPanel
             entries={attentionEntries}
