@@ -983,6 +983,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Hub — eval live panel ``LauncherNavMesh`` post-run shortcuts (Output Browser, Evaluation Runner reload, Benchmark Analysis) parity with Evaluation Runner (§G.10 / §G.12 / §D.7)
 - [x] §G.10 / §G.12 eval launcher live panel shell parity across Training Hub and Evaluation Runner (§D.7)
 
+**Delivered (§D.7 — hundred-sixty-seventh pass)**
+
+- [x] Training Hub — eval live panel omits duplicate ``LauncherLivePanel`` progress bar; ``EvalCheckpointLiveCard`` owns ``LiveTrainProgressBar`` during runs (§G.10 / §G.12 / §D.7)
+- [x] ``LauncherNavMesh`` — ``Training Hub →`` shortcut on eval workflows; ``hideHub`` prop suppresses self-link on Training Hub eval panel (§G.10 / §G.12 / §G.15 / §D.7)
+- [x] §G.10 / §G.12 / §G.15 eval launcher progress + navigation parity across Training Hub, Evaluation Runner, and Process Monitor (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1696,6 +1702,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessIdFooter`` shared process-id footer row on Training Hub live panel (hundred-fifty-eighth pass; §G.10 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on Training Hub train/HPO live panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.10 / §D.7)
 - [x] Training Hub eval mode — ``LauncherLivePanel`` + ``EvalCheckpointLiveCard`` / ``EvalResultCard`` live panel shell parity with Evaluation Runner (hundred-sixty-sixth pass; §G.10 / §G.12 / §D.7)
+- [x] Training Hub eval mode — single-checkpoint progress bar via ``EvalCheckpointLiveCard`` only; ``LauncherNavMesh`` ``Training Hub →`` + ``hideHub`` parity (hundred-sixty-seventh pass; §G.10 / §G.12 / §D.7)
 
 ---
 

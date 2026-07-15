@@ -8,6 +8,8 @@ export interface LauncherNavMeshProps {
   kind: LauncherKind;
   /** Hide the current launcher page shortcut. */
   hideSelf?: boolean;
+  /** Hide Training Hub shortcut (on the hub eval panel itself). */
+  hideHub?: boolean;
   /** Show post-run analytics shortcuts (summary, benchmark, data explorer). */
   showPostRun?: boolean;
   /** Eval-only: open Benchmark Analysis with current results. */
@@ -36,6 +38,7 @@ const LAUNCHER_LABEL: Record<LauncherKind, string> = {
 export function LauncherNavMesh({
   kind,
   hideSelf = false,
+  hideHub = false,
   showPostRun = false,
   onOpenAnalytics,
   checkpointPath,
@@ -86,6 +89,14 @@ export function LauncherNavMesh({
 
       {kind === "eval" && (
         <>
+          {!hideHub && (
+            <button
+              onClick={() => setMode("training_hub")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Training Hub →
+            </button>
+          )}
           <button
             onClick={() => setMode("training")}
             className="btn-ghost text-xs text-canvas-muted"
