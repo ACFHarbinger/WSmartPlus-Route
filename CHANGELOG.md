@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-seventh pass (§G.10 + §G.12 + §G.15 + §D.7)
+
+Hundred-sixty-seventh pass closes the eval progress and navigation gaps left after the
+hundred-sixty-sixth pass (which routed Training Hub eval mode through
+``LauncherLivePanel``). Single-checkpoint eval workflows no longer render a duplicate
+``LiveTrainProgressBar`` at the panel shell level, and eval ``LauncherNavMesh`` now
+links back to Training Hub from Evaluation Runner and Process Monitor.
+
+**React frontend**
+- Training Hub — eval live panel omits ``LauncherLivePanel`` ``progress`` prop;
+  ``EvalCheckpointLiveCard`` owns the progress bar during runs (§G.10 / §G.12 / §D.7)
+- ``LauncherNavMesh`` — ``Training Hub →`` shortcut on eval workflows; optional
+  ``hideHub`` prop suppresses self-link on Training Hub eval panel (§G.10 / §G.12 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub eval single-checkpoint progress bar checked
+- §G.12 Evaluation Runner / Process Monitor ``LauncherNavMesh`` Training Hub link checked
+- §G.15 Process Monitor eval embedded ``LauncherNavMesh`` Training Hub link checked
+- §D.7 eval launcher progress + navigation parity across Training Hub, Evaluation Runner, and Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-sixth pass (§G.10 + §G.12 + §D.7)
 
 Hundred-sixty-sixth pass closes the eval live panel shell gap left after the

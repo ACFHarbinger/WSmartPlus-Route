@@ -555,6 +555,7 @@ export function TrainingHub() {
             navMesh: {
               kind: "eval",
               hideSelf: true,
+              hideHub: true,
               showPostRun: isDone && runStatus === "completed",
               showOutputBrowser: isDone && runStatus === "completed",
               outputRunPath,
@@ -563,11 +564,6 @@ export function TrainingHub() {
                 evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined,
             },
           }}
-          progress={
-            !isDone
-              ? { processId: displayProcessId }
-              : undefined
-          }
           footer={<ProcessIdFooter processId={displayProcessId} />}
           logLines={liveLogLines}
           logTailWaiting={!isDone}
