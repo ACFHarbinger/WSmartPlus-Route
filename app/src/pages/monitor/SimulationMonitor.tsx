@@ -29,7 +29,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { hexToRgb } from "../../utils/colors";
 import {
@@ -617,8 +617,9 @@ export function SimulationMonitor() {
         </button>
 
         {watchPath && (
-          <LogHandoffButtons
+          <PathHandoffButtons
             path={watchPath}
+            kind="log"
             targets={["summary"]}
             labeled
             iconSize={14}
@@ -631,6 +632,7 @@ export function SimulationMonitor() {
             projectRoot={projectRoot}
             trailing={
               <>
+                <PathHandoffButtons path={watchPath} kind="log" iconSize={11} />
                 {isWatching && (
                   <RefreshCw size={11} className="animate-spin text-accent-success shrink-0" />
                 )}

@@ -25,6 +25,7 @@ import { recentHandoffSpec } from "../../utils/recentHandoff";
 import {
   isSimulationLogPath,
   LogHandoffButtons,
+  type LogHandoffTarget,
 } from "./LogHandoffButtons";
 
 interface Props {
@@ -48,6 +49,11 @@ interface Props {
    * (non-log kinds only; logs use ``LogHandoffButtons`` labeled mode).
    */
   labeled?: boolean;
+  /**
+   * Log-kind only: which Summary / Monitor destinations to expose.
+   * Forwarded to ``LogHandoffButtons`` (toolbar single-target parity).
+   */
+  targets?: LogHandoffTarget[];
   /** Called after a handoff (e.g. close Command Palette). */
   onAfterOpen?: () => void;
 }
@@ -110,6 +116,7 @@ export function PathHandoffButtons({
   className = "",
   iconSize = 11,
   labeled = false,
+  targets,
   onAfterOpen,
 }: Props) {
   const { handoff, setMode } = useRecentHandoff();
@@ -125,6 +132,7 @@ export function PathHandoffButtons({
         className={className}
         iconSize={iconSize}
         labeled={labeled}
+        targets={targets}
         onAfterOpen={onAfterOpen}
       />
     );

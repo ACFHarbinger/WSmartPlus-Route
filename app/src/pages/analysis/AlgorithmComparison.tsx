@@ -8,7 +8,7 @@ import type EChartsReact from "echarts-for-react";
 import { Map } from "lucide-react";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
-import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
@@ -184,15 +184,19 @@ export function AlgorithmComparison() {
             path={watchPath}
             projectRoot={projectRoot}
             trailing={
-              !duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE ? (
-                <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
-              ) : undefined
+              <>
+                <PathHandoffButtons path={watchPath} kind="log" iconSize={11} />
+                {!duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE ? (
+                  <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+                ) : null}
+              </>
             }
           />
         )}
         {watchPath && (
-          <LogHandoffButtons
+          <PathHandoffButtons
             path={watchPath}
+            kind="log"
             targets={["summary"]}
             labeled
             iconSize={12}

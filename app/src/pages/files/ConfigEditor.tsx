@@ -15,6 +15,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
 import { toast } from "sonner";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
@@ -337,7 +338,14 @@ export function ConfigEditor() {
       </div>
 
       {filePath && (
-        <PathRunLabelChip path={filePath} projectRoot={projectRoot} className="max-w-full" />
+        <PathRunLabelChip
+          path={filePath}
+          projectRoot={projectRoot}
+          className="max-w-full"
+          trailing={
+            <PathHandoffButtons path={filePath} kind="config" iconSize={11} />
+          }
+        />
       )}
 
       {!content && (
@@ -437,7 +445,14 @@ export function ConfigEditor() {
               {diffPath ? "Change comparison file…" : "Open comparison file…"}
             </button>
             {diffPath ? (
-              <PathRunLabelChip path={diffPath} projectRoot={projectRoot} className="max-w-md" />
+              <PathRunLabelChip
+                path={diffPath}
+                projectRoot={projectRoot}
+                className="max-w-md"
+                trailing={
+                  <PathHandoffButtons path={diffPath} kind="config" iconSize={11} />
+                }
+              />
             ) : null}
           </div>
 
@@ -451,9 +466,25 @@ export function ConfigEditor() {
             <div className="card overflow-auto">
               <p className="text-xs text-canvas-muted mb-3 flex flex-wrap items-center gap-1.5">
                 <span>{changedKeys.length} difference(s) between</span>
-                {filePath ? <PathRunLabelChip path={filePath} projectRoot={projectRoot} /> : null}
+                {filePath ? (
+                  <PathRunLabelChip
+                    path={filePath}
+                    projectRoot={projectRoot}
+                    trailing={
+                      <PathHandoffButtons path={filePath} kind="config" iconSize={11} />
+                    }
+                  />
+                ) : null}
                 <span>and</span>
-                {diffPath ? <PathRunLabelChip path={diffPath} projectRoot={projectRoot} /> : null}
+                {diffPath ? (
+                  <PathRunLabelChip
+                    path={diffPath}
+                    projectRoot={projectRoot}
+                    trailing={
+                      <PathHandoffButtons path={diffPath} kind="config" iconSize={11} />
+                    }
+                  />
+                ) : null}
               </p>
               <table className="w-full text-xs">
                 <thead>
