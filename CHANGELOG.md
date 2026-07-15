@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixtieth pass (§G.12 + §G.15 + §D.7)
+
+Hundred-sixtieth pass closes the Process Monitor eval live panel gap left after the
+hundred-fifty-ninth pass (which added ``EvalCheckpointLiveCard`` on Evaluation Runner).
+Process Monitor now shows the same per-checkpoint live row during running eval
+processes, and log tail formatting is deduplicated into a shared helper.
+
+**React frontend**
+- ``processLogTail`` — shared stdout/stderr tail helper for live eval panels (§G.12 /
+  §G.15 / §D.7)
+- Process Monitor — selected ``eval`` processes use ``EvalCheckpointLiveCard`` during
+  live runs and while waiting for structured JSON; ``EvalResultCard`` retained on
+  completion with metrics + ``Open in Analytics →`` (§G.12 / §G.15 / §D.7)
+- Evaluation Runner — deduplicated inline log tail formatting; import shared
+  ``processLogTail`` (§G.12 / §D.7)
+
+**ROADMAP**
+- §G.12 Evaluation Runner ``processLogTail`` checked
+- §G.12 Process Monitor ``EvalCheckpointLiveCard`` live eval parity checked
+- §G.15 Process Monitor running eval progress + stdout tail checked
+- §D.7 eval live checkpoint card parity across Evaluation Runner and Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-ninth pass (§G.10 + §G.12 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Hundred-fifty-ninth pass closes the monitor-page footer gap left after the

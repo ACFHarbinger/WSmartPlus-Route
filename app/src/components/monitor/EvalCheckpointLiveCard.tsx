@@ -1,5 +1,6 @@
 /**
- * Shared per-checkpoint live eval row for Evaluation Runner (§G.12 / §D.7).
+ * Shared per-checkpoint live eval row for Evaluation Runner and Process Monitor
+ * (§G.12 / §G.15 / §D.7).
  */
 import type { EvalResult } from "../../utils/evalResults";
 import { hasEvalMetrics } from "../../utils/evalResults";
