@@ -50,6 +50,7 @@ import {
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
+import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -357,6 +358,12 @@ export function ProcessMonitor() {
     return checkpointPathFromEvalCommand(selectedProc.command);
   }, [selectedProc, selectedIsEval]);
 
+  const launcherOutputRunPath = useMemo(() => {
+    if (!selectedProc || !selectedLauncherKind) return null;
+    if (selectedLauncherKind !== "sim" && selectedLauncherKind !== "data_gen") return null;
+    return outputRunPathFromLogLines(selectedProc.logLines);
+  }, [selectedProc, selectedLauncherKind]);
+
   const openEvalInAnalytics = useCallback(() => {
     if (!evalResult || !hasEvalMetrics(evalResult)) return;
     setPendingEvalResults(toEvalAnalyticsRows([evalResult]));
@@ -426,6 +433,8 @@ export function ProcessMonitor() {
             <LauncherNavMesh
               kind="sim"
               showPostRun={selectedProc.status === "completed"}
+              showOutputBrowser={selectedProc.status === "completed"}
+              outputRunPath={launcherOutputRunPath}
             />
           </div>
 
@@ -481,6 +490,7 @@ export function ProcessMonitor() {
               kind="eval"
               showPostRun={selectedProc.status === "completed"}
               showOutputBrowser={selectedProc.status === "completed"}
+              outputRunPath={launcherOutputRunPath}
               checkpointPath={evalCheckpointPath}
               onOpenAnalytics={
                 evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined
@@ -550,6 +560,8 @@ export function ProcessMonitor() {
             <LauncherNavMesh
               kind="data_gen"
               showPostRun={selectedProc.status === "completed"}
+              showOutputBrowser={selectedProc.status === "completed"}
+              outputRunPath={launcherOutputRunPath}
             />
           </div>
         </div>

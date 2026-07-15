@@ -812,6 +812,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` ``Output Browser →`` + ``Load in Eval Runner →`` on completed eval processes (§G.12 / §G.14 / §G.15)
 - [x] Keyboard shortcuts ``B`` → Benchmark Analysis, ``O`` → Output Browser; help overlay updated (§D.7)
 
+**Delivered (§D.7 — hundred-forty-third pass)**
+
+- [x] ``outputRunPath.ts`` — derive assets/output run directory from process stdout ``.jsonl`` paths (§G.14 / §G.9 / §G.15)
+- [x] ``LauncherNavMesh`` / ``TrainHpoNavMesh`` — ``outputRunPath`` prop sets ``pendingRunPath`` before navigating to Output Browser (§G.14 / §D.7)
+- [x] Simulation Launcher + Data Generation — post-run Output Browser deep-links to the completed run when stdout contains a log path (§G.9 / §G.11 / §G.14)
+- [x] Process Monitor — ``Output Browser →`` on completed ``test_sim`` / ``gen_data`` processes with run deep-link (§G.15 / §G.14)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1485,6 +1492,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live status panel during running simulations (§D.2 / §G.9)
 - [x] ``LauncherNavMesh`` shared navigation + ``Simulation Monitor →`` / ``Simulation Summary →`` post-run shortcuts (hundred-thirty-ninth pass; §D.7)
 - [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed simulations (hundred-forty-second pass; §G.14 / §D.7)
+- [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains ``.jsonl`` (hundred-forty-third pass; §G.14 / §D.7)
 
 ---
 
@@ -1528,6 +1536,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live progress panel during ``gen_data`` runs (§D.2 / §G.11)
 - [x] ``LauncherNavMesh`` + ``Data Explorer →`` post-run shortcut (hundred-thirty-ninth pass; §D.7)
 - [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed data generation runs (hundred-forty-second pass; §G.14 / §D.7)
+- [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains a log path (hundred-forty-third pass; §G.14 / §D.7)
 
 ---
 
@@ -1589,6 +1598,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Recent files/runs: `useRecentFilesStore` tracks last 12 opened logs, output runs, and CSVs; surfaced in command palette
 - [x] Checkpoint browser (hundred-forty-second pass): auto-expand ``checkpoints/`` on run select; sidebar card lists ``.pt/.ckpt/.pth`` with **Eval →** shortcut; file tree highlights checkpoint artefacts; **Load in Eval Runner →** on selected checkpoint files via ``pendingCheckpoint`` (§G.14 / §G.12 / §G.17)
 - [x] ``checkpoints.ts`` — shared ``isCheckpointEntry`` / ``filterCheckpointEntries`` helpers used by Output Browser + Training Monitor (§G.14 / §G.12)
+- [x] ``outputRunPath.ts`` + ``pendingRunPath`` auto-select when opened from launcher / Process Monitor shortcuts (hundred-forty-third pass; §G.9 / §G.11 / §G.15 / §D.7)
+- [x] Output Browser refreshes run list when ``pendingRunPath`` is set but the run is not yet indexed (hundred-forty-third pass; §G.14)
 
 ---
 
@@ -1619,6 +1630,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` ``Benchmark Analysis →`` on completed eval processes when metrics are present (hundred-fortieth pass; §D.7 / §G.12)
 - [x] ``TrainHpoNavMesh`` ``Output Browser →`` on completed ``train_`` / ``hpo_`` processes (hundred-fortieth pass; §G.10 / §D.7)
 - [x] ``LauncherNavMesh`` ``Output Browser →`` + ``Load in Eval Runner →`` on completed eval processes (hundred-forty-first pass; §G.12 / §G.14 / §D.7)
+- [x] Process Monitor ``Output Browser →`` on completed ``test_sim`` / ``gen_data`` processes with run deep-link (hundred-forty-third pass; §G.9 / §G.11 / §G.14 / §D.7)
 
 ---
 

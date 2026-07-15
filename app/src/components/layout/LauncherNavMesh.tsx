@@ -16,6 +16,8 @@ export interface LauncherNavMeshProps {
   checkpointPath?: string | null;
   /** Show Output Browser shortcut after a successful run. */
   showOutputBrowser?: boolean;
+  /** Auto-select this run in Output Browser via ``pendingRunPath``. */
+  outputRunPath?: string | null;
   className?: string;
 }
 
@@ -38,9 +40,10 @@ export function LauncherNavMesh({
   onOpenAnalytics,
   checkpointPath,
   showOutputBrowser = false,
+  outputRunPath = null,
   className = "",
 }: LauncherNavMeshProps) {
-  const { setMode, setPendingCheckpoint } = useAppStore();
+  const { setMode, setPendingCheckpoint, setPendingRunPath } = useAppStore();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -113,7 +116,10 @@ export function LauncherNavMesh({
 
       {showOutputBrowser && (
         <button
-          onClick={() => setMode("output_browser")}
+          onClick={() => {
+            if (outputRunPath) setPendingRunPath(outputRunPath);
+            setMode("output_browser");
+          }}
           className="btn-ghost text-xs text-accent-success"
         >
           Output Browser →

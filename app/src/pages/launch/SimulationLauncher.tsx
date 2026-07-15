@@ -29,6 +29,7 @@ import {
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
+import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import type { DayLogEntry, SimPolicyEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
 /** Fallback when project root is unset or registry load fails. */
@@ -322,6 +323,10 @@ export function SimulationLauncher() {
     () => (liveProcessId ? runLabelFromLogLines(liveLogLines, liveProcessId) : null),
     [liveLogLines, liveProcessId]
   );
+  const outputRunPath = useMemo(
+    () => outputRunPathFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
   const policyVizLive = liveProcStatus === "running";
   const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
 
@@ -537,6 +542,7 @@ export function SimulationLauncher() {
                 hideSelf
                 showPostRun={isDone && simStatus === "completed"}
                 showOutputBrowser={isDone && simStatus === "completed"}
+                outputRunPath={outputRunPath}
               />
             </div>
           </div>
