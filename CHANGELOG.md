@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-ninth pass (§G.9 + §G.11 + §G.15 + §D.7)
+
+Hundred-sixty-ninth pass closes the sim and data-gen live panel title gap left after the
+hundred-sixty-eighth pass (which unified eval live panel titles). Simulation Launcher,
+Data Generation, and Process Monitor now share one title helper per workflow kind for
+running, completed, and failed states.
+
+**React frontend**
+- ``simLivePanelTitle`` — shared live/post-run sim panel title helper in
+  ``launcherProcess.ts`` (§G.9 / §G.15 / §D.7)
+- ``dataGenLivePanelTitle`` — shared live/post-run data-gen panel title helper in
+  ``launcherProcess.ts`` (§G.11 / §G.15 / §D.7)
+- Simulation Launcher + Data Generation — deduplicated inline sim/data-gen live title
+  strings; import shared title helpers (§G.9 / §G.11 / §D.7)
+- Process Monitor — selected ``test_sim`` / ``gen_data`` embedded sections use dynamic
+  title helpers instead of static subtitles (§G.9 / §G.11 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher ``simLivePanelTitle`` checked
+- §G.11 Data Generation ``dataGenLivePanelTitle`` checked
+- §G.15 Process Monitor sim + data-gen embedded live panel titles checked
+- §D.7 sim + data-gen launcher live panel title parity across Simulation Launcher, Data Generation, and Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-eighth pass (§G.10 + §G.12 + §G.15 + §D.7)
 
 Hundred-sixty-eighth pass closes the eval live panel title gap left after the

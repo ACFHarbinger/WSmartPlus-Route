@@ -42,8 +42,10 @@ import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import {
+  dataGenLivePanelTitle,
   isSimProcess,
   launcherKindFromProcess,
+  simLivePanelTitle,
 } from "../../utils/launcherProcess";
 import {
   checkpointLabelFromEvalProcess,
@@ -446,7 +448,10 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: "Policy telemetry",
+            title: simLivePanelTitle({
+              isRunning: selectedProc.status === "running",
+              status: selectedProc.status,
+            }),
             runLabel: processRunLabel,
             navMesh: {
               kind: "sim",
@@ -543,7 +548,10 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: "Data generation workflow",
+            title: dataGenLivePanelTitle({
+              isRunning: selectedProc.status === "running",
+              status: selectedProc.status,
+            }),
             navMesh: {
               kind: "data_gen",
               showPostRun: selectedProc.status === "completed",

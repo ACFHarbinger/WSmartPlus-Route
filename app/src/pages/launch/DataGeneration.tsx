@@ -27,7 +27,7 @@ import { useDataGenStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
-import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
+import { dataGenLivePanelTitle, findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import type { DatasetPreviewStats } from "../../types";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp", "all"] as const;
@@ -535,11 +535,10 @@ export function DataGeneration() {
           <LauncherLivePanel
             header={{
               status: isDone ? (runStatus ?? "running") : "running",
-              title: isDone
-                ? runStatus === "completed"
-                  ? "Generation Complete"
-                  : `Generation ${runStatus}`
-                : "Generating…",
+              title: dataGenLivePanelTitle({
+                isRunning: !isDone,
+                status: runStatus ?? undefined,
+              }),
               navMesh: {
                 kind: "data_gen",
                 hideSelf: true,
