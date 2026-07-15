@@ -50,10 +50,18 @@ export function TrainHpoLivePanel({
   logTailWaiting = false,
 }: TrainHpoLivePanelProps) {
   const showProgress = progress?.show !== false && progress?.processId != null;
+  const resolvedHeader =
+    variant === "embedded"
+      ? {
+          titleTone: "muted" as const,
+          showLiveSuffix: true,
+          ...header,
+        }
+      : header;
 
   const body = (
     <>
-      <TrainHpoLivePanelHeader {...header} />
+      <TrainHpoLivePanelHeader {...resolvedHeader} />
       {showProgress && progress && (
         <LiveTrainProgressBar
           processId={progress.processId}

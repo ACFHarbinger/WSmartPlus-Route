@@ -47,7 +47,6 @@ import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import {
   dataGenLivePanelTitle,
-  isSimProcess,
   launcherKindFromProcess,
   simLivePanelTitle,
 } from "../../utils/launcherProcess";
@@ -329,16 +328,16 @@ export function ProcessMonitor() {
     const map: Record<string, string> = {};
     for (const id of ids) {
       const proc = processes[id];
-      if (!proc || !isSimProcess(proc.id, proc.command)) continue;
+      if (!proc) continue;
       map[id] = runLabelFromLogLines(proc.logLines, proc.id);
     }
     return map;
   }, [ids, processes]);
 
   useEffect(() => {
-    if (!selectedIsSim || !processRunLabel) return;
+    if (!selectedProc || !processRunLabel) return;
     setRunLabel(processRunLabel);
-  }, [selectedIsSim, processRunLabel, setRunLabel]);
+  }, [selectedProc, processRunLabel, setRunLabel]);
 
   useEffect(() => {
     if (policyVizEntries.length > 0) {
@@ -515,6 +514,7 @@ export function ProcessMonitor() {
               isRunning: selectedProc.status === "running",
               status: selectedProc.status,
             }),
+            runLabel: processRunLabel,
             navMesh: {
               kind: "eval",
               showPostRun: selectedProc.status === "completed",
@@ -556,6 +556,7 @@ export function ProcessMonitor() {
               isRunning: selectedProc.status === "running",
               status: selectedProc.status,
             }),
+            runLabel: processRunLabel,
             navMesh: {
               kind: "data_gen",
               showPostRun: selectedProc.status === "completed",
@@ -580,6 +581,7 @@ export function ProcessMonitor() {
               processId: selectedProc.id,
               command: selectedProc.command,
             }),
+            runLabel: processRunLabel,
             metricCount: trainingMetrics.length,
             healthCount: trainingHealthEntries.length,
             attentionCount: attentionEntries.length,
