@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-first pass (§G.5 / §G.7)
+
+Ninety-first pass extends global log-scale to attention bipartite graph overlays
+(ECharts + Sigma.js) and the React Three Fiber loss landscape 3D terrain.
+
+**React frontend**
+- `chartLogScale.ts` — ``attentionWeightDisplay()`` helper for edge opacity/width mapping
+- `attentionGraph.ts` — ``buildAttentionGraphOption`` log-transforms edge styling when
+  global ``logScale`` on; tooltips retain raw attention weights
+- `AttentionSigmaView` — log-scale edge size/opacity via ``attentionWeightDisplay``;
+  edge ``weight`` attribute stores raw values
+- `LossLandscape3D` — log-transformed height/colour via ``transformMatrixLogScale`` when
+  on; minima sharpness analysis stays on raw loss grid
+- `MLIntrospectionPanel` — passes ``logScale`` to graph/sigma/3D views; subtitles reflect mode
+
+**ROADMAP**
+- §G.5.2 Loss landscape 3D terrain log-scale checked
+- §G.5.3 Attention bipartite graph overlays log-scale checked
+- §G.7 Global log-scale propagation includes attention graphs + 3D loss terrain
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninetieth pass (§G.5 / §G.7)
 
 Ninetieth pass extends global log-scale to §G.5.3 attention weight heatmaps so

@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
+import { transformMatrixLogScale } from "../../utils/chartLogScale";
 import {
   analyzeLossMinima,
   gridCellToTerrainPosition,
@@ -17,17 +18,18 @@ export type LossLandscapeView = "surface" | "voxels";
 
 interface TerrainProps {
   values: number[][];
+  displayValues: number[][];
   minimaRow?: number;
   minimaCol?: number;
   markers?: LandscapeMarker[];
 }
 
-function TerrainMesh({ values, minimaRow, minimaCol, markers = [] }: TerrainProps) {
+function TerrainMesh({ values, displayValues, minimaRow, minimaCol, markers = [] }: TerrainProps) {
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
 
   const { geometry, minimaPos, markerPositions } = useMemo(() => {
-    const { norm } = normalizeGrid(values);
+    const { norm } = normalizeGrid(displayValues);
     const geo = new THREE.PlaneGeometry(cols - 1, rows - 1, cols - 1, rows - 1);
     const pos = geo.attributes.position;
     const colors = new Float32Array(pos.count * 3);
@@ -65,7 +67,7 @@ function TerrainMesh({ values, minimaRow, minimaCol, markers = [] }: TerrainProp
       minimaPos,
       markerPositions,
     };
-  }, [values, rows, cols, minimaRow, minimaCol, markers]);
+  }, [displayValues, rows, cols, minimaRow, minimaCol, markers]);
 
   return (
     <group>
@@ -92,17 +94,17 @@ function TerrainMesh({ values, minimaRow, minimaCol, markers = [] }: TerrainProp
   );
 }
 
-function VoxelInstanced({ values, markers = [] }: TerrainProps) {
+function VoxelInstanced({ values, displayValues, markers = [] }: TerrainProps) {
   const rows = values.length;
   const cols = values[0]?.length ?? 0;
   const count = rows * cols;
   const meshRef = useRef<THREE.InstancedMesh>(null);
 
   const { norm, minimaRow, minimaCol } = useMemo(() => {
-    const { norm: n } = normalizeGrid(values);
+    const { norm: n } = normalizeGrid(displayValues);
     const minima = analyzeLossMinima(values);
     return { norm: n, minimaRow: minima?.row, minimaCol: minima?.col };
-  }, [values]);
+  }, [values, displayValues]);
 
   const markerPositions = useMemo(
     () =>
@@ -185,6 +187,7 @@ interface LossLandscape3DProps {
   view?: LossLandscapeView;
   height?: number;
   className?: string;
+  logScale?: boolean;
 }
 
 export function LossLandscape3D({
@@ -193,7 +196,12 @@ export function LossLandscape3D({
   view = "surface",
   height = 280,
   className,
+  logScale = false,
 }: LossLandscape3DProps) {
+  const displayValues = useMemo(
+    () => (logScale ? transformMatrixLogScale(values, "loss", true) : values),
+    [values, logScale]
+  );
   const minima = useMemo(() => analyzeLossMinima(values), [values]);
 
   if (!values.length || !values[0]?.length) {
@@ -214,10 +222,11 @@ export function LossLandscape3D({
         <directionalLight position={[5, 8, 3]} intensity={0.85} />
         <directionalLight position={[-4, 2, -2]} intensity={0.35} />
         {view === "voxels" ? (
-          <VoxelInstanced values={values} markers={markers} />
+          <VoxelInstanced values={values} displayValues={displayValues} markers={markers} />
         ) : (
           <TerrainMesh
             values={values}
+            displayValues={displayValues}
             minimaRow={minima?.row}
             minimaCol={minima?.col}
             markers={markers}

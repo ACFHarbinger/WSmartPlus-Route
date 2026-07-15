@@ -514,8 +514,9 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
       queryRow: decodeStep,
       topK: sparseK > 0 ? sparseK : 24,
       sparseValues: sparseK > 0 ? processedValues : undefined,
+      logScale,
     });
-  }, [processedValues, graphCoords, attentionView, decodeStep, selectedKey, theme, sparseK]);
+  }, [processedValues, graphCoords, attentionView, decodeStep, selectedKey, theme, sparseK, logScale]);
 
   const lossOption = useMemo(() => {
     if (!lossPreview) return null;
@@ -951,6 +952,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
           <p className="text-[10px] text-canvas-muted">
             Bipartite graph overlay: query node (amber) at decode step {decodeStep}; edge opacity ∝
             attention weight to key nodes on {GRAPH_PRESETS.find((p) => p.id === graphPreset)?.label}.
+            {logScale ? " Log-scale edge mapping — tooltips show raw weights." : ""}
           </p>
         </div>
       )}
@@ -971,12 +973,14 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
               topK={sparseK > 0 ? sparseK : 24}
               sparseValues={sparseK > 0 ? processedValues : undefined}
               theme={theme}
+              logScale={logScale}
             />
           </Suspense>
           <p className="text-[10px] text-canvas-muted">
             Sigma.js WebGL bipartite graph: ForceAtlas2 layout on{" "}
             {GRAPH_PRESETS.find((p) => p.id === graphPreset)?.label}; query node (amber) at decode step{" "}
             {decodeStep}; edge opacity ∝ attention weight.
+            {logScale ? " Log-scale edge mapping — edge weight attribute stores raw values." : ""}
           </p>
         </div>
       )}
@@ -1048,7 +1052,12 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                     </div>
                   }
                 >
-                  <LossLandscape3D values={lossPreview.values} markers={lossMarkers} view={lossView} />
+                  <LossLandscape3D
+                    values={lossPreview.values}
+                    markers={lossMarkers}
+                    view={lossView}
+                    logScale={logScale}
+                  />
                 </Suspense>
                 <div className="space-y-2">
                   <div className="flex justify-end">
@@ -1065,8 +1074,8 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                   )}
                   <p className="text-[10px] text-canvas-muted">
                     {logScale
-                      ? "Log-scale colour map — tooltips show raw loss values"
-                      : "Linear colour map — loss grid from NPZ export"}
+                      ? "Log-scale 3D terrain + contour colour map — tooltips show raw loss values"
+                      : "Linear 3D terrain + contour colour map — loss grid from NPZ export"}
                   </p>
                 </div>
               </div>

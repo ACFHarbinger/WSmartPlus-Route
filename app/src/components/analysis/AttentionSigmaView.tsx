@@ -6,6 +6,7 @@ import forceAtlas2 from "graphology-layout-forceatlas2";
 import Sigma from "sigma";
 import { useEffect, useRef } from "react";
 import type { GraphCoord } from "../../utils/attentionGraph";
+import { attentionWeightDisplay } from "../../utils/chartLogScale";
 
 export interface AttentionSigmaOpts {
   coords: GraphCoord[];
@@ -14,6 +15,7 @@ export interface AttentionSigmaOpts {
   topK?: number;
   sparseValues?: number[][];
   theme?: "dark" | "light";
+  logScale?: boolean;
 }
 
 function normalizeCoords(coords: GraphCoord[]): Array<{ x: number; y: number }> {
@@ -32,7 +34,7 @@ function normalizeCoords(coords: GraphCoord[]): Array<{ x: number; y: number }> 
 }
 
 function buildGraph(opts: AttentionSigmaOpts): Graph | null {
-  const { coords, values, queryRow = 0, topK = 24, theme = "dark" } = opts;
+  const { coords, values, queryRow = 0, topK = 24, theme = "dark", logScale = false } = opts;
   const grid = opts.sparseValues ?? values;
   if (!coords.length || !grid.length) return null;
 
@@ -46,10 +48,13 @@ function buildGraph(opts: AttentionSigmaOpts): Graph | null {
   const row = grid[qRow] ?? [];
   const indexed = row
     .slice(0, nodeCount)
-    .map((v, i) => ({ v: Number.isFinite(v) ? Math.max(0, v) : 0, i }))
-    .sort((a, b) => b.v - a.v);
-  const maxW = indexed[0]?.v || 1;
-  const keep = new Set(indexed.slice(0, topK).filter((x) => x.v > 0).map((x) => x.i));
+    .map((raw, i) => {
+      const v = Number.isFinite(raw) ? Math.max(0, raw) : 0;
+      return { raw: v, display: attentionWeightDisplay(v, logScale), i };
+    })
+    .sort((a, b) => b.display - a.display);
+  const maxW = indexed[0]?.display || 1;
+  const keep = new Set(indexed.slice(0, topK).filter((x) => x.display > 0).map((x) => x.i));
 
   const graph = new Graph({ multi: false, type: "directed" });
   const idleColor = theme === "dark" ? "#38bdf8" : "#0284c7";
@@ -64,15 +69,15 @@ function buildGraph(opts: AttentionSigmaOpts): Graph | null {
     });
   }
 
-  for (const { v, i } of indexed) {
+  for (const { raw, display, i } of indexed) {
     if (!keep.has(i) || i === qRow) continue;
-    const opacity = 0.2 + 0.75 * (v / maxW);
+    const opacity = 0.2 + 0.75 * (display / maxW);
     const edgeId = `e-${qRow}-${i}`;
     if (!graph.hasEdge(edgeId)) {
       graph.addEdgeWithKey(edgeId, String(qRow), String(i), {
-        size: 0.5 + 2.5 * (v / maxW),
+        size: 0.5 + 2.5 * (display / maxW),
         color: `rgba(251, 191, 36, ${opacity})`,
-        weight: v,
+        weight: raw,
       });
     }
   }
@@ -88,6 +93,7 @@ export function AttentionSigmaView({
   topK = 24,
   sparseValues,
   theme = "dark",
+  logScale = false,
 }: AttentionSigmaOpts) {
   const containerRef = useRef<HTMLDivElement>(null);
   const sigmaRef = useRef<Sigma | null>(null);
@@ -96,7 +102,7 @@ export function AttentionSigmaView({
     const container = containerRef.current;
     if (!container) return;
 
-    const graph = buildGraph({ coords, values, queryRow, topK, sparseValues, theme });
+    const graph = buildGraph({ coords, values, queryRow, topK, sparseValues, theme, logScale });
     if (!graph) return;
 
     sigmaRef.current?.kill();
@@ -114,7 +120,7 @@ export function AttentionSigmaView({
       sigma.kill();
       sigmaRef.current = null;
     };
-  }, [coords, values, sparseValues, queryRow, topK, theme]);
+  }, [coords, values, sparseValues, queryRow, topK, theme, logScale]);
 
   return (
     <div
