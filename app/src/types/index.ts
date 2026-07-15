@@ -170,6 +170,13 @@ export interface OptunaStudyData {
   best_params: Record<string, string | number | boolean>;
 }
 
+export interface HpoReportExportResult {
+  report_dir: string | null;
+  files: string[];
+  n_complete: number;
+  message: string;
+}
+
 // ── MLflow experiment tracking (§G.18) ─────────────────────────────────────
 
 export interface MlflowRun {

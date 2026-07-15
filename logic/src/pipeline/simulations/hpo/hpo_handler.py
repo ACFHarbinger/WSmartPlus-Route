@@ -517,6 +517,16 @@ def objective_debug(trial, base_cfg, data_size, lock):
 # ---------------------------------------------------------------------------
 
 
+def _export_hpo_visualization_reports(study: optuna.Study) -> None:
+    """Write Optuna Plotly reports to ``assets/hpo_reports/`` when possible."""
+    from logic.src.pipeline.simulations.hpo.hpo_reports import export_optuna_study_reports
+
+    reports_parent = os.path.join(str(ROOT_DIR), "assets", "hpo_reports")
+    report_dir = export_optuna_study_reports(study, output_dir=reports_parent)
+    if report_dir:
+        logger.info(f"HPO visualization reports: {report_dir}")
+
+
 def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
     """Run Hyperparameter Optimization for simulation policies.
 
@@ -665,6 +675,8 @@ def run_hpo_sim(cfg: Config) -> Union[float, List[float]]:
     # -----------------------------------------------------------------
     handler.log_pareto_front()
     handler.run_fanova_analysis()
+
+    _export_hpo_visualization_reports(handler.study)
 
     run = wst.get_active_run()
 

@@ -120,6 +120,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Effort × Impact**: Very Low effort (Option A) / Medium impact
 
+**Delivered (§A.5 Option A — hundred-tenth pass)**
+
+- [x] ``hpo_reports.py`` — ``optuna.visualization`` parallel-coordinates, param-importances, and optimisation-history Plotly HTML (+ optional PNG when kaleido present) under ``assets/hpo_reports/<study>_<timestamp>/``
+- [x] ``manifest.json`` per export with study metadata, artefact list, and plot errors
+- [x] ``run_hpo_sim`` post-run hook auto-exports reports after fANOVA analysis
+- [x] Rust ``export_optuna_reports`` command; HPO Tracker **Export Plotly** + **Reports** folder open (§G.18 bridge)
+- [x] Unit tests in ``logic/test/unit/pipeline/simulations/test_hpo_reports.py``
+
+**Status**: §A.5 Option A complete — Option B (Studio WebView inline Plotly) largely superseded by ECharts HPO Tracker; Option C (notebook template) deferred.
+
 ---
 
 ### §A.6 — Causal Simulation Failure Analysis
@@ -144,7 +154,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | Item                                     | Effort    | Impact | Priority        |
 | ---------------------------------------- | --------- | ------ | --------------- |
 | §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0 ✅            |
-| §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0              |
+| §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0 ✅            |
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1              |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1              |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1              |
@@ -1427,7 +1437,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry delivered in hundred-ninth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

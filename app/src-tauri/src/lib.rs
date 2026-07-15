@@ -69,6 +69,7 @@ pub fn run() {
             // Optuna HPO
             hpo::list_optuna_studies,
             hpo::load_optuna_study,
+            hpo::export_optuna_reports,
             // MLflow experiment tracking
             mlflow::list_mlflow_runs,
             mlflow::list_mlflow_metric_keys,

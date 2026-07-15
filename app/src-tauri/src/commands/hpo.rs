@@ -150,6 +150,66 @@ pub fn list_optuna_studies(
     serde_json::from_value(value).map_err(|e| e.to_string())
 }
 
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct HpoReportExportResult {
+    pub report_dir: Option<String>,
+    pub files: Vec<String>,
+    pub n_complete: i32,
+    pub message: String,
+}
+
+const EXPORT_REPORTS_SCRIPT: &str = r#"
+import json, sys, os
+try:
+    from logic.src.pipeline.simulations.hpo.hpo_reports import export_optuna_study_from_storage
+except ImportError as exc:
+    print(json.dumps({"error": str(exc)}))
+    sys.exit(0)
+storage, name, output_dir = sys.argv[1], sys.argv[2], sys.argv[3]
+output_dir = output_dir if output_dir else None
+report_dir = export_optuna_study_from_storage(storage, name, output_dir=output_dir)
+files = []
+n_complete = 0
+if report_dir and os.path.isdir(report_dir):
+    files = sorted(
+        os.path.join(report_dir, f)
+        for f in os.listdir(report_dir)
+        if os.path.isfile(os.path.join(report_dir, f))
+    )
+    manifest_path = os.path.join(report_dir, "manifest.json")
+    if os.path.isfile(manifest_path):
+        with open(manifest_path, encoding="utf-8") as handle:
+            manifest = json.load(handle)
+            n_complete = int(manifest.get("n_complete", 0))
+message = "Reports exported." if report_dir else "Export skipped (need >= 2 completed trials)."
+print(json.dumps({
+    "report_dir": report_dir,
+    "files": files,
+    "n_complete": n_complete,
+    "message": message,
+}))
+"#;
+
+/// Export Optuna visualization reports (Plotly HTML) to assets/hpo_reports/.
+#[tauri::command]
+pub fn export_optuna_reports(
+    storage_url: String,
+    study_name: String,
+    project_root: String,
+    python_executable: Option<String>,
+    output_dir: Option<String>,
+) -> Result<HpoReportExportResult, String> {
+    let python = resolve_python(&project_root, python_executable);
+    let out_arg = output_dir.unwrap_or_default();
+    let value = run_python_json(
+        &python,
+        &project_root,
+        EXPORT_REPORTS_SCRIPT,
+        &[&storage_url, &study_name, &out_arg],
+    )?;
+    serde_json::from_value(value).map_err(|e| e.to_string())
+}
+
 /// Load all trials and parameter importances for a single Optuna study.
 #[tauri::command]
 pub fn load_optuna_study(
