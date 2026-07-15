@@ -25,7 +25,7 @@ STREAM_INTERVAL_SEC = 0.5  # 2 Hz refresh for §A.3 Option B
 def detect_policy_viz_type(viz_data: Dict[str, List[Any]]) -> str:
     """Infer algorithm family from telemetry key signatures.
 
-    Mirrors the dispatcher in ``logic.src.ui.components.policy_viz``.
+    Consumed by the WSmart-Route Studio policy telemetry panels (app/).
 
     Args:
         viz_data: Mapping returned by ``get_viz_data()``.

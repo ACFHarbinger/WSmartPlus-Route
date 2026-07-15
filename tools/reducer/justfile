@@ -125,10 +125,6 @@ cleanup-callbacks keep_list="":
 cleanup-tracking:
     uv run python logic/src/utils/package/remove_tracking.py
 
-# Clean up UI components
-cleanup-ui:
-    uv run python logic/src/utils/package/remove_ui.py
-
 # Clean up Enums and the GlobalRegistry
 cleanup-enums:
     uv run python logic/src/utils/package/remove_enums.py

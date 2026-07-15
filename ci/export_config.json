@@ -245,15 +245,6 @@
         "logic/src/enums"
       ]
     },
-    "UI_LOGIC": {
-      "description": "Logic-layer UI utilities (Streamlit dashboard, dashboard entry point)",
-      "remove_script": "logic/src/utils/package/remove_ui.py",
-      "paths": [
-        "logic/src/ui",
-        "logic/src/utils/ui",
-        "logic/dashboard_entry.py"
-      ]
-    },
     "DATA_WEB": {
       "description": "Web-crawling data ingestion (HTML/URL crawlers, OSM downloads)",
       "remove_script": null,
