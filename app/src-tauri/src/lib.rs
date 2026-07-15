@@ -1,6 +1,6 @@
 mod commands;
 
-use commands::{arrow, data, hpo, mlflow, policies, process, sim_watcher, system, tensor, zenml};
+use commands::{arrow, data, hpo, mlflow, policies, process, sim_watcher, system, telemetry, tensor, zenml};
 
 #[cfg(desktop)]
 use std::sync::Mutex;
@@ -41,6 +41,7 @@ pub fn run() {
             data::load_sim_failure_log,
             data::load_training_health_log,
             data::load_attention_viz_log,
+            telemetry::load_policy_telemetry_trends,
             data::load_csv_file,
             data::list_output_dirs,
             data::list_training_runs,

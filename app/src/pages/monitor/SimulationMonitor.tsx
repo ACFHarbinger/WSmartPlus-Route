@@ -45,6 +45,7 @@ import {
 import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
 import { FailureAnalysisPanel } from "../../components/analysis/FailureAnalysisPanel";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { RouteViz } from "../../components/analysis/RouteViz";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
@@ -320,6 +321,13 @@ export function SimulationMonitor() {
     )
   );
   const policyVizLive = isWatching || !!runningSimProcess;
+  const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
+
+  useEffect(() => {
+    if (policyVizEntries.length > 0) {
+      setTelemetryTrendsKey((k) => k + 1);
+    }
+  }, [policyVizEntries.length]);
 
   const {
     policy: selectedPolicy,
@@ -1006,6 +1014,12 @@ export function SimulationMonitor() {
             theme={theme}
             logScale={logScale}
             live={policyVizLive}
+          />
+
+          <PolicyTelemetryTrendsPanel
+            theme={theme}
+            logScale={logScale}
+            refreshKey={telemetryTrendsKey}
           />
 
           <GraphTopologyPanel
