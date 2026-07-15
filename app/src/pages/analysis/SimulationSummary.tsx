@@ -19,7 +19,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
   chartMetricDisplay,
@@ -379,7 +379,7 @@ function GroupedMetricBarChart({
           {subtitle && <p className="text-[10px] text-canvas-muted">{subtitle}</p>}
         </div>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -599,7 +599,7 @@ function TrajectoryChart({
         <div className="flex items-center gap-2">
           {allDays.length > 0 && (
             <button
-              onClick={() => exportChartPng({ current: chartRef.current }, `trajectory-${metric}.png`)}
+              onClick={() => exportChartPngWithToast({ current: chartRef.current }, `trajectory-${metric}.png`)}
               className="btn-ghost text-xs flex items-center gap-1"
             >
               <Download size={12} />
@@ -711,7 +711,7 @@ function PolicyRadarChart({
           Policy Radar{logScale ? " · log-normalised axes" : ""}
         </p>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "summary-radar.png")}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-radar.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -855,7 +855,7 @@ function PolicyHeatmapChart({
             </div>
           )}
           <button
-            onClick={() => exportChartPng({ current: chartRef.current }, "summary-heatmap.png")}
+            onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-heatmap.png")}
             className="btn-ghost text-xs flex items-center gap-1"
           >
             <Download size={12} />
@@ -1042,7 +1042,7 @@ function PolicyParallelChart({
           )}
         </div>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "summary-parallel.png")}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-parallel.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -1295,7 +1295,7 @@ function PolicyHierarchyPanel({
           </div>
           <button
             onClick={() =>
-              exportChartPng({ current: chartRef.current }, `summary-${view}.png`)
+              exportChartPngWithToast({ current: chartRef.current }, `summary-${view}.png`)
             }
             className="btn-ghost text-xs flex items-center gap-1"
           >
@@ -1534,7 +1534,7 @@ function EfficiencyRankingChart({
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-gray-300">Efficiency Ranking (kg/km)</p>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "summary-efficiency-rank.png")}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-efficiency-rank.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -1673,7 +1673,7 @@ function PolicyParetoChart({
           {logScale ? " · symlog overflows + log profit" : ""}
         </p>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "summary-pareto.png")}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-pareto.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -1818,7 +1818,7 @@ function MetricBarChart({
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs text-canvas-muted">{title}</p>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -2436,7 +2436,7 @@ export function SimulationSummary() {
                 </div>
                 <button
                   onClick={() =>
-                    exportChartPng({ current: cityCompareChartRef.current }, "summary-city-compare.png")
+                    exportChartPngWithToast({ current: cityCompareChartRef.current }, "summary-city-compare.png")
                   }
                   className="btn-ghost text-xs flex items-center gap-1"
                 >

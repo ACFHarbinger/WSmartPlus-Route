@@ -5,7 +5,11 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { ChevronDown, ChevronUp, Download, RefreshCw } from "lucide-react";
-import { exportChartPng, exportChartSvg, exportContainerCanvasPng } from "../../utils/chartExport";
+import {
+  exportChartPngWithToast,
+  exportChartSvgWithToast,
+  exportContainerCanvasPngWithToast,
+} from "../../utils/chartExport";
 import { toast } from "sonner";
 import type { DayLogEntry, SimDayData } from "../../types";
 import {
@@ -370,11 +374,10 @@ export function GraphTopologyPanel({
                       type="button"
                       onClick={() => {
                         if (topologyView === "echarts" && chartOption) {
-                          if (exportChartPng({ current: chartRef.current }, "topology-graph.png")) {
-                            toast.success("Chart exported", { description: "topology-graph.png" });
-                          } else {
-                            toast.error("Export failed", { description: "Chart is not ready" });
-                          }
+                          exportChartPngWithToast(
+                            { current: chartRef.current },
+                            "topology-graph.png"
+                          );
                           return;
                         }
                         const container =
@@ -385,11 +388,7 @@ export function GraphTopologyPanel({
                           topologyView === "sigma"
                             ? "topology-sigma.png"
                             : "topology-cosmograph.png";
-                        if (exportContainerCanvasPng(container, stem)) {
-                          toast.success("Chart exported", { description: stem });
-                        } else {
-                          toast.error("Export failed", { description: "Canvas is not ready" });
-                        }
+                        exportContainerCanvasPngWithToast(container, stem);
                       }}
                       className="btn-ghost text-xs flex items-center gap-1"
                     >
@@ -399,13 +398,12 @@ export function GraphTopologyPanel({
                     {topologyView === "echarts" && chartOption && (
                       <button
                         type="button"
-                        onClick={() => {
-                          if (exportChartSvg({ current: chartRef.current }, "topology-graph.svg")) {
-                            toast.success("Chart exported", { description: "topology-graph.svg" });
-                          } else {
-                            toast.error("Export failed", { description: "Chart is not ready" });
-                          }
-                        }}
+                        onClick={() =>
+                          exportChartSvgWithToast(
+                            { current: chartRef.current },
+                            "topology-graph.svg"
+                          )
+                        }
                         className="btn-ghost text-xs flex items-center gap-1"
                       >
                         SVG

@@ -14,7 +14,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, filterEntries } from "../../store/sim";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { barOpacity } from "../../utils/chartHighlight";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { errorBarBounds, radarAxisValue } from "../../utils/chartLogScale";
 import { symlog } from "../../utils/symlog";
 
@@ -182,7 +182,7 @@ export function AlgorithmComparison() {
             Radar — {logScale ? "log-normalised" : "normalised"} average metrics per policy
           </p>
           <button
-            onClick={() => exportChartPng(radarRef, "algorithm-radar.png")}
+            onClick={() => exportChartPngWithToast(radarRef, "algorithm-radar.png")}
             className="btn-ghost text-xs flex items-center gap-1"
           >
             <Download size={12} />
@@ -310,7 +310,7 @@ export function AlgorithmComparison() {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-canvas-muted">{label}</p>
                 <button
-                  onClick={() => exportChartPng({ current: barRefs.current[key] }, `algorithm-${key}.png`)}
+                  onClick={() => exportChartPngWithToast({ current: barRefs.current[key] }, `algorithm-${key}.png`)}
                   className="btn-ghost text-xs flex items-center gap-1"
                 >
                   <Download size={12} />

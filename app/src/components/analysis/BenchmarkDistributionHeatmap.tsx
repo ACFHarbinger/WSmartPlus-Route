@@ -5,8 +5,7 @@ import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Download } from "lucide-react";
-import { toast } from "sonner";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
 import type { DayLogEntry } from "../../types";
 import {
   activeHeatmapMetrics,
@@ -101,21 +100,30 @@ export function BenchmarkDistributionHeatmap({
     <div className="card space-y-1">
       <div className="flex items-center justify-between gap-1">
         <p className="text-[10px] text-canvas-muted font-mono">{distributionLabel}</p>
-        <button
-          type="button"
-          onClick={() => {
-            if (exportChartPng({ current: chartRef.current }, `${exportStem}.png`)) {
-              toast.success("Chart exported", { description: `${exportStem}.png` });
-            } else {
-              toast.error("Export failed", { description: "Chart is not ready" });
+        <div className="flex items-center gap-0.5 shrink-0">
+          <button
+            type="button"
+            onClick={() =>
+              exportChartPngWithToast({ current: chartRef.current }, `${exportStem}.png`)
             }
-          }}
-          className="btn-ghost text-[10px] flex items-center gap-0.5 shrink-0"
-          title="Export distribution heatmap as PNG"
-        >
-          <Download size={10} />
-          PNG
-        </button>
+            className="btn-ghost text-[10px] flex items-center gap-0.5"
+            title="Export distribution heatmap as PNG"
+          >
+            <Download size={10} />
+            PNG
+          </button>
+          <button
+            type="button"
+            onClick={() =>
+              exportChartSvgWithToast({ current: chartRef.current }, `${exportStem}.svg`)
+            }
+            className="btn-ghost text-[10px] flex items-center gap-0.5"
+            title="Export distribution heatmap as SVG"
+          >
+            <Download size={10} />
+            SVG
+          </button>
+        </div>
       </div>
       <ReactECharts
         ref={chartRef}

@@ -9,7 +9,6 @@ import {
   useMemo,
   useRef,
   useState,
-  type RefObject,
 } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
@@ -19,7 +18,11 @@ import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
 import { buildAttentionGraphOption } from "../../utils/attentionGraph";
-import { exportChartPng, exportChartSvg, exportContainerCanvasPng } from "../../utils/chartExport";
+import {
+  exportChartPngWithToast,
+  exportChartSvgWithToast,
+  exportContainerCanvasPngWithToast,
+} from "../../utils/chartExport";
 import {
   distributionDisplayName,
   inferDistributionLabel,
@@ -65,35 +68,7 @@ function formatBytes(b: number): string {
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
 }
 
-function exportEchartsPair(
-  ref: RefObject<ReactECharts | null>,
-  stem: string
-): void {
-  if (exportChartPng(ref, `${stem}.png`)) {
-    toast.success("Chart exported", { description: `${stem}.png` });
-    return;
-  }
-  toast.error("Export failed", { description: "Chart is not ready" });
-}
 
-function exportEchartsSvg(
-  ref: RefObject<ReactECharts | null>,
-  stem: string
-): void {
-  if (exportChartSvg(ref, `${stem}.svg`)) {
-    toast.success("Chart exported", { description: `${stem}.svg` });
-    return;
-  }
-  toast.error("Export failed", { description: "Chart is not ready" });
-}
-
-function exportCanvasPair(container: HTMLElement | null, stem: string): void {
-  if (exportContainerCanvasPng(container, `${stem}.png`)) {
-    toast.success("Chart exported", { description: `${stem}.png` });
-    return;
-  }
-  toast.error("Export failed", { description: "Canvas is not ready" });
-}
 
 function buildLogAwareMatrixHeatmap(
   rawValues: number[][],
@@ -983,14 +958,18 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
           <div className="flex justify-end gap-2">
             <button
               className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportEchartsPair(graphChartRef, `attention-graph-${selectedKey}`)}
+              onClick={() =>
+                exportChartPngWithToast(graphChartRef, `attention-graph-${selectedKey}.png`)
+              }
             >
               <Download size={12} />
               PNG
             </button>
             <button
               className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportEchartsSvg(graphChartRef, `attention-graph-${selectedKey}`)}
+              onClick={() =>
+                exportChartSvgWithToast(graphChartRef, `attention-graph-${selectedKey}.svg`)
+              }
             >
               <Download size={12} />
               SVG
@@ -1011,7 +990,10 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
             <button
               className="btn-ghost text-xs flex items-center gap-1"
               onClick={() =>
-                exportCanvasPair(attentionSigmaRef.current, `attention-sigma-${selectedKey}`)
+                exportContainerCanvasPngWithToast(
+                  attentionSigmaRef.current,
+                  `attention-sigma-${selectedKey}.png`
+                )
               }
             >
               <Download size={12} />
@@ -1051,14 +1033,14 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
           <div className="flex justify-end gap-2 flex-wrap">
             <button
               className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportEchartsPair(chartRef, `attention-${selectedKey}`)}
+              onClick={() => exportChartPngWithToast(chartRef, `attention-${selectedKey}.png`)}
             >
               <Download size={12} />
               {compareMode === "side-by-side" || compareMode === "distribution" ? "Primary PNG" : "PNG"}
             </button>
             <button
               className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportEchartsSvg(chartRef, `attention-${selectedKey}`)}
+              onClick={() => exportChartSvgWithToast(chartRef, `attention-${selectedKey}.svg`)}
             >
               <Download size={12} />
               {compareMode === "side-by-side" || compareMode === "distribution" ? "Primary SVG" : "SVG"}
@@ -1068,11 +1050,11 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                 <button
                   className="btn-ghost text-xs flex items-center gap-1"
                   onClick={() =>
-                    exportEchartsPair(
+                    exportChartPngWithToast(
                       compareChartRef,
                       compareMode === "distribution"
-                        ? `attention-compare-${distCompareLabel}`
-                        : `attention-compare-step-${compareStep}`
+                        ? `attention-compare-${distCompareLabel}.png`
+                        : `attention-compare-step-${compareStep}.png`
                     )
                   }
                 >
@@ -1082,11 +1064,11 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                 <button
                   className="btn-ghost text-xs flex items-center gap-1"
                   onClick={() =>
-                    exportEchartsSvg(
+                    exportChartSvgWithToast(
                       compareChartRef,
                       compareMode === "distribution"
-                        ? `attention-compare-${distCompareLabel}`
-                        : `attention-compare-step-${compareStep}`
+                        ? `attention-compare-${distCompareLabel}.svg`
+                        : `attention-compare-step-${compareStep}.svg`
                     )
                   }
                 >
@@ -1149,7 +1131,12 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                   <div className="flex justify-end gap-2">
                     <button
                       className="btn-ghost text-xs flex items-center gap-1"
-                      onClick={() => exportCanvasPair(loss3dRef.current, `loss-terrain-3d-${lossView}`)}
+                      onClick={() =>
+                        exportContainerCanvasPngWithToast(
+                          loss3dRef.current,
+                          `loss-terrain-3d-${lossView}.png`
+                        )
+                      }
                     >
                       <Download size={12} />
                       3D PNG
@@ -1175,14 +1162,14 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                   <div className="flex justify-end gap-2">
                     <button
                       className="btn-ghost text-xs flex items-center gap-1"
-                      onClick={() => exportEchartsPair(lossChartRef, "loss-landscape")}
+                      onClick={() => exportChartPngWithToast(lossChartRef, "loss-landscape.png")}
                     >
                       <Download size={12} />
                       PNG
                     </button>
                     <button
                       className="btn-ghost text-xs flex items-center gap-1"
-                      onClick={() => exportEchartsSvg(lossChartRef, "loss-landscape")}
+                      onClick={() => exportChartSvgWithToast(lossChartRef, "loss-landscape.svg")}
                     >
                       <Download size={12} />
                       SVG

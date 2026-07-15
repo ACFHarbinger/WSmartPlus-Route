@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-third pass (§G.7)
+
+Hundred-third pass centralises export toast feedback in ``chartExport.ts``, adds SVG
+export on portfolio analytics facets and pivot heatmaps, and propagates toast
+feedback to all remaining analytics export buttons.
+
+**React frontend**
+- `chartExport.ts` — ``exportChartPngWithToast()``, ``exportChartSvgWithToast()``,
+  ``exportContainerCanvasPngWithToast()``, ``exportCanvasPngWithToast()`` helpers
+- Portfolio facets — SVG export on ``BenchmarkParetoPanel``,
+  ``BenchmarkPortfolioParallel``, ``BenchmarkDistributionHeatmap``,
+  ``BenchmarkGraphHeatmap``, ``BenchmarkPortfolioHeatmap``, ``PivotTablePanel``
+- Analytics pages — toast feedback on Simulation Summary, Benchmark Analysis,
+  Algorithm Comparison, City Comparison, HPO Tracker, Experiment Tracker, ZenML
+  pipeline, Training Monitor/Hub, Data Generation, Evaluation Runner, Simulation
+  Monitor timeseries
+- ``MLIntrospectionPanel``, ``GraphTopologyPanel``, ``SqlQueryPanel``,
+  ``DeckRouteMap`` — refactored to shared toast helpers
+
+**ROADMAP**
+- §G.7 Export helpers with toast feedback checked
+- §G.7 Global export lists include portfolio facet SVG + toast on all analytics
+  export buttons
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-second pass (§G.1 / §G.4 / §G.6 / §G.7 / §G.16)
 
 Hundred-second pass extends the §G.7 export surface to portfolio analytics

@@ -5,8 +5,7 @@ import { useCallback, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Download } from "lucide-react";
-import { toast } from "sonner";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
 import {
   buildPivot,
   pivotHeatmapOption,
@@ -169,21 +168,30 @@ export function PivotTablePanel({
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-semibold text-gray-300">Pivot Table (§G.6)</p>
         {chartOption && (
-          <button
-            type="button"
-            onClick={() => {
-              if (exportChartPng({ current: chartRef.current }, "pivot-heatmap.png")) {
-                toast.success("Chart exported", { description: "pivot-heatmap.png" });
-              } else {
-                toast.error("Export failed", { description: "Chart is not ready" });
+          <div className="flex items-center gap-1 shrink-0">
+            <button
+              type="button"
+              onClick={() =>
+                exportChartPngWithToast({ current: chartRef.current }, "pivot-heatmap.png")
               }
-            }}
-            className="btn-ghost text-xs flex items-center gap-1 shrink-0"
-            title="Export pivot heatmap as PNG"
-          >
-            <Download size={11} />
-            PNG
-          </button>
+              className="btn-ghost text-xs flex items-center gap-1"
+              title="Export pivot heatmap as PNG"
+            >
+              <Download size={11} />
+              PNG
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                exportChartSvgWithToast({ current: chartRef.current }, "pivot-heatmap.svg")
+              }
+              className="btn-ghost text-xs flex items-center gap-1"
+              title="Export pivot heatmap as SVG"
+            >
+              <Download size={11} />
+              SVG
+            </button>
+          </div>
         )}
       </div>
 

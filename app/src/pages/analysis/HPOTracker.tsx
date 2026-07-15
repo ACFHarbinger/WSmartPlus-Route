@@ -8,7 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Copy, Download, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -413,7 +413,7 @@ export function HPOTracker() {
               <button
                 className="btn-ghost p-0.5"
                 title="Export PNG"
-                onClick={() => exportChartPng(historyChartRef, "hpo-history.png")}
+                onClick={() => exportChartPngWithToast(historyChartRef, "hpo-history.png")}
               >
                 <Download size={11} className="text-canvas-muted" />
               </button>
@@ -436,7 +436,7 @@ export function HPOTracker() {
                 <button
                   className="btn-ghost p-0.5"
                   title="Export PNG"
-                  onClick={() => exportChartPng(importanceChartRef, "hpo-importance.png")}
+                  onClick={() => exportChartPngWithToast(importanceChartRef, "hpo-importance.png")}
                 >
                   <Download size={11} className="text-canvas-muted" />
                 </button>
@@ -458,7 +458,7 @@ export function HPOTracker() {
             <button
               className="btn-ghost p-0.5"
               title="Export PNG"
-              onClick={() => exportChartPng(crossStudyChartRef, "hpo-cross-study.png")}
+              onClick={() => exportChartPngWithToast(crossStudyChartRef, "hpo-cross-study.png")}
             >
               <Download size={11} className="text-canvas-muted" />
             </button>
@@ -490,7 +490,7 @@ export function HPOTracker() {
             <button
               className="btn-ghost p-0.5"
               title="Export PNG"
-              onClick={() => exportChartPng(parallelChartRef, "hpo-parallel.png")}
+              onClick={() => exportChartPngWithToast(parallelChartRef, "hpo-parallel.png")}
             >
               <Download size={11} className="text-canvas-muted" />
             </button>

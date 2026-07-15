@@ -19,7 +19,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, Download, FolderOpen, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
@@ -176,7 +176,7 @@ function MultiRunChart({
           {logScale ? "Multi-run overlay (log-scale loss)" : "Multi-run overlay"}
         </p>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "training-overlay.png")}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "training-overlay.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -247,7 +247,7 @@ function MetricSparkline({
         <p className="text-xs text-canvas-muted">{label}</p>
         {exportName && (
           <button
-            onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+            onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
             className="btn-ghost text-xs flex items-center gap-1"
           >
             <Download size={10} />

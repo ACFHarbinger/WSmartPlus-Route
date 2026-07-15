@@ -17,7 +17,7 @@ import {
   isLogScaleMetric,
 } from "../../utils/chartLogScale";
 import { ZenMLPipelineView } from "./ZenMLPipelineView";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { downloadCsv } from "../../utils/tableExport";
 import type { MlflowMetricPoint, MlflowRun, OutputDir } from "../../types";
 
@@ -415,7 +415,7 @@ export function ExperimentTracker() {
             </label>
             <button
               className="btn-ghost text-xs flex items-center gap-1 ml-auto"
-              onClick={() => exportChartPng(chartRef, `mlflow-${selectedMetric}.png`)}
+              onClick={() => exportChartPngWithToast(chartRef, `mlflow-${selectedMetric}.png`)}
             >
               <Download size={12} />
               Export PNG

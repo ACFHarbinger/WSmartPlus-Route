@@ -19,7 +19,7 @@ import { filterEntries } from "../../store/sim";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { barOpacity } from "../../utils/chartHighlight";
 import { errorBarBounds, groupedBarWhiskerX } from "../../utils/chartLogScale";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { symlog } from "../../utils/symlog";
 import { PARETO_PANELS } from "../../utils/paretoPanels";
 import { buildParetoByPanel } from "../../utils/paretoPortfolio";
@@ -150,7 +150,7 @@ function EvalResultsPanel({
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-canvas-muted">{label}</p>
               <button
-                onClick={() => exportChartPng({ current: chartRefs.current[key] }, `eval-${key}.png`)}
+                onClick={() => exportChartPngWithToast({ current: chartRefs.current[key] }, `eval-${key}.png`)}
                 className="btn-ghost text-xs flex items-center gap-1"
               >
                 <Download size={12} />
@@ -780,7 +780,7 @@ export function BenchmarkAnalysis() {
             <p className="text-xs text-canvas-muted">Efficiency Ranking (kg/km)</p>
             <button
               onClick={() =>
-                exportChartPng({ current: chartRefs.current["efficiency-rank"] }, "benchmark-efficiency-rank.png")
+                exportChartPngWithToast({ current: chartRefs.current["efficiency-rank"] }, "benchmark-efficiency-rank.png")
               }
               className="btn-ghost text-xs flex items-center gap-1"
             >
@@ -819,7 +819,7 @@ export function BenchmarkAnalysis() {
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-canvas-muted">{label}</p>
                 <button
-                  onClick={() => exportChartPng({ current: chartRefs.current[key] }, `benchmark-${key}.png`)}
+                  onClick={() => exportChartPngWithToast({ current: chartRefs.current[key] }, `benchmark-${key}.png`)}
                   className="btn-ghost text-xs flex items-center gap-1"
                 >
                   <Download size={12} />

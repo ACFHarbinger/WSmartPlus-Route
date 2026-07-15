@@ -16,7 +16,7 @@ import {
 } from "../../utils/simMetadata";
 import { barOpacity } from "../../utils/chartHighlight";
 import { errorBarBounds } from "../../utils/chartLogScale";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import type { DayLogEntry } from "../../types";
 
 export interface PortfolioEfficiencyRun {
@@ -200,8 +200,9 @@ export function PortfolioEfficiencyRanking({
           </p>
         </div>
         <button
+          type="button"
           onClick={() =>
-            exportChartPng({ current: chartRef.current }, "summary-portfolio-efficiency.png")
+            exportChartPngWithToast({ current: chartRef.current }, "summary-portfolio-efficiency.png")
           }
           className="btn-ghost text-xs flex items-center gap-1"
         >
