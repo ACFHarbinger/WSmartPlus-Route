@@ -7,14 +7,17 @@ import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 
 interface Props {
   path: string;
+  /** Override brush + display label (defaults to path stem). */
+  label?: string;
   className?: string;
   trailing?: ReactNode;
 }
 
-export function PathRunLabelChip({ path, className = "", trailing }: Props) {
+export function PathRunLabelChip({ path, label, className = "", trailing }: Props) {
   const { handleRunLabelClick, isBrushActive } = useRunLabelBrushToggle();
-  const runLabel = runLabelFromPath(path);
+  const runLabel = label ?? runLabelFromPath(path);
   const brushActive = isBrushActive(runLabel);
+  const displayText = label ?? path.split(/[/\\]/).pop() ?? path;
 
   return (
     <button
@@ -25,7 +28,7 @@ export function PathRunLabelChip({ path, className = "", trailing }: Props) {
       } ${className}`}
       title={path}
     >
-      <span className="truncate font-mono">{path.split(/[/\\]/).pop()}</span>
+      <span className="truncate font-mono">{displayText}</span>
       {trailing}
     </button>
   );

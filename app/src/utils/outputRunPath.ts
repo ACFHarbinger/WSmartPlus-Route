@@ -97,6 +97,38 @@ export function processLogPathKind(id: string, command: string): ProcessLogPathK
   return isTrainOrHpoProcess(id, command) ? "train" : "sim";
 }
 
+/** Convert a ``file://`` URI to a local filesystem path (§G.18 / §D.7). */
+export function localPathFromUri(uri: string): string | null {
+  if (!uri) return null;
+  if (uri.startsWith("file://")) {
+    const stripped = uri.slice("file://".length);
+    try {
+      const decoded = decodeURIComponent(stripped);
+      if (/^\/[A-Za-z]:/.test(decoded)) {
+        return decoded.slice(1);
+      }
+      return decoded;
+    } catch {
+      return stripped;
+    }
+  }
+  if (!uri.startsWith("http://") && !uri.startsWith("https://")) {
+    return uri;
+  }
+  return null;
+}
+
+/** MLflow run directory from ``artifact_uri`` (strips trailing ``/artifacts``) (§G.18 / §D.7). */
+export function mlflowRunDirFromArtifactUri(artifactUri: string): string | null {
+  const local = localPathFromUri(artifactUri);
+  if (!local) return null;
+  const normalized = local.replace(/\\/g, "/");
+  if (normalized.endsWith("/artifacts")) {
+    return normalized.slice(0, -"/artifacts".length);
+  }
+  return local;
+}
+
 /** Derive log/run path per process id for row path-chip brush parity (§G.15 / §D.7). */
 export function brushLogPathMapFromProcesses(
   processes: Record<string, Pick<ProcessEntry, "logLines" | "command">>,

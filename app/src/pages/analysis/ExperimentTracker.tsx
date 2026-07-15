@@ -7,6 +7,8 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
+import { LoadedRunRow } from "../../components/common/LoadedRunRow";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
@@ -15,7 +17,12 @@ import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import {
+  brushLogPathFromProcessLines,
+  mlflowRunDirFromArtifactUri,
+  outputRunPathFromLogLines,
+} from "../../utils/outputRunPath";
+import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/trainingProcess";
@@ -55,6 +62,7 @@ function formatTime(ms: number | null) {
 export function ExperimentTracker() {
   const { projectRoot, pythonPath, effectiveTheme } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
+  const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
   const processes = useProcessStore((s) => s.processes);
   const [trackingUri, setTrackingUri] = useState(DEFAULT_TRACKING_URI);
   const [experimentName, setExperimentName] = useState(DEFAULT_EXPERIMENT);
@@ -120,6 +128,19 @@ export function ExperimentTracker() {
     [recentHpoProc]
   );
 
+  const mlflowRunBrushLabel = useCallback((run: MlflowRun): string => {
+    const runDir = mlflowRunDirFromArtifactUri(run.artifact_uri);
+    return run.run_name || (runDir ? runLabelFromPath(runDir) : run.run_id.slice(0, 8));
+  }, []);
+
+  const filterRunLabels = useMemo(() => {
+    if (processRunLabel) return [processRunLabel];
+    const labels = selectedRunIds
+      .map((id) => runs.find((r) => r.run_id === id))
+      .filter((r): r is MlflowRun => r != null)
+      .map(mlflowRunBrushLabel);
+    return labels.length > 0 ? labels : [];
+  }, [processRunLabel, selectedRunIds, runs, mlflowRunBrushLabel]);
 
   const refreshRuns = useCallback(async () => {
     if (!projectRoot) return;
@@ -287,10 +308,7 @@ export function ExperimentTracker() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar
-        showLogScale
-        runLabels={processRunLabel ? [processRunLabel] : []}
-      />
+      <GlobalFilterBar showLogScale runLabels={filterRunLabels} />
 
       {recentHpoId && recentHpoProc && (
         <TrainHpoLivePanel
@@ -459,12 +477,16 @@ export function ExperimentTracker() {
             </tr>
           </thead>
           <tbody className="divide-y divide-canvas-border">
-            {runs.map((r) => (
+            {runs.map((r) => {
+              const runDir = mlflowRunDirFromArtifactUri(r.artifact_uri);
+              const brushLabel = mlflowRunBrushLabel(r);
+              const brushActive = Boolean(activeRunLabel && activeRunLabel === brushLabel);
+              return (
               <tr
                 key={r.run_id}
                 className={`hover:bg-canvas-hover cursor-pointer ${
-                  selectedRunIds.includes(r.run_id) ? "bg-canvas-hover/60" : ""
-                }`}
+                  selectedRunIds.includes(r.run_id) || brushActive ? "bg-canvas-hover/60" : ""
+                } ${brushActive ? "ring-1 ring-inset ring-accent-secondary/30" : ""}`}
                 onClick={() => toggleRun(r.run_id)}
               >
                 <td className="py-2 px-2">
@@ -477,8 +499,25 @@ export function ExperimentTracker() {
                   />
                 </td>
                 <td className="py-2 px-2">
-                  <div className="font-mono text-gray-300">{r.run_name || r.run_id.slice(0, 8)}</div>
-                  <div className="text-canvas-muted font-mono text-[10px]">{r.run_id.slice(0, 12)}…</div>
+                  {runDir ? (
+                    <div className="flex items-center gap-2 min-w-0">
+                      <PathRunLabelChip
+                        path={runDir}
+                        label={brushLabel}
+                        className="flex-1 min-w-0"
+                      />
+                      <span className="text-canvas-muted font-mono text-[10px] shrink-0 truncate max-w-[6rem]">
+                        {r.run_id.slice(0, 12)}…
+                      </span>
+                    </div>
+                  ) : (
+                    <>
+                      <div className="font-mono text-gray-300">{brushLabel}</div>
+                      <div className="text-canvas-muted font-mono text-[10px]">
+                        {r.run_id.slice(0, 12)}…
+                      </div>
+                    </>
+                  )}
                 </td>
                 <td className="py-2 px-2 text-canvas-muted">{r.status}</td>
                 <td className="py-2 px-2 text-canvas-muted">{formatTime(r.start_time)}</td>
@@ -489,7 +528,8 @@ export function ExperimentTracker() {
                     .join(", ") || "—"}
                 </td>
               </tr>
-            ))}
+            );
+            })}
             {runs.length === 0 && !loading && (
               <tr>
                 <td colSpan={5} className="py-8 text-center text-canvas-muted">
@@ -581,7 +621,13 @@ export function ExperimentTracker() {
           <tbody className="divide-y divide-canvas-border">
             {outputDirs.slice(0, 10).map((d) => (
               <tr key={d.path} className="hover:bg-canvas-hover">
-                <td className="py-2 px-3 font-mono text-gray-300">{d.name}</td>
+                <td className="py-2 px-3">
+                  <LoadedRunRow
+                    path={d.path}
+                    label={d.name}
+                    activeRunLabel={activeRunLabel}
+                  />
+                </td>
                 <td className="py-2 px-3 text-canvas-muted">
                   {new Date(d.created_at).toLocaleString()}
                 </td>
