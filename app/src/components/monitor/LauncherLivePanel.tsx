@@ -1,5 +1,6 @@
 /**
  * Shared sim / data-gen / eval live/post-run panel shell (§G.9 / §G.11 / §G.12 / §G.15).
+ * Optional ``logLines`` renders ``ProcessLogTail`` below children (§D.7).
  */
 import type { ReactNode } from "react";
 import { LiveTrainProgressBar, type LiveTrainProgressBarProps } from "./LiveTrainProgressBar";
@@ -7,6 +8,7 @@ import {
   LauncherLivePanelHeader,
   type LauncherLivePanelHeaderProps,
 } from "./LauncherLivePanelHeader";
+import { ProcessLogTail } from "./ProcessLogTail";
 
 export interface LauncherLivePanelProgress extends LiveTrainProgressBarProps {
   /** When false, omit the progress bar even if other progress props are set. */
@@ -21,6 +23,10 @@ export interface LauncherLivePanelProps {
   cardClassName?: string;
   children?: ReactNode;
   footer?: ReactNode;
+  /** Raw process stdout/stderr lines for the shared log tail (§G.9 / §G.11 / §G.15 / §D.7). */
+  logLines?: string[];
+  logTailMaxLines?: number;
+  logTailWaiting?: boolean;
 }
 
 export function LauncherLivePanel({
@@ -30,6 +36,9 @@ export function LauncherLivePanel({
   cardClassName = "",
   children,
   footer,
+  logLines,
+  logTailMaxLines = 20,
+  logTailWaiting = false,
 }: LauncherLivePanelProps) {
   const showProgress = progress?.show !== false && progress?.processId != null;
   const panelVariant = variant;
@@ -47,6 +56,14 @@ export function LauncherLivePanel({
         />
       )}
       {children}
+      {logLines !== undefined && (
+        <ProcessLogTail
+          logLines={logLines}
+          maxLines={logTailMaxLines}
+          waiting={logTailWaiting}
+          variant="default"
+        />
+      )}
       {footer}
     </>
   );

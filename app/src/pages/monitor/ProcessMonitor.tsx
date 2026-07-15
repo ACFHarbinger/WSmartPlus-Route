@@ -40,7 +40,6 @@ import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import {
   isSimProcess,
@@ -456,6 +455,8 @@ export function ProcessMonitor() {
             },
           }}
           footer={<ProcessIdFooter processId={selectedProc.id} />}
+          logLines={selectedProc.logLines}
+          logTailWaiting={selectedProc.status === "running"}
         >
           {vizPolicies.length > 1 && (
             <div className="flex flex-wrap gap-1.5">
@@ -491,12 +492,6 @@ export function ProcessMonitor() {
             refreshKey={telemetryTrendsKey}
             initialPolicy={selectedPolicy}
             initialRunLabel={processRunLabel}
-          />
-
-          <ProcessLogTail
-            logLines={selectedProc.logLines}
-            maxLines={20}
-            waiting={selectedProc.status === "running"}
           />
         </LauncherLivePanel>
       )}
@@ -550,13 +545,9 @@ export function ProcessMonitor() {
             },
           }}
           footer={<ProcessIdFooter processId={selectedProc.id} />}
-        >
-          <ProcessLogTail
-            logLines={selectedProc.logLines}
-            maxLines={20}
-            waiting={selectedProc.status === "running"}
-          />
-        </LauncherLivePanel>
+          logLines={selectedProc.logLines}
+          logTailWaiting={selectedProc.status === "running"}
+        />
       )}
 
       {selectedIsTrain && selectedProc && (
