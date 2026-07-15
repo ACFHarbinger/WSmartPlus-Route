@@ -28,8 +28,13 @@ import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
+import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
+import {
+  isSimProcess,
+  launcherKindFromProcess,
+} from "../../utils/launcherProcess";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -235,10 +240,6 @@ function ProcessRow({
   );
 }
 
-function isTestSimProcess(command: string): boolean {
-  return /\btest_sim\b/.test(command);
-}
-
 function isTrainProcess(command: string, id: string): boolean {
   return isTrainOrHpoProcess(id, command);
 }
@@ -271,7 +272,10 @@ export function ProcessMonitor() {
   }, [selectedId, processes]);
 
   const selectedProc = selectedId ? processes[selectedId] : null;
-  const selectedIsSim = selectedProc ? isTestSimProcess(selectedProc.command) : false;
+  const selectedLauncherKind = selectedProc
+    ? launcherKindFromProcess(selectedProc.id, selectedProc.command)
+    : null;
+  const selectedIsSim = selectedLauncherKind === "sim";
   const selectedIsTrain = selectedProc
     ? isTrainProcess(selectedProc.command, selectedProc.id)
     : false;
@@ -297,7 +301,7 @@ export function ProcessMonitor() {
     const map: Record<string, string> = {};
     for (const id of ids) {
       const proc = processes[id];
-      if (!proc || !isTestSimProcess(proc.command)) continue;
+      if (!proc || !isSimProcess(proc.id, proc.command)) continue;
       map[id] = runLabelFromLogLines(proc.logLines, proc.id);
     }
     return map;
@@ -375,12 +379,22 @@ export function ProcessMonitor() {
 
       {selectedIsSim && selectedProc && (
         <div className="space-y-3 pt-2 border-t border-canvas-border">
-          <p className="text-xs text-canvas-muted">
-            Policy telemetry for <span className="font-mono text-gray-300">{selectedProc.id}</span>
-            {processRunLabel && (
-              <span className="ml-2 text-accent-secondary">· {processRunLabel}</span>
-            )}
-          </p>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-xs text-canvas-muted flex-1 min-w-0">
+              Policy telemetry for{" "}
+              <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              {processRunLabel && (
+                <span className="ml-2 text-accent-secondary">· {processRunLabel}</span>
+              )}
+              {selectedProc.status === "running" && (
+                <span className="ml-2 text-accent-success">· live</span>
+              )}
+            </p>
+            <LauncherNavMesh
+              kind="sim"
+              showPostRun={selectedProc.status === "completed"}
+            />
+          </div>
 
           {vizPolicies.length > 1 && (
             <div className="flex flex-wrap gap-1.5">
@@ -417,6 +431,24 @@ export function ProcessMonitor() {
             initialPolicy={selectedPolicy}
             initialRunLabel={processRunLabel}
           />
+        </div>
+      )}
+
+      {selectedLauncherKind && selectedProc && !selectedIsTrain && !selectedIsSim && (
+        <div className="space-y-3 pt-2 border-t border-canvas-border">
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-xs text-canvas-muted flex-1 min-w-0">
+              Launcher workflow for{" "}
+              <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              {selectedProc.status === "running" && (
+                <span className="ml-2 text-accent-success">· live</span>
+              )}
+            </p>
+            <LauncherNavMesh
+              kind={selectedLauncherKind}
+              showPostRun={selectedProc.status === "completed"}
+            />
+          </div>
         </div>
       )}
 

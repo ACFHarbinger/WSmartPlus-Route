@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-ninth pass (§D.7 + §G.9 + §G.11 + §G.12 + §G.15)
+
+Hundred-thirty-ninth pass consolidates the sim / data-gen / eval launcher navigation mesh
+into a shared component, adds Process Monitor return shortcuts for launcher processes, and
+extends keyboard shortcuts for the launcher workflow.
+
+**React frontend**
+- ``LauncherNavMesh`` — shared cross-page shortcuts on Simulation Launcher, Data Generation
+  Wizard, Evaluation Runner, and Process Monitor (§D.7 / §G.9 / §G.11 / §G.12 / §G.15)
+- ``launcherProcess.ts`` — shared sim / ``gen_data`` / ``eval`` process detection helpers
+- Post-run shortcuts: ``Simulation Summary →``, ``Data Explorer →``, ``Benchmark Analysis →``
+  when launcher runs complete successfully
+- Keyboard shortcuts ``L`` → Simulation Launcher, ``D`` → Data Generation, ``V`` → Evaluation
+  Runner; help overlay updated (§D.7)
+
+**ROADMAP**
+- §D.7 ``LauncherNavMesh`` + launcher keyboard shortcuts checked
+- §G.9 Simulation Launcher navigation mesh checked
+- §G.11 Data Generation navigation mesh checked
+- §G.12 Evaluation Runner navigation mesh checked
+- §G.15 Process Monitor launcher return shortcuts checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-eighth pass (§D.2 + §G.12 + §A.4)
 
 Hundred-thirty-eighth pass closes the last launcher progress/ETA gap by wiring

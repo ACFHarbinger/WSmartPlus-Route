@@ -14,6 +14,7 @@ import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle,
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -519,35 +520,23 @@ export function SimulationLauncher() {
                   : "Live Status"}
               </h2>
             </div>
-            <div className="flex items-center gap-2">
-              {isDone && simStatus === "completed" && (
-                <>
+            <div className="flex items-center gap-2 flex-wrap justify-end">
+              {isDone && simStatus === "completed" && navCountdown !== null && (
+                <span className="text-xs text-canvas-muted">
+                  Auto Summary in {navCountdown}s —{" "}
                   <button
-                    onClick={() => setMode("simulation_summary")}
-                    className="btn-ghost text-xs text-accent-primary"
+                    className="underline hover:text-gray-200"
+                    onClick={() => setNavCountdown(null)}
                   >
-                    View Summary →
+                    cancel
                   </button>
-                  {navCountdown !== null && (
-                    <span className="text-xs text-canvas-muted">
-                      (auto in {navCountdown}s —{" "}
-                      <button
-                        className="underline hover:text-gray-200"
-                        onClick={() => setNavCountdown(null)}
-                      >
-                        cancel
-                      </button>
-                      )
-                    </span>
-                  )}
-                </>
+                </span>
               )}
-              <button
-                onClick={() => setMode("process_monitor")}
-                className="btn-ghost text-xs text-canvas-muted"
-              >
-                Process Monitor
-              </button>
+              <LauncherNavMesh
+                kind="sim"
+                hideSelf
+                showPostRun={isDone && simStatus === "completed"}
+              />
             </div>
           </div>
 
