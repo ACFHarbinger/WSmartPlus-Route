@@ -25,9 +25,8 @@ import {
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { EvalResultKpiRow } from "../../components/monitor/EvalResultKpiRow";
+import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
-import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
@@ -643,41 +642,15 @@ export function EvaluationRunner() {
               const ckptResult = results.find((r) => r.checkpointName === ckptName);
 
               return (
-                <div
+                <EvalCheckpointLiveCard
                   key={procId}
-                  className="rounded-lg border border-canvas-border/60 bg-canvas-bg/40 p-2 space-y-1.5"
-                >
-                  <div className="flex items-center justify-between gap-2">
-                    <span className="text-xs font-mono text-gray-300 truncate">{ckptName}</span>
-                    {proc && !isRunning && (
-                      <span
-                        className={`text-[10px] shrink-0 ${
-                          proc.status === "completed"
-                            ? "text-accent-success"
-                            : "text-accent-danger"
-                        }`}
-                      >
-                        {proc.status}
-                      </span>
-                    )}
-                  </div>
-                  {ckptResult && hasEvalMetrics(ckptResult) && (
-                    <EvalResultKpiRow result={ckptResult} size="compact" showPolicy={false} />
-                  )}
-                  {isRunning && <LiveTrainProgressBar processId={procId} />}
-                  {tail.length > 0 && (
-                    <div className="space-y-0.5 max-h-20 overflow-auto">
-                      {tail.map((line, i) => (
-                        <p key={i} className="text-[10px] font-mono text-gray-400 leading-snug truncate">
-                          {line}
-                        </p>
-                      ))}
-                    </div>
-                  )}
-                  {isRunning && tail.length === 0 && (
-                    <p className="text-[10px] text-canvas-muted">Waiting for output…</p>
-                  )}
-                </div>
+                  procId={procId}
+                  checkpointName={ckptName}
+                  status={proc?.status}
+                  isRunning={isRunning}
+                  result={ckptResult}
+                  tail={tail}
+                />
               );
             })}
           </div>
