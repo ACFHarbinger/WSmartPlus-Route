@@ -15,6 +15,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
 import { toast } from "sonner";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
 import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
@@ -92,6 +94,7 @@ export function ConfigEditor() {
   const [applyTarget, setApplyTarget] = useState<LauncherTarget>("sim_launcher");
   // Track the last-saved content to detect unsaved edits
   const savedContentRef = useRef("");
+  useLogPathRunLabelBrush(filePath);
 
   const openFile = useCallback(async (target: "primary" | "diff") => {
     const path = (await open({
@@ -316,7 +319,7 @@ export function ConfigEditor() {
       </div>
 
       {filePath && (
-        <p className="text-xs text-canvas-muted font-mono truncate">{filePath}</p>
+        <PathRunLabelChip path={filePath} className="max-w-full" />
       )}
 
       {!content && (

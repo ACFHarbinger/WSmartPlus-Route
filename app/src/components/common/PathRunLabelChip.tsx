@@ -7,15 +7,23 @@ import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 
 interface Props {
   path: string;
-  /** Override brush + display label (defaults to path stem). */
+  /** Override display text (defaults to path stem). */
   label?: string;
+  /** Override brush run_label when display label should differ (defaults to ``label`` or path stem). */
+  brushLabel?: string;
   className?: string;
   trailing?: ReactNode;
 }
 
-export function PathRunLabelChip({ path, label, className = "", trailing }: Props) {
+export function PathRunLabelChip({
+  path,
+  label,
+  brushLabel,
+  className = "",
+  trailing,
+}: Props) {
   const { handleRunLabelClick, isBrushActive } = useRunLabelBrushToggle();
-  const runLabel = label ?? runLabelFromPath(path);
+  const runLabel = brushLabel ?? label ?? runLabelFromPath(path);
   const brushActive = isBrushActive(runLabel);
   const displayText = label ?? path.split(/[/\\]/).pop() ?? path;
 

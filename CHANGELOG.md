@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-seventh pass (§G.17 + §G.13 + §G.5 + §D.7)
+
+Hundred-eighty-seventh pass closes the Training Monitor checkpoint/logs path-chip gap left after the
+hundred-eighty-sixth pass (which unified HPO Tracker trial-table and storage/report
+``PathRunLabelChip`` parity). Lightning logs root, per-checkpoint rows, Configuration Editor
+open-file headers, and ML Introspection tensor archive paths now share ``PathRunLabelChip``
+ring-highlight + click-to-brush behaviour with analysis views.
+
+**React frontend**
+- ``PathRunLabelChip`` — optional ``brushLabel`` prop decouples display text from brush
+  run_label when checkpoint filename differs from parent run (§G.17 / §D.7)
+- Training Monitor — Lightning ``logs/`` root ``PathRunLabelChip`` in controls + empty-state
+  banner (§G.17 / §D.7)
+- Training Monitor — checkpoint browser rows render ``PathRunLabelChip`` with parent-run brush
+  label + checkpoint filename display (§G.17 / §G.12 / §D.7)
+- Configuration Editor — open-file ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on primary
+  YAML path (§G.13 / §D.7)
+- ML Introspection — tensor archive ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on open
+  ``.npz`` / ``.npy`` / ``.td`` path (§G.5 / §D.7)
+
+**ROADMAP**
+- §G.17 Training Monitor logs-root + checkpoint-browser path-chip run-label brush + ring-highlight parity checked
+- §G.13 Configuration Editor open-file path-chip brush parity checked
+- §G.5 ML Introspection tensor-archive path-chip brush parity checked
+- §D.7 file-based workflow path-chip run-label brush parity across Training Monitor, Config Editor, and ML Introspection checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-sixth pass (§G.18 + §D.7)
 
 Hundred-eighty-sixth pass closes the HPO Tracker path-chip gap left after the
