@@ -187,6 +187,102 @@ export const useSystemToolsStore = create<SystemToolsState>()(
   )
 );
 
+// ── Report & Presentation Generator (§H interim — archived logic/gen pipeline)
+
+export type ReportGenTab = "dataset" | "simulation" | "presentation";
+
+interface ReportGenState {
+  tab: ReportGenTab;
+  theme: "default" | "dark" | "light";
+  // dataset analysis
+  dsNpzCsv: string;
+  dsTdCsv: string;
+  dsNpzDir: string;
+  dsOutMd: string;
+  dsFiguresDir: string;
+  dsForce: boolean;
+  dsFiguresOnly: boolean;
+  // simulation analysis
+  simMode: "report" | "parse";
+  simFontsize: number;
+  simParetoPoints: "default" | "all" | "front";
+  simHorizons: string;
+  simScenarios: string;
+  simStrategies: string;
+  simConstructors: string;
+  simImprovers: string;
+  simAcceptance: string;
+  simOutMd: string;
+  simFiguresDir: string;
+  simForce: boolean;
+  simFiguresOnly: boolean;
+  simMapMode: "street" | "scatter";
+  simHeatmapLabels: "both" | "show" | "hide";
+  parseOutputDir: string;
+  parseOutCsv: string;
+  // presentation
+  presFiguresDir: string;
+  presOut: string;
+  presAuthor: string;
+  presCoauthors: string;
+  presGroups: string;
+  presResultsTable: "30d" | "90d" | "all" | "none";
+  presResultsSplit: "none" | "strategy" | "constructor" | "improver";
+  presSpeakerScript: boolean;
+  presSpeakerOut: string;
+  presImageMode: "native" | "fetch";
+  presExcel: boolean;
+  extraArgs: string;
+  patch: (updates: Partial<Omit<ReportGenState, "patch">>) => void;
+}
+
+export const useReportGenStore = create<ReportGenState>()(
+  persist(
+    (set) => ({
+      tab: "simulation" as ReportGenTab,
+      theme: "default" as const,
+      dsNpzCsv: "",
+      dsTdCsv: "",
+      dsNpzDir: "",
+      dsOutMd: "",
+      dsFiguresDir: "",
+      dsForce: true,
+      dsFiguresOnly: false,
+      simMode: "report" as const,
+      simFontsize: 0,
+      simParetoPoints: "default" as const,
+      simHorizons: "",
+      simScenarios: "",
+      simStrategies: "",
+      simConstructors: "",
+      simImprovers: "",
+      simAcceptance: "",
+      simOutMd: "",
+      simFiguresDir: "",
+      simForce: true,
+      simFiguresOnly: false,
+      simMapMode: "street" as const,
+      simHeatmapLabels: "both" as const,
+      parseOutputDir: "assets/output/90days",
+      parseOutCsv: "public/global/simulation/simulation_summary_90d.csv",
+      presFiguresDir: "public/figures/simulation/30d",
+      presOut: "assets/windows/wsmart_route_results.pptx",
+      presAuthor: "",
+      presCoauthors: "",
+      presGroups: "",
+      presResultsTable: "30d" as const,
+      presResultsSplit: "none" as const,
+      presSpeakerScript: false,
+      presSpeakerOut: "",
+      presImageMode: "native" as const,
+      presExcel: false,
+      extraArgs: "",
+      patch: (updates) => set(updates as Partial<ReportGenState>),
+    }),
+    { name: "wsroute-report-gen" }
+  )
+);
+
 // ── Data Generation Wizard (§G.11)
 
 interface DataGenState {

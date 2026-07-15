@@ -18,6 +18,7 @@ import {
   Zap,
   FolderOpen,
   ClipboardList,
+  Presentation,
   Wrench,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
@@ -54,6 +55,7 @@ const NAV: NavSection[] = [
       { mode: "training_hub", label: "Training & HPO Hub" },
       { mode: "data_gen", label: "Data Generation" },
       { mode: "eval_runner", label: "Evaluation Runner" },
+      { mode: "report_studio", label: "Report Studio" },
     ],
   },
   {
@@ -90,6 +92,7 @@ const ICON: Record<AppMode, React.ReactNode> = {
   config_editor: <FileText size={15} />,
   output_browser: <FolderOpen size={15} />,
   eval_runner: <ClipboardList size={15} />,
+  report_studio: <Presentation size={15} />,
   system_tools: <Wrench size={15} />,
   settings: <Settings size={15} />,
 };
