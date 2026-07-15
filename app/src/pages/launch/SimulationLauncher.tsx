@@ -15,7 +15,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
@@ -507,6 +506,8 @@ export function SimulationLauncher() {
               : undefined
           }
           footer={<ProcessIdFooter processId={displayProcessId} />}
+          logLines={liveLogLines}
+          logTailWaiting={!isDone}
         >
           {liveEntries.length === 0 ? (
             <p className="text-xs text-canvas-muted">
@@ -527,11 +528,6 @@ export function SimulationLauncher() {
                 ))}
             </div>
           )}
-          <ProcessLogTail
-            logLines={liveLogLines}
-            maxLines={20}
-            waiting={!isDone}
-          />
         </LauncherLivePanel>
 
           {policyVizEntries.length > 0 && (

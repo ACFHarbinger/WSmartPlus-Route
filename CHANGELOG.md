@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-fourth pass (§G.9 + §G.11 + §G.15 + §D.7)
+
+Hundred-sixty-fourth pass closes the launcher log tail shell gap left after the
+hundred-sixty-third pass (which added ``logLines`` props on ``TrainHpoLivePanel``).
+Launcher workflows now pass raw stdout lines to ``LauncherLivePanel`` instead of
+rendering inline ``ProcessLogTail`` children, matching the train/HPO panel pattern.
+
+**React frontend**
+- ``LauncherLivePanel`` — optional ``logLines`` + ``logTailWaiting`` props render
+  shared ``ProcessLogTail`` below children (§G.9 / §G.11 / §G.15 / §D.7)
+- Simulation Launcher — deduplicated inline ``ProcessLogTail`` child; pass
+  ``logLines`` to shared panel shell (§G.9 / §D.7)
+- Data Generation Wizard — deduplicated inline ``ProcessLogTail`` child; pass
+  ``logLines`` to shared panel shell (§G.11 / §D.7)
+- Process Monitor — selected ``test_sim`` / ``gen_data`` embedded sections pass
+  ``logLines`` to ``LauncherLivePanel`` instead of inline ``ProcessLogTail``
+  (§G.9 / §G.11 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher ``LauncherLivePanel`` ``logLines`` prop checked
+- §G.11 Data Generation ``LauncherLivePanel`` ``logLines`` prop checked
+- §G.15 Process Monitor sim/data-gen embedded ``LauncherLivePanel`` log tail checked
+- §D.7 launcher workflow log tail shell parity across all launcher pages + Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-third pass (§G.10 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Hundred-sixty-third pass closes the train/HPO log tail display gap left after the

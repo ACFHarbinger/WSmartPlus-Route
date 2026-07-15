@@ -16,7 +16,6 @@ import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
@@ -555,13 +554,9 @@ export function DataGeneration() {
                 : undefined
             }
             footer={<ProcessIdFooter processId={displayProcessId} />}
-          >
-            <ProcessLogTail
-              logLines={liveLogLines}
-              maxLines={20}
-              waiting={!isDone}
-            />
-          </LauncherLivePanel>
+            logLines={liveLogLines}
+            logTailWaiting={!isDone}
+          />
         );
       })()}
     </div>
