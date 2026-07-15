@@ -1,8 +1,12 @@
 /**
  * Portfolio parallel coordinates — one polyline per loaded simulation log (§G.1.4).
  */
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
+import { exportChartPng } from "../../utils/chartExport";
 import { parallelAxisValue } from "../../utils/chartLogScale";
 import {
   cityScaleLabel,
@@ -32,6 +36,7 @@ export function BenchmarkPortfolioParallel({
   runs: PortfolioParallelRun[];
   logScale?: boolean;
 }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const lines = useMemo(
     () =>
       runs.map((run) => {
@@ -124,16 +129,37 @@ export function BenchmarkPortfolioParallel({
 
   return (
     <div className="card space-y-2">
-      <p className="text-xs font-semibold text-gray-300">
-        Portfolio Parallel Coordinates (§G.1.4)
-        {logScale ? " · log-normalised axes" : ""}
-      </p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-gray-300">
+          Portfolio Parallel Coordinates (§G.1.4)
+          {logScale ? " · log-normalised axes" : ""}
+        </p>
+        <button
+          type="button"
+          onClick={() => {
+            if (exportChartPng({ current: chartRef.current }, "portfolio-parallel.png")) {
+              toast.success("Chart exported", { description: "portfolio-parallel.png" });
+            } else {
+              toast.error("Export failed", { description: "Chart is not ready" });
+            }
+          }}
+          className="btn-ghost text-xs flex items-center gap-1 shrink-0"
+          title="Export portfolio parallel coordinates as PNG"
+        >
+          <Download size={11} />
+          PNG
+        </button>
+      </div>
       <p className="text-[10px] text-canvas-muted">
         {runs.length} simulation log(s) — one polyline per loaded run · coloured by mandatory-selection
         strategy
       </p>
       <StrategyLegend />
-      <ReactECharts option={option} style={{ height: Math.min(360, 120 + runs.length * 4) }} />
+      <ReactECharts
+        ref={chartRef}
+        option={option}
+        style={{ height: Math.min(360, 120 + runs.length * 4) }}
+      />
     </div>
   );
 }

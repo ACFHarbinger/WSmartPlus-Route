@@ -5,7 +5,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { ChevronDown, ChevronUp, Download, RefreshCw } from "lucide-react";
-import { exportChartPng, exportContainerCanvasPng } from "../../utils/chartExport";
+import { exportChartPng, exportChartSvg, exportContainerCanvasPng } from "../../utils/chartExport";
 import { toast } from "sonner";
 import type { DayLogEntry, SimDayData } from "../../types";
 import {
@@ -365,34 +365,53 @@ export function GraphTopologyPanel({
                   Re-run layout
                 </button>
                 {graphPayload && (
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (topologyView === "echarts" && chartOption) {
-                        if (exportChartPng({ current: chartRef.current }, "topology-graph.png")) {
-                          toast.success("Chart exported", { description: "topology-graph.png" });
-                        } else {
-                          toast.error("Export failed", { description: "Chart is not ready" });
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (topologyView === "echarts" && chartOption) {
+                          if (exportChartPng({ current: chartRef.current }, "topology-graph.png")) {
+                            toast.success("Chart exported", { description: "topology-graph.png" });
+                          } else {
+                            toast.error("Export failed", { description: "Chart is not ready" });
+                          }
+                          return;
                         }
-                        return;
-                      }
-                      const container =
-                        topologyView === "sigma"
-                          ? sigmaContainerRef.current
-                          : cosmographContainerRef.current;
-                      const stem =
-                        topologyView === "sigma" ? "topology-sigma.png" : "topology-cosmograph.png";
-                      if (exportContainerCanvasPng(container, stem)) {
-                        toast.success("Chart exported", { description: stem });
-                      } else {
-                        toast.error("Export failed", { description: "Canvas is not ready" });
-                      }
-                    }}
-                    className="btn-ghost text-xs flex items-center gap-1"
-                  >
-                    <Download size={12} />
-                    PNG
-                  </button>
+                        const container =
+                          topologyView === "sigma"
+                            ? sigmaContainerRef.current
+                            : cosmographContainerRef.current;
+                        const stem =
+                          topologyView === "sigma"
+                            ? "topology-sigma.png"
+                            : "topology-cosmograph.png";
+                        if (exportContainerCanvasPng(container, stem)) {
+                          toast.success("Chart exported", { description: stem });
+                        } else {
+                          toast.error("Export failed", { description: "Canvas is not ready" });
+                        }
+                      }}
+                      className="btn-ghost text-xs flex items-center gap-1"
+                    >
+                      <Download size={12} />
+                      PNG
+                    </button>
+                    {topologyView === "echarts" && chartOption && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          if (exportChartSvg({ current: chartRef.current }, "topology-graph.svg")) {
+                            toast.success("Chart exported", { description: "topology-graph.svg" });
+                          } else {
+                            toast.error("Export failed", { description: "Chart is not ready" });
+                          }
+                        }}
+                        className="btn-ghost text-xs flex items-center gap-1"
+                      >
+                        SVG
+                      </button>
+                    )}
+                  </>
                 )}
                 <span className="text-canvas-muted">
                   {tourCount} on tour · {graphPayload?.edges.length ?? 0} edges

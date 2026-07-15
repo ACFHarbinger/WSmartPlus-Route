@@ -912,6 +912,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` + `BenchmarkParetoPanel` on Simulation Summary / Benchmark Analysis (§G.1.2)
 - [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1)
 - [x] Pareto scatter follows global ``logScale``: symlog overflows y-axis + log profit x-axis on ``PolicyParetoChart`` + ``BenchmarkParetoPanel`` (§G.1.2 / §G.7)
+- [x] BenchmarkParetoPanel per-facet PNG export: ``exportChartPng()`` on each 4-panel Pareto facet with toast feedback (§G.1.2 / §G.7)
 - [x] Symlog bar charts: `symlog.ts` + `useSymlog` on profit · km · overflows `MetricBarChart` when log scale on; secondary log-scale row adds profit/km symlog duplicates (§G.1)
 - [x] BenchmarkAnalysis multi-run comparison bar charts follow global ``logScale`` (§G.1 / §G.7)
 - [x] AlgorithmComparison per-metric bar charts follow global ``logScale`` (§G.1 / §G.7)
@@ -927,6 +928,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Cell value = mean overflows or mean kg/km (toggle): unified `heatmapMode` buttons (all / overflows / kg/km) on Simulation Summary + Benchmark Analysis; portfolio distribution/graph facets share the same mode (§G.1.3)
 - [x] Color gradient from dark (worst) to bright (best): `PolicyHeatmapChart` + `BenchmarkPortfolioHeatmap` + shared `heatmapMetrics.ts` normalised indigo→green gradient; portfolio policy×metric heatmap when ≥2 runs loaded (§G.1.3)
 - [x] Policy configuration heatmaps follow global ``logScale``: ``buildNormalizedHeatmapCells`` symlog/log-transforms KPI values before min–max normalisation on ``PolicyHeatmapChart``, ``BenchmarkPortfolioHeatmap``, ``BenchmarkDistributionHeatmap``, and ``BenchmarkGraphHeatmap``; tooltips show raw KPI values (§G.1.3 / §G.7)
+- [x] BenchmarkDistributionHeatmap / BenchmarkGraphHeatmap facet PNG export: ``exportChartPng()`` per distribution/graph facet with toast feedback (§G.1.3 / §G.7)
 
 #### 1.4 Parallel Coordinates (Hyper-Dimensional Policy Explorer)
 - [x] Axes: city · N · dist · improver · strategy · constructor · overflows · kgkm · km · profit: `PolicyParallelChart` + `parallelPolicyAxes.ts` ten-axis schema on Simulation Summary; shared `BenchmarkPortfolioParallel` on Simulation Summary + Benchmark Analysis (§G.1.4)
@@ -936,6 +938,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + parallel-axis overflows brush syncs `overflowMax` + `effectiveBrushed` cross-filter on Simulation Summary (§G.1)
 - [x] Parallel coordinates follow global ``logScale``: ``PolicyParallelChart`` + ``BenchmarkPortfolioParallel`` log-normalise profit · kg/km · km axes; symlog overflows; corridor brush inverts symlog via ``invertParallelAxisValue`` (§G.1.4 / §G.7)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines; `BenchmarkPortfolioParallel` colours run polylines via `resolveRunSelectionStrategy()` + `selectionStrategyColor()` from log path / dominant policy with strategy legend (§G.1.4)
+- [x] BenchmarkPortfolioParallel PNG export: ``exportChartPng()`` on portfolio parallel-coordinates panel with toast feedback (§G.1.4 / §G.7)
 
 #### 1.5 Constructor Ranking Chart
 - [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering; portfolio mode adds `PortfolioEfficiencyRanking` for run×policy configs (§G.1.5)
@@ -1022,6 +1025,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Timeline slider synced with route animation to show pheromone evolution over iterations: pheromone day slider syncs with Simulation Monitor day scrubber + playback; "By tour step" mode steps τ per consecutive tour edge via `accumulateTourPheromoneByStep` (§G.4)
 - [x] Topology pheromone trails follow global ``logScale``: ``pheromoneWeightDisplay()`` + ``normalizePheromone()`` / ``pheromoneIntensity()`` log-transform τ before edge opacity/width on ECharts, Sigma.js, and Cosmograph views; ``GraphTopologyPanel`` receives ``logScale`` from Simulation Monitor (§G.4 / §G.7)
 - [x] ECharts topology PNG export: ``exportChartPng()`` on ``GraphTopologyPanel`` when View = ECharts (§G.4 / §G.7)
+- [x] ECharts topology SVG export: ``exportChartSvg()`` on ``GraphTopologyPanel`` when View = ECharts; toast feedback (§G.4 / §G.7)
 - [x] Sigma.js / Cosmograph WebGL PNG export: ``exportContainerCanvasPng()`` on ``GraphTopologyPanel`` when View = Sigma.js or Cosmograph; toast feedback (§G.4 / §G.7)
 
 **Status**: §G.4 complete — all checklist items delivered.
@@ -1124,6 +1128,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Pivot table heatmap log-scale: ``PivotTablePanel`` passes global ``logScale`` + value column to ``pivotHeatmapOption`` (§G.6 / §G.7)
 - [x] Auto-chart line cross-filter: time-series point click → ``onDaySelect`` when ``xKey`` is ``day`` (§G.6)
 - [x] Auto-chart line type in override alternatives for day/epoch/step queries (§G.6)
+- [x] Pivot table heatmap PNG export: ``exportChartPng()`` on ``PivotTablePanel`` pivot heatmap with toast feedback (§G.6 / §G.7)
 
 **Status**: §G.6 complete — all checklist items delivered.
 
@@ -1159,7 +1164,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] EvaluationRunner responsive inline chart grid: `sm:grid-cols-2 lg:grid-cols-3` (§G.12 / §G.7)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Settings Arrow benchmark uses shared `formatPipelineTimingBadge()` for last-ingest summary (§G.0 / §G.7)
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts, GraphTopologyPanel (ECharts view), MLIntrospectionPanel (attention heatmap primary + compare, attention graph, loss contour); WebGL/canvas PNG via `exportContainerCanvasPng()` on GraphTopologyPanel (Sigma.js + Cosmograph views), MLIntrospectionPanel (LossLandscape3D terrain + AttentionSigmaView), and `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map and MLIntrospectionPanel attention/loss charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), BenchmarkParetoPanel (per-facet Pareto scatter), BenchmarkPortfolioParallel, BenchmarkDistributionHeatmap / BenchmarkGraphHeatmap (facet heatmaps), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts, GraphTopologyPanel (ECharts view), MLIntrospectionPanel (attention heatmap primary + compare, attention graph, loss contour), PivotTablePanel (pivot heatmap); WebGL/canvas PNG via `exportContainerCanvasPng()` on GraphTopologyPanel (Sigma.js + Cosmograph views), MLIntrospectionPanel (LossLandscape3D terrain + AttentionSigmaView), and `exportCanvasPng()` on `DeckRouteMap` (Mercator tile / OrbitView Cartesian with toast feedback); ECharts SVG via `exportChartSvg()` on SimulationMonitor route map, GraphTopologyPanel (ECharts view), and MLIntrospectionPanel attention/loss charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6)
 - [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6)
 - [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6)
@@ -1185,6 +1190,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts (partial — signed distributables deferred)
 - [x] App version command: `system::get_app_version` surfaced in Settings About (partial — Tauri updater plugin deferred)
 - [x] Update check command: `system::check_for_updates` fetches JSON manifest from `WSMART_UPDATE_URL`; Settings "Check for Updates" button (partial — Tauri updater plugin / signed releases deferred)
+
+**Status**: §G.8 complete — signed distributables and Tauri updater plugin deferred to release engineering.
 
 ---
 
@@ -1336,6 +1343,9 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
 - [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed
 - [x] **Daily KPI timeseries follow global ``logScale``**: ``MetricTimeseries`` symlog overflows + log profit/km/kg when on; ``GlobalFilterBar`` on Simulation Monitor (§G.16 / §G.7)
+- [x] **deck.gl route map PNG export with toast feedback**: ``DeckRouteMap`` ``exportCanvasPng()`` names export ``route-map-tile.png`` (Mercator) or ``route-map-orbit.png`` (OrbitView) with toast feedback (§G.16 / §G.7)
+
+**Status**: §G.16 complete — all checklist items delivered.
 
 ---
 

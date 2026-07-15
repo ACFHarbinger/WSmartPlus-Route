@@ -7,6 +7,7 @@ import DeckGL from "@deck.gl/react";
 import { OrbitView, COORDINATE_SYSTEM } from "@deck.gl/core";
 import { Download } from "lucide-react";
 import { exportCanvasPng } from "../../utils/chartExport";
+import { toast } from "sonner";
 import { resolveBinPositions } from "../../utils/mapPositions";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { TripsLayer } from "@deck.gl/geo-layers";
@@ -214,11 +215,6 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
     zoom: 1.2,
   });
 
-  const exportPng = useCallback(() => {
-    const canvas = containerRef.current?.querySelector("canvas");
-    exportCanvasPng(canvas, "route-map-tile.png");
-  }, []);
-
   const geometries = useMemo(
     () => routes.map((r) => ({ route: r, ...buildRouteGeometry(r.data) })),
     [routes]
@@ -227,6 +223,16 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
   const hasGeo = geometries.some((g) => g.hasGeo);
   const hasBins = geometries.some((g) => g.hasBins);
   const cartesianMode = hasBins && !hasGeo;
+
+  const exportPng = useCallback(() => {
+    const canvas = containerRef.current?.querySelector("canvas");
+    const stem = cartesianMode ? "route-map-orbit.png" : "route-map-tile.png";
+    if (exportCanvasPng(canvas, stem)) {
+      toast.success("Chart exported", { description: stem });
+    } else {
+      toast.error("Export failed", { description: "Canvas is not ready" });
+    }
+  }, [cartesianMode]);
   const maxTripLength = Math.max(...geometries.map((g) => g.tripLength), 0);
   const cartesianSystem = cartesianMode ? COORDINATE_SYSTEM.CARTESIAN : COORDINATE_SYSTEM.LNGLAT;
 
