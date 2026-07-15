@@ -12,7 +12,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, FolderOpen, BarChart2 } from "lucide-react";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
-import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
@@ -28,7 +27,8 @@ import { useDataGenStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
-import type { DatasetPreviewStats, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
+import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
+import type { DatasetPreviewStats } from "../../types";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp", "all"] as const;
 const DISTRIBUTIONS = ["gamma3", "emp"] as const;
@@ -98,31 +98,17 @@ export function DataGeneration() {
   // Ephemeral UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // Live progress state
+  // Live progress state (local id set on launch; falls back to process store after navigation)
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
-  const [runStatus, setRunStatus] = useState<ProcessStatus | null>(null);
-  const [logTail, setLogTail] = useState<string[]>([]);
+  const processes = useProcessStore((s) => s.processes);
+  const displayProcessId = useMemo(
+    () => liveProcessId ?? findRecentLauncherProcessId(processes, "data_gen"),
+    [liveProcessId, processes]
+  );
+  const displayProc = displayProcessId ? processes[displayProcessId] : null;
+  const runStatus = displayProc?.status ?? null;
   const [previewStats, setPreviewStats] = useState<DatasetPreviewStats | null>(null);
   const [previewLoading, setPreviewLoading] = useState(false);
-
-  useEffect(() => {
-    if (!liveProcessId) return;
-    let unlistenOut: (() => void) | null = null;
-    let unlistenStatus: (() => void) | null = null;
-
-    listen<StdoutLine>("process:stdout", (event) => {
-      const { id, line } = event.payload;
-      if (id !== liveProcessId) return;
-      const text = line.startsWith("[stderr]") ? line.slice(8) : line;
-      setLogTail((prev) => [...prev.slice(-19), text]);
-    }).then((fn) => { unlistenOut = fn; });
-
-    listen<StatusUpdate>("process:status", (event) => {
-      if (event.payload.id === liveProcessId) setRunStatus(event.payload.status);
-    }).then((fn) => { unlistenStatus = fn; });
-
-    return () => { unlistenOut?.(); unlistenStatus?.(); };
-  }, [liveProcessId]);
 
   const toggleDist = (d: string) => {
     const next = distributions.includes(d)
@@ -229,8 +215,6 @@ export function DataGeneration() {
     if (dataSource === "sensor" && !sensorCsvPath.trim()) return;
     const procId = `gen_data_${Date.now()}`;
     setLiveProcessId(procId);
-    setRunStatus(null);
-    setLogTail([]);
     await spawn({
       id: procId,
       pythonArgs: ["main.py", "gen_data", ...hydraArgs],
@@ -243,8 +227,13 @@ export function DataGeneration() {
     if (dataGenNonce > 0) launch();
   }, [dataGenNonce, launch]);
 
-  const liveLogLines = useProcessStore((s) =>
-    liveProcessId ? s.processes[liveProcessId]?.logLines ?? [] : []
+  const liveLogLines = displayProc?.logLines ?? [];
+  const logTail = useMemo(
+    () =>
+      liveLogLines
+        .slice(-20)
+        .map((line) => (line.startsWith("[stderr]") ? line.slice(8) : line)),
+    [liveLogLines]
   );
   const outputRunPath = useMemo(
     () => outputRunPathFromLogLines(liveLogLines),
@@ -547,7 +536,7 @@ export function DataGeneration() {
       </div>
 
       {/* Live progress panel */}
-      {liveProcessId && (() => {
+      {displayProcessId && (() => {
         const isDone = runStatus !== null && runStatus !== "running";
         return (
           <div className="card space-y-2">
@@ -574,8 +563,8 @@ export function DataGeneration() {
                 outputRunPath={outputRunPath}
               />
             </div>
-            {!isDone && liveProcessId && (
-              <LiveTrainProgressBar processId={liveProcessId} />
+            {!isDone && displayProcessId && (
+              <LiveTrainProgressBar processId={displayProcessId} />
             )}
             {logTail.length > 0 && (
               <div className="bg-canvas-bg rounded-lg p-2 space-y-0.5 max-h-36 overflow-auto">

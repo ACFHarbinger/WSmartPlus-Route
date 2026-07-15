@@ -31,19 +31,20 @@ import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { open } from "@tauri-apps/plugin-dialog";
-import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import type { ProcessStatus, StdoutLine, StatusUpdate } from "../../types";
+import type { ProcessStatus } from "../../types";
 import {
   type EvalResult,
+  checkpointLabelFromEvalProcess,
+  collectEvalResultFromLogLines,
   hasEvalMetrics,
-  parseEvalResultLine,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
+import { findRecentEvalProcessIds } from "../../utils/launcherProcess";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
@@ -275,15 +276,33 @@ export function EvaluationRunner() {
   const [showAdvanced, setShowAdvanced] = useState(false);
   const [extraOverrides, setExtraOverrides] = useState("");
 
-  // Results grid — keyed by process ID; value is parsed eval result
-  const [results, setResults] = useState<EvalResult[]>([]);
-  // Map process ID → checkpoint name for attribution
-  const processToCheckpoint = useRef<Record<string, string>>({});
-
-  // Live progress state (§D.2 / §G.12)
+  // Live progress state (§D.2 / §G.12); falls back to process store after navigation
   const [liveProcessIds, setLiveProcessIds] = useState<string[]>([]);
-  const [logTails, setLogTails] = useState<Record<string, string[]>>({});
   const processes = useProcessStore((s) => s.processes);
+  const displayProcessIds = useMemo(
+    () =>
+      liveProcessIds.length > 0
+        ? liveProcessIds
+        : findRecentEvalProcessIds(processes),
+    [liveProcessIds, processes]
+  );
+
+  const results = useMemo(() => {
+    return displayProcessIds
+      .map((id) => {
+        const proc = processes[id];
+        const checkpointName = checkpointLabelFromEvalProcess(
+          id,
+          proc?.command ?? ""
+        );
+        const result = collectEvalResultFromLogLines(
+          proc?.logLines ?? [],
+          checkpointName
+        );
+        return hasEvalMetrics(result) ? result : null;
+      })
+      .filter((r): r is EvalResult => r != null);
+  }, [displayProcessIds, processes]);
 
   const validCheckpoints = useMemo(
     () => checkpoints.filter((c) => c.path.trim() !== ""),
@@ -291,8 +310,8 @@ export function EvaluationRunner() {
   );
 
   const liveRunSummary = useMemo(() => {
-    if (liveProcessIds.length === 0) return null;
-    const statuses = liveProcessIds.map((id) => processes[id]?.status ?? "running");
+    if (displayProcessIds.length === 0) return null;
+    const statuses = displayProcessIds.map((id) => processes[id]?.status ?? "running");
     const running = statuses.filter((s) => s === "running").length;
     const completed = statuses.filter((s) => s === "completed").length;
     const failed = statuses.filter((s) => s === "failed" || s === "cancelled").length;
@@ -305,7 +324,7 @@ export function EvaluationRunner() {
           : "completed"
       : "running";
     return { running, completed, failed, allDone, aggregate };
-  }, [liveProcessIds, processes]);
+  }, [displayProcessIds, processes]);
 
   const completedCheckpointPath = useMemo(() => {
     if (validCheckpoints.length !== 1) return null;
@@ -314,65 +333,9 @@ export function EvaluationRunner() {
   }, [validCheckpoints, liveRunSummary]);
 
   const outputRunPath = useMemo(() => {
-    const lines = liveProcessIds.flatMap((id) => processes[id]?.logLines ?? []);
+    const lines = displayProcessIds.flatMap((id) => processes[id]?.logLines ?? []);
     return outputRunPathFromLogLines(lines);
-  }, [liveProcessIds, processes]);
-
-  // Subscribe globally to process:stdout — parse structured eval result JSON lines
-  useEffect(() => {
-    let unlistenOut: (() => void) | null = null;
-
-    listen<StdoutLine>("process:stdout", (event) => {
-      const { id, line } = event.payload;
-      const checkpointName = processToCheckpoint.current[id];
-      if (!checkpointName) return;
-      const partial = parseEvalResultLine(line);
-      if (partial) {
-        const result: EvalResult = { checkpointName, ...partial };
-        if (typeof partial.checkpoint === "string" && partial.checkpoint.trim() !== "") {
-          result.checkpointName = partial.checkpoint;
-        }
-        setResults((prev) => {
-          const idx = prev.findIndex((r) => r.checkpointName === result.checkpointName);
-          if (idx >= 0) {
-            const updated = [...prev];
-            updated[idx] = { ...updated[idx], ...result };
-            return updated;
-          }
-          return [...prev, result];
-        });
-      }
-    }).then((fn) => { unlistenOut = fn; });
-
-    // Also listen for status — remove process from tracking when done
-    let unlistenStatus: (() => void) | null = null;
-    listen<StatusUpdate>("process:status", (event) => {
-      if (processToCheckpoint.current[event.payload.id]) {
-        // Keep the entry in the map so late-arriving stdout can still match
-      }
-    }).then((fn) => { unlistenStatus = fn; });
-
-    return () => { unlistenOut?.(); unlistenStatus?.(); };
-  }, []);
-
-  // Live stdout tail for active eval processes
-  useEffect(() => {
-    if (liveProcessIds.length === 0) return;
-    const active = new Set(liveProcessIds);
-    let unlistenOut: (() => void) | null = null;
-
-    listen<StdoutLine>("process:stdout", (event) => {
-      const { id, line } = event.payload;
-      if (!active.has(id)) return;
-      const text = line.startsWith("[stderr]") ? line.slice(8) : line;
-      setLogTails((prev) => ({
-        ...prev,
-        [id]: [...(prev[id] ?? []).slice(-9), text],
-      }));
-    }).then((fn) => { unlistenOut = fn; });
-
-    return () => { unlistenOut?.(); };
-  }, [liveProcessIds]);
+  }, [displayProcessIds, processes]);
 
   const addCheckpoint = () => {
     setCheckpoints((prev) => [
@@ -433,7 +396,6 @@ export function EvaluationRunner() {
 
   const launch = useCallback(async () => {
     if (!projectRoot || validCheckpoints.length === 0) return;
-    setResults([]);
 
     const extra = extraOverrides
       .split("\n")
@@ -446,7 +408,6 @@ export function EvaluationRunner() {
     for (const [idx, ckpt] of validCheckpoints.entries()) {
       const ckptName = ckpt.path.split(/[/\\]/).pop() ?? ckpt.id;
       const procId = `eval_${ckptName}_${baseTs}_${idx}`;
-      processToCheckpoint.current[procId] = ckptName;
       launchedIds.push(procId);
       const hydraArgs = [
         `eval.problem=${problem}`,
@@ -465,7 +426,6 @@ export function EvaluationRunner() {
     }
 
     setLiveProcessIds(launchedIds);
-    setLogTails({});
   }, [
     projectRoot, validCheckpoints, problem, valSize, strategy, device,
     datasetPath, extraOverrides, spawn,
@@ -658,11 +618,11 @@ export function EvaluationRunner() {
                 {liveRunSummary.allDone
                   ? liveRunSummary.aggregate === "completed"
                     ? liveRunSummary.completed > 1
-                      ? `Evaluation Complete (${liveRunSummary.completed}/${liveProcessIds.length})`
-                      : "Evaluation Complete"
+                    ? `Evaluation Complete (${liveRunSummary.completed}/${displayProcessIds.length})`
+                    : "Evaluation Complete"
                     : `Evaluation ${liveRunSummary.aggregate}`
-                  : liveProcessIds.length > 1
-                    ? `Evaluating ${liveProcessIds.length - liveRunSummary.running}/${liveProcessIds.length}…`
+                  : displayProcessIds.length > 1
+                    ? `Evaluating ${displayProcessIds.length - liveRunSummary.running}/${displayProcessIds.length}…`
                     : "Evaluating…"}
               </h2>
             </div>
@@ -680,11 +640,16 @@ export function EvaluationRunner() {
           </div>
 
           <div className="space-y-2">
-            {liveProcessIds.map((procId) => {
-              const ckptName = processToCheckpoint.current[procId] ?? procId;
+            {displayProcessIds.map((procId) => {
               const proc = processes[procId];
+              const ckptName = checkpointLabelFromEvalProcess(
+                procId,
+                proc?.command ?? ""
+              );
               const isRunning = proc?.status === "running";
-              const tail = logTails[procId] ?? [];
+              const tail = (proc?.logLines ?? [])
+                .slice(-10)
+                .map((line) => (line.startsWith("[stderr]") ? line.slice(8) : line));
               const ckptResult = results.find((r) => r.checkpointName === ckptName);
 
               return (

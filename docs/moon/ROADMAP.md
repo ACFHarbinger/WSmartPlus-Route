@@ -831,6 +831,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] HPO Tracker + Experiment Tracker — post-run ``outputRunPath`` + ``trainingRunPath`` on ``TrainHpoNavMesh`` when HPO sweep completes (§G.18 / §G.14 / §G.17 / §D.7)
 - [x] Training Monitor — post-run deep-link parity on live/recent train panel; auto-refresh + select completed run from ``trainingRunPath`` (§G.17 / §G.10 / §D.7)
 
+**Delivered (§D.7 — hundred-forty-sixth pass)**
+
+- [x] ``findRecentLauncherProcessId`` / ``findRecentEvalProcessIds`` — retain newest sim / data-gen / eval launcher processes after completion (§G.9 / §G.11 / §G.12 / §D.7)
+- [x] ``findRecentTrainProcessId`` — train-only recent process helper for Training Hub train mode (§G.10 / §D.7)
+- [x] Simulation Launcher + Data Generation + Evaluation Runner + Training Hub — live/post-run panels rehydrate from ``useProcessStore`` when navigation clears local ``liveProcessId`` state (§G.9 / §G.10 / §G.11 / §G.12 / §D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1505,6 +1511,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` shared navigation + ``Simulation Monitor →`` / ``Simulation Summary →`` post-run shortcuts (hundred-thirty-ninth pass; §D.7)
 - [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed simulations (hundred-forty-second pass; §G.14 / §D.7)
 - [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains ``.jsonl`` (hundred-forty-third pass; §G.14 / §D.7)
+- [x] Post-run panel persistence via ``findRecentLauncherProcessId`` when navigation clears local state (hundred-forty-sixth pass; §G.9 / §D.7)
 
 ---
 
@@ -1529,6 +1536,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live HPO label + ``HPO Tracker →`` navigation during live HPO runs (hundred-thirty-second pass)
 - [x] ``TrainHpoNavMesh`` shared navigation + ``LiveTrainProgressBar`` epoch progress/ETA during live train/HPO (hundred-thirty-fifth pass; §D.2)
 - [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on Training Hub live panel (hundred-forty-fourth pass; §G.14 / §G.17 / §D.7)
+- [x] Post-run panel persistence via ``findRecentHubProcessId`` (train/HPO/eval) when navigation clears local state (hundred-forty-sixth pass; §G.10 / §D.7)
 
 ---
 
@@ -1550,6 +1558,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` + ``Data Explorer →`` post-run shortcut (hundred-thirty-ninth pass; §D.7)
 - [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed data generation runs (hundred-forty-second pass; §G.14 / §D.7)
 - [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains a log path (hundred-forty-third pass; §G.14 / §D.7)
+- [x] Post-run panel persistence via ``findRecentLauncherProcessId`` when navigation clears local state (hundred-forty-sixth pass; §G.11 / §D.7)
 
 ---
 
@@ -1573,6 +1582,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``checkpointPathFromEvalCommand`` + ``Load in Eval Runner →`` from completed eval processes (hundred-forty-first pass; §G.12 / §G.15)
 - [x] Single-checkpoint live panel passes ``checkpointPath`` to ``LauncherNavMesh`` for post-run reload (hundred-forty-second pass; §G.12 / §D.7)
 - [x] Post-run ``outputRunPath`` deep-link on Evaluation Runner live panel (hundred-forty-fourth pass; §G.14 / §D.7)
+- [x] Multi-checkpoint batch persistence via ``findRecentEvalProcessIds`` + ``collectEvalResultFromLogLines`` when navigation clears local state (hundred-forty-sixth pass; §G.12 / §D.7)
 
 ---
 

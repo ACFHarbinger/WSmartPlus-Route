@@ -21,7 +21,6 @@ import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { open } from "@tauri-apps/plugin-dialog";
-import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
@@ -30,66 +29,33 @@ import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { useProcessStore } from "../../store/process";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import { parseAttentionVizLine } from "../../utils/attentionViz";
-import { parseTrainingHealthLine } from "../../utils/trainingHealth";
-import { liveTrainProcessLabel } from "../../utils/trainingProcess";
-import type {
-  AttentionVizEntry,
-  StdoutLine,
-  StatusUpdate,
-  ProcessStatus,
-  TrainingHealthEntry,
-  TrainingMetricsRow,
-} from "../../types";
+import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
+import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
+import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
+import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
+import {
+  findRecentHpoProcessId,
+  findRecentTrainProcessId,
+  liveTrainProcessLabel,
+} from "../../utils/trainingProcess";
+import type { ProcessEntry, TrainingMetricsRow } from "../../types";
 
 type Mode = "train" | "hpo" | "eval";
+
+function findRecentHubProcessId(
+  processes: Record<string, ProcessEntry>,
+  hubMode: Mode
+): string | null {
+  if (hubMode === "hpo") return findRecentHpoProcessId(processes);
+  if (hubMode === "eval") return findRecentLauncherProcessId(processes, "eval");
+  return findRecentTrainProcessId(processes);
+}
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const MODELS = ["am", "tam", "ddam", "moe"] as const;
 const ENCODERS = ["gat", "gcn", "mha"] as const;
 const HPO_METHODS = ["nsgaii", "tpe", "dehb", "random"] as const;
 const EVAL_STRATEGIES = ["greedy", "sampling", "beam"] as const;
-
-// Metric keys that identify a training metric line (covers Lightning column variants)
-const METRIC_SIGNAL_KEYS = [
-  "train_loss", "train/rl_loss", "train/il_loss",
-  "val_loss", "val/cost", "val_cost",
-  "reward", "grad_norm", "entropy", "epoch", "step",
-];
-
-function normalizeMetricRow(raw: Record<string, unknown>): TrainingMetricsRow {
-  const r = { ...raw } as TrainingMetricsRow;
-  if (r.train_loss == null) r.train_loss = (raw["train/rl_loss"] ?? raw["train/il_loss"]) as number | undefined;
-  if (r.val_loss == null) r.val_loss = (raw["val/cost"] ?? raw["val_cost"]) as number | undefined;
-  if (r.lr == null) {
-    for (const key of Object.keys(raw)) {
-      if (key !== "lr" && key.startsWith("lr") && typeof raw[key] === "number") { r.lr = raw[key] as number; break; }
-    }
-  }
-  return r;
-}
-
-/**
- * Parse a stdout line as a Lightning / custom-logger metric row.
- * Accepts pure JSON and key=value pair formats.
- */
-function parseMetricLine(line: string): TrainingMetricsRow | null {
-  const text = line.startsWith("[stderr]") ? line.slice(8) : line;
-  try {
-    const obj = JSON.parse(text) as Record<string, unknown>;
-    if (METRIC_SIGNAL_KEYS.some((k) => typeof obj[k] === "number")) {
-      return normalizeMetricRow(obj);
-    }
-  } catch {}
-  if (METRIC_SIGNAL_KEYS.some((k) => text.includes(k))) {
-    const row: Record<string, number> = {};
-    for (const [, key, val] of text.matchAll(/(\w[\w/]*)=([0-9.eE+\-]+)/g)) {
-      row[key] = parseFloat(val);
-    }
-    if (Object.keys(row).length > 0) return normalizeMetricRow(row);
-  }
-  return null;
-}
 
 function LiveChart({
   metrics,
@@ -297,12 +263,15 @@ export function TrainingHub() {
   // Ephemeral UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // Live progress tracking
+  // Live progress tracking (local id set on launch; falls back to process store after navigation)
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
-  const [runStatus, setRunStatus] = useState<ProcessStatus | null>(null);
-  const [liveMetrics, setLiveMetrics] = useState<TrainingMetricsRow[]>([]);
-  const [liveHealth, setLiveHealth] = useState<TrainingHealthEntry[]>([]);
-  const [liveAttention, setLiveAttention] = useState<AttentionVizEntry[]>([]);
+  const processes = useProcessStore((s) => s.processes);
+  const displayProcessId = useMemo(
+    () => liveProcessId ?? findRecentHubProcessId(processes, mode),
+    [liveProcessId, processes, mode]
+  );
+  const displayProc = displayProcessId ? processes[displayProcessId] : null;
+  const runStatus = displayProc?.status ?? null;
 
   const pickCheckpoint = async () => {
     const path = (await open({
@@ -370,39 +339,10 @@ export function TrainingHub() {
   const entrypoint = mode === "train" ? "train" : mode === "hpo" ? "train" : "eval";
   const commandPreview = `python main.py ${entrypoint} \\\n  ${hydraArgs.join(" \\\n  ")}`;
 
-  // Subscribe to live progress events for the active training run
-  useEffect(() => {
-    if (!liveProcessId) return;
-
-    let unlistenOut: (() => void) | null = null;
-    let unlistenStatus: (() => void) | null = null;
-
-    listen<StdoutLine>("process:stdout", (event) => {
-      const { id, line } = event.payload;
-      if (id !== liveProcessId) return;
-      const row = parseMetricLine(line);
-      if (row) setLiveMetrics((prev) => [...prev, row]);
-      const alert = parseTrainingHealthLine(line);
-      if (alert) setLiveHealth((prev) => [...prev, alert]);
-      const attention = parseAttentionVizLine(line);
-      if (attention) setLiveAttention((prev) => [...prev, attention]);
-    }).then((fn) => { unlistenOut = fn; });
-
-    listen<StatusUpdate>("process:status", (event) => {
-      if (event.payload.id === liveProcessId) setRunStatus(event.payload.status);
-    }).then((fn) => { unlistenStatus = fn; });
-
-    return () => { unlistenOut?.(); unlistenStatus?.(); };
-  }, [liveProcessId]);
-
   const launch = useCallback(async () => {
     if (!projectRoot) return;
     const procId = `${mode}_${Date.now()}`;
     setLiveProcessId(procId);
-    setLiveMetrics([]);
-    setLiveHealth([]);
-    setLiveAttention([]);
-    setRunStatus(null);
     await spawn({
       id: procId,
       pythonArgs: ["main.py", entrypoint, ...hydraArgs],
@@ -439,8 +379,18 @@ export function TrainingHub() {
     );
   }
 
-  const liveLogLines = useProcessStore((s) =>
-    liveProcessId ? s.processes[liveProcessId]?.logLines ?? [] : []
+  const liveLogLines = displayProc?.logLines ?? [];
+  const liveMetrics = useMemo(
+    () => collectTrainingMetricsFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
+  const liveHealth = useMemo(
+    () => collectTrainingHealthFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
+  const liveAttention = useMemo(
+    () => collectAttentionVizFromLogLines(liveLogLines),
+    [liveLogLines]
   );
   const outputRunPath = useMemo(
     () => outputRunPathFromLogLines(liveLogLines),
@@ -453,10 +403,11 @@ export function TrainingHub() {
 
   const isDone = runStatus !== null && runStatus !== "running";
   const latestMetric = liveMetrics[liveMetrics.length - 1];
-  const showTrainingAnalytics = liveProcessId != null && (mode === "train" || mode === "hpo");
+  const showTrainingAnalytics =
+    displayProcessId != null && (mode === "train" || mode === "hpo");
   const liveProgressLabel =
-    liveProcessId && showTrainingAnalytics
-      ? liveTrainProcessLabel(liveProcessId)
+    displayProcessId && showTrainingAnalytics
+      ? liveTrainProcessLabel(displayProcessId)
       : "Live Progress";
 
   return (
@@ -632,7 +583,7 @@ export function TrainingHub() {
       </div>
 
       {/* Live progress panel */}
-      {liveProcessId && (
+      {displayProcessId && (
         <div className="card space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -662,9 +613,9 @@ export function TrainingHub() {
             />
           </div>
 
-          {!isDone && liveProcessId && (
+          {!isDone && displayProcessId && (
             <LiveTrainProgressBar
-              processId={liveProcessId}
+              processId={displayProcessId}
               fallbackTotal={mode === "train" ? epochs : undefined}
               fallbackValue={latestMetric?.epoch}
             />
@@ -753,7 +704,7 @@ export function TrainingHub() {
             </div>
           )}
 
-          <p className="text-xs text-canvas-muted font-mono truncate">{liveProcessId}</p>
+          <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
         </div>
       )}
     </div>

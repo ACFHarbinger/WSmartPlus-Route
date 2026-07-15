@@ -11,6 +11,41 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-sixth pass (§G.9 + §G.10 + §G.11 + §G.12 + §D.7)
+
+Hundred-forty-sixth pass closes the launcher post-run panel gap left after the
+hundred-forty-fifth pass (which wired analytics-page deep-links on HPO Tracker,
+Experiment Tracker, and Training Monitor). Launcher pages now rehydrate live and
+completed-run panels from ``useProcessStore`` when navigation clears ephemeral
+``liveProcessId`` component state.
+
+**React frontend**
+- ``launcherProcess.ts`` — ``findRecentLauncherProcessId`` + ``findRecentEvalProcessIds``
+  retain newest sim / data-gen / eval processes after completion (§G.9 / §G.11 / §G.12)
+- ``trainingProcess.ts`` — ``findRecentTrainProcessId`` + ``isTrainProcess`` for Training Hub
+  train-mode post-run persistence (§G.10)
+- ``dayLog.ts`` — ``collectLatestDayLogsByPolicy`` rehydrates Simulation Launcher KPI cards
+  from persisted process stdout (§G.9)
+- ``trainingMetrics.ts`` — ``collectTrainingMetricsFromLogLines`` rehydrates Training Hub
+  live charts from persisted process stdout (§G.10)
+- Simulation Launcher — ``displayProcessId`` fallback; suppress auto-navigate countdown on
+  rehydrated completed runs (§G.9 / §D.7)
+- Data Generation Wizard — ``displayProcessId`` fallback + stdout tail from process store
+  (§G.11 / §D.7)
+- Training Hub — ``findRecentHubProcessId`` per mode; metrics/health/attention derived from
+  process store log lines (§G.10 / §D.7)
+- Evaluation Runner — ``findRecentEvalProcessIds`` multi-checkpoint batch restore;
+  results grid rehydrated via ``collectEvalResultFromLogLines`` (§G.12 / §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher post-run panel persistence checked
+- §G.10 Training Hub post-run panel persistence checked
+- §G.11 Data Generation post-run panel persistence checked
+- §G.12 Evaluation Runner multi-checkpoint batch persistence checked
+- §D.7 launcher navigation mesh post-run rehydration parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-fifth pass (§G.17 + §G.18 + §G.14 + §D.7)
 
 Hundred-forty-fifth pass extends post-run ``outputRunPath`` / ``trainingRunPath`` deep-linking to
