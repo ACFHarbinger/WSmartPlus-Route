@@ -60,6 +60,17 @@ export function runLabelMapFromPaths(
   return map;
 }
 
+/** Derive ``run_label`` per DuckDB table from ingest source paths (§G.6 / §D.7). */
+export function runLabelMapFromTablePaths(
+  tablePaths: Record<string, string>
+): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const [tableName, path] of Object.entries(tablePaths)) {
+    map[tableName] = runLabelFromPath(path);
+  }
+  return map;
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;
