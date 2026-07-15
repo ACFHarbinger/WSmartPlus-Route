@@ -28,6 +28,13 @@ export function extractJsonlPathFromLogLines(lines: string[]): string | null {
   return null;
 }
 
+/** Derive SQLite ``run_label`` from process stdout, falling back to process id. */
+export function runLabelFromLogLines(lines: string[], fallbackId: string): string {
+  const jsonl = extractJsonlPathFromLogLines(lines);
+  if (jsonl) return runLabelFromPath(jsonl);
+  return runLabelFromPath(fallbackId);
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;
