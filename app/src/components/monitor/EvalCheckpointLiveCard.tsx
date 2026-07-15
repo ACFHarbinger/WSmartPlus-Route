@@ -2,8 +2,10 @@
  * Shared per-checkpoint live eval row for Evaluation Runner and Process Monitor
  * (§G.12 / §G.15 / §D.7).
  */
+import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import type { EvalResult } from "../../utils/evalResults";
 import { hasEvalMetrics } from "../../utils/evalResults";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalResultKpiRow } from "./EvalResultKpiRow";
 import { LiveTrainProgressBar } from "./LiveTrainProgressBar";
 import { ProcessLogTail } from "./ProcessLogTail";
@@ -11,6 +13,8 @@ import { ProcessLogTail } from "./ProcessLogTail";
 export interface EvalCheckpointLiveCardProps {
   procId: string;
   checkpointName: string;
+  /** Hydra ``eval.policy.model.load_path`` when known — enables path-chip brush (§G.12 / §D.7). */
+  checkpointPath?: string | null;
   status?: string;
   isRunning: boolean;
   result?: EvalResult;
@@ -24,6 +28,7 @@ export interface EvalCheckpointLiveCardProps {
 export function EvalCheckpointLiveCard({
   procId,
   checkpointName,
+  checkpointPath,
   status,
   isRunning,
   result,
@@ -37,7 +42,16 @@ export function EvalCheckpointLiveCard({
       className={`rounded-lg border border-canvas-border/60 bg-canvas-bg/40 p-2 space-y-1.5 ${className}`.trim()}
     >
       <div className="flex items-center justify-between gap-2">
-        <span className="text-xs font-mono text-gray-300 truncate">{checkpointName}</span>
+        {checkpointPath ? (
+          <PathRunLabelChip
+            path={checkpointPath}
+            label={checkpointName}
+            brushLabel={parentRunBrushLabelFromCheckpointPath(checkpointPath)}
+            className="max-w-full"
+          />
+        ) : (
+          <span className="text-xs font-mono text-gray-300 truncate">{checkpointName}</span>
+        )}
         {!isRunning && status && (
           <span
             className={`text-[10px] shrink-0 ${

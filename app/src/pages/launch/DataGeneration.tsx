@@ -11,6 +11,7 @@ import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, BarChart2 } from "lucide-react";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -264,17 +265,22 @@ export function DataGeneration() {
           ))}
         </div>
         {dataSource === "tsplib" && (
-          <div className="flex gap-2">
-            <input
-              type="text"
-              className="input-base font-mono text-xs flex-1"
-              value={tsplibPath}
-              onChange={(e) => setTsplibPath(e.target.value)}
-              placeholder="path/to/instance.vrp"
-            />
-            <button onClick={pickTsplibFile} className="btn-ghost p-1.5 text-canvas-muted hover:text-gray-200">
-              <FolderOpen size={13} />
-            </button>
+          <div className="space-y-1">
+            <div className="flex gap-2">
+              <input
+                type="text"
+                className="input-base font-mono text-xs flex-1"
+                value={tsplibPath}
+                onChange={(e) => setTsplibPath(e.target.value)}
+                placeholder="path/to/instance.vrp"
+              />
+              <button onClick={pickTsplibFile} className="btn-ghost p-1.5 text-canvas-muted hover:text-gray-200">
+                <FolderOpen size={13} />
+              </button>
+            </div>
+            {tsplibPath.trim() ? (
+              <PathRunLabelChip path={tsplibPath.trim()} className="max-w-full" />
+            ) : null}
           </div>
         )}
         {dataSource === "sensor" && (
@@ -291,6 +297,9 @@ export function DataGeneration() {
                 <FolderOpen size={13} />
               </button>
             </div>
+            {sensorCsvPath.trim() ? (
+              <PathRunLabelChip path={sensorCsvPath.trim()} className="max-w-full" />
+            ) : null}
             <p className="text-[10px] text-canvas-muted">
               CSV format: timestamp, bin_id, fill_level, waste_type (§12.3 sensor schema)
             </p>

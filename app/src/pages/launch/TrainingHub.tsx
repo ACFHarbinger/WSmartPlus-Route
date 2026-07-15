@@ -16,6 +16,7 @@ import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
@@ -488,7 +489,11 @@ export function TrainingHub() {
               </button>
             </div>
             {checkpointPath.trim() ? (
-              <PathRunLabelChip path={checkpointPath.trim()} className="max-w-full" />
+              <PathRunLabelChip
+                path={checkpointPath.trim()}
+                brushLabel={parentRunBrushLabelFromCheckpointPath(checkpointPath.trim())}
+                className="max-w-full"
+              />
             ) : null}
           </div>
           <div className="flex flex-col gap-1">
@@ -505,6 +510,9 @@ export function TrainingHub() {
                 <FolderOpen size={12} />
               </button>
             </div>
+            {evalDataset.trim() ? (
+              <PathRunLabelChip path={evalDataset.trim()} className="max-w-full" />
+            ) : null}
           </div>
           <div className="flex flex-wrap gap-4 items-end">
             <SelectField label="Strategy" value={evalStrategy} onChange={setEvalStrategy} options={EVAL_STRATEGIES} />
@@ -597,6 +605,7 @@ export function TrainingHub() {
             <EvalCheckpointLiveCard
               procId={displayProcessId}
               checkpointName={evalCheckpointName}
+              checkpointPath={completedEvalCheckpointPath ?? (checkpointPath.trim() || null)}
               status={displayProc.status}
               isRunning={!isDone}
               result={evalResult ?? undefined}

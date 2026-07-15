@@ -7,6 +7,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Database, Download, RefreshCw } from "lucide-react";
 import { ChartExportButtons } from "../common/ChartExportButtons";
+import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import type {
@@ -209,7 +210,7 @@ export function PolicyTelemetryTrendsPanel({
             </span>
           </p>
           {data?.db_path && (
-            <p className="text-[10px] text-canvas-muted mt-0.5 truncate max-w-xl">{data.db_path}</p>
+            <PathRunLabelChip path={data.db_path} className="mt-0.5 max-w-xl" />
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">

@@ -11,6 +11,39 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninetieth pass (§G.12 + §G.10 + §G.11 + §G.15 + §G.7 + §D.7)
+
+Hundred-ninetieth pass closes the live-eval, dataset-input, data-gen source, and
+telemetry-store path-chip gaps left after the hundred-eighty-ninth pass (which unified
+post-eval results and bundle-manifest ``PathRunLabelChip`` parity). Live eval
+checkpoint cards, eval dataset inputs, TSPLIB/sensor source paths, and the policy
+telemetry SQLite header now share ``PathRunLabelChip`` ring-highlight + click-to-brush
+behaviour with analysis views.
+
+**React frontend**
+- ``EvalCheckpointLiveCard`` — optional ``checkpointPath`` prop renders ``PathRunLabelChip``
+  with parent-run ``brushLabel`` on live eval rows (§G.12 / §G.15 / §D.7)
+- Evaluation Runner + Training Hub + Process Monitor — live eval cards pass Hydra
+  checkpoint path to ``EvalCheckpointLiveCard`` (§G.12 / §G.10 / §G.15 / §D.7)
+- Evaluation Runner + Training Hub — eval dataset path ``PathRunLabelChip`` below filled
+  dataset inputs (§G.12 / §G.10 / §D.7)
+- Evaluation Runner + Training Hub — checkpoint input chips use
+  ``parentRunBrushLabelFromCheckpointPath`` ``brushLabel`` parity with results table
+  (§G.12 / §G.10 / §D.7)
+- Data Generation Wizard — TSPLIB instance + sensor CSV source path ``PathRunLabelChip``
+  ring-highlight + click-to-brush parity (§G.11 / §D.7)
+- ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` header uses ``PathRunLabelChip``
+  instead of plain font-mono text (§G.7 / §A.3 / §D.7)
+
+**ROADMAP**
+- §G.12 EvalCheckpointLiveCard live-eval path-chip brush parity checked
+- §G.10 / §G.12 Evaluation Runner + Training Hub eval dataset path-chip brush parity checked
+- §G.11 Data Generation Wizard TSPLIB/sensor source path-chip brush parity checked
+- §G.7 PolicyTelemetryTrendsPanel SQLite store path-chip brush parity checked
+- §D.7 live-eval + dataset + data-gen source path-chip run-label brush parity across Eval Runner, Training Hub, Process Monitor, and Data Generation checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-ninth pass (§G.12 + §G.1 + §G.8 + §G.10 + §G.15 + §D.7)
 
 Hundred-eighty-ninth pass closes the post-eval results and bundle-manifest path-chip
