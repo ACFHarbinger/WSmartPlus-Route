@@ -44,6 +44,18 @@ export async function listFilesRecursive(
   });
 }
 
+/** Read a binary file (e.g. a generated figure PNG) as a base64 data URL. */
+export async function readBinaryDataUrl(path: string, mime = "image/png"): Promise<string> {
+  const bytes = await invoke<number[]>("read_binary_file", { path });
+  const arr = new Uint8Array(bytes);
+  let binary = "";
+  const chunk = 0x8000;
+  for (let i = 0; i < arr.length; i += chunk) {
+    binary += String.fromCharCode(...arr.subarray(i, i + chunk));
+  }
+  return `data:${mime};base64,${btoa(binary)}`;
+}
+
 /** Load an NPZ array of any rank as a flattened vector (§H.1 raw waste matrices). */
 export async function loadNpzFlat(path: string, key: string): Promise<number[]> {
   return await invoke<number[]>("load_npz_flat", { path, key });
