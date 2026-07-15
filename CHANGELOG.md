@@ -11,6 +11,22 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-seventh pass (§A.3 Option C)
+
+Hundred-twenty-seventh pass adds policy telemetry trends to Output Browser when browsing
+simulation runs, with run-scoped ``run_label`` brush sync and KPI row click-to-brush.
+
+**React frontend**
+- Output Browser — ``PolicyTelemetryTrendsPanel`` when a run is selected; ``initialRunLabel``
+  from discovered ``.jsonl`` path stem via ``runLabelFromPath`` (§G.14 / §A.3)
+- Output Browser — KPI summary policy rows toggle global policy brush (parity with trends
+  history table)
+
+**ROADMAP**
+- §A.3 Option C Output Browser trends panel + KPI brush checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-sixth pass (§A.3 Option C)
 
 Hundred-twenty-sixth pass completes policy telemetry trends coverage on Simulation Monitor

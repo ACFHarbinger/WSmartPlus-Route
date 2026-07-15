@@ -26,12 +26,15 @@ import {
   Package,
   Archive,
 } from "lucide-react";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
 import { findRunJsonl } from "../../utils/outputRunLogs";
+import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { downloadParquetFromCsv } from "../../utils/tableExport";
 
 function formatBytes(b: number) {
@@ -97,7 +100,21 @@ function sortEntries(list: DirEntry[]): DirEntry[] {
 }
 
 export function OutputBrowser() {
-  const { projectRoot, setMode, setPendingLogPath, setPendingBenchmarkLogs, pendingRunPath, setPendingRunPath } = useAppStore();
+  const {
+    projectRoot,
+    effectiveTheme: theme,
+    setMode,
+    setPendingLogPath,
+    setPendingBenchmarkLogs,
+    pendingRunPath,
+    setPendingRunPath,
+  } = useAppStore();
+  const {
+    policy: activePolicy,
+    runLabel: activeRunLabel,
+    logScale,
+    setPolicy,
+  } = useGlobalFiltersStore();
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
   const [compareSelection, setCompareSelection] = useState<Set<string>>(new Set());
@@ -122,6 +139,7 @@ export function OutputBrowser() {
   const [runMeta, setRunMeta] = useState<Array<{ key: string; value: string }> | null>(null);
   // KPI summary parsed from the first .jsonl found in the run directory
   const [runKpi, setRunKpi] = useState<Array<{ policy: string; overflows: number; kgkm: number; profit: number }> | null>(null);
+  const [runJsonlPath, setRunJsonlPath] = useState<string | null>(null);
 
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
 
@@ -155,6 +173,7 @@ export function OutputBrowser() {
     setSubEntries({});
     setRunMeta(null);
     setRunKpi(null);
+    setRunJsonlPath(null);
     try {
       const e = sortEntries(await invoke<DirEntry[]>("list_dir", { path: run.path }));
       setEntries(e);
@@ -187,6 +206,7 @@ export function OutputBrowser() {
       // Auto-parse the first .jsonl for a KPI summary card
       const jsonlPath = await findRunJsonl(run.path);
       if (jsonlPath) {
+        setRunJsonlPath(jsonlPath);
         try {
           const text = await invoke<string>("read_text_file", { path: jsonlPath });
           const acc: Record<string, { overflows: number[]; kgkm: number[]; profit: number[] }> = {};
@@ -605,7 +625,15 @@ export function OutputBrowser() {
                 </div>
                 {runKpi.map((r) => (
                   <div key={r.policy} className="grid grid-cols-3 gap-x-2 text-[10px] leading-tight">
-                    <span className="text-gray-300 truncate font-mono" title={r.policy}>{r.policy}</span>
+                    <span
+                      className={`truncate font-mono cursor-pointer hover:text-accent-primary ${
+                        activePolicy === r.policy ? "text-accent-secondary" : "text-gray-300"
+                      }`}
+                      title={`${r.policy} — click to brush policy`}
+                      onClick={() => setPolicy(activePolicy === r.policy ? null : r.policy)}
+                    >
+                      {r.policy}
+                    </span>
                     <span className={`text-right font-mono ${r.overflows === 0 ? "text-accent-success" : r.overflows > 20 ? "text-accent-danger" : "text-accent-warning"}`}>{r.overflows.toFixed(1)}</span>
                     <span className="text-right font-mono text-gray-400">{r.kgkm.toFixed(2)}</span>
                   </div>
@@ -620,8 +648,20 @@ export function OutputBrowser() {
         )}
       </div>
 
-      {/* Right: file viewer */}
-      <div className="flex-1 min-w-0 flex flex-col gap-2 relative">
+      {/* Right: telemetry trends + file viewer */}
+      <div className="flex-1 min-w-0 flex flex-col gap-2 relative overflow-y-auto">
+        {selectedRun && (
+          <PolicyTelemetryTrendsPanel
+            theme={theme}
+            logScale={logScale}
+            initialPolicy={activePolicy}
+            initialRunLabel={
+              activeRunLabel ??
+              (runJsonlPath ? runLabelFromPath(runJsonlPath) : runLabelFromPath(selectedRun.name))
+            }
+          />
+        )}
+
         {draggingBundle && (
           <div className="absolute inset-0 z-10 flex items-center justify-center rounded-lg border-2 border-dashed border-accent-primary bg-accent-primary/10 pointer-events-none">
             <p className="text-sm text-accent-primary font-medium">Drop .wsroute bundle to inspect</p>
