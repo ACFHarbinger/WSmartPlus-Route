@@ -1340,6 +1340,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Command Palette — open recent configs via ``pendingConfigPath`` + Config Editor mode (§G.7 / §G.13 / §D.7)
 - [x] §G.13 / §G.7 / §G.14 config recent-file ``portfolioRunLabel`` parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-ninth pass)**
+
+- [x] ``recentKindFromPath`` — shared path → recent-file kind classifier for drop/open handoff (§G.7 / §G.8 / §D.7)
+- [x] ``useGlobalFileDrop`` — multi-kind drop routes ``.csv`` / checkpoint / config through ``portfolioRunLabel`` + ``pendingCsvPath`` / ``pendingCheckpoint`` / ``pendingConfigPath`` (§G.8 / §G.6 / §G.12 / §G.13 / §D.7)
+- [x] Output Browser — inline checkpoint open ``pushRecent`` via ``portfolioRunLabel`` (§G.14 / §G.12 / §D.7)
+- [x] Output Browser — **Open in Data Explorer →** CSV handoff via ``pendingCsvPath`` + ``pushRecent`` (§G.14 / §G.6 / §D.7)
+- [x] §G.8 / §G.14 global drop + Output Browser multi-kind recent-file ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1948,6 +1956,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Configuration Editor open + ``pendingConfigPath`` consume recent-file push — ``portfolioRunLabel`` (two-hundred-and-eighth pass; §G.13 / §D.7)
 - [x] Output Browser config open + **Open in Config Editor →** handoff recent-file push — ``pendingConfigPath`` (two-hundred-and-eighth pass; §G.14 / §G.13 / §D.7)
 - [x] Command Palette config recent-file handoff — ``pendingConfigPath`` + Config Editor mode (two-hundred-and-eighth pass; §G.7 / §G.13 / §D.7)
+- [x] ``recentKindFromPath`` + ``useGlobalFileDrop`` multi-kind drop — ``.csv`` / checkpoint / config ``portfolioRunLabel`` + pending handoffs (two-hundred-and-ninth pass; §G.8 / §G.6 / §G.12 / §G.13 / §D.7)
+- [x] Output Browser checkpoint open + **Open in Data Explorer →** CSV handoff recent-file push — ``portfolioRunLabel`` (two-hundred-and-ninth pass; §G.14 / §G.12 / §G.6 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
@@ -2056,7 +2066,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
 - [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files
 - [x] Output Browser: drag-drop `.wsroute` bundle onto file viewer via Tauri `onDragDropEvent` (`useFileDrop` hook); inspects manifest without directory picker
-- [x] Global file drop: `useGlobalFileDrop` in `Layout` extracts `.wsroute` to `assets/output/.imports/` or opens `.jsonl` logs in Simulation Summary from anywhere in the app
+- [x] Global file drop: `useGlobalFileDrop` in `Layout` extracts `.wsroute` to `assets/output/.imports/` or opens `.jsonl` logs in Simulation Summary; also routes `.csv` → Data Explorer, checkpoints → Eval Runner, configs → Config Editor via ``portfolioRunLabel`` + pending handoffs (two-hundred-and-ninth pass; §G.8 / §G.6 / §G.12 / §G.13 / §D.7)
 - [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` + `simulation_arrow_sidecar_row_parity` Rust unit tests — create bundle → extract → verify `.jsonl` log content and Arrow sidecar row counts match parsed entries (§G.8)
 - [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts; `createUpdaterArtifacts: true` emits `.sig` sidecars (partial — code-signing keys deferred)
 - [x] App version command: `system::get_app_version` surfaced in Settings About (§G.8 / §G.19)
@@ -2223,12 +2233,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Directory picker via Tauri dialog for browsing arbitrary directories (not just `assets/output/`)
 - [x] Run metadata panel: auto-loads `pruned_config.yaml` (or `config.yaml`) when a run is selected; flat YAML parsed and filtered by `META_KEYS`; compact two-column card below the file tree
 - [x] "Open in Sim Summary" button: shown for `.jsonl` files; sets `pendingLogPath` in app store then navigates to `simulation_summary` mode; `SimulationSummary` consumes `pendingLogPath` on mount via `useEffect`
+- [x] "Open in Data Explorer →" button: shown for `.csv` files; sets `pendingCsvPath` + ``pushRecent`` via ``portfolioRunLabel`` then navigates to `data_explorer` (two-hundred-and-ninth pass; §G.14 / §G.6 / §D.7)
+- [x] "Open in Config Editor →" button: shown for YAML / TOML / cfg / ini; sets `pendingConfigPath` + ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-eighth pass; §G.14 / §G.13 / §D.7)
 - [x] Directory tree view: auto-expand `hydra/` on run selection; `sortEntries()` prioritises config and log artefacts; highlight `pruned_config.yaml` and `.jsonl` in the file tree
 - [x] Simulation result summary: on `selectRun`, scans top-level entries for a `.jsonl` file ≤ 20 MB; reads it via `read_text_file`, parses each line as `DayLogEntry`, aggregates overflows / kg/km / profit per policy; displays a compact 3-column KPI table (policy / overflows / kg/km) below the config metadata card; overflows colour-coded (green = 0, amber = low, red > 20)
 - [x] "Compare runs": per-run checkbox multi-select (≥2); `findRunJsonl()` locates logs in top-level or `hydra/`; navigates to BenchmarkAnalysis with `pendingBenchmarkLogs`
 - [x] Session profiles (§D.4 Option C): `useSessionProfilesStore` persists named snapshots of all three launcher stores; save/load/delete UI in Output Browser sidebar (max 20 profiles)
-- [x] Recent files/runs: `useRecentFilesStore` tracks last 12 opened logs, output runs, and CSVs; surfaced in command palette
-- [x] Checkpoint browser (hundred-forty-second pass): auto-expand ``checkpoints/`` on run select; sidebar card lists ``.pt/.ckpt/.pth`` with **Eval →** shortcut; file tree highlights checkpoint artefacts; **Load in Eval Runner →** on selected checkpoint files via ``pendingCheckpoint`` (§G.14 / §G.12 / §G.17)
+- [x] Recent files/runs: `useRecentFilesStore` tracks last 12 opened logs, output runs, CSVs, training dirs, checkpoints, and configs; surfaced in command palette
+- [x] Checkpoint browser (hundred-forty-second pass): auto-expand ``checkpoints/`` on run select; sidebar card lists ``.pt/.ckpt/.pth`` with **Eval →** shortcut; file tree highlights checkpoint artefacts; **Load in Eval Runner →** on selected checkpoint files via ``pendingCheckpoint``; inline open ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-ninth pass; §G.14 / §G.12 / §G.17 / §D.7)
 - [x] ``checkpoints.ts`` — shared ``isCheckpointEntry`` / ``filterCheckpointEntries`` helpers used by Output Browser + Training Monitor (§G.14 / §G.12)
 - [x] ``outputRunPath.ts`` + ``pendingRunPath`` auto-select when opened from launcher / Process Monitor shortcuts (hundred-forty-third pass; §G.9 / §G.11 / §G.15 / §D.7)
 - [x] Output Browser refreshes run list when ``pendingRunPath`` is set but the run is not yet indexed (hundred-forty-third pass; §G.14)

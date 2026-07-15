@@ -7,6 +7,7 @@
  *   - Run metadata card: auto-loads pruned_config.yaml and shows key fields
  *   - File viewer: CSV → DataExplorer-style table; YAML/text → raw view
  *   - "Open in Sim Summary" button for .jsonl log files
+ *   - "Open in Data Explorer" button for .csv files
  *   - "Open in Config Editor" button for YAML / TOML / cfg / ini files
  */
 import { useCallback, useEffect, useMemo, useState } from "react";
@@ -122,6 +123,7 @@ export function OutputBrowser() {
     setPendingRunPath,
     setPendingCheckpoint,
     setPendingConfigPath,
+    setPendingCsvPath,
   } = useAppStore();
   const {
     policy: activePolicy,
@@ -334,6 +336,11 @@ export function OutputBrowser() {
 
     try {
       if (isCheckpointEntry(entry)) {
+        pushRecent({
+          path: entry.path,
+          label: portfolioRunLabel(entry.path, undefined, projectRoot),
+          kind: "checkpoint",
+        });
         return;
       }
       if (entry.extension === "wsroute") {
@@ -414,6 +421,19 @@ export function OutputBrowser() {
       setMode("config_editor");
     },
     [pushRecent, projectRoot, setPendingConfigPath, setMode]
+  );
+
+  const openInDataExplorer = useCallback(
+    (path: string) => {
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "csv",
+      });
+      setPendingCsvPath(path);
+      setMode("data_explorer");
+    },
+    [pushRecent, projectRoot, setPendingCsvPath, setMode]
   );
 
   const toggleCompareRun = useCallback((runPath: string) => {
@@ -865,6 +885,15 @@ export function OutputBrowser() {
                   <Archive size={12} />
                 )}
                 Extract & Open
+              </button>
+            )}
+            {viewingPath && CSV_EXTENSIONS.has(viewingExt) && (
+              <button
+                onClick={() => openInDataExplorer(viewingPath)}
+                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
+              >
+                <BarChart2 size={12} />
+                Open in Data Explorer →
               </button>
             )}
             {viewingPath && CSV_EXTENSIONS.has(viewingExt) && projectRoot && (

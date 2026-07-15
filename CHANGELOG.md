@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-ninth pass (§G.6 + §G.7 + §G.8 + §G.12 + §G.13 + §G.14 + §D.7)
+
+Two-hundred-and-ninth pass closes the global file-drop and Output Browser multi-kind
+gaps left after pass 208 unified Config Editor recent-file handoffs. ``recentKindFromPath``
+classifies filesystem paths into recent-file kinds. ``useGlobalFileDrop`` routes dropped
+``.csv``, checkpoint (``.pt`` / ``.ckpt`` / ``.pth``), and config files through the same
+``portfolioRunLabel`` + pending-path handoffs used by Command Palette recents. Output
+Browser pushes checkpoints on inline open and adds **Open in Data Explorer →** for CSV
+via ``pendingCsvPath``.
+
+**React frontend**
+- ``recentFiles`` store — ``recentKindFromPath`` path → kind classifier (§G.7 / §G.8 / §D.7)
+- ``useGlobalFileDrop`` — multi-kind drop for log / csv / checkpoint / config with ``portfolioRunLabel`` + pending handoffs (§G.8 / §G.6 / §G.12 / §G.13 / §D.7)
+- Output Browser — inline checkpoint open ``pushRecent`` via ``portfolioRunLabel`` (§G.14 / §G.12 / §D.7)
+- Output Browser — **Open in Data Explorer →** CSV handoff via ``pendingCsvPath`` (§G.14 / §G.6 / §D.7)
+
+**ROADMAP**
+- §G.8 Global file drop multi-kind recent-file ``portfolioRunLabel`` parity checked
+- §G.14 Output Browser checkpoint open + Data Explorer CSV handoff recent-file parity checked
+- §G.6 / §G.12 / §G.13 Data Explorer / Eval Runner / Config Editor drop handoff checked
+- §D.7 Global drop + Output Browser multi-kind relative-path brush/SQL recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-eighth pass (§G.7 + §G.13 + §G.14 + §D.7)
 
 Two-hundred-and-eighth pass closes the Config Editor recent-file gaps left after

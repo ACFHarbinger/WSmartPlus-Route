@@ -3,21 +3,60 @@ import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { useAppStore } from "../store/app";
 import { useLayoutStore } from "../store/layout";
-import { useRecentFilesStore } from "../store/recentFiles";
+import { useRecentFilesStore, type RecentFileKind } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
 import { portfolioRunLabel } from "../utils/arrowPipeline";
 import { useFileDrop } from "./useFileDrop";
 
-/** App-wide drop handler for `.wsroute` bundles and `.jsonl` logs (§G.8 / §G.14). */
+function findPath(paths: string[], re: RegExp): string | undefined {
+  return paths.find((p) => re.test(p));
+}
+
+/**
+ * App-wide drop handler for Studio artefacts (§G.8 / §G.6 / §G.12 / §G.13 / §G.14).
+ * Routes logs, CSVs, checkpoints, configs, and `.wsroute` bundles through the same
+ * ``portfolioRunLabel`` + pending-path handoffs used by Command Palette recents.
+ */
 export function useGlobalFileDrop() {
-  const { projectRoot, setMode, setPendingLogPath } = useAppStore();
+  const {
+    projectRoot,
+    setMode,
+    setPendingLogPath,
+    setPendingCsvPath,
+    setPendingCheckpoint,
+    setPendingConfigPath,
+  } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const setFileDropDragging = useLayoutStore((s) => s.setFileDropDragging);
 
+  const handoffRecent = useCallback(
+    (
+      path: string,
+      kind: RecentFileKind,
+      setPending: (path: string | null) => void,
+      mode: Parameters<typeof setMode>[0],
+      successLabel: string
+    ) => {
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind,
+      });
+      setPending(path);
+      setMode(mode);
+      toast.success(successLabel, { description: path.split(/[/\\]/).pop() });
+    },
+    [projectRoot, pushRecent, setMode]
+  );
+
   const handleDrop = useCallback(
     async (paths: string[]) => {
-      const wsroute = paths.find((p) => p.toLowerCase().endsWith(".wsroute"));
-      const jsonl = paths.find((p) => /\.(jsonl|log)$/i.test(p));
+      const wsroute = findPath(paths, /\.wsroute$/i);
+      const jsonl = findPath(paths, /\.jsonl$/i);
+      const logFile = findPath(paths, /\.log$/i);
+      const checkpoint = findPath(paths, /\.(pt|ckpt|pth)$/i);
+      const config = findPath(paths, /\.(ya?ml|toml|cfg|ini)$/i);
+      const csv = findPath(paths, /\.csv$/i);
 
       if (wsroute) {
         if (!projectRoot) {
@@ -49,21 +88,53 @@ export function useGlobalFileDrop() {
         return;
       }
 
-      if (jsonl) {
-        pushRecent({
-          path: jsonl,
-          label: portfolioRunLabel(jsonl, undefined, projectRoot),
-          kind: "log",
-        });
-        setPendingLogPath(jsonl);
-        setMode("simulation_summary");
-        toast.success("Log loaded", { description: jsonl.split("/").pop() });
+      const logPath = jsonl ?? logFile;
+      if (logPath) {
+        handoffRecent(logPath, "log", setPendingLogPath, "simulation_summary", "Log loaded");
         return;
       }
 
-      toast.error("Drop a .wsroute bundle or .jsonl log file");
+      if (checkpoint) {
+        handoffRecent(
+          checkpoint,
+          "checkpoint",
+          setPendingCheckpoint,
+          "eval_runner",
+          "Checkpoint loaded in Eval Runner"
+        );
+        return;
+      }
+
+      if (config) {
+        handoffRecent(
+          config,
+          "config",
+          setPendingConfigPath,
+          "config_editor",
+          "Config opened in Config Editor"
+        );
+        return;
+      }
+
+      if (csv) {
+        handoffRecent(csv, "csv", setPendingCsvPath, "data_explorer", "CSV loaded in Data Explorer");
+        return;
+      }
+
+      toast.error(
+        "Drop a .wsroute, .jsonl, .csv, checkpoint (.pt/.ckpt/.pth), or config (.yaml/…) file"
+      );
     },
-    [projectRoot, pushRecent, setMode, setPendingLogPath]
+    [
+      projectRoot,
+      pushRecent,
+      setMode,
+      setPendingLogPath,
+      setPendingCsvPath,
+      setPendingCheckpoint,
+      setPendingConfigPath,
+      handoffRecent,
+    ]
   );
 
   return useFileDrop(handleDrop, true, setFileDropDragging);
