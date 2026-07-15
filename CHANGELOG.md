@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-second pass (§A.3 Option C)
+
+Hundred-twenty-second pass polishes cross-run policy telemetry trending: solver-step
+trajectory axes, global brush sync, CSV export, and Benchmark Analysis integration.
+
+**React frontend**
+- ``buildTrendTrajectoryOption`` — x-axis uses unioned iteration/generation indices from
+  persisted ring-buffers (not array index)
+- ``exportPolicyTelemetryTrendsCsv`` — history table CSV download
+- ``PolicyTelemetryTrendsPanel`` — row click brushes global policy / ``run_label``;
+  dimming when global filter active; ``initialPolicy`` prop from Simulation Monitor
+- Benchmark Analysis — ``PolicyTelemetryTrendsPanel`` for portfolio solver telemetry
+
+**ROADMAP**
+- §A.3 Option C trajectory brush + Benchmark Analysis panel checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-first pass (§A.3 Option C)
 
 Hundred-twenty-first pass adds cross-run improvement trajectory overlays from persisted

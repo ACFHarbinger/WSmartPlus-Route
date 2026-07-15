@@ -139,6 +139,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Studio ``PolicyTelemetryTrendsPanel`` — cross-run improvement trajectory line chart with policy filter + optional EMA smoothing; PNG export via ``ChartExportButtons`` (§G.7)
 - [x] Unit tests for trajectory query roundtrip and policy-type filtering
 
+**Delivered (§A.3 Option C — hundred-twenty-second pass)**
+
+- [x] ``buildTrendTrajectoryOption`` — trajectory x-axis uses unioned solver step indices (iteration / generation) from persisted ring-buffers instead of array index
+- [x] ``PolicyTelemetryTrendsPanel`` — history table CSV export via ``exportPolicyTelemetryTrendsCsv``; row click brushes global policy / ``run_label`` filter (§G.6 / §G.7)
+- [x] Simulation Monitor — passes ``initialPolicy`` to pre-filter trajectory dropdown from active policy selection
+- [x] Benchmark Analysis — ``PolicyTelemetryTrendsPanel`` for portfolio cross-run solver telemetry (§G.1 / §A.3)
+
 **Status**: §A.3 Options A+B+C complete.
 
 ---
@@ -1547,7 +1554,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass; §A.2 Studio attention ring-buffer in hundred-seventeenth pass; §A.4 HPO health prune metrics in hundred-eighteenth pass; §A.3 live policy telemetry stream in hundred-nineteenth pass; §A.3 SQLite cross-run telemetry trending in hundred-twentieth pass; §A.3 cross-run improvement trajectory chart in hundred-twenty-first pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass; §A.2 Studio attention ring-buffer in hundred-seventeenth pass; §A.4 HPO health prune metrics in hundred-eighteenth pass; §A.3 live policy telemetry stream in hundred-nineteenth pass; §A.3 SQLite cross-run telemetry trending in hundred-twentieth pass; §A.3 cross-run improvement trajectory chart in hundred-twenty-first pass; §A.3 trajectory brush + Benchmark Analysis panel in hundred-twenty-second pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

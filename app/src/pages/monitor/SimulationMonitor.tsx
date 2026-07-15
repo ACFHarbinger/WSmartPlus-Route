@@ -1020,6 +1020,7 @@ export function SimulationMonitor() {
             theme={theme}
             logScale={logScale}
             refreshKey={telemetryTrendsKey}
+            initialPolicy={selectedPolicy}
           />
 
           <GraphTopologyPanel
