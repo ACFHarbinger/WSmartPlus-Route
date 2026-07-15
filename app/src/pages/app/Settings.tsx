@@ -89,6 +89,8 @@ export function Settings() {
   const [benchRunning, setBenchRunning] = useState(false);
   const [chartBenchRunning, setChartBenchRunning] = useState(false);
   const [chartRenderMs, setChartRenderMs] = useState<number | null>(null);
+  const [arrowBenchPath, setArrowBenchPath] = useState("");
+  const [importSettingsPath, setImportSettingsPath] = useState("");
 
   useEffect(() => {
     invoke<string>("get_app_version")
@@ -189,6 +191,7 @@ export function Settings() {
       filters: [{ name: "JSON", extensions: ["json"] }],
     })) as string | null;
     if (!path) return;
+    setImportSettingsPath(path);
     try {
       const text = await invoke<string>("read_text_file", { path });
       const data = JSON.parse(text) as Record<string, unknown>;
@@ -347,6 +350,9 @@ export function Settings() {
             Import Settings
           </button>
         </div>
+        {importSettingsPath.trim() ? (
+          <PathRunLabelChip path={importSettingsPath.trim()} className="max-w-full" />
+        ) : null}
       </div>
 
       {/* Phase 0 — Arrow / DuckDB pipeline */}
@@ -384,6 +390,9 @@ export function Settings() {
             </p>
           </div>
         )}
+        {arrowBenchPath.trim() ? (
+          <PathRunLabelChip path={arrowBenchPath.trim()} className="max-w-full" />
+        ) : null}
         <button
           disabled={!duckdbReady || benchRunning || loading}
           onClick={async () => {
@@ -393,6 +402,7 @@ export function Settings() {
               ],
             })) as string | null;
             if (!path) return;
+            setArrowBenchPath(path);
             setBenchRunning(true);
             setLoading(true);
             try {

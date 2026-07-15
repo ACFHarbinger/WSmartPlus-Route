@@ -1190,6 +1190,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] HPO Tracker — Optuna storage URL ``PathRunLabelChip`` below filled input; inline chip parity with eval dataset inputs (§G.18 / §D.7)
 - [x] §G.18 / §G.19 Settings + tracker storage/tracking URI path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninety-second pass)**
+
+- [x] ``sqliteStoragePathFromUrl`` — resolve Optuna ``sqlite:///`` storage URL against ``projectRoot`` for path-chip brush (§G.18 / §G.19 / §D.7)
+- [x] HPO Tracker — storage DB + exported report directory ``PathRunLabelChip`` use ``projectRoot``-resolved absolute paths (§G.18 / §D.7)
+- [x] Data Generation Wizard — instance preview ``.pkl`` / ``.pt`` path ``PathRunLabelChip`` below preview panel (§G.11 / §D.7)
+- [x] Settings — Arrow pipeline benchmark + import-settings JSON ``PathRunLabelChip`` below filled paths (§G.19 / §D.7)
+- [x] ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` resolved against ``projectRoot`` before path-chip brush (§G.7 / §A.3 / §D.7)
+- [x] §G.18 / §G.11 / §G.19 relative-path storage/preview/import path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1756,6 +1765,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Settings project root + Python path — ``PathRunLabelChip`` below filled path inputs (hundred-ninety-first pass; §G.19 / §D.7)
 - [x] Experiment Tracker MLflow tracking URI — ``PathRunLabelChip`` below filled tracking URI when local path resolves (hundred-ninety-first pass; §G.18 / §D.7)
 - [x] HPO Tracker Optuna storage URL — ``PathRunLabelChip`` below filled storage input; inline chip parity with eval dataset inputs (hundred-ninety-first pass; §G.18 / §D.7)
+- [x] HPO Tracker storage/report relative-path resolution — ``sqliteStoragePathFromUrl`` + ``projectRoot``-resolved report dir chips (hundred-ninety-second pass; §G.18 / §D.7)
+- [x] Data Generation Wizard instance preview path — ``PathRunLabelChip`` on previewed ``.pkl`` / ``.pt`` dataset (hundred-ninety-second pass; §G.11 / §D.7)
+- [x] Settings Arrow benchmark + import JSON paths — ``PathRunLabelChip`` on benchmark CSV/JSONL + imported settings file (hundred-ninety-second pass; §G.19 / §D.7)
+- [x] PolicyTelemetryTrendsPanel ``db_path`` — ``resolveLocalProjectPath`` before path-chip brush (hundred-ninety-second pass; §G.7 / §A.3 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
