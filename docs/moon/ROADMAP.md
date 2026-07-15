@@ -142,7 +142,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Studio ``TrainingHealthPanel`` — severity-coded alert list on Training Monitor; live stdout ingest + historical ``training_health.jsonl`` load
 - [x] Unit tests in ``logic/test/unit/pipeline/callbacks/test_training_health.py``
 
-**Status**: §A.4 Option A complete — Options B/C (PyHessian, loss landscape PNG) and Option D (HPO prune metrics) deferred.
+**Delivered (§A.4 Option D — hundred-eighteenth pass)**
+
+- [x] ``HpoHealthMetricsCallback`` — per-epoch ``train/grad_norm`` + ``train/entropy`` reporting to Optuna trial user attrs and WSTracker ``hpo/*`` metrics
+- [x] Optuna objective — health callback wired alongside ``PyTorchLightningPruningCallback``; unhealthy trials pruned via ``TrialPruned``
+- [x] DEHB objective — ``apply_dehb_health_penalty`` penalises fitness on grad explosion / entropy collapse
+- [x] Ray Tune objective — per-epoch ``ray.train.report`` with ``grad_norm`` + ``entropy`` for ASHA schedulers
+- [x] Studio HPO Tracker — trial health table with grad norm, entropy, and ``health_pruned`` badge (§G.18 bridge)
+- [x] Unit tests in ``logic/test/unit/pipeline/callbacks/test_hpo_health.py``
+
+**Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
 ---
 
@@ -223,6 +232,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0 ✅            |
 | §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0 ✅            |
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1 ✅            |
+| §A.4 Option D (HPO health prune metrics) | Low       | High   | P1 ✅            |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1 ✅            |
 | §A.2 Option A (Studio attention ring-buffer) | Medium | High | P1 ✅            |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1 ✅            |
@@ -1506,7 +1516,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass; §A.2 Studio attention ring-buffer in hundred-seventeenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass; §A.2 Studio attention ring-buffer in hundred-seventeenth pass; §A.4 HPO health prune metrics in hundred-eighteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

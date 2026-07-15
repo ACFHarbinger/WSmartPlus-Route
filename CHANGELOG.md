@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighteenth pass (§A.4 Option D)
+
+Hundred-eighteenth pass adds HPO health metrics for early trial pruning, completing
+ROADMAP §A.4 Option D.
+
+**Python logic**
+- ``HpoHealthMetricsCallback`` — per-epoch ``train/grad_norm`` + ``train/entropy``
+  reporting to Optuna user attrs and WSTracker ``hpo/*`` sweep metrics
+- ``apply_dehb_health_penalty`` — DEHB fitness penalty on unhealthy trials
+- Optuna / Ray Tune / DEHB objectives in ``logic/src/pipeline/features/train/hpo.py``
+  wired with health callback alongside existing pruners
+- Unit tests in ``logic/test/unit/pipeline/callbacks/test_hpo_health.py``
+
+**Rust backend**
+- ``load_optuna_study`` — trial ``user_attrs`` (``last_grad_norm``, ``last_entropy``,
+  ``health_pruned``) included in study payload
+
+**React frontend**
+- HPO Tracker — **Trial Health** table with grad norm, entropy, and health-pruned badge
+
+**ROADMAP**
+- §A.4 Option D HPO prune metrics checked (Options B/C deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventeenth pass (§A.2 Option A)
 
 Hundred-seventeenth pass wires runtime encoder attention ring-buffer capture into Studio
