@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import type { GraphEdge, TopologyNodeMeta } from "../../utils/graphTopology";
 import {
   pheromoneEdgeKey,
+  pheromoneIntensity,
   topologyNodeStyle,
 } from "../../utils/graphTopology";
 
@@ -18,6 +19,7 @@ export interface TopologyCosmographOpts {
   fillRange?: [number, number] | null;
   pheromoneWeights?: Map<string, number>;
   showPheromone?: boolean;
+  logScale?: boolean;
   theme?: "dark" | "light";
   onNodeClick?: (meta: TopologyNodeMeta) => void;
 }
@@ -47,6 +49,7 @@ function buildDenseGraph(opts: TopologyCosmographOpts): Graph | null {
     fillRange = null,
     pheromoneWeights,
     showPheromone = false,
+    logScale = false,
     theme = "dark",
   } = opts;
   if (!nodeMeta.length) return null;
@@ -68,9 +71,7 @@ function buildDenseGraph(opts: TopologyCosmographOpts): Graph | null {
   const dists = edges.map((e) => e.distance);
   const minD = dists.length ? Math.min(...dists) : 0;
   const maxD = dists.length ? Math.max(...dists) : 1;
-  const phMax = showPheromone && pheromoneWeights?.size
-    ? Math.max(...pheromoneWeights.values(), 1e-9)
-    : 1;
+  const phWeights = pheromoneWeights ?? new Map<string, number>();
 
   for (const edge of edges) {
     const src = String(edge.source);
@@ -80,7 +81,7 @@ function buildDenseGraph(opts: TopologyCosmographOpts): Graph | null {
     if (graph.hasEdge(edgeId)) continue;
 
     const tNorm = maxD > minD ? (maxD - edge.distance) / (maxD - minD) : 0.5;
-    const ph = showPheromone ? (pheromoneWeights?.get(edgeId) ?? 0) / phMax : 0;
+    const ph = showPheromone ? pheromoneIntensity(phWeights, edgeId, logScale) : 0;
     const baseOpacity = theme === "dark" ? 0.08 : 0.14;
     const opacity = ph > 0 ? 0.12 + ph * 0.55 : baseOpacity;
     const width = ph > 0 ? 0.3 + ph * 1.4 : 0.15 + tNorm * 0.6;
@@ -115,6 +116,7 @@ export function TopologyCosmographView({
   fillRange = null,
   pheromoneWeights,
   showPheromone = false,
+  logScale = false,
   theme = "dark",
   onNodeClick,
 }: TopologyCosmographOpts) {
@@ -132,6 +134,7 @@ export function TopologyCosmographView({
       fillRange,
       pheromoneWeights,
       showPheromone,
+      logScale,
       theme,
     });
     if (!graph) return;
@@ -162,7 +165,17 @@ export function TopologyCosmographView({
       sigma.kill();
       sigmaRef.current = null;
     };
-  }, [nodeMeta, edges, positions, fillRange, pheromoneWeights, showPheromone, theme, onNodeClick]);
+  }, [
+    nodeMeta,
+    edges,
+    positions,
+    fillRange,
+    pheromoneWeights,
+    showPheromone,
+    logScale,
+    theme,
+    onNodeClick,
+  ]);
 
   return (
     <div

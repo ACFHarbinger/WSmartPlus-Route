@@ -3,6 +3,7 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import type { DayLogEntry, SimDayData } from "../types";
+import { pheromoneWeightDisplay } from "./chartLogScale";
 import { parseLogPath } from "./simMetadata";
 
 export type TopologyLayoutMode = "force" | "radial";
@@ -42,6 +43,7 @@ export interface TopologyBuildOptions {
   layoutMode?: TopologyLayoutMode | "auto";
   pheromoneWeights?: Map<string, number>;
   showPheromone?: boolean;
+  logScale?: boolean;
   theme?: "dark" | "light";
 }
 
@@ -456,14 +458,31 @@ export function accumulateTourPheromone(
   return weights;
 }
 
-function normalizePheromone(weights: Map<string, number>): Map<string, number> {
+export function normalizePheromone(
+  weights: Map<string, number>,
+  logScale = false
+): Map<string, number> {
   if (!weights.size) return weights;
   let max = 0;
-  for (const v of weights.values()) max = Math.max(max, v);
+  const scaled = new Map<string, number>();
+  for (const [k, v] of weights) {
+    const t = logScale ? pheromoneWeightDisplay(v, true) : v;
+    scaled.set(k, t);
+    max = Math.max(max, t);
+  }
   if (max <= 0) return weights;
   const out = new Map<string, number>();
-  for (const [k, v] of weights) out.set(k, v / max);
+  for (const [k, v] of scaled) out.set(k, v / max);
   return out;
+}
+
+/** Normalized τ intensity in [0, 1] for edge styling across renderers. */
+export function pheromoneIntensity(
+  weights: Map<string, number>,
+  key: string,
+  logScale = false
+): number {
+  return normalizePheromone(weights, logScale).get(key) ?? 0;
 }
 
 function pheromoneEdgeStyle(
@@ -496,6 +515,7 @@ export function buildTopologyGraphOption(
     theme?: "dark" | "light";
     pheromoneWeights?: Map<string, number>;
     showPheromone?: boolean;
+    logScale?: boolean;
   } = {}
 ): Record<string, unknown> {
   const {
@@ -504,9 +524,12 @@ export function buildTopologyGraphOption(
     theme = "dark",
     pheromoneWeights,
     showPheromone = false,
+    logScale = false,
   } = opts;
   const hasFilter = fillRange != null && (fillRange[0] > 0 || fillRange[1] < 100);
-  const pheromone = showPheromone ? normalizePheromone(pheromoneWeights ?? new Map()) : null;
+  const pheromone = showPheromone
+    ? normalizePheromone(pheromoneWeights ?? new Map(), logScale)
+    : null;
 
   const dists = edges.map((e) => e.distance);
   const minD = dists.length ? Math.min(...dists) : 0;
@@ -626,6 +649,7 @@ export function buildTopologyFromMatrix(
     layoutMode = "auto",
     pheromoneWeights,
     showPheromone = false,
+    logScale = false,
     theme = "dark",
   } = options;
 
@@ -674,6 +698,7 @@ export function buildTopologyFromMatrix(
     theme,
     pheromoneWeights,
     showPheromone,
+    logScale,
   });
 
   return { nodeMeta, edges, positions, option };

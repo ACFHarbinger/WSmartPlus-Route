@@ -1068,6 +1068,7 @@ export function SimulationMonitor() {
             displayDay={displayDay}
             dayRange={dayRange}
             onDaySelect={setSelectedDay}
+            logScale={logScale}
           />
 
           {duckdbReady && lastPipeline?.tableName === "monitor_sim" && (

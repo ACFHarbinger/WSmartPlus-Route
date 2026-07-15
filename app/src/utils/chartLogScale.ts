@@ -22,6 +22,13 @@ export function attentionWeightDisplay(value: number, logScale: boolean): number
   return chartMetricDisplay(value, "attention", true) ?? value;
 }
 
+/** ACO pheromone edge opacity/width mapping when global log-scale is on (§G.4 / §G.7). */
+export function pheromoneWeightDisplay(value: number, logScale: boolean): number {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  if (!logScale) return value;
+  return chartMetricDisplay(value, "pheromone", true) ?? value;
+}
+
 /** Transform a 2-D matrix for log-scale heatmap colour mapping; preserves raw tooltips separately. */
 export function transformMatrixLogScale(
   values: number[][],

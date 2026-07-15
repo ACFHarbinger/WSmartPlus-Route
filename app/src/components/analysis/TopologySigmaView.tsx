@@ -8,6 +8,7 @@ import { useEffect, useRef } from "react";
 import type { GraphEdge, TopologyLayoutMode, TopologyNodeMeta } from "../../utils/graphTopology";
 import {
   pheromoneEdgeKey,
+  pheromoneIntensity,
   topologyNodeStyle,
 } from "../../utils/graphTopology";
 
@@ -19,6 +20,7 @@ export interface TopologySigmaOpts {
   fillRange?: [number, number] | null;
   pheromoneWeights?: Map<string, number>;
   showPheromone?: boolean;
+  logScale?: boolean;
   theme?: "dark" | "light";
   onNodeClick?: (meta: TopologyNodeMeta) => void;
 }
@@ -49,6 +51,7 @@ function buildGraph(opts: TopologySigmaOpts): Graph | null {
     fillRange = null,
     pheromoneWeights,
     showPheromone = false,
+    logScale = false,
     theme = "dark",
   } = opts;
   if (!nodeMeta.length) return null;
@@ -71,9 +74,7 @@ function buildGraph(opts: TopologySigmaOpts): Graph | null {
   const dists = edges.map((e) => e.distance);
   const minD = dists.length ? Math.min(...dists) : 0;
   const maxD = dists.length ? Math.max(...dists) : 1;
-  const phMax = showPheromone && pheromoneWeights?.size
-    ? Math.max(...pheromoneWeights.values(), 1e-9)
-    : 1;
+  const phWeights = pheromoneWeights ?? new Map<string, number>();
 
   for (const edge of edges) {
     const src = String(edge.source);
@@ -83,7 +84,7 @@ function buildGraph(opts: TopologySigmaOpts): Graph | null {
     if (graph.hasEdge(edgeId)) continue;
 
     const tNorm = maxD > minD ? (maxD - edge.distance) / (maxD - minD) : 0.5;
-    const ph = showPheromone ? (pheromoneWeights?.get(edgeId) ?? 0) / phMax : 0;
+    const ph = showPheromone ? pheromoneIntensity(phWeights, edgeId, logScale) : 0;
     const baseOpacity = theme === "dark" ? 0.22 : 0.35;
     const opacity = ph > 0 ? 0.15 + ph * 0.75 : baseOpacity;
     const width = ph > 0 ? 0.6 + ph * 3 : 0.4 + tNorm * 1.6;
@@ -115,6 +116,7 @@ export function TopologySigmaView({
   fillRange = null,
   pheromoneWeights,
   showPheromone = false,
+  logScale = false,
   theme = "dark",
   onNodeClick,
 }: TopologySigmaOpts) {
@@ -133,6 +135,7 @@ export function TopologySigmaView({
       fillRange,
       pheromoneWeights,
       showPheromone,
+      logScale,
       theme,
     });
     if (!graph) return;
@@ -160,7 +163,18 @@ export function TopologySigmaView({
       sigma.kill();
       sigmaRef.current = null;
     };
-  }, [nodeMeta, edges, positions, layoutMode, fillRange, pheromoneWeights, showPheromone, theme, onNodeClick]);
+  }, [
+    nodeMeta,
+    edges,
+    positions,
+    layoutMode,
+    fillRange,
+    pheromoneWeights,
+    showPheromone,
+    logScale,
+    theme,
+    onNodeClick,
+  ]);
 
   return (
     <div
