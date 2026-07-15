@@ -10,11 +10,10 @@
  * to show a real-time per-policy KPI snapshot while the run is executing.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, RefreshCw } from "lucide-react";
+import { Play, ChevronDown, ChevronUp, Terminal, RefreshCw } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
-import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
@@ -472,26 +471,23 @@ export function SimulationLauncher() {
             showLogScale
           />
 
-        <div className="card space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {isDone ? (
-                simStatus === "completed" ? (
-                  <CheckCircle size={14} className="text-accent-success" />
-                ) : (
-                  <XCircle size={14} className="text-accent-danger" />
-                )
-              ) : (
-                <Activity size={14} className="text-accent-primary animate-pulse" />
-              )}
-              <h2 className="text-sm font-semibold text-gray-200">
-                {isDone
-                  ? simStatus === "completed" ? "Run Complete" : `Run ${simStatus}`
-                  : "Live Status"}
-              </h2>
-            </div>
-            <div className="flex items-center gap-2 flex-wrap justify-end">
-              {isDone && simStatus === "completed" && navCountdown !== null && (
+        <LauncherLivePanel
+          header={{
+            status: isDone ? (simStatus ?? "running") : "running",
+            title: isDone
+              ? simStatus === "completed"
+                ? "Run Complete"
+                : `Run ${simStatus}`
+              : "Live Status",
+            navMesh: {
+              kind: "sim",
+              hideSelf: true,
+              showPostRun: isDone && simStatus === "completed",
+              showOutputBrowser: isDone && simStatus === "completed",
+              outputRunPath,
+            },
+            navTrailing:
+              isDone && simStatus === "completed" && navCountdown !== null ? (
                 <span className="text-xs text-canvas-muted">
                   Auto Summary in {navCountdown}s —{" "}
                   <button
@@ -501,21 +497,17 @@ export function SimulationLauncher() {
                     cancel
                   </button>
                 </span>
-              )}
-              <LauncherNavMesh
-                kind="sim"
-                hideSelf
-                showPostRun={isDone && simStatus === "completed"}
-                showOutputBrowser={isDone && simStatus === "completed"}
-                outputRunPath={outputRunPath}
-              />
-            </div>
-          </div>
-
-          {!isDone && displayProcessId && (
-            <LiveTrainProgressBar processId={displayProcessId} />
-          )}
-
+              ) : undefined,
+          }}
+          progress={
+            !isDone && displayProcessId
+              ? { processId: displayProcessId }
+              : undefined
+          }
+          footer={
+            <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
+          }
+        >
           {liveEntries.length === 0 ? (
             <p className="text-xs text-canvas-muted">
               {isDone ? "No day entries received." : "Waiting for first day log…"}
@@ -535,9 +527,7 @@ export function SimulationLauncher() {
                 ))}
             </div>
           )}
-
-          <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
-        </div>
+        </LauncherLivePanel>
 
           {policyVizEntries.length > 0 && (
             <div className="space-y-3">

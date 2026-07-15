@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-seventh pass (§G.9 + §G.11 + §G.12 + §G.15 + §D.7)
+
+Hundred-fifty-seventh pass closes the launcher live panel shell gap left after the
+hundred-fifty-sixth pass (which added ``TrainHpoLivePanel`` shell parity on train/HPO
+workflow pages). All four sim / data-gen / eval launcher pages now share
+``LauncherLivePanel`` so header, progress bar, and body content render inside one
+consistent card or embedded shell.
+
+**React frontend**
+- ``LauncherLivePanelHeader`` — shared status icon + title + ``LauncherNavMesh`` row
+  with ``card`` / ``embedded`` variants; ``runLabel`` + live suffix on Process Monitor
+  sim panels (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- ``LauncherLivePanel`` — shared header + ``LiveTrainProgressBar`` + children shell
+  with ``card`` / ``embedded`` variants; ``navTrailing`` slot preserves Simulation
+  Launcher auto-summary countdown (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- Simulation Launcher — deduplicated inline live status card markup; ``footer``
+  process-id row preserved via shared panel (§G.9 / §D.7)
+- Data Generation Wizard — deduplicated inline live progress card markup (§G.11 / §D.7)
+- Evaluation Runner — deduplicated inline live progress card markup (§G.12 / §D.7)
+- Process Monitor — ``embedded`` variant for selected ``test_sim`` / ``gen_data`` /
+  ``eval`` analytics sections (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher ``LauncherLivePanel`` shell checked
+- §G.11 Data Generation ``LauncherLivePanel`` shell checked
+- §G.12 Evaluation Runner ``LauncherLivePanel`` shell checked
+- §G.15 Process Monitor ``embedded`` launcher analytics sections checked
+- §D.7 launcher workflow panel shell parity across all four pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-sixth pass (§G.10 + §G.15 + §G.17 + §G.18 + §A.2 + §A.4 + §D.7)
 
 Hundred-fifty-sixth pass closes the live panel shell gap left after the

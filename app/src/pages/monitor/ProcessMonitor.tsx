@@ -36,8 +36,8 @@ import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
-import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import {
   isSimProcess,
@@ -434,26 +434,25 @@ export function ProcessMonitor() {
       ))}
 
       {selectedIsSim && selectedProc && (
-        <div className="space-y-3 pt-2 border-t border-canvas-border">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-xs text-canvas-muted flex-1 min-w-0">
-              Policy telemetry for{" "}
-              <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              {processRunLabel && (
-                <span className="ml-2 text-accent-secondary">· {processRunLabel}</span>
-              )}
-              {selectedProc.status === "running" && (
-                <span className="ml-2 text-accent-success">· live</span>
-              )}
-            </p>
-            <LauncherNavMesh
-              kind="sim"
-              showPostRun={selectedProc.status === "completed"}
-              showOutputBrowser={selectedProc.status === "completed"}
-              outputRunPath={launcherOutputRunPath}
-            />
-          </div>
-
+        <LauncherLivePanel
+          variant="embedded"
+          header={{
+            status: selectedProc.status,
+            title: (
+              <>
+                Policy telemetry for{" "}
+                <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              </>
+            ),
+            runLabel: processRunLabel,
+            navMesh: {
+              kind: "sim",
+              showPostRun: selectedProc.status === "completed",
+              showOutputBrowser: selectedProc.status === "completed",
+              outputRunPath: launcherOutputRunPath,
+            },
+          }}
+        >
           {vizPolicies.length > 1 && (
             <div className="flex flex-wrap gap-1.5">
               {vizPolicies.map((pol) => (
@@ -489,31 +488,31 @@ export function ProcessMonitor() {
             initialPolicy={selectedPolicy}
             initialRunLabel={processRunLabel}
           />
-        </div>
+        </LauncherLivePanel>
       )}
 
       {selectedIsEval && selectedProc && (
-        <div className="space-y-3 pt-2 border-t border-canvas-border">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-xs text-canvas-muted flex-1 min-w-0">
-              Eval results for{" "}
-              <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              {selectedProc.status === "running" && (
-                <span className="ml-2 text-accent-success">· live</span>
-              )}
-            </p>
-            <LauncherNavMesh
-              kind="eval"
-              showPostRun={selectedProc.status === "completed"}
-              showOutputBrowser={selectedProc.status === "completed"}
-              outputRunPath={launcherOutputRunPath}
-              checkpointPath={evalCheckpointPath}
-              onOpenAnalytics={
-                evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined
-              }
-            />
-          </div>
-
+        <LauncherLivePanel
+          variant="embedded"
+          header={{
+            status: selectedProc.status,
+            title: (
+              <>
+                Eval results for{" "}
+                <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              </>
+            ),
+            navMesh: {
+              kind: "eval",
+              showPostRun: selectedProc.status === "completed",
+              showOutputBrowser: selectedProc.status === "completed",
+              outputRunPath: launcherOutputRunPath,
+              checkpointPath: evalCheckpointPath,
+              onOpenAnalytics:
+                evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined,
+            },
+          }}
+        >
           {evalResult && hasEvalMetrics(evalResult) ? (
             <div className="card space-y-2">
               <div className="flex items-center justify-between gap-2">
@@ -560,27 +559,28 @@ export function ProcessMonitor() {
               Waiting for structured eval JSON in process output…
             </p>
           )}
-        </div>
+        </LauncherLivePanel>
       )}
 
       {selectedLauncherKind === "data_gen" && selectedProc && (
-        <div className="space-y-3 pt-2 border-t border-canvas-border">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-xs text-canvas-muted flex-1 min-w-0">
-              Launcher workflow for{" "}
-              <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              {selectedProc.status === "running" && (
-                <span className="ml-2 text-accent-success">· live</span>
-              )}
-            </p>
-            <LauncherNavMesh
-              kind="data_gen"
-              showPostRun={selectedProc.status === "completed"}
-              showOutputBrowser={selectedProc.status === "completed"}
-              outputRunPath={launcherOutputRunPath}
-            />
-          </div>
-        </div>
+        <LauncherLivePanel
+          variant="embedded"
+          header={{
+            status: selectedProc.status,
+            title: (
+              <>
+                Launcher workflow for{" "}
+                <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              </>
+            ),
+            navMesh: {
+              kind: "data_gen",
+              showPostRun: selectedProc.status === "completed",
+              showOutputBrowser: selectedProc.status === "completed",
+              outputRunPath: launcherOutputRunPath,
+            },
+          }}
+        />
       )}
 
       {selectedIsTrain && selectedProc && (
