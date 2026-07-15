@@ -11,6 +11,35 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-first pass (§G.1 + §G.6 + §G.14 + §D.7)
+
+Hundred-eighty-first pass closes the portfolio loaded-run list path-chip gap left after the
+hundred-eightieth pass (which unified file-based header ``PathRunLabelChip`` parity).
+Benchmark Analysis, City Comparison, Simulation Summary comparison runs, and Output Browser
+run-directory list now share ``LoadedRunRow`` wrapping ``PathRunLabelChip`` for consistent
+ring-highlight + click-to-brush behaviour.
+
+**React frontend**
+- ``LoadedRunRow`` — shared portfolio loaded-run row with optional remove, leading slots,
+  trailing metadata, and embedded ``PathRunLabelChip`` (§G.1 / §G.14 / §D.7)
+- Benchmark Analysis — loaded-run list uses ``LoadedRunRow`` instead of inline font-mono
+  brush buttons (§G.1 / §G.6 / §D.7)
+- City Comparison — loaded-run list ``LoadedRunRow`` parity with Benchmark Analysis
+  (§G.1.6 / §G.6 / §D.7)
+- Simulation Summary — comparison-run list ``LoadedRunRow`` parity with portfolio analytics
+  pages (§G.1 / §G.6 / §D.7)
+- Output Browser — run-directory list ``LoadedRunRow`` with compare checkbox + folder-select
+  leading slots; chip click-to-brush parity with selected-run + jsonl viewer header chips
+  (§G.14 / §D.7)
+
+**ROADMAP**
+- §G.1 Benchmark Analysis + Simulation Summary comparison-run list path-chip brush parity checked
+- §G.6 City Comparison loaded-run list path-chip brush parity checked
+- §G.14 Output Browser run-directory list path-chip brush parity checked
+- §D.7 portfolio loaded-run list path-chip run-label brush + ring-highlight parity across all analysis views checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eightieth pass (§G.1 + §G.6 + §G.14 + §D.7)
 
 Hundred-eightieth pass closes the remaining file-path run-label brush chip gap left after the

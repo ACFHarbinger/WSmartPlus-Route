@@ -8,7 +8,7 @@
  *   - File viewer: CSV → DataExplorer-style table; YAML/text → raw view
  *   - "Open in Sim Summary" button for .jsonl log files
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useLayoutStore } from "../../store/layout";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
@@ -28,6 +28,7 @@ import {
   ClipboardList,
 } from "lucide-react";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -37,7 +38,7 @@ import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
 import { findRunJsonl } from "../../utils/outputRunLogs";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
-import { runLabelMapFromPaths } from "../../utils/policyTelemetryTrends";
+
 import { downloadParquetFromCsv } from "../../utils/tableExport";
 import { filterCheckpointEntries, isCheckpointEntry } from "../../utils/checkpoints";
 
@@ -151,10 +152,6 @@ export function OutputBrowser() {
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
   const brushLogPath = selectedRun ? (runJsonlPath ?? selectedRun.name) : null;
   const derivedRunLabel = useLogPathRunLabelBrush(brushLogPath);
-  const runBrushByPath = useMemo(
-    () => runLabelMapFromPaths(runs.map((r) => ({ path: r.path, name: r.name }))),
-    [runs]
-  );
 
   const refresh = useCallback(async () => {
     if (!outputPath) return;
@@ -541,38 +538,40 @@ export function OutputBrowser() {
           </button>
         )}
 
-        <div className="card flex-1 overflow-auto p-1">
-          {runs.map((r) => {
-            const runBrushActive =
-              Boolean(activeRunLabel) && runBrushByPath[r.path] === activeRunLabel;
-            return (
-            <div
+        <div className="card flex-1 overflow-auto p-1 space-y-0.5">
+          {runs.map((r) => (
+            <LoadedRunRow
               key={r.path}
-              className={`flex items-center gap-1 rounded text-xs ${
-                selectedRun?.path === r.path ? "bg-accent-primary/10" : ""
-              } ${runBrushActive ? "ring-1 ring-accent-secondary/40" : ""}`}
-            >
-              <input
-                type="checkbox"
-                checked={compareSelection.has(r.path)}
-                onChange={() => toggleCompareRun(r.path)}
-                className="ml-1.5 shrink-0 accent-accent-primary"
-                title="Select for comparison"
-              />
-              <button
-                onClick={() => selectRun(r)}
-                className={`flex-1 flex items-center gap-2 py-1.5 px-1 rounded text-left hover:bg-canvas-hover transition-colors ${
-                  selectedRun?.path === r.path
-                    ? "text-accent-secondary"
-                    : "text-gray-300"
-                }`}
-              >
-                <Folder size={12} className="text-accent-warning shrink-0" />
-                <span className="truncate">{r.name}</span>
-              </button>
-            </div>
-          );
-          })}
+              path={r.path}
+              label={r.name}
+              activeRunLabel={activeRunLabel}
+              selected={selectedRun?.path === r.path}
+              className="mx-0 px-1"
+              leading={
+                <>
+                  <input
+                    type="checkbox"
+                    checked={compareSelection.has(r.path)}
+                    onChange={() => toggleCompareRun(r.path)}
+                    className="shrink-0 accent-accent-primary"
+                    title="Select for comparison"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => void selectRun(r)}
+                    className={`shrink-0 p-0.5 rounded hover:bg-canvas-hover transition-colors ${
+                      selectedRun?.path === r.path
+                        ? "text-accent-secondary"
+                        : "text-accent-warning"
+                    }`}
+                    title="Open run directory"
+                  >
+                    <Folder size={12} />
+                  </button>
+                </>
+              }
+            />
+          ))}
           {runs.length === 0 && !loading && (
             <p className="text-xs text-canvas-muted p-2">No run directories found.</p>
           )}

@@ -8,7 +8,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, X } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
@@ -27,7 +27,7 @@ import {
   PORTFOLIO_SCAN_DEFAULT,
   scanOutputPortfolio,
 } from "../../utils/outputRunLogs";
-import { runLabelMapFromPaths } from "../../utils/policyTelemetryTrends";
+import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import {
   formatPipelineTimingBadge,
   runPortfolioSimulationArrowPipeline,
@@ -77,13 +77,8 @@ export function CityComparison() {
     brushedCity,
     brushedRunLabels,
     handleCityClick,
-    handleRunLabelClick,
   } = usePortfolioRunBrush(filteredRuns);
 
-  const runBrushByPath = useMemo(
-    () => runLabelMapFromPaths(runs.map((r) => ({ path: r.path, name: r.label }))),
-    [runs]
-  );
   const series = useMemo(() => buildCityComparisonSeries(cityGroups), [cityGroups]);
   const chartOption = useMemo(
     () => cityComparisonChartOption(series, { logScale, showErrorBars }),
@@ -244,29 +239,13 @@ export function CityComparison() {
             Loaded runs
           </p>
           {runs.map((r) => (
-            <div
+            <LoadedRunRow
               key={r.path}
-              className={`flex items-center gap-2 text-xs text-gray-300 rounded px-1 -mx-1 ${
-                activeRunLabel === r.label ? "bg-accent-primary/15" : ""
-              } ${
-                Boolean(activeRunLabel) && runBrushByPath[r.path] === activeRunLabel
-                  ? "ring-1 ring-accent-secondary/40"
-                  : ""
-              }`}
-            >
-              <button
-                onClick={() => removeRun(r.path)}
-                className="text-canvas-muted hover:text-accent-danger"
-              >
-                <X size={12} />
-              </button>
-              <button
-                onClick={() => handleRunLabelClick(r.label)}
-                className="font-mono truncate text-left hover:text-accent-secondary flex-1"
-              >
-                {r.label}
-              </button>
-            </div>
+              path={r.path}
+              label={r.label}
+              activeRunLabel={activeRunLabel}
+              onRemove={() => removeRun(r.path)}
+            />
           ))}
         </div>
       )}

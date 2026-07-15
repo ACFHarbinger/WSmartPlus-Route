@@ -44,7 +44,7 @@ import {
 } from "../../utils/arrowPipeline";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
-import { runLabelMapFromPaths } from "../../utils/policyTelemetryTrends";
+import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
@@ -356,13 +356,7 @@ export function BenchmarkAnalysis() {
     runLabel: activeRunLabel,
     brushedRunLabels,
     handleCityClick,
-    handleRunLabelClick,
   } = usePortfolioRunBrush(filteredRuns);
-
-  const runBrushByPath = useMemo(
-    () => runLabelMapFromPaths(runs.map((r) => ({ path: r.path, name: r.label }))),
-    [runs]
-  );
 
   const cityComparisonOption = useMemo(
     () =>
@@ -673,30 +667,16 @@ export function BenchmarkAnalysis() {
           </p>
           <div className="space-y-1">
             {runs.map((r) => (
-              <div
+              <LoadedRunRow
                 key={r.path}
-                className={`flex items-center gap-2 text-xs text-gray-300 rounded px-1 -mx-1 ${
-                  activeRunLabel === r.label ? "bg-accent-primary/15" : ""
-                } ${
-                  Boolean(activeRunLabel) && runBrushByPath[r.path] === activeRunLabel
-                    ? "ring-1 ring-accent-secondary/40"
-                    : ""
-                }`}
-              >
-                <button
-                  onClick={() => removeRun(r.path)}
-                  className="text-canvas-muted hover:text-accent-danger"
-                >
-                  <X size={12} />
-                </button>
-                <button
-                  onClick={() => handleRunLabelClick(r.label)}
-                  className="font-mono truncate text-left hover:text-accent-secondary flex-1"
-                >
-                  {r.label}
-                </button>
-                <span className="ml-auto text-canvas-muted">{r.entries.length} days</span>
-              </div>
+                path={r.path}
+                label={r.label}
+                activeRunLabel={activeRunLabel}
+                onRemove={() => removeRun(r.path)}
+                trailing={
+                  <span className="ml-auto text-canvas-muted shrink-0">{r.entries.length} days</span>
+                }
+              />
             ))}
           </div>
         </div>
