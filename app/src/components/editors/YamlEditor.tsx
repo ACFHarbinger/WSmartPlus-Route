@@ -8,7 +8,7 @@ interface Props {
 
 /** Monaco YAML editor for Config Editor raw mode (§G.13). */
 export default function YamlEditor({ value, onChange }: Props) {
-  const theme = useAppStore((s) => s.theme);
+  const theme = useAppStore((s) => s.effectiveTheme);
 
   return (
     <div className="rounded-lg border border-canvas-border overflow-hidden">

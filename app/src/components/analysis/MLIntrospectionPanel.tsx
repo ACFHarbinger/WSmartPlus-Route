@@ -99,7 +99,7 @@ function buildLogAwareMatrixHeatmap(
 }
 
 export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean }) {
-  const { projectRoot, pythonPath, theme } = useAppStore();
+  const { projectRoot, pythonPath, effectiveTheme: theme } = useAppStore();
   const [tab, setTab] = useState<IntrospectionTab>("tensor");
   const [archivePath, setArchivePath] = useState<string | null>(null);
   const [archive, setArchive] = useState<NpzArchiveInfo | null>(null);

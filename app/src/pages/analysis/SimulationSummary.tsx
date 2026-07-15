@@ -1819,7 +1819,7 @@ function MetricBarChart({
 interface ComparisonRun extends PortfolioRunSlice {}
 
 export function SimulationSummary() {
-  const { pendingLogPath, setPendingLogPath, projectRoot, theme } = useAppStore();
+  const { pendingLogPath, setPendingLogPath, projectRoot, effectiveTheme: theme } = useAppStore();
   const {
     ready: duckdbReady,
     loading: duckdbLoading,

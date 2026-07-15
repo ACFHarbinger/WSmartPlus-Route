@@ -1,5 +1,6 @@
-import { Moon, PanelLeft, Sun, AlertTriangle, Settings, Keyboard, Search, Compass } from "lucide-react";
+import { Moon, PanelLeft, Sun, Monitor, AlertTriangle, Settings, Keyboard, Search, Compass } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import { nextThemePreference } from "../../utils/theme";
 import { useLayoutStore } from "../../store/layout";
 import { useProcessStore } from "../../store/process";
 
@@ -82,11 +83,17 @@ export function TopBar() {
           </button>
 
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme(nextThemePreference(theme))}
             className="btn-ghost p-1.5"
-            title="Toggle theme"
+            title={`Theme: ${theme} (click to cycle)`}
           >
-            {theme === "dark" ? <Sun size={14} /> : <Moon size={14} />}
+            {theme === "dark" ? (
+              <Sun size={14} />
+            ) : theme === "light" ? (
+              <Moon size={14} />
+            ) : (
+              <Monitor size={14} />
+            )}
           </button>
         </div>
       </header>

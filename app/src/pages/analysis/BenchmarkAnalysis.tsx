@@ -201,7 +201,7 @@ export function BenchmarkAnalysis() {
     pendingEvalResults, setPendingEvalResults,
     pendingBenchmarkLogs, setPendingBenchmarkLogs,
     projectRoot,
-    theme,
+    effectiveTheme: theme,
   } = useAppStore();
   const {
     ready: duckdbReady,

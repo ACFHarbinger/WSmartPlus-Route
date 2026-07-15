@@ -566,15 +566,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 | Item                                        | Effort   | Impact | Priority                          |
 | ------------------------------------------- | -------- | ------ | --------------------------------- |
-| §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]`                  |
+| §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]` ✅              |
+| §D.3 Option C (system theme following)      | Very Low | Medium | P0 `[Quick Win]` ✅              |
 | §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅              |
-| §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0                                |
+| §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0 ✅ (Zustand persist)           |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
-| §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1                                |
-| §D.2 Option A (live training charts)        | Medium   | High   | P1                                |
-| §D.1 Option A (ECharts route panel)         | Medium   | High   | P2                                |
-| §D.6 Option A (override table)              | Medium   | High   | P2                                |
-| §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 `[Blocked]` §G Phase 3        |
+| §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
+| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (Training Hub + Monitor)    |
+| §D.1 Option A (ECharts route panel)         | Medium   | High   | P2 ✅ (Simulation Monitor)        |
+| §D.6 Option A (override table)              | Medium   | High   | P2 ✅ (all launchers)             |
+| §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 ✅ (§G.3 / §G.16)              |
 | §D.6 Option B (typed config form)           | High     | High   | P3                                |
 
 ---
@@ -1408,6 +1409,27 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] Import/export settings JSON: "Export Settings" serialises `{projectRoot, pythonPath, theme}` to a user-chosen JSON file via `write_text_file`; "Import Settings" reads a JSON file and populates drafts for review before saving
 - [x] First-run onboarding wizard: `OnboardingDialog` modal when `projectRoot` is empty; inline directory picker + validation; dismissible via `useLayoutStore.onboardingDismissed` persistence
 - [x] Guided tour: `GuidedTour` 5-step overlay with `data-tour` spotlight rings (sidebar, command palette, simulation twin, output browser, launch/monitor); TopBar compass button, command palette action, Settings "Take Guided Tour", `Ctrl+Shift+/` shortcut; auto-offered after first onboarding; dismissal persisted via `guidedTourDismissed`
+- [x] System theme following (§D.3 Option C): `theme` preference extended to `dark` / `light` / `system`; `effectiveTheme` resolves `prefers-color-scheme` via `useThemeSync`; TopBar + command palette cycle all three modes; Settings Appearance radio includes System (§G.19 / §D.3)
+
+**Status**: §G.19 complete — all checklist items delivered.
+
+---
+
+### §G — Studio Complete ✅
+
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Remaining release-engineering items (signed distributables, Tauri updater plugin) are deferred per §G.8.
+
+| Area | Status |
+| --- | --- |
+| Analytics dashboard (§G.1–§G.2) | ✅ |
+| Geospatial + graph topology (§G.3–§G.4) | ✅ |
+| ML introspection (§G.5) | ✅ |
+| OLAP explorer (§G.6) | ✅ |
+| UX polish + export surface (§G.7) | ✅ |
+| Data packaging (§G.8) | ✅ (signed releases deferred) |
+| Launchers + monitors (§G.9–§G.15) | ✅ |
+| Streamlit parity pages (§G.16–§G.18) | ✅ |
+| Settings + onboarding (§G.19) | ✅ |
 
 ---
 

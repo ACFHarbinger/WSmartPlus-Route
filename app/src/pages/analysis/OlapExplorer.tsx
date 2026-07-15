@@ -28,7 +28,7 @@ import {
 const CUSTOM_TABLE_PREFIX = "olap_";
 
 export function OlapExplorer() {
-  const { theme } = useAppStore();
+  const { effectiveTheme: theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const {
     ready: duckdbReady,

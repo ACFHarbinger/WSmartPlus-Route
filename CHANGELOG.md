@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventh pass (§D.3 / §G.19)
+
+Hundred-seventh pass adds system theme following (``prefers-color-scheme``), marks all
+§G.0–§G.19 Studio phases complete in the ROADMAP, and updates the §D GUI/UX matrix to
+reflect requirements delivered via the Studio.
+
+**React frontend**
+- `theme.ts` — ``ThemePreference`` (dark/light/system), ``resolveEffectiveTheme()``,
+  ``nextThemePreference()`` cycle helper
+- `useThemeSync` — ``matchMedia`` listener keeps DOM + ``effectiveTheme`` in sync when
+  preference is ``system``
+- `store/app.ts` — ``effectiveTheme`` field; chart/editor consumers use resolved theme
+- Settings — System appearance radio; import accepts ``system`` theme
+- TopBar + command palette — cycle dark → light → system → dark (Monitor icon)
+
+**ROADMAP**
+- §G — Studio Complete banner (all twenty phases delivered)
+- §G.19 system theme following checked (§D.3 Option C)
+- §D effort matrix updated — theme, session, cancel, training charts, route viz, overrides ✅
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixth pass (§G.7)
 
 Hundred-sixth pass introduces a shared ``CanvasExportButton`` component for WebGL/canvas

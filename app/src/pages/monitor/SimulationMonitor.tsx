@@ -479,7 +479,7 @@ export function SimulationMonitor() {
     pendingMapCompare,
     setPendingMapCompare,
     projectRoot,
-    theme,
+    effectiveTheme: theme,
   } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const {

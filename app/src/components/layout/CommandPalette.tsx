@@ -5,6 +5,7 @@ import { useWsrouteImport } from "../../hooks/useWsrouteImport";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
+import { nextThemePreference } from "../../utils/theme";
 import { useRecentFilesStore } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
 
@@ -62,7 +63,7 @@ export function CommandPalette() {
   const runCommand = useCallback(
     (cmd: (typeof PALETTE_COMMANDS)[number]) => {
       if (cmd.mode) setMode(cmd.mode);
-      else if (cmd.action === "toggle_theme") setTheme(theme === "dark" ? "light" : "dark");
+      else if (cmd.action === "toggle_theme") setTheme(nextThemePreference(theme));
       else if (cmd.action === "shortcuts_help") setShortcutsOpen(true);
       else if (cmd.action === "import_wsroute") void importWsroute();
       else if (cmd.action === "guided_tour") {
