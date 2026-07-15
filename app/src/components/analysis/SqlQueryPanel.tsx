@@ -78,6 +78,7 @@ export function SqlQueryPanel({
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [filterText, setFilterText] = useState("");
   const [chartTypeOverride, setChartTypeOverride] = useState<AutoChartType | null>(null);
+  const [scatterLogScale, setScatterLogScale] = useState(false);
   const autoChartRef = useRef<ReactECharts>(null);
 
   const templates = useMemo(
@@ -170,9 +171,19 @@ export function SqlQueryPanel({
     setChartTypeOverride(null);
   }, [rows]);
 
+  const scatterOverflowAxis = useMemo(
+    () =>
+      chartSpec?.type === "scatter" &&
+      /^(mean_)?overflows$/i.test(chartSpec.yKey),
+    [chartSpec]
+  );
+
   const chartOption = useMemo(
-    () => (chartSpec ? buildAutoChartOption(chartSpec, rows) : null),
-    [chartSpec, rows]
+    () =>
+      chartSpec
+        ? buildAutoChartOption(chartSpec, rows, { logScale: scatterLogScale })
+        : null,
+    [chartSpec, rows, scatterLogScale]
   );
 
   const sortedRows = useMemo(() => {
@@ -369,6 +380,7 @@ export function SqlQueryPanel({
       }
 
       if (chartSpec.type === "scatter" && chartSpec.labelKey) {
+        if (params.seriesName === "Pareto front") return;
         const label =
           params.name ??
           (typeof params.value === "object" &&
@@ -377,9 +389,28 @@ export function SqlQueryPanel({
             ? String((params.value as { name?: string }).name ?? "")
             : "");
         if (label) applyCrossFilter(chartSpec.labelKey, label);
+        return;
+      }
+
+      if (chartSpec.type === "line") {
+        const raw =
+          typeof params.value === "object" &&
+          params.value != null &&
+          Array.isArray(params.value)
+            ? params.value[0]
+            : params.name;
+        const value = String(raw ?? "");
+        if (/^(policy|run_label|city_scale)$/i.test(chartSpec.xKey)) {
+          applyCrossFilter(chartSpec.xKey, value);
+          return;
+        }
+        if (/^day$/i.test(chartSpec.xKey) && onDaySelect != null) {
+          const day = Number(value);
+          if (Number.isFinite(day)) onDaySelect(day);
+        }
       }
     },
-    [chartSpec, rows, applyCrossFilter]
+    [chartSpec, rows, applyCrossFilter, onDaySelect]
   );
 
   const autoChartCrossFilterHint = useMemo(() => {
@@ -393,8 +424,14 @@ export function SqlQueryPanel({
     if (chartSpec.type === "scatter" && chartSpec.labelKey) {
       return /^(policy|run_label|city_scale)$/i.test(chartSpec.labelKey);
     }
+    if (chartSpec.type === "line") {
+      return (
+        /^(policy|run_label|city_scale|day)$/i.test(chartSpec.xKey) &&
+        (onDaySelect != null || !/^day$/i.test(chartSpec.xKey))
+      );
+    }
     return false;
-  }, [chartSpec]);
+  }, [chartSpec, onDaySelect]);
 
   return (
     <div className="card space-y-3">
@@ -524,6 +561,17 @@ export function SqlQueryPanel({
                   <ImageDown size={11} />
                   SVG
                 </button>
+                {scatterOverflowAxis && (
+                  <button
+                    type="button"
+                    onClick={() => setScatterLogScale((v) => !v)}
+                    className={`btn-ghost text-[10px] py-0.5 ${
+                      scatterLogScale ? "text-accent-secondary" : ""
+                    }`}
+                  >
+                    {scatterLogScale ? "Log overflows (on)" : "Log overflows (off)"}
+                  </button>
+                )}
               </div>
               <ReactECharts
                 ref={autoChartRef}
@@ -535,7 +583,8 @@ export function SqlQueryPanel({
               />
               {autoChartCrossFilterHint && (
                 <p className="text-[10px] text-canvas-muted">
-                  Click a bar, scatter point, or heatmap cell to cross-filter linked panels.
+                  Click a bar, line point, scatter point, or heatmap cell to cross-filter linked
+                  panels.
                 </p>
               )}
             </div>

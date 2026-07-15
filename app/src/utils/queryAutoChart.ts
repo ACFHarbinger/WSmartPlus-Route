@@ -2,6 +2,8 @@
  * Suggest ECharts visualizations from DuckDB query results (§G.6).
  */
 
+import { paretoFront, paretoStepLine } from "./pareto";
+
 export type AutoChartType = "bar" | "grouped-bar" | "heatmap" | "line" | "scatter";
 
 export interface AutoChartSpec {
@@ -103,6 +105,18 @@ export function suggestChartAlternatives(
   const labeledScatter = findLabeledMetricScatter(columns, rows);
   if (labeledScatter && !alternatives.some((a) => a.type === "scatter")) {
     alternatives.push(labeledScatter);
+  }
+
+  const timeCol = columns.find((c) => /^(day|epoch|step|time|sample)/i.test(c));
+  if (timeCol && numericCols.some((c) => c !== timeCol)) {
+    const yKey = findPreferredMetric(numericCols, timeCol);
+    const line: AutoChartSpec = {
+      type: "line",
+      label: `${yKey} over ${timeCol}`,
+      xKey: timeCol,
+      yKey,
+    };
+    if (!alternatives.some((a) => a.type === "line")) alternatives.push(line);
   }
 
   return alternatives;
@@ -216,14 +230,26 @@ export function heatmapCellLabels(
   };
 }
 
+export interface AutoChartBuildOptions {
+  /** Log-scale overflows axis on profit vs overflows scatter (§G.1 / §G.6). */
+  logScale?: boolean;
+}
+
+function isOverflowMetric(key: string): boolean {
+  return /^(mean_)?overflows$/i.test(key);
+}
+
 export function buildAutoChartOption(
   spec: AutoChartSpec,
-  rows: Record<string, unknown>[]
+  rows: Record<string, unknown>[],
+  opts: AutoChartBuildOptions = {}
 ): Record<string, unknown> {
+  const { logScale = false } = opts;
   const toNum = (v: unknown) => {
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
   };
+  const displayOverflow = (y: number) => (logScale ? Math.max(y, 0.001) : y);
 
   if (spec.type === "bar") {
     const labels = rows.map((r) => String(r[spec.xKey] ?? ""));
@@ -352,29 +378,73 @@ export function buildAutoChartOption(
     };
   }
 
-  const points = spec.labelKey
+  const scatterLogScale = logScale && isOverflowMetric(spec.yKey);
+  const paretoPoints = spec.labelKey
     ? rows.map((r) => ({
-        name: String(r[spec.labelKey!] ?? ""),
-        value: [toNum(r[spec.xKey]), toNum(r[spec.yKey])] as [number, number],
+        id: String(r[spec.labelKey!] ?? ""),
+        x: toNum(r[spec.xKey]),
+        y: toNum(r[spec.yKey]),
       }))
+    : [];
+  const frontIds = new Set(
+    spec.labelKey ? paretoFront(paretoPoints).map((p) => p.id) : []
+  );
+  const step = spec.labelKey ? paretoStepLine(paretoFront(paretoPoints)) : [];
+
+  const points = spec.labelKey
+    ? rows.map((r) => {
+        const name = String(r[spec.labelKey!] ?? "");
+        const y = toNum(r[spec.yKey]);
+        const onFront = frontIds.has(name);
+        return {
+          name,
+          value: [toNum(r[spec.xKey]), displayOverflow(y)] as [number, number],
+          itemStyle: { color: onFront ? "#34d399" : "#6366f1" },
+        };
+      })
     : rows.map((r) => [toNum(r[spec.xKey]), toNum(r[spec.yKey])]);
+
+  const series: Record<string, unknown>[] = [
+    {
+      type: "scatter",
+      name: "Policies",
+      data: points,
+      symbolSize: spec.labelKey ? 10 : 8,
+      itemStyle: spec.labelKey ? undefined : { color: "#6366f1" },
+      label: spec.labelKey
+        ? { show: rows.length <= 24, position: "top", color: "#9090b0", fontSize: 8 }
+        : undefined,
+    },
+  ];
+
+  if (step.length > 1) {
+    series.push({
+      type: "line",
+      name: "Pareto front",
+      data: step.map(([x, y]) => [x, displayOverflow(y)]),
+      lineStyle: { color: "#f3f4f6", type: "dashed", width: 1 },
+      symbol: "none",
+      tooltip: { show: false },
+      z: 1,
+    });
+  }
 
   return {
     backgroundColor: "transparent",
     grid: { left: 48, right: 12, top: 24, bottom: 32 },
+    legend:
+      step.length > 1
+        ? { data: ["Policies", "Pareto front"], textStyle: { color: "#9090b0", fontSize: 9 } }
+        : undefined,
     xAxis: { type: "value", name: spec.xKey, axisLabel: { color: "#9090b0", fontSize: 9 } },
-    yAxis: { type: "value", name: spec.yKey, axisLabel: { color: "#9090b0", fontSize: 9 } },
-    series: [
-      {
-        type: "scatter",
-        data: points,
-        symbolSize: spec.labelKey ? 10 : 8,
-        itemStyle: { color: "#6366f1" },
-        label: spec.labelKey
-          ? { show: rows.length <= 24, position: "top", color: "#9090b0", fontSize: 8 }
-          : undefined,
-      },
-    ],
+    yAxis: {
+      type: scatterLogScale ? "log" : "value",
+      logBase: 10,
+      name: spec.yKey,
+      axisLabel: { color: "#9090b0", fontSize: 9 },
+      minorSplitLine: { show: false },
+    },
+    series,
     tooltip: { trigger: "item" },
   };
 }
