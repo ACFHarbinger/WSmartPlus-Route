@@ -7,15 +7,32 @@ import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
 import { nextThemePreference } from "../../utils/theme";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
+import {
+  makeRecentEntry,
+  recentHandoffSpec,
+  type RecentPendingKey,
+} from "../../utils/recentHandoff";
 
 function matchQuery(query: string, label: string, keywords?: string): boolean {
   const q = query.trim().toLowerCase();
   if (!q) return true;
   const haystack = `${label} ${keywords ?? ""}`.toLowerCase();
   return q.split(/\s+/).every((token) => haystack.includes(token));
+}
+
+const KNOWN_RECENT_KINDS: RecentFileKind[] = [
+  "log",
+  "run",
+  "csv",
+  "training",
+  "checkpoint",
+  "config",
+];
+
+function isKnownRecentKind(kind: string): kind is RecentFileKind {
+  return (KNOWN_RECENT_KINDS as string[]).includes(kind);
 }
 
 export function CommandPalette() {
@@ -41,6 +58,15 @@ export function CommandPalette() {
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
+  const pendingSetters: Record<RecentPendingKey, (path: string | null) => void> = {
+    pendingLogPath: setPendingLogPath,
+    pendingRunPath: setPendingRunPath,
+    pendingCsvPath: setPendingCsvPath,
+    pendingTrainingRunPath: setPendingTrainingRunPath,
+    pendingCheckpoint: setPendingCheckpoint,
+    pendingConfigPath: setPendingConfigPath,
+  };
+
   const filteredCommands = useMemo(
     () => PALETTE_COMMANDS.filter((cmd) => matchQuery(query, cmd.label, cmd.keywords)),
     [query]
@@ -54,27 +80,62 @@ export function CommandPalette() {
     );
   }, [query, recentFiles]);
 
-  const filtered = filteredCommands;
   const showRecent = filteredRecent.length > 0 && (query.trim() === "" || filteredCommands.length < 6);
 
-  const openRecentLog = useCallback(
-    async (path: string, storedLabel?: string) => {
-      const label = portfolioRunLabel(path, storedLabel, projectRoot);
-      pushRecent({ path, label, kind: "log" });
-      try {
-        await invoke<DayLogEntry[]>("load_simulation_log", { path });
-        setPendingLogPath(path);
-        setMode("simulation_summary");
-        setCommandPaletteOpen(false);
-        setQuery("");
-      } catch {
-        setPendingLogPath(path);
-        setMode("simulation");
-        setCommandPaletteOpen(false);
-        setQuery("");
+  /** Flattened keyboard-nav list: recents (when shown) then commands. */
+  type PaletteItem =
+    | { type: "recent"; file: RecentFile }
+    | { type: "command"; cmd: (typeof PALETTE_COMMANDS)[number] };
+
+  const paletteItems = useMemo((): PaletteItem[] => {
+    const items: PaletteItem[] = [];
+    if (showRecent) {
+      for (const file of filteredRecent) items.push({ type: "recent", file });
+    }
+    for (const cmd of filteredCommands) items.push({ type: "command", cmd });
+    return items;
+  }, [showRecent, filteredRecent, filteredCommands]);
+
+  const closePalette = useCallback(() => {
+    setCommandPaletteOpen(false);
+    setQuery("");
+    setActiveIndex(0);
+  }, [setCommandPaletteOpen]);
+
+  const openRecentFile = useCallback(
+    async (file: RecentFile) => {
+      if (!isKnownRecentKind(file.kind)) {
+        setMode("data_explorer");
+        closePalette();
+        return;
       }
+
+      const kind = file.kind;
+      const entry = makeRecentEntry(file.path, kind, projectRoot, file.label);
+      pushRecent(entry);
+
+      // Logs: prefer Simulation Summary; fall back to Digital Twin if load fails.
+      if (kind === "log") {
+        try {
+          await invoke<DayLogEntry[]>("load_simulation_log", { path: file.path });
+          setPendingLogPath(file.path);
+          setMode("simulation_summary");
+        } catch {
+          setPendingLogPath(file.path);
+          setMode("simulation");
+        }
+        closePalette();
+        return;
+      }
+
+      const spec = recentHandoffSpec(kind);
+      pendingSetters[spec.pendingKey](file.path);
+      setMode(spec.mode);
+      closePalette();
     },
-    [projectRoot, pushRecent, setPendingLogPath, setMode, setCommandPaletteOpen]
+    // pending setters are stable Zustand actions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [projectRoot, pushRecent, setMode, setPendingLogPath, closePalette]
   );
 
   const runCommand = useCallback(
@@ -87,11 +148,17 @@ export function CommandPalette() {
         setGuidedTourStep(0);
         setGuidedTourOpen(true);
       }
-      setCommandPaletteOpen(false);
-      setQuery("");
-      setActiveIndex(0);
+      closePalette();
     },
-    [setMode, setTheme, theme, setShortcutsOpen, setCommandPaletteOpen, importWsroute, setGuidedTourOpen, setGuidedTourStep]
+    [setMode, setTheme, theme, setShortcutsOpen, importWsroute, setGuidedTourOpen, setGuidedTourStep, closePalette]
+  );
+
+  const activateItem = useCallback(
+    (item: PaletteItem) => {
+      if (item.type === "recent") void openRecentFile(item.file);
+      else runCommand(item.cmd);
+    },
+    [openRecentFile, runCommand]
   );
 
   useEffect(() => {
@@ -104,10 +171,12 @@ export function CommandPalette() {
   }, [commandPaletteOpen, projectRoot, refreshRecentLabels]);
 
   useEffect(() => {
-    setActiveIndex((i) => (filtered.length ? Math.min(i, filtered.length - 1) : 0));
-  }, [filtered.length, query]);
+    setActiveIndex((i) => (paletteItems.length ? Math.min(i, paletteItems.length - 1) : 0));
+  }, [paletteItems.length, query]);
 
   if (!commandPaletteOpen) return null;
+
+  const recentCount = showRecent ? filteredRecent.length : 0;
 
   return (
     <div
@@ -128,19 +197,25 @@ export function CommandPalette() {
             onKeyDown={(e) => {
               if (e.key === "ArrowDown") {
                 e.preventDefault();
-                setActiveIndex((i) => (filtered.length ? (i + 1) % filtered.length : 0));
+                setActiveIndex((i) =>
+                  paletteItems.length ? (i + 1) % paletteItems.length : 0
+                );
               } else if (e.key === "ArrowUp") {
                 e.preventDefault();
-                setActiveIndex((i) => (filtered.length ? (i - 1 + filtered.length) % filtered.length : 0));
-              } else if (e.key === "Enter" && filtered[activeIndex]) {
+                setActiveIndex((i) =>
+                  paletteItems.length
+                    ? (i - 1 + paletteItems.length) % paletteItems.length
+                    : 0
+                );
+              } else if (e.key === "Enter" && paletteItems[activeIndex]) {
                 e.preventDefault();
-                runCommand(filtered[activeIndex]);
+                activateItem(paletteItems[activeIndex]!);
               } else if (e.key === "Escape") {
                 e.preventDefault();
                 setCommandPaletteOpen(false);
               }
             }}
-            placeholder="Search views and actions…"
+            placeholder="Search views, actions, and recent files…"
             className="input-base flex-1 border-0 bg-transparent text-sm focus:ring-0"
           />
           <kbd className="text-[10px] text-canvas-muted font-mono shrink-0">Esc</kbd>
@@ -152,109 +227,66 @@ export function CommandPalette() {
               <li className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-canvas-muted">
                 Recent
               </li>
-              {filteredRecent.map((file) => (
-                <li key={file.path}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (file.kind === "log") void openRecentLog(file.path, file.label);
-                      else if (file.kind === "run") {
-                        pushRecent({
-                          path: file.path,
-                          label: portfolioRunLabel(file.path, file.label, projectRoot),
-                          kind: "run",
-                        });
-                        setPendingRunPath(file.path);
-                        setMode("output_browser");
-                        setCommandPaletteOpen(false);
-                      } else if (file.kind === "csv") {
-                        pushRecent({
-                          path: file.path,
-                          label: portfolioRunLabel(file.path, file.label, projectRoot),
-                          kind: "csv",
-                        });
-                        setPendingCsvPath(file.path);
-                        setMode("data_explorer");
-                        setCommandPaletteOpen(false);
-                      } else if (file.kind === "training") {
-                        pushRecent({
-                          path: file.path,
-                          label: portfolioRunLabel(file.path, file.label, projectRoot),
-                          kind: "training",
-                        });
-                        setPendingTrainingRunPath(file.path);
-                        setMode("training");
-                        setCommandPaletteOpen(false);
-                      } else if (file.kind === "checkpoint") {
-                        pushRecent({
-                          path: file.path,
-                          label: portfolioRunLabel(file.path, file.label, projectRoot),
-                          kind: "checkpoint",
-                        });
-                        setPendingCheckpoint(file.path);
-                        setMode("eval_runner");
-                        setCommandPaletteOpen(false);
-                      } else if (file.kind === "config") {
-                        pushRecent({
-                          path: file.path,
-                          label: portfolioRunLabel(file.path, file.label, projectRoot),
-                          kind: "config",
-                        });
-                        setPendingConfigPath(file.path);
-                        setMode("config_editor");
-                        setCommandPaletteOpen(false);
-                      } else {
-                        setMode("data_explorer");
-                        setCommandPaletteOpen(false);
-                      }
-                    }}
-                    className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm text-gray-300 hover:bg-canvas-hover"
-                  >
-                    {file.kind === "log" ||
-                    file.kind === "run" ||
-                    file.kind === "csv" ||
-                    file.kind === "training" ||
-                    file.kind === "checkpoint" ||
-                    file.kind === "config" ? (
-                      <PathRunLabelChip
-                        path={file.path}
-                        projectRoot={projectRoot}
-                        className="flex-1 min-w-0"
-                      />
-                    ) : (
-                      <span className="truncate">{file.label}</span>
-                    )}
-                    <span className="text-[10px] text-canvas-muted shrink-0">{file.kind}</span>
-                  </button>
-                </li>
-              ))}
+              {filteredRecent.map((file, i) => {
+                const itemIndex = i;
+                const active = activeIndex === itemIndex;
+                return (
+                  <li key={file.path}>
+                    <button
+                      type="button"
+                      onMouseEnter={() => setActiveIndex(itemIndex)}
+                      onClick={() => void openRecentFile(file)}
+                      className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                        active
+                          ? "bg-accent-primary/20 text-accent-secondary"
+                          : "text-gray-300 hover:bg-canvas-hover"
+                      }`}
+                    >
+                      {isKnownRecentKind(file.kind) ? (
+                        <PathRunLabelChip
+                          path={file.path}
+                          projectRoot={projectRoot}
+                          className="flex-1 min-w-0"
+                        />
+                      ) : (
+                        <span className="truncate">{file.label}</span>
+                      )}
+                      <span className="text-[10px] text-canvas-muted shrink-0">{file.kind}</span>
+                    </button>
+                  </li>
+                );
+              })}
             </>
           )}
-          {filtered.length === 0 && !showRecent && (
+          {paletteItems.length === 0 && (
             <li className="px-3 py-4 text-xs text-canvas-muted text-center">No matching commands</li>
           )}
-          {filtered.length > 0 && (
+          {filteredCommands.length > 0 && (
             <li className="px-3 py-1 text-[10px] font-semibold uppercase tracking-wider text-canvas-muted">
               Commands
             </li>
           )}
-          {filtered.map((cmd, i) => (
-            <li key={cmd.id}>
-              <button
-                type="button"
-                onMouseEnter={() => setActiveIndex(i)}
-                onClick={() => runCommand(cmd)}
-                className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
-                  i === activeIndex
-                    ? "bg-accent-primary/20 text-accent-secondary"
-                    : "text-gray-300 hover:bg-canvas-hover"
-                }`}
-              >
-                <span>{cmd.label}</span>
-                <span className="text-[10px] text-canvas-muted">{cmd.section}</span>
-              </button>
-            </li>
-          ))}
+          {filteredCommands.map((cmd, i) => {
+            const itemIndex = recentCount + i;
+            const active = activeIndex === itemIndex;
+            return (
+              <li key={cmd.id}>
+                <button
+                  type="button"
+                  onMouseEnter={() => setActiveIndex(itemIndex)}
+                  onClick={() => runCommand(cmd)}
+                  className={`w-full flex items-center justify-between px-3 py-2 text-left text-sm transition-colors ${
+                    active
+                      ? "bg-accent-primary/20 text-accent-secondary"
+                      : "text-gray-300 hover:bg-canvas-hover"
+                  }`}
+                >
+                  <span>{cmd.label}</span>
+                  <span className="text-[10px] text-canvas-muted">{cmd.section}</span>
+                </button>
+              </li>
+            );
+          })}
         </ul>
       </div>
     </div>

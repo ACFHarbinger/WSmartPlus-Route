@@ -1348,6 +1348,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser — **Open in Data Explorer →** CSV handoff via ``pendingCsvPath`` + ``pushRecent`` (§G.14 / §G.6 / §D.7)
 - [x] §G.8 / §G.14 global drop + Output Browser multi-kind recent-file ``portfolioRunLabel`` parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-tenth pass)**
+
+- [x] ``recentHandoff.ts`` — shared kind → mode / pending-path / toast handoff + ``makeRecentEntry`` (§G.7 / §G.8 / §D.7)
+- [x] ``recentKindFromPath`` — training ``logs/`` + ``assets/output`` run directory heuristics (§G.8 / §G.14 / §G.17 / §D.7)
+- [x] Command Palette — unified recent open via shared handoff; keyboard nav over recents + commands (§G.7 / §D.7)
+- [x] ``useGlobalFileDrop`` — multi-path classify/push + directory drop + highest-priority handoff (§G.8 / §G.6 / §G.12 / §G.14 / §G.17 / §D.7)
+- [x] Output Browser — directory picker + inline open via ``recentKindFromPath`` / ``makeRecentEntry`` (§G.14 / §D.7)
+- [x] Evaluation Runner + Training Hub — CSV dataset pick ``pushRecent`` for Data Explorer reopen (§G.12 / §G.10 / §G.6 / §D.7)
+- [x] §G.7 / §G.8 / §G.14 shared recent-file handoff + directory drop ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1958,6 +1968,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Command Palette config recent-file handoff — ``pendingConfigPath`` + Config Editor mode (two-hundred-and-eighth pass; §G.7 / §G.13 / §D.7)
 - [x] ``recentKindFromPath`` + ``useGlobalFileDrop`` multi-kind drop — ``.csv`` / checkpoint / config ``portfolioRunLabel`` + pending handoffs (two-hundred-and-ninth pass; §G.8 / §G.6 / §G.12 / §G.13 / §D.7)
 - [x] Output Browser checkpoint open + **Open in Data Explorer →** CSV handoff recent-file push — ``portfolioRunLabel`` (two-hundred-and-ninth pass; §G.14 / §G.12 / §G.6 / §D.7)
+- [x] ``recentHandoff.ts`` shared handoff + Command Palette keyboard nav + multi-path / directory drop (two-hundred-and-tenth pass; §G.7 / §G.8 / §G.14 / §G.17 / §D.7)
+- [x] Output Browser ``pickOutputDir`` + eval/train CSV dataset pick recent-file push — ``portfolioRunLabel`` (two-hundred-and-tenth pass; §G.14 / §G.10 / §G.12 / §G.6 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
@@ -2027,11 +2039,11 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `T`/`H`/`E` → train/HPO workflow, `L`/`D`/`V` → sim/data-gen/eval launchers, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
 - [x] Keyboard shortcuts help overlay: `KeyboardShortcutsHelp` modal + TopBar button; `Escape` dismisses
 - [x] Lazy-loaded page components: all 17 views behind `React.lazy` + `Suspense` in `App.tsx` (§G.7)
-- [x] Command palette: `CommandPalette` fuzzy-search overlay for all views + actions; `Ctrl+K` / TopBar search button; arrow keys + Enter navigation
+- [x] Command palette: `CommandPalette` fuzzy-search overlay for all views + actions; `Ctrl+K` / TopBar search button; arrow keys + Enter navigation over **recents and commands** via shared ``recentHandoff`` (two-hundred-and-tenth pass; §G.7 / §D.7)
 - [x] Vite `manualChunks`: echarts, maplibre, deck.gl, monaco, duckdb, r3f, sigma split into separate vendor bundles (§G.7)
 - [x] Sidebar page prefetch: `prefetchPage()` warms lazy route chunks on nav item hover
 - [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
-- [x] Recent files quick open: `useRecentFilesStore` persisted list; command palette Recent section; tracked from Simulation Monitor, Summary, Output Browser, Data Explorer
+- [x] Recent files quick open: `useRecentFilesStore` persisted list (log/run/csv/training/checkpoint/config); command palette Recent section; shared ``recentKindFromPath`` + ``recentHandoff`` for drop/open parity (two-hundred-and-tenth pass; §G.7 / §G.8 / §D.7)
 - [x] Startup route prefetch: `App.tsx` warms all 18 lazy route chunks (monitor, analytics, launch, files, settings) on mount (§G.7)
 - [x] Startup vendor prefetch: echarts, maplibre-gl, @deck.gl/react, @monaco-editor/react, @duckdb/duckdb-wasm, sigma, @react-three/fiber + DeckRouteMap warmed on mount (§G.7)
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7)
@@ -2066,7 +2078,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Rust backend: `extract_wsroute_bundle` decompresses a bundle; returns first `.jsonl` path for Simulation Summary
 - [x] Output Browser: "Export as .wsroute" on selected run (save dialog); "Extract & Open" on `.wsroute` files
 - [x] Output Browser: drag-drop `.wsroute` bundle onto file viewer via Tauri `onDragDropEvent` (`useFileDrop` hook); inspects manifest without directory picker
-- [x] Global file drop: `useGlobalFileDrop` in `Layout` extracts `.wsroute` to `assets/output/.imports/` or opens `.jsonl` logs in Simulation Summary; also routes `.csv` → Data Explorer, checkpoints → Eval Runner, configs → Config Editor via ``portfolioRunLabel`` + pending handoffs (two-hundred-and-ninth pass; §G.8 / §G.6 / §G.12 / §G.13 / §D.7)
+- [x] Global file drop: `useGlobalFileDrop` in `Layout` extracts `.wsroute` to `assets/output/.imports/` or opens `.jsonl` logs in Simulation Summary; routes `.csv` / checkpoints / configs / training ``logs/`` dirs / ``assets/output`` run dirs via shared ``recentHandoff`` + multi-path push (two-hundred-and-tenth pass; §G.8 / §G.6 / §G.12 / §G.13 / §G.14 / §G.17 / §D.7)
 - [x] Integration test: `wsroute_bundle_round_trip_preserves_jsonl` + `simulation_arrow_sidecar_row_parity` Rust unit tests — create bundle → extract → verify `.jsonl` log content and Arrow sidecar row counts match parsed entries (§G.8)
 - [x] Tauri bundler config: `tauri.conf.json` targets `deb`/`appimage`/`msi`/`dmg`; Linux deb section + Windows NSIS; `npm run tauri:build` / `tauri:build:linux` scripts; `createUpdaterArtifacts: true` emits `.sig` sidecars (partial — code-signing keys deferred)
 - [x] App version command: `system::get_app_version` surfaced in Settings About (§G.8 / §G.19)
@@ -2230,7 +2242,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Run list panel: `list_output_dirs` with name, path, created_at, size
 - [x] File tree: `list_dir` command; lazy-loads subdirectory contents on expand; `Folder`/`FileText`/`File` icons by extension
 - [x] File viewer: CSV files load via `load_csv_file` (table with 200-row preview); text/YAML/JSON via `read_text_file` (syntax-highlighted pre block)
-- [x] Directory picker via Tauri dialog for browsing arbitrary directories (not just `assets/output/`)
+- [x] Directory picker via Tauri dialog for browsing arbitrary directories (not just `assets/output/`); ``pushRecent`` as ``run`` via ``portfolioRunLabel`` (two-hundred-and-tenth pass; §G.14 / §D.7)
 - [x] Run metadata panel: auto-loads `pruned_config.yaml` (or `config.yaml`) when a run is selected; flat YAML parsed and filtered by `META_KEYS`; compact two-column card below the file tree
 - [x] "Open in Sim Summary" button: shown for `.jsonl` files; sets `pendingLogPath` in app store then navigates to `simulation_summary` mode; `SimulationSummary` consumes `pendingLogPath` on mount via `useEffect`
 - [x] "Open in Data Explorer →" button: shown for `.csv` files; sets `pendingCsvPath` + ``pushRecent`` via ``portfolioRunLabel`` then navigates to `data_explorer` (two-hundred-and-ninth pass; §G.14 / §G.6 / §D.7)

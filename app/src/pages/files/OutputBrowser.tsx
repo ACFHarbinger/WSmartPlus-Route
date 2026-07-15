@@ -34,7 +34,7 @@ import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentFilesStore, recentKindFromPath } from "../../store/recentFiles";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
@@ -48,6 +48,7 @@ import {
   parentRunBrushLabelFromCheckpointPath,
 } from "../../utils/checkpoints";
 import { portfolioRunLabel } from "../../utils/arrowPipeline";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -335,12 +336,13 @@ export function OutputBrowser() {
     setFileLoading(true);
 
     try {
+      // Push recent via shared path→kind classifier when applicable (§G.7 / §G.14 / §D.7).
+      const recentKind = recentKindFromPath(entry.path);
+      if (recentKind) {
+        pushRecent(makeRecentEntry(entry.path, recentKind, projectRoot));
+      }
+
       if (isCheckpointEntry(entry)) {
-        pushRecent({
-          path: entry.path,
-          label: portfolioRunLabel(entry.path, undefined, projectRoot),
-          kind: "checkpoint",
-        });
         return;
       }
       if (entry.extension === "wsroute") {
@@ -355,27 +357,9 @@ export function OutputBrowser() {
         );
         setCsvHeaders(csvFile.headers);
         setCsvRows(csvFile.rows);
-        pushRecent({
-          path: entry.path,
-          label: portfolioRunLabel(entry.path, undefined, projectRoot),
-          kind: "csv",
-        });
       } else if (TEXT_EXTENSIONS.has(entry.extension)) {
         const text = await invoke<string>("read_text_file", { path: entry.path });
         setFileContent(text);
-        if (LOG_EXTENSIONS.has(entry.extension)) {
-          pushRecent({
-            path: entry.path,
-            label: portfolioRunLabel(entry.path, undefined, projectRoot),
-            kind: "log",
-          });
-        } else if (CONFIG_EXTENSIONS.has(entry.extension)) {
-          pushRecent({
-            path: entry.path,
-            label: portfolioRunLabel(entry.path, undefined, projectRoot),
-            kind: "config",
-          });
-        }
       }
     } catch (err) {
       toast.error("Failed to open file", { description: String(err) });
@@ -534,21 +518,30 @@ export function OutputBrowser() {
     if (!path) return;
     try {
       const e = await invoke<DirEntry[]>("list_dir", { path });
+      const name = path.split(/[/\\]/).pop() ?? path;
       const fakeRun: OutputDir = {
-        name: path.split("/").pop() ?? path,
+        name,
         path,
         created_at: "",
         size_bytes: 0,
       };
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, name, projectRoot),
+        kind: "run",
+      });
       setSelectedRun(fakeRun);
       setEntries(e);
       setFileContent(null);
       setCsvRows(null);
       setRunMeta(null);
+      setViewingPath(null);
+      setViewingExt("");
+      setViewingCheckpoint(null);
     } catch (err) {
       toast.error("Failed to open directory", { description: String(err) });
     }
-  }, []);
+  }, [pushRecent, projectRoot]);
 
   function renderEntries(list: DirEntry[], depth = 0): React.ReactNode {
     return list.map((e) => (

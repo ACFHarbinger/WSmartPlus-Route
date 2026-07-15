@@ -56,12 +56,31 @@ export function recentFileLabel(path: string): string {
   return path.split("/").pop() ?? path;
 }
 
-/** Classify a filesystem path into a recent-file kind for drop/open handoff (§G.7 / §G.8 / §D.7). */
+/**
+ * Classify a filesystem path into a recent-file kind for drop/open handoff
+ * (§G.7 / §G.8 / §G.14 / §G.17 / §D.7).
+ *
+ * File extensions take priority. Bare directories use path heuristics for Lightning
+ * training runs under ``logs/`` and simulation output runs under ``assets/output``.
+ */
 export function recentKindFromPath(path: string): RecentFileKind | null {
-  const base = (path.replace(/\\/g, "/").split("/").pop() ?? path).toLowerCase();
+  const normalized = path.replace(/\\/g, "/");
+  const base = (normalized.split("/").pop() ?? path).toLowerCase();
   if (base.endsWith(".jsonl") || base.endsWith(".log")) return "log";
   if (base.endsWith(".csv")) return "csv";
   if (/\.(pt|ckpt|pth)$/.test(base)) return "checkpoint";
   if (/\.(ya?ml|toml|cfg|ini)$/.test(base)) return "config";
+  if (base.endsWith(".wsroute")) return null;
+
+  // Directory heuristics (no recognised file extension)
+  const hasFileExt = /\.[a-z0-9]{1,8}$/i.test(base);
+  if (!hasFileExt) {
+    if (/(^|\/)logs(\/|$)/.test(normalized) && !normalized.endsWith("/logs")) {
+      return "training";
+    }
+    if (/(^|\/)assets\/output(\/|$)/.test(normalized)) {
+      return "run";
+    }
+  }
   return null;
 }

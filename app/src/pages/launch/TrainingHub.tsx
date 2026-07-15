@@ -236,7 +236,16 @@ export function TrainingHub() {
     const path = (await open({
       filters: [{ name: "Dataset", extensions: ["pkl", "json", "csv"] }],
     })) as string | null;
-    if (path) setEvalDataset(path);
+    if (!path) return;
+    // CSV datasets are reopenable in Data Explorer via Command Palette recents (§G.6 / §G.10).
+    if (/\.csv$/i.test(path)) {
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "csv",
+      });
+    }
+    setEvalDataset(path);
   };
 
   const hydraArgs = useMemo(() => {

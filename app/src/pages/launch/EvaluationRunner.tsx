@@ -428,7 +428,16 @@ export function EvaluationRunner() {
     const path = (await open({
       filters: [{ name: "Dataset", extensions: ["pkl", "json", "csv"] }],
     })) as string | null;
-    if (path) setDatasetPath(path);
+    if (!path) return;
+    // CSV datasets are reopenable in Data Explorer via Command Palette recents (§G.6 / §G.12).
+    if (/\.csv$/i.test(path)) {
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "csv",
+      });
+    }
+    setDatasetPath(path);
   };
 
   // Show preview for first checkpoint
