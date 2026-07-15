@@ -1,7 +1,9 @@
 /**
  * Derive assets/output run directories from process stdout (§G.14 / §G.9 / §G.15).
  */
+import type { ProcessEntry } from "../types";
 import { extractJsonlPathFromLogLines } from "./policyTelemetryTrends";
+import { isTrainOrHpoProcess } from "./trainingProcess";
 import { trainingRunPathFromLogLines } from "./trainingRunPath";
 
 export type ProcessLogPathKind = "sim" | "train" | "auto";
@@ -88,4 +90,26 @@ export function brushLogPathFromProcessLines(
     return outputRunPathFromLogLines(lines);
   }
   return null;
+}
+
+/** Infer stdout log-path resolution kind from process id + command (§G.15 / §D.7). */
+export function processLogPathKind(id: string, command: string): ProcessLogPathKind {
+  return isTrainOrHpoProcess(id, command) ? "train" : "sim";
+}
+
+/** Derive log/run path per process id for row path-chip brush parity (§G.15 / §D.7). */
+export function brushLogPathMapFromProcesses(
+  processes: Record<string, Pick<ProcessEntry, "logLines" | "command">>,
+  ids: string[]
+): Record<string, string | null> {
+  const map: Record<string, string | null> = {};
+  for (const id of ids) {
+    const proc = processes[id];
+    if (!proc) continue;
+    map[id] = brushLogPathFromProcessLines(
+      proc.logLines,
+      processLogPathKind(id, proc.command)
+    );
+  }
+  return map;
 }

@@ -790,7 +790,7 @@ export function TrainingMonitor() {
           }}
           logLines={recentTrainLogLines}
           logTailWaiting={activeTrainRunning}
-          footer={<ProcessIdFooter processId={recentTrainId} />}
+          footer={<ProcessIdFooter processId={recentTrainId} logPath={processLogPath} />}
         />
       )}
 

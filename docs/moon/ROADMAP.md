@@ -1107,6 +1107,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary — ``ConfigMetaBanner`` run path uses ``PathRunLabelChip`` instead of plain font-mono text (§G.1 / §G.14 / §D.7)
 - [x] §G.9–§G.18 launcher/monitor card header path-chip run-label brush + ring-highlight parity across all live workflow pages (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-third pass)**
+
+- [x] ``processLogPathKind`` / ``brushLogPathMapFromProcesses`` — derive per-process log/run paths from stdout for row + footer path-chip brush (§G.15 / §D.7)
+- [x] Process Monitor — process list rows render ``PathRunLabelChip`` when stdout resolves a log path; ring-highlight parity preserved (§G.15 / §D.7)
+- [x] ``ProcessIdFooter`` — optional ``logPath`` prop renders ``PathRunLabelChip`` with muted process-id suffix on launcher/monitor live panels (§G.9–§G.18 / §D.7)
+- [x] Simulation Launcher + Data Generation + Evaluation Runner + Training Hub + Training Monitor + HPO Tracker + Experiment Tracker — live panel footers pass ``logPath`` from process stdout (§G.9–§G.18 / §D.7)
+- [x] Command Palette — recent log/run/csv entries use ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.7 / §D.7)
+- [x] §G.15 Process Monitor process-row path-chip run-label brush + ring-highlight parity across all workflow kinds (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1654,6 +1663,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Benchmark Analysis + City Comparison loaded-run list ring highlight + click-to-brush via ``runLabelMapFromPaths`` + ``handleRunLabelClick``; single-run ``GlobalFilterBar`` ``runLabels`` (hundred-seventy-sixth pass; §G.1 / §G.6 / §D.7)
 - [x] Portfolio loaded-run lists — ``LoadedRunRow`` + ``PathRunLabelChip`` on Benchmark Analysis, City Comparison, Simulation Summary comparison runs, and Output Browser run-directory list (hundred-eighty-first pass; §G.1 / §G.6 / §G.14 / §D.7)
 - [x] Launcher/monitor live panel headers — ``RunLabelHeaderSuffix`` + ``PathRunLabelChip`` on sim/data-gen/eval/train/HPO live cards when process stdout resolves a log path (hundred-eighty-second pass; §G.9–§G.18 / §D.7)
+- [x] Process Monitor process rows + live panel footers — ``PathRunLabelChip`` when stdout resolves a log path; Command Palette recent files path-chip brush parity (hundred-eighty-third pass; §G.7 / §G.15 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

@@ -6,6 +6,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
 import { nextThemePreference } from "../../utils/theme";
+import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useRecentFilesStore } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
 
@@ -149,10 +150,14 @@ export function CommandPalette() {
                         setCommandPaletteOpen(false);
                       }
                     }}
-                    className="w-full flex items-center justify-between px-3 py-2 text-left text-sm text-gray-300 hover:bg-canvas-hover"
+                    className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm text-gray-300 hover:bg-canvas-hover"
                   >
-                    <span className="truncate">{file.label}</span>
-                    <span className="text-[10px] text-canvas-muted shrink-0 ml-2">{file.kind}</span>
+                    {file.kind === "log" || file.kind === "run" || file.kind === "csv" ? (
+                      <PathRunLabelChip path={file.path} className="flex-1 min-w-0" />
+                    ) : (
+                      <span className="truncate">{file.label}</span>
+                    )}
+                    <span className="text-[10px] text-canvas-muted shrink-0">{file.kind}</span>
                   </button>
                 </li>
               ))}
