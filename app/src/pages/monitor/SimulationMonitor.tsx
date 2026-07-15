@@ -19,7 +19,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { BarChart2, ChevronLeft, ChevronRight, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
@@ -29,6 +29,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { hexToRgb } from "../../utils/colors";
 import {
@@ -616,14 +617,12 @@ export function SimulationMonitor() {
         </button>
 
         {watchPath && (
-          <button
-            onClick={() => handoff(watchPath, "log")}
-            className="btn-ghost flex items-center gap-2 text-xs text-accent-primary"
-            title="Open this log in Simulation Summary"
-          >
-            <BarChart2 size={14} />
-            Simulation Summary →
-          </button>
+          <LogHandoffButtons
+            path={watchPath}
+            targets={["summary"]}
+            labeled
+            iconSize={14}
+          />
         )}
 
         {watchPath && (

@@ -12,7 +12,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download, Map as MapIcon } from "lucide-react";
+import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -21,6 +21,7 @@ import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
@@ -2264,14 +2265,12 @@ export function SimulationSummary() {
                 {portfolioLoading ? "Scanning output…" : "Load output portfolio"}
               </button>
             )}
-            <button
-              onClick={() => handoff(logPath, "log", { mode: "simulation" })}
-              className="btn-ghost flex items-center gap-2 text-xs text-accent-secondary"
-              title="Open this log in Simulation Digital Twin"
-            >
-              <MapIcon size={14} />
-              Simulation Monitor →
-            </button>
+            <LogHandoffButtons
+              path={logPath}
+              targets={["monitor"]}
+              labeled
+              iconSize={14}
+            />
           </>
         )}
         {logPath && (

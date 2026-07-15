@@ -23,13 +23,13 @@ import {
   ChevronRight,
   ChevronDown,
   BarChart2,
-  Map,
   Save,
   Trash2,
   Package,
   Archive,
   ClipboardList,
 } from "lucide-react";
+import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -358,21 +358,6 @@ export function OutputBrowser() {
       setFileLoading(false);
     }
   }, [toggleDir, handoff]);
-
-  const openInSimSummary = useCallback(
-    (path: string) => {
-      handoff(path, "log");
-    },
-    [handoff]
-  );
-
-  /** Digital Twin handoff via shared mode override (§G.16 / §G.14 / §D.7). */
-  const openInSimulationMonitor = useCallback(
-    (path: string) => {
-      handoff(path, "log", { mode: "simulation" });
-    },
-    [handoff]
-  );
 
   const loadInEvalRunner = useCallback(
     (path: string) => {
@@ -883,22 +868,12 @@ export function OutputBrowser() {
               </button>
             )}
             {viewingPath && LOG_EXTENSIONS.has(viewingExt) && (
-              <>
-                <button
-                  onClick={() => openInSimSummary(viewingPath)}
-                  className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
-                >
-                  <BarChart2 size={12} />
-                  Open in Sim Summary →
-                </button>
-                <button
-                  onClick={() => openInSimulationMonitor(viewingPath)}
-                  className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
-                >
-                  <Map size={12} />
-                  Open in Simulation Monitor →
-                </button>
-              </>
+              <LogHandoffButtons
+                path={viewingPath}
+                labeled
+                iconSize={12}
+                className="shrink-0"
+              />
             )}
             {viewingPath && CONFIG_EXTENSIONS.has(viewingExt) && (
               <button
