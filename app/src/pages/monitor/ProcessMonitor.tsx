@@ -28,6 +28,8 @@ import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
+import { getLatestProgress, progressPercent } from "../../utils/processProgress";
+import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -66,36 +68,6 @@ function LogLine({ line }: { line: string }) {
       <span className={isStderr ? "text-accent-warning" : "text-gray-400"}>{line}</span>
     );
   }
-}
-
-// Scan the last 30 log lines for a PROGRESS:{...} marker emitted by Python
-const PROGRESS_MARKER = "PROGRESS:";
-
-interface ProgressInfo {
-  value: number;
-  total?: number;
-  label?: string;
-}
-
-function getLatestProgress(logLines: string[]): ProgressInfo | null {
-  const start = Math.max(0, logLines.length - 30);
-  for (let i = logLines.length - 1; i >= start; i--) {
-    const line = logLines[i];
-    const idx = line.indexOf(PROGRESS_MARKER);
-    if (idx === -1) continue;
-    try {
-      const raw = JSON.parse(line.slice(idx + PROGRESS_MARKER.length).trim()) as Record<string, unknown>;
-      const value = typeof raw.value === "number" ? raw.value
-        : typeof raw.current === "number" ? raw.current : null;
-      if (value === null) continue;
-      return {
-        value,
-        total: typeof raw.total === "number" ? raw.total : undefined,
-        label: typeof raw.label === "string" ? raw.label : undefined,
-      };
-    } catch {}
-  }
-  return null;
 }
 
 function useLiveDuration(startTime: number, stopped: boolean): string {
@@ -221,7 +193,7 @@ function ProcessRow({
       {proc.status === "running" && (() => {
         const prog = getLatestProgress(proc.logLines);
         if (!prog) return null;
-        const pct = prog.total ? Math.min(100, (prog.value / prog.total) * 100) : null;
+        const pct = progressPercent(prog);
         return (
           <div className="px-4 py-1.5 bg-canvas-bg border-t border-canvas-border/40 flex items-center gap-3">
             <div className="flex-1 h-1.5 bg-canvas-elevated rounded-full overflow-hidden">
@@ -295,7 +267,7 @@ function isTrainProcess(command: string, id: string): boolean {
 export function ProcessMonitor() {
   const processes = useProcessStore((s) => s.processes);
   const clearCompleted = useProcessStore((s) => s.clearCompleted);
-  const { effectiveTheme: theme, setMode } = useAppStore();
+  const { effectiveTheme: theme } = useAppStore();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -479,34 +451,9 @@ export function ProcessMonitor() {
                 <span className="ml-2 text-accent-success">· live</span>
               )}
             </p>
-            <button
-              onClick={() => setMode("training_hub")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Training Hub →
-            </button>
-            <button
-              onClick={() => setMode("training")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Training Monitor →
-            </button>
-            {isHpoProcess(selectedProc.id, selectedProc.command) && (
-              <>
-                <button
-                  onClick={() => setMode("hpo_tracker")}
-                  className="btn-ghost text-xs text-canvas-muted"
-                >
-                  HPO Tracker →
-                </button>
-                <button
-                  onClick={() => setMode("experiment_tracker")}
-                  className="btn-ghost text-xs text-canvas-muted"
-                >
-                  Experiment Tracker →
-                </button>
-              </>
-            )}
+            <TrainHpoNavMesh
+              showHpoLinks={isHpoProcess(selectedProc.id, selectedProc.command)}
+            />
           </div>
           <TrainingHealthPanel entries={trainingHealthEntries} />
           <RuntimeAttentionPanel

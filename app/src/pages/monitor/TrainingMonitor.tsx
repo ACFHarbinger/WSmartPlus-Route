@@ -19,6 +19,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
+import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
@@ -506,6 +508,8 @@ export function TrainingMonitor() {
   const activeIsHpo = activeTrainId
     ? isHpoProcess(activeTrainId, processes[activeTrainId]?.command ?? "")
     : false;
+  const activeTrainRunning =
+    activeTrainId != null && processes[activeTrainId]?.status === "running";
 
   // Subscribe to stdout of the active training process and accumulate live rows
   useEffect(() => {
@@ -741,35 +745,16 @@ export function TrainingMonitor() {
                 {metricsMap[LIVE_KEY]?.length ?? 0} updates
               </span>
             </label>
-            <button
-              onClick={() => setMode("training_hub")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Training Hub →
-            </button>
-            <button
-              onClick={() => setMode("process_monitor")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Process Monitor →
-            </button>
-            {activeIsHpo && (
-              <>
-                <button
-                  onClick={() => setMode("hpo_tracker")}
-                  className="btn-ghost text-xs text-canvas-muted"
-                >
-                  HPO Tracker →
-                </button>
-                <button
-                  onClick={() => setMode("experiment_tracker")}
-                  className="btn-ghost text-xs text-canvas-muted"
-                >
-                  Experiment Tracker →
-                </button>
-              </>
-            )}
+            <TrainHpoNavMesh showHpoLinks={activeIsHpo} />
           </div>
+          {activeTrainRunning && (
+            <LiveTrainProgressBar
+              processId={activeTrainId}
+              fallbackValue={
+                metricsMap[LIVE_KEY]?.[metricsMap[LIVE_KEY].length - 1]?.epoch
+              }
+            />
+          )}
         </div>
       )}
 

@@ -15,6 +15,8 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
+import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
@@ -259,7 +261,7 @@ function MiniSparkline({
 }
 
 export function TrainingHub() {
-  const { projectRoot, setMode, effectiveTheme } = useAppStore();
+  const { projectRoot, effectiveTheme } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
 
@@ -635,49 +637,21 @@ export function TrainingHub() {
                 <span className="text-xs text-canvas-muted">{liveMetrics.length} updates</span>
               )}
             </div>
-            <div className="flex items-center gap-2">
-              {isDone && runStatus === "completed" && (
-                <button
-                  onClick={() => setMode("output_browser")}
-                  className="btn-ghost text-xs text-accent-success"
-                >
-                  Output Browser →
-                </button>
-              )}
-              {showTrainingAnalytics && (
-                <>
-                  <button
-                    onClick={() => setMode("training")}
-                    className="btn-ghost text-xs text-canvas-muted"
-                  >
-                    Training Monitor →
-                  </button>
-                  {mode === "hpo" && (
-                    <>
-                      <button
-                        onClick={() => setMode("hpo_tracker")}
-                        className="btn-ghost text-xs text-canvas-muted"
-                      >
-                        HPO Tracker →
-                      </button>
-                      <button
-                        onClick={() => setMode("experiment_tracker")}
-                        className="btn-ghost text-xs text-canvas-muted"
-                      >
-                        Experiment Tracker →
-                      </button>
-                    </>
-                  )}
-                </>
-              )}
-              <button
-                onClick={() => setMode("process_monitor")}
-                className="btn-ghost text-xs text-canvas-muted"
-              >
-                Process Monitor →
-              </button>
-            </div>
+            <TrainHpoNavMesh
+              hideHub
+              showTrainLinks={showTrainingAnalytics}
+              showHpoLinks={mode === "hpo"}
+              showOutputBrowser={isDone && runStatus === "completed"}
+            />
           </div>
+
+          {!isDone && liveProcessId && (
+            <LiveTrainProgressBar
+              processId={liveProcessId}
+              fallbackTotal={mode === "train" ? epochs : undefined}
+              fallbackValue={latestMetric?.epoch}
+            />
+          )}
 
           {/* Latest metric snapshot */}
           {latestMetric && (
