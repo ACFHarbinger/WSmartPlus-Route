@@ -290,13 +290,25 @@ export async function runSimulationArrowPipeline(
   };
 }
 
+/** Resolve portfolio ``run_label`` for DuckDB ingest (§G.1 / §G.6 / §D.7). */
+export function portfolioRunLabel(
+  path: string,
+  label?: string,
+  projectRoot?: string | null
+): string {
+  if (projectRoot) return runLabelFromSourcePath(path, projectRoot);
+  if (label) return label;
+  return runLabelFromSourcePath(path, projectRoot);
+}
+
 /**
  * Portfolio pipeline: union multiple simulation JSONL logs into one DuckDB table with
  * a ``run_label`` column (§G.1.4 / §G.6).
  */
 export async function runPortfolioSimulationArrowPipeline(
-  logs: { path: string; label: string }[],
-  tableName = "studio_portfolio"
+  logs: { path: string; label?: string }[],
+  tableName = "studio_portfolio",
+  projectRoot?: string | null
 ): Promise<ArrowPipelineTiming> {
   if (logs.length === 0) {
     throw new Error("No simulation logs to ingest");
@@ -324,8 +336,9 @@ export async function runPortfolioSimulationArrowPipeline(
 
   const unionSql = logs
     .map((log, i) => {
-      const cityScale = cityScaleFromRunLabel(log.label);
-      return `SELECT *, ${sqlStringLiteral(log.label)} AS run_label, ${sqlStringLiteral(cityScale)} AS city_scale FROM "${tempTables[i]}"`;
+      const runLabel = portfolioRunLabel(log.path, log.label, projectRoot);
+      const cityScale = cityScaleFromRunLabel(runLabel);
+      return `SELECT *, ${sqlStringLiteral(runLabel)} AS run_label, ${sqlStringLiteral(cityScale)} AS city_scale FROM "${tempTables[i]}"`;
     })
     .join("\nUNION ALL BY NAME\n");
 

@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-eighth pass (§G.0 + §G.1 + §G.1.6 + §G.6 + §D.7)
+
+Hundred-ninety-eighth pass closes the portfolio DuckDB union ingest ``run_label``
+gaps left after pass 197 unified single-log Arrow pipelines and Simulation Summary
+portfolio labels. ``portfolioRunLabel`` + ``runPortfolioSimulationArrowPipeline`` now
+accept optional ``projectRoot`` and resolve multi-log ``run_label`` columns via
+``runLabelFromSourcePath``. Benchmark Analysis and City Comparison derive portfolio
+run labels on load/add-run and pass ``projectRoot`` into DuckDB ingest.
+
+**React frontend**
+- ``portfolioRunLabel`` — resolve portfolio ``run_label`` against ``projectRoot`` before DuckDB union (§G.0 / §G.1 / §G.6 / §D.7)
+- ``runPortfolioSimulationArrowPipeline`` — optional ``projectRoot`` resolves each log's ``run_label`` via ``runLabelFromSourcePath`` (§G.0 / §G.1 / §G.6 / §D.7)
+- Benchmark Analysis + City Comparison — ``portfolioRunLabel`` on add-run, output-portfolio load, and pending compare logs; DuckDB ingest passes ``projectRoot`` (§G.1 / §G.1.6 / §D.7)
+- Simulation Summary + OLAP Explorer — portfolio DuckDB pipeline callers pass ``projectRoot`` for multi-log union ingest (§G.1 / §G.6 / §D.7)
+
+**ROADMAP**
+- §G.0 / §G.1 portfolio DuckDB union ingest ``run_label`` relative-path resolution checked
+- §G.1.6 City Comparison portfolio DuckDB log-label brush/SQL parity checked
+- §G.1 Benchmark Analysis portfolio DuckDB log-label brush/SQL parity checked
+- §G.6 OLAP Explorer multi-log DuckDB ingest ``projectRoot`` parity checked
+- §D.7 portfolio DuckDB ``run_label`` relative-path brush/SQL parity across Benchmark Analysis, City Comparison, Simulation Summary, and OLAP Explorer checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-seventh pass (§G.0 + §G.6 + §G.7 + §G.9–§G.18 + §A.3 + §D.7)
 
 Hundred-ninety-seventh pass closes the DuckDB Arrow ingest and explicit live-panel

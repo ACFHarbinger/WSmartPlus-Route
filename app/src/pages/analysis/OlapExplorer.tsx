@@ -175,7 +175,11 @@ export function OlapExplorer() {
     setLoading(true);
     try {
       const timing = isJsonl
-        ? await runPortfolioSimulationArrowPipeline([{ path, label: runLabel }], tableName)
+        ? await runPortfolioSimulationArrowPipeline(
+            [{ path, label: runLabel }],
+            tableName,
+            projectRoot
+          )
         : await runCsvArrowPipeline(path, tableName, projectRoot);
       setLastPipeline(timing);
       setSelectedTable(tableName);

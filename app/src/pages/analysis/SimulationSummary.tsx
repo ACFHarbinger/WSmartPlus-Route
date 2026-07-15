@@ -1890,11 +1890,11 @@ export function SimulationSummary() {
   useEffect(() => {
     if (!duckdbReady || allDuckDbLogs.length === 0) return;
     setDuckdbLoading(true);
-    runPortfolioSimulationArrowPipeline(allDuckDbLogs, SUMMARY_SIM_TABLE)
+    runPortfolioSimulationArrowPipeline(allDuckDbLogs, SUMMARY_SIM_TABLE, projectRoot)
       .then(setLastPipeline)
       .catch((err) => console.warn("Summary Arrow pipeline:", err))
       .finally(() => setDuckdbLoading(false));
-  }, [allDuckDbLogs, duckdbReady, setLastPipeline, setDuckdbLoading]);
+  }, [allDuckDbLogs, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
 
   // Auto-load when another page hands off a log path (e.g. OutputBrowser)
   useEffect(() => {
