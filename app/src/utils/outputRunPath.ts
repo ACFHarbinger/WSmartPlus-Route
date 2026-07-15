@@ -136,6 +136,24 @@ export function sqlitePathFromStorageUrl(storageUrl: string): string | null {
   return path.trim() || null;
 }
 
+/** Resolve a tracking URI or relative path against ``projectRoot`` for path-chip brush (§G.18 / §G.19 / §D.7). */
+export function resolveLocalProjectPath(
+  uriOrPath: string,
+  projectRoot: string | null | undefined
+): string | null {
+  const trimmed = uriOrPath.trim();
+  if (!trimmed) return null;
+  const fromUri = localPathFromUri(trimmed);
+  if (!fromUri) return null;
+  if (fromUri.startsWith("/") || /^[A-Za-z]:[\\/]/.test(fromUri)) {
+    return fromUri;
+  }
+  if (!projectRoot) return fromUri;
+  const root = projectRoot.replace(/\\/g, "/").replace(/\/$/, "");
+  const rel = fromUri.replace(/^\.\//, "");
+  return `${root}/${rel}`;
+}
+
 /** Derive log/run path per process id for row path-chip brush parity (§G.15 / §D.7). */
 export function brushLogPathMapFromProcesses(
   processes: Record<string, Pick<ProcessEntry, "logLines" | "command">>,

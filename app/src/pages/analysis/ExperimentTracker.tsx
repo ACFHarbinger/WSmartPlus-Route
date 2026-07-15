@@ -21,6 +21,7 @@ import {
   brushLogPathFromProcessLines,
   mlflowRunDirFromArtifactUri,
   outputRunPathFromLogLines,
+  resolveLocalProjectPath,
 } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
@@ -132,6 +133,11 @@ export function ExperimentTracker() {
     const runDir = mlflowRunDirFromArtifactUri(run.artifact_uri);
     return run.run_name || (runDir ? runLabelFromPath(runDir) : run.run_id.slice(0, 8));
   }, []);
+
+  const trackingUriPath = useMemo(
+    () => resolveLocalProjectPath(trackingUri, projectRoot),
+    [trackingUri, projectRoot]
+  );
 
   const filterRunLabels = useMemo(() => {
     if (processRunLabel) return [processRunLabel];
@@ -420,6 +426,9 @@ export function ExperimentTracker() {
               onChange={(e) => setTrackingUri(e.target.value)}
               placeholder="mlruns"
             />
+            {trackingUriPath ? (
+              <PathRunLabelChip path={trackingUriPath} className="max-w-full" />
+            ) : null}
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs text-canvas-muted">Experiment</label>

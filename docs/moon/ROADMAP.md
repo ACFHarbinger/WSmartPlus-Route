@@ -1182,6 +1182,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` header uses ``PathRunLabelChip`` instead of plain font-mono text (§G.7 / §A.3 / §D.7)
 - [x] §G.12 / §G.10 / §G.11 / §G.15 live-eval + dataset + data-gen source path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninety-first pass)**
+
+- [x] ``resolveLocalProjectPath`` — resolve MLflow tracking URI / relative paths against ``projectRoot`` for path-chip brush (§G.18 / §G.19 / §D.7)
+- [x] Settings — project root + Python executable ``PathRunLabelChip`` below filled path inputs (§G.19 / §D.7)
+- [x] Experiment Tracker — MLflow tracking URI ``PathRunLabelChip`` below filled tracking URI when local path resolves (§G.18 / §D.7)
+- [x] HPO Tracker — Optuna storage URL ``PathRunLabelChip`` below filled input; inline chip parity with eval dataset inputs (§G.18 / §D.7)
+- [x] §G.18 / §G.19 Settings + tracker storage/tracking URI path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1745,6 +1753,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner + Training Hub eval dataset inputs — ``PathRunLabelChip`` below filled dataset paths (hundred-ninetieth pass; §G.12 / §G.10 / §D.7)
 - [x] Data Generation Wizard TSPLIB + sensor source paths — ``PathRunLabelChip`` on external data source file inputs (hundred-ninetieth pass; §G.11 / §D.7)
 - [x] PolicyTelemetryTrendsPanel SQLite store path — ``PathRunLabelChip`` on ``db_path`` header (hundred-ninetieth pass; §G.7 / §A.3 / §D.7)
+- [x] Settings project root + Python path — ``PathRunLabelChip`` below filled path inputs (hundred-ninety-first pass; §G.19 / §D.7)
+- [x] Experiment Tracker MLflow tracking URI — ``PathRunLabelChip`` below filled tracking URI when local path resolves (hundred-ninety-first pass; §G.18 / §D.7)
+- [x] HPO Tracker Optuna storage URL — ``PathRunLabelChip`` below filled storage input; inline chip parity with eval dataset inputs (hundred-ninety-first pass; §G.18 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

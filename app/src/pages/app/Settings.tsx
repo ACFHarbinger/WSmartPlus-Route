@@ -17,6 +17,7 @@ import { useEffect, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload, RefreshCw, Compass } from "lucide-react";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { useStartupTiming } from "../../hooks/useStartupTiming";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
@@ -234,6 +235,9 @@ export function Settings() {
             Browse
           </button>
         </div>
+        {draftRoot.trim() ? (
+          <PathRunLabelChip path={draftRoot.trim()} className="max-w-full" />
+        ) : null}
         {!draftRoot && (
           <p className="text-xs text-accent-warning">
             Required — launchers will be disabled without this.
@@ -262,6 +266,9 @@ export function Settings() {
           placeholder="(auto-detect)"
           spellCheck={false}
         />
+        {draftPython.trim() ? (
+          <PathRunLabelChip path={draftPython.trim()} className="max-w-full" />
+        ) : null}
         <ValidationBadge v={pythonValidation} />
       </div>
 
