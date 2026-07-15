@@ -8,9 +8,9 @@ Example:
     >>> from logic.src.cli import parse_params
     >>> command, opts = parse_params()
     >>> command
-    'gui'
+    'test_suite'
     >>> opts
-    {'app_style': 'fusion', 'test_only': False}
+    {'verbose': True, ...}
 """
 
 import argparse
@@ -18,7 +18,6 @@ from typing import Any, Dict, Tuple, Union
 
 from logic.src.cli.benchmark_parser import validate_benchmark_args
 from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
-from logic.src.cli.gui_parser import add_gui_args, validate_gui_args
 from logic.src.cli.registry import get_parser
 from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 
@@ -53,8 +52,6 @@ def parse_params() -> Tuple[Union[str, Tuple[str, str]], Dict[str, Any]]:
             # This returns a tuple: (fs_command, validated_opts)
             inner_comm, opts = validate_file_system_args(opts)
             return ("file_system", inner_comm), opts
-        elif command == "gui":
-            opts = validate_gui_args(opts)
         elif command == "test_suite":
             opts = validate_test_suite_args(opts)
         elif command == "benchmark":
@@ -69,7 +66,6 @@ def parse_params() -> Tuple[Union[str, Tuple[str, str]], Dict[str, Any]]:
 __all__ = [
     "parse_params",
     "add_files_args",
-    "add_gui_args",
     "add_test_suite_args",
     "ConfigsParser",
     "LowercaseAction",

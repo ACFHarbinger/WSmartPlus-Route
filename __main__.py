@@ -3,7 +3,7 @@
 Entry Point for Package Execution (Hydra commands only).
 
 Routes CLI commands to the Hydra-based configuration system.
-Non-Hydra commands (gui, test_suite, file_system, benchmark) must be
+Non-Hydra commands (test_suite, file_system, benchmark) must be
 invoked via ``python main.py <command>`` instead.
 """
 
@@ -24,7 +24,7 @@ def main() -> None:
     if len(sys.argv) < 2:
         print("Usage: python -m WSmart-Route <task> [overrides...]")
         print("Available tasks: train, evaluation, test_sim, gen_data, hpo, meta_train")
-        print("\nFor non-Hydra commands (gui, test_suite, etc.), use: python main.py <command>")
+        print("\nFor non-Hydra commands (test_suite, file_system, etc.), use: python main.py <command>")
         sys.exit(1)
 
     task = sys.argv.pop(1)

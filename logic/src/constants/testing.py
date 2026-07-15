@@ -66,7 +66,6 @@ TEST_MODULES: Dict[str, str] = {
     "eval": "test_eval_command.py",  # Model evaluation (greedy, sampling, beam search)
     "test_sim": "test_test_command.py",  # Multi-day simulation testing
     "file_system": "test_file_system_command.py",  # File operations (create, read, update, delete)
-    "gui": "test_gui_command.py",  # GUI launch and initialization
     # Component Tests (unit tests for subsystems)
     "actions": "test_custom_actions.py",  # Simulation action pattern (Fill, Collect, Log)
     "edge_cases": "test_edge_cases.py",  # Boundary conditions (empty instances, single node, etc.)

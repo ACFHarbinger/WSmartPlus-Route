@@ -3,8 +3,8 @@ Generate an interactive module-level import graph for the entire codebase.
 Every Python file becomes a node; every internal import becomes a directed edge.
 
 Key features:
-  - Nodes colored by architectural layer (logic, gui, tests, etc.)
-  - Cross-layer violations (e.g. logic → gui) highlighted in red
+  - Nodes colored by architectural layer (logic, tests, etc.)
+  - Cross-layer violations highlighted in red
   - Condensed package view: group nodes by top-N directory levels
   - Terminal summary of violation counts and layer distribution
   - Saves an interactive pyvis HTML file for browser exploration
@@ -61,15 +61,12 @@ except ImportError:
 # (module prefix, display label, hex color)
 DEFAULT_LAYERS: List[Tuple[str, str, str]] = [
     ("logic", "Logic", "#3498db"),
-    ("gui", "GUI", "#9b59b6"),
     ("test", "Tests", "#27ae60"),
     ("script", "Scripts", "#e67e22"),
 ]
 
 # Pairs (src_layer, tgt_layer) that represent architectural violations
-FORBIDDEN_DIRECTIONS: List[Tuple[str, str]] = [
-    ("Logic", "GUI"),
-]
+FORBIDDEN_DIRECTIONS: List[Tuple[str, str]] = []
 
 
 def file_to_module(filepath: Path, root: Path) -> str:

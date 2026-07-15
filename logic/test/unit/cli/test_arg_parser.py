@@ -261,31 +261,3 @@ class TestFileSystemCommand:
             command, args_dict = parse_params()
             assert command == ("file_system", "update")
             assert args_dict["input_keys"] == ["key1", "key2", "key3"]
-
-
-class TestGUICommand:
-    """Test suite for GUI command"""
-
-    @pytest.mark.gui
-    def test_gui_basic(self, base_gui_args):
-        """Test basic GUI command"""
-        with patch.object(sys, "argv", base_gui_args):
-            command, args_dict = parse_params()
-            assert command == "gui"
-            assert args_dict["app_style"] == "fusion"
-
-    @pytest.mark.gui
-    def test_gui_with_style(self, base_gui_args):
-        """Test GUI with custom style"""
-        args = base_gui_args + ["--app_style", "Windows"]
-        with patch.object(sys, "argv", args):
-            command, args_dict = parse_params()
-            assert args_dict["app_style"] == "windows"  # LowercaseAction
-
-    @pytest.mark.gui
-    def test_gui_test_mode(self, base_gui_args):
-        """Test GUI test mode"""
-        args = base_gui_args + ["--test_only"]
-        with patch.object(sys, "argv", args):
-            command, args_dict = parse_params()
-            assert args_dict["test_only"] is True
