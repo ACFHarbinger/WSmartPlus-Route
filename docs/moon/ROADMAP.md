@@ -935,7 +935,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush`; DuckDB SQL sync via `brushSqlSync` (§G.1)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + parallel-axis overflows brush syncs `overflowMax` + `effectiveBrushed` cross-filter on Simulation Summary (§G.1)
 - [x] Parallel coordinates follow global ``logScale``: ``PolicyParallelChart`` + ``BenchmarkPortfolioParallel`` log-normalise profit · kg/km · km axes; symlog overflows; corridor brush inverts symlog via ``invertParallelAxisValue`` (§G.1.4 / §G.7)
-- [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
+- [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines; `BenchmarkPortfolioParallel` colours run polylines via `resolveRunSelectionStrategy()` + `selectionStrategyColor()` from log path / dominant policy with strategy legend (§G.1.4)
 
 #### 1.5 Constructor Ranking Chart
 - [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering; portfolio mode adds `PortfolioEfficiencyRanking` for run×policy configs (§G.1.5)
@@ -951,6 +951,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · kg · symlog-overflows row when global log toggle off (§G.1)
 - [x] City Comparison section follows global ``logScale``: log-scale profit + symlog-overflows bars when on; linear raw values when off; `BenchmarkAnalysis` + `SimulationSummary` + dedicated `CityComparison` page with portfolio load + summary table (§G.1.6 / §G.7)
 - [x] City Comparison error-bar whiskers: profit · symlog-overflows · kg/km grouped bars show mean ± std via ``showErrorBars`` toggle on ``cityComparisonChartOption``; log/symlog whiskers via ``errorBarBounds`` + ``groupedBarWhiskerX`` on Benchmark Analysis, Simulation Summary portfolio mode, and City Comparison page (§G.1.6 / §G.7)
+
+**Status**: §G.1 complete — all checklist items delivered.
 
 ---
 

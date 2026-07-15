@@ -4,10 +4,15 @@
 import { useMemo } from "react";
 import ReactECharts from "echarts-for-react";
 import { parallelAxisValue } from "../../utils/chartLogScale";
-import { cityScaleLabel, parseLogPath } from "../../utils/simMetadata";
+import {
+  cityScaleLabel,
+  parseLogPath,
+  resolveRunSelectionStrategy,
+  selectionStrategyColor,
+} from "../../utils/simMetadata";
 import type { DayLogEntry } from "../../types";
 
-const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
+const STRATEGY_LEGEND = ["LA", "LM", "LM-CF70", "LM-CF90", "SL-SL1", "SL-SL2"] as const;
 
 const AXIS_NAMES = ["N", "Profit", "kg/km", "Overflows", "km"] as const;
 
@@ -30,8 +35,10 @@ export function BenchmarkPortfolioParallel({
 }) {
   const lines = useMemo(
     () =>
-      runs.map((run, i) => {
+      runs.map((run) => {
         const meta = parseLogPath(run.path);
+        const policies = [...new Set(run.entries.map((e) => e.policy))];
+        const strategy = resolveRunSelectionStrategy(run.path, policies);
         const vals = run.entries.map((e) => e.data as Record<string, number>);
         const profit = mean(vals.map((d) => d.profit).filter((v): v is number => v != null));
         const kgkm = mean(vals.map((d) => d["kg/km"]).filter((v): v is number => v != null));
@@ -43,7 +50,8 @@ export function BenchmarkPortfolioParallel({
         );
         return {
           name: run.label,
-          color: COLORS[i % COLORS.length],
+          color: selectionStrategyColor(strategy),
+          strategy,
           value,
           meta,
         };
@@ -103,6 +111,7 @@ export function BenchmarkPortfolioParallel({
           if (!line) return p.name;
           return [
             p.name,
+            line.strategy !== "—" ? `Strategy: ${line.strategy}` : null,
             cityScaleLabel(line.meta),
             line.meta.distribution,
             line.meta.improver,
@@ -121,8 +130,20 @@ export function BenchmarkPortfolioParallel({
         {logScale ? " · log-normalised axes" : ""}
       </p>
       <p className="text-[10px] text-canvas-muted">
-        {runs.length} simulation log(s) — one polyline per loaded run
+        {runs.length} simulation log(s) — one polyline per loaded run · coloured by mandatory-selection
+        strategy
       </p>
+      <div className="flex flex-wrap gap-2">
+        {STRATEGY_LEGEND.map((strategy) => (
+          <span key={strategy} className="flex items-center gap-1 text-[10px] text-canvas-muted">
+            <span
+              className="inline-block w-2.5 h-2.5 rounded-full"
+              style={{ backgroundColor: selectionStrategyColor(strategy) }}
+            />
+            {strategy}
+          </span>
+        ))}
+      </div>
       <ReactECharts option={option} style={{ height: Math.min(360, 120 + runs.length * 4) }} />
     </div>
   );

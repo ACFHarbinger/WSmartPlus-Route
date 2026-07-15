@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-sixth pass (§G.1.4)
+
+Ninety-sixth pass colours portfolio parallel-coordinate polylines by
+mandatory-selection strategy instead of run index.
+
+**React frontend**
+- `simMetadata.ts` — ``selectionStrategyColor()`` + ``resolveRunSelectionStrategy()``
+  resolve LA · LM · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2 from log path segments or
+  dominant policy label; ``strategyColor()`` delegates to ``selectionStrategyColor()``
+- `BenchmarkPortfolioParallel` — run polylines use strategy colour palette; strategy
+  legend chips; tooltips show resolved strategy label
+
+**ROADMAP**
+- §G.1.4 Portfolio parallel coordinates strategy colouring checked (partial marker removed)
+- §G.1 Phase 1 status marked complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-fifth pass (§G.1 / §G.1.6 / §G.7)
 
 Ninety-fifth pass extends log-scale error-bar whiskers to city comparison

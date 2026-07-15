@@ -149,7 +149,48 @@ const STRATEGY_COLORS: Record<string, string> = {
 
 export function strategyColor(policy: string, policyMeta?: Record<string, PolicyMeta>): string {
   const strat = policyMeta?.[policy]?.selectionStrategy ?? parsePolicyLabel(policy).selectionStrategy;
-  return STRATEGY_COLORS[strat] ?? "#a78bfa";
+  return selectionStrategyColor(strat);
+}
+
+/** Colour for a resolved mandatory-selection strategy label (LA · LM-CF70 · …). */
+export function selectionStrategyColor(strategy: string): string {
+  return STRATEGY_COLORS[strategy] ?? "#a78bfa";
+}
+
+/** Resolve mandatory-selection strategy for a portfolio run (log path or dominant policy). */
+export function resolveRunSelectionStrategy(path: string, policies: string[] = []): string {
+  const lower = path.toLowerCase();
+  if (/cf\s*90|cf90/i.test(lower)) return "LM-CF90";
+  if (/cf\s*70|cf70/i.test(lower)) return "LM-CF70";
+
+  const { strategyFolder } = parseLogPath(path);
+  if (strategyFolder) {
+    const folder = strategyFolder.toLowerCase();
+    if (folder.startsWith("la") || folder.includes("lookahead")) return "LA";
+    if (folder.startsWith("lm") || folder.includes("last_minute")) return "LM";
+    if (folder.includes("sl1") || folder.includes("sl_1")) return "SL-SL1";
+    if (folder.includes("sl2") || folder.includes("sl_2")) return "SL-SL2";
+    if (folder.startsWith("sl") || folder.includes("service_level")) return "SL-SL1";
+  }
+
+  if (policies.length) {
+    const counts = new Map<string, number>();
+    for (const policy of policies) {
+      const strat = parsePolicyLabel(policy).selectionStrategy;
+      counts.set(strat, (counts.get(strat) ?? 0) + 1);
+    }
+    let best = "—";
+    let bestN = 0;
+    for (const [strat, n] of counts) {
+      if (n > bestN) {
+        best = strat;
+        bestN = n;
+      }
+    }
+    if (best !== "—") return best;
+  }
+
+  return "—";
 }
 
 export function citySymbol(logMeta: LogPathMeta | null): "circle" | "rect" | "diamond" {
