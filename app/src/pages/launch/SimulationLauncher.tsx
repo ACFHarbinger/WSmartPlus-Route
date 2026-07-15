@@ -9,9 +9,8 @@
  * parses `GUI_DAY_LOG_START:` markers — the same protocol as SimulationMonitor —
  * to show a real-time per-policy KPI snapshot while the run is executing.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, RefreshCw } from "lucide-react";
-import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
@@ -30,7 +29,9 @@ import {
 } from "../../utils/policyTelemetry";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
-import type { DayLogEntry, SimPolicyEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
+import { collectLatestDayLogsByPolicy } from "../../utils/dayLog";
+import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
+import type { DayLogEntry, SimPolicyEntry, ProcessStatus } from "../../types";
 
 /** Fallback when project root is unset or registry load fails. */
 const FALLBACK_POLICIES = [
@@ -41,8 +42,6 @@ const DISTRIBUTIONS = [
   { value: "emp", label: "Empirical" },
   { value: "gamma3", label: "Gamma-3" },
 ];
-
-const GUI_MARKER = "GUI_DAY_LOG_START:";
 
 function NumberField({
   label,
@@ -157,13 +156,18 @@ export function SimulationLauncher() {
   // Ephemeral UI state
   const [showAdvanced, setShowAdvanced] = useState(false);
 
-  // Live status tracking
+  // Live status tracking (local id set on launch; falls back to process store after navigation)
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
-  const [simStatus, setSimStatus] = useState<ProcessStatus | null>(null);
-  // Latest DayLogEntry per policy (keyed by `${policy}::${sample_id}`)
-  const [latestByPolicy, setLatestByPolicy] = useState<Record<string, DayLogEntry>>({});
+  const processes = useProcessStore((s) => s.processes);
+  const displayProcessId = useMemo(
+    () => liveProcessId ?? findRecentLauncherProcessId(processes, "sim"),
+    [liveProcessId, processes]
+  );
+  const displayProc = displayProcessId ? processes[displayProcessId] : null;
+  const simStatus = displayProc?.status ?? null;
   // Auto-navigate countdown: counts down from 5 when run completes, navigates on 0
   const [navCountdown, setNavCountdown] = useState<number | null>(null);
+  const prevSimStatusRef = useRef<ProcessStatus | null>(null);
 
   const togglePolicy = (policy: string) => {
     const next = selectedPolicies.includes(policy)
@@ -223,53 +227,14 @@ export function SimulationLauncher() {
 
   const commandPreview = `python main.py test_sim \\\n  ${hydraArgs.join(" \\\n  ")}`;
 
-  // Subscribe to live stdout/status events for the active process
+  // Start countdown only on running → completed transition (not when rehydrating)
   useEffect(() => {
-    if (!liveProcessId) return;
-
-    let unlistenOut: (() => void) | null = null;
-    let unlistenStatus: (() => void) | null = null;
-
-    listen<StdoutLine>("process:stdout", (event) => {
-      const { id, line } = event.payload;
-      if (id !== liveProcessId) return;
-      const markerIdx = line.indexOf(GUI_MARKER);
-      if (markerIdx === -1) return;
-      const jsonStr = line.slice(markerIdx + GUI_MARKER.length).trim();
-      try {
-        const entry = JSON.parse(jsonStr) as DayLogEntry;
-        setLatestByPolicy((prev) => ({
-          ...prev,
-          [`${entry.policy}::${entry.sample_id}`]: entry,
-        }));
-      } catch {
-        // ignore malformed marker lines
-      }
-    }).then((fn) => {
-      unlistenOut = fn;
-    });
-
-    listen<StatusUpdate>("process:status", (event) => {
-      if (event.payload.id === liveProcessId) {
-        setSimStatus(event.payload.status);
-      }
-    }).then((fn) => {
-      unlistenStatus = fn;
-    });
-
-    return () => {
-      unlistenOut?.();
-      unlistenStatus?.();
-    };
-  }, [liveProcessId]);
-
-  // Start countdown when sim completes; navigate to simulation_summary on expiry
-  useEffect(() => {
-    if (simStatus === "completed") {
+    if (simStatus === "completed" && prevSimStatusRef.current === "running") {
       setNavCountdown(5);
-    } else {
+    } else if (simStatus !== "completed") {
       setNavCountdown(null);
     }
+    prevSimStatusRef.current = simStatus;
   }, [simStatus]);
 
   useEffect(() => {
@@ -286,8 +251,6 @@ export function SimulationLauncher() {
     if (!projectRoot || selectedPolicies.length === 0) return;
     const procId = `sim_${area}_${Date.now()}`;
     setLiveProcessId(procId);
-    setLatestByPolicy({});
-    setSimStatus(null);
     await spawn({
       id: procId,
       pythonArgs: ["main.py", "test_sim", ...hydraArgs],
@@ -300,15 +263,14 @@ export function SimulationLauncher() {
     if (simNonce > 0) launch();
   }, [simNonce, launch]);
 
+  const liveLogLines = displayProc?.logLines ?? [];
+  const liveProcStatus = displayProc?.status ?? null;
+  const latestByPolicy = useMemo(
+    () => collectLatestDayLogsByPolicy(liveLogLines),
+    [liveLogLines]
+  );
   const isDone = simStatus === "completed" || simStatus === "failed" || simStatus === "cancelled";
   const liveEntries = Object.values(latestByPolicy);
-
-  const liveLogLines = useProcessStore((s) =>
-    liveProcessId ? s.processes[liveProcessId]?.logLines ?? [] : []
-  );
-  const liveProcStatus = useProcessStore((s) =>
-    liveProcessId ? s.processes[liveProcessId]?.status ?? null : null
-  );
 
   const policyVizEntries = useMemo(
     () => collectPolicyVizFromLogLines(liveLogLines),
@@ -320,8 +282,11 @@ export function SimulationLauncher() {
   );
   const selectedPolicy = activePolicy ?? vizPolicies[0] ?? null;
   const liveRunLabel = useMemo(
-    () => (liveProcessId ? runLabelFromLogLines(liveLogLines, liveProcessId) : null),
-    [liveLogLines, liveProcessId]
+    () =>
+      displayProcessId
+        ? runLabelFromLogLines(liveLogLines, displayProcessId)
+        : null,
+    [liveLogLines, displayProcessId]
   );
   const outputRunPath = useMemo(
     () => outputRunPathFromLogLines(liveLogLines),
@@ -331,9 +296,9 @@ export function SimulationLauncher() {
   const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
 
   useEffect(() => {
-    if (!liveProcessId || !liveRunLabel) return;
+    if (!displayProcessId || !liveRunLabel) return;
     setRunLabel(liveRunLabel);
-  }, [liveProcessId, liveRunLabel, setRunLabel]);
+  }, [displayProcessId, liveRunLabel, setRunLabel]);
 
   useEffect(() => {
     if (policyVizEntries.length > 0) {
@@ -499,7 +464,7 @@ export function SimulationLauncher() {
       </div>
 
       {/* Live status panel — shown once a process has been spawned */}
-      {liveProcessId && (
+      {displayProcessId && (
         <div className="space-y-3">
           <GlobalFilterBar
             policies={vizPolicies.length > 0 ? vizPolicies : undefined}
@@ -547,8 +512,8 @@ export function SimulationLauncher() {
             </div>
           </div>
 
-          {!isDone && liveProcessId && (
-            <LiveTrainProgressBar processId={liveProcessId} />
+          {!isDone && displayProcessId && (
+            <LiveTrainProgressBar processId={displayProcessId} />
           )}
 
           {liveEntries.length === 0 ? (
@@ -571,7 +536,7 @@ export function SimulationLauncher() {
             </div>
           )}
 
-          <p className="text-xs text-canvas-muted font-mono truncate">{liveProcessId}</p>
+          <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
         </div>
 
           {policyVizEntries.length > 0 && (

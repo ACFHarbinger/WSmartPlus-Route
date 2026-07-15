@@ -41,3 +41,44 @@ export function findActiveLauncherProcessId(
     .sort((a, b) => b[1].startTime - a[1].startTime);
   return running[0]?.[0] ?? null;
 }
+
+function isRecentTerminalStatus(status: ProcessEntry["status"]): boolean {
+  return status === "completed" || status === "failed" || status === "cancelled";
+}
+
+/** Newest launcher process that is running or recently finished (post-run panel persistence). */
+export function findRecentLauncherProcessId(
+  processes: Record<string, ProcessEntry>,
+  kind: LauncherKind
+): string | null {
+  const candidates = Object.entries(processes)
+    .filter(([id, proc]) => {
+      if (proc.status !== "running" && !isRecentTerminalStatus(proc.status)) {
+        return false;
+      }
+      return launcherKindFromProcess(id, proc.command) === kind;
+    })
+    .sort((a, b) => b[1].startTime - a[1].startTime);
+  return candidates[0]?.[0] ?? null;
+}
+
+const EVAL_BATCH_WINDOW_MS = 30_000;
+
+/** Recent eval processes from the same multi-checkpoint launch batch. */
+export function findRecentEvalProcessIds(
+  processes: Record<string, ProcessEntry>
+): string[] {
+  const candidates = Object.entries(processes).filter(([id, proc]) => {
+    if (proc.status !== "running" && !isRecentTerminalStatus(proc.status)) {
+      return false;
+    }
+    return isEvalProcess(id, proc.command);
+  });
+  if (candidates.length === 0) return [];
+
+  const maxStart = Math.max(...candidates.map(([, proc]) => proc.startTime));
+  return candidates
+    .filter(([, proc]) => maxStart - proc.startTime <= EVAL_BATCH_WINDOW_MS)
+    .sort((a, b) => a[1].startTime - b[1].startTime)
+    .map(([id]) => id);
+}

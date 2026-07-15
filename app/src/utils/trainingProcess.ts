@@ -15,6 +15,13 @@ export function isHpoProcess(id: string, command: string): boolean {
   return id.startsWith("hpo_") || /\bmain\.py\s+hpo\b/.test(command);
 }
 
+export function isTrainProcess(id: string, command: string): boolean {
+  return (
+    id.startsWith("train_") ||
+    (/\bmain\.py\s+train\b/.test(command) && !isHpoProcess(id, command))
+  );
+}
+
 /** Newest running train/HPO process, or null when none are active. */
 export function findActiveLiveTrainProcessId(
   processes: Record<string, ProcessEntry>
@@ -68,6 +75,20 @@ export function findRecentHpoProcessId(
       ([id, proc]) =>
         (proc.status === "running" || isRecentTerminalStatus(proc.status)) &&
         isHpoProcess(id, proc.command)
+    )
+    .sort((a, b) => b[1].startTime - a[1].startTime);
+  return candidates[0]?.[0] ?? null;
+}
+
+/** Newest train-only process that is running or recently finished (Training Hub train mode). */
+export function findRecentTrainProcessId(
+  processes: Record<string, ProcessEntry>
+): string | null {
+  const candidates = Object.entries(processes)
+    .filter(
+      ([id, proc]) =>
+        (proc.status === "running" || isRecentTerminalStatus(proc.status)) &&
+        isTrainProcess(id, proc.command)
     )
     .sort((a, b) => b[1].startTime - a[1].startTime);
   return candidates[0]?.[0] ?? null;
