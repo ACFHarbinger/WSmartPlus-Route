@@ -22,6 +22,7 @@ interface AppState {
   pendingEvalResults: EvalAnalyticsRow[] | null;
   pendingBenchmarkLogs: BenchmarkLogRef[] | null;
   pendingRunPath: string | null;
+  pendingTrainingRunPath: string | null;
   pendingMapCompare: PendingMapCompare | null;
   setMode: (mode: AppMode) => void;
   setTheme: (theme: ThemePreference) => void;
@@ -33,6 +34,7 @@ interface AppState {
   setPendingEvalResults: (rows: EvalAnalyticsRow[] | null) => void;
   setPendingBenchmarkLogs: (logs: BenchmarkLogRef[] | null) => void;
   setPendingRunPath: (path: string | null) => void;
+  setPendingTrainingRunPath: (path: string | null) => void;
   setPendingMapCompare: (compare: PendingMapCompare | null) => void;
 }
 
@@ -49,6 +51,7 @@ export const useAppStore = create<AppState>()(
       pendingEvalResults: null,
       pendingBenchmarkLogs: null,
       pendingRunPath: null,
+      pendingTrainingRunPath: null,
       pendingMapCompare: null,
       setMode: (mode) => set({ mode }),
       setTheme: (theme) => {
@@ -66,6 +69,7 @@ export const useAppStore = create<AppState>()(
       setPendingBenchmarkLogs: (pendingBenchmarkLogs: BenchmarkLogRef[] | null) =>
         set({ pendingBenchmarkLogs }),
       setPendingRunPath: (pendingRunPath) => set({ pendingRunPath }),
+      setPendingTrainingRunPath: (pendingTrainingRunPath) => set({ pendingTrainingRunPath }),
       setPendingMapCompare: (pendingMapCompare) => set({ pendingMapCompare }),
     }),
     {

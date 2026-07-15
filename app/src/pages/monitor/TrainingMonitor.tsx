@@ -482,7 +482,14 @@ function RunPanel({
 
 // ── Main page
 export function TrainingMonitor() {
-  const { projectRoot, setMode, setPendingCheckpoint, effectiveTheme } = useAppStore();
+  const {
+    projectRoot,
+    setMode,
+    setPendingCheckpoint,
+    effectiveTheme,
+    pendingTrainingRunPath,
+    setPendingTrainingRunPath,
+  } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -624,6 +631,32 @@ export function TrainingMonitor() {
     },
     [attentionMap]
   );
+
+  useEffect(() => {
+    if (!pendingTrainingRunPath) return;
+    const run = runs.find((r) => r.path === pendingTrainingRunPath);
+    if (run) {
+      setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
+      void loadMetrics(run);
+      void loadHealth(run);
+      void loadAttention(run);
+      setPendingTrainingRunPath(null);
+      return;
+    }
+    if (!loading && logsPath) {
+      void discover();
+    }
+  }, [
+    pendingTrainingRunPath,
+    runs,
+    loading,
+    logsPath,
+    discover,
+    loadMetrics,
+    loadHealth,
+    loadAttention,
+    setPendingTrainingRunPath,
+  ]);
 
   const toggleRun = useCallback(
     (run: TrainingRun) => {

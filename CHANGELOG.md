@@ -11,6 +11,36 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-fourth pass (§G.10 + §G.12 + §G.14 + §G.15 + §G.17 + §D.7)
+
+Hundred-forty-fourth pass extends run deep-linking beyond ``.jsonl`` stdout paths and
+closes train/HPO/eval workflow navigation gaps left after the hundred-forty-third pass.
+
+**React frontend**
+- ``outputRunPath.ts`` — ``outputRunPathFromHydraArtifact`` + Hydra snapshot / pruned-config /
+  ``assets/output`` path parsing as fallback when no ``.jsonl`` in stdout (§G.14 / §G.9 / §G.12)
+- ``trainingRunPath.ts`` — ``trainingRunPathFromLogLines`` derives Lightning log directories
+  from ``Saved sidecar args.json`` / ``metrics.csv`` stdout paths (§G.10 / §G.17)
+- ``store/app.ts`` — ``pendingTrainingRunPath`` for Training Monitor deep-link handoff (§G.17)
+- ``TrainHpoNavMesh`` — ``trainingRunPath`` prop sets ``pendingTrainingRunPath`` before
+  navigating to Training Monitor (§G.10 / §G.17 / §D.7)
+- Training Hub — post-run ``outputRunPath`` + ``trainingRunPath`` on live panel (§G.10 / §D.7)
+- Training Monitor — auto-selects run when opened via ``pendingTrainingRunPath``; refreshes
+  run index when path not yet listed (§G.17)
+- Evaluation Runner — post-run ``outputRunPath`` deep-link on live panel (§G.12 / §G.14)
+- Process Monitor — eval ``outputRunPath`` deep-link parity; train/HPO ``outputRunPath`` +
+  ``trainingRunPath`` on ``TrainHpoNavMesh`` (§G.12 / §G.14 / §G.15)
+
+**ROADMAP**
+- §G.14 Hydra snapshot / pruned-config stdout parsing checked
+- §G.10 Training Hub post-run deep-links checked
+- §G.12 Evaluation Runner ``outputRunPath`` deep-link checked
+- §G.15 Process Monitor eval + train/HPO deep-links checked
+- §G.17 ``pendingTrainingRunPath`` Training Monitor auto-select checked
+- §D.7 train/HPO/eval navigation mesh deep-link parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-third pass (§G.14 + §G.9 + §G.11 + §G.15 + §D.7)
 
 Hundred-forty-third pass completes the launcher → Output Browser workflow by deep-linking
