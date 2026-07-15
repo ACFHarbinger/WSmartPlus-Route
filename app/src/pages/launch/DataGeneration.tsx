@@ -599,6 +599,7 @@ export function DataGeneration() {
               <ProcessIdFooter
                 processId={displayProcessId}
                 logPath={liveLogPath}
+                runLabel={liveRunLabel}
                 projectRoot={projectRoot}
               />
             }

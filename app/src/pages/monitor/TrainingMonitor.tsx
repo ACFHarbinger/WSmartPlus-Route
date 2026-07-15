@@ -832,6 +832,7 @@ export function TrainingMonitor() {
             <ProcessIdFooter
               processId={recentTrainId}
               logPath={processLogPath}
+              runLabel={processRunLabel}
               projectRoot={projectRoot}
             />
           }

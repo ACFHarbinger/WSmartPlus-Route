@@ -10,6 +10,8 @@ import { toast } from "sonner";
 import { applyStoreRecentHandoff } from "./useRecentHandoff";
 import { useProcessStore } from "../store/process";
 import { useSimStore } from "../store/sim";
+import { checkpointPathFromEvalCommand } from "../utils/evalResults";
+import { isEvalProcess } from "../utils/launcherProcess";
 import { outputRunPathFromLogLines } from "../utils/outputRunPath";
 import { extractJsonlPathFromLogLines } from "../utils/policyTelemetryTrends";
 import { parsePolicyVizLine } from "../utils/policyTelemetry";
@@ -93,6 +95,51 @@ function processToastHandoffOptions(id: string): {
           label: "Training",
           onClick: () => {
             applyStoreRecentHandoff(trainPath, "training");
+          },
+        },
+      };
+    }
+    if (runPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Output",
+          onClick: () => {
+            applyStoreRecentHandoff(runPath, "run");
+          },
+        },
+      };
+    }
+    return {};
+  }
+
+  if (isEvalProcess(id, proc.command)) {
+    const checkpoint = checkpointPathFromEvalCommand(proc.command);
+    const runPath = outputRunPathFromLogLines(lines);
+    if (checkpoint && runPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Eval",
+          onClick: () => {
+            applyStoreRecentHandoff(checkpoint, "checkpoint");
+          },
+        },
+        cancel: {
+          label: "Output",
+          onClick: () => {
+            applyStoreRecentHandoff(runPath, "run");
+          },
+        },
+      };
+    }
+    if (checkpoint) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Eval",
+          onClick: () => {
+            applyStoreRecentHandoff(checkpoint, "checkpoint");
           },
         },
       };
