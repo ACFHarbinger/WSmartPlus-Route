@@ -451,7 +451,7 @@ export function ExperimentTracker() {
       </div>
 
       {/* ML introspection — TensorDict, attention, loss landscape (§G.5) */}
-      <MLIntrospectionPanel />
+      <MLIntrospectionPanel logScale={logScale} />
 
       {/* ZenML pipeline runs (§G.18) */}
       <ZenMLPipelineView logScale={logScale} />

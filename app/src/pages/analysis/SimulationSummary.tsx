@@ -25,6 +25,7 @@ import {
   chartMetricDisplay,
   chartMetricYAxisType,
   isLogScaleMetric,
+  radarAxisValue,
 } from "../../utils/chartLogScale";
 import { symlog } from "../../utils/symlog";
 import { barOpacity, isHighlighted, toggleBrush } from "../../utils/chartHighlight";
@@ -630,11 +631,13 @@ function PolicyRadarChart({
   policies,
   brushed,
   policyMeta,
+  logScale = false,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
   brushed?: string[] | null;
   policyMeta?: Record<string, PolicyMeta>;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -646,8 +649,9 @@ function PolicyRadarChart({
         metricMeans[p][key] = mean(stats[p][key]);
       }
     }
+    const displayValue = (key: string, raw: number) => radarAxisValue(raw, key, logScale);
     const maxes = RADAR_METRICS.map(({ key }) =>
-      Math.max(...policies.map((p) => metricMeans[p][key] ?? 0), 1)
+      Math.max(...policies.map((p) => displayValue(key, metricMeans[p][key] ?? 0)), 1)
     );
 
     return {
@@ -664,7 +668,7 @@ function PolicyRadarChart({
           type: "radar" as const,
           data: policies.map((p, i) => ({
             name: p,
-            value: RADAR_METRICS.map(({ key }) => metricMeans[p][key] ?? 0),
+            value: RADAR_METRICS.map(({ key }) => displayValue(key, metricMeans[p][key] ?? 0)),
             lineStyle: {
               color: POLICY_COLORS[i % POLICY_COLORS.length],
               opacity: barOpacity(p, brushed ?? null),
@@ -685,12 +689,14 @@ function PolicyRadarChart({
         },
       },
     };
-  }, [stats, policies, brushed, policyMeta]);
+  }, [stats, policies, brushed, policyMeta, logScale]);
 
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-gray-300">Policy Radar</p>
+        <p className="text-xs font-semibold text-gray-300">
+          Policy Radar{logScale ? " · log-normalised axes" : ""}
+        </p>
         <button
           onClick={() => exportChartPng({ current: chartRef.current }, "summary-radar.png")}
           className="btn-ghost text-xs flex items-center gap-1"
@@ -2378,6 +2384,7 @@ export function SimulationSummary() {
               policies={policies}
               brushed={effectiveBrushed}
               policyMeta={policyMeta}
+              logScale={logScale}
             />
             <div className="space-y-2">
               <div className="card space-y-2">

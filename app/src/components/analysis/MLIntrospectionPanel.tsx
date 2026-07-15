@@ -16,6 +16,7 @@ import {
   inferDistributionLabel,
 } from "../../utils/distributionCompare";
 import { GRAPH_PRESETS, loadGraphCoordinates } from "../../utils/graphCoords";
+import { chartMetricDisplay } from "../../utils/chartLogScale";
 import { analyzeLossMinima, resolveBpcMarker, type LandscapeMarker } from "../../utils/lossLandscape";
 import {
   CLUSTER_PALETTE,
@@ -55,7 +56,7 @@ function formatBytes(b: number): string {
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
 }
 
-export function MLIntrospectionPanel() {
+export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean }) {
   const { projectRoot, pythonPath, theme } = useAppStore();
   const [tab, setTab] = useState<IntrospectionTab>("tensor");
   const [archivePath, setArchivePath] = useState<string | null>(null);
@@ -467,15 +468,32 @@ export function MLIntrospectionPanel() {
 
   const lossOption = useMemo(() => {
     if (!lossPreview) return null;
-    const base = buildMatrixHeatmapOption(lossPreview.values, {
-      title: `Loss landscape · ${lossPreview.key}`,
-      min: lossPreview.min,
-      max: lossPreview.max,
+    const rawValues = lossPreview.values;
+    const displayValues = logScale
+      ? rawValues.map((row) =>
+          row.map((v) => (Number.isFinite(v) ? (chartMetricDisplay(v, "loss", true) ?? v) : v))
+        )
+      : rawValues;
+    const base = buildMatrixHeatmapOption(displayValues, {
+      title: `Loss landscape · ${lossPreview.key}${logScale ? " · log colour" : ""}`,
       theme,
       xLabel: "θ₁",
       yLabel: "θ₂",
     });
-    if (!lossMarkers.length) return base;
+    const withTooltip: Record<string, unknown> = {
+      ...base,
+      tooltip: {
+        position: "top",
+        formatter: (p: { value?: [number, number, number] }) => {
+          const v = p.value;
+          if (!v) return "";
+          const raw = rawValues[v[1]]?.[v[0]];
+          const rawText = Number.isFinite(raw) ? Number(raw).toFixed(4) : "—";
+          return `θ₂ ${v[1]} · θ₁ ${v[0]}<br/>loss ${rawText}`;
+        },
+      },
+    };
+    if (!lossMarkers.length) return withTooltip;
     const markPoint = {
       data: lossMarkers.map((m) => ({
         name: m.label,
@@ -486,10 +504,10 @@ export function MLIntrospectionPanel() {
       symbol: "diamond",
       symbolSize: 14,
     };
-    const series = (base.series as Record<string, unknown>[])?.[0];
-    if (!series) return base;
-    return { ...base, series: [{ ...series, markPoint }] };
-  }, [lossPreview, lossMarkers, theme]);
+    const series = (withTooltip.series as Record<string, unknown>[])?.[0];
+    if (!series) return withTooltip;
+    return { ...withTooltip, series: [{ ...series, markPoint }] };
+  }, [lossPreview, lossMarkers, theme, logScale]);
 
   const lossMinima = useMemo(
     () => (lossPreview ? analyzeLossMinima(lossPreview.values) : null),
@@ -991,6 +1009,11 @@ export function MLIntrospectionPanel() {
                   {lossOption && (
                     <ReactECharts ref={lossChartRef} option={lossOption} style={{ height: 248 }} notMerge />
                   )}
+                  <p className="text-[10px] text-canvas-muted">
+                    {logScale
+                      ? "Log-scale colour map — tooltips show raw loss values"
+                      : "Linear colour map — loss grid from NPZ export"}
+                  </p>
                 </div>
               </div>
               {lossMinima && (

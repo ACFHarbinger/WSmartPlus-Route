@@ -45,3 +45,9 @@ export function displayBarValue(value: number, yKey: string, logScale: boolean):
   if (isOverflowMetric(yKey)) return symlog(value);
   return Math.max(value, 1e-8);
 }
+
+/** Radar / parallel-axis display value when global log-scale is on. */
+export function radarAxisValue(value: number, metricKey: string, logScale: boolean): number {
+  if (!logScale || !isLogScaleMetric(metricKey)) return value;
+  return chartMetricDisplay(value, metricKey, true) ?? value;
+}
