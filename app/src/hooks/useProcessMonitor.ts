@@ -10,6 +10,7 @@ import { toast } from "sonner";
 import { useProcessStore } from "../store/process";
 import { useSimStore } from "../store/sim";
 import { parsePolicyVizLine } from "../utils/policyTelemetry";
+import { parseSimFailureLine } from "../utils/simFailure";
 import type { ProcessSpawned, StdoutLine, StatusUpdate } from "../types";
 
 async function maybeSendOsNotification(title: string, body: string) {
@@ -52,6 +53,10 @@ export function useProcessMonitor() {
         const viz = parsePolicyVizLine(event.payload.line);
         if (viz) {
           useSimStore.getState().addPolicyVizEntry(viz);
+        }
+        const failure = parseSimFailureLine(event.payload.line);
+        if (failure) {
+          useSimStore.getState().addFailureEntry(failure);
         }
       });
 

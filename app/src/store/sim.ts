@@ -1,10 +1,11 @@
 import { create } from "zustand";
-import type { DayLogEntry, PolicyVizEntry } from "../types";
+import type { DayLogEntry, PolicyVizEntry, SimFailureEntry } from "../types";
 
 interface SimState {
   // All entries from the current log file
   entries: DayLogEntry[];
   policyVizEntries: PolicyVizEntry[];
+  failureEntries: SimFailureEntry[];
   // Selected filters (mirrors Streamlit sidebar controls)
   selectedPolicy: string | null;
   selectedSample: number | null;
@@ -15,8 +16,10 @@ interface SimState {
 
   addEntry: (entry: DayLogEntry) => void;
   addPolicyVizEntry: (entry: PolicyVizEntry) => void;
+  addFailureEntry: (entry: SimFailureEntry) => void;
   loadEntries: (entries: DayLogEntry[]) => void;
   loadPolicyVizEntries: (entries: PolicyVizEntry[]) => void;
+  loadFailureEntries: (entries: SimFailureEntry[]) => void;
   setSelectedPolicy: (policy: string | null) => void;
   setSelectedSample: (sample: number | null) => void;
   setSelectedDay: (day: number | null) => void;
@@ -28,6 +31,7 @@ interface SimState {
 export const useSimStore = create<SimState>((set) => ({
   entries: [],
   policyVizEntries: [],
+  failureEntries: [],
   selectedPolicy: null,
   selectedSample: null,
   selectedDay: null,
@@ -60,7 +64,20 @@ export const useSimStore = create<SimState>((set) => ({
 
   loadEntries: (entries) => set({ entries }),
 
+  addFailureEntry: (entry) =>
+    set((s) => {
+      const exists = s.failureEntries.some(
+        (e) =>
+          e.policy === entry.policy &&
+          e.sample_id === entry.sample_id &&
+          e.day === entry.day
+      );
+      return exists ? s : { failureEntries: [...s.failureEntries, entry] };
+    }),
+
   loadPolicyVizEntries: (entries) => set({ policyVizEntries: entries }),
+
+  loadFailureEntries: (entries) => set({ failureEntries: entries }),
 
   setSelectedPolicy: (selectedPolicy) => set({ selectedPolicy }),
   setSelectedSample: (selectedSample) => set({ selectedSample }),
@@ -72,6 +89,7 @@ export const useSimStore = create<SimState>((set) => ({
     set({
       entries: [],
       policyVizEntries: [],
+      failureEntries: [],
       selectedPolicy: null,
       selectedSample: null,
       selectedDay: null,

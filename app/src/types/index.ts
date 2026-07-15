@@ -8,6 +8,39 @@ export interface BinCoord {
   lng?: number;
 }
 
+export interface SimFailureOverflowBin {
+  bin_index: number;
+  bin_id: number;
+  predicted_fill: number;
+  actual_fill: number;
+  fill_delta: number;
+  fill_spike: boolean;
+  in_tour: boolean;
+  collected: boolean;
+  fill_level_after: number;
+}
+
+export interface SimFailureSkippedBin {
+  bin_index: number;
+  bin_id: number;
+  fill_level: number;
+  mandatory: boolean;
+}
+
+export interface SimFailureSummary {
+  has_failure: boolean;
+  severity: string;
+  root_causes: string[];
+  summary: string;
+  metrics?: {
+    new_overflows: number;
+    kg_lost: number;
+    profit: number;
+  };
+  overflow_bins?: SimFailureOverflowBin[];
+  skipped_high_fill_bins?: SimFailureSkippedBin[];
+}
+
 export interface SimDayData {
   tour?: Array<BinCoord | number>;
   bin_state_c?: number[];
@@ -15,6 +48,7 @@ export interface SimDayData {
   mandatory?: number[];
   tour_indices?: number[];
   all_bin_coords?: BinCoord[];
+  failure_analysis?: SimFailureSummary;
   // KPI metrics — matches _PRIMARY_KPI_MAP + _SECONDARY_KPI_MAP in kpi.py
   overflows?: number;
   kg?: number;
@@ -43,6 +77,15 @@ export interface PolicyVizEntry {
   day: number;
   policy_type: PolicyVizType;
   data: Record<string, Array<number | string | boolean>>;
+}
+
+// ── Simulation failure analysis (FailureAnalyzer → Studio §A.6) ─────────────
+
+export interface SimFailureEntry {
+  policy: string;
+  sample_id: number;
+  day: number;
+  data: SimFailureSummary;
 }
 
 // ── Training log types ───────────────────────────────────────────────────────

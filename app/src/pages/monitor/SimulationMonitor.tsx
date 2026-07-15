@@ -42,12 +42,14 @@ import {
 } from "../../utils/chartLogScale";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
 import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
+import { FailureAnalysisPanel } from "../../components/analysis/FailureAnalysisPanel";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
-import type { BinCoord, DayLogEntry, PolicyVizEntry, SimDayData } from "../../types";
+import { filterFailureEntries } from "../../utils/simFailure";
+import type { BinCoord, DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
 
@@ -430,11 +432,13 @@ export function SimulationMonitor() {
   const {
     entries,
     policyVizEntries,
+    failureEntries,
     selectedDay,
     watchPath,
     isWatching,
     loadEntries,
     loadPolicyVizEntries,
+    loadFailureEntries,
     setSelectedPolicy,
     setSelectedSample,
     setSelectedDay,
@@ -476,6 +480,11 @@ export function SimulationMonitor() {
   const displayDay = selectedDay ?? dayRange.max;
   const displayEntry = filteredEntries.find((e) => e.day === displayDay) ?? null;
 
+  const displayFailureEntry = useMemo(
+    () => filterFailureEntries(failureEntries, selectedPolicy, selectedSample, displayDay),
+    [failureEntries, selectedPolicy, selectedSample, displayDay]
+  );
+
   const {
     pendingLogPath,
     setPendingLogPath,
@@ -500,12 +509,14 @@ export function SimulationMonitor() {
   const loadLogFile = useCallback(
     async (path: string, watch = true) => {
       reset();
-      const [historical, vizHistorical] = await Promise.all([
+      const [historical, vizHistorical, failureHistorical] = await Promise.all([
         invoke<DayLogEntry[]>("load_simulation_log", { path }),
         invoke<PolicyVizEntry[]>("load_policy_viz_log", { path }).catch(() => []),
+        invoke<SimFailureEntry[]>("load_sim_failure_log", { path }).catch(() => []),
       ]);
       loadEntries(historical);
       loadPolicyVizEntries(vizHistorical);
+      loadFailureEntries(failureHistorical);
       setActiveLogPath(path);
       if (watch) setWatchPath(path);
       pushRecent({ path, label: recentFileLabel(path), kind: "log" });
@@ -518,7 +529,7 @@ export function SimulationMonitor() {
           .finally(() => setDuckdbLoading(false));
       }
     },
-    [reset, loadEntries, loadPolicyVizEntries, setWatchPath, pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]
+    [reset, loadEntries, loadPolicyVizEntries, loadFailureEntries, setWatchPath, pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]
   );
 
   const openLog = useCallback(async () => {
@@ -1048,6 +1059,11 @@ export function SimulationMonitor() {
               policy={displayEntry.policy}
             />
           )}
+
+          <FailureAnalysisPanel
+            entry={displayFailureEntry}
+            embedded={displayEntry?.data.failure_analysis ?? null}
+          />
 
           <PolicyTelemetryPanel
             entries={policyVizEntries}

@@ -11,7 +11,10 @@ use zip::{ZipArchive, ZipWriter};
 
 use crate::commands::arrow;
 use crate::commands::process::resolve_python;
-use crate::commands::sim_watcher::{parse_day_log_line, parse_policy_viz_line, DayLogEntry, PolicyVizEntry};
+use crate::commands::sim_watcher::{
+    parse_day_log_line, parse_policy_viz_line, parse_sim_failure_line, DayLogEntry, PolicyVizEntry,
+    SimFailureEntry,
+};
 
 /// Matches the `CsvFile` TypeScript interface in DataExplorer.tsx
 #[derive(Debug, Serialize, Deserialize)]
@@ -78,6 +81,16 @@ pub fn load_policy_viz_log(path: String) -> Result<Vec<PolicyVizEntry>, String> 
     let entries: Vec<PolicyVizEntry> = content
         .lines()
         .filter_map(parse_policy_viz_line)
+        .collect();
+    Ok(entries)
+}
+
+#[tauri::command]
+pub fn load_sim_failure_log(path: String) -> Result<Vec<SimFailureEntry>, String> {
+    let content = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let entries: Vec<SimFailureEntry> = content
+        .lines()
+        .filter_map(parse_sim_failure_line)
         .collect();
     Ok(entries)
 }
