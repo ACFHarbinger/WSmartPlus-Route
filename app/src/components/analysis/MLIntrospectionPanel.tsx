@@ -1,7 +1,16 @@
 /**
  * ML Introspection — TensorDict/NPZ inspector, attention heatmap, loss contour (§G.5).
  */
-import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
+import {
+  lazy,
+  Suspense,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+  type RefObject,
+} from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -10,7 +19,7 @@ import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
 import { buildAttentionGraphOption } from "../../utils/attentionGraph";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
 import {
   distributionDisplayName,
   inferDistributionLabel,
@@ -54,6 +63,28 @@ function formatBytes(b: number): string {
   if (b < 1024) return `${b} B`;
   if (b < 1024 ** 2) return `${(b / 1024).toFixed(1)} KB`;
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
+}
+
+function exportEchartsPair(
+  ref: RefObject<ReactECharts | null>,
+  stem: string
+): void {
+  if (exportChartPng(ref, `${stem}.png`)) {
+    toast.success("Chart exported", { description: `${stem}.png` });
+    return;
+  }
+  toast.error("Export failed", { description: "Chart is not ready" });
+}
+
+function exportEchartsSvg(
+  ref: RefObject<ReactECharts | null>,
+  stem: string
+): void {
+  if (exportChartSvg(ref, `${stem}.svg`)) {
+    toast.success("Chart exported", { description: `${stem}.svg` });
+    return;
+  }
+  toast.error("Export failed", { description: "Chart is not ready" });
 }
 
 function buildLogAwareMatrixHeatmap(
@@ -939,13 +970,20 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
 
       {tab === "attention" && attentionView === "graph" && attentionGraphOption && (
         <div className="space-y-2">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2">
             <button
               className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportChartPng(graphChartRef, `attention-graph-${selectedKey}.png`)}
+              onClick={() => exportEchartsPair(graphChartRef, `attention-graph-${selectedKey}`)}
             >
               <Download size={12} />
-              Export PNG
+              PNG
+            </button>
+            <button
+              className="btn-ghost text-xs flex items-center gap-1"
+              onClick={() => exportEchartsSvg(graphChartRef, `attention-graph-${selectedKey}`)}
+            >
+              <Download size={12} />
+              SVG
             </button>
           </div>
           <ReactECharts ref={graphChartRef} option={attentionGraphOption} style={{ height: 400 }} notMerge />
@@ -987,14 +1025,53 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
 
       {tab === "attention" && attentionView === "heatmap" && heatmapOption && (
         <div className="space-y-2">
-          <div className="flex justify-end">
+          <div className="flex justify-end gap-2 flex-wrap">
             <button
               className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportChartPng(chartRef, `attention-${selectedKey}.png`)}
+              onClick={() => exportEchartsPair(chartRef, `attention-${selectedKey}`)}
             >
               <Download size={12} />
-              Export PNG
+              {compareMode === "side-by-side" || compareMode === "distribution" ? "Primary PNG" : "PNG"}
             </button>
+            <button
+              className="btn-ghost text-xs flex items-center gap-1"
+              onClick={() => exportEchartsSvg(chartRef, `attention-${selectedKey}`)}
+            >
+              <Download size={12} />
+              {compareMode === "side-by-side" || compareMode === "distribution" ? "Primary SVG" : "SVG"}
+            </button>
+            {(compareMode === "side-by-side" || compareMode === "distribution") && compareHeatmapOption && (
+              <>
+                <button
+                  className="btn-ghost text-xs flex items-center gap-1"
+                  onClick={() =>
+                    exportEchartsPair(
+                      compareChartRef,
+                      compareMode === "distribution"
+                        ? `attention-compare-${distCompareLabel}`
+                        : `attention-compare-step-${compareStep}`
+                    )
+                  }
+                >
+                  <Download size={12} />
+                  Compare PNG
+                </button>
+                <button
+                  className="btn-ghost text-xs flex items-center gap-1"
+                  onClick={() =>
+                    exportEchartsSvg(
+                      compareChartRef,
+                      compareMode === "distribution"
+                        ? `attention-compare-${distCompareLabel}`
+                        : `attention-compare-step-${compareStep}`
+                    )
+                  }
+                >
+                  <Download size={12} />
+                  Compare SVG
+                </button>
+              </>
+            )}
           </div>
           <div
             className={
@@ -1060,13 +1137,20 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                   />
                 </Suspense>
                 <div className="space-y-2">
-                  <div className="flex justify-end">
+                  <div className="flex justify-end gap-2">
                     <button
                       className="btn-ghost text-xs flex items-center gap-1"
-                      onClick={() => exportChartPng(lossChartRef, "loss-landscape.png")}
+                      onClick={() => exportEchartsPair(lossChartRef, "loss-landscape")}
                     >
                       <Download size={12} />
-                      Export PNG
+                      PNG
+                    </button>
+                    <button
+                      className="btn-ghost text-xs flex items-center gap-1"
+                      onClick={() => exportEchartsSvg(lossChartRef, "loss-landscape")}
+                    >
+                      <Download size={12} />
+                      SVG
                     </button>
                   </div>
                   {lossOption && (

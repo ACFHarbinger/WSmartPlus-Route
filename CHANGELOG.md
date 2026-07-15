@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundredth pass (§G.5 / §G.7)
+
+Hundredth pass adds PNG/SVG export on ML introspection ECharts panels (including
+compare heatmaps), cleans stale §G.5 partial markers, and marks Phase 5 complete
+in the ROADMAP.
+
+**React frontend**
+- `MLIntrospectionPanel` — PNG + SVG export on attention heatmap (primary +
+  side-by-side / distribution compare panels), attention bipartite graph, and
+  loss contour map; toast feedback on export success/failure
+
+**ROADMAP**
+- §G.5 Stale partial markers removed on tensor pipeline, loss grid export,
+  attention decode-step compare, and side-by-side/overlay toggle
+- §G.5 ML introspection ECharts PNG/SVG export checked; Phase 5 status marked complete
+- §G.7 Global export lists include MLIntrospectionPanel attention/loss charts
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-ninth pass (§G.4 / §G.7)
 
 Ninety-ninth pass propagates global log-scale to graph topology ACO pheromone
