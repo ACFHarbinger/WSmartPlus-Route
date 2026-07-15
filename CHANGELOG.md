@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-first pass (§G.12 + §G.14 + §G.15 + §D.7)
+
+Hundred-forty-first pass completes the eval workflow navigation mesh by wiring Output Browser
+and Load in Eval Runner shortcuts from completed eval processes, surfacing per-checkpoint KPIs
+in the Evaluation Runner live panel, and extending keyboard shortcuts for analytics/file views.
+
+**React frontend**
+- ``evalResults.ts`` — ``checkpointPathFromEvalCommand`` extracts Hydra ``load_path`` from eval
+  process commands (§G.12 / §G.15)
+- ``LauncherNavMesh`` — ``Output Browser →`` + ``Load in Eval Runner →`` on completed eval
+  workflows; shared ``showOutputBrowser`` prop mirrors ``TrainHpoNavMesh`` (§G.12 / §G.14 / §D.7)
+- Process Monitor — eval processes surface Output Browser + Load in Eval Runner shortcuts when
+  complete (§G.15 / §D.7)
+- Evaluation Runner — per-checkpoint cost/gap/time KPI row in live progress panel; Output Browser
+  post-run shortcut (§G.12 / §A.4)
+- Keyboard shortcuts ``B`` → Benchmark Analysis, ``O`` → Output Browser; help overlay updated
+  (§D.7)
+
+**ROADMAP**
+- §G.12 eval Output Browser + Load in Eval Runner + live KPI row checked
+- §G.14 eval Output Browser shortcut checked
+- §G.15 Process Monitor eval workflow shortcuts checked
+- §D.7 ``B`` / ``O`` keyboard shortcuts checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fortieth pass (§G.12 + §G.15 + §G.10 + §D.7)
 
 Hundred-fortieth pass closes the Process Monitor eval analytics gap by sharing eval

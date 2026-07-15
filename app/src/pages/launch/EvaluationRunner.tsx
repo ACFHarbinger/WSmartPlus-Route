@@ -40,6 +40,7 @@ import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { ProcessStatus, StdoutLine, StatusUpdate } from "../../types";
 import {
   type EvalResult,
+  hasEvalMetrics,
   parseEvalResultLine,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
@@ -654,6 +655,9 @@ export function EvaluationRunner() {
               kind="eval"
               hideSelf
               showPostRun={liveRunSummary.allDone && liveRunSummary.aggregate === "completed"}
+              showOutputBrowser={
+                liveRunSummary.allDone && liveRunSummary.aggregate === "completed"
+              }
               onOpenAnalytics={results.length > 0 ? openInAnalytics : undefined}
             />
           </div>
@@ -664,6 +668,7 @@ export function EvaluationRunner() {
               const proc = processes[procId];
               const isRunning = proc?.status === "running";
               const tail = logTails[procId] ?? [];
+              const ckptResult = results.find((r) => r.checkpointName === ckptName);
 
               return (
                 <div
@@ -684,6 +689,28 @@ export function EvaluationRunner() {
                       </span>
                     )}
                   </div>
+                  {ckptResult && hasEvalMetrics(ckptResult) && (
+                    <div className="flex flex-wrap gap-3 text-[10px]">
+                      {ckptResult.cost != null && (
+                        <span>
+                          <span className="text-canvas-muted">Cost </span>
+                          <span className="font-mono text-gray-300">{ckptResult.cost.toFixed(4)}</span>
+                        </span>
+                      )}
+                      {ckptResult.gap != null && (
+                        <span>
+                          <span className="text-canvas-muted">Gap </span>
+                          <span className="font-mono text-gray-300">{ckptResult.gap.toFixed(4)}%</span>
+                        </span>
+                      )}
+                      {ckptResult.time != null && (
+                        <span>
+                          <span className="text-canvas-muted">Time </span>
+                          <span className="font-mono text-gray-300">{ckptResult.time.toFixed(3)}s</span>
+                        </span>
+                      )}
+                    </div>
+                  )}
                   {isRunning && <LiveTrainProgressBar processId={procId} />}
                   {tail.length > 0 && (
                     <div className="space-y-0.5 max-h-20 overflow-auto">

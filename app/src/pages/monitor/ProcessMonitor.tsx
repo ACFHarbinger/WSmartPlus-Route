@@ -45,6 +45,7 @@ import {
 } from "../../utils/launcherProcess";
 import {
   checkpointLabelFromEvalProcess,
+  checkpointPathFromEvalCommand,
   collectEvalResultFromLogLines,
   hasEvalMetrics,
   toEvalAnalyticsRows,
@@ -351,6 +352,11 @@ export function ProcessMonitor() {
     return collectEvalResultFromLogLines(selectedProc.logLines, label);
   }, [selectedProc, selectedIsEval]);
 
+  const evalCheckpointPath = useMemo(() => {
+    if (!selectedProc || !selectedIsEval) return null;
+    return checkpointPathFromEvalCommand(selectedProc.command);
+  }, [selectedProc, selectedIsEval]);
+
   const openEvalInAnalytics = useCallback(() => {
     if (!evalResult || !hasEvalMetrics(evalResult)) return;
     setPendingEvalResults(toEvalAnalyticsRows([evalResult]));
@@ -474,6 +480,8 @@ export function ProcessMonitor() {
             <LauncherNavMesh
               kind="eval"
               showPostRun={selectedProc.status === "completed"}
+              showOutputBrowser={selectedProc.status === "completed"}
+              checkpointPath={evalCheckpointPath}
               onOpenAnalytics={
                 evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined
               }

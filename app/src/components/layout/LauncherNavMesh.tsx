@@ -12,6 +12,10 @@ export interface LauncherNavMeshProps {
   showPostRun?: boolean;
   /** Eval-only: open Benchmark Analysis with current results. */
   onOpenAnalytics?: () => void;
+  /** Eval-only: pre-populate Evaluation Runner with this checkpoint path. */
+  checkpointPath?: string | null;
+  /** Show Output Browser shortcut after a successful run. */
+  showOutputBrowser?: boolean;
   className?: string;
 }
 
@@ -32,9 +36,11 @@ export function LauncherNavMesh({
   hideSelf = false,
   showPostRun = false,
   onOpenAnalytics,
+  checkpointPath,
+  showOutputBrowser = false,
   className = "",
 }: LauncherNavMeshProps) {
-  const setMode = useAppStore((s) => s.setMode);
+  const { setMode, setPendingCheckpoint } = useAppStore();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -83,6 +89,17 @@ export function LauncherNavMesh({
           >
             Training Monitor →
           </button>
+          {showPostRun && checkpointPath && (
+            <button
+              onClick={() => {
+                setPendingCheckpoint(checkpointPath);
+                setMode("eval_runner");
+              }}
+              className="btn-ghost text-xs text-accent-secondary"
+            >
+              Load in Eval Runner →
+            </button>
+          )}
           {showPostRun && onOpenAnalytics && (
             <button
               onClick={onOpenAnalytics}
@@ -92,6 +109,15 @@ export function LauncherNavMesh({
             </button>
           )}
         </>
+      )}
+
+      {showOutputBrowser && (
+        <button
+          onClick={() => setMode("output_browser")}
+          className="btn-ghost text-xs text-accent-success"
+        >
+          Output Browser →
+        </button>
       )}
 
       <button
