@@ -315,6 +315,8 @@ export function ExperimentTracker() {
             postRunFallback:
               "Post-run shortcuts — open Output Browser or Training Monitor for this sweep",
           }}
+          logLines={recentHpoProc.logLines}
+          logTailWaiting={recentHpoRunning}
           footer={<ProcessIdFooter processId={recentHpoId} />}
         />
       )}

@@ -753,6 +753,8 @@ export function TrainingMonitor() {
               "Post-run shortcuts — open Output Browser or refresh metrics from the completed run",
             showHealthAttention: false,
           }}
+          logLines={recentTrainLogLines}
+          logTailWaiting={activeTrainRunning}
           footer={<ProcessIdFooter processId={recentTrainId} />}
         />
       )}
