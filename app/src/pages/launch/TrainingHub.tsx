@@ -18,6 +18,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
+import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
@@ -530,11 +531,11 @@ export function TrainingHub() {
                   ? runStatus === "completed" ? "Run Complete" : `Run ${runStatus}`
                   : liveProgressLabel}
               </h2>
-              {liveMetrics.length > 0 && (
-                <span className="text-xs text-accent-success">
-                  {liveMetrics.length} metric updates
-                </span>
-              )}
+              <TrainHpoRehydrationBadges
+                metricCount={liveMetrics.length}
+                healthCount={liveHealth.length}
+                attentionCount={liveAttention.length}
+              />
             </div>
             <TrainHpoNavMesh
               hideHub

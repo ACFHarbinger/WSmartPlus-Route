@@ -39,6 +39,7 @@ import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
+import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import {
   isSimProcess,
@@ -600,11 +601,11 @@ export function ProcessMonitor() {
               outputRunPath={trainOutputRunPath}
               trainingRunPath={trainRunPath}
             />
-            {trainingMetrics.length > 0 && (
-              <span className="text-xs text-accent-success">
-                {trainingMetrics.length} metric updates
-              </span>
-            )}
+            <TrainHpoRehydrationBadges
+              metricCount={trainingMetrics.length}
+              healthCount={trainingHealthEntries.length}
+              attentionCount={attentionEntries.length}
+            />
           </div>
 
           {selectedProc.status === "running" && (

@@ -875,6 +875,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor — ``metric updates`` label on non-checkbox live/recent header when metrics are rehydrated from process store (§G.17 / §D.7)
 - [x] Training Hub — ``metric updates`` label uses ``text-accent-success`` styling parity with Process Monitor / HPO / Experiment Tracker (§G.10 / §D.7)
 
+**Delivered (§D.7 — hundred-fifty-third pass)**
+
+- [x] ``TrainHpoRehydrationBadges`` — shared metric / health / attention count badges for train/HPO live panel headers (§G.10 / §G.15 / §G.17 / §G.18 / §A.2 / §A.4 / §D.7)
+- [x] Training Hub + Process Monitor + Training Monitor + HPO Tracker + Experiment Tracker — deduplicated inline ``metric updates`` labels; header badges surface health alerts + attention snapshots when rehydrated from ``useProcessStore`` (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Training Monitor — checkbox live/recent header no longer shows ``0 metric updates`` when only health/attention are rehydrated (§G.17 / §A.2 / §A.4 / §D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1579,6 +1585,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Post-run health/attention rehydration banner via ``postRunTrainingRehydrationMessage`` (hundred-fiftieth pass; §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoAnalyticsStrip`` shared live/post-run analytics strip (hundred-fifty-first pass; §G.10 / §D.7)
 - [x] ``metric updates`` label ``text-accent-success`` styling parity with Process Monitor / HPO / Experiment Tracker (hundred-fifty-second pass; §G.10 / §D.7)
+- [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.10 / §D.7)
 
 ---
 
@@ -1703,6 +1710,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Train/HPO metrics rehydration + grad-norm/LR sparklines on selected processes (hundred-forty-eighth pass; §G.15 / §G.17 / §D.7)
 - [x] Post-run health/attention rehydration banner via ``postRunTrainingRehydrationMessage`` (hundred-fiftieth pass; §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoAnalyticsStrip`` shared analytics strip on selected train/HPO processes (hundred-fifty-first pass; §G.15 / §D.7)
+- [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.15 / §A.2 / §A.4 / §D.7)
 
 ---
 
@@ -1757,6 +1765,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``metric updates`` label parity across Training Hub + Training Monitor (hundred-fifty-first pass; §G.10 / §D.7)
 - [x] Post-run health/attention banner counts via rehydrated entries on ``TrainHpoAnalyticsStrip`` (hundred-fifty-second pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``metric updates`` label on non-checkbox live/recent header + Training Hub accent-success styling (hundred-fifty-second pass; §G.10 / §G.17 / §D.7)
+- [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.17 / §A.2 / §A.4 / §D.7)
 
 ---
 
@@ -1790,6 +1799,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] Post-run grad-norm + LR sparklines from persisted HPO stdout via ``TrainingMetricSparklines`` (hundred-forty-eighth pass; §G.18 / §G.17 / §D.7)
 - [x] ``TrainingMetricSnapshot`` deduplication + ``postRunTrainingRehydrationMessage`` health/attention banner parity (hundred-fiftieth pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoAnalyticsStrip`` shared live/post-run analytics strip (hundred-fifty-first pass; §G.18 / §G.17 / §D.7)
+- [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.18 / §A.2 / §A.4 / §D.7)
 
 ---
 

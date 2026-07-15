@@ -22,6 +22,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
+import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
 import { GradNormSparkline, LrSparkline } from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
@@ -727,9 +728,11 @@ export function TrainingMonitor() {
                       : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`}
                 </span>
                 <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
-                <span className="text-xs text-accent-success">
-                  {effectiveLiveMetrics.length} metric updates
-                </span>
+                <TrainHpoRehydrationBadges
+                  metricCount={effectiveLiveMetrics.length}
+                  healthCount={effectiveLiveHealth.length}
+                  attentionCount={effectiveLiveAttention.length}
+                />
               </label>
             ) : (
               <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -744,11 +747,11 @@ export function TrainingMonitor() {
                     : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`}
                 </span>
                 <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
-                {effectiveLiveMetrics.length > 0 && (
-                  <span className="text-xs text-accent-success">
-                    {effectiveLiveMetrics.length} metric updates
-                  </span>
-                )}
+                <TrainHpoRehydrationBadges
+                  metricCount={effectiveLiveMetrics.length}
+                  healthCount={effectiveLiveHealth.length}
+                  attentionCount={effectiveLiveAttention.length}
+                />
               </div>
             )}
             <TrainHpoNavMesh
