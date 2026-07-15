@@ -20,7 +20,6 @@ import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
@@ -301,17 +300,21 @@ function CheckpointBrowser({
       <div className="divide-y divide-canvas-border/40 bg-canvas-bg">
         {checkpoints.map((ckpt) => (
           <div key={ckpt.path} className="flex items-center gap-3 px-4 py-2">
-            <PathRunLabelChip
+            <OpenPathToolbar
               path={ckpt.path}
               projectRoot={projectRoot}
+              kind="checkpoint"
               label={ckpt.name}
               brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
-              className="flex-1 min-w-0 max-w-none"
-              handoff="checkpoint"
-            />
-            <span className="text-xs text-canvas-muted shrink-0">
-              {formatBytes(ckpt.size_bytes)}
-            </span>
+              chipClassName="flex-1 min-w-0 max-w-none"
+              labeled
+              labeledIconSize={12}
+              className="flex-1 min-w-0"
+            >
+              <span className="text-xs text-canvas-muted shrink-0">
+                {formatBytes(ckpt.size_bytes)}
+              </span>
+            </OpenPathToolbar>
           </div>
         ))}
       </div>
@@ -337,12 +340,14 @@ function RunPanel({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-        <PathRunLabelChip
+        <OpenPathToolbar
           path={run.path}
           projectRoot={projectRoot}
-          handoff="training"
-        />
-        <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
+          kind="training"
+          className="flex-1 min-w-0"
+        >
+          <span className="text-xs text-canvas-muted shrink-0">{metrics.length} epochs</span>
+        </OpenPathToolbar>
       </div>
       <GradNormSparkline
         metrics={metrics}
