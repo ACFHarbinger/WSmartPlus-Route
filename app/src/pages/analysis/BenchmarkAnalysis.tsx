@@ -47,7 +47,7 @@ import {
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -190,16 +190,17 @@ function EvalResultsPanel({
               <tr key={r.checkpoint} className="hover:bg-canvas-hover/40">
                 <td className="py-1.5 px-3 max-w-[240px]">
                   {r.checkpointPath ? (
-                    <PathRunLabelChip
+                    <OpenPathToolbar
                       path={r.checkpointPath}
                       projectRoot={projectRoot}
+                      kind="checkpoint"
                       label={r.checkpoint}
                       brushLabel={parentRunBrushLabelFromCheckpointPath(
                         r.checkpointPath,
                         projectRoot
                       )}
-                      className="max-w-full"
-                      handoff="checkpoint"
+                      chipClassName="max-w-full"
+                      className="max-w-full min-w-0"
                     />
                   ) : (
                     <span className="font-mono text-gray-300">{r.checkpoint}</span>

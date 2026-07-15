@@ -9,7 +9,6 @@ import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
@@ -530,18 +529,18 @@ export function ExperimentTracker() {
                 </td>
                 <td className="py-2 px-2">
                   {runDir ? (
-                    <div className="flex items-center gap-2 min-w-0">
-                      <PathRunLabelChip
-                        path={runDir}
-                        label={brushLabel}
-                        className="flex-1 min-w-0"
-                        handoff="training"
-                        handoffStoredLabel={brushLabel}
-                      />
+                    <OpenPathToolbar
+                      path={runDir}
+                      kind="training"
+                      label={brushLabel}
+                      storedLabel={brushLabel}
+                      chipClassName="flex-1 min-w-0 max-w-none"
+                      className="flex-1 min-w-0"
+                    >
                       <span className="text-canvas-muted font-mono text-[10px] shrink-0 truncate max-w-[6rem]">
                         {r.run_id.slice(0, 12)}…
                       </span>
-                    </div>
+                    </OpenPathToolbar>
                   ) : (
                     <>
                       <div className="font-mono text-gray-300">{brushLabel}</div>

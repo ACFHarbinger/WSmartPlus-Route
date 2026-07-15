@@ -13,7 +13,6 @@ import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { toast } from "sonner";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { useAppStore } from "../../store/app";
@@ -813,16 +812,16 @@ export function HPOTracker() {
                       </td>
                       <td className="py-1.5 pr-3">
                         {trialLogDir ? (
-                          <div className="flex items-center gap-2 min-w-0">
-                            <PathRunLabelChip
-                              path={trialLogDir}
-                              className="flex-1 min-w-0"
-                              handoff="training"
-                            />
+                          <OpenPathToolbar
+                            path={trialLogDir}
+                            kind="training"
+                            chipClassName="flex-1 min-w-0 max-w-none"
+                            className="flex-1 min-w-0"
+                          >
                             <span className="text-canvas-muted font-mono text-[10px] shrink-0">
                               #{trial.number}
                             </span>
-                          </div>
+                          </OpenPathToolbar>
                         ) : (
                           <span className="font-mono">#{trial.number}</span>
                         )}

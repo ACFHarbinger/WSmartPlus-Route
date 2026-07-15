@@ -1538,6 +1538,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser ``.wsroute`` manifest member paths gain ``PathRunLabelChip`` auto-classified handoffs (§G.8 / §G.14 / §D.7)
 - [x] §G.14 / §G.17 residual panel + checkpoint open-path toolbar parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-thirty-third pass)**
+
+- [x] HPO Tracker trial log-dir table cells migrate to ``OpenPathToolbar``; trial number as ``children`` (§G.18 / §D.7)
+- [x] Experiment Tracker MLflow run-dir table cells migrate to ``OpenPathToolbar``; run-id meta as ``children`` (§G.18 / §D.7)
+- [x] Evaluation Runner + Benchmark Analysis results-table checkpoint cells migrate to ``OpenPathToolbar`` (§G.12 / §G.1 / §D.7)
+- [x] Process Monitor process-row path chips migrate to ``OpenPathToolbar``; process id as ``children`` (§G.15 / §D.7)
+- [x] §G.1 / §G.12 / §G.15 / §G.18 residual table-row open-path toolbar parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1968,6 +1976,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary ConfigMetaBanner + open-path chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.1 / §D.7)
 - [x] Simulation Summary / Algorithm Comparison open-log toolbars use shared ``OpenPathToolbar`` labeled+chip cluster (two-hundred-and-twenty-eighth pass; §G.1 / §G.16 / §D.7)
 - [x] Simulation Summary ``ConfigMetaBanner`` uses shared ``OpenPathToolbar`` with reverse Monitor ``labeledTargets`` (two-hundred-and-twenty-ninth pass; §G.1 / §D.7)
+- [x] Benchmark Analysis results-table checkpoint cells use shared ``OpenPathToolbar`` (two-hundred-and-thirty-third pass; §G.1 / §G.12 / §D.7)
 
 **Status**: §G.1 complete — all checklist items delivered.
 
@@ -2433,6 +2442,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner + eval live/result cards checkpoint chips use ``PathRunLabelChip`` ``handoff="checkpoint"`` (two-hundred-and-twenty-seventh pass; §G.12 / §D.7)
 - [x] Evaluation Runner checkpoint-row + dataset path previews use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.12 / §D.7)
 - [x] ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.12 / §G.15 / §D.7)
+- [x] Evaluation Runner results-table checkpoint cells use shared ``OpenPathToolbar`` (two-hundred-and-thirty-third pass; §G.12 / §D.7)
 
 ---
 
@@ -2548,6 +2558,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor ``useProcessRunLabelBrush`` + ``runLabelMapFromProcesses`` shared run-label brush hook parity (hundred-seventy-third pass; §G.15 / §D.7)
 - [x] Process Monitor process-row + ``ProcessIdFooter`` chips + live-header suffix handoffs via ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.15 / §D.7)
 - [x] Process Monitor ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.15 / §G.12 / §D.7)
+- [x] Process Monitor process-row path chips use shared ``OpenPathToolbar``; process id as ``children`` (two-hundred-and-thirty-third pass; §G.15 / §D.7)
 
 ---
 
@@ -2664,6 +2675,8 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] HPO Tracker trial log dirs + report dir + Experiment Tracker MLflow run dirs use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.18 / §D.7)
 - [x] HPO Tracker storage DB path + report directory use shared ``OpenPathToolbar``; reports labeled Output Browser + file-manager open (two-hundred-and-thirtieth pass; §G.18 / §D.7)
 - [x] Experiment Tracker MLflow tracking URI path uses shared ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §G.18 / §D.7)
+- [x] HPO Tracker trial log-dir table cells use shared ``OpenPathToolbar``; trial number as ``children`` (two-hundred-and-thirty-third pass; §G.18 / §D.7)
+- [x] Experiment Tracker MLflow run-dir table cells use shared ``OpenPathToolbar``; run-id meta as ``children`` (two-hundred-and-thirty-third pass; §G.18 / §D.7)
 
 ---
 
