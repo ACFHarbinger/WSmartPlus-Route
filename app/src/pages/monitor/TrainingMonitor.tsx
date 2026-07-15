@@ -295,7 +295,12 @@ function CheckpointBrowser({
       <div className="divide-y divide-canvas-border/40 bg-canvas-bg">
         {checkpoints.map((ckpt) => (
           <div key={ckpt.path} className="flex items-center gap-3 px-4 py-2">
-            <span className="text-xs font-mono text-gray-300 flex-1 truncate">{ckpt.name}</span>
+            <PathRunLabelChip
+              path={ckpt.path}
+              label={ckpt.name}
+              brushLabel={runLabelFromPath(runPath)}
+              className="flex-1 min-w-0 max-w-none"
+            />
             <span className="text-xs text-canvas-muted shrink-0">
               {formatBytes(ckpt.size_bytes)}
             </span>
@@ -722,13 +727,16 @@ export function TrainingMonitor() {
           {loading ? <RefreshCw size={14} className="animate-spin" /> : <FolderOpen size={14} />}
           Discover Runs
         </button>
-        <span className="text-xs text-canvas-muted truncate">{logsPath}</span>
+        {logsPath ? (
+          <PathRunLabelChip path={logsPath} label="logs" className="max-w-xs" />
+        ) : null}
       </div>
 
       {runs.length === 0 && !loading && (
-        <div className="card text-canvas-muted text-sm">
-          No training runs found in{" "}
-          <code className="font-mono text-xs">{logsPath}</code>.
+        <div className="card text-canvas-muted text-sm flex flex-wrap items-center gap-1">
+          <span>No training runs found in</span>
+          {logsPath ? <PathRunLabelChip path={logsPath} label="logs" /> : null}
+          <span>.</span>
         </div>
       )}
 

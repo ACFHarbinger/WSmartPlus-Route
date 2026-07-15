@@ -15,6 +15,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import { PathRunLabelChip } from "../common/PathRunLabelChip";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
 import { buildAttentionGraphOption } from "../../utils/attentionGraph";
@@ -104,6 +106,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
   const { projectRoot, pythonPath, effectiveTheme: theme } = useAppStore();
   const [tab, setTab] = useState<IntrospectionTab>("tensor");
   const [archivePath, setArchivePath] = useState<string | null>(null);
+  useLogPathRunLabelBrush(archivePath);
   const [archive, setArchive] = useState<NpzArchiveInfo | null>(null);
   const [selectedKey, setSelectedKey] = useState<string>("");
   const [indices, setIndices] = useState<number[]>([]);
@@ -653,9 +656,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
           </button>
         )}
         {archivePath && (
-          <span className="text-[10px] text-canvas-muted font-mono truncate max-w-md">
-            {archivePath.split("/").slice(-3).join("/")}
-          </span>
+          <PathRunLabelChip path={archivePath} className="max-w-md" />
         )}
       </div>
 
