@@ -64,6 +64,7 @@ export function Settings() {
     projectRoot,
     pythonPath,
     theme,
+    effectiveTheme,
     setProjectRoot,
     setPythonPath,
     setTheme,
@@ -78,6 +79,8 @@ export function Settings() {
   const [pythonValidation, setPythonValidation] = useState<FieldValidation>(IDLE);
   const [appVersion, setAppVersion] = useState("…");
   const [checkingUpdate, setCheckingUpdate] = useState(false);
+  const [installingUpdate, setInstallingUpdate] = useState(false);
+  const [pendingInstall, setPendingInstall] = useState(false);
   const { firstPaintMs, prefetchMs, duckdbMs, withinBudget } = useStartupTiming();
   const { setGuidedTourOpen, setGuidedTourStep } = useLayoutStore();
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
@@ -91,6 +94,10 @@ export function Settings() {
       .then(setAppVersion)
       .catch(() => setAppVersion("0.1.0"));
   }, []);
+
+  useEffect(() => {
+    setDraftTheme(theme);
+  }, [theme]);
 
   const isDirty =
     draftRoot.trim() !== projectRoot ||
@@ -285,6 +292,12 @@ export function Settings() {
             </label>
           ))}
         </div>
+        {draftTheme === "system" && (
+          <p className="text-xs text-canvas-muted">
+            Currently using <span className="capitalize text-gray-300">{effectiveTheme}</span> theme
+            from your system appearance.
+          </p>
+        )}
       </div>
 
       {/* Save / Discard */}
@@ -456,35 +469,64 @@ export function Settings() {
           </p>
         )}
         <p>Runtime: Tauri 2.0 · React 19 · Rust</p>
-        <button
-          disabled={checkingUpdate}
-          onClick={async () => {
-            setCheckingUpdate(true);
-            try {
-              const result = await invoke<{
-                available: boolean;
-                current_version: string;
-                latest_version: string | null;
-                message: string;
-              }>("check_for_updates");
-              if (result.available) {
-                toast.success(result.message, {
-                  description: `${result.current_version} → ${result.latest_version}`,
-                });
-              } else {
-                toast.info(result.message);
+        <div className="flex flex-wrap gap-2 mt-1">
+          <button
+            disabled={checkingUpdate || installingUpdate}
+            onClick={async () => {
+              setCheckingUpdate(true);
+              setPendingInstall(false);
+              try {
+                const result = await invoke<{
+                  available: boolean;
+                  current_version: string;
+                  latest_version: string | null;
+                  message: string;
+                  can_install: boolean;
+                  notes: string | null;
+                }>("check_for_updates");
+                setPendingInstall(result.available && result.can_install);
+                if (result.available) {
+                  toast.success(result.message, {
+                    description: [
+                      `${result.current_version} → ${result.latest_version}`,
+                      result.notes,
+                    ]
+                      .filter(Boolean)
+                      .join(" · "),
+                  });
+                } else {
+                  toast.info(result.message);
+                }
+              } catch (err) {
+                toast.error("Update check failed", { description: String(err) });
+              } finally {
+                setCheckingUpdate(false);
               }
-            } catch (err) {
-              toast.error("Update check failed", { description: String(err) });
-            } finally {
-              setCheckingUpdate(false);
-            }
-          }}
-          className="btn-ghost text-xs flex items-center gap-1.5 mt-1"
-        >
-          <RefreshCw size={12} className={checkingUpdate ? "animate-spin" : ""} />
-          Check for Updates
-        </button>
+            }}
+            className="btn-ghost text-xs flex items-center gap-1.5"
+          >
+            <RefreshCw size={12} className={checkingUpdate ? "animate-spin" : ""} />
+            Check for Updates
+          </button>
+          {pendingInstall && (
+            <button
+              disabled={installingUpdate || checkingUpdate}
+              onClick={async () => {
+                setInstallingUpdate(true);
+                try {
+                  await invoke("install_app_update");
+                } catch (err) {
+                  toast.error("Update install failed", { description: String(err) });
+                  setInstallingUpdate(false);
+                }
+              }}
+              className="btn-primary text-xs flex items-center gap-1.5"
+            >
+              <Download size={12} className={installingUpdate ? "animate-pulse" : ""} />
+              Download & Install
+            </button>
+          )}
+        </div>
         <button
           onClick={() => {
             setGuidedTourStep(0);
@@ -495,7 +537,12 @@ export function Settings() {
           <Compass size={12} />
           Take Guided Tour
         </button>
-        <p className="text-[10px]">Set <code className="font-mono">WSMART_UPDATE_URL</code> to a JSON manifest with a <code className="font-mono">version</code> field.</p>
+        <p className="text-[10px]">
+          Set <code className="font-mono">WSMART_UPDATE_URL</code> to a static JSON manifest (version-only check)
+          or a Tauri updater endpoint. For signed installs also set{" "}
+          <code className="font-mono">WSMART_UPDATER_PUBKEY</code>. See{" "}
+          <code className="font-mono">app/updater.example.json</code>.
+        </p>
         <p>ROADMAP: <code className="font-mono">docs/moon/ROADMAP.md §G</code></p>
       </div>
     </div>

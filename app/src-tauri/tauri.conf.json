@@ -27,6 +27,7 @@
   },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": ["deb", "appimage", "msi", "dmg"],
     "icon": [
       "icons/32x32.png",
@@ -58,6 +59,10 @@
     "dialog": {},
     "shell": {
       "open": true
+    },
+    "updater": {
+      "endpoints": [],
+      "pubkey": ""
     }
   }
 }

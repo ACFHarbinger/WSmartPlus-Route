@@ -3,6 +3,19 @@ use std::process::Command;
 
 use super::process::resolve_python;
 
+#[cfg(desktop)]
+use std::sync::Mutex;
+
+#[cfg(desktop)]
+use tauri::{AppHandle, State};
+
+#[cfg(desktop)]
+use tauri_plugin_updater::{Update, UpdaterExt};
+
+/// Holds a signed update discovered by `check_for_updates` until `install_app_update` runs.
+#[cfg(desktop)]
+pub struct PendingUpdate(pub Mutex<Option<Update>>);
+
 /// Return the Studio app version from Cargo.toml (§G.8 / §G.19).
 #[tauri::command]
 pub fn get_app_version() -> String {
@@ -15,11 +28,81 @@ pub struct UpdateCheckResult {
     pub current_version: String,
     pub latest_version: Option<String>,
     pub message: String,
+    /// True when the Tauri updater plugin can download and install a signed artefact.
+    pub can_install: bool,
+    pub notes: Option<String>,
 }
 
-/// Check for app updates (§G.8 partial — requires `WSMART_UPDATE_URL` env).
-#[tauri::command]
-pub async fn check_for_updates() -> Result<UpdateCheckResult, String> {
+#[cfg(desktop)]
+fn updater_env_configured() -> Option<(String, String)> {
+    let pubkey = std::env::var("WSMART_UPDATER_PUBKEY")
+        .ok()
+        .filter(|s| !s.trim().is_empty())?;
+    let url = std::env::var("WSMART_UPDATE_URL")
+        .ok()
+        .filter(|s| !s.trim().is_empty())?;
+    Some((pubkey, url))
+}
+
+#[cfg(desktop)]
+async fn check_signed_update(
+    app: &AppHandle,
+    pending: &PendingUpdate,
+) -> Result<Option<UpdateCheckResult>, String> {
+    let (pubkey, url) = match updater_env_configured() {
+        Some(cfg) => cfg,
+        None => return Ok(None),
+    };
+
+    let endpoint = url
+        .parse()
+        .map_err(|e| format!("Invalid WSMART_UPDATE_URL: {e}"))?;
+
+    let update = app
+        .updater_builder()
+        .pubkey(pubkey)
+        .endpoints(vec![endpoint])
+        .map_err(|e| format!("Updater endpoints invalid: {e}"))?
+        .build()
+        .map_err(|e| format!("Updater build failed: {e}"))?
+        .check()
+        .await
+        .map_err(|e| format!("Signed update check failed: {e}"))?;
+
+    let Some(found) = update else {
+        let current = env!("CARGO_PKG_VERSION").to_string();
+        return Ok(Some(UpdateCheckResult {
+            available: false,
+            current_version: current,
+            latest_version: None,
+            message: "You are on the latest signed release".to_string(),
+            can_install: false,
+            notes: None,
+        }));
+    };
+
+    let result = UpdateCheckResult {
+        available: true,
+        current_version: found.current_version.clone(),
+        latest_version: Some(found.version.clone()),
+        message: "A signed update is available".to_string(),
+        can_install: true,
+        notes: found.body.clone(),
+    };
+
+    *pending.0.lock().map_err(|e| e.to_string())? = Some(found);
+    Ok(Some(result))
+}
+
+#[cfg(not(desktop))]
+async fn check_signed_update(
+    _app: &tauri::AppHandle,
+    _pending: &(),
+) -> Result<Option<UpdateCheckResult>, String> {
+    Ok(None)
+}
+
+async fn check_manifest_update() -> Result<UpdateCheckResult, String> {
     let current = env!("CARGO_PKG_VERSION").to_string();
     let url = std::env::var("WSMART_UPDATE_URL").unwrap_or_default();
 
@@ -29,6 +112,8 @@ pub async fn check_for_updates() -> Result<UpdateCheckResult, String> {
             current_version: current,
             latest_version: None,
             message: "Update server not configured (set WSMART_UPDATE_URL)".to_string(),
+            can_install: false,
+            notes: None,
         });
     }
 
@@ -45,6 +130,10 @@ pub async fn check_for_updates() -> Result<UpdateCheckResult, String> {
         .get("version")
         .and_then(|v| v.as_str())
         .map(str::to_string);
+    let notes = manifest
+        .get("notes")
+        .and_then(|v| v.as_str())
+        .map(str::to_string);
 
     let available = latest.as_ref().is_some_and(|l| l != &current);
 
@@ -57,7 +146,62 @@ pub async fn check_for_updates() -> Result<UpdateCheckResult, String> {
         } else {
             "You are on the latest version".to_string()
         },
+        can_install: false,
+        notes,
     })
+}
+
+/// Check for app updates (§G.8).
+///
+/// When `WSMART_UPDATER_PUBKEY` and `WSMART_UPDATE_URL` are both set, uses the Tauri
+/// updater plugin for signed artefact verification. Otherwise falls back to a simple
+/// JSON manifest version comparison on `WSMART_UPDATE_URL`.
+#[tauri::command]
+pub async fn check_for_updates(
+    app: AppHandle,
+    #[cfg(desktop)] pending: State<'_, PendingUpdate>,
+) -> Result<UpdateCheckResult, String> {
+    #[cfg(desktop)]
+    {
+        if let Some(signed) = check_signed_update(&app, &pending).await? {
+            return Ok(signed);
+        }
+    }
+
+    check_manifest_update().await
+}
+
+/// Download and install a signed update previously returned by `check_for_updates`.
+#[cfg(desktop)]
+#[tauri::command]
+pub async fn install_app_update(
+    app: AppHandle,
+    pending: State<'_, PendingUpdate>,
+) -> Result<(), String> {
+    let update = pending
+        .0
+        .lock()
+        .map_err(|e| e.to_string())?
+        .take()
+        .ok_or_else(|| {
+            "No pending signed update — configure WSMART_UPDATER_PUBKEY and check again".to_string()
+        })?;
+
+    update
+        .download_and_install(
+            |_chunk_length, _content_length| {},
+            || {},
+        )
+        .await
+        .map_err(|e| format!("Update install failed: {e}"))?;
+
+    app.restart();
+}
+
+#[cfg(not(desktop))]
+#[tauri::command]
+pub async fn install_app_update() -> Result<(), String> {
+    Err("Signed updates are only supported on desktop targets".to_string())
 }
 
 /// Check that `path` is a directory containing `main.py`.
