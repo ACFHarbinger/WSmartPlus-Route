@@ -2859,7 +2859,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 
 ## H — Analysis & Presentation Studio
 
-> Migration of the `logic/gen/` generation pipeline — `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their JSON/Jinja/mplstyle assets — into WSmart-Route Studio as a first-class **document authoring subsystem**. This is explicitly **not a 1:1 port**: the Python scripts are a batch pipeline with hardcoded geometry, colours, fontsizes and content baked into code; the Studio replaces them with a declarative, fully data-driven document model, native TS/Rust rendering, live editable previews, and a far richer feature set for building analysis reports and presentation decks.
+> Migration of the `logic/gen/` generation pipeline (now archived at `archive/gen/`) — `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their JSON/Jinja/mplstyle assets — into WSmart-Route Studio as a first-class **document authoring subsystem**. This is explicitly **not a 1:1 port**: the Python scripts are a batch pipeline with hardcoded geometry, colours, fontsizes and content baked into code; the Studio replaces them with a declarative, fully data-driven document model, native TS/Rust rendering, live editable previews, and a far richer feature set for building analysis reports and presentation decks.
 
 **Design decisions** (agreed 2026-07):
 
@@ -2879,6 +2879,18 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 | PDF export | Tauri print-to-PDF via WebView, or headless render of the HTML deck |
 | Document spec | Versioned JSON schema (`document.schema.json`), validated in Rust + TS (serde / zod) |
 | Diagram editing | SVG-based node/connector canvas (custom React, reusing Zustand state) |
+
+---
+
+### §H.— — Interim: Report Studio launcher ✅
+
+**Goal**: Make the batch pipeline usable from the Studio *today*, before the native phases ship, and freeze the scripts out of the active tree.
+
+- [x] Archive the pipeline: `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` + `jinja/ json/ style/ js/ templates/ images/ svg/ links/` moved from `logic/gen/` to `archive/gen/` (frozen, bugfix-only); `gen_dist_matrix.py`, `export_for_studio.py`, `export_loss_landscape.py` remain in `logic/gen/`
+- [x] **Report Studio** page (`report_studio` mode, Launch section): three tabs assembling the full CLI for the archived scripts — Dataset Analysis (theme, NPZ/TD CSVs, NPZ dir, out-md, figures-dir, force/figures-only), Simulation Analysis (report mode: fontsize, pareto-points, repeatable horizons, scenario/strategy/constructor/improver/acceptance filters, map-mode, heatmap-labels; parse mode: raw output tree → summary CSV), Presentation Deck (figures-dir, out PPTX, author/coauthors/groups, results-table + split, speaker-script DOCX, image-mode, XLSX export)
+- [x] Persisted form state (`useReportGenStore`), command preview, spawn via shared process infra (`reportgen_*` ids), live log tail + status pill, post-run artefact path chips (markdown / CSV / PPTX / DOCX / XLSX)
+
+> The native phases below replace this launcher capability-by-capability; the archived scripts are deleted once §H.5/§H.6 exports are verified against reference outputs.
 
 ---
 
@@ -3024,7 +3036,7 @@ Phase 7 (preview/editing)    →  Phase 8
 §G.6 (OLAP explorer)         →  Phase 8 (chart spec designer)
 ```
 
-Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phases 1+2+5; `gen_simulation_analysis.py` after Phases 1+2+5; `gen_presentation.py` after Phases 3+4+6. Keep them frozen (bugfix-only) until their replacement phase ships end-to-end exports verified against reference outputs.
+Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phases 1+2+5; `gen_simulation_analysis.py` after Phases 1+2+5; `gen_presentation.py` after Phases 3+4+6. They now live frozen (bugfix-only) under `archive/gen/`, launchable via the interim Report Studio page, until their replacement phase ships end-to-end exports verified against reference outputs.
 
 ---
 

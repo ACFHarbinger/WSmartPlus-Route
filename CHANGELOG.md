@@ -11,6 +11,14 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### Report Studio — §H interim launcher
+
+- **Report Studio** Launch-section page (`report_studio` mode): generates the dataset / simulation analysis reports and the results presentation deck from the Studio — three tabs assembling the full CLI for the archived `gen_dataset_analysis.py`, `gen_simulation_analysis.py` (report + raw-output→CSV parse modes) and `gen_presentation.py` (PPTX / speaker-script DOCX / XLSX), with persisted forms (`useReportGenStore`), command preview, live log tail, and post-run artefact path chips (§H interim)
+
+### Changed
+
+- **Archived the `logic/gen` report/deck pipeline to `archive/gen/`** (frozen, bugfix-only per §H): `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their jinja/json/style/js/templates/images/svg/links assets; `gen_dist_matrix.py` and the Studio-support export scripts (`export_for_studio.py`, `export_loss_landscape.py`) remain in `logic/gen/`; ruff excludes `archive/`
+
 #### Studio parity for retired GUI/UI modules
 
 - Training Hub **Meta-RL** mode launching `main.py meta_train` with meta-strategy, meta-LR, history, batch, and step fields (PySide6 "Meta-Learning" tab parity)
