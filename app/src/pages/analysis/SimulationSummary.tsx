@@ -21,6 +21,11 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { exportChartPng } from "../../utils/chartExport";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
+import {
+  chartMetricDisplay,
+  chartMetricYAxisType,
+  isLogScaleMetric,
+} from "../../utils/chartLogScale";
 import { symlog } from "../../utils/symlog";
 import { barOpacity, isHighlighted, toggleBrush } from "../../utils/chartHighlight";
 import {
@@ -505,13 +510,16 @@ function TrajectoryChart({
   entries,
   policies,
   brushed,
+  logScale = false,
 }: {
   entries: DayLogEntry[];
   policies: string[];
   brushed?: string[] | null;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   const [metric, setMetric] = useState<TrajectoryMetric>("overflows");
+  const metricLog = logScale && isLogScaleMetric(metric);
 
   const traj = useMemo(
     () => trajectoryByPolicyAndDay(entries, metric),
@@ -537,8 +545,10 @@ function TrajectoryChart({
       axisLabel: { color: "#9090b0", fontSize: 9 },
     },
     yAxis: {
-      type: "value" as const,
+      type: chartMetricYAxisType(metric, logScale),
+      logBase: 10,
       axisLabel: { color: "#9090b0", fontSize: 10 },
+      minorSplitLine: { show: false },
     },
     series: policies.map((policy, i) => ({
       name: policy,
@@ -549,10 +559,10 @@ function TrajectoryChart({
       color: POLICY_COLORS[i % POLICY_COLORS.length],
       data: allDays.map((day) => {
         const pt = traj[policy]?.find(([d]) => d === day);
-        return pt ? pt[1] : null;
+        return pt ? chartMetricDisplay(pt[1], metric, logScale) : null;
       }),
     })),
-  }), [traj, allDays, policies, brushed]);
+  }), [traj, allDays, policies, brushed, metric, logScale]);
 
   const METRIC_OPTS: Array<{ key: TrajectoryMetric; label: string }> = [
     { key: "overflows", label: "Overflows" },
@@ -564,7 +574,14 @@ function TrajectoryChart({
   return (
     <div className="card space-y-3">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <p className="text-xs font-semibold text-gray-300">Per-Day Trajectory</p>
+        <div>
+          <p className="text-xs font-semibold text-gray-300">Per-Day Trajectory</p>
+          {metricLog && (
+            <p className="text-[10px] text-canvas-muted">
+              Log-scale y-axis · symlog overflows when selected
+            </p>
+          )}
+        </div>
         <div className="flex items-center gap-2">
           {allDays.length > 0 && (
             <button
@@ -2348,7 +2365,12 @@ export function SimulationSummary() {
           )}
 
           {/* Per-day trajectory */}
-          <TrajectoryChart entries={filteredEntries} policies={policies} brushed={effectiveBrushed} />
+          <TrajectoryChart
+            entries={filteredEntries}
+            policies={policies}
+            brushed={effectiveBrushed}
+            logScale={logScale}
+          />
 
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             <PolicyRadarChart

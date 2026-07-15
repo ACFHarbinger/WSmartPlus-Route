@@ -9,7 +9,9 @@ export function isOverflowMetric(key: string): boolean {
 export function isLogScaleMetric(key: string): boolean {
   return (
     isOverflowMetric(key) ||
-    /loss|cost|gap|profit|objective|reward|km|kg|entropy|grad/i.test(key)
+    /loss|cost|gap|profit|objective|reward|km|kg|entropy|grad|duration|seconds|time|count|histogram|instances/i.test(
+      key
+    )
   );
 }
 

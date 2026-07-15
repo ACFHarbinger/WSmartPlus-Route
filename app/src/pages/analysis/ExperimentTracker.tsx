@@ -454,7 +454,7 @@ export function ExperimentTracker() {
       <MLIntrospectionPanel />
 
       {/* ZenML pipeline runs (§G.18) */}
-      <ZenMLPipelineView />
+      <ZenMLPipelineView logScale={logScale} />
 
       {/* Legacy output dirs */}
       <div className="card space-y-2">

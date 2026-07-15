@@ -1110,7 +1110,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Bookmarkable city/scale brush: `useHashSync` serializes global ``brushedCity`` as ``c`` query param; restored on load and browser back/forward (§G.7)
-- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker, Experiment Tracker, Simulation Monitor daily KPI charts, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
+- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary (incl. per-day trajectory), Benchmark Analysis, Algorithm Comparison, City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker, Experiment Tracker (incl. ZenML step durations), Simulation Monitor daily KPI charts, Data Generation demand histogram, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
 - [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
@@ -1208,7 +1208,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Advanced Overrides collapsible + command preview (`python main.py gen_data ...`)
 - [x] TSPLIB source option: `dataSource` radio (synthetic / TSPLIB); `.vrp`/`.tsp` file picker via Tauri dialog; Hydra overrides `data.source=tsplib` + `data.tsplib_instance=<path>`; graph form hidden in TSPLIB mode
 - [x] Sensor data source option: third `dataSource` radio; CSV file picker (timestamp,bin_id,fill_level,waste_type); Hydra overrides `data.source=sensor` + `data.sensor_file=<path>`
-- [x] Preview panel: `preview_dataset_stats` Rust command + "Preview .pkl/.pt" button; KPI cards (instances, nodes, demand μ±σ, file size) + ECharts demand histogram with PNG export
+- [x] Preview panel: `preview_dataset_stats` Rust command + "Preview .pkl/.pt" button; KPI cards (instances, nodes, demand μ±σ, file size) + ECharts demand histogram with PNG export; demand histogram follows global ``logScale`` via ``GlobalFilterBar`` (§G.11 / §G.7)
 - [x] Live progress: subscribes to `process:stdout` and `process:status` for the active generation run; shows last 20 stdout lines in a scrollable pre-block; status header with `Activity`/`CheckCircle`/`XCircle` icons; "Process Monitor" navigation button on completion
 - [x] Session persistence: `useDataGenStore` (Zustand `persist`, key `wsroute-data-gen`) stores all form fields; ephemeral runtime state stays in component state
 
@@ -1301,7 +1301,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Tour table**: stop #, bin ID, fill %, collected ✓/—, mandatory !/— columns; reads `tour_indices` preferentially, falls back to `tour`; limited to 60 rows with count shown; show/hide toggle
 - [x] **Daily metrics chart**: ECharts `line` timeseries for all 4 primary KPIs across all loaded days; rendered as a 4-column grid
 - [x] **Day scrubber**: ◀/▶ step buttons flanking the range slider; "Following" badge (green pulse) when `selectedDay` is null and watcher is active; "Latest ↓" button to release back to auto-follow
-- [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); four metric bar charts with std dev in tooltip hover
+- [x] **Simulation Summary page** (`simulation_summary` mode) — rewritten with: sortable policy ranking table (mean ± std per metric, coloured policy dots); per-day trajectory overlay chart (all policies on one ECharts line chart, metric selector: overflows/profit/km/kg); trajectory chart follows global ``logScale`` (symlog overflows + log profit/km/kg); four metric bar charts with std dev in tooltip hover
 - [x] **Route map preview** (ECharts scatter + path): Cartesian tour viz using `all_bin_coords` + `tour_indices`; fill-level colour coding; depot/tour/idle bin layers; PNG export
 - [x] **Route map** (deck.gl `PathLayer`): `DeckRouteMap` renders tour path over MapLibre dark basemap; fill-level colour-coded `ScatterplotLayer` stops; idle bins as grey scatter; PNG export via `exportCanvasPng`; ECharts/deck.gl toggle in SimulationMonitor; lazy-loaded chunk (§G.16)
 - [x] **Side-by-side route compare**: overlay/split layout toggle when exactly 2 policies visible; split renders labelled dual `DeckRouteMap` or dual ECharts panels (§G.16)
@@ -1339,7 +1339,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 - [x] **MLflow run table** (`experiment_tracker.py` parity): Rust queries MLflow via Python subprocess (`mlflow.search_runs`); display runs with params, metrics, tags, artifact path
 - [x] **Metric comparison chart**: select two or more MLflow runs; overlay their logged metrics as ECharts line series; metric name selector and Y-axis normalization toggle
-- [x] **ZenML pipeline view** (if ZenML is configured): `list_zenml_pipeline_runs` + `load_zenml_run_steps` Rust commands; pipeline run table; step-duration horizontal bar chart (Gantt-style); CSV/PNG export
+- [x] **ZenML pipeline view** (if ZenML is configured): `list_zenml_pipeline_runs` + `load_zenml_run_steps` Rust commands; pipeline run table; step-duration horizontal bar chart (Gantt-style) with log duration axis when global ``logScale`` on; CSV/PNG export (§G.18 / §G.7)
 - [x] **Optuna study browser** (`hpo_tracker.py` parity): `list_optuna_studies` + `load_optuna_study` Rust commands call Optuna via Python subprocess; trials serialised to JSON; HPOTracker displays:
   - Parallel coordinates plot (`echarts` `parallel` series) across hyperparameter dimensions
   - Optimization history scatter plot (trial number vs. objective value) with best-so-far line

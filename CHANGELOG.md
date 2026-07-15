@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-fifth pass (§G.1 / §G.7 / §G.11 / §G.16 / §G.18)
+
+Eighty-fifth pass extends global log-scale to Simulation Summary per-day
+trajectory, Data Generation demand histogram, and ZenML step-duration charts.
+
+**React frontend**
+- `chartLogScale.ts` — duration/count/histogram metric heuristics for launcher charts
+- `SimulationSummary` — ``TrajectoryChart`` symlog overflows + log profit/km/kg when
+  global ``logScale`` on; linear vs log subtitle per selected metric
+- `DataGeneration` — demand preview histogram log y-axis; ``GlobalFilterBar`` toggle
+- `ZenMLPipelineView` — step-duration Gantt bars use log x-axis when ``logScale`` on;
+  tooltips show raw seconds; ``ExperimentTracker`` passes global toggle
+
+**ROADMAP**
+- §G.1 Simulation Summary per-day trajectory log-scale checked
+- §G.7 Global log-scale propagation includes trajectory, Data Generation, ZenML
+- §G.11 Data Generation demand histogram log-scale checked
+- §G.16 Simulation Summary trajectory log-scale noted
+- §G.18 ZenML step-duration chart log-scale checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-fourth pass (§G.6 / §G.7 / §G.16 / §G.18)
 
 Eighty-fourth pass extends global log-scale to Experiment Tracker, Simulation
