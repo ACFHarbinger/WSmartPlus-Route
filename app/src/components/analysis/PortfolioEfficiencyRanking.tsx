@@ -4,7 +4,7 @@
 import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Download } from "lucide-react";
+
 import {
   cityScaleLabel,
   formatLogMeta,
@@ -16,7 +16,7 @@ import {
 } from "../../utils/simMetadata";
 import { barOpacity } from "../../utils/chartHighlight";
 import { errorBarBounds } from "../../utils/chartLogScale";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
 import type { DayLogEntry } from "../../types";
 
 export interface PortfolioEfficiencyRun {
@@ -199,16 +199,10 @@ export function PortfolioEfficiencyRanking({
             Top {ranked.length} run×policy configs by mean kg/km
           </p>
         </div>
-        <button
-          type="button"
-          onClick={() =>
-            exportChartPngWithToast({ current: chartRef.current }, "summary-portfolio-efficiency.png")
-          }
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="summary-portfolio-efficiency"
+        />
       </div>
       <ReactECharts
         ref={chartRef}

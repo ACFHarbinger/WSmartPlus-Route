@@ -6,9 +6,9 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Copy, Download, FolderOpen, RefreshCw } from "lucide-react";
+import { Copy, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -410,13 +410,7 @@ export function HPOTracker() {
           <div className="card">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-canvas-muted">Optimisation History</p>
-              <button
-                className="btn-ghost p-0.5"
-                title="Export PNG"
-                onClick={() => exportChartPngWithToast(historyChartRef, "hpo-history.png")}
-              >
-                <Download size={11} className="text-canvas-muted" />
-              </button>
+              <ChartExportButtons chartRef={historyChartRef} filenameStem="hpo-history" size={11} />
             </div>
             <p className="text-[10px] text-canvas-muted mb-1">
               {logScale
@@ -433,13 +427,11 @@ export function HPOTracker() {
             <div className="card">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-canvas-muted">Parameter Importance (FANOVA)</p>
-                <button
-                  className="btn-ghost p-0.5"
-                  title="Export PNG"
-                  onClick={() => exportChartPngWithToast(importanceChartRef, "hpo-importance.png")}
-                >
-                  <Download size={11} className="text-canvas-muted" />
-                </button>
+                <ChartExportButtons
+                  chartRef={importanceChartRef}
+                  filenameStem="hpo-importance"
+                  size={11}
+                />
               </div>
               <ReactECharts
                 ref={importanceChartRef}
@@ -455,13 +447,11 @@ export function HPOTracker() {
         <div className="card">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-canvas-muted">Cross-Study Comparison — Best-So-Far</p>
-            <button
-              className="btn-ghost p-0.5"
-              title="Export PNG"
-              onClick={() => exportChartPngWithToast(crossStudyChartRef, "hpo-cross-study.png")}
-            >
-              <Download size={11} className="text-canvas-muted" />
-            </button>
+            <ChartExportButtons
+              chartRef={crossStudyChartRef}
+              filenameStem="hpo-cross-study"
+              size={11}
+            />
           </div>
           <ReactECharts ref={crossStudyChartRef} option={crossStudyOption} style={{ height: 280 }} />
           {compareStudyData && studyData && (
@@ -487,13 +477,7 @@ export function HPOTracker() {
         <div className="card">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-canvas-muted">Parallel Coordinates</p>
-            <button
-              className="btn-ghost p-0.5"
-              title="Export PNG"
-              onClick={() => exportChartPngWithToast(parallelChartRef, "hpo-parallel.png")}
-            >
-              <Download size={11} className="text-canvas-muted" />
-            </button>
+            <ChartExportButtons chartRef={parallelChartRef} filenameStem="hpo-parallel" size={11} />
           </div>
           <p className="text-[10px] text-canvas-muted mb-1">
             {logScale

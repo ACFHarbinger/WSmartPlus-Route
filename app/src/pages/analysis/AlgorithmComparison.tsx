@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Download, Map } from "lucide-react";
+import { Map } from "lucide-react";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
@@ -14,7 +14,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, filterEntries } from "../../store/sim";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { barOpacity } from "../../utils/chartHighlight";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { errorBarBounds, radarAxisValue } from "../../utils/chartLogScale";
 import { symlog } from "../../utils/symlog";
 
@@ -181,13 +181,7 @@ export function AlgorithmComparison() {
           <p className="text-xs text-canvas-muted">
             Radar — {logScale ? "log-normalised" : "normalised"} average metrics per policy
           </p>
-          <button
-            onClick={() => exportChartPngWithToast(radarRef, "algorithm-radar.png")}
-            className="btn-ghost text-xs flex items-center gap-1"
-          >
-            <Download size={12} />
-            PNG
-          </button>
+          <ChartExportButtons chartRef={radarRef} filenameStem="algorithm-radar" />
         </div>
         <ReactECharts
           ref={radarRef}
@@ -309,13 +303,10 @@ export function AlgorithmComparison() {
             <div key={key} className="card">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-canvas-muted">{label}</p>
-                <button
-                  onClick={() => exportChartPngWithToast({ current: barRefs.current[key] }, `algorithm-${key}.png`)}
-                  className="btn-ghost text-xs flex items-center gap-1"
-                >
-                  <Download size={12} />
-                  PNG
-                </button>
+                <ChartExportButtons
+                  chartRef={{ current: barRefs.current[key] }}
+                  filenameStem={`algorithm-${key}`}
+                />
               </div>
               <ReactECharts
                 ref={(el) => {

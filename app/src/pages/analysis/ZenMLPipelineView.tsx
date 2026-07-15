@@ -11,7 +11,7 @@ import {
   chartMetricDisplay,
   chartMetricYAxisType,
 } from "../../utils/chartLogScale";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { downloadCsv } from "../../utils/tableExport";
 import type { ZenmlPipelineRun, ZenmlPipelineStep } from "../../types";
 
@@ -205,13 +205,7 @@ export function ZenMLPipelineView({ logScale = false }: { logScale?: boolean }) 
                   Step durations — run {selectedRunId.slice(0, 8)}
                 </p>
                 {ganttOption && (
-                  <button
-                    className="btn-ghost text-xs flex items-center gap-1"
-                    onClick={() => exportChartPngWithToast(chartRef, "zenml-steps.png")}
-                  >
-                    <Download size={12} />
-                    Export PNG
-                  </button>
+                  <ChartExportButtons chartRef={chartRef} filenameStem="zenml-steps" />
                 )}
               </div>
               {ganttOption ? (

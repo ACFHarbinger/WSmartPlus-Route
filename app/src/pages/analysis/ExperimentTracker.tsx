@@ -17,7 +17,7 @@ import {
   isLogScaleMetric,
 } from "../../utils/chartLogScale";
 import { ZenMLPipelineView } from "./ZenMLPipelineView";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { downloadCsv } from "../../utils/tableExport";
 import type { MlflowMetricPoint, MlflowRun, OutputDir } from "../../types";
 
@@ -413,13 +413,11 @@ export function ExperimentTracker() {
               />
               Normalize Y-axis
             </label>
-            <button
-              className="btn-ghost text-xs flex items-center gap-1 ml-auto"
-              onClick={() => exportChartPngWithToast(chartRef, `mlflow-${selectedMetric}.png`)}
-            >
-              <Download size={12} />
-              Export PNG
-            </button>
+            <ChartExportButtons
+              chartRef={chartRef}
+              filenameStem={`mlflow-${selectedMetric}`}
+              className="ml-auto"
+            />
           </div>
           <p className="text-[10px] text-canvas-muted">
             {useMetricLogScale

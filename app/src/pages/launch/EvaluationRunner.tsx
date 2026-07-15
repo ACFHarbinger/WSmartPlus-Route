@@ -14,7 +14,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { BarChart3, ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
@@ -144,13 +144,11 @@ function ResultsGrid({
           <div key={key} className="rounded-lg border border-canvas-border/40 p-2">
             <div className="flex items-center justify-between mb-1">
               <p className="text-xs text-canvas-muted">{label}</p>
-              <button
-                onClick={() => exportChartPngWithToast({ current: chartRefs.current[key] }, `eval-runner-${key}.png`)}
-                className="btn-ghost text-xs flex items-center gap-1"
-              >
-                <Download size={10} />
-                PNG
-              </button>
+              <ChartExportButtons
+                chartRef={{ current: chartRefs.current[key] }}
+                filenameStem={`eval-runner-${key}`}
+                size={10}
+              />
             </div>
             <ReactECharts
               ref={(el) => {
