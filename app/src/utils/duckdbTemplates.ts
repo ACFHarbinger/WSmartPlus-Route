@@ -8,19 +8,42 @@ export interface SqlTemplate {
   sql: string;
 }
 
+function sqlQuoteList(values: string[]): string {
+  return values.map((v) => `'${v.replace(/'/g, "''")}'`).join(", ");
+}
+
+export interface PortfolioBrushFilter {
+  policies?: string[];
+  runLabels?: string[];
+}
+
+/** SQL that mirrors chart brushes on policy and/or ``run_label`` (§G.1 / §G.6). */
+export function brushedPortfolioSql(
+  tableName: string,
+  filter: PortfolioBrushFilter = {}
+): string {
+  const t = `"${tableName}"`;
+  const clauses: string[] = [];
+  if (filter.policies?.length) {
+    clauses.push(`policy IN (${sqlQuoteList(filter.policies)})`);
+  }
+  if (filter.runLabels?.length) {
+    clauses.push(`run_label IN (${sqlQuoteList(filter.runLabels)})`);
+  }
+  if (!clauses.length) {
+    return `SELECT * FROM ${t} ORDER BY day, policy LIMIT 500`;
+  }
+  return `SELECT * FROM ${t}
+WHERE ${clauses.join(" AND ")}
+ORDER BY day, policy`;
+}
+
 /** SQL that mirrors the Simulation Summary policy brush (§G.1). */
 export function brushedPoliciesSql(
   tableName: string,
   policies: string[]
 ): string {
-  const t = `"${tableName}"`;
-  if (!policies.length) {
-    return `SELECT * FROM ${t} ORDER BY day, policy LIMIT 500`;
-  }
-  const quoted = policies.map((p) => `'${p.replace(/'/g, "''")}'`).join(", ");
-  return `SELECT * FROM ${t}
-WHERE policy IN (${quoted})
-ORDER BY day, policy`;
+  return brushedPortfolioSql(tableName, { policies });
 }
 
 const BASE_TEMPLATES = (t: string): SqlTemplate[] => [

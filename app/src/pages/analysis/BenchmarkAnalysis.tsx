@@ -15,6 +15,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
+import { barOpacity } from "../../utils/chartHighlight";
 import { exportChartPng } from "../../utils/chartExport";
 import { PARETO_PANELS } from "../../utils/paretoPanels";
 import { buildParetoByPanel } from "../../utils/paretoPortfolio";
@@ -189,7 +190,8 @@ export function BenchmarkAnalysis() {
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
   const [logScale, setLogScale] = useState(false);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
-  const { policy, sampleId } = useGlobalFiltersStore();
+  const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
+  const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
 
   const filteredRuns = useMemo(
     () =>
@@ -326,6 +328,21 @@ export function BenchmarkAnalysis() {
     [cityGroups]
   );
 
+  const handlePolicyClick = useCallback(
+    (name: string) => {
+      setPolicy(policy === name ? null : name);
+    },
+    [policy, setPolicy]
+  );
+
+  const onChartClick = useCallback(
+    (params: { name?: string; seriesName?: string }) => {
+      const name = params.seriesName ?? params.name;
+      if (name) handlePolicyClick(name);
+    },
+    [handlePolicyClick]
+  );
+
   const efficiencyRankOption = useMemo(
     () => ({
       backgroundColor: "transparent",
@@ -347,13 +364,16 @@ export function BenchmarkAnalysis() {
           type: "bar",
           data: efficiencyRanking.map((r, i) => ({
             value: r.value,
-            itemStyle: { color: COLORS[i % COLORS.length] },
+            itemStyle: {
+              color: COLORS[i % COLORS.length],
+              opacity: barOpacity(r.policy, brushedPolicies),
+            },
           })),
         },
       ],
       tooltip: { trigger: "axis" },
     }),
-    [efficiencyRanking]
+    [efficiencyRanking, brushedPolicies]
   );
 
   const makeBarOption = (metricKey: string, metricLabel: string) => {
@@ -370,7 +390,10 @@ export function BenchmarkAnalysis() {
           .filter((v): v is number => v !== null);
         return mean(vals);
       }),
-      itemStyle: { color: COLORS[i % COLORS.length] },
+      itemStyle: {
+        color: COLORS[i % COLORS.length],
+        opacity: barOpacity(p, brushedPolicies),
+      },
     }));
 
     return {
@@ -568,6 +591,7 @@ export function BenchmarkAnalysis() {
             }}
             option={efficiencyRankOption}
             style={{ height: Math.max(180, efficiencyRanking.length * 28) }}
+            onEvents={{ click: onChartClick }}
           />
         </div>
       )}
@@ -576,7 +600,9 @@ export function BenchmarkAnalysis() {
         <SqlQueryPanel
           tableName={BENCHMARK_SIM_TABLE}
           theme={theme}
-          highlightPolicies={policy ? [policy] : null}
+          highlightPolicies={brushedPolicies}
+          brushSqlSync
+          autoRunOnBrushSync
           portfolioMode={runs.length > 1}
         />
       )}
@@ -601,6 +627,7 @@ export function BenchmarkAnalysis() {
                 }}
                 option={makeBarOption(key, label)}
                 style={{ height: 220 }}
+                onEvents={{ click: onChartClick, legendselectchanged: onChartClick }}
               />
             </div>
           ))}

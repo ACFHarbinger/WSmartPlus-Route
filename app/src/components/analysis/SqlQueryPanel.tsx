@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import { PivotTablePanel } from "./PivotTablePanel";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { queryDuckDb } from "../../utils/duckdbClient";
-import { brushedPoliciesSql, sqlTemplates } from "../../utils/duckdbTemplates";
+import {
+  brushedPortfolioSql,
+  sqlTemplates,
+  type PortfolioBrushFilter,
+} from "../../utils/duckdbTemplates";
 import { buildAutoChartOption, suggestChart } from "../../utils/queryAutoChart";
 import { downloadCsv } from "../../utils/tableExport";
 
@@ -21,6 +25,8 @@ interface Props {
   onProfitRange?: (min: number, max: number) => void;
   /** Multi-policy brush from chart panels (§G.1 / §G.6 bidirectional filter). */
   highlightPolicies?: string[] | null;
+  /** Portfolio ``run_label`` brush from multi-run chart panels (§G.6). */
+  highlightRunLabels?: string[] | null;
   /** Sync Monaco SQL to brushed-policies query when chart brush changes (§G.1). */
   brushSqlSync?: boolean;
   /** Auto-execute SQL when brush sync updates the editor (§G.2 segment → DuckDB). */
@@ -39,6 +45,7 @@ export function SqlQueryPanel({
   onDaySelect,
   onProfitRange,
   highlightPolicies: highlightPoliciesProp = null,
+  highlightRunLabels: highlightRunLabelsProp = null,
   brushSqlSync = false,
   autoRunOnBrushSync = false,
   defaultOpen = false,
@@ -60,15 +67,24 @@ export function SqlQueryPanel({
     [tableName, portfolioMode, algorithmMode]
   );
 
-  useEffect(() => {
-    if (!brushSqlSync) return;
-    setSql(brushedPoliciesSql(tableName, highlightPoliciesProp ?? []));
-    if (highlightPoliciesProp?.length) setOpen(true);
-  }, [brushSqlSync, highlightPoliciesProp, tableName]);
+  const brushFilter = useMemo((): PortfolioBrushFilter => {
+    const filter: PortfolioBrushFilter = {};
+    if (highlightPoliciesProp?.length) filter.policies = highlightPoliciesProp;
+    if (highlightRunLabelsProp?.length) filter.runLabels = highlightRunLabelsProp;
+    return filter;
+  }, [highlightPoliciesProp, highlightRunLabelsProp]);
+
+  const hasBrushFilter = Boolean(brushFilter.policies?.length || brushFilter.runLabels?.length);
 
   useEffect(() => {
-    if (!brushSqlSync || !autoRunOnBrushSync || !highlightPoliciesProp?.length) return;
-    const nextSql = brushedPoliciesSql(tableName, highlightPoliciesProp);
+    if (!brushSqlSync) return;
+    setSql(brushedPortfolioSql(tableName, brushFilter));
+    if (hasBrushFilter) setOpen(true);
+  }, [brushSqlSync, brushFilter, hasBrushFilter, tableName]);
+
+  useEffect(() => {
+    if (!brushSqlSync || !autoRunOnBrushSync || !hasBrushFilter) return;
+    const nextSql = brushedPortfolioSql(tableName, brushFilter);
     void (async () => {
       setRunning(true);
       setError(null);
@@ -83,7 +99,7 @@ export function SqlQueryPanel({
         setRunning(false);
       }
     })();
-  }, [brushSqlSync, autoRunOnBrushSync, highlightPoliciesProp, tableName]);
+  }, [brushSqlSync, autoRunOnBrushSync, brushFilter, hasBrushFilter, tableName]);
 
   const columns = useMemo(() => {
     if (!rows.length) return [];
@@ -164,18 +180,35 @@ export function SqlQueryPanel({
     [columns]
   );
 
+  const runLabelCol = useMemo(
+    () => columns.find((c) => /^run_label$/i.test(c)) ?? null,
+    [columns]
+  );
+
   const highlightPolicies = useMemo(() => {
     if (highlightPoliciesProp?.length) return highlightPoliciesProp;
     if (activePolicy) return [activePolicy];
     return null;
   }, [highlightPoliciesProp, activePolicy]);
 
+  const highlightRunLabels = useMemo(() => {
+    if (highlightRunLabelsProp?.length) return highlightRunLabelsProp;
+    return null;
+  }, [highlightRunLabelsProp]);
+
   const rowMatchesHighlight = useCallback(
     (row: Record<string, unknown>) => {
-      if (!highlightPolicies?.length || !policyCol) return true;
-      return highlightPolicies.includes(String(row[policyCol] ?? ""));
+      const policyMatch =
+        !highlightPolicies?.length ||
+        !policyCol ||
+        highlightPolicies.includes(String(row[policyCol] ?? ""));
+      const runMatch =
+        !highlightRunLabels?.length ||
+        !runLabelCol ||
+        highlightRunLabels.includes(String(row[runLabelCol] ?? ""));
+      return policyMatch && runMatch;
     },
-    [highlightPolicies, policyCol]
+    [highlightPolicies, highlightRunLabels, policyCol, runLabelCol]
   );
 
   const applyProfitBrush = useCallback(() => {

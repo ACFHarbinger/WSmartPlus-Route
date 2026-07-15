@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-third pass (§G.6)
+
+Sixty-third pass extends bidirectional chart ↔ DuckDB brush sync to Benchmark Analysis
+and City Comparison, and unifies portfolio SQL brush filters.
+
+**React frontend**
+- `duckdbTemplates.ts` — `brushedPortfolioSql()` combines policy + `run_label` WHERE clauses
+- `SqlQueryPanel` — `highlightRunLabels` prop; brush sync uses portfolio filter helper
+- `BenchmarkAnalysis` — efficiency ranking + metric bar click sets global policy filter with
+  dimming; `brushSqlSync` + `autoRunOnBrushSync` on `benchmark_sim`
+- `CityComparison` — city chart + summary table click filters by `run_label`; brush SQL sync
+  on `city_sim`
+
+**ROADMAP**
+- §G.6 Benchmark Analysis + City Comparison brush SQL sync checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-second pass (§G.6)
 
 Sixty-second pass adds Algorithm Comparison policy-analysis SQL templates and

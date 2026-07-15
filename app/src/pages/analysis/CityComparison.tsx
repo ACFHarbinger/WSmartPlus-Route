@@ -45,6 +45,8 @@ function mean(arr: number[]) {
 export function CityComparison() {
   const { projectRoot, theme } = useAppStore();
   const { policy: filterPolicy, sampleId: filterSample } = useGlobalFiltersStore();
+  const brushedPolicies = useMemo(() => (filterPolicy ? [filterPolicy] : null), [filterPolicy]);
+  const [brushedCity, setBrushedCity] = useState<string | null>(null);
   const {
     ready: duckdbReady,
     loading: duckdbLoading,
@@ -147,6 +149,24 @@ export function CityComparison() {
     })();
   }, [pendingBenchmarkLogs, setPendingBenchmarkLogs]);
 
+  const brushedRunLabels = useMemo(() => {
+    if (!brushedCity) return null;
+    const group = cityGroups.find(([city]) => city === brushedCity);
+    if (!group) return null;
+    return group[1].map((r) => r.label);
+  }, [brushedCity, cityGroups]);
+
+  const handleCityClick = useCallback((city: string) => {
+    setBrushedCity((current) => (current === city ? null : city));
+  }, []);
+
+  const onChartClick = useCallback(
+    (params: { name?: string }) => {
+      if (params.name) handleCityClick(params.name);
+    },
+    [handleCityClick]
+  );
+
   const citySummaryRows = useMemo(() => {
     return cityGroups.map(([city, cityRuns]) => {
       const profits = cityRuns.flatMap((r) =>
@@ -240,7 +260,12 @@ export function CityComparison() {
               PNG
             </button>
           </div>
-          <ReactECharts ref={chartRef} option={chartOption} style={{ height: 280 }} />
+          <ReactECharts
+            ref={chartRef}
+            option={chartOption}
+            style={{ height: 280 }}
+            onEvents={{ click: onChartClick }}
+          />
         </div>
       )}
 
@@ -248,7 +273,10 @@ export function CityComparison() {
         <SqlQueryPanel
           tableName={CITY_SIM_TABLE}
           theme={theme}
-          highlightPolicies={filterPolicy ? [filterPolicy] : null}
+          highlightPolicies={brushedPolicies}
+          highlightRunLabels={brushedRunLabels}
+          brushSqlSync
+          autoRunOnBrushSync
           portfolioMode={runs.length > 1}
         />
       )}
@@ -268,7 +296,13 @@ export function CityComparison() {
             </thead>
             <tbody className="divide-y divide-canvas-border font-mono text-gray-300">
               {citySummaryRows.map((row) => (
-                <tr key={row.city}>
+                <tr
+                  key={row.city}
+                  className={`cursor-pointer hover:bg-canvas-hover ${
+                    brushedCity === row.city ? "bg-accent-primary/15" : ""
+                  }`}
+                  onClick={() => handleCityClick(row.city)}
+                >
                   <td className="py-1.5 pr-3">{row.city}</td>
                   <td className="text-right py-1.5 px-2">{row.runs}</td>
                   <td className="text-right py-1.5 px-2">{row.profit.toFixed(1)}</td>
