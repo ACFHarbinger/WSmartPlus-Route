@@ -40,7 +40,7 @@ import {
   normalizeTrainingMetricRow,
   parseTrainingMetricLine,
 } from "../../utils/trainingMetrics";
-import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import {
   findActiveLiveTrainProcessId,
@@ -399,6 +399,10 @@ export function TrainingMonitor() {
   );
   const recentTrainLogLines = recentTrainProc?.logLines ?? [];
   const processRunLabel = useProcessRunLabelBrush(recentTrainId, recentTrainLogLines);
+  const processLogPath = useMemo(
+    () => brushLogPathFromProcessLines(recentTrainLogLines, "train"),
+    [recentTrainLogLines]
+  );
   const liveRunLabel = useMemo(() => {
     if (activeTrainId) {
       return trainHpoLivePanelTitle({
@@ -739,6 +743,7 @@ export function TrainingMonitor() {
               command: recentTrainProc.command,
             }),
             runLabel: processRunLabel,
+            logPath: processLogPath,
             showLiveSuffix: activeTrainRunning,
             metricCount: effectiveLiveMetrics.length,
             healthCount: effectiveLiveHealth.length,

@@ -27,7 +27,7 @@ import { useDataGenStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
-import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { dataGenLivePanelTitle, findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import type { DatasetPreviewStats } from "../../types";
 
@@ -232,6 +232,10 @@ export function DataGeneration() {
   const liveRunLabel = useProcessRunLabelBrush(displayProcessId, liveLogLines);
   const outputRunPath = useMemo(
     () => outputRunPathFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
+  const liveLogPath = useMemo(
+    () => brushLogPathFromProcessLines(liveLogLines, "sim"),
     [liveLogLines]
   );
 
@@ -545,6 +549,7 @@ export function DataGeneration() {
                 status: runStatus ?? undefined,
               }),
               runLabel: liveRunLabel,
+              logPath: liveLogPath,
               navMesh: {
                 kind: "data_gen",
                 hideSelf: true,

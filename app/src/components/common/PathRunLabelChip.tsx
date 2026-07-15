@@ -30,3 +30,29 @@ export function PathRunLabelChip({ path, className = "", trailing }: Props) {
     </button>
   );
 }
+
+interface HeaderSuffixProps {
+  logPath?: string | null;
+  runLabel?: string | null;
+  /** embedded / muted headers use accent-secondary without font-normal. */
+  tone?: "default" | "muted";
+  chipClassName?: string;
+}
+
+/** Inline run-label suffix for live panel headers — chip when path known, else plain text (§G.9–§G.18 / §D.7). */
+export function RunLabelHeaderSuffix({
+  logPath,
+  runLabel,
+  tone = "default",
+  chipClassName = "ml-2",
+}: HeaderSuffixProps) {
+  if (logPath) {
+    return <PathRunLabelChip path={logPath} className={chipClassName} />;
+  }
+  if (!runLabel) return null;
+  const textClass =
+    tone === "muted"
+      ? "ml-2 text-accent-secondary"
+      : "ml-2 text-xs font-normal text-accent-secondary";
+  return <span className={textClass}>· {runLabel}</span>;
+}

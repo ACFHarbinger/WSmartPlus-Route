@@ -28,7 +28,7 @@ import {
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
-import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { collectLatestDayLogsByPolicy } from "../../utils/dayLog";
 import { findRecentLauncherProcessId, simLivePanelTitle } from "../../utils/launcherProcess";
 import type { DayLogEntry, SimPolicyEntry, ProcessStatus } from "../../types";
@@ -285,6 +285,10 @@ export function SimulationLauncher() {
     () => outputRunPathFromLogLines(liveLogLines),
     [liveLogLines]
   );
+  const liveLogPath = useMemo(
+    () => brushLogPathFromProcessLines(liveLogLines, "sim"),
+    [liveLogLines]
+  );
   const policyVizLive = liveProcStatus === "running";
   const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
 
@@ -468,6 +472,7 @@ export function SimulationLauncher() {
               status: simStatus ?? undefined,
             }),
             runLabel: liveRunLabel,
+            logPath: liveLogPath,
             navMesh: {
               kind: "sim",
               hideSelf: true,

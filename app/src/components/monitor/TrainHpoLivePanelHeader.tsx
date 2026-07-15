@@ -3,6 +3,7 @@
  */
 import type { ReactNode } from "react";
 import { Activity, CheckCircle, Radio, XCircle } from "lucide-react";
+import { RunLabelHeaderSuffix } from "../common/PathRunLabelChip";
 import { TrainHpoNavMesh, type TrainHpoNavMeshProps } from "../layout/TrainHpoNavMesh";
 import { TrainHpoRehydrationBadges } from "./TrainHpoRehydrationBadges";
 
@@ -33,6 +34,8 @@ export interface TrainHpoLivePanelHeaderProps {
   showLiveSuffix?: boolean;
   /** Process Monitor: accent-secondary run label suffix (parity with LauncherLivePanelHeader). */
   runLabel?: string | null;
+  /** When set, renders ``PathRunLabelChip`` for click-to-brush parity (§G.10–§G.18 / §D.7). */
+  logPath?: string | null;
   className?: string;
 }
 
@@ -105,6 +108,7 @@ export function TrainHpoLivePanelHeader({
   titleTone = "mono",
   showLiveSuffix = false,
   runLabel,
+  logPath,
   className = "",
 }: TrainHpoLivePanelHeaderProps) {
   const iconSize = titleTone === "heading" ? 14 : 13;
@@ -119,9 +123,7 @@ export function TrainHpoLivePanelHeader({
 
   const titleSuffix = (
     <>
-      {runLabel && (
-        <span className="ml-2 text-xs font-normal text-accent-secondary">· {runLabel}</span>
-      )}
+      <RunLabelHeaderSuffix logPath={logPath} runLabel={runLabel} />
       {showLiveSuffix && status === "running" && (
         <span className="ml-2 text-xs font-normal text-accent-success">· live</span>
       )}
@@ -147,11 +149,9 @@ export function TrainHpoLivePanelHeader({
   if (titleTone === "muted") {
     return (
       <div className={`flex items-center gap-2 flex-wrap ${className}`}>
-        <p className="text-xs text-canvas-muted flex-1 min-w-0">
-          {title}
-          {runLabel && (
-            <span className="ml-2 text-accent-secondary">· {runLabel}</span>
-          )}
+        <p className="text-xs text-canvas-muted flex-1 min-w-0 flex items-center flex-wrap gap-x-1">
+          <span>{title}</span>
+          <RunLabelHeaderSuffix logPath={logPath} runLabel={runLabel} tone="muted" />
           {showLiveSuffix && status === "running" && (
             <span className="ml-2 text-accent-success">· live</span>
           )}

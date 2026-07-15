@@ -192,7 +192,7 @@ function ConfigMetaBanner({ logPath, logMeta }: { logPath: string; logMeta: LogP
     <div className="card flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-canvas-muted">
       <span className="font-semibold text-gray-300">Run config</span>
       <span>{formatLogMeta(logMeta)}</span>
-      <span className="font-mono truncate opacity-70">{logPath.split("/").slice(-4).join("/")}</span>
+      <PathRunLabelChip path={logPath} className="opacity-70" />
     </div>
   );
 }
