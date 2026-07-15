@@ -11,6 +11,21 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-second pass (§G.7 / §G.12)
+
+Eighty-second pass extends global log-scale to Evaluation Runner inline checkpoint
+comparison charts, closing the remaining §G.12 partial marker.
+
+**React frontend**
+- `EvaluationRunner` — inline cost/gap/time bar charts follow global ``logScale``;
+  ``GlobalFilterBar`` toggle above results grid; linear vs log subtitle
+
+**ROADMAP**
+- §G.12 EvaluationRunner inline charts global log-scale checked; partial marker removed
+- §G.7 Global log-scale propagation includes Evaluation Runner
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-first pass (§G.1 / §G.7 / §G.12)
 
 Eighty-first pass extends symlog-overflows log-scale polish and responsive chart grids

@@ -13,10 +13,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { BarChart3, ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { exportChartPng } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { StdoutLine, StatusUpdate } from "../../types";
@@ -52,9 +54,11 @@ const EVAL_COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3
 
 function ResultsGrid({
   results,
+  logScale,
   onOpenAnalytics,
 }: {
   results: EvalResult[];
+  logScale: boolean;
   onOpenAnalytics: () => void;
 }) {
   const chartRefs = useRef<Record<string, EChartsReact | null>>({});
@@ -75,18 +79,23 @@ function ResultsGrid({
       axisLabel: { color: "#9090b0", fontSize: 9, rotate: 25 },
     },
     yAxis: {
-      type: "value",
+      type: (logScale ? "log" : "value") as "log" | "value",
+      logBase: 10,
       name: metricLabel,
       nameTextStyle: { color: "#9090b0" },
       axisLabel: { color: "#9090b0", fontSize: 10 },
+      minorSplitLine: { show: false },
     },
     series: [
       {
         type: "bar",
-        data: results.map((r, i) => ({
-          value: (r[metricKey] as number | undefined) ?? 0,
-          itemStyle: { color: EVAL_COLORS[i % EVAL_COLORS.length] },
-        })),
+        data: results.map((r, i) => {
+          const raw = (r[metricKey] as number | undefined) ?? 0;
+          return {
+            value: logScale ? Math.max(raw, 0.001) : raw,
+            itemStyle: { color: EVAL_COLORS[i % EVAL_COLORS.length] },
+          };
+        }),
       },
     ],
     tooltip: { trigger: "axis" },
@@ -108,7 +117,10 @@ function ResultsGrid({
   };
 
   return (
-    <div className="card space-y-3">
+    <div className="space-y-3">
+      <GlobalFilterBar showLogScale />
+
+      <div className="card space-y-3">
       <div className="flex items-center justify-between">
         <h2 className="text-sm font-semibold text-gray-200">Results ({results.length})</h2>
         <div className="flex items-center gap-2">
@@ -122,6 +134,11 @@ function ResultsGrid({
           </button>
         </div>
       </div>
+      <p className="text-[10px] text-canvas-muted">
+        {logScale
+          ? "Log-scale bars — tour cost · optimality gap · eval time per checkpoint"
+          : "Linear bars — tour cost · optimality gap · eval time per checkpoint"}
+      </p>
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {EVAL_CHART_METRICS.filter(({ key }) => numKeys.includes(key)).map(({ key, label }) => (
           <div key={key} className="rounded-lg border border-canvas-border/40 p-2">
@@ -176,6 +193,7 @@ function ResultsGrid({
           </tbody>
         </table>
       </div>
+      </div>
     </div>
   );
 }
@@ -221,6 +239,7 @@ function CheckpointRow({
 export function EvaluationRunner() {
   const { projectRoot, pendingCheckpoint, setPendingCheckpoint, setMode, setPendingEvalResults } =
     useAppStore();
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
 
   // Checkpoint list — pre-populated from Training Monitor "Load in Eval Runner" action
@@ -538,7 +557,7 @@ export function EvaluationRunner() {
 
       {/* Results grid */}
       {results.length > 0 && (
-        <ResultsGrid results={results} onOpenAnalytics={openInAnalytics} />
+        <ResultsGrid results={results} logScale={logScale} onOpenAnalytics={openInAnalytics} />
       )}
 
       {/* Launch */}
