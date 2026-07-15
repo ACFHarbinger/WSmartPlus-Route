@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-eighth pass (§D.2 + §G.12 + §A.4)
+
+Hundred-thirty-eighth pass closes the last launcher progress/ETA gap by wiring
+``LiveTrainProgressBar`` into the Evaluation Runner live panel for single- and
+multi-checkpoint ``eval`` runs.
+
+**React frontend**
+- Evaluation Runner — live progress panel with per-checkpoint ``LiveTrainProgressBar``
+  during running ``eval`` processes; aggregate status header, stdout tail, and
+  Process Monitor shortcut (§D.2 / §G.12 / §A.4)
+- Multi-checkpoint launches use unique process IDs and show per-checkpoint progress
+  rows with completion/failure badges
+
+**ROADMAP**
+- §A.4 Evaluation Runner ``LiveTrainProgressBar`` + live panel checked
+- §D.2 eval launcher progress/ETA parity checked
+- §G.12 Evaluation Runner live progress + ETA checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-seventh pass (§D.2 + §G.9 + §G.11 + §A.4)
 
 Hundred-thirty-seventh pass extends ``LiveTrainProgressBar`` to the remaining launcher
