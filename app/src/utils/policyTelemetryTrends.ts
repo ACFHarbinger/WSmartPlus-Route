@@ -12,6 +12,13 @@ export interface TrendBrushFilter {
   runLabel: string | null;
 }
 
+/** Derive SQLite ``run_label`` from a log path (matches Python ``Path.stem``). */
+export function runLabelFromPath(path: string): string {
+  const base = path.split(/[/\\]/).pop() ?? path;
+  const stem = base.replace(/\.[^.]+$/, "");
+  return stem || base;
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;

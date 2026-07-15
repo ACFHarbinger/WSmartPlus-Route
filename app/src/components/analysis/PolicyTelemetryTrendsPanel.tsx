@@ -187,12 +187,12 @@ export function PolicyTelemetryTrendsPanel({
 
   const handleTrajectoryClick = useCallback(
     (params: { seriesIndex?: number }) => {
-      const item = params.seriesIndex != null ? filteredSeries[params.seriesIndex] : undefined;
+      const item = params.seriesIndex != null ? allSeries[params.seriesIndex] : undefined;
       if (!item) return;
       handlePolicyBrush(item.policy);
       handleRunBrush(trajectoryRunKey(item));
     },
-    [filteredSeries, handlePolicyBrush, handleRunBrush]
+    [allSeries, handlePolicyBrush, handleRunBrush]
   );
 
   if (!projectRoot) return null;

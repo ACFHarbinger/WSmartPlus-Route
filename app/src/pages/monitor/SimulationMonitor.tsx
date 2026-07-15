@@ -52,6 +52,7 @@ import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../uti
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import { filterFailureEntries } from "../../utils/simFailure";
+import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import type { DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
@@ -1021,6 +1022,7 @@ export function SimulationMonitor() {
             logScale={logScale}
             refreshKey={telemetryTrendsKey}
             initialPolicy={selectedPolicy}
+            initialRunLabel={activeLogPath ? runLabelFromPath(activeLogPath) : null}
           />
 
           <GraphTopologyPanel

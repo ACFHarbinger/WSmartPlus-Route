@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
@@ -42,6 +43,7 @@ export function DataExplorer() {
     policy: activePolicy,
     runLabel: activeRunLabel,
     brushedCity,
+    logScale,
     setPolicy,
     setRunLabel,
     setBrushedCity,
@@ -297,6 +299,17 @@ export function DataExplorer() {
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
           Open a CSV file from the output directory to explore.
         </div>
+      )}
+
+      {file && (
+        <PolicyTelemetryTrendsPanel
+          theme={theme}
+          logScale={logScale}
+          initialPolicy={activePolicy}
+          initialRunLabel={
+            activeRunLabel ?? (csvRunLabels.length === 1 ? csvRunLabels[0]! : null)
+          }
+        />
       )}
 
       {file && duckdbReady && lastPipeline?.tableName && (

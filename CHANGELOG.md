@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-sixth pass (§A.3 Option C)
+
+Hundred-twenty-sixth pass completes policy telemetry trends coverage on Simulation Monitor
+and Data Explorer, fixes trajectory chart brush-click indexing, and adds a shared
+``run_label`` path helper.
+
+**React frontend**
+- ``runLabelFromPath`` — derives SQLite ``run_label`` from log path stem (Python ``Path.stem`` parity)
+- ``PolicyTelemetryTrendsPanel`` — trajectory chart click indexes ``allSeries`` (fixes brush when
+  chart shows dimmed full dataset, parity with steps chart ``displayStepRows`` fix)
+- Simulation Monitor — ``initialRunLabel`` from active log path; cross-run trends scoped to open run
+- Data Explorer — ``PolicyTelemetryTrendsPanel`` with policy + ``run_label`` brush sync
+
+**ROADMAP**
+- §A.3 Option C trajectory click fix + Simulation Monitor / Data Explorer panels checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-fifth pass (§A.3 Option C)
 
 Hundred-twenty-fifth pass adds portfolio ``run_label`` brush sync across telemetry
