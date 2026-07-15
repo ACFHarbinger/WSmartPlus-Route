@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twelfth pass (§A.6)
+
+Hundred-twelfth pass adds ``FailureAnalyzer`` post-day root-cause diagnostics and wires
+them into the Studio Simulation Monitor, completing ROADMAP §A.6 Option A.
+
+**Python logic**
+- ``FailureAnalyzer`` — compares predicted vs. actual fill, flags overflow bins,
+  fill-rate spikes, and skipped high-fill bins; severity-coded summary
+- ``failure_emit.py`` — ``SIM_FAILURE_START:`` marker to stdout + JSONL append
+- ``LogAction`` — runs analyzer after each day; embeds ``failure_analysis`` in day log
+- Unit tests in ``logic/test/unit/pipeline/simulations/test_failure_analyzer.py``
+
+**Rust backend**
+- ``parse_sim_failure_line`` + ``load_sim_failure_log`` command
+- ``sim:failure_update`` watcher events alongside day and policy-viz streams
+
+**React frontend**
+- ``FailureAnalysisPanel`` — root-cause badges, overflow bin table, skipped high-fill chips
+- ``simFailure.ts`` — marker parse + display helpers
+- Simulation Monitor — live stdout ingest + historical ``SIM_FAILURE_START`` load;
+  falls back to embedded ``failure_analysis`` in day log payloads
+
+**ROADMAP**
+- §A.6 Option A FailureAnalyzer checked (Options B/C/D deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eleventh pass (§A.4)
 
 Hundred-eleventh pass adds ``TrainingHealthCallback`` instability guardrails and wires

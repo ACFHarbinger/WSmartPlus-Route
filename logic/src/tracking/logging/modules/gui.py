@@ -45,6 +45,7 @@ def send_daily_output_to_gui(
     coordinates: Union[pd.DataFrame, List[Any]],
     lock: Optional[threading.Lock] = None,
     mandatory: Optional[Sequence[int]] = None,
+    failure_analysis: Optional[Dict[str, Any]] = None,
 ) -> None:
     """Write daily simulation output to a log file for GUI consumption.
 
@@ -61,6 +62,7 @@ def send_daily_output_to_gui(
         coordinates: Node coordinate data (DataFrame or list).
         lock: Optional thread lock for safe file appending. Defaults to None.
         mandatory: Optional sequence of nodes that MUST be visited. Defaults to None.
+        failure_analysis: Optional structured failure summary (§A.6). Defaults to None.
     """
     # Preserve the entire daily_log, including its pre-mapped Dataset ID "tour" list
     full_payload = {k: v for k, v in daily_log.items() if k in udef.DAY_METRICS}
@@ -97,6 +99,9 @@ def send_daily_output_to_gui(
         # Bins are i=1..N, Depot is i=0 (skipped)
         mapped_mandatory = [i - 1 for i in mandatory if i > 0]
         full_payload.update({"mandatory": mapped_mandatory})
+
+    if failure_analysis is not None:
+        full_payload["failure_analysis"] = failure_analysis
 
     full_payload = deep_sanitize(full_payload)
     full_payload = OmegaConf.to_container(OmegaConf.create(full_payload), resolve=True)

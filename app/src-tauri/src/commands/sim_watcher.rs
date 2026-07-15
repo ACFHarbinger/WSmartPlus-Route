@@ -27,6 +27,15 @@ pub struct PolicyVizEntry {
     pub data: serde_json::Value,
 }
 
+/// Simulation failure root-cause summary from ``FailureAnalyzer`` (§A.6).
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct SimFailureEntry {
+    pub policy: String,
+    pub sample_id: i32,
+    pub day: i32,
+    pub data: serde_json::Value,
+}
+
 pub fn parse_day_log_line(line: &str) -> Option<DayLogEntry> {
     let line = line.trim();
     if !line.starts_with("GUI_DAY_LOG_START:") {
@@ -70,6 +79,29 @@ pub fn parse_policy_viz_line(line: &str) -> Option<PolicyVizEntry> {
     })
 }
 
+pub fn parse_sim_failure_line(line: &str) -> Option<SimFailureEntry> {
+    let line = line.trim();
+    if !line.starts_with("SIM_FAILURE_START:") {
+        return None;
+    }
+    let content = &line["SIM_FAILURE_START:".len()..];
+    // policy, sample_id, day, json_payload
+    let parts: Vec<&str> = content.splitn(4, ',').collect();
+    if parts.len() < 4 {
+        return None;
+    }
+    let policy = parts[0].trim().to_string();
+    let sample_id: i32 = parts[1].trim().parse().ok()?;
+    let day: i32 = parts[2].trim().parse().ok()?;
+    let data: serde_json::Value = serde_json::from_str(parts[3].trim()).ok()?;
+    Some(SimFailureEntry {
+        policy,
+        sample_id,
+        day,
+        data,
+    })
+}
+
 /// Global watcher cancellation flag (path → stop signal).
 static WATCHER_STOP: std::sync::OnceLock<Arc<Mutex<Option<String>>>> = std::sync::OnceLock::new();
 
@@ -102,6 +134,9 @@ pub async fn start_sim_watcher(path: String, app: AppHandle) -> Result<(), Strin
                         if let Some(viz) = parse_policy_viz_line(line) {
                             let _ = app.emit("sim:policy_viz_update", &viz);
                         }
+                        if let Some(failure) = parse_sim_failure_line(line) {
+                            let _ = app.emit("sim:failure_update", &failure);
+                        }
                     }
                     lines_seen = lines.len();
                 }
@@ -125,7 +160,7 @@ pub fn stop_sim_watcher() -> Result<(), String> {
 
 #[cfg(test)]
 mod tests {
-    use super::{parse_day_log_line, parse_policy_viz_line};
+    use super::{parse_day_log_line, parse_policy_viz_line, parse_sim_failure_line};
 
     #[test]
     fn parse_policy_viz_line_valid() {
@@ -143,5 +178,15 @@ mod tests {
         let line = r#"GUI_DAY_LOG_START:greedy,0,1,{"profit":10}"#;
         assert!(parse_policy_viz_line(line).is_none());
         assert!(parse_day_log_line(line).is_some());
+    }
+
+    #[test]
+    fn parse_sim_failure_line_valid() {
+        let line = r#"SIM_FAILURE_START:greedy,0,2,{"has_failure":true,"severity":"warning","root_causes":["overflow_event"]}"#;
+        let entry = parse_sim_failure_line(line).expect("parse");
+        assert_eq!(entry.policy, "greedy");
+        assert_eq!(entry.sample_id, 0);
+        assert_eq!(entry.day, 2);
+        assert_eq!(entry.data["severity"], "warning");
     }
 }

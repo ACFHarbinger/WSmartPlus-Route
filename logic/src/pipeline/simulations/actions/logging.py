@@ -17,8 +17,10 @@ from rich.table import Table
 
 from logic.src.pipeline.simulations.actions.base import SimulationAction
 from logic.src.pipeline.simulations.day_context import get_daily_results
+from logic.src.pipeline.simulations.failure_analyzer import FailureAnalyzer
 from logic.src.tracking.integrations.simulation import get_sim_tracker
 from logic.src.tracking.logging.log_utils import send_daily_output_to_gui
+from logic.src.tracking.logging.modules.failure_emit import emit_sim_failure_summary
 
 
 class LogAction(SimulationAction):
@@ -61,6 +63,21 @@ class LogAction(SimulationAction):
             mandatory_nodes=context.get("mandatory"),
         )
 
+        bins = context["bins"]
+        failure_summary = FailureAnalyzer().analyze(
+            new_overflows=new_overflows,
+            sum_lost=sum_lost,
+            profit=profit,
+            fill=context.get("fill", bins.real_c),
+            total_fill=context.get("total_fill", bins.c),
+            bins_means=bins.means,
+            bins_real_c=bins.real_c,
+            tour=tour,
+            collected=context.get("collected"),
+            coords=coords,
+            mandatory=context.get("mandatory"),
+        )
+        dlog["failure_analysis"] = failure_summary
         context["daily_log"] = dlog
         policy_name = context.get("display_name", context["policy_name"])
 
@@ -121,12 +138,22 @@ class LogAction(SimulationAction):
             day,
             context["total_fill"],
             context["collected"],
-            context["bins"].real_c,
+            bins.real_c,
             context["realtime_log_path"],
             tour,
             coords,
             context["lock"],
             mandatory=context.get("mandatory"),
+            failure_analysis=failure_summary,
+        )
+
+        emit_sim_failure_summary(
+            failure_summary,
+            policy_name,
+            context["sample_id"],
+            day,
+            context["realtime_log_path"],
+            context.get("lock"),
         )
 
         # Forward day-level metrics to the centralised tracker (no-op if no run active)

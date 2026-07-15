@@ -38,6 +38,7 @@ pub fn run() {
             arrow::path_exists,
             data::load_simulation_log,
             data::load_policy_viz_log,
+            data::load_sim_failure_log,
             data::load_training_health_log,
             data::load_csv_file,
             data::list_output_dirs,
