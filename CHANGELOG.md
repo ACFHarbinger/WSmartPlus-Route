@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-ninth pass (§G.4 / §G.7)
+
+Ninety-ninth pass propagates global log-scale to graph topology ACO pheromone
+edge styling, adds ECharts PNG export on the topology panel, and marks §G.4
+complete in the ROADMAP.
+
+**React frontend**
+- `chartLogScale.ts` — ``pheromoneWeightDisplay()`` log-transform helper for τ
+  edge opacity/width
+- `graphTopology.ts` — ``normalizePheromone()`` / ``pheromoneIntensity()`` apply
+  log-scale before edge styling; ``buildTopologyFromMatrix`` accepts ``logScale``
+- `GraphTopologyPanel` — ``logScale`` prop; ECharts PNG export; subtitle notes
+  log-scale τ when active
+- `TopologySigmaView` / `TopologyCosmographView` — shared ``pheromoneIntensity()``
+  for WebGL edge warmth
+- `SimulationMonitor` — passes global ``logScale`` to ``GraphTopologyPanel``
+
+**ROADMAP**
+- §G.4 Topology pheromone log-scale + ECharts PNG export checked; stale partial
+  markers removed; Phase 4 status marked complete
+- §G.7 Global log-scale + export lists include graph topology pheromone styling
+  and topology PNG export
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-eighth pass (§G.2 / §G.3)
 
 Ninety-eighth pass extends the shared strategy legend to the policy hierarchy

@@ -1,9 +1,11 @@
 /**
  * Topological graph analytics panel — ECharts force-directed graph (§G.4).
  */
-import { lazy, Suspense, useCallback, useEffect, useMemo, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
-import { ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
+import type EChartsReact from "echarts-for-react";
+import { ChevronDown, ChevronUp, Download, RefreshCw } from "lucide-react";
+import { exportChartPng } from "../../utils/chartExport";
 import { toast } from "sonner";
 import type { DayLogEntry, SimDayData } from "../../types";
 import {
@@ -40,6 +42,7 @@ interface Props {
   dayRange?: { min: number; max: number };
   syncTimeline?: boolean;
   onDaySelect?: (day: number) => void;
+  logScale?: boolean;
 }
 
 export function GraphTopologyPanel({
@@ -53,7 +56,9 @@ export function GraphTopologyPanel({
   dayRange = { min: 1, max: 1 },
   syncTimeline = true,
   onDaySelect,
+  logScale = false,
 }: Props) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [matrix, setMatrix] = useState<DistanceMatrixData | null>(null);
@@ -159,6 +164,7 @@ export function GraphTopologyPanel({
       layoutMode,
       pheromoneWeights,
       showPheromone,
+      logScale,
       theme,
     });
   }, [
@@ -171,6 +177,7 @@ export function GraphTopologyPanel({
     layoutMode,
     pheromoneWeights,
     showPheromone,
+    logScale,
     theme,
   ]);
 
@@ -254,6 +261,7 @@ export function GraphTopologyPanel({
           <p className="text-xs font-semibold text-gray-300">Graph Topology (§G.4)</p>
           <p className="text-[10px] text-canvas-muted">
             Distance matrix → k-NN edges · force/radial layout · ACO pheromone trails
+            {logScale ? " · log-scale τ" : ""}
           </p>
         </div>
         {open ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
@@ -354,6 +362,18 @@ export function GraphTopologyPanel({
                 >
                   Re-run layout
                 </button>
+                {topologyView === "echarts" && chartOption && (
+                  <button
+                    type="button"
+                    onClick={() =>
+                      exportChartPng({ current: chartRef.current }, "topology-graph.png")
+                    }
+                    className="btn-ghost text-xs flex items-center gap-1"
+                  >
+                    <Download size={12} />
+                    PNG
+                  </button>
+                )}
                 <span className="text-canvas-muted">
                   {tourCount} on tour · {graphPayload?.edges.length ?? 0} edges
                   {showPheromone ? ` · ${phEdgeCount} τ edges` : ""}
@@ -510,6 +530,7 @@ export function GraphTopologyPanel({
                     fillRange={fillRange}
                     pheromoneWeights={pheromoneWeights}
                     showPheromone={showPheromone}
+                    logScale={logScale}
                     theme={theme}
                     onNodeClick={brushNodeFill}
                   />
@@ -530,6 +551,7 @@ export function GraphTopologyPanel({
                     fillRange={fillRange}
                     pheromoneWeights={pheromoneWeights}
                     showPheromone={showPheromone}
+                    logScale={logScale}
                     theme={theme}
                     onNodeClick={brushNodeFill}
                   />
@@ -537,6 +559,7 @@ export function GraphTopologyPanel({
               )}
               {chartOption && topologyView === "echarts" && (
                 <ReactECharts
+                  ref={chartRef}
                   option={chartOption}
                   style={{ height: 360 }}
                   notMerge
