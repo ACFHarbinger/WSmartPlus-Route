@@ -513,6 +513,8 @@ export function ProcessMonitor() {
             },
           }}
           footer={<ProcessIdFooter processId={selectedProc.id} />}
+          logLines={selectedProc.logLines}
+          logTailWaiting={selectedProc.status === "running"}
         >
           {selectedProc.status === "running" ||
           !evalResult ||
@@ -524,6 +526,7 @@ export function ProcessMonitor() {
               isRunning={selectedProc.status === "running"}
               result={evalResult ?? undefined}
               logLines={selectedProc.logLines}
+              showLogTail={false}
             />
           ) : (
             <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />

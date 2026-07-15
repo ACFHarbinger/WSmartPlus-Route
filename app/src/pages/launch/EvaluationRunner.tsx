@@ -335,6 +335,11 @@ export function EvaluationRunner() {
     return outputRunPathFromLogLines(lines);
   }, [displayProcessIds, processes]);
 
+  const singleCheckpointEval = displayProcessIds.length === 1;
+  const singleEvalProc = singleCheckpointEval ? processes[displayProcessIds[0]] : undefined;
+  const singleEvalLogLines = singleEvalProc?.logLines ?? [];
+  const singleEvalLogTailWaiting = singleEvalProc?.status === "running";
+
   const addCheckpoint = () => {
     setCheckpoints((prev) => [
       ...prev,
@@ -627,6 +632,8 @@ export function EvaluationRunner() {
             },
           }}
           footer={<ProcessIdFooter processIds={displayProcessIds} />}
+          logLines={singleCheckpointEval ? singleEvalLogLines : undefined}
+          logTailWaiting={singleCheckpointEval ? singleEvalLogTailWaiting : false}
         >
           <div className="space-y-2">
             {displayProcessIds.map((procId) => {
@@ -647,6 +654,7 @@ export function EvaluationRunner() {
                   isRunning={isRunning}
                   result={ckptResult}
                   logLines={proc?.logLines ?? []}
+                  showLogTail={!singleCheckpointEval}
                 />
               );
             })}

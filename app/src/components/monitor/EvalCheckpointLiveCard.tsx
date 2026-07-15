@@ -16,6 +16,8 @@ export interface EvalCheckpointLiveCardProps {
   result?: EvalResult;
   logLines?: string[];
   maxLines?: number;
+  /** When false, parent ``LauncherLivePanel`` renders the shared log tail (§G.12 / §D.7). */
+  showLogTail?: boolean;
   className?: string;
 }
 
@@ -27,6 +29,7 @@ export function EvalCheckpointLiveCard({
   result,
   logLines = [],
   maxLines,
+  showLogTail = true,
   className = "",
 }: EvalCheckpointLiveCardProps) {
   return (
@@ -49,12 +52,14 @@ export function EvalCheckpointLiveCard({
         <EvalResultKpiRow result={result} size="compact" showPolicy={false} />
       )}
       {isRunning && <LiveTrainProgressBar processId={procId} />}
-      <ProcessLogTail
-        logLines={logLines}
-        maxLines={maxLines}
-        waiting={isRunning}
-        variant="compact"
-      />
+      {showLogTail && (
+        <ProcessLogTail
+          logLines={logLines}
+          maxLines={maxLines}
+          waiting={isRunning}
+          variant="compact"
+        />
+      )}
     </div>
   );
 }

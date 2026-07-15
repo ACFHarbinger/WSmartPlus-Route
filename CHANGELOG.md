@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-fifth pass (§G.12 + §G.15 + §D.7)
+
+Hundred-sixty-fifth pass closes the eval log tail shell gap left after the
+hundred-sixty-fourth pass (which added ``logLines`` props on ``LauncherLivePanel``
+for sim/data-gen workflows). Single-checkpoint eval workflows now pass raw stdout
+lines to ``LauncherLivePanel`` instead of rendering inline ``ProcessLogTail`` on
+``EvalCheckpointLiveCard``, matching the sim/data-gen panel pattern. Multi-checkpoint
+batch eval retains per-card compact tails.
+
+**React frontend**
+- ``EvalCheckpointLiveCard`` — optional ``showLogTail`` prop; omit inline tail when
+  parent panel renders it (§G.12 / §D.7)
+- Evaluation Runner — single-checkpoint live panel passes ``logLines`` to shared
+  ``LauncherLivePanel`` shell; multi-checkpoint batch keeps per-card compact tails
+  (§G.12 / §D.7)
+- Process Monitor — selected ``eval`` embedded section passes ``logLines`` to
+  ``LauncherLivePanel`` instead of inline ``ProcessLogTail`` on live card
+  (§G.12 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.12 Evaluation Runner ``LauncherLivePanel`` ``logLines`` prop checked
+- §G.12 ``EvalCheckpointLiveCard`` ``showLogTail`` prop checked
+- §G.15 Process Monitor eval embedded ``LauncherLivePanel`` log tail checked
+- §D.7 eval launcher log tail shell parity across Evaluation Runner and Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-fourth pass (§G.9 + §G.11 + §G.15 + §D.7)
 
 Hundred-sixty-fourth pass closes the launcher log tail shell gap left after the

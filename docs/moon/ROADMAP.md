@@ -970,6 +970,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — selected ``test_sim`` / ``gen_data`` embedded sections pass ``logLines`` to ``LauncherLivePanel`` instead of inline ``ProcessLogTail`` (§G.9 / §G.11 / §G.15 / §D.7)
 - [x] §G.9 / §G.11 / §G.15 launcher workflow log tail display parity via shared panel props across all launcher pages + Process Monitor embedded sections (§D.7)
 
+**Delivered (§D.7 — hundred-sixty-fifth pass)**
+
+- [x] ``EvalCheckpointLiveCard`` — optional ``showLogTail`` prop; parent ``LauncherLivePanel`` renders shared log tail for single-checkpoint eval (§G.12 / §D.7)
+- [x] Evaluation Runner — single-checkpoint live panel passes ``logLines`` to ``LauncherLivePanel``; multi-checkpoint batch retains per-card compact tails (§G.12 / §D.7)
+- [x] Process Monitor — selected ``eval`` embedded section passes ``logLines`` to ``LauncherLivePanel`` instead of inline ``ProcessLogTail`` on ``EvalCheckpointLiveCard`` (§G.12 / §G.15 / §D.7)
+- [x] §G.12 / §G.15 eval launcher log tail shell parity across Evaluation Runner and Process Monitor embedded section (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
