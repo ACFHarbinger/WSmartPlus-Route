@@ -114,6 +114,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - [x] Training Monitor / Process Monitor / HPO Tracker / Experiment Tracker — ``Training Hub →`` shortcut during live train/HPO workflows (§G.10 / §G.15 / §G.17 / §G.18 / §A.2)
 
+**Delivered (§A.2 Option A — hundred-thirty-fifth pass)**
+
+- [x] ``TrainHpoNavMesh`` — shared cross-page train/HPO navigation component; replaces duplicated shortcut buttons on Training Hub, Training Monitor, Process Monitor, HPO Tracker, and Experiment Tracker (§G.7 / §A.2 / §A.4)
+
 **Status**: §A.2 Options A+C complete — Option B (BertViz) deferred.
 
 ---
@@ -282,6 +286,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Delivered (§A.4 Option A — hundred-thirty-fourth pass)**
 
 - [x] Training Monitor / Process Monitor / HPO Tracker / Experiment Tracker — ``Training Hub →`` shortcut during live train/HPO workflows (§G.10 / §G.15 / §G.17 / §G.18 / §A.4)
+
+**Delivered (§A.4 Option A — hundred-thirty-fifth pass)**
+
+- [x] ``LiveTrainProgressBar`` — epoch/trial progress bar + elapsed + ETA on Training Hub, Training Monitor, HPO Tracker, and Experiment Tracker during live runs; shared ``processProgress.ts`` helpers (§D.2 / §G.10 / §G.17 / §G.18 / §A.4)
 
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
@@ -804,11 +812,11 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 | ------------------------------------------- | -------- | ------ | --------------------------------- |
 | §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]` ✅              |
 | §D.3 Option C (system theme following)      | Very Low | Medium | P0 `[Quick Win]` ✅              |
-| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅              |
+| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅ (incl. T/H/E train workflow) |
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0 ✅ (Zustand persist)           |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
-| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (Training Hub + Monitor)    |
+| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (Training Hub + Monitor + progress/ETA) |
 | §D.1 Option A (ECharts route panel)         | Medium   | High   | P2 ✅ (RouteViz + Summary)        |
 | §D.6 Option A (override table)              | Medium   | High   | P2 ✅ (all launchers)             |
 | §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 ✅ (§G.3 / §G.16)              |
@@ -1472,6 +1480,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Session persistence: `useTrainHubStore` (Zustand `persist`, key `wsroute-train-hub`) stores all form fields across train/hpo/eval modes; ephemeral runtime state stays in component state
 - [x] Live training health + runtime attention (§A.4 / §A.2): ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` in live progress panel during train/hpo; ``Training Monitor →`` navigation shortcut (hundred-thirtieth pass)
 - [x] Live HPO label + ``HPO Tracker →`` navigation during live HPO runs (hundred-thirty-second pass)
+- [x] ``TrainHpoNavMesh`` shared navigation + ``LiveTrainProgressBar`` epoch progress/ETA during live train/HPO (hundred-thirty-fifth pass; §D.2)
 
 ---
 
@@ -1636,6 +1645,8 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] **Cross-page train/HPO navigation** (hundred-thirty-second pass): Training Monitor ``Process Monitor →`` + ``HPO Tracker →``; HPO Tracker ``Training Monitor →``; Process Monitor ``Training Monitor →`` + ``HPO Tracker →`` for ``hpo_*`` processes
 - [x] **Experiment Tracker navigation mesh** (hundred-thirty-third pass): Experiment Tracker ``Training Monitor →``; HPO Tracker / Training Monitor / Process Monitor / Training Hub ``Experiment Tracker →`` when live HPO active (§G.10 / §G.15 / §G.17 / §G.18)
 - [x] **Training Hub navigation mesh** (hundred-thirty-fourth pass): Training Monitor / Process Monitor / HPO Tracker / Experiment Tracker ``Training Hub →`` during live train/HPO workflows — completes bidirectional cross-page shortcuts (§G.10 / §G.15 / §G.17 / §G.18)
+- [x] **Live epoch progress + ETA** (hundred-thirty-fifth pass): ``LiveTrainProgressBar`` on Training Hub / Training Monitor / HPO Tracker / Experiment Tracker; ``processProgress.ts`` shared with Process Monitor (§D.2 / §G.17 / §G.18)
+- [x] **Train/HPO keyboard shortcuts** (hundred-thirty-fifth pass): ``T`` Training Monitor · ``H`` Training Hub · ``E`` Experiment Tracker (§D.7)
 
 ---
 

@@ -8,6 +8,8 @@ import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
+import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { useAppStore } from "../../store/app";
@@ -49,7 +51,7 @@ function formatTime(ms: number | null) {
 }
 
 export function ExperimentTracker() {
-  const { projectRoot, pythonPath, effectiveTheme, setMode } = useAppStore();
+  const { projectRoot, pythonPath, effectiveTheme } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const processes = useProcessStore((s) => s.processes);
   const [trackingUri, setTrackingUri] = useState(DEFAULT_TRACKING_URI);
@@ -262,31 +264,9 @@ export function ExperimentTracker() {
             <span className="text-xs text-canvas-muted font-mono truncate flex-1">
               {activeHpoId}
             </span>
-            <button
-              onClick={() => setMode("training_hub")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Training Hub →
-            </button>
-            <button
-              onClick={() => setMode("training")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Training Monitor →
-            </button>
-            <button
-              onClick={() => setMode("hpo_tracker")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              HPO Tracker →
-            </button>
-            <button
-              onClick={() => setMode("process_monitor")}
-              className="btn-ghost text-xs text-canvas-muted"
-            >
-              Process Monitor →
-            </button>
+            <TrainHpoNavMesh showHpoLinks />
           </div>
+          <LiveTrainProgressBar processId={activeHpoId} />
           <TrainingHealthPanel entries={liveHealthEntries} />
           <RuntimeAttentionPanel
             entries={liveAttentionEntries}

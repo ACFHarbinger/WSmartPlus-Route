@@ -288,6 +288,24 @@ export default function App() {
         setMode("hpo_tracker");
         return;
       }
+      // T → Training monitor (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "t") {
+        e.preventDefault();
+        setMode("training");
+        return;
+      }
+      // H → Training & HPO hub (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "h") {
+        e.preventDefault();
+        setMode("training_hub");
+        return;
+      }
+      // E → Experiment tracker (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "e") {
+        e.preventDefault();
+        setMode("experiment_tracker");
+        return;
+      }
       // P → Process monitor (§G.7 / §D.7)
       if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "p") {
         e.preventDefault();

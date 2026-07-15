@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-fifth pass (§D.2 + §D.7 + §A.2 / §A.4)
+
+Hundred-thirty-fifth pass consolidates the train/HPO navigation mesh into a shared
+component, adds live epoch progress bars with ETA on all train/HPO workflow pages, and
+extends keyboard shortcuts for the training workflow.
+
+**React frontend**
+- ``TrainHpoNavMesh`` — shared cross-page shortcuts on Training Hub, Training Monitor,
+  Process Monitor, HPO Tracker, and Experiment Tracker (§G.7 / §A.2 / §A.4)
+- ``LiveTrainProgressBar`` — ``PROGRESS:`` marker progress bar + elapsed + ETA during
+  live train/HPO on Training Hub, Training Monitor, HPO Tracker, and Experiment Tracker
+  (§D.2 / §G.10 / §G.17 / §G.18)
+- ``processProgress.ts`` — shared ``getLatestProgress`` / ``progressPercent`` /
+  ``computeEtaMs`` helpers; Process Monitor imports the shared module (§D.2 / §G.15)
+- Keyboard shortcuts ``T`` → Training Monitor, ``H`` → Training Hub, ``E`` → Experiment
+  Tracker; help overlay updated (§D.7)
+
+**ROADMAP**
+- §A.2 ``TrainHpoNavMesh`` shared navigation component checked
+- §A.4 ``LiveTrainProgressBar`` epoch progress + ETA checked
+- §D.2 live training progress bar + ETA on train/HPO pages checked
+- §D.7 train/HPO workflow keyboard shortcuts checked
+- §G.10 / §G.17 / §G.18 live progress + navigation consolidation checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-fourth pass (§A.4 + §A.2)
 
 Hundred-thirty-fourth pass completes the bidirectional train/HPO navigation mesh by
