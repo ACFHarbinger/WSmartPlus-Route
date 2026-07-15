@@ -96,7 +96,7 @@ export function ReportStudio() {
   const projectRoot = useAppStore((st) => st.projectRoot);
   const { spawn, launching } = useSpawnProcess();
   const s = useReportGenStore();
-  const { tab, patch } = s;
+  const { tab, engine, patch } = s;
 
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
   const processes = useProcessStore((p) => p.processes);
@@ -106,6 +106,114 @@ export function ReportStudio() {
   );
   const displayProc = displayProcessId ? processes[displayProcessId] : null;
   const isDone = displayProc != null && displayProc.status !== "running";
+
+  // Native (§H in-app) engine state
+  const [nativeLog, setNativeLog] = useState<string[]>([]);
+  const [nativeStatus, setNativeStatus] = useState<"idle" | "running" | "completed" | "failed">("idle");
+  const [nativeOutputs, setNativeOutputs] = useState<string[]>([]);
+
+  const runNative = useCallback(async () => {
+    if (!projectRoot) return;
+    setNativeStatus("running");
+    setNativeOutputs([]);
+    const log: string[] = [];
+    const progress = (msg: string) => {
+      log.push(msg);
+      setNativeLog([...log]);
+    };
+    try {
+      const outputs: string[] = [];
+      if (tab === "dataset") {
+        const { generateDatasetReport } = await import("../../gen/report/datasetReport");
+        const res = await generateDatasetReport(
+          {
+            projectRoot,
+            theme: s.theme === "default" ? undefined : s.theme,
+            npzCsv: s.dsNpzCsv.trim() || undefined,
+            tdCsv: s.dsTdCsv.trim() || undefined,
+            npzDir: s.dsNpzDir.trim() || undefined,
+            outMd: s.dsOutMd.trim() || undefined,
+            figuresDir: s.dsFiguresDir.trim() || undefined,
+            force: s.dsForce,
+            figuresOnly: s.dsFiguresOnly,
+          },
+          progress
+        );
+        if (res.outMd) outputs.push(res.outMd);
+        outputs.push(res.figuresDir);
+      } else if (tab === "simulation") {
+        const mod = await import("../../gen/report/simulationReport");
+        if (s.simMode === "parse") {
+          await mod.parseOutputToCsv(projectRoot, s.parseOutputDir.trim(), s.parseOutCsv.trim(), progress);
+          outputs.push(s.parseOutCsv.trim());
+        } else {
+          const horizons = s.simHorizons
+            .split("\n")
+            .map((l) => l.trim())
+            .filter(Boolean)
+            .map((line) => {
+              const [days, csv] = line.split("=");
+              return { days: parseInt(days, 10), csv: csv ?? "" };
+            })
+            .filter((h) => Number.isFinite(h.days));
+          const csvList = (v: string) =>
+            v.trim() ? v.split(",").map((x) => x.trim()).filter(Boolean) : null;
+          const res = await mod.generateSimulationReport(
+            {
+              projectRoot,
+              theme: s.theme === "default" ? undefined : s.theme,
+              paretoPoints: s.simParetoPoints === "default" ? undefined : s.simParetoPoints,
+              horizons: horizons.length ? horizons : undefined,
+              scenarios: s.simScenarios.trim()
+                ? s.simScenarios.split(";").map((part) => {
+                    const [city, N, dist] = part.split(":").map((x) => x.trim());
+                    return { city, N: parseInt(N, 10), dist };
+                  })
+                : null,
+              strategies: csvList(s.simStrategies),
+              constructors: csvList(s.simConstructors),
+              improvers: csvList(s.simImprovers),
+              acceptance: csvList(s.simAcceptance),
+              outMd: s.simOutMd.trim() || undefined,
+              figuresDir: s.simFiguresDir.trim() || undefined,
+              force: s.simForce,
+              figuresOnly: s.simFiguresOnly,
+              heatmapLabels: s.simHeatmapLabels,
+            },
+            progress
+          );
+          if (res.outMd) outputs.push(res.outMd);
+          outputs.push(...res.figuresDirs);
+        }
+      } else {
+        const { generatePresentation } = await import("../../gen/deck/deckBuilder");
+        const res = await generatePresentation(
+          {
+            projectRoot,
+            figuresDir: s.presFiguresDir.trim() || "public/figures/simulation/30d",
+            out: s.presOut.trim() || "assets/windows/wsmart_route_results.pptx",
+            author: s.presAuthor.trim() || undefined,
+            coauthors: s.presCoauthors.trim() ? s.presCoauthors.split(";").map((x) => x.trim()) : undefined,
+            groups: s.presGroups.trim() ? s.presGroups.split(";").map((x) => x.trim()) : undefined,
+            resultsTable: s.presResultsTable,
+            resultsTableSplit: s.presResultsSplit,
+            speakerScript: s.presSpeakerScript,
+            speakerScriptOut: s.presSpeakerOut.trim() || undefined,
+            imageMode: s.presImageMode,
+            excel: s.presExcel,
+          },
+          progress
+        );
+        outputs.push(...res.outputs);
+      }
+      setNativeOutputs(outputs);
+      setNativeStatus("completed");
+      progress("Done.");
+    } catch (err) {
+      progress(`ERROR: ${err instanceof Error ? err.message : String(err)}`);
+      setNativeStatus("failed");
+    }
+  }, [projectRoot, tab, s]);
 
   const pickDir = async (field: string) => {
     const path = (await open({ directory: true })) as string | null;
@@ -213,9 +321,12 @@ export function ReportStudio() {
         </div>
         <p className="text-[11px] text-canvas-muted">
           Generates the dataset / simulation analysis reports (markdown + figures) and the
-          results presentation deck from the archived <code>archive/gen</code> pipeline.
+          results presentation deck (PPTX + speaker DOCX + XLSX).{" "}
+          <strong>Native</strong> renders everything in-app (ECharts figures, MathJax
+          equations, pptxgenjs deck — §H); <strong>Legacy</strong> spawns the archived{" "}
+          <code>archive/gen</code> Python scripts.
         </p>
-        <div className="flex gap-2 flex-wrap">
+        <div className="flex gap-2 flex-wrap items-center">
           {TABS.map((t) => (
             <button
               key={t.id}
@@ -225,6 +336,22 @@ export function ReportStudio() {
               {t.label}
             </button>
           ))}
+          <span className="flex-1" />
+          <div className="flex gap-1 rounded-lg bg-canvas-bg p-0.5">
+            {(["native", "legacy"] as const).map((e) => (
+              <button
+                key={e}
+                onClick={() => patch({ engine: e })}
+                className={
+                  engine === e
+                    ? "btn-primary text-xs py-1 px-3"
+                    : "btn-ghost text-xs py-1 px-3 text-canvas-muted"
+                }
+              >
+                {e === "native" ? "Native" : "Legacy"}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
@@ -432,30 +559,34 @@ export function ReportStudio() {
         </div>
       )}
 
-      {/* Extra CLI args */}
-      <div className="card space-y-2">
-        <Field label="Extra CLI Arguments (advanced, space-separated)">
-          <input
-            type="text"
-            className="input-base font-mono text-xs"
-            value={s.extraArgs}
-            onChange={(e) => patch({ extraArgs: e.target.value })}
-            placeholder="--private-dir public/private/simulation"
-            spellCheck={false}
-          />
-        </Field>
-      </div>
-
-      {/* Command preview */}
-      <div className="card space-y-2">
-        <div className="flex items-center gap-2 text-xs text-canvas-muted">
-          <Terminal size={12} />
-          Command preview
+      {/* Extra CLI args (legacy engine only) */}
+      {engine === "legacy" && (
+        <div className="card space-y-2">
+          <Field label="Extra CLI Arguments (advanced, space-separated)">
+            <input
+              type="text"
+              className="input-base font-mono text-xs"
+              value={s.extraArgs}
+              onChange={(e) => patch({ extraArgs: e.target.value })}
+              placeholder="--private-dir public/private/simulation"
+              spellCheck={false}
+            />
+          </Field>
         </div>
-        <pre className="font-mono text-xs text-accent-secondary whitespace-pre-wrap bg-canvas-bg rounded-lg p-3">
-          {commandPreview}
-        </pre>
-      </div>
+      )}
+
+      {/* Command preview (legacy engine only) */}
+      {engine === "legacy" && (
+        <div className="card space-y-2">
+          <div className="flex items-center gap-2 text-xs text-canvas-muted">
+            <Terminal size={12} />
+            Command preview
+          </div>
+          <pre className="font-mono text-xs text-accent-secondary whitespace-pre-wrap bg-canvas-bg rounded-lg p-3">
+            {commandPreview}
+          </pre>
+        </div>
+      )}
 
       {/* Launch */}
       <div className="flex items-center gap-3">
@@ -463,17 +594,53 @@ export function ReportStudio() {
           <p className="text-xs text-accent-warning">Configure Project Root in Settings first.</p>
         )}
         <button
-          onClick={launch}
-          disabled={launching || !projectRoot}
+          onClick={engine === "native" ? runNative : launch}
+          disabled={launching || nativeStatus === "running" || !projectRoot}
           className="btn-primary flex items-center gap-2"
         >
           <Play size={14} />
-          {launching ? "Launching…" : "Generate"}
+          {launching || nativeStatus === "running"
+            ? "Generating…"
+            : engine === "native"
+              ? "Generate (native)"
+              : "Generate (script)"}
         </button>
       </div>
 
-      {/* Live output */}
-      {displayProc && (
+      {/* Native engine output */}
+      {engine === "native" && nativeStatus !== "idle" && (
+        <div className="card space-y-2">
+          <div className="flex items-center justify-between">
+            <h2 className="text-sm font-semibold text-gray-200 flex items-center gap-2">
+              <FileText size={14} />
+              Native Generation
+            </h2>
+            <StatusPill status={nativeStatus === "running" ? "running" : nativeStatus} />
+          </div>
+          <ProcessLogTail
+            logLines={nativeLog}
+            maxLines={30}
+            waiting={nativeStatus === "running"}
+          />
+          {nativeStatus === "completed" && nativeOutputs.length > 0 && (
+            <div className="space-y-1 pt-1">
+              <p className="text-[10px] uppercase tracking-widest text-canvas-muted">Artefacts</p>
+              {nativeOutputs.map((p) => (
+                <OpenPathToolbar
+                  key={p}
+                  path={p}
+                  projectRoot={projectRoot}
+                  handoff={false}
+                  chipClassName="max-w-full"
+                />
+              ))}
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Legacy process output */}
+      {engine === "legacy" && displayProc && (
         <div className="card space-y-2">
           <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-gray-200 flex items-center gap-2">
