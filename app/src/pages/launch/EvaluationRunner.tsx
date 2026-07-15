@@ -71,11 +71,13 @@ function ResultsGrid({
   results,
   logScale,
   runLabels,
+  projectRoot,
   onOpenAnalytics,
 }: {
   results: EvalResult[];
   logScale: boolean;
   runLabels?: string[];
+  projectRoot?: string | null;
   onOpenAnalytics: () => void;
 }) {
   const chartRefs = useRef<Record<string, EChartsReact | null>>({});
@@ -197,8 +199,12 @@ function ResultsGrid({
                   {r.checkpointPath ? (
                     <PathRunLabelChip
                       path={r.checkpointPath}
+                      projectRoot={projectRoot}
                       label={r.checkpointName}
-                      brushLabel={parentRunBrushLabelFromCheckpointPath(r.checkpointPath)}
+                      brushLabel={parentRunBrushLabelFromCheckpointPath(
+                        r.checkpointPath,
+                        projectRoot
+                      )}
                       className="max-w-full"
                     />
                   ) : (
@@ -224,11 +230,13 @@ function ResultsGrid({
 
 function CheckpointRow({
   entry,
+  projectRoot,
   onRemove,
   onPickFile,
   onChange,
 }: {
   entry: CheckpointEntry;
+  projectRoot?: string | null;
   onRemove: () => void;
   onPickFile: () => void;
   onChange: (path: string) => void;
@@ -263,7 +271,8 @@ function CheckpointRow({
       {trimmedPath ? (
         <PathRunLabelChip
           path={trimmedPath}
-          brushLabel={parentRunBrushLabelFromCheckpointPath(trimmedPath)}
+          projectRoot={projectRoot}
+          brushLabel={parentRunBrushLabelFromCheckpointPath(trimmedPath, projectRoot)}
           className="max-w-full"
         />
       ) : null}
@@ -498,6 +507,7 @@ export function EvaluationRunner() {
             <CheckpointRow
               key={c.id}
               entry={c}
+              projectRoot={projectRoot}
               onRemove={() => removeCheckpoint(c.id)}
               onPickFile={() => pickCheckpointFile(c.id)}
               onChange={(path) => updateCheckpoint(c.id, path)}
@@ -532,7 +542,11 @@ export function EvaluationRunner() {
             </button>
           </div>
           {datasetPath.trim() ? (
-            <PathRunLabelChip path={datasetPath.trim()} className="max-w-full" />
+            <PathRunLabelChip
+              path={datasetPath.trim()}
+              projectRoot={projectRoot}
+              className="max-w-full"
+            />
           ) : null}
         </div>
 
@@ -624,6 +638,7 @@ export function EvaluationRunner() {
           results={results}
           logScale={logScale}
           runLabels={liveRunLabel ? [liveRunLabel] : []}
+          projectRoot={projectRoot}
           onOpenAnalytics={openInAnalytics}
         />
       )}
@@ -701,6 +716,7 @@ export function EvaluationRunner() {
                   procId={procId}
                   checkpointName={ckptName}
                   checkpointPath={ckptPath}
+                  projectRoot={projectRoot}
                   status={proc?.status}
                   isRunning={isRunning}
                   result={ckptResult}

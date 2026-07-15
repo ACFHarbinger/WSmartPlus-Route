@@ -2,6 +2,7 @@
  * Shared checkpoint file detection for Training Monitor and Output Browser (§G.12 / §G.14 / §G.17).
  */
 import type { DirEntry } from "../types";
+import { resolveLocalProjectPath } from "./outputRunPath";
 import { runLabelFromPath } from "./policyTelemetryTrends";
 
 export const CHECKPOINT_EXTENSIONS = ["pt", "ckpt", "pth"] as const;
@@ -21,11 +22,15 @@ export function filterCheckpointEntries(entries: DirEntry[]): DirEntry[] {
 }
 
 /** Parent Lightning / output run label for checkpoint path-chip brush (§G.12 / §G.14 / §G.17 / §D.7). */
-export function parentRunBrushLabelFromCheckpointPath(checkpointPath: string): string {
-  const parts = checkpointPath.replace(/\\/g, "/").split("/");
+export function parentRunBrushLabelFromCheckpointPath(
+  checkpointPath: string,
+  projectRoot?: string | null
+): string {
+  const resolved = resolveLocalProjectPath(checkpointPath, projectRoot) ?? checkpointPath;
+  const parts = resolved.replace(/\\/g, "/").split("/");
   const ckptIdx = parts.lastIndexOf("checkpoints");
   if (ckptIdx > 0) {
     return runLabelFromPath(parts[ckptIdx - 1]!);
   }
-  return runLabelFromPath(checkpointPath);
+  return runLabelFromPath(resolved);
 }

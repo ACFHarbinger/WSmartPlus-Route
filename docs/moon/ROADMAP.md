@@ -1199,6 +1199,19 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` resolved against ``projectRoot`` before path-chip brush (§G.7 / §A.3 / §D.7)
 - [x] §G.18 / §G.11 / §G.19 relative-path storage/preview/import path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninety-third pass)**
+
+- [x] ``PathRunLabelChip`` — optional ``projectRoot`` prop resolves relative paths via ``resolveLocalProjectPath`` before brush + tooltip (§G.10–§G.13 / §D.7)
+- [x] ``parentRunBrushLabelFromCheckpointPath`` — optional ``projectRoot`` resolves checkpoint paths before parent-run brush label derivation (§G.12 / §G.14 / §G.17 / §D.7)
+- [x] Evaluation Runner — checkpoint list, dataset input, results table, and live eval cards use ``projectRoot``-resolved path chips (§G.12 / §D.7)
+- [x] Training Hub — eval checkpoint + dataset path chips use ``projectRoot`` resolution (§G.10 / §G.12 / §D.7)
+- [x] Data Generation Wizard — TSPLIB/sensor source + instance preview path chips use ``projectRoot`` resolution (§G.11 / §D.7)
+- [x] Configuration Editor — open YAML + diff comparison path chips use ``projectRoot`` resolution (§G.13 / §D.7)
+- [x] ML Introspection — tensor archive path chip uses ``projectRoot`` resolution (§G.5 / §D.7)
+- [x] Benchmark Analysis + Process Monitor — eval results / live eval cards use ``projectRoot``-resolved checkpoint path chips (§G.1 / §G.12 / §G.15 / §D.7)
+- [x] Settings — Python executable + import JSON + Arrow benchmark path chips resolve against draft project root (§G.19 / §D.7)
+- [x] §G.10 / §G.11 / §G.12 / §G.13 launcher + workflow relative-path path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1769,6 +1782,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Generation Wizard instance preview path — ``PathRunLabelChip`` on previewed ``.pkl`` / ``.pt`` dataset (hundred-ninety-second pass; §G.11 / §D.7)
 - [x] Settings Arrow benchmark + import JSON paths — ``PathRunLabelChip`` on benchmark CSV/JSONL + imported settings file (hundred-ninety-second pass; §G.19 / §D.7)
 - [x] PolicyTelemetryTrendsPanel ``db_path`` — ``resolveLocalProjectPath`` before path-chip brush (hundred-ninety-second pass; §G.7 / §A.3 / §D.7)
+- [x] Launcher workflow path chips — ``PathRunLabelChip`` ``projectRoot`` prop on eval checkpoint/dataset, data-gen source/preview, config editor, ML introspection, and Settings secondary paths (hundred-ninety-third pass; §G.5 / §G.10–§G.13 / §G.19 / §D.7)
+- [x] Eval live/result cards + Benchmark Analysis eval table — ``projectRoot``-resolved checkpoint ``brushLabel`` parity (hundred-ninety-third pass; §G.1 / §G.12 / §G.15 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

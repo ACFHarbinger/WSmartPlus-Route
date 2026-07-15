@@ -92,10 +92,12 @@ const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"
 function EvalResultsPanel({
   rows,
   logScale,
+  projectRoot,
   onDismiss,
 }: {
   rows: EvalAnalyticsRow[];
   logScale: boolean;
+  projectRoot?: string | null;
   onDismiss: () => void;
 }) {
   const chartRefs = useRef<Record<string, EChartsReact | null>>({});
@@ -188,8 +190,12 @@ function EvalResultsPanel({
                   {r.checkpointPath ? (
                     <PathRunLabelChip
                       path={r.checkpointPath}
+                      projectRoot={projectRoot}
                       label={r.checkpoint}
-                      brushLabel={parentRunBrushLabelFromCheckpointPath(r.checkpointPath)}
+                      brushLabel={parentRunBrushLabelFromCheckpointPath(
+                        r.checkpointPath,
+                        projectRoot
+                      )}
                       className="max-w-full"
                     />
                   ) : (
@@ -631,6 +637,7 @@ export function BenchmarkAnalysis() {
         <EvalResultsPanel
           rows={evalRows}
           logScale={logScale}
+          projectRoot={projectRoot}
           onDismiss={() => setEvalRows(null)}
         />
       )}

@@ -320,7 +320,7 @@ export function ConfigEditor() {
       </div>
 
       {filePath && (
-        <PathRunLabelChip path={filePath} className="max-w-full" />
+        <PathRunLabelChip path={filePath} projectRoot={projectRoot} className="max-w-full" />
       )}
 
       {!content && (
@@ -419,7 +419,9 @@ export function ConfigEditor() {
               <FolderOpen size={13} />
               {diffPath ? "Change comparison file…" : "Open comparison file…"}
             </button>
-            {diffPath ? <PathRunLabelChip path={diffPath} className="max-w-md" /> : null}
+            {diffPath ? (
+              <PathRunLabelChip path={diffPath} projectRoot={projectRoot} className="max-w-md" />
+            ) : null}
           </div>
 
           {!diffContent && (
@@ -432,9 +434,9 @@ export function ConfigEditor() {
             <div className="card overflow-auto">
               <p className="text-xs text-canvas-muted mb-3 flex flex-wrap items-center gap-1.5">
                 <span>{changedKeys.length} difference(s) between</span>
-                {filePath ? <PathRunLabelChip path={filePath} /> : null}
+                {filePath ? <PathRunLabelChip path={filePath} projectRoot={projectRoot} /> : null}
                 <span>and</span>
-                {diffPath ? <PathRunLabelChip path={diffPath} /> : null}
+                {diffPath ? <PathRunLabelChip path={diffPath} projectRoot={projectRoot} /> : null}
               </p>
               <table className="w-full text-xs">
                 <thead>

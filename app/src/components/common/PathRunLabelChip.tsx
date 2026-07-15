@@ -1,12 +1,15 @@
 /**
  * Clickable path chip with run-label brush ring highlight (§G.14–§G.16 / §D.7).
  */
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { useRunLabelBrushToggle } from "../../hooks/useRunLabelBrushToggle";
+import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 
 interface Props {
   path: string;
+  /** Resolve relative paths against project root before brush (§G.10–§G.13 / §D.7). */
+  projectRoot?: string | null;
   /** Override display text (defaults to path stem). */
   label?: string;
   /** Override brush run_label when display label should differ (defaults to ``label`` or path stem). */
@@ -17,15 +20,20 @@ interface Props {
 
 export function PathRunLabelChip({
   path,
+  projectRoot,
   label,
   brushLabel,
   className = "",
   trailing,
 }: Props) {
   const { handleRunLabelClick, isBrushActive } = useRunLabelBrushToggle();
-  const runLabel = brushLabel ?? label ?? runLabelFromPath(path);
+  const resolvedPath = useMemo(
+    () => resolveLocalProjectPath(path, projectRoot) ?? path,
+    [path, projectRoot]
+  );
+  const runLabel = brushLabel ?? label ?? runLabelFromPath(resolvedPath);
   const brushActive = isBrushActive(runLabel);
-  const displayText = label ?? path.split(/[/\\]/).pop() ?? path;
+  const displayText = label ?? resolvedPath.split(/[/\\]/).pop() ?? resolvedPath;
 
   return (
     <button
@@ -34,7 +42,7 @@ export function PathRunLabelChip({
       className={`flex items-center gap-1.5 text-xs text-canvas-muted truncate max-w-md rounded-lg px-1.5 py-0.5 transition-colors hover:text-gray-200 ${
         brushActive ? "ring-1 ring-accent-secondary/40" : ""
       } ${className}`}
-      title={path}
+      title={resolvedPath}
     >
       <span className="truncate font-mono">{displayText}</span>
       {trailing}

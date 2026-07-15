@@ -290,7 +290,7 @@ function isTrainProcess(command: string, id: string): boolean {
 export function ProcessMonitor() {
   const processes = useProcessStore((s) => s.processes);
   const clearCompleted = useProcessStore((s) => s.clearCompleted);
-  const { effectiveTheme: theme, setMode, setPendingEvalResults } = useAppStore();
+  const { effectiveTheme: theme, projectRoot, setMode, setPendingEvalResults } = useAppStore();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -563,6 +563,7 @@ export function ProcessMonitor() {
               procId={selectedProc.id}
               checkpointName={evalCheckpointName}
               checkpointPath={evalCheckpointPath}
+              projectRoot={projectRoot}
               status={selectedProc.status}
               isRunning={selectedProc.status === "running"}
               result={evalResult ?? undefined}
@@ -570,7 +571,11 @@ export function ProcessMonitor() {
               showLogTail={false}
             />
           ) : (
-            <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
+            <EvalResultCard
+              result={evalResult}
+              projectRoot={projectRoot}
+              onOpenAnalytics={openEvalInAnalytics}
+            />
           )}
         </LauncherLivePanel>
       )}
