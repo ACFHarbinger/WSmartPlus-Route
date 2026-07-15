@@ -15,7 +15,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import {
   formatPipelineTimingBadge,
   runCsvArrowPipeline,
-  runSimulationArrowPipeline,
+  runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 import { groupRunLabelsByCity } from "../../utils/cityComparison";
 import {
@@ -104,10 +104,11 @@ export function OlapExplorer() {
         ?.replace(/\.(csv|jsonl)$/i, "") ?? "data";
     const tableName = `${CUSTOM_TABLE_PREFIX}${base.replace(/[^a-zA-Z0-9_]/g, "_")}`;
     const isJsonl = path.toLowerCase().endsWith(".jsonl");
+    const runLabel = path.split(/[/\\]/).pop() ?? base;
     setLoading(true);
     try {
       const timing = isJsonl
-        ? await runSimulationArrowPipeline(path, tableName)
+        ? await runPortfolioSimulationArrowPipeline([{ path, label: runLabel }], tableName)
         : await runCsvArrowPipeline(path, tableName);
       setLastPipeline(timing);
       setSelectedTable(tableName);

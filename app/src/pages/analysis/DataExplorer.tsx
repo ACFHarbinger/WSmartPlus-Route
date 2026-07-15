@@ -9,7 +9,9 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
 import { formatPipelineTimingBadge, runCsvArrowPipeline } from "../../utils/arrowPipeline";
@@ -27,6 +29,7 @@ interface CsvFile {
 
 export function DataExplorer() {
   const { projectRoot, theme } = useAppStore();
+  const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
     useDuckDbStore();
@@ -94,6 +97,15 @@ export function DataExplorer() {
   const pageRows = sortedRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = file ? Math.ceil(sortedRows.length / PAGE_SIZE) : 0;
 
+  const hasPolicyCol = useMemo(
+    () => file?.headers.some((h) => /^policy$/i.test(h)) ?? false,
+    [file]
+  );
+  const highlightPolicies = useMemo(
+    () => (activePolicy ? [activePolicy] : null),
+    [activePolicy]
+  );
+
   const toggleSort = (col: string) => {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
@@ -105,6 +117,8 @@ export function DataExplorer() {
 
   return (
     <div className="space-y-4">
+      {hasPolicyCol && <GlobalFilterBar />}
+
       <div className="flex items-center gap-3">
         <button onClick={openCsv} className="btn-primary flex items-center gap-2">
           <FolderOpen size={14} />
@@ -167,7 +181,13 @@ export function DataExplorer() {
       )}
 
       {file && duckdbReady && lastPipeline?.tableName && (
-        <SqlQueryPanel tableName={lastPipeline.tableName} theme={theme} />
+        <SqlQueryPanel
+          tableName={lastPipeline.tableName}
+          theme={theme}
+          highlightPolicies={highlightPolicies}
+          brushSqlSync={hasPolicyCol}
+          autoRunOnBrushSync={hasPolicyCol}
+        />
       )}
 
       {file && (

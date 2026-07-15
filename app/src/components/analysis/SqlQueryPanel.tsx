@@ -267,6 +267,11 @@ export function SqlQueryPanel({
     return null;
   }, [highlightRunLabelsProp, portfolioRunLabels, activeRunLabel, brushedCity]);
 
+  const highlightCityScale = useMemo(
+    () => (brushedCity ? [brushedCity] : null),
+    [brushedCity]
+  );
+
   const rowMatchesHighlight = useCallback(
     (row: Record<string, unknown>) => {
       const policyMatch =
@@ -400,6 +405,7 @@ export function SqlQueryPanel({
               onRowClick={handlePivotCrossFilter}
               highlightPolicyLabels={highlightPolicies}
               highlightRunLabels={highlightRunLabels}
+              highlightCityScaleLabels={highlightCityScale}
             />
           )}
 
