@@ -1,6 +1,6 @@
 /**
  * Open-path toolbar cluster: optional labeled reverse-handoff buttons + path chip
- * with icon handoffs (§G.1 / §G.5–§G.7 / §G.9–§G.19 / §D.7).
+ * with icon handoffs (§G.1 / §G.4–§G.7 / §G.9–§G.19 / §D.7).
  *
  * Collapses the repeated dual-control pattern on analytics open-log toolbars,
  * OLAP / Data Explorer ingest paths, Config Editor YAML paths, Output Browser
@@ -11,8 +11,9 @@
  * selected-path previews (eval / train / data-gen), eval / benchmark
  * results-table checkpoints, Process Monitor process rows, live-panel
  * ``ProcessIdFooter`` chips, portfolio ``LoadedRunRow`` lists, Command Palette
- * recent-file rows, live-panel ``RunLabelHeaderSuffix`` chips, and residual
- * open-path surfaces after pass 227 put chip handoffs on ``PathRunLabelChip``.
+ * recent-file rows, live-panel ``RunLabelHeaderSuffix`` chips, Graph Topology
+ * distance-matrix paths, and residual open-path surfaces after pass 227 put
+ * chip handoffs on ``PathRunLabelChip``.
  */
 import type { ReactNode } from "react";
 import type { RecentFileKind } from "../../store/recentFiles";
@@ -159,6 +160,9 @@ interface HeaderSuffixProps {
 /**
  * Inline run-label suffix for live panel headers — ``OpenPathToolbar`` when path
  * known, else plain text (§G.9–§G.18 / §D.7).
+ *
+ * When both ``logPath`` and process-derived ``runLabel`` are set, the chip brushes
+ * ``runLabel`` so live headers stay in sync with ``GlobalFilterBar`` (§D.7).
  */
 export function RunLabelHeaderSuffix({
   logPath,
@@ -176,6 +180,7 @@ export function RunLabelHeaderSuffix({
         chipClassName={chipClassName}
         className="inline-flex items-center gap-1.5 min-w-0"
         handoff={handoff}
+        brushLabel={runLabel?.trim() ? runLabel : undefined}
       />
     );
   }

@@ -39,6 +39,13 @@ export function ProcessIdFooter({
           <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
             {ids[0]}
           </span>
+        ) : ids.length > 1 ? (
+          <span
+            className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[14rem]"
+            title={ids.join(", ")}
+          >
+            {ids.length} processes
+          </span>
         ) : null}
       </OpenPathToolbar>
     );

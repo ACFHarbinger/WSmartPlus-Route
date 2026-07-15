@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-sixth pass (§G.4 + §G.7 + §G.9–§G.12 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Two-hundred-and-thirty-sixth pass polishes residual ``OpenPathToolbar`` shells after
+pass 235 covered live headers and palette migration. Live-panel header chips brush
+process-derived ``runLabel`` so click-to-brush stays aligned with ``GlobalFilterBar``;
+batch eval footers surface multi-process meta; Command Palette recent rows finish the
+kind-as-children shell without nested interactive elements; Graph Topology distance-
+matrix paths adopt the shared cluster with CSV handoff.
+
+**React frontend**
+- ``RunLabelHeaderSuffix`` — ``brushLabel`` from process ``runLabel`` when set (§G.9–§G.18 / §D.7)
+- ``ProcessIdFooter`` — multi-process batch count as ``children`` when ``logPath`` is set (§G.12 / §D.7)
+- Command Palette recent rows — kind meta as ``children``, stored ``label`` display, non-nested row (§G.7 / §D.7)
+- Graph Topology distance-matrix path → ``OpenPathToolbar`` ``kind="csv"`` (§G.4 / §D.7)
+
+**ROADMAP**
+- §G.4 / §G.7 / §G.9–§G.12 / §G.15 / §G.17 / §G.18 residual open-path toolbar shell polish checked
+- §D.7 ``OpenPathToolbar`` header brush + palette + topology residual parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-fifth pass (§G.7 + §G.9–§G.12 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Two-hundred-and-thirty-fifth pass expands ``OpenPathToolbar`` after pass 234 covered
