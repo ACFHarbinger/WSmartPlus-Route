@@ -837,6 +837,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``findRecentTrainProcessId`` — train-only recent process helper for Training Hub train mode (§G.10 / §D.7)
 - [x] Simulation Launcher + Data Generation + Evaluation Runner + Training Hub — live/post-run panels rehydrate from ``useProcessStore`` when navigation clears local ``liveProcessId`` state (§G.9 / §G.10 / §G.11 / §G.12 / §D.7)
 
+**Delivered (§D.7 — hundred-forty-seventh pass)**
+
+- [x] ``trainingMetrics.ts`` — ``normalizeTrainingMetricRow`` exported for CSV + stdout parity (§G.17 / §G.10)
+- [x] Training Monitor — post-run metrics/health/attention rehydrate from ``useProcessStore`` log lines; ``LIVE_KEY`` overlay chart persists after completion (§G.17 / §D.7)
+- [x] HPO Tracker + Experiment Tracker — live metric snapshot row from persisted process stdout (§G.18 / §G.17 / §D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1704,6 +1710,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] **Streamlit parity check**: Lightning CSV columns `train_loss`, `val_loss`, `reward`, `grad_norm`, `lr`, `epoch`, `step` all rendered; aliased column variants covered by `normalizeMetricRow`
 - [x] ``pendingTrainingRunPath`` auto-select when opened from Training Hub / Process Monitor train/HPO shortcuts (hundred-forty-fourth pass; §G.10 / §G.15 / §D.7)
 - [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on live/recent train panel; auto-select completed run from stdout ``trainingRunPath`` (hundred-forty-fifth pass; §G.10 / §G.14 / §D.7)
+- [x] Post-run metrics/health/attention rehydration from ``useProcessStore`` when live streaming state clears; multi-run overlay chart persists via ``effectiveLiveMetrics`` (hundred-forty-seventh pass; §G.17 / §D.7)
 
 ---
 
@@ -1733,6 +1740,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] **Live epoch progress + ETA** (hundred-thirty-fifth pass): ``LiveTrainProgressBar`` on Training Hub / Training Monitor / HPO Tracker / Experiment Tracker; ``processProgress.ts`` shared with Process Monitor (§D.2 / §G.17 / §G.18)
 - [x] **Train/HPO keyboard shortcuts** (hundred-thirty-fifth pass): ``T`` Training Monitor · ``H`` Training Hub · ``E`` Experiment Tracker (§D.7)
 - [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on HPO Tracker + Experiment Tracker live panels when sweep completes (hundred-forty-fifth pass; §G.14 / §G.17 / §D.7)
+- [x] Live metric snapshot row + update count from ``collectTrainingMetricsFromLogLines`` on persisted HPO process stdout (hundred-forty-seventh pass; §G.18 / §G.17 / §D.7)
 
 ---
 

@@ -27,9 +27,17 @@ import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPan
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
-import { parseAttentionVizLine } from "../../utils/attentionViz";
+import { collectAttentionVizFromLogLines, parseAttentionVizLine } from "../../utils/attentionViz";
 import { filterCheckpointEntries } from "../../utils/checkpoints";
-import { parseTrainingHealthLine } from "../../utils/trainingHealth";
+import {
+  collectTrainingHealthFromLogLines,
+  parseTrainingHealthLine,
+} from "../../utils/trainingHealth";
+import {
+  collectTrainingMetricsFromLogLines,
+  normalizeTrainingMetricRow,
+  parseTrainingMetricLine,
+} from "../../utils/trainingMetrics";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import {
@@ -47,66 +55,10 @@ import type {
   TrainingMetricsRow,
 } from "../../types";
 
-// Signal keys that identify a line as a training metric (covers Lightning column variants)
-const METRIC_SIGNAL_KEYS = [
-  "train_loss", "train/rl_loss", "train/il_loss",
-  "val_loss", "val/cost", "val_cost",
-  "reward", "grad_norm", "entropy", "epoch", "step",
-];
-
 // Virtual key used for the live-process entry in metricsMap
 const LIVE_KEY = "__live__";
 const LIVE_HEALTH_KEY = "__live_health__";
 const LIVE_ATTENTION_KEY = "__live_attention__";
-
-/**
- * Parse a stdout line as a training metric row.
- * Accepts pure JSON and key=value pair formats.
- * Returns null when no metric signal keys are detected.
- */
-function parseMetricLine(line: string): TrainingMetricsRow | null {
-  const text = line.startsWith("[stderr]") ? line.slice(8) : line;
-  try {
-    const obj = JSON.parse(text) as Record<string, unknown>;
-    if (METRIC_SIGNAL_KEYS.some((k) => typeof obj[k] === "number")) {
-      return normalizeMetricRow(obj);
-    }
-  } catch {}
-  if (METRIC_SIGNAL_KEYS.some((k) => text.includes(k))) {
-    const row: Record<string, number> = {};
-    for (const [, key, val] of text.matchAll(/(\w[\w/]*)=([0-9.eE+\-]+)/g)) {
-      row[key] = parseFloat(val);
-    }
-    if (Object.keys(row).length > 0) return normalizeMetricRow(row);
-  }
-  return null;
-}
-
-/**
- * Normalize Lightning CSV column aliases to the canonical TrainingMetricsRow keys.
- * Lightning logs loss as "train/rl_loss", LR as "lr-Adam", etc.
- */
-function normalizeMetricRow(raw: Record<string, unknown>): TrainingMetricsRow {
-  const r = { ...raw } as TrainingMetricsRow;
-  // Loss normalization
-  if (r.train_loss == null) {
-    r.train_loss = (raw["train/rl_loss"] ?? raw["train/il_loss"]) as number | undefined;
-  }
-  // Validation normalization
-  if (r.val_loss == null) {
-    r.val_loss = (raw["val/cost"] ?? raw["val_cost"]) as number | undefined;
-  }
-  // LR normalization: lr-Adam, lr-SGD, lr_scheduler, etc.
-  if (r.lr == null) {
-    for (const key of Object.keys(raw)) {
-      if (key !== "lr" && key.startsWith("lr") && typeof raw[key] === "number") {
-        r.lr = raw[key] as number;
-        break;
-      }
-    }
-  }
-  return r;
-}
 
 // ── Colour palette for multi-run overlay
 const RUN_COLORS = [
@@ -536,6 +488,33 @@ export function TrainingMonitor() {
       recentTrainProc ? trainingRunPathFromLogLines(recentTrainProc.logLines) : null,
     [recentTrainProc]
   );
+  const recentTrainLogLines = recentTrainProc?.logLines ?? [];
+
+  const effectiveLiveMetrics = useMemo(() => {
+    if (activeTrainId) return metricsMap[LIVE_KEY] ?? [];
+    if (recentTrainProc) {
+      return collectTrainingMetricsFromLogLines(recentTrainLogLines);
+    }
+    return [];
+  }, [activeTrainId, metricsMap, recentTrainProc, recentTrainLogLines]);
+
+  const effectiveLiveHealth = useMemo(() => {
+    if (activeTrainId) return healthMap[LIVE_HEALTH_KEY] ?? [];
+    if (recentTrainProc) {
+      return collectTrainingHealthFromLogLines(recentTrainLogLines);
+    }
+    return [];
+  }, [activeTrainId, healthMap, recentTrainProc, recentTrainLogLines]);
+
+  const effectiveLiveAttention = useMemo(() => {
+    if (activeTrainId) return attentionMap[LIVE_ATTENTION_KEY] ?? [];
+    if (recentTrainProc) {
+      return collectAttentionVizFromLogLines(recentTrainLogLines);
+    }
+    return [];
+  }, [activeTrainId, attentionMap, recentTrainProc, recentTrainLogLines]);
+
+  const latestLiveMetric = effectiveLiveMetrics[effectiveLiveMetrics.length - 1];
 
   // Subscribe to stdout of the active training process and accumulate live rows
   useEffect(() => {
@@ -567,7 +546,7 @@ export function TrainingMonitor() {
     listen<StdoutLine>("process:stdout", (event) => {
       const { id, line } = event.payload;
       if (id !== activeTrainId) return;
-      const row = parseMetricLine(line);
+      const row = parseTrainingMetricLine(line);
       if (row) setMetricsMap((m) => ({ ...m, [LIVE_KEY]: [...(m[LIVE_KEY] ?? []), row] }));
       const alert = parseTrainingHealthLine(line);
       if (alert) {
@@ -587,14 +566,19 @@ export function TrainingMonitor() {
     return () => { unlisten?.(); };
   }, [activeTrainId]);
 
-  // Auto-select the live key when a train process starts
+  // Auto-select the live key when a train/HPO process starts or rehydrates after completion
   useEffect(() => {
     if (activeTrainId && !selected.includes(LIVE_KEY)) {
       setSelected((s) => [LIVE_KEY, ...s]);
-    } else if (!activeTrainId) {
-      setSelected((s) => s.filter((k) => k !== LIVE_KEY));
+    } else if (
+      !activeTrainId &&
+      recentTrainId &&
+      effectiveLiveMetrics.length > 0 &&
+      !selected.includes(LIVE_KEY)
+    ) {
+      setSelected((s) => [LIVE_KEY, ...s]);
     }
-  }, [activeTrainId]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [activeTrainId, recentTrainId, effectiveLiveMetrics.length]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const discover = useCallback(async () => {
     if (!logsPath) return;
@@ -617,7 +601,7 @@ export function TrainingMonitor() {
       const rows = await invoke<Record<string, unknown>[]>("load_training_metrics", {
         runPath: run.path,
       });
-      setMetricsMap((m) => ({ ...m, [run.name]: rows.map(normalizeMetricRow) }));
+      setMetricsMap((m) => ({ ...m, [run.name]: rows.map(normalizeTrainingMetricRow) }));
     },
     [metricsMap]
   );
@@ -724,40 +708,40 @@ export function TrainingMonitor() {
 
   const displayedHealth = useMemo(() => {
     const merged: TrainingHealthEntry[] = [];
-    if (activeTrainId && (healthMap[LIVE_HEALTH_KEY]?.length ?? 0) > 0) {
-      merged.push(...healthMap[LIVE_HEALTH_KEY]!);
+    if (effectiveLiveHealth.length > 0) {
+      merged.push(...effectiveLiveHealth);
     }
     for (const run of selectedRunObjects) {
       const entries = healthMap[run.name];
       if (entries?.length) merged.push(...entries);
     }
     return merged;
-  }, [activeTrainId, healthMap, selectedRunObjects]);
+  }, [effectiveLiveHealth, healthMap, selectedRunObjects]);
 
   const displayedAttention = useMemo(() => {
     const merged: AttentionVizEntry[] = [];
-    if (activeTrainId && (attentionMap[LIVE_ATTENTION_KEY]?.length ?? 0) > 0) {
-      merged.push(...attentionMap[LIVE_ATTENTION_KEY]!);
+    if (effectiveLiveAttention.length > 0) {
+      merged.push(...effectiveLiveAttention);
     }
     for (const run of selectedRunObjects) {
       const entries = attentionMap[run.name];
       if (entries?.length) merged.push(...entries);
     }
     return merged;
-  }, [activeTrainId, attentionMap, selectedRunObjects]);
+  }, [effectiveLiveAttention, attentionMap, selectedRunObjects]);
 
   const runsMetrics = useMemo(() => {
     const result: { name: string; metrics: TrainingMetricsRow[] }[] = [];
     // Live entry first
-    if (selected.includes(LIVE_KEY) && (metricsMap[LIVE_KEY]?.length ?? 0) > 0) {
-      result.push({ name: liveProcessLabel, metrics: metricsMap[LIVE_KEY] });
+    if (selected.includes(LIVE_KEY) && effectiveLiveMetrics.length > 0) {
+      result.push({ name: liveProcessLabel, metrics: effectiveLiveMetrics });
     }
     for (const r of selectedRunObjects) {
       const metrics = metricsMap[r.name] ?? [];
       if (metrics.length > 0) result.push({ name: r.name, metrics });
     }
     return result;
-  }, [selected, selectedRunObjects, metricsMap, liveProcessLabel]);
+  }, [selected, selectedRunObjects, effectiveLiveMetrics, liveProcessLabel]);
 
   const handleLoadCheckpoint = useCallback(
     (checkpointPath: string) => {
@@ -804,7 +788,7 @@ export function TrainingMonitor() {
       {recentTrainId && recentTrainProc && (
         <div className="card border-accent-success/30 space-y-2">
           <div className="flex items-center gap-2 flex-wrap">
-            {activeTrainId ? (
+            {activeTrainId || effectiveLiveMetrics.length > 0 ? (
               <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer flex-1 min-w-0">
                 <input
                   type="checkbox"
@@ -816,11 +800,23 @@ export function TrainingMonitor() {
                   }
                   className="accent-accent-primary"
                 />
-                <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
-                <span className="text-sm text-accent-success font-mono flex-1">{liveProcessLabel}</span>
+                {activeTrainRunning ? (
+                  <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
+                ) : recentTrainCompleted ? (
+                  <CheckCircle size={13} className="text-accent-success shrink-0" />
+                ) : (
+                  <XCircle size={13} className="text-accent-danger shrink-0" />
+                )}
+                <span className="text-sm text-accent-success font-mono flex-1">
+                  {activeTrainRunning
+                    ? liveProcessLabel
+                    : recentTrainCompleted
+                      ? `${liveTrainProcessLabel(recentTrainId).replace("Live ", "")} Complete`
+                      : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`}
+                </span>
                 <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
                 <span className="text-xs text-accent-success">
-                  {metricsMap[LIVE_KEY]?.length ?? 0} updates
+                  {effectiveLiveMetrics.length} updates
                 </span>
               </label>
             ) : (
@@ -848,15 +844,43 @@ export function TrainingMonitor() {
           {activeTrainRunning && activeTrainId && (
             <LiveTrainProgressBar
               processId={activeTrainId}
-              fallbackValue={
-                metricsMap[LIVE_KEY]?.[metricsMap[LIVE_KEY].length - 1]?.epoch
-              }
+              fallbackValue={latestLiveMetric?.epoch}
             />
+          )}
+          {latestLiveMetric && (
+            <div className="flex flex-wrap gap-4 text-xs">
+              {latestLiveMetric.epoch != null && (
+                <div>
+                  <span className="text-canvas-muted">Epoch </span>
+                  <span className="font-mono text-gray-200">{latestLiveMetric.epoch}</span>
+                </div>
+              )}
+              {latestLiveMetric.train_loss != null && (
+                <div>
+                  <span className="text-canvas-muted">Train loss </span>
+                  <span className="font-mono text-gray-200">{latestLiveMetric.train_loss.toFixed(4)}</span>
+                </div>
+              )}
+              {latestLiveMetric.val_loss != null && (
+                <div>
+                  <span className="text-canvas-muted">Val loss </span>
+                  <span className="font-mono text-gray-200">{latestLiveMetric.val_loss.toFixed(4)}</span>
+                </div>
+              )}
+              {latestLiveMetric.reward != null && (
+                <div>
+                  <span className="text-canvas-muted">Reward </span>
+                  <span className="font-mono text-accent-success">{latestLiveMetric.reward.toFixed(4)}</span>
+                </div>
+              )}
+            </div>
           )}
           {recentTrainDone && (
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
-              Post-run shortcuts — open Output Browser or refresh metrics from the completed run
+              {effectiveLiveMetrics.length > 0
+                ? "Post-run metrics rehydrated from process store — overlay chart stays available after navigation"
+                : "Post-run shortcuts — open Output Browser or refresh metrics from the completed run"}
             </div>
           )}
         </div>
@@ -902,12 +926,12 @@ export function TrainingMonitor() {
       )}
 
       {/* Training health alerts (§A.4) */}
-      {(displayedHealth.length > 0 || activeTrainId) && (
+      {displayedHealth.length > 0 && (
         <TrainingHealthPanel entries={displayedHealth} />
       )}
 
       {/* Runtime attention ring-buffer (§A.2 Option A) */}
-      {(displayedAttention.length > 0 || activeTrainId) && (
+      {displayedAttention.length > 0 && (
         <RuntimeAttentionPanel
           entries={displayedAttention}
           theme={effectiveTheme}
@@ -919,15 +943,19 @@ export function TrainingMonitor() {
       {runsMetrics.length > 0 && <MultiRunChart runsMetrics={runsMetrics} logScale={logScale} />}
 
       {/* Live run detail panel */}
-      {selected.includes(LIVE_KEY) && (metricsMap[LIVE_KEY]?.length ?? 0) > 0 && (
+      {selected.includes(LIVE_KEY) && effectiveLiveMetrics.length > 0 && (
         <div className="space-y-3">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-accent-success animate-pulse" />
+            <span
+              className={`w-2.5 h-2.5 rounded-full shrink-0 bg-accent-success ${
+                activeTrainRunning ? "animate-pulse" : ""
+              }`}
+            />
             <p className="text-xs font-mono text-accent-success">{liveProcessLabel}</p>
-            <span className="text-xs text-canvas-muted">{metricsMap[LIVE_KEY].length} updates</span>
+            <span className="text-xs text-canvas-muted">{effectiveLiveMetrics.length} updates</span>
           </div>
-          <GradNormSparkline metrics={metricsMap[LIVE_KEY]} logScale={logScale} />
-          <LrSparkline metrics={metricsMap[LIVE_KEY]} logScale={logScale} />
+          <GradNormSparkline metrics={effectiveLiveMetrics} logScale={logScale} />
+          <LrSparkline metrics={effectiveLiveMetrics} logScale={logScale} />
         </div>
       )}
 

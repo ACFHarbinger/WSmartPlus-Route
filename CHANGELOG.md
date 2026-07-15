@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-seventh pass (§G.17 + §G.18 + §G.10 + §D.7)
+
+Hundred-forty-seventh pass closes the analytics-page post-run metrics gap left after the
+hundred-forty-sixth pass (which rehydrated launcher live panels from ``useProcessStore``).
+Training Monitor, HPO Tracker, and Experiment Tracker now restore training metrics from
+persisted process stdout when live streaming state is cleared by navigation.
+
+**React frontend**
+- ``trainingMetrics.ts`` — ``normalizeTrainingMetricRow`` exported for shared CSV + stdout
+  metric normalization (§G.17 / §G.10)
+- Training Monitor — ``effectiveLiveMetrics`` / ``effectiveLiveHealth`` /
+  ``effectiveLiveAttention`` rehydrate from ``useProcessStore`` log lines; ``LIVE_KEY`` overlay
+  chart + sparklines persist after train/HPO completion (§G.17 / §D.7)
+- HPO Tracker + Experiment Tracker — live metric update count + latest epoch/loss snapshot row
+  from ``collectTrainingMetricsFromLogLines`` on persisted HPO stdout (§G.18 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.17 Training Monitor post-run metrics rehydration checked
+- §G.18 HPO Tracker + Experiment Tracker live metric snapshot checked
+- §G.10 ``normalizeTrainingMetricRow`` shared normalization checked
+- §D.7 analytics-page post-run rehydration parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-sixth pass (§G.9 + §G.10 + §G.11 + §G.12 + §D.7)
 
 Hundred-forty-sixth pass closes the launcher post-run panel gap left after the
