@@ -567,7 +567,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | Item                                        | Effort   | Impact | Priority                          |
 | ------------------------------------------- | -------- | ------ | --------------------------------- |
 | §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]`                  |
-| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` 🚧 partial       |
+| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅              |
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0                                |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1                                |
@@ -1109,7 +1109,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Bookmarkable city/scale brush: `useHashSync` serializes global ``brushedCity`` as ``c`` query param; restored on load and browser back/forward (§G.7)
-- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, City Comparison, Evaluation Runner, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
+- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
 - [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
@@ -1189,6 +1189,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] WandB toggle: adds `tracker.enabled=false` when disabled
 - [x] Live command preview (via `useMemo`): exact `python main.py <mode> <args>` shown before launch
 - [x] Live training progress panel (§D.2): `parseMetricLine` parses JSON and `key=value` stdout lines; `LiveChart` ECharts canvas shows train_loss (solid), val_loss (dashed), reward (dotted, right y-axis); latest snapshot row shows epoch/train_loss/val_loss/reward/grad_norm inline
+- [x] Live training charts follow global ``logScale``: ``LiveChart`` + ``MiniSparkline`` log y-axis on loss/grad_norm/entropy when on; ``GlobalFilterBar`` in live progress panel (§G.10 / §G.7)
 - [x] Gradient norm and entropy sparklines: `MiniSparkline` component (70 px ECharts, area fill at 13% opacity); grad_norm in red `#f87171`, entropy in purple `#a78bfa`; rendered as 2-column grid below `LiveChart`; PNG export on live chart and sparklines; component returns `null` when no data for the given metric key
 - [x] On completion: "Output Browser →" button appears in live progress header when training completes successfully; navigates to `output_browser` mode
 - [x] Session persistence: `useTrainHubStore` (Zustand `persist`, key `wsroute-train-hub`) stores all form fields across train/hpo/eval modes; ephemeral runtime state stays in component state
@@ -1243,6 +1244,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Form mode: fourth view toggle with typed widgets (boolean checkbox, number input, text input) inferred from flat YAML values; edits sync to Raw content via `rowsToYaml()` (OmegaConf schema introspection deferred)
 - [x] Monaco Editor integration for the Raw YAML mode (§D.6 Option C): lazy-loaded `YamlEditor` with syntax highlighting and theme sync
 - [x] "Apply to Launcher" button: target selector (Simulation Launcher / Training Hub / Data Generation); `applyConfigToLauncher()` maps flat YAML keys to Zustand store patches and navigates to the target page
+- [x] ``Ctrl+S`` keyboard shortcut saves dirty config to disk when a file path is open (§D.7 / §G.13)
 
 ---
 
@@ -1316,6 +1318,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] **Run discovery** (`discover_training_runs` parity): scan `<projectRoot>/logs/` for Lightning log directories; detect `metrics.csv` and `hparams.yaml`; checkbox multi-select
 - [x] **Metrics CSV loading**: `load_training_metrics` Rust command parses Lightning `metrics.csv`; epoch/step x-axis; train_loss, val_loss, reward columns handled
 - [x] **Multi-run overlay chart**: single ECharts canvas with one colour-coded series set per run (8-colour palette); train loss (solid), val loss (dashed), reward (dotted, right y-axis); scrollable legend; PNG export; replaces one-chart-per-run layout
+- [x] **Global log-scale on training charts**: ``MultiRunChart`` log loss axis + grad-norm/LR sparklines log y-axis when global ``logScale`` on; ``GlobalFilterBar`` on Training Monitor (§G.17 / §G.7)
 - [x] **Gradient norm sparkline**: separate compact ECharts chart for `grad_norm` column, shown per selected run
 - [x] **Hyperparameter panel**: reads `hparams.yaml` via `read_text_file`; collapsible; flat `key: value` parser; shows first 8 rows with "Show all" expand; skips comment lines
 - [x] **Checkpoint browser**: `list_dir` on `<run.path>/checkpoints/`; filters to `.pt/.ckpt/.pth`; shows name + file size; "Load in Eval Runner →" button sets `pendingCheckpoint` in app store and switches to `eval_runner` mode
@@ -1339,6 +1342,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
   - Parallel coordinates plot (`echarts` `parallel` series) across hyperparameter dimensions
   - Optimization history scatter plot (trial number vs. objective value) with best-so-far line
   - Parameter importance bar chart (FANOVA via `optuna.importance.get_param_importances`)
+- [x] **HPO charts follow global ``logScale``**: optimisation history + cross-study best-so-far lines use log objective axis when on; ``GlobalFilterBar`` on HPO Tracker (§G.18 / §G.7)
 - [x] **Best-trial highlight**: best value KPI card; "Copy best params" button writes trial `params` as Hydra override lines to clipboard
 - [x] **Cross-study comparison**: "Compare with" study dropdown in HPOTracker; overlaid best-so-far optimisation history (ECharts); side-by-side best-value KPI cards for both studies
 - [x] **MLflow dashboard embed fallback**: Runs/Dashboard tab toggle in ExperimentTracker; iframe embed of local MLflow UI (`http://localhost:5000` default) + open-in-browser via shell plugin (native WebView window deferred)

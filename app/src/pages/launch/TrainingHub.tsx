@@ -14,10 +14,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle, Download } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { exportChartPng } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
@@ -72,12 +74,20 @@ function parseMetricLine(line: string): TrainingMetricsRow | null {
   return null;
 }
 
-function LiveChart({ metrics }: { metrics: TrainingMetricsRow[] }) {
+function LiveChart({
+  metrics,
+  logScale,
+}: {
+  metrics: TrainingMetricsRow[];
+  logScale: boolean;
+}) {
   const chartRef = useRef<EChartsReact | null>(null);
   const option = useMemo(() => {
     const xs = metrics.map((_, i) => i + 1);
-    const trainLoss = metrics.map((m) => m.train_loss ?? null);
-    const valLoss = metrics.map((m) => m.val_loss ?? null);
+    const scaleLoss = (v: number | null | undefined) =>
+      v == null ? null : logScale ? Math.max(v, 1e-8) : v;
+    const trainLoss = metrics.map((m) => scaleLoss(m.train_loss));
+    const valLoss = metrics.map((m) => scaleLoss(m.val_loss));
     const reward = metrics.map((m) => m.reward ?? null);
     const hasReward = reward.some((v) => v !== null);
 
@@ -99,10 +109,12 @@ function LiveChart({ metrics }: { metrics: TrainingMetricsRow[] }) {
       },
       yAxis: [
         {
-          type: "value" as const,
-          name: "Loss",
+          type: (logScale ? "log" : "value") as "log" | "value",
+          logBase: 10,
+          name: logScale ? "Loss (log)" : "Loss",
           nameTextStyle: { color: "#9090b0", fontSize: 9 },
           axisLabel: { color: "#9090b0", fontSize: 9 },
+          minorSplitLine: { show: false },
         },
         ...(hasReward
           ? [{
@@ -146,10 +158,15 @@ function LiveChart({ metrics }: { metrics: TrainingMetricsRow[] }) {
           : []),
       ],
     };
-  }, [metrics]);
+  }, [metrics, logScale]);
 
   return (
     <div className="space-y-1">
+      <p className="text-[10px] text-canvas-muted">
+        {logScale
+          ? "Log-scale loss axis — reward stays linear on right axis"
+          : "Linear loss · reward on right axis when present"}
+      </p>
       <div className="flex justify-end">
         <button
           onClick={() => exportChartPng({ current: chartRef.current }, "training-live.png")}
@@ -171,12 +188,14 @@ function MiniSparkline({
   label,
   color,
   exportName,
+  logScale = false,
 }: {
   metrics: TrainingMetricsRow[];
   metricKey: keyof TrainingMetricsRow;
   label: string;
   color: string;
   exportName?: string;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   const data = metrics.map((m) => m[metricKey] ?? null);
@@ -208,15 +227,19 @@ function MiniSparkline({
             axisLine: { lineStyle: { color: "#3a3a4a" } },
           },
           yAxis: {
-            type: "value",
+            type: (logScale ? "log" : "value") as "log" | "value",
+            logBase: 10,
             axisLabel: { color: "#9090b0", fontSize: 9 },
             splitLine: { lineStyle: { color: "#2a2a3a" } },
+            minorSplitLine: { show: false },
           },
           series: [{
             type: "line",
             smooth: true,
             symbol: "none",
-            data,
+            data: logScale
+              ? data.map((v) => (v == null ? null : Math.max(v as number, 1e-8)))
+              : data,
             lineStyle: { color, width: 1.5 },
             areaStyle: { color: `${color}22` },
           }],
@@ -230,6 +253,7 @@ function MiniSparkline({
 
 export function TrainingHub() {
   const { projectRoot, setMode } = useAppStore();
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
 
   // Persisted form state (§D.4 session persistence)
@@ -645,8 +669,10 @@ export function TrainingHub() {
             </div>
           )}
 
+          {liveMetrics.length >= 2 && <GlobalFilterBar showLogScale />}
+
           {liveMetrics.length >= 2 ? (
-            <LiveChart metrics={liveMetrics} />
+            <LiveChart metrics={liveMetrics} logScale={logScale} />
           ) : (
             <p className="text-xs text-canvas-muted">
               {isDone
@@ -663,16 +689,18 @@ export function TrainingHub() {
               <MiniSparkline
                 metrics={liveMetrics}
                 metricKey="grad_norm"
-                label="Gradient Norm ‖∇‖"
+                label={logScale ? "Gradient Norm ‖∇‖ (log)" : "Gradient Norm ‖∇‖"}
                 color="#f87171"
                 exportName="hub-grad-norm"
+                logScale={logScale}
               />
               <MiniSparkline
                 metrics={liveMetrics}
                 metricKey="entropy"
-                label="Policy Entropy"
+                label={logScale ? "Policy Entropy (log)" : "Policy Entropy"}
                 color="#a78bfa"
                 exportName="hub-entropy"
+                logScale={logScale}
               />
             </div>
           )}

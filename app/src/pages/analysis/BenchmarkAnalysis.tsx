@@ -124,6 +124,7 @@ function EvalResultsPanel({
           <p className="text-sm font-semibold text-gray-200">Eval Results — Checkpoint Comparison</p>
           <p className="text-xs text-canvas-muted mt-0.5">
             {rows.length} checkpoint(s) loaded from Evaluation Runner
+            {logScale ? " · log-scale bars" : " · linear bars"}
           </p>
         </div>
         <button onClick={onDismiss} className="btn-ghost text-xs flex items-center gap-1">

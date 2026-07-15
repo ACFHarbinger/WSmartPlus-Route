@@ -8,6 +8,7 @@ const SHORTCUTS: Array<{ keys: string; action: string }> = [
   { keys: "P", action: "Process monitor" },
   { keys: "Q", action: "HPO tracker" },
   { keys: "Ctrl+R", action: "Launch on active launcher page" },
+  { keys: "Ctrl+S", action: "Save config file (Config Editor, when dirty)" },
   { keys: "Ctrl+.", action: "Cancel first running process" },
   { keys: "Ctrl+Shift+P", action: "Process monitor" },
   { keys: "Ctrl+K", action: "Command palette — search views and actions" },

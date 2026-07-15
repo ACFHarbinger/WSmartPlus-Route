@@ -7,9 +7,11 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Copy, Download, FolderOpen, RefreshCw } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { exportChartPng } from "../../utils/chartExport";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import type { OptunaStudyData, OptunaStudySummary } from "../../types";
 
 const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";
@@ -17,14 +19,15 @@ const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";
 const COMPARE_COLORS = ["#6366f1", "#f87171"];
 
 function buildCrossStudyHistoryOption(
-  studies: Array<{ name: string; trials: OptunaStudyData["trials"] }>
+  studies: Array<{ name: string; trials: OptunaStudyData["trials"] }>,
+  logScale = false
 ) {
   const series = studies.map((s, i) => {
     const completed = s.trials.filter((t) => t.state === "COMPLETE" && t.value != null);
     let best = Infinity;
     const bestSoFar = completed.map((t) => {
       best = Math.min(best, t.value as number);
-      return best;
+      return logScale ? Math.max(best, 1e-8) : best;
     });
     return {
       name: s.name,
@@ -45,9 +48,11 @@ function buildCrossStudyHistoryOption(
       axisLabel: { color: "#9090b0", fontSize: 10 },
     },
     yAxis: {
-      type: "value",
-      name: "Best objective",
+      type: logScale ? "log" : "value",
+      logBase: 10,
+      name: logScale ? "Best objective (log)" : "Best objective",
       axisLabel: { color: "#9090b0", fontSize: 10 },
+      minorSplitLine: { show: false },
     },
     legend: { textStyle: { color: "#9090b0", fontSize: 11 } },
     series,
@@ -55,14 +60,15 @@ function buildCrossStudyHistoryOption(
   };
 }
 
-function buildHistoryOption(trials: OptunaStudyData["trials"]) {
+function buildHistoryOption(trials: OptunaStudyData["trials"], logScale = false) {
   const completed = trials.filter((t) => t.state === "COMPLETE" && t.value != null);
   const numbers = completed.map((t) => t.number);
   const values = completed.map((t) => t.value as number);
+  const displayValue = (v: number) => (logScale ? Math.max(v, 1e-8) : v);
   let best = Infinity;
   const bestSoFar = values.map((v) => {
     best = Math.min(best, v);
-    return best;
+    return displayValue(best);
   });
 
   return {
@@ -76,16 +82,18 @@ function buildHistoryOption(trials: OptunaStudyData["trials"]) {
       axisLabel: { color: "#9090b0", fontSize: 10 },
     },
     yAxis: {
-      type: "value",
-      name: "Objective",
+      type: logScale ? "log" : "value",
+      logBase: 10,
+      name: logScale ? "Objective (log)" : "Objective",
       nameTextStyle: { color: "#9090b0" },
       axisLabel: { color: "#9090b0", fontSize: 10 },
+      minorSplitLine: { show: false },
     },
     series: [
       {
         name: "Objective",
         type: "scatter",
-        data: values,
+        data: values.map(displayValue),
         symbolSize: 7,
         itemStyle: { color: "#6366f1" },
       },
@@ -169,6 +177,7 @@ function buildParallelOption(study: OptunaStudyData) {
 
 export function HPOTracker() {
   const { projectRoot, pythonPath } = useAppStore();
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const [storageUrl, setStorageUrl] = useState(DEFAULT_STORAGE);
   const [studies, setStudies] = useState<OptunaStudySummary[]>([]);
   const [selectedStudy, setSelectedStudy] = useState<string | null>(null);
@@ -244,13 +253,21 @@ export function HPOTracker() {
       .catch(() => setCompareStudyData(null));
   }, [compareStudy, projectRoot, pythonPath, storageUrl]);
 
+  const historyOption = useMemo(
+    () => (studyData ? buildHistoryOption(studyData.trials, logScale) : null),
+    [studyData, logScale]
+  );
+
   const crossStudyOption = useMemo(() => {
     if (!studyData || !compareStudyData) return null;
-    return buildCrossStudyHistoryOption([
-      { name: studyData.name, trials: studyData.trials },
-      { name: compareStudyData.name, trials: compareStudyData.trials },
-    ]);
-  }, [studyData, compareStudyData]);
+    return buildCrossStudyHistoryOption(
+      [
+        { name: studyData.name, trials: studyData.trials },
+        { name: compareStudyData.name, trials: compareStudyData.trials },
+      ],
+      logScale
+    );
+  }, [studyData, compareStudyData, logScale]);
 
   const parallelOption = useMemo(
     () => (studyData ? buildParallelOption(studyData) : null),
@@ -287,6 +304,8 @@ export function HPOTracker() {
 
   return (
     <div className="space-y-4">
+      <GlobalFilterBar showLogScale />
+
       {/* Storage bar */}
       <div className="card space-y-3">
         <h2 className="text-sm font-semibold text-gray-200">Optuna Storage</h2>
@@ -397,9 +416,14 @@ export function HPOTracker() {
                 <Download size={11} className="text-canvas-muted" />
               </button>
             </div>
+            <p className="text-[10px] text-canvas-muted mb-1">
+              {logScale
+                ? "Log-scale objective axis — trial scatter + best-so-far line"
+                : "Linear objective — trial scatter + best-so-far line"}
+            </p>
             <ReactECharts
               ref={historyChartRef}
-              option={buildHistoryOption(studyData.trials)}
+              option={historyOption ?? {}}
               style={{ height: 260 }}
             />
           </div>
