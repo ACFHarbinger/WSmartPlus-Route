@@ -2,7 +2,12 @@
  * Build hierarchical policy trees for §G.2 sunburst / treemap charts.
  */
 
-import { cityScaleLabel, parseLogPath, selectionStrategyColor } from "./simMetadata";
+import {
+  cityScaleLabel,
+  parseLogPath,
+  SELECTION_STRATEGY_LEGEND,
+  selectionStrategyColor,
+} from "./simMetadata";
 import type { LogPathMeta, PolicyMeta } from "./simMetadata";
 
 export { cityScaleLabel };
@@ -45,6 +50,40 @@ function overflowsColor(ov: number, minOv: number, span: number): string {
   const g = Math.round(197 - t * 132);
   const b = Math.round(94 - t * 60);
   return `rgb(${r},${g},${b})`;
+}
+
+const STRATEGY_LABELS = new Set<string>(SELECTION_STRATEGY_LEGEND);
+
+/** Drill-down bar fill: strategy chips at strategy depth, kg/km or overflow gradient at constructor depth. */
+export function resolveDrillBarColor(
+  name: string,
+  policies: string[],
+  stats: Record<string, PolicyAgg>,
+  colorMode: HierarchyColorMode
+): string {
+  if (STRATEGY_LABELS.has(name)) {
+    return selectionStrategyColor(name);
+  }
+
+  if (!policies.length) return "#6366f1";
+
+  const kgkmValues = policies.map((p) => mean(stats[p]["kg/km"]));
+  const minKg = Math.min(...kgkmValues, 0);
+  const maxKg = Math.max(...kgkmValues, 0.01);
+  const kgSpan = maxKg - minKg || 1;
+
+  const overflowValues = policies.map((p) => mean(stats[p].overflows));
+  const minOv = Math.min(...overflowValues, 0);
+  const maxOv = Math.max(...overflowValues, 0.01);
+  const ovSpan = maxOv - minOv || 1;
+
+  if (colorMode === "overflows") {
+    const ov = mean(policies.map((p) => mean(stats[p].overflows)));
+    return overflowsColor(ov, minOv, ovSpan);
+  }
+
+  const kg = mean(policies.map((p) => mean(stats[p]["kg/km"])));
+  return kgEfficiencyColor(kg, minKg, kgSpan);
 }
 
 /** Inner = city/scale · middle = selection strategy · outer = constructor. */

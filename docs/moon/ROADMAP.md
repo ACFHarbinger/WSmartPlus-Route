@@ -967,7 +967,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down; log-scale profit x-axis whiskers via ``errorBarBounds`` when global ``logScale`` on (§G.2 / §G.7)
 - [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` with root **All** reset (§G.2)
 - [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary; kg/km vs overflows colour mode selector on `PolicyHierarchyPanel` (§G.2)
-- [x] Shared strategy colour legend: `SELECTION_STRATEGY_LEGEND` + `StrategyLegend` chips on `PolicyParallelChart` and `BenchmarkPortfolioParallel` (§G.1.4 / §G.2)
+- [x] Shared strategy colour legend: `SELECTION_STRATEGY_LEGEND` + `StrategyLegend` chips on `PolicyParallelChart`, `BenchmarkPortfolioParallel`, and `PolicyHierarchyPanel` (§G.1.4 / §G.2)
+- [x] Drill-down profit bars coloured by mandatory-selection strategy at strategy depth; constructor depth uses kg/km or overflow gradient via `resolveDrillBarColor()` (§G.2)
 
 **Status**: §G.2 complete — all checklist items delivered.
 
@@ -979,15 +980,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 3.1 Base Map Layer
 - [x] Integrate deck.gl with MapLibre GL (OpenStreetMap tiles): `DeckRouteMap` uses `react-map-gl/maplibre` + Carto dark basemap (§G.16)
-- [x] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files: `graphCoords.ts` presets + SimulationMonitor "Load graph coords" (§G.3.1 partial)
-- [x] Auto-detect graph preset from log path segments or day-1 bin count: `guessGraphPreset()` + SimulationMonitor auto-select (§G.3.1 partial)
+- [x] Load node coordinates for Rio Maior (N=100, N=170) and Figueira da Foz (N=350) from graph JSON files: `graphCoords.ts` presets + SimulationMonitor "Load graph coords" (§G.3.1)
+- [x] Auto-detect graph preset from log path segments or day-1 bin count: `guessGraphPreset()` + SimulationMonitor auto-select (§G.3.1)
 - [x] Render nodes as ScatterplotLayer: fill-level colour-coded tour stops + dimmed idle bins in `DeckRouteMap`; radius scales with fill % and collected kg (`bin_state_collected`) (§G.3.1)
 - [x] Render depot as distinct marker: gold `ScatterplotLayer` with white stroke in `DeckRouteMap`
-- [x] Pan/zoom/tilt with 3D perspective: `DeckRouteMap` controlled view state + 3D pitch toggle (0°/45°) (§G.3.1 partial — OrbitView/Cartesian deferred)
+- [x] Pan/zoom/tilt with 3D perspective: `DeckRouteMap` controlled view state + 3D pitch toggle (0°/45°); OrbitView Cartesian mode in §G.3.4 (§G.3.1)
 
 #### 3.2 Route Animation (TripsLayer)
 - [x] Parse per-day route from `tour_indices` + `all_bin_coords` into timestamped coordinate arrays (`DeckRouteMap`)
-- [x] Feed routes into deck.gl `TripsLayer` with animated trail during day playback (§G.16 partial — multi-vehicle deferred)
+- [x] Feed routes into deck.gl `TripsLayer` with animated trail during day playback (§G.3.2 / §G.16)
 - [x] Timeline slider: day scrubber with range input + ◀/▶ step buttons (SimulationMonitor)
 - [x] Playback controls: play / pause / 1×·2×·4× speed multiplier on day scrubber; `TripsLayer` animated trail in Mercator and OrbitView Cartesian modes (§G.3.2)
 - [x] Multi-vehicle rendering with distinct color coding per vehicle: `vehicleTours.ts` splits depot-delimited `tour` sequences; `DeckRouteMap` + `RouteMapChart` render per-vehicle paths and per-vehicle tour-stop scatter layers (§G.3.2)
@@ -999,9 +1000,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Overlay skipped vs visited nodes: idle bins dimmed grey, tour stops fill-coded (bright) in `DeckRouteMap`
 
 #### 3.4 Non-Geographic Cartesian Mode (OrbitView)
-- [x] Switch between geographic (Mercator) and abstract Cartesian coordinate system: Simulation Monitor ECharts vs deck.gl toggle; `DeckRouteMap` auto-selects Mercator (geo) or OrbitView (abstract) (§G.3.4 partial)
-- [x] OrbitView camera: orbit, pan, zoom a 3D point cloud: `DeckRouteMap` OrbitView with fill-scaled Z elevation on tour stops (§G.3.4 partial)
-- [x] Used for normalized/synthetic datasets where coordinates are not GPS: circular `resolveBinPositions()` layout when log lacks lat/lng (§G.3.4 partial)
+- [x] Switch between geographic (Mercator) and abstract Cartesian coordinate system: Simulation Monitor ECharts vs deck.gl toggle; `DeckRouteMap` auto-selects Mercator (geo) or OrbitView (abstract) (§G.3.4)
+- [x] OrbitView camera: orbit, pan, zoom a 3D point cloud: `DeckRouteMap` OrbitView with fill-scaled Z elevation on tour stops (§G.3.4)
+- [x] Used for normalized/synthetic datasets where coordinates are not GPS: circular `resolveBinPositions()` layout when log lacks lat/lng (§G.3.4)
+
+**Status**: §G.3 complete — all checklist items delivered.
 
 ---
 
