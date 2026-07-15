@@ -195,6 +195,13 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Simulation Monitor — **Show/Hide failure overlay** + **Show/Hide route diff** toggles; wired to deck.gl and ECharts ``RouteViz`` (failure colours via embedded ``failure_analysis``)
 - [x] ``RouteViz`` — legend when failure bins present; ``routeViz.ts`` uses shared overlay helper
 
+**Delivered (§A.6 Option C — hundred-sixteenth pass)**
+
+- [x] ``routeViz.ts`` — ``showFailureOverlay`` toggle; dual-policy overlay paths; tour-diff ring borders via ``TOUR_DIFF_RGB`` on ECharts scatter nodes
+- [x] ``RouteViz`` — ``compareData`` / ``showTourDiff`` props; combined ``FailureOverlayLegend`` for failure + diff modes
+- [x] Simulation Monitor — ECharts overlay compare when two map policies visible; failure + route-diff toggles propagate to ``RouteViz`` (parity with deck.gl)
+- [x] Simulation Summary — **Show/Hide failure overlay** + **Show/Hide route diff** toggles; overlay-compare ``RouteViz`` when exactly two brushed policies share a day
+
 **Status**: §A.6 Options A+C complete — Options B/D (counterfactual engine, DoWhy) deferred.
 
 ---
@@ -1488,7 +1495,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

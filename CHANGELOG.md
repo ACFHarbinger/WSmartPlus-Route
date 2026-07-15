@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixteenth pass (§A.6 Option C)
+
+Hundred-sixteenth pass completes ECharts route-diff overlay parity across Simulation
+Monitor and Simulation Summary, extending ROADMAP §A.6 Option C.
+
+**React frontend**
+- ``routeViz.ts`` — ``showFailureOverlay`` toggle; dual-policy overlay paths;
+  tour-diff ring borders on scatter nodes via ``TOUR_DIFF_RGB``
+- ``RouteViz`` — ``compareData`` / ``showTourDiff`` props; combined
+  ``FailureOverlayLegend`` for failure + diff modes
+- Simulation Monitor — ECharts overlay compare when two map policies visible;
+  failure + route-diff toggles propagate to ``RouteViz`` (parity with deck.gl)
+- Simulation Summary — **Show/Hide failure overlay** + **Show/Hide route diff**
+  toggles; overlay-compare ``RouteViz`` when exactly two brushed policies share a day
+
+**ROADMAP**
+- §A.6 Option C ECharts route-diff parity checked on Monitor + Summary
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifteenth pass (§A.6 Option C)
 
 Hundred-fifteenth pass adds failure route-diff overlays on the Studio geospatial view,
