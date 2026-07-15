@@ -1,5 +1,14 @@
 import type { RefObject } from "react";
 import type ReactECharts from "echarts-for-react";
+import { toast } from "sonner";
+
+function exportToast(success: boolean, filename: string, failReason = "Chart is not ready"): void {
+  if (success) {
+    toast.success("Chart exported", { description: filename });
+    return;
+  }
+  toast.error("Export failed", { description: failReason });
+}
 
 /** Export an ECharts instance as a PNG download (§G.7 chart export). */
 export function exportChartPng(
@@ -61,4 +70,36 @@ export function exportContainerCanvasPng(
 ): boolean {
   const canvas = container?.querySelector("canvas");
   return exportCanvasPng(canvas, filename);
+}
+
+/** PNG export with Sonner toast feedback (§G.7). */
+export function exportChartPngWithToast(
+  chartRef: RefObject<ReactECharts | null>,
+  filename = "chart.png"
+): void {
+  exportToast(exportChartPng(chartRef, filename), filename);
+}
+
+/** SVG export with Sonner toast feedback (§G.7). */
+export function exportChartSvgWithToast(
+  chartRef: RefObject<ReactECharts | null>,
+  filename = "chart.svg"
+): void {
+  exportToast(exportChartSvg(chartRef, filename), filename);
+}
+
+/** WebGL/canvas PNG export with Sonner toast feedback (§G.7). */
+export function exportCanvasPngWithToast(
+  canvas: HTMLCanvasElement | null | undefined,
+  filename = "map.png"
+): void {
+  exportToast(exportCanvasPng(canvas, filename), filename, "Canvas is not ready");
+}
+
+/** Container canvas PNG export with Sonner toast feedback (§G.7). */
+export function exportContainerCanvasPngWithToast(
+  container: HTMLElement | null | undefined,
+  filename = "canvas.png"
+): void {
+  exportToast(exportContainerCanvasPng(container, filename), filename, "Canvas is not ready");
 }

@@ -10,7 +10,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, FolderOpen, BarChart2, Download } from "lucide-react";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
@@ -55,7 +55,7 @@ function DemandHistogram({ option, logScale = false }: { option: object; logScal
           Demand distribution{logScale ? " · log-scale counts" : ""}
         </p>
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "dataset-demand-hist.png")}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "dataset-demand-hist.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />

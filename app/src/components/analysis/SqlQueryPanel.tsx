@@ -14,7 +14,7 @@ import {
   sqlTemplates,
   type PortfolioBrushFilter,
 } from "../../utils/duckdbTemplates";
-import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
+import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
 import {
   buildAutoChartOption,
   heatmapCellLabels,
@@ -532,11 +532,7 @@ export function SqlQueryPanel({
                 )}
                 <button
                   type="button"
-                  onClick={() => {
-                    if (exportChartPng(autoChartRef, "auto-chart.png")) {
-                      toast.success("Chart exported", { description: "auto-chart.png" });
-                    }
-                  }}
+                  onClick={() => exportChartPngWithToast(autoChartRef, "auto-chart.png")}
                   className="btn-ghost text-[10px] flex items-center gap-1 py-0.5"
                 >
                   <ImageDown size={11} />
@@ -544,11 +540,7 @@ export function SqlQueryPanel({
                 </button>
                 <button
                   type="button"
-                  onClick={() => {
-                    if (exportChartSvg(autoChartRef, "auto-chart.svg")) {
-                      toast.success("Chart exported", { description: "auto-chart.svg" });
-                    }
-                  }}
+                  onClick={() => exportChartSvgWithToast(autoChartRef, "auto-chart.svg")}
                   className="btn-ghost text-[10px] flex items-center gap-1 py-0.5"
                 >
                   <ImageDown size={11} />

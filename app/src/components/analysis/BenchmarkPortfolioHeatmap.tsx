@@ -13,7 +13,7 @@ import {
   type PolicyMeta,
 } from "../../utils/simMetadata";
 import { isHighlighted } from "../../utils/chartHighlight";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
 import {
   activeHeatmapMetrics,
   buildNormalizedHeatmapCells,
@@ -158,13 +158,30 @@ export function BenchmarkPortfolioHeatmap({
               ))}
             </div>
           )}
-          <button
-            onClick={() => exportChartPng({ current: chartRef.current }, "portfolio-heatmap.png")}
-            className="btn-ghost text-xs flex items-center gap-1"
-          >
-            <Download size={12} />
-            PNG
-          </button>
+          <div className="flex items-center gap-1">
+            <button
+              type="button"
+              onClick={() =>
+                exportChartPngWithToast({ current: chartRef.current }, "portfolio-heatmap.png")
+              }
+              className="btn-ghost text-xs flex items-center gap-1"
+              title="Export portfolio heatmap as PNG"
+            >
+              <Download size={12} />
+              PNG
+            </button>
+            <button
+              type="button"
+              onClick={() =>
+                exportChartSvgWithToast({ current: chartRef.current }, "portfolio-heatmap.svg")
+              }
+              className="btn-ghost text-xs flex items-center gap-1"
+              title="Export portfolio heatmap as SVG"
+            >
+              <Download size={12} />
+              SVG
+            </button>
+          </div>
         </div>
       </div>
       <ReactECharts

@@ -15,7 +15,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle, Download } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
@@ -169,7 +169,7 @@ function LiveChart({
       </p>
       <div className="flex justify-end">
         <button
-          onClick={() => exportChartPng({ current: chartRef.current }, "training-live.png")}
+          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "training-live.png")}
           className="btn-ghost text-xs flex items-center gap-1"
         >
           <Download size={12} />
@@ -206,7 +206,7 @@ function MiniSparkline({
         <p className="text-xs text-canvas-muted">{label}</p>
         {exportName && (
           <button
-            onClick={() => exportChartPng({ current: chartRef.current }, `${exportName}.png`)}
+            onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
             className="btn-ghost text-xs flex items-center gap-1"
           >
             <Download size={10} />

@@ -11,7 +11,7 @@ import {
   chartMetricDisplay,
   chartMetricYAxisType,
 } from "../../utils/chartLogScale";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import { downloadCsv } from "../../utils/tableExport";
 import type { ZenmlPipelineRun, ZenmlPipelineStep } from "../../types";
 
@@ -207,7 +207,7 @@ export function ZenMLPipelineView({ logScale = false }: { logScale?: boolean }) 
                 {ganttOption && (
                   <button
                     className="btn-ghost text-xs flex items-center gap-1"
-                    onClick={() => exportChartPng(chartRef, "zenml-steps.png")}
+                    onClick={() => exportChartPngWithToast(chartRef, "zenml-steps.png")}
                   >
                     <Download size={12} />
                     Export PNG

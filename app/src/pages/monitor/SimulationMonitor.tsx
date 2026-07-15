@@ -27,7 +27,7 @@ import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
-import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
+import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
 import { hexToRgb } from "../../utils/colors";
 import {
   enrichEntriesWithGraphCoords,
@@ -211,14 +211,14 @@ function RouteMapChart({ data }: { data: SimDayData }) {
         <div className="flex items-center gap-1">
           <button
             className="btn-ghost text-xs flex items-center gap-1"
-            onClick={() => exportChartPng(chartRef, "route-map.png")}
+            onClick={() => exportChartPngWithToast(chartRef, "route-map.png")}
           >
             <Download size={12} />
             PNG
           </button>
           <button
             className="btn-ghost text-xs flex items-center gap-1"
-            onClick={() => exportChartSvg(chartRef, "route-map.svg")}
+            onClick={() => exportChartSvgWithToast(chartRef, "route-map.svg")}
           >
             SVG
           </button>
@@ -274,7 +274,7 @@ function MetricTimeseries({
         <button
           className="btn-ghost p-0.5"
           title="Export PNG"
-          onClick={() => exportChartPng(chartRef, `${metricKey}-timeseries.png`)}
+          onClick={() => exportChartPngWithToast(chartRef, `${metricKey}-timeseries.png`)}
         >
           <Download size={11} className="text-canvas-muted" />
         </button>

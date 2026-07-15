@@ -15,7 +15,7 @@ import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPngWithToast } from "../../utils/chartExport";
 import {
   buildCityComparisonSeries,
   cityComparisonChartOption,
@@ -266,7 +266,7 @@ export function CityComparison() {
               </p>
             </div>
             <button
-              onClick={() => exportChartPng(chartRef, "city-comparison.png")}
+              onClick={() => exportChartPngWithToast(chartRef, "city-comparison.png")}
               className="btn-ghost text-xs flex items-center gap-1"
             >
               <Download size={12} />
