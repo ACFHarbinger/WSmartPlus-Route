@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-first pass (§A.3 Option C)
+
+Hundred-twenty-first pass adds cross-run improvement trajectory overlays from persisted
+SQLite ring-buffer JSON, extending ROADMAP §A.3 Option C.
+
+**Python logic**
+- ``query_policy_trajectory_series`` — extracts ``best_cost`` / ``global_best_cost`` improvement
+  curves from ``policy_viz_snapshots.data_json`` with iteration/generation x-axis
+- Unit tests for trajectory roundtrip and policy-type filtering in
+  ``logic/test/unit/tracking/test_policy_telemetry_db.py``
+
+**Rust backend**
+- ``load_policy_trajectory_trends`` command — Python subprocess bridge for trajectory series
+
+**React frontend**
+- ``buildTrendTrajectoryOption`` — multi-run improvement line chart with optional EMA smoothing
+- ``PolicyTelemetryTrendsPanel`` — trajectory chart, policy filter, and EMA toggle above
+  cross-run bar charts; PNG export via ``ChartExportButtons`` (§G.7)
+
+**ROADMAP**
+- §A.3 Option C cross-run improvement trajectory chart checked (§A complete)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twentieth pass (§A.3 Option C)
 
 Hundred-twentieth pass adds SQLite persistence for policy telemetry cross-run trending,

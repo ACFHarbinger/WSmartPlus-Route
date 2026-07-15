@@ -91,3 +91,45 @@ def test_query_empty_when_db_missing(monkeypatch):
         os.remove(missing)
     result = db.query_policy_telemetry_trends()
     assert result["rows"] == []
+
+
+def test_query_trajectory_series_roundtrip():
+    viz = {
+        "iteration": [0, 1, 2, 3],
+        "best_cost": [50.0, 45.0, 42.0, 40.0],
+        "d_idx": [0, 1, 2, 3],
+    }
+    db.persist_policy_viz_snapshot(
+        viz, "ALNS + Ftsp", 0, 2, "alns", "/tmp/run_traj.jsonl"
+    )
+
+    result = db.query_policy_trajectory_series(policy="ALNS + Ftsp")
+    assert len(result["series"]) == 1
+    series = result["series"][0]
+    assert series["metric_name"] == "best_cost"
+    assert series["x"] == [0, 1, 2, 3]
+    assert series["y"] == [50.0, 45.0, 42.0, 40.0]
+    assert series["label"].endswith("· d2")
+
+
+def test_query_trajectory_series_filters_policy_type():
+    db.persist_policy_viz_snapshot(
+        {"iteration": [0, 1], "best_cost": [10.0, 9.0]},
+        "ALNS",
+        0,
+        1,
+        "alns",
+        "/tmp/a.jsonl",
+    )
+    db.persist_policy_viz_snapshot(
+        {"generation": [0, 1], "best_cost": [20.0, 18.0]},
+        "HGS",
+        0,
+        1,
+        "hgs",
+        "/tmp/b.jsonl",
+    )
+
+    alns = db.query_policy_trajectory_series(policy_type="alns")
+    assert len(alns["series"]) == 1
+    assert alns["series"][0]["policy"] == "ALNS"
