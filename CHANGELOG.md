@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-seventh pass (§G.7)
+
+Seventy-seventh pass extends global log-scale propagation to City Comparison charts and
+completes analytics startup prefetch for city + algorithm routes.
+
+**React frontend**
+- `cityComparison.ts` — `cityComparisonChartOption()` accepts ``logScale``; symlog-overflows
+  when on, linear raw values when off
+- `CityComparison` / `SimulationSummary` / `BenchmarkAnalysis` — city comparison bars follow
+  global ``logScale``; City Comparison page shows ``showLogScale`` in filter bar
+- `App.tsx` — startup prefetch warms city comparison + algorithm comparison route chunks
+
+**ROADMAP**
+- §G.1.6 City Comparison global log-scale toggle checked
+- §G.1 log-scale partial markers removed (Pareto, Benchmark, Algorithm Comparison)
+- §G.7 Startup route prefetch (city + algorithms) checked
+- §G.7 marked complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-sixth pass (§G.7)
 
 Seventy-sixth pass unifies log-scale chart toggles under global filter state and extends
