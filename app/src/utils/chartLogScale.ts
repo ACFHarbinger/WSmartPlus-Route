@@ -15,6 +15,13 @@ export function isLogScaleMetric(key: string): boolean {
   );
 }
 
+/** Attention edge/opacity mapping when global log-scale is on (§G.5.3). */
+export function attentionWeightDisplay(value: number, logScale: boolean): number {
+  if (!Number.isFinite(value) || value <= 0) return 0;
+  if (!logScale) return value;
+  return chartMetricDisplay(value, "attention", true) ?? value;
+}
+
 /** Transform a 2-D matrix for log-scale heatmap colour mapping; preserves raw tooltips separately. */
 export function transformMatrixLogScale(
   values: number[][],
