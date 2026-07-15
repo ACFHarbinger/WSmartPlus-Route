@@ -11,8 +11,7 @@ import {
   selectionStrategyColor,
 } from "../../utils/simMetadata";
 import type { DayLogEntry } from "../../types";
-
-const STRATEGY_LEGEND = ["LA", "LM", "LM-CF70", "LM-CF90", "SL-SL1", "SL-SL2"] as const;
+import { StrategyLegend } from "./StrategyLegend";
 
 const AXIS_NAMES = ["N", "Profit", "kg/km", "Overflows", "km"] as const;
 
@@ -133,17 +132,7 @@ export function BenchmarkPortfolioParallel({
         {runs.length} simulation log(s) — one polyline per loaded run · coloured by mandatory-selection
         strategy
       </p>
-      <div className="flex flex-wrap gap-2">
-        {STRATEGY_LEGEND.map((strategy) => (
-          <span key={strategy} className="flex items-center gap-1 text-[10px] text-canvas-muted">
-            <span
-              className="inline-block w-2.5 h-2.5 rounded-full"
-              style={{ backgroundColor: selectionStrategyColor(strategy) }}
-            />
-            {strategy}
-          </span>
-        ))}
-      </div>
+      <StrategyLegend />
       <ReactECharts option={option} style={{ height: Math.min(360, 120 + runs.length * 4) }} />
     </div>
   );

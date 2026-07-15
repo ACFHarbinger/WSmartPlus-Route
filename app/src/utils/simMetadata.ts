@@ -138,6 +138,15 @@ export function formatPolicyMeta(meta: PolicyMeta): string {
   return `${meta.selectionStrategy} · ${meta.constructor} · ${meta.improver} · ${meta.distribution}`;
 }
 
+export const SELECTION_STRATEGY_LEGEND = [
+  "LA",
+  "LM",
+  "LM-CF70",
+  "LM-CF90",
+  "SL-SL1",
+  "SL-SL2",
+] as const;
+
 const STRATEGY_COLORS: Record<string, string> = {
   LA: "#6366f1",
   LM: "#fbbf24",

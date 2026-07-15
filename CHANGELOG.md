@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-seventh pass (§G.1.4 / §G.2)
+
+Ninety-seventh pass centralises mandatory-selection strategy legends and adds
+strategy-ring border strokes on the policy hierarchy sunburst.
+
+**React frontend**
+- `simMetadata.ts` — ``SELECTION_STRATEGY_LEGEND`` constant shared across parallel
+  coordinate charts
+- `StrategyLegend` — reusable LA · LM · LM-CF70 · LM-CF90 · SL-SL1 · SL-SL2
+  colour chips
+- `PolicyParallelChart` — strategy legend + subtitle; polylines already coloured
+  via ``strategyColor()``
+- `BenchmarkPortfolioParallel` — uses shared ``StrategyLegend`` component
+- `policyHierarchy.ts` — middle strategy ring segments add
+  ``selectionStrategyColor()`` border stroke on sunburst/treemap
+
+**ROADMAP**
+- §G.1.4 Shared strategy colour legend on policy + portfolio parallel coords checked
+- §G.2 Angular span / kg/km gradient partial marker removed; strategy ring borders checked
+- §G.2 Phase 2 status marked complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-sixth pass (§G.1.4)
 
 Ninety-sixth pass colours portfolio parallel-coordinate polylines by
