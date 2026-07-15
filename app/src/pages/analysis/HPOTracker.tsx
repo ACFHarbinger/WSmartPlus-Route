@@ -21,7 +21,7 @@ import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
-import { findRecentHpoProcessId } from "../../utils/trainingProcess";
+import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/trainingProcess";
 import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary } from "../../types";
 
 const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";
@@ -400,11 +400,13 @@ export function HPOTracker() {
           cardClassName="border-accent-success/30"
           header={{
             status: recentHpoRunning ? "running" : recentHpoProc.status,
-            title: recentHpoRunning
-              ? "Live HPO"
-              : recentHpoProc.status === "completed"
-                ? "HPO Complete"
-                : `HPO ${recentHpoProc.status}`,
+            title: trainHpoLivePanelTitle({
+              isRunning: recentHpoRunning,
+              status: recentHpoProc.status,
+              processId: recentHpoId,
+              command: recentHpoProc.command,
+              kind: "hpo",
+            }),
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,
             attentionCount: liveAttentionEntries.length,

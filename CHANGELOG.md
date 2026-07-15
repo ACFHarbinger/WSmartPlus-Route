@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventieth pass (§G.10 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Hundred-seventieth pass closes the train/HPO live panel title gap left after the
+hundred-sixty-ninth pass (which unified sim and data-gen live panel titles). Training Hub,
+Training Monitor, HPO Tracker, Experiment Tracker, and Process Monitor now share one title
+helper per workflow kind for running, completed, and failed states.
+
+**React frontend**
+- ``trainHpoLivePanelTitle`` — shared live/post-run train/HPO panel title helper in
+  ``trainingProcess.ts`` (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- Training Hub + Training Monitor + HPO Tracker + Experiment Tracker — deduplicated inline
+  train/HPO live title strings; import shared ``trainHpoLivePanelTitle`` (§G.10 / §G.17 / §G.18 / §D.7)
+- Process Monitor — selected ``train_`` / ``hpo_`` embedded sections use dynamic
+  ``trainHpoLivePanelTitle`` instead of static ``Training analytics`` subtitle
+  (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub ``trainHpoLivePanelTitle`` checked
+- §G.15 Process Monitor train/HPO embedded live panel title checked
+- §G.17 Training Monitor ``trainHpoLivePanelTitle`` checked
+- §G.18 HPO Tracker + Experiment Tracker ``trainHpoLivePanelTitle`` checked
+- §D.7 train/HPO workflow live panel title parity across all five pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-ninth pass (§G.9 + §G.11 + §G.15 + §D.7)
 
 Hundred-sixty-ninth pass closes the sim and data-gen live panel title gap left after the

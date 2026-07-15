@@ -34,7 +34,11 @@ import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
-import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
+import {
+  isHpoProcess,
+  isTrainOrHpoProcess,
+  trainHpoLivePanelTitle,
+} from "../../utils/trainingProcess";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
@@ -570,12 +574,15 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: "Training analytics",
+            title: trainHpoLivePanelTitle({
+              isRunning: selectedProc.status === "running",
+              status: selectedProc.status,
+              processId: selectedProc.id,
+              command: selectedProc.command,
+            }),
             metricCount: trainingMetrics.length,
             healthCount: trainingHealthEntries.length,
             attentionCount: attentionEntries.length,
-            titleTone: "muted",
-            showLiveSuffix: true,
             navMesh: {
               showHpoLinks: isHpoProcess(selectedProc.id, selectedProc.command),
               showOutputBrowser: selectedProc.status === "completed",

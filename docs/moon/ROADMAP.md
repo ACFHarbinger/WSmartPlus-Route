@@ -1004,6 +1004,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — selected ``test_sim`` / ``gen_data`` embedded sections use dynamic title helpers instead of static subtitles (§G.9 / §G.11 / §G.15 / §D.7)
 - [x] §G.9 / §G.11 / §G.15 sim + data-gen launcher live panel title parity across Simulation Launcher, Data Generation, and Process Monitor (§D.7)
 
+**Delivered (§D.7 — hundred-seventieth pass)**
+
+- [x] ``trainHpoLivePanelTitle`` — shared live/post-run train/HPO panel title helper in ``trainingProcess.ts`` (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Training Hub + Training Monitor + HPO Tracker + Experiment Tracker — deduplicated inline train/HPO live title strings; import shared ``trainHpoLivePanelTitle`` (§G.10 / §G.17 / §G.18 / §D.7)
+- [x] Process Monitor — selected ``train_`` / ``hpo_`` embedded sections use dynamic ``trainHpoLivePanelTitle`` instead of static ``Training analytics`` subtitle (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow live panel title parity across all five pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1720,6 +1727,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Hub eval mode — ``LauncherLivePanel`` + ``EvalCheckpointLiveCard`` / ``EvalResultCard`` live panel shell parity with Evaluation Runner (hundred-sixty-sixth pass; §G.10 / §G.12 / §D.7)
 - [x] Training Hub eval mode — single-checkpoint progress bar via ``EvalCheckpointLiveCard`` only; ``LauncherNavMesh`` ``Training Hub →`` + ``hideHub`` parity (hundred-sixty-seventh pass; §G.10 / §G.12 / §D.7)
 - [x] ``evalLivePanelTitle`` shared eval live panel title helper; Training Hub eval mode imports shared title (hundred-sixty-eighth pass; §G.10 / §D.7)
+- [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Hub train/HPO modes import shared title (hundred-seventieth pass; §G.10 / §D.7)
 
 ---
 
@@ -1873,6 +1881,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor eval embedded section uses dynamic ``evalLivePanelTitle`` instead of static ``Eval results`` subtitle (hundred-sixty-eighth pass; §G.12 / §G.15 / §D.7)
 - [x] Process Monitor sim embedded section uses dynamic ``simLivePanelTitle`` instead of static ``Policy telemetry`` subtitle (hundred-sixty-ninth pass; §G.9 / §G.15 / §D.7)
 - [x] Process Monitor data-gen embedded section uses dynamic ``dataGenLivePanelTitle`` instead of static ``Data generation workflow`` subtitle (hundred-sixty-ninth pass; §G.11 / §G.15 / §D.7)
+- [x] Process Monitor train/HPO embedded section uses dynamic ``trainHpoLivePanelTitle`` instead of static ``Training analytics`` subtitle (hundred-seventieth pass; §G.10 / §G.15 / §G.17 / §G.18 / §D.7)
 
 ---
 
@@ -1931,6 +1940,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``TrainHpoLivePanelHeader`` deduplicated live/recent header with ``overlaySelect`` ``LIVE_KEY`` checkbox parity (hundred-fifty-fifth pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``overlaySelect`` + ``showHealthAttention={false}`` options (hundred-fifty-sixth pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on live/recent train panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.17 / §D.7)
+- [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Monitor imports shared title (hundred-seventieth pass; §G.17 / §D.7)
 
 ---
 
@@ -1968,6 +1978,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] ``TrainHpoLivePanelHeader`` deduplicated live HPO header blocks on HPO Tracker + Experiment Tracker (hundred-fifty-fourth pass; §G.18 / §G.17 / §D.7)
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell on HPO Tracker + Experiment Tracker (hundred-fifty-sixth pass; §G.18 / §G.17 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on HPO Tracker + Experiment Tracker live panels via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.18 / §D.7)
+- [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; HPO Tracker + Experiment Tracker import shared title (hundred-seventieth pass; §G.18 / §D.7)
 
 ---
 

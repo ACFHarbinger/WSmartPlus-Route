@@ -17,7 +17,7 @@ import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
-import { findRecentHpoProcessId } from "../../utils/trainingProcess";
+import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/trainingProcess";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
 import {
@@ -282,11 +282,13 @@ export function ExperimentTracker() {
           cardClassName="border-accent-success/30"
           header={{
             status: recentHpoRunning ? "running" : recentHpoProc.status,
-            title: recentHpoRunning
-              ? "Live HPO"
-              : recentHpoProc.status === "completed"
-                ? "HPO Complete"
-                : `HPO ${recentHpoProc.status}`,
+            title: trainHpoLivePanelTitle({
+              isRunning: recentHpoRunning,
+              status: recentHpoProc.status,
+              processId: recentHpoId,
+              command: recentHpoProc.command,
+              kind: "hpo",
+            }),
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,
             attentionCount: liveAttentionEntries.length,
