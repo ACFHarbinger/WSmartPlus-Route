@@ -531,7 +531,9 @@ export function TrainingHub() {
                   : liveProgressLabel}
               </h2>
               {liveMetrics.length > 0 && (
-                <span className="text-xs text-canvas-muted">{liveMetrics.length} metric updates</span>
+                <span className="text-xs text-accent-success">
+                  {liveMetrics.length} metric updates
+                </span>
               )}
             </div>
             <TrainHpoNavMesh
