@@ -887,6 +887,14 @@ pub fn load_npz_vectors(path: String, keys: Vec<String>) -> Result<Vec<NpzVector
     Ok(out)
 }
 
+/// Load an NPZ array of any rank as a flattened vector — used by the native
+/// Report Studio dataset statistics engine (§H.1 raw waste matrices).
+#[tauri::command]
+pub fn load_npz_flat(path: String, key: String) -> Result<Vec<f64>, String> {
+    let (_, arr) = open_npz_array(&path, &key)?;
+    Ok(arr.iter().copied().collect())
+}
+
 /// Memory-map probe: reports whether a `.npy` or stored `.npz` entry is large enough for mmap.
 #[tauri::command]
 pub fn probe_npy_mmap(path: String) -> Result<bool, String> {
