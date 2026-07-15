@@ -40,6 +40,7 @@ import {
 import { downloadCsv } from "../../utils/tableExport";
 import {
   formatPipelineTimingBadge,
+  portfolioRunLabel,
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -262,12 +263,13 @@ export function BenchmarkAnalysis() {
     setDuckdbLoading(true);
     runPortfolioSimulationArrowPipeline(
       runs.map((r) => ({ path: r.path, label: r.label })),
-      BENCHMARK_SIM_TABLE
+      BENCHMARK_SIM_TABLE,
+      projectRoot
     )
       .then(setLastPipeline)
       .catch((err) => console.warn("Benchmark Arrow pipeline:", err))
       .finally(() => setDuckdbLoading(false));
-  }, [runs, duckdbReady, setLastPipeline, setDuckdbLoading]);
+  }, [runs, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
 
   // Consume pending benchmark logs from Output Browser compare action
   useEffect(() => {
@@ -276,13 +278,17 @@ export function BenchmarkAnalysis() {
       const loaded: RunFile[] = [];
       for (const ref of pendingBenchmarkLogs) {
         const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
-        loaded.push({ path: ref.path, label: ref.label, entries });
+        loaded.push({
+          path: ref.path,
+          label: portfolioRunLabel(ref.path, ref.label, projectRoot),
+          entries,
+        });
       }
       setRuns(loaded);
       setPendingBenchmarkLogs(null);
     };
     load().catch(console.error);
-  }, [pendingBenchmarkLogs, setPendingBenchmarkLogs]);
+  }, [pendingBenchmarkLogs, projectRoot, setPendingBenchmarkLogs]);
 
   const addRun = useCallback(async () => {
     const path = (await open({
@@ -290,9 +296,9 @@ export function BenchmarkAnalysis() {
     })) as string | null;
     if (!path) return;
     const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
-    const label = path.split("/").slice(-2).join("/");
+    const label = portfolioRunLabel(path, undefined, projectRoot);
     setRuns((r) => [...r, { path, label, entries }]);
-  }, []);
+  }, [projectRoot]);
 
   const removeRun = (path: string) => setRuns((r) => r.filter((x) => x.path !== path));
 
@@ -318,7 +324,12 @@ export function BenchmarkAnalysis() {
           toast.loading(`Loading portfolio… ${n} / ${total}`, { id: progressId });
         },
       });
-      setRuns(loaded);
+      setRuns(
+        loaded.map((r) => ({
+          ...r,
+          label: portfolioRunLabel(r.path, r.label, projectRoot),
+        }))
+      );
       toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`, {
         id: progressId,
       });

@@ -30,6 +30,7 @@ import {
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import {
   formatPipelineTimingBadge,
+  portfolioRunLabel,
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -92,12 +93,12 @@ export function CityComparison() {
     if (!path) return;
     try {
       const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
-      const label = path.split(/[/\\]/).pop() ?? path;
+      const label = portfolioRunLabel(path, undefined, projectRoot);
       setRuns((prev) => [...prev.filter((r) => r.path !== path), { path, label, entries }]);
     } catch (err) {
       toast.error("Failed to load log", { description: String(err) });
     }
-  }, []);
+  }, [projectRoot]);
 
   const loadOutputPortfolio = useCallback(async () => {
     if (!projectRoot) return;
@@ -120,7 +121,7 @@ export function CityComparison() {
       setRuns(
         loaded.map((r) => ({
           path: r.path,
-          label: r.label,
+          label: portfolioRunLabel(r.path, r.label, projectRoot),
           entries: r.entries,
         }))
       );
@@ -139,12 +140,13 @@ export function CityComparison() {
     setDuckdbLoading(true);
     runPortfolioSimulationArrowPipeline(
       runs.map((r) => ({ path: r.path, label: r.label })),
-      CITY_SIM_TABLE
+      CITY_SIM_TABLE,
+      projectRoot
     )
       .then(setLastPipeline)
       .catch((err) => console.warn("City comparison Arrow pipeline:", err))
       .finally(() => setDuckdbLoading(false));
-  }, [runs, duckdbReady, setLastPipeline, setDuckdbLoading]);
+  }, [runs, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
 
   useEffect(() => {
     if (!pendingBenchmarkLogs?.length) return;
@@ -153,7 +155,11 @@ export function CityComparison() {
       for (const ref of pendingBenchmarkLogs) {
         try {
           const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
-          loaded.push({ path: ref.path, label: ref.label, entries });
+          loaded.push({
+            path: ref.path,
+            label: portfolioRunLabel(ref.path, ref.label, projectRoot),
+            entries,
+          });
         } catch {
           /* skip */
         }
@@ -161,7 +167,7 @@ export function CityComparison() {
       if (loaded.length) setRuns(loaded);
       setPendingBenchmarkLogs(null);
     })();
-  }, [pendingBenchmarkLogs, setPendingBenchmarkLogs]);
+  }, [pendingBenchmarkLogs, projectRoot, setPendingBenchmarkLogs]);
 
   const onChartClick = useCallback(
     (params: { name?: string }) => {
