@@ -1,9 +1,7 @@
 /**
  * Cross-page train/HPO workflow shortcuts (§A.2 / §A.4 / §G.10 / §G.15 / §G.17 / §G.18).
  */
-import { useAppStore } from "../../store/app";
-import { useRecentFilesStore } from "../../store/recentFiles";
-import { applyRecentHandoff, type RecentPendingSetters } from "../../utils/recentHandoff";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 
 export interface TrainHpoNavMeshProps {
   /** Hide Training Hub shortcut (on the hub page itself). */
@@ -30,26 +28,7 @@ export function TrainHpoNavMesh({
   showTrainLinks = true,
   className = "",
 }: TrainHpoNavMeshProps) {
-  const {
-    projectRoot,
-    setMode,
-    setPendingLogPath,
-    setPendingRunPath,
-    setPendingCsvPath,
-    setPendingTrainingRunPath,
-    setPendingCheckpoint,
-    setPendingConfigPath,
-  } = useAppStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
-
-  const pendingSetters: RecentPendingSetters = {
-    pendingLogPath: setPendingLogPath,
-    pendingRunPath: setPendingRunPath,
-    pendingCsvPath: setPendingCsvPath,
-    pendingTrainingRunPath: setPendingTrainingRunPath,
-    pendingCheckpoint: setPendingCheckpoint,
-    pendingConfigPath: setPendingConfigPath,
-  };
+  const { setMode, handoff } = useRecentHandoff();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -57,14 +36,7 @@ export function TrainHpoNavMesh({
         <button
           onClick={() => {
             if (outputRunPath) {
-              applyRecentHandoff({
-                path: outputRunPath,
-                kind: "run",
-                projectRoot,
-                pushRecent,
-                setMode,
-                pendingSetters,
-              });
+              handoff(outputRunPath, "run");
             } else {
               setMode("output_browser");
             }
@@ -87,14 +59,7 @@ export function TrainHpoNavMesh({
           <button
             onClick={() => {
               if (trainingRunPath) {
-                applyRecentHandoff({
-                  path: trainingRunPath,
-                  kind: "training",
-                  projectRoot,
-                  pushRecent,
-                  setMode,
-                  pendingSetters,
-                });
+                handoff(trainingRunPath, "training");
               } else {
                 setMode("training");
               }

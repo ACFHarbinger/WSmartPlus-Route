@@ -33,7 +33,10 @@ import {
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
-import { runLabelMapFromProcesses } from "../../utils/policyTelemetryTrends";
+import {
+  extractJsonlPathFromLogLines,
+  runLabelMapFromProcesses,
+} from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import {
@@ -419,6 +422,12 @@ export function ProcessMonitor() {
     return brushLogPathFromProcessLines(selectedProc.logLines, kind);
   }, [selectedProc, selectedIsTrain]);
 
+  /** ``.jsonl`` path for Simulation Summary handoff (§G.9 / §G.1 / §D.7). */
+  const simJsonlPath = useMemo(() => {
+    if (!selectedProc || !selectedIsSim) return null;
+    return extractJsonlPathFromLogLines(selectedProc.logLines);
+  }, [selectedProc, selectedIsSim]);
+
   const openEvalInAnalytics = useCallback(() => {
     if (!evalResult || !hasEvalMetrics(evalResult)) return;
     setPendingEvalResults(toEvalAnalyticsRows([evalResult]));
@@ -491,6 +500,7 @@ export function ProcessMonitor() {
               showPostRun: selectedProc.status === "completed",
               showOutputBrowser: selectedProc.status === "completed",
               outputRunPath: launcherOutputRunPath,
+              simLogPath: simJsonlPath,
             },
           }}
           footer={

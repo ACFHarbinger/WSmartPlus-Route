@@ -1,18 +1,16 @@
 import { useCallback } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
-import { useAppStore } from "../store/app";
 import { useLayoutStore } from "../store/layout";
-import { useRecentFilesStore, recentKindFromPath, type RecentFileKind } from "../store/recentFiles";
+import { recentKindFromPath, type RecentFileKind } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
 import {
-  applyRecentHandoff,
   highestPriorityKind,
   makeRecentEntry,
   recentHandoffSpec,
-  type RecentPendingSetters,
 } from "../utils/recentHandoff";
 import { useFileDrop } from "./useFileDrop";
+import { useRecentHandoff } from "./useRecentHandoff";
 
 function findPath(paths: string[], re: RegExp): string | undefined {
   return paths.find((p) => re.test(p));
@@ -21,50 +19,22 @@ function findPath(paths: string[], re: RegExp): string | undefined {
 /**
  * App-wide drop handler for Studio artefacts (§G.8 / §G.6 / §G.7 / §G.12–§G.14 / §G.17).
  * Routes logs, CSVs, checkpoints, configs, training/run directories, and `.wsroute`
- * bundles through shared ``recentKindFromPath`` + ``applyRecentHandoff`` handoffs.
+ * bundles through shared ``recentKindFromPath`` + ``useRecentHandoff`` handoffs.
  */
 export function useGlobalFileDrop() {
-  const {
-    projectRoot,
-    setMode,
-    setPendingLogPath,
-    setPendingCsvPath,
-    setPendingCheckpoint,
-    setPendingConfigPath,
-    setPendingRunPath,
-    setPendingTrainingRunPath,
-  } = useAppStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+  const { projectRoot, setMode, pushRecent, pendingSetters, handoff } = useRecentHandoff();
   const setFileDropDragging = useLayoutStore((s) => s.setFileDropDragging);
-
-  const pendingSetters: RecentPendingSetters = {
-    pendingLogPath: setPendingLogPath,
-    pendingRunPath: setPendingRunPath,
-    pendingCsvPath: setPendingCsvPath,
-    pendingTrainingRunPath: setPendingTrainingRunPath,
-    pendingCheckpoint: setPendingCheckpoint,
-    pendingConfigPath: setPendingConfigPath,
-  };
 
   const handoffKind = useCallback(
     (path: string, kind: RecentFileKind, toastOnSuccess = true) => {
-      const spec = applyRecentHandoff({
-        path,
-        kind,
-        projectRoot,
-        pushRecent,
-        setMode,
-        pendingSetters,
-      });
+      const spec = handoff(path, kind);
       if (toastOnSuccess) {
         toast.success(spec.successLabel, {
           description: path.split(/[/\\]/).pop(),
         });
       }
     },
-    // pending setters are stable Zustand actions
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [projectRoot, pushRecent, setMode]
+    [handoff]
   );
 
   const handleDrop = useCallback(
@@ -132,9 +102,7 @@ export function useGlobalFileDrop() {
         description: primary.path.split(/[/\\]/).pop(),
       });
     },
-    // pending setters are stable Zustand actions
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [projectRoot, pushRecent, setMode, handoffKind]
+    [projectRoot, pushRecent, setMode, handoffKind, pendingSetters]
   );
 
   return useFileDrop(handleDrop, true, setFileDropDragging);

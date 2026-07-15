@@ -4,16 +4,13 @@ import { PALETTE_COMMANDS } from "../../constants/commands";
 import { useWsrouteImport } from "../../hooks/useWsrouteImport";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../store/app";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useLayoutStore } from "../../store/layout";
 import { nextThemePreference } from "../../utils/theme";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
-import {
-  applyRecentHandoff,
-  makeRecentEntry,
-  type RecentPendingSetters,
-} from "../../utils/recentHandoff";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 
 function matchQuery(query: string, label: string, keywords?: string): boolean {
   const q = query.trim().toLowerCase();
@@ -36,36 +33,16 @@ function isKnownRecentKind(kind: string): kind is RecentFileKind {
 }
 
 export function CommandPalette() {
-  const {
-    projectRoot,
-    setMode,
-    theme,
-    setTheme,
-    setPendingLogPath,
-    setPendingRunPath,
-    setPendingCsvPath,
-    setPendingTrainingRunPath,
-    setPendingCheckpoint,
-    setPendingConfigPath,
-  } = useAppStore();
+  const { theme, setTheme, setPendingLogPath } = useAppStore();
+  const { projectRoot, setMode, pushRecent, handoff } = useRecentHandoff();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
     useLayoutStore();
   const recentFiles = useRecentFilesStore((s) => s.files);
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const refreshRecentLabels = useRecentFilesStore((s) => s.refreshRecentLabels);
   const importWsroute = useWsrouteImport();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-
-  const pendingSetters: RecentPendingSetters = {
-    pendingLogPath: setPendingLogPath,
-    pendingRunPath: setPendingRunPath,
-    pendingCsvPath: setPendingCsvPath,
-    pendingTrainingRunPath: setPendingTrainingRunPath,
-    pendingCheckpoint: setPendingCheckpoint,
-    pendingConfigPath: setPendingConfigPath,
-  };
 
   const filteredCommands = useMemo(
     () => PALETTE_COMMANDS.filter((cmd) => matchQuery(query, cmd.label, cmd.keywords)),
@@ -127,20 +104,10 @@ export function CommandPalette() {
         return;
       }
 
-      applyRecentHandoff({
-        path: file.path,
-        kind,
-        projectRoot,
-        storedLabel: file.label,
-        pushRecent,
-        setMode,
-        pendingSetters,
-      });
+      handoff(file.path, kind, { storedLabel: file.label });
       closePalette();
     },
-    // pending setters are stable Zustand actions
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-    [projectRoot, pushRecent, setMode, setPendingLogPath, closePalette]
+    [projectRoot, pushRecent, setMode, setPendingLogPath, handoff, closePalette]
   );
 
   const runCommand = useCallback(
