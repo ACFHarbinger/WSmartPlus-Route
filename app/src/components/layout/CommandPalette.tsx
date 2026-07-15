@@ -9,6 +9,7 @@ import { nextThemePreference } from "../../utils/theme";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useRecentFilesStore } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 
 function matchQuery(query: string, label: string, keywords?: string): boolean {
   const q = query.trim().toLowerCase();
@@ -23,6 +24,7 @@ export function CommandPalette() {
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
     useLayoutStore();
   const recentFiles = useRecentFilesStore((s) => s.files);
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const importWsroute = useWsrouteImport();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -45,7 +47,9 @@ export function CommandPalette() {
   const showRecent = filteredRecent.length > 0 && (query.trim() === "" || filteredCommands.length < 6);
 
   const openRecentLog = useCallback(
-    async (path: string) => {
+    async (path: string, storedLabel?: string) => {
+      const label = portfolioRunLabel(path, storedLabel, projectRoot);
+      pushRecent({ path, label, kind: "log" });
       try {
         await invoke<DayLogEntry[]>("load_simulation_log", { path });
         setPendingLogPath(path);
@@ -59,7 +63,7 @@ export function CommandPalette() {
         setQuery("");
       }
     },
-    [setPendingLogPath, setMode, setCommandPaletteOpen]
+    [projectRoot, pushRecent, setPendingLogPath, setMode, setCommandPaletteOpen]
   );
 
   const runCommand = useCallback(
@@ -141,10 +145,23 @@ export function CommandPalette() {
                   <button
                     type="button"
                     onClick={() => {
-                      if (file.kind === "log") void openRecentLog(file.path);
+                      if (file.kind === "log") void openRecentLog(file.path, file.label);
                       else if (file.kind === "run") {
+                        pushRecent({
+                          path: file.path,
+                          label: portfolioRunLabel(file.path, file.label, projectRoot),
+                          kind: "run",
+                        });
                         setPendingRunPath(file.path);
                         setMode("output_browser");
+                        setCommandPaletteOpen(false);
+                      } else if (file.kind === "csv") {
+                        pushRecent({
+                          path: file.path,
+                          label: portfolioRunLabel(file.path, file.label, projectRoot),
+                          kind: "csv",
+                        });
+                        setMode("data_explorer");
                         setCommandPaletteOpen(false);
                       } else {
                         setMode("data_explorer");

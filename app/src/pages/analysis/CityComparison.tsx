@@ -135,20 +135,22 @@ export function CityComparison() {
           }
         },
       });
-      setRuns(
-        loaded.map((r) => ({
-          path: r.path,
-          label: portfolioRunLabel(r.path, r.label, projectRoot),
-          entries: r.entries,
-        }))
-      );
+      const normalized = loaded.map((r) => ({
+        path: r.path,
+        label: portfolioRunLabel(r.path, r.label, projectRoot),
+        entries: r.entries,
+      }));
+      for (const r of normalized) {
+        pushRecent({ path: r.path, label: r.label, kind: "log" });
+      }
+      setRuns(normalized);
       toast.success(`Loaded ${loaded.length} simulation logs`);
     } catch (err) {
       toast.error("Portfolio load failed", { description: String(err) });
     } finally {
       setPortfolioLoading(false);
     }
-  }, [projectRoot]);
+  }, [projectRoot, pushRecent]);
 
   const { pendingBenchmarkLogs, setPendingBenchmarkLogs } = useAppStore();
 

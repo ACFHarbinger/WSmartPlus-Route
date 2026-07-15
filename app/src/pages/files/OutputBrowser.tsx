@@ -356,10 +356,18 @@ export function OutputBrowser() {
     }
   }, [toggleDir]);
 
-  const openInSimSummary = useCallback((path: string) => {
-    setPendingLogPath(path);
-    setMode("simulation_summary");
-  }, [setPendingLogPath, setMode]);
+  const openInSimSummary = useCallback(
+    (path: string) => {
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "log",
+      });
+      setPendingLogPath(path);
+      setMode("simulation_summary");
+    },
+    [pushRecent, projectRoot, setPendingLogPath, setMode]
+  );
 
   const loadInEvalRunner = useCallback((path: string) => {
     setPendingCheckpoint(path);
@@ -442,6 +450,11 @@ export function OutputBrowser() {
       });
       toast.success(`Extracted ${result.extracted_files.length} files`);
       if (result.log_path) {
+        pushRecent({
+          path: result.log_path,
+          label: portfolioRunLabel(result.log_path, undefined, projectRoot),
+          kind: "log",
+        });
         setPendingLogPath(result.log_path);
         setMode("simulation_summary");
       } else {
@@ -452,7 +465,7 @@ export function OutputBrowser() {
     } finally {
       setBundleExtracting(false);
     }
-  }, [viewingPath, viewingExt, setPendingLogPath, setMode]);
+  }, [viewingPath, viewingExt, pushRecent, projectRoot, setPendingLogPath, setMode]);
 
   const pickOutputDir = useCallback(async () => {
     const path = (await open({ directory: true })) as string | null;
