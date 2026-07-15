@@ -154,6 +154,16 @@ export function resolveLocalProjectPath(
   return `${root}/${rel}`;
 }
 
+/** Resolve Optuna ``sqlite:///`` storage URL to an absolute local path for path-chip brush (§G.18 / §G.19 / §D.7). */
+export function sqliteStoragePathFromUrl(
+  storageUrl: string,
+  projectRoot: string | null | undefined
+): string | null {
+  const raw = sqlitePathFromStorageUrl(storageUrl);
+  if (!raw) return null;
+  return resolveLocalProjectPath(raw, projectRoot);
+}
+
 /** Derive log/run path per process id for row path-chip brush parity (§G.15 / §D.7). */
 export function brushLogPathMapFromProcesses(
   processes: Record<string, Pick<ProcessEntry, "logLines" | "command">>,

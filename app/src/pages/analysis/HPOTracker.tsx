@@ -23,7 +23,8 @@ import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import {
   brushLogPathFromProcessLines,
   outputRunPathFromLogLines,
-  sqlitePathFromStorageUrl,
+  resolveLocalProjectPath,
+  sqliteStoragePathFromUrl,
 } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
@@ -264,7 +265,14 @@ export function HPOTracker() {
     [recentHpoProc]
   );
 
-  const storageDbPath = useMemo(() => sqlitePathFromStorageUrl(storageUrl), [storageUrl]);
+  const storageDbPath = useMemo(
+    () => sqliteStoragePathFromUrl(storageUrl, projectRoot),
+    [storageUrl, projectRoot]
+  );
+  const reportDirPath = useMemo(
+    () => (lastReportDir ? resolveLocalProjectPath(lastReportDir, projectRoot) : null),
+    [lastReportDir, projectRoot]
+  );
 
   const trialBrushLabel = useCallback((trial: OptunaTrial): string | null => {
     const logDir = trialLogDirFromUserAttrs(trial.user_attrs);
@@ -528,10 +536,10 @@ export function HPOTracker() {
         {storageDbPath ? (
           <PathRunLabelChip path={storageDbPath} className="max-w-full" />
         ) : null}
-        {lastReportDir && (
+        {reportDirPath && (
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-[10px] text-canvas-muted shrink-0">Reports</span>
-            <PathRunLabelChip path={lastReportDir} className="flex-1 min-w-0" />
+            <PathRunLabelChip path={reportDirPath} className="flex-1 min-w-0" />
             <button
               onClick={openReportDir}
               className="btn-ghost text-xs flex items-center gap-1 shrink-0"

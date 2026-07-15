@@ -110,6 +110,7 @@ export function DataGeneration() {
   const displayProc = displayProcessId ? processes[displayProcessId] : null;
   const runStatus = displayProc?.status ?? null;
   const [previewStats, setPreviewStats] = useState<DatasetPreviewStats | null>(null);
+  const [previewDatasetPath, setPreviewDatasetPath] = useState("");
   const [previewLoading, setPreviewLoading] = useState(false);
 
   const toggleDist = (d: string) => {
@@ -139,6 +140,7 @@ export function DataGeneration() {
       filters: [{ name: "Dataset", extensions: ["pkl", "pt"] }],
     })) as string | null;
     if (!path) return;
+    setPreviewDatasetPath(path);
     setPreviewLoading(true);
     try {
       const stats = await invoke<DatasetPreviewStats>("preview_dataset_stats", {
@@ -320,6 +322,9 @@ export function DataGeneration() {
             {previewLoading ? "Loading…" : "Preview .pkl/.pt"}
           </button>
         </div>
+        {previewDatasetPath.trim() ? (
+          <PathRunLabelChip path={previewDatasetPath.trim()} className="max-w-full" />
+        ) : null}
         {previewStats ? (
           <div className="space-y-3">
             <div className="grid grid-cols-4 gap-2 text-xs">

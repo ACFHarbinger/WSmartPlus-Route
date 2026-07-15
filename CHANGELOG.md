@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-second pass (§G.18 + §G.11 + §G.19 + §G.7 + §A.3 + §D.7)
+
+Hundred-ninety-second pass closes the relative-path resolution and secondary
+file-picker path-chip gaps left after the hundred-ninety-first pass (which unified
+Settings, MLflow tracking URI, and Optuna storage URL ``PathRunLabelChip`` parity).
+Optuna storage URLs, HPO report directories, telemetry SQLite stores, data-gen
+preview datasets, and Settings benchmark/import paths now resolve against
+``projectRoot`` and share ``PathRunLabelChip`` ring-highlight + click-to-brush
+behaviour with analysis views.
+
+**React frontend**
+- ``sqliteStoragePathFromUrl`` — resolve Optuna ``sqlite:///`` storage URL against
+  ``projectRoot`` for path-chip brush (§G.18 / §G.19 / §D.7)
+- HPO Tracker — storage DB + exported report directory ``PathRunLabelChip`` use
+  ``projectRoot``-resolved absolute paths (§G.18 / §D.7)
+- Data Generation Wizard — instance preview ``.pkl`` / ``.pt`` path ``PathRunLabelChip``
+  below preview panel (§G.11 / §D.7)
+- Settings — Arrow pipeline benchmark + import-settings JSON ``PathRunLabelChip``
+  below filled paths (§G.19 / §D.7)
+- ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` resolved against ``projectRoot``
+  before path-chip brush (§G.7 / §A.3 / §D.7)
+
+**ROADMAP**
+- §G.18 HPO Tracker storage/report relative-path path-chip brush parity checked
+- §G.11 Data Generation Wizard instance preview path-chip brush parity checked
+- §G.19 Settings Arrow benchmark + import JSON path-chip brush parity checked
+- §G.7 / §A.3 PolicyTelemetryTrendsPanel ``db_path`` relative-path resolution checked
+- §D.7 relative-path storage/preview/import path-chip run-label brush parity across HPO Tracker, Data Generation, Settings, and Policy Telemetry checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-first pass (§G.19 + §G.18 + §D.7)
 
 Hundred-ninety-first pass closes the Settings, MLflow tracking URI, and Optuna
