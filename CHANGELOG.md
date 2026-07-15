@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-seventeenth pass (§G.1 + §G.6 + §G.16 + §D.7)
+
+Two-hundred-and-seventeenth pass extracts shared log-handoff controls after passes
+214–216 repeated Summary / Monitor button markup across portfolio rows and toolbars.
+``LogHandoffButtons`` supports dense icon rows and labeled toolbar buttons via the
+shared mode override. ``LoadedRunRow`` delegates to it. OLAP Explorer surfaces
+labeled Summary + Monitor handoffs when the selected ingest path is a ``.jsonl``
+simulation log.
+
+**React frontend**
+- ``LogHandoffButtons`` / ``isSimulationLogPath`` — shared Summary + Monitor handoffs (§G.1 / §G.16 / §D.7)
+- ``LoadedRunRow`` — ``logHandoffs`` via shared control (§G.1 / §D.7)
+- OLAP Explorer — labeled log handoffs for JSONL ingest paths (§G.6 / §G.1 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.6 / §G.1 / §G.16 shared log-handoff control + OLAP JSONL path parity checked
+- §D.7 handoff control deduplication checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-sixteenth pass (§G.1 + §G.16 + §D.7)
 
 Two-hundred-and-sixteenth pass closes the open-log Simulation Summary handoff gap left

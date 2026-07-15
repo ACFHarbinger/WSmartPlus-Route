@@ -7,6 +7,10 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
+import {
+  isSimulationLogPath,
+  LogHandoffButtons,
+} from "../../components/common/LogHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
@@ -243,6 +247,14 @@ export function OlapExplorer() {
           <FolderOpen size={12} />
           Ingest CSV / JSONL
         </button>
+        {selectedIngestPath && isSimulationLogPath(selectedIngestPath) && (
+          <LogHandoffButtons
+            path={selectedIngestPath}
+            storedLabel={sourceRunLabel ?? undefined}
+            labeled
+            iconSize={12}
+          />
+        )}
         {selectedIngestPath && (
           <PathRunLabelChip
             path={selectedIngestPath}

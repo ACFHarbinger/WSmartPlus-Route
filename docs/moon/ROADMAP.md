@@ -1405,6 +1405,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Algorithm Comparison — **Simulation Summary →** hands off ``watchPath`` alongside **Compare on Map** (§G.1 / §D.7)
 - [x] §G.16 / §G.1 open-log Simulation Summary handoff parity across Digital Twin + Algorithm Comparison checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-seventeenth pass)**
+
+- [x] ``LogHandoffButtons`` / ``isSimulationLogPath`` — shared Summary + Simulation Monitor log handoff controls (icon + labeled modes) (§G.1 / §G.16 / §D.7)
+- [x] ``LoadedRunRow`` — ``logHandoffs`` uses shared ``LogHandoffButtons`` (§G.1 / §D.7)
+- [x] OLAP Explorer — labeled Summary / Monitor handoffs when the selected ingest path is ``.jsonl`` (§G.6 / §G.1 / §G.16 / §D.7)
+- [x] §G.6 / §G.1 / §G.16 shared log-handoff control + OLAP JSONL ingest path parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
