@@ -11,6 +11,23 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-first pass (§G.1 / §G.7 / §G.12)
+
+Eighty-first pass extends symlog-overflows log-scale polish and responsive chart grids
+to Algorithm Comparison and Evaluation Runner inline charts.
+
+**React frontend**
+- `AlgorithmComparison` — symlog overflows y-axis when global ``logScale`` on; profit/km/kg/km
+  use log axis; linear vs log subtitle; metric bar grid ``sm:grid-cols-2 lg:grid-cols-4``
+- `EvaluationRunner` — inline checkpoint bar charts use ``grid-cols-1 sm:grid-cols-2 lg:grid-cols-3``
+
+**ROADMAP**
+- §G.1.1 AlgorithmComparison symlog overflows on log-scale metric bars checked
+- §G.7 AlgorithmComparison responsive chart grids checked
+- §G.12 EvaluationRunner responsive inline chart grid checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eightieth pass (§G.1 / §G.7)
 
 Eightieth pass extends global log-scale and responsive layout polish to Benchmark

@@ -15,6 +15,7 @@ import { useSimStore, filterEntries } from "../../store/sim";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { barOpacity } from "../../utils/chartHighlight";
 import { exportChartPng } from "../../utils/chartExport";
+import { symlog } from "../../utils/symlog";
 
 const ALGORITHM_SIM_TABLE = "algorithm_sim";
 
@@ -175,8 +176,15 @@ export function AlgorithmComparison() {
         />
       </div>
 
-      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+      <p className="text-[10px] text-canvas-muted">
+        {logScale
+          ? "Log-scale bars — profit · km · symlog-overflows · kg/km per policy"
+          : "Linear bars — profit · km · overflows · kg/km per policy"}
+      </p>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
         {METRICS.map(({ key, label }) => {
+          const symlogOverflows = logScale && key === "overflows";
           const option = {
             backgroundColor: "transparent",
             grid: { left: 50, right: 10, top: 10, bottom: 40 },
@@ -186,7 +194,7 @@ export function AlgorithmComparison() {
               axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
             },
             yAxis: {
-              type: logScale ? "log" : "value",
+              type: (logScale && !symlogOverflows ? "log" : "value") as "log" | "value",
               logBase: 10,
               axisLabel: { color: "#9090b0", fontSize: 10 },
               minorSplitLine: { show: false },
@@ -200,8 +208,13 @@ export function AlgorithmComparison() {
                       .filter((e) => e.policy === p)
                       .map((e) => (e.data as Record<string, number>)[key] ?? 0)
                   );
+                  const value = !logScale
+                    ? raw
+                    : symlogOverflows
+                      ? symlog(raw)
+                      : Math.max(raw, 0.001);
                   return {
-                    value: logScale ? Math.max(raw, 0.001) : raw,
+                    value,
                     itemStyle: {
                       color: COLORS[i % COLORS.length],
                       opacity: barOpacity(p, brushedPolicies),

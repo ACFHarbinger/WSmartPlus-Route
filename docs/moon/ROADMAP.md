@@ -915,6 +915,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Symlog bar charts: `symlog.ts` + `useSymlog` on profit · km · overflows `MetricBarChart` when log scale on; secondary log-scale row adds profit/km symlog duplicates (§G.1)
 - [x] BenchmarkAnalysis multi-run comparison bar charts follow global ``logScale`` (§G.1 / §G.7)
 - [x] AlgorithmComparison per-metric bar charts follow global ``logScale`` (§G.1 / §G.7)
+- [x] AlgorithmComparison symlog overflows on log-scale metric bars (§G.1.1 / §G.7)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
 - [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts; `BenchmarkParetoPanel` adds `formatLogMeta` + `formatPolicyMeta` per run×policy point (§G.1.2)
@@ -1125,6 +1126,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout: `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`); sidebar auto-collapses below `lg` breakpoint via `matchMedia`; analytics chart grids use `grid-cols-1 sm:grid-cols-2` / `md:grid-cols-2` breakpoints (§G.7)
 - [x] BenchmarkAnalysis responsive chart grids: Pareto panels `md:grid-cols-2`, metric bars `sm:grid-cols-2`, eval checkpoint charts `sm:grid-cols-2 lg:grid-cols-3` (§G.7)
+- [x] AlgorithmComparison responsive chart grids: metric bars `sm:grid-cols-2 lg:grid-cols-4` (§G.7)
+- [x] EvaluationRunner responsive inline chart grid: `sm:grid-cols-2 lg:grid-cols-3` (§G.12 / §G.7)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Settings Arrow benchmark uses shared `formatPipelineTimingBadge()` for last-ingest summary (§G.0 / §G.7)
 - [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking

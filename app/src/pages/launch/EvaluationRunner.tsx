@@ -122,7 +122,7 @@ function ResultsGrid({
           </button>
         </div>
       </div>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
         {EVAL_CHART_METRICS.filter(({ key }) => numKeys.includes(key)).map(({ key, label }) => (
           <div key={key} className="rounded-lg border border-canvas-border/40 p-2">
             <div className="flex items-center justify-between mb-1">
