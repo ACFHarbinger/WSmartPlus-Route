@@ -9,6 +9,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Copy, Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { toast } from "sonner";
@@ -404,7 +405,6 @@ export function HPOTracker() {
               : recentHpoProc.status === "completed"
                 ? "HPO Complete"
                 : `HPO ${recentHpoProc.status}`,
-            processId: recentHpoId,
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,
             attentionCount: liveAttentionEntries.length,
@@ -433,6 +433,7 @@ export function HPOTracker() {
             postRunFallback:
               "Post-run shortcuts — open Output Browser or Training Monitor for this sweep",
           }}
+          footer={<ProcessIdFooter processId={recentHpoId} />}
         />
       )}
 

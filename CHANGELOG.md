@@ -11,6 +11,38 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-ninth pass (§G.10 + §G.12 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Hundred-fifty-ninth pass closes the monitor-page footer gap left after the
+hundred-fifty-eighth pass (which added ``ProcessIdFooter`` on launcher pages and
+Training Hub). All train/HPO monitor pages and Process Monitor embedded sections
+now show a shared process-id footer row, and Evaluation Runner per-checkpoint
+live rows are deduplicated into a shared card component.
+
+**React frontend**
+- ``ProcessIdFooter`` — monitor-page footer parity across Training Monitor, HPO
+  Tracker, Experiment Tracker, and Process Monitor embedded sections; process id
+  removed from inline headers (§G.15 / §G.17 / §G.18 / §D.7)
+- Training Monitor + HPO Tracker + Experiment Tracker — ``TrainHpoLivePanel``
+  ``footer`` process-id row parity with Training Hub (§G.10 / §G.17 / §G.18 / §D.7)
+- Process Monitor — ``LauncherLivePanel`` + ``TrainHpoLivePanel`` embedded
+  sections use ``ProcessIdFooter``; simplified analytics subtitles without inline
+  process id (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- ``EvalCheckpointLiveCard`` — shared per-checkpoint live eval row with KPI,
+  progress bar, and stdout tail (§G.12 / §D.7)
+- Evaluation Runner — deduplicated inline per-checkpoint live panel markup;
+  import shared ``EvalCheckpointLiveCard`` (§G.12 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub footer parity extended to Training Monitor checked
+- §G.15 Process Monitor embedded ``ProcessIdFooter`` checked
+- §G.17 Training Monitor ``ProcessIdFooter`` footer checked
+- §G.18 HPO Tracker + Experiment Tracker ``ProcessIdFooter`` footer checked
+- §G.12 Evaluation Runner ``EvalCheckpointLiveCard`` checked
+- §D.7 train/HPO + launcher workflow footer parity across all pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-eighth pass (§G.9 + §G.10 + §G.11 + §G.12 + §G.15 + §D.7)
 
 Hundred-fifty-eighth pass closes the launcher live panel footer gap left after the

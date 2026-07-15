@@ -19,6 +19,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { GradNormSparkline, LrSparkline } from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
@@ -709,7 +710,6 @@ export function TrainingMonitor() {
               : recentTrainCompleted
                 ? `${liveTrainProcessLabel(recentTrainId).replace("Live ", "")} Complete`
                 : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`,
-            processId: recentTrainId,
             metricCount: effectiveLiveMetrics.length,
             healthCount: effectiveLiveHealth.length,
             attentionCount: effectiveLiveAttention.length,
@@ -753,6 +753,7 @@ export function TrainingMonitor() {
               "Post-run shortcuts — open Output Browser or refresh metrics from the completed run",
             showHealthAttention: false,
           }}
+          footer={<ProcessIdFooter processId={recentTrainId} />}
         />
       )}
 

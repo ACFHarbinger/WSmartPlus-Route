@@ -38,6 +38,7 @@ import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import {
   isSimProcess,
@@ -438,12 +439,7 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: (
-              <>
-                Policy telemetry for{" "}
-                <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              </>
-            ),
+            title: "Policy telemetry",
             runLabel: processRunLabel,
             navMesh: {
               kind: "sim",
@@ -452,6 +448,7 @@ export function ProcessMonitor() {
               outputRunPath: launcherOutputRunPath,
             },
           }}
+          footer={<ProcessIdFooter processId={selectedProc.id} />}
         >
           {vizPolicies.length > 1 && (
             <div className="flex flex-wrap gap-1.5">
@@ -496,12 +493,7 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: (
-              <>
-                Eval results for{" "}
-                <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              </>
-            ),
+            title: "Eval results",
             navMesh: {
               kind: "eval",
               showPostRun: selectedProc.status === "completed",
@@ -512,6 +504,7 @@ export function ProcessMonitor() {
                 evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined,
             },
           }}
+          footer={<ProcessIdFooter processId={selectedProc.id} />}
         >
           {evalResult && hasEvalMetrics(evalResult) ? (
             <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
@@ -528,12 +521,7 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: (
-              <>
-                Launcher workflow for{" "}
-                <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              </>
-            ),
+            title: "Data generation workflow",
             navMesh: {
               kind: "data_gen",
               showPostRun: selectedProc.status === "completed",
@@ -541,6 +529,7 @@ export function ProcessMonitor() {
               outputRunPath: launcherOutputRunPath,
             },
           }}
+          footer={<ProcessIdFooter processId={selectedProc.id} />}
         />
       )}
 
@@ -549,12 +538,7 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: (
-              <>
-                Training analytics for{" "}
-                <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              </>
-            ),
+            title: "Training analytics",
             metricCount: trainingMetrics.length,
             healthCount: trainingHealthEntries.length,
             attentionCount: attentionEntries.length,
@@ -586,6 +570,7 @@ export function ProcessMonitor() {
             postRunFallback:
               "Post-run shortcuts — open Training Monitor or Output Browser for this run",
           }}
+          footer={<ProcessIdFooter processId={selectedProc.id} />}
         />
       )}
     </div>

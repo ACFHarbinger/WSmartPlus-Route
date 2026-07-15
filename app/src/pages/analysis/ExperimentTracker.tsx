@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
@@ -286,7 +287,6 @@ export function ExperimentTracker() {
               : recentHpoProc.status === "completed"
                 ? "HPO Complete"
                 : `HPO ${recentHpoProc.status}`,
-            processId: recentHpoId,
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,
             attentionCount: liveAttentionEntries.length,
@@ -315,6 +315,7 @@ export function ExperimentTracker() {
             postRunFallback:
               "Post-run shortcuts — open Output Browser or Training Monitor for this sweep",
           }}
+          footer={<ProcessIdFooter processId={recentHpoId} />}
         />
       )}
 

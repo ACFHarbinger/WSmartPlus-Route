@@ -921,6 +921,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner — per-checkpoint live panel uses ``EvalResultKpiRow`` ``compact`` variant (§G.12 / §D.7)
 - [x] §G.12 / §G.15 eval result KPI + footer parity across Evaluation Runner and Process Monitor (§D.7)
 
+**Delivered (§D.7 — hundred-fifty-ninth pass)**
+
+- [x] ``ProcessIdFooter`` — monitor-page footer parity: Training Monitor, HPO Tracker, Experiment Tracker, and Process Monitor embedded sections; process id removed from inline headers (§G.15 / §G.17 / §G.18 / §D.7)
+- [x] Training Monitor + HPO Tracker + Experiment Tracker — ``TrainHpoLivePanel`` ``footer`` process-id row parity with Training Hub (§G.10 / §G.17 / §G.18 / §D.7)
+- [x] Process Monitor — ``LauncherLivePanel`` + ``TrainHpoLivePanel`` embedded sections use ``ProcessIdFooter``; simplified analytics subtitles without inline process id (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] ``EvalCheckpointLiveCard`` — shared per-checkpoint live eval row with KPI, progress bar, and stdout tail (§G.12 / §D.7)
+- [x] Evaluation Runner — deduplicated inline per-checkpoint live panel markup; import shared ``EvalCheckpointLiveCard`` (§G.12 / §D.7)
+- [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow footer parity across all five pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
