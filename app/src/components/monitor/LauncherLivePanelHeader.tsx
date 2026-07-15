@@ -3,7 +3,7 @@
  */
 import type { ReactNode } from "react";
 import { Activity, CheckCircle, XCircle } from "lucide-react";
-import { RunLabelHeaderSuffix } from "../common/PathRunLabelChip";
+import { RunLabelHeaderSuffix } from "../common/OpenPathToolbar";
 import { useAppStore } from "../../store/app";
 import { LauncherNavMesh, type LauncherNavMeshProps } from "../layout/LauncherNavMesh";
 
@@ -17,7 +17,7 @@ export interface LauncherLivePanelHeaderProps {
   variant?: "card" | "embedded";
   /** Process Monitor: accent-secondary run label suffix. */
   runLabel?: string | null;
-  /** When set, renders ``PathRunLabelChip`` for click-to-brush parity (§G.9–§G.15 / §D.7). */
+  /** When set, renders ``OpenPathToolbar`` via ``RunLabelHeaderSuffix`` for click-to-brush parity (§G.9–§G.15 / §D.7). */
   logPath?: string | null;
   /** Resolve relative log paths against project root before brush (§G.9–§G.15 / §D.7). */
   projectRoot?: string | null;
