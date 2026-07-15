@@ -45,7 +45,7 @@ function mean(arr: number[]) {
 
 export function CityComparison() {
   const { projectRoot, theme } = useAppStore();
-  const { policy: filterPolicy, sampleId: filterSample } = useGlobalFiltersStore();
+  const { policy: filterPolicy, sampleId: filterSample, logScale } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (filterPolicy ? [filterPolicy] : null), [filterPolicy]);
   const {
     ready: duckdbReady,
@@ -75,7 +75,10 @@ export function CityComparison() {
     handleCityClick,
   } = usePortfolioRunBrush(filteredRuns);
   const series = useMemo(() => buildCityComparisonSeries(cityGroups), [cityGroups]);
-  const chartOption = useMemo(() => cityComparisonChartOption(series), [series]);
+  const chartOption = useMemo(
+    () => cityComparisonChartOption(series, { logScale }),
+    [series, logScale]
+  );
 
   const addRun = useCallback(async () => {
     const path = (await open({
@@ -190,6 +193,7 @@ export function CityComparison() {
       <GlobalFilterBar
         runLabels={runs.length > 1 ? portfolioRunLabels : []}
         cities={runs.length > 1 ? cityGroups.map(([city]) => city) : []}
+        showLogScale
       />
 
       <div className="flex items-center gap-3 flex-wrap">
@@ -247,7 +251,9 @@ export function CityComparison() {
             <div>
               <p className="text-xs font-semibold text-gray-300">City Comparison (§G.1.6)</p>
               <p className="text-[10px] text-canvas-muted">
-                Log-scale bars — profit · symlog-overflows · kg/km by graph scale
+                {logScale
+                  ? "Log-scale bars — profit · symlog-overflows · kg/km by graph scale"
+                  : "Linear bars — profit · overflows · kg/km by graph scale"}
               </p>
             </div>
             <button

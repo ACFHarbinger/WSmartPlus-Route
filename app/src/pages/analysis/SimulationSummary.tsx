@@ -1993,8 +1993,8 @@ export function SimulationSummary() {
   } = usePortfolioRunBrush(allRuns);
 
   const cityComparisonOption = useMemo(
-    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),
-    [cityGroups]
+    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups), { logScale }),
+    [cityGroups, logScale]
   );
 
   const handlePortfolioConfigClick = useCallback(

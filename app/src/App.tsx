@@ -174,6 +174,8 @@ export default function App() {
       import("./pages/monitor/SimulationMonitor"),
       import("./pages/analysis/SimulationSummary"),
       import("./pages/analysis/BenchmarkAnalysis"),
+      import("./pages/analysis/CityComparison"),
+      import("./pages/analysis/AlgorithmComparison"),
       import("./pages/analysis/OlapExplorer"),
       import("./pages/monitor/ProcessMonitor"),
       import("./pages/files/OutputBrowser"),
@@ -186,6 +188,8 @@ export default function App() {
     prefetchPage("simulation");
     prefetchPage("simulation_summary");
     prefetchPage("benchmark");
+    prefetchPage("city_comparison");
+    prefetchPage("algorithms");
     prefetchPage("olap_explorer");
     prefetchPage("process_monitor");
     prefetchPage("output_browser");

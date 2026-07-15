@@ -59,7 +59,7 @@ export function resolveBrushedRunLabels(
 export interface CityComparisonSeries {
   labels: string[];
   profit: number[];
-  overflowsSymlog: number[];
+  overflows: number[];
   kgkm: number[];
 }
 
@@ -71,25 +71,34 @@ export function buildCityComparisonSeries(
     const vals = runs.flatMap((r) =>
       r.entries.map((e) => e.data.profit).filter((v): v is number => v != null)
     );
-    return Math.max(mean(vals), 0.001);
+    return mean(vals);
   });
-  const overflowsSymlog = cityGroups.map(([, runs]) => {
+  const overflows = cityGroups.map(([, runs]) => {
     const vals = runs.flatMap((r) =>
       r.entries.map((e) => e.data.overflows).filter((v): v is number => v != null)
     );
-    return symlog(mean(vals));
+    return mean(vals);
   });
   const kgkm = cityGroups.map(([, runs]) => {
     const vals = runs.flatMap((r) =>
       r.entries.map((e) => e.data["kg/km"]).filter((v): v is number => v != null)
     );
-    return Math.max(mean(vals), 0.001);
+    return mean(vals);
   });
-  return { labels, profit, overflowsSymlog, kgkm };
+  return { labels, profit, overflows, kgkm };
 }
 
-/** ECharts option — log-scale bars preserving extreme values (§G.1.6). */
-export function cityComparisonChartOption(series: CityComparisonSeries) {
+/** ECharts option — log or linear bars; symlog-overflows when log scale on (§G.1.6 / §G.7). */
+export function cityComparisonChartOption(
+  series: CityComparisonSeries,
+  opts?: { logScale?: boolean }
+) {
+  const logScale = opts?.logScale ?? false;
+  const display = (v: number) => (logScale ? Math.max(v, 0.001) : v);
+  const overflowData = logScale
+    ? series.overflows.map((v) => symlog(v))
+    : series.overflows;
+
   return {
     backgroundColor: "transparent",
     legend: { textStyle: { color: "#9090b0", fontSize: 10 } },
@@ -100,7 +109,7 @@ export function cityComparisonChartOption(series: CityComparisonSeries) {
       axisLabel: { color: "#9090b0", fontSize: 9 },
     },
     yAxis: {
-      type: "log" as const,
+      type: (logScale ? "log" : "value") as "log" | "value",
       logBase: 10,
       axisLabel: { color: "#9090b0", fontSize: 9 },
       minorSplitLine: { show: false },
@@ -109,19 +118,19 @@ export function cityComparisonChartOption(series: CityComparisonSeries) {
       {
         name: "Mean profit (€)",
         type: "bar" as const,
-        data: series.profit,
+        data: logScale ? series.profit.map(display) : series.profit,
         itemStyle: { color: "#6366f1" },
       },
       {
-        name: "Mean overflows (symlog)",
+        name: logScale ? "Mean overflows (symlog)" : "Mean overflows",
         type: "bar" as const,
-        data: series.overflowsSymlog,
+        data: overflowData,
         itemStyle: { color: "#f87171" },
       },
       {
         name: "Mean kg/km",
         type: "bar" as const,
-        data: series.kgkm,
+        data: logScale ? series.kgkm.map(display) : series.kgkm,
         itemStyle: { color: "#34d399" },
       },
     ],

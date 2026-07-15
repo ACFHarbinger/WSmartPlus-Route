@@ -910,10 +910,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Marker shape: RM-100 circle · RM-170 square · FFZ-350 diamond: `citySymbol()` from `parseLogPath()` on `BenchmarkParetoPanel` multi-run scatter (§G.1.2)
 - [x] Computed Pareto front drawn as white dashed step line: `PolicyParetoChart` + `BenchmarkParetoPanel` on Simulation Summary / Benchmark Analysis (§G.1.2)
 - [x] Log-scale toggle on Simulation Summary policy bar charts (§G.1)
-- [x] Log-scale y-axis on Pareto scatter: overflows axis uses log scale when global toggle is on (§G.1 partial)
+- [x] Log-scale y-axis on Pareto scatter: overflows axis uses global ``logScale`` toggle (§G.1 / §G.7)
 - [x] Symlog bar charts: `symlog.ts` + `useSymlog` on profit · km · overflows `MetricBarChart` when log scale on; secondary log-scale row adds profit/km symlog duplicates (§G.1)
-- [x] BenchmarkAnalysis log-scale toggle on multi-run comparison bar charts (§G.1 partial)
-- [x] AlgorithmComparison log-scale toggle on per-metric bar charts (§G.1 partial)
+- [x] BenchmarkAnalysis multi-run comparison bar charts follow global ``logScale`` (§G.1 / §G.7)
+- [x] AlgorithmComparison per-metric bar charts follow global ``logScale`` (§G.1 / §G.7)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
 - [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts; `BenchmarkParetoPanel` adds `formatLogMeta` + `formatPolicyMeta` per run×policy point (§G.1.2)
@@ -940,7 +940,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 #### 1.6 Secondary Log-Scale Views
 - [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · kg · symlog-overflows row when global log toggle off (§G.1)
-- [x] City Comparison section uses log scale only (not outlier removal) to preserve extreme values: `BenchmarkAnalysis` city-grouped log-scale profit + symlog-overflows bars; dedicated `CityComparison` page with portfolio load + summary table (§G.1.6)
+- [x] City Comparison section follows global ``logScale``: log-scale profit + symlog-overflows bars when on; linear raw values when off; `BenchmarkAnalysis` + `SimulationSummary` + dedicated `CityComparison` page with portfolio load + summary table (§G.1.6 / §G.7)
 
 ---
 
@@ -1104,7 +1104,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Bookmarkable city/scale brush: `useHashSync` serializes global ``brushedCity`` as ``c`` query param; restored on load and browser back/forward (§G.7)
-- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
+- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, City Comparison, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
 - [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
@@ -1115,7 +1115,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Sidebar page prefetch: `prefetchPage()` warms lazy route chunks on nav item hover
 - [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
 - [x] Recent files quick open: `useRecentFilesStore` persisted list; command palette Recent section; tracked from Simulation Monitor, Summary, Output Browser, Data Explorer
-- [x] Startup route prefetch: `App.tsx` warms simulation, summary, benchmark, OLAP explorer, process monitor, output browser chunks on mount (§G.7 performance partial)
+- [x] Startup route prefetch: `App.tsx` warms simulation, summary, benchmark, city comparison, algorithm comparison, OLAP explorer, process monitor, output browser chunks on mount (§G.7 performance partial)
 - [x] Startup vendor prefetch: maplibre-gl + @deck.gl/react + @monaco-editor/react warmed alongside echarts and DeckRouteMap chunk (§G.7 performance partial)
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
@@ -1126,6 +1126,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6)
 - [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6)
 - [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6)
+
+**Status**: §G.7 complete — all checklist items delivered.
 
 ---
 

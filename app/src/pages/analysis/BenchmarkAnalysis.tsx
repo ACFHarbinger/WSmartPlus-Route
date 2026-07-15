@@ -328,8 +328,8 @@ export function BenchmarkAnalysis() {
     usePortfolioRunBrush(filteredRuns);
 
   const cityComparisonOption = useMemo(
-    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),
-    [cityGroups]
+    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups), { logScale }),
+    [cityGroups, logScale]
   );
 
   const onCityChartClick = useCallback(
