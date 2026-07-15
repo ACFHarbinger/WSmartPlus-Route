@@ -2,7 +2,7 @@
  * Algorithm Comparison — side-by-side policy metric comparison.
  * Ports Streamlit `algorithms` mode.
  */
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Download, Map } from "lucide-react";
@@ -45,7 +45,7 @@ export function AlgorithmComparison() {
   } = useDuckDbStore();
   const radarRef = useRef<ReactECharts>(null);
   const barRefs = useRef<Record<string, EChartsReact | null>>({});
-  const [logScale, setLogScale] = useState(false);
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
 
   useEffect(() => {
     if (!duckdbReady || !watchPath) return;
@@ -139,7 +139,7 @@ export function AlgorithmComparison() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar />
+      <GlobalFilterBar showLogScale />
 
       <div className="flex items-center gap-3 flex-wrap">
         {watchPath && (
@@ -153,12 +153,6 @@ export function AlgorithmComparison() {
         <button onClick={openOnMap} className="btn-ghost text-xs flex items-center gap-1.5">
           <Map size={12} />
           Compare on Map
-        </button>
-        <button
-          onClick={() => setLogScale((v) => !v)}
-          className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
-        >
-          {logScale ? "Log scale (on)" : "Log scale (off)"}
         </button>
       </div>
 

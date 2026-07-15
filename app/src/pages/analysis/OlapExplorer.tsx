@@ -154,6 +154,7 @@ export function OlapExplorer() {
         policies={policies}
         runLabels={portfolioMode ? runLabels : []}
         cities={cities}
+        showLogScale
       />
 
       <div className="flex items-center gap-3 flex-wrap">

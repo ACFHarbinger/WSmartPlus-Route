@@ -189,7 +189,7 @@ export function BenchmarkAnalysis() {
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
-  const [logScale, setLogScale] = useState(false);
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
   const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
@@ -437,6 +437,7 @@ export function BenchmarkAnalysis() {
       <GlobalFilterBar
         runLabels={filteredRuns.length > 1 ? portfolioRunLabels : []}
         cities={filteredRuns.length > 1 ? cityGroups.map(([city]) => city) : []}
+        showLogScale
       />
 
       {evalRows && evalRows.length > 0 && (
@@ -498,17 +499,6 @@ export function BenchmarkAnalysis() {
       {runs.length === 0 && !evalRows && (
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
           Add simulation run logs to compare, or use &quot;Open in Analytics →&quot; from the Evaluation Runner.
-        </div>
-      )}
-
-      {runs.length >= 1 && (
-        <div className="flex justify-end">
-          <button
-            onClick={() => setLogScale((v) => !v)}
-            className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
-          >
-            {logScale ? "Log scale (on)" : "Log scale (off)"}
-          </button>
         </div>
       )}
 

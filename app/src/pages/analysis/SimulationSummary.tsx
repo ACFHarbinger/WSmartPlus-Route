@@ -1752,7 +1752,7 @@ export function SimulationSummary() {
     setLoading: setDuckdbLoading,
   } = useDuckDbStore();
   const [parquetExporting, setParquetExporting] = useState(false);
-  const [logScale, setLogScale] = useState(false);
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const [showErrorBars, setShowErrorBars] = useState(false);
   const [brushed, setBrushed] = useState<string[] | null>(null);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
@@ -2083,6 +2083,7 @@ export function SimulationSummary() {
       <GlobalFilterBar
         runLabels={portfolioMode ? portfolioRunLabels : []}
         cities={portfolioMode ? cityGroups.map(([city]) => city) : []}
+        showLogScale
       />
 
       <div className="flex items-center gap-3 flex-wrap">
@@ -2416,12 +2417,6 @@ export function SimulationSummary() {
               className={`btn-ghost text-xs ${showErrorBars ? "text-accent-secondary" : ""}`}
             >
               {showErrorBars ? "Error bars (on)" : "Error bars (off)"}
-            </button>
-            <button
-              onClick={() => setLogScale((v) => !v)}
-              className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
-            >
-              {logScale ? "Log scale (on)" : "Log scale (off)"}
             </button>
           </div>
 

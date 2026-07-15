@@ -16,7 +16,8 @@ function encodeHash(
   policy: string | null,
   sampleId: number | null,
   runLabel: string | null,
-  brushedCity: string | null
+  brushedCity: string | null,
+  logScale: boolean
 ): string {
   const params = new URLSearchParams();
   params.set("m", mode);
@@ -24,6 +25,7 @@ function encodeHash(
   if (sampleId != null) params.set("s", String(sampleId));
   if (runLabel) params.set("r", runLabel);
   if (brushedCity) params.set("c", brushedCity);
+  if (logScale) params.set("l", "1");
   return `#${params.toString()}`;
 }
 
@@ -33,6 +35,7 @@ function parseHash(hash: string): {
   sampleId?: number;
   runLabel?: string;
   brushedCity?: string;
+  logScale?: boolean;
 } {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
   if (!raw) return {};
@@ -43,6 +46,7 @@ function parseHash(hash: string): {
     sampleId?: number;
     runLabel?: string;
     brushedCity?: string;
+    logScale?: boolean;
   } = {};
   const m = params.get("m");
   if (m && VALID_MODES.has(m)) result.mode = m as AppMode;
@@ -52,6 +56,7 @@ function parseHash(hash: string): {
   if (s != null && s !== "" && !Number.isNaN(Number(s))) result.sampleId = Number(s);
   if (params.has("r")) result.runLabel = params.get("r") ?? "";
   if (params.has("c")) result.brushedCity = params.get("c") ?? "";
+  if (params.has("l")) result.logScale = params.get("l") === "1";
   return result;
 }
 
@@ -63,10 +68,12 @@ export function useHashSync() {
   const sampleId = useGlobalFiltersStore((s) => s.sampleId);
   const runLabel = useGlobalFiltersStore((s) => s.runLabel);
   const brushedCity = useGlobalFiltersStore((s) => s.brushedCity);
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
   const setSampleId = useGlobalFiltersStore((s) => s.setSampleId);
   const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
   const setBrushedCity = useGlobalFiltersStore((s) => s.setBrushedCity);
+  const setLogScale = useGlobalFiltersStore((s) => s.setLogScale);
   const hydrated = useRef(false);
 
   // Restore from hash on first mount
@@ -77,17 +84,18 @@ export function useHashSync() {
     if (parsed.sampleId !== undefined) setSampleId(parsed.sampleId);
     if ("runLabel" in parsed) setRunLabel(parsed.runLabel || null);
     if ("brushedCity" in parsed) setBrushedCity(parsed.brushedCity || null);
+    if ("logScale" in parsed) setLogScale(parsed.logScale ?? false);
     hydrated.current = true;
-  }, [setMode, setPolicy, setSampleId, setRunLabel, setBrushedCity]);
+  }, [setMode, setPolicy, setSampleId, setRunLabel, setBrushedCity, setLogScale]);
 
   // Write hash when state changes (after initial hydration)
   useEffect(() => {
     if (!hydrated.current) return;
-    const next = encodeHash(mode, policy, sampleId, runLabel, brushedCity);
+    const next = encodeHash(mode, policy, sampleId, runLabel, brushedCity, logScale);
     if (window.location.hash !== next) {
       window.history.replaceState(null, "", next);
     }
-  }, [mode, policy, sampleId, runLabel, brushedCity]);
+  }, [mode, policy, sampleId, runLabel, brushedCity, logScale]);
 
   // Respond to browser back/forward
   useEffect(() => {
@@ -98,8 +106,9 @@ export function useHashSync() {
       if ("sampleId" in parsed) setSampleId(parsed.sampleId ?? null);
       if ("runLabel" in parsed) setRunLabel(parsed.runLabel ?? null);
       if ("brushedCity" in parsed) setBrushedCity(parsed.brushedCity ?? null);
+      if ("logScale" in parsed) setLogScale(parsed.logScale ?? false);
     };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, [setMode, setPolicy, setSampleId, setRunLabel, setBrushedCity]);
+  }, [setMode, setPolicy, setSampleId, setRunLabel, setBrushedCity, setLogScale]);
 }
