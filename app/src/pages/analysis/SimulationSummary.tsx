@@ -21,7 +21,7 @@ import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
@@ -2265,29 +2265,22 @@ export function SimulationSummary() {
                 {portfolioLoading ? "Scanning output…" : "Load output portfolio"}
               </button>
             )}
-            <PathHandoffButtons
+            <OpenPathToolbar
               path={logPath}
+              projectRoot={projectRoot}
               kind="log"
-              targets={["monitor"]}
               labeled
-              iconSize={14}
+              labeledTargets={["monitor"]}
+              trailing={
+                <>
+                  {duckdbLoading && <span className="shrink-0">· DuckDB ingesting…</span>}
+                  {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
+                    <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+                  )}
+                </>
+              }
             />
           </>
-        )}
-        {logPath && (
-          <PathRunLabelChip
-            path={logPath}
-            projectRoot={projectRoot}
-            handoff="log"
-            trailing={
-              <>
-                {duckdbLoading && <span className="shrink-0">· DuckDB ingesting…</span>}
-                {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
-                  <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
-                )}
-              </>
-            }
-          />
         )}
         {allRuns.length > 1 && (
           <span className="text-xs text-canvas-muted">{allRuns.length} runs loaded</span>

@@ -28,7 +28,7 @@ import {
   Package,
   Archive,
 } from "lucide-react";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -782,15 +782,20 @@ export function OutputBrowser() {
         {!fileLoading && (fileContent !== null || csvRows !== null || wsrouteBundle !== null || viewingCheckpoint !== null) && (
           <div className="flex items-center gap-3 shrink-0">
             {viewingPath ? (
-              <PathRunLabelChip
+              <OpenPathToolbar
                 path={viewingPath}
                 projectRoot={projectRoot}
-                brushLabel={
-                  isCheckpointEntry({ is_dir: false, extension: viewingExt })
-                    ? parentRunBrushLabelFromCheckpointPath(viewingPath, projectRoot)
-                    : undefined
+                kind={
+                  viewingCheckpoint
+                    ? "checkpoint"
+                    : LOG_EXTENSIONS.has(viewingExt)
+                      ? "log"
+                      : CSV_EXTENSIONS.has(viewingExt)
+                        ? "csv"
+                        : CONFIG_EXTENSIONS.has(viewingExt)
+                          ? "config"
+                          : null
                 }
-                className="flex-1"
                 handoff={
                   viewingCheckpoint
                     ? "checkpoint"
@@ -802,96 +807,89 @@ export function OutputBrowser() {
                           ? "config"
                           : true
                 }
-              />
+                brushLabel={
+                  isCheckpointEntry({ is_dir: false, extension: viewingExt })
+                    ? parentRunBrushLabelFromCheckpointPath(viewingPath, projectRoot)
+                    : undefined
+                }
+                chipClassName="flex-1"
+                labeled={
+                  LOG_EXTENSIONS.has(viewingExt) ||
+                  CSV_EXTENSIONS.has(viewingExt) ||
+                  CONFIG_EXTENSIONS.has(viewingExt) ||
+                  viewingCheckpoint != null
+                }
+                labeledIconSize={12}
+                order="chip-first"
+                className="flex-1 min-w-0"
+              >
+                {viewingExt === "wsroute" && (
+                  <button
+                    onClick={extractBundleAndOpen}
+                    disabled={bundleExtracting}
+                    className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
+                  >
+                    {bundleExtracting ? (
+                      <RefreshCw size={12} className="animate-spin" />
+                    ) : (
+                      <Archive size={12} />
+                    )}
+                    Extract & Open
+                  </button>
+                )}
+                {CSV_EXTENSIONS.has(viewingExt) && projectRoot && (
+                  <button
+                    onClick={async () => {
+                      setParquetExporting(true);
+                      try {
+                        const out = await downloadParquetFromCsv(
+                          projectRoot,
+                          viewingPath,
+                          viewingPath.replace(/\.csv$/i, ".parquet")
+                        );
+                        if (out) toast.success("Parquet export complete", { description: out.split("/").pop() });
+                      } catch (err) {
+                        toast.error("Parquet export failed", { description: String(err) });
+                      } finally {
+                        setParquetExporting(false);
+                      }
+                    }}
+                    disabled={parquetExporting}
+                    className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
+                  >
+                    {parquetExporting ? (
+                      <RefreshCw size={12} className="animate-spin" />
+                    ) : (
+                      <Save size={12} />
+                    )}
+                    Export Parquet
+                  </button>
+                )}
+              </OpenPathToolbar>
             ) : null}
-            {viewingPath && viewingExt === "wsroute" && (
-              <button
-                onClick={extractBundleAndOpen}
-                disabled={bundleExtracting}
-                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
-              >
-                {bundleExtracting ? (
-                  <RefreshCw size={12} className="animate-spin" />
-                ) : (
-                  <Archive size={12} />
-                )}
-                Extract & Open
-              </button>
-            )}
-            {viewingPath && CSV_EXTENSIONS.has(viewingExt) && projectRoot && (
-              <button
-                onClick={async () => {
-                  setParquetExporting(true);
-                  try {
-                    const out = await downloadParquetFromCsv(
-                      projectRoot,
-                      viewingPath,
-                      viewingPath.replace(/\.csv$/i, ".parquet")
-                    );
-                    if (out) toast.success("Parquet export complete", { description: out.split("/").pop() });
-                  } catch (err) {
-                    toast.error("Parquet export failed", { description: String(err) });
-                  } finally {
-                    setParquetExporting(false);
-                  }
-                }}
-                disabled={parquetExporting}
-                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary shrink-0"
-              >
-                {parquetExporting ? (
-                  <RefreshCw size={12} className="animate-spin" />
-                ) : (
-                  <Save size={12} />
-                )}
-                Export Parquet
-              </button>
-            )}
-            {viewingPath &&
-              (LOG_EXTENSIONS.has(viewingExt) ||
-                CSV_EXTENSIONS.has(viewingExt) ||
-                CONFIG_EXTENSIONS.has(viewingExt) ||
-                viewingCheckpoint != null) && (
-                <PathHandoffButtons
-                  path={viewingPath}
-                  kind={
-                    viewingCheckpoint
-                      ? "checkpoint"
-                      : LOG_EXTENSIONS.has(viewingExt)
-                        ? "log"
-                        : CSV_EXTENSIONS.has(viewingExt)
-                          ? "csv"
-                          : "config"
-                  }
-                  labeled
-                  iconSize={12}
-                  className="shrink-0"
-                />
-              )}
           </div>
         )}
 
         {!fileLoading && viewingCheckpoint !== null && (
           <div className="card flex-1 flex flex-col items-center justify-center gap-3 text-sm">
-            <PathRunLabelChip
+            <OpenPathToolbar
               path={viewingCheckpoint.path}
               projectRoot={projectRoot}
+              kind="checkpoint"
               label={viewingCheckpoint.name}
               brushLabel={parentRunBrushLabelFromCheckpointPath(
                 viewingCheckpoint.path,
                 projectRoot
               )}
-              className="max-w-full px-4"
-              handoff="checkpoint"
+              chipClassName="max-w-full px-4"
+              labeled
+              labeledIconSize={12}
+              order="chip-first"
+              className="flex-col items-center gap-3"
             />
             <p className="text-canvas-muted text-xs">
               {formatBytes(viewingCheckpoint.size_bytes)} checkpoint weight file
             </p>
-            <PathHandoffButtons
-              path={viewingCheckpoint.path}
-              kind="checkpoint"
-              labeled
-              iconSize={12}
-            />
           </div>
         )}
 

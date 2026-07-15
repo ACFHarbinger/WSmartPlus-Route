@@ -29,8 +29,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { hexToRgb } from "../../utils/colors";
 import {
   enrichEntriesWithGraphCoords,
@@ -617,20 +616,12 @@ export function SimulationMonitor() {
         </button>
 
         {watchPath && (
-          <PathHandoffButtons
-            path={watchPath}
-            kind="log"
-            targets={["summary"]}
-            labeled
-            iconSize={14}
-          />
-        )}
-
-        {watchPath && (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={watchPath}
             projectRoot={projectRoot}
-            handoff="log"
+            kind="log"
+            labeled
+            labeledTargets={["summary"]}
             trailing={
               <>
                 {isWatching && (
