@@ -93,6 +93,38 @@ export function hasEvalMetrics(result: EvalResult): boolean {
   });
 }
 
+/** Shared live/post-run eval panel title for Training Hub, Evaluation Runner, and Process Monitor (§G.10 / §G.12 / §G.15 / §D.7). */
+export function evalLivePanelTitle({
+  isRunning,
+  status,
+  total = 1,
+  runningCount = 0,
+  completedCount = 0,
+}: {
+  isRunning: boolean;
+  status?: string;
+  total?: number;
+  runningCount?: number;
+  completedCount?: number;
+}): string {
+  if (isRunning) {
+    if (total > 1) {
+      return `Evaluating ${total - runningCount}/${total}…`;
+    }
+    return "Evaluating…";
+  }
+
+  const finalStatus = status ?? "completed";
+  if (finalStatus === "completed") {
+    if (total > 1 && completedCount > 1) {
+      return `Evaluation Complete (${completedCount}/${total})`;
+    }
+    return "Evaluation Complete";
+  }
+
+  return `Evaluation ${finalStatus}`;
+}
+
 export function toEvalAnalyticsRows(results: EvalResult[]): EvalAnalyticsRow[] {
   return results.map((r) => ({
     checkpoint: r.checkpointName,

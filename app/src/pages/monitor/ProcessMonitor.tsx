@@ -49,6 +49,7 @@ import {
   checkpointLabelFromEvalProcess,
   checkpointPathFromEvalCommand,
   collectEvalResultFromLogLines,
+  evalLivePanelTitle,
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
@@ -501,7 +502,10 @@ export function ProcessMonitor() {
           variant="embedded"
           header={{
             status: selectedProc.status,
-            title: "Eval results",
+            title: evalLivePanelTitle({
+              isRunning: selectedProc.status === "running",
+              status: selectedProc.status,
+            }),
             navMesh: {
               kind: "eval",
               showPostRun: selectedProc.status === "completed",

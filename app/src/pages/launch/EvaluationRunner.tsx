@@ -39,6 +39,7 @@ import {
   type EvalResult,
   checkpointLabelFromEvalProcess,
   collectEvalResultFromLogLines,
+  evalLivePanelTitle,
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
@@ -610,15 +611,13 @@ export function EvaluationRunner() {
             status: liveRunSummary.allDone
               ? liveRunSummary.aggregate
               : "running",
-            title: liveRunSummary.allDone
-              ? liveRunSummary.aggregate === "completed"
-                ? liveRunSummary.completed > 1
-                  ? `Evaluation Complete (${liveRunSummary.completed}/${displayProcessIds.length})`
-                  : "Evaluation Complete"
-                : `Evaluation ${liveRunSummary.aggregate}`
-              : displayProcessIds.length > 1
-                ? `Evaluating ${displayProcessIds.length - liveRunSummary.running}/${displayProcessIds.length}…`
-                : "Evaluating…",
+            title: evalLivePanelTitle({
+              isRunning: !liveRunSummary.allDone,
+              status: liveRunSummary.aggregate,
+              total: displayProcessIds.length,
+              runningCount: liveRunSummary.running,
+              completedCount: liveRunSummary.completed,
+            }),
             navMesh: {
               kind: "eval",
               hideSelf: true,
