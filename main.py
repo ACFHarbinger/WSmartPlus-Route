@@ -4,10 +4,11 @@ Main Entry Point for the WSmart-Route Application.
 
 This module serves as the primary gateway for executing various components of the
 project, including the WSmart-Route simulator, reinforcement learning training
-pipelines, test suite execution, and the Graphical User Interface (GUI).
+pipelines, and test suite execution. The graphical interface is the WSmart-Route
+Studio Tauri application (see `app/`), which spawns these CLI commands.
 
 It dispatches commands based on arguments parsed by `logic.src.cli`
-to the appropriate subsystems (Logic, GUI, Test).
+to the appropriate subsystems (Logic, Test).
 
 Key Functions:
     - run_test_suite: Orchestrates the execution of unit and integration tests.
@@ -80,7 +81,7 @@ def main() -> None:
     #    These bypass parse_params() and go directly to hydra_entry_point().
     #
     # 2. Legacy CLI (parse_params): Traditional argparse-based routing.
-    #    Examples: gui, test_suite, file_system
+    #    Examples: test_suite, file_system
     #    These use the original argument parser and main() function.
     #
     # The sys.argv manipulation below converts user commands into Hydra-compatible

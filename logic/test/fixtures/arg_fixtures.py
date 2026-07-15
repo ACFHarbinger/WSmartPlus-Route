@@ -108,9 +108,3 @@ def base_file_system_delete_args():
 def base_file_system_crypto_args():
     """Fixture providing base file system cryptography arguments"""
     return ["script.py", "file_system", "cryptography"]
-
-
-@pytest.fixture
-def base_gui_args():
-    """Fixture providing base GUI arguments"""
-    return ["script.py", "gui"]

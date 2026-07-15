@@ -147,7 +147,6 @@ a = Analysis(
         "logic.src.cli",
         "logic.src.cli.parser_dispatch",
         "logic.src.cli.ts_parser",
-        "logic.src.cli.gui_parser",
         "logic.src.pipeline.features.eval",
         # GUI toolkits — not needed in the CLI build
         "tkinter",

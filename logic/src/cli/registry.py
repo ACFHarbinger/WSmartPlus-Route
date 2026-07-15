@@ -7,14 +7,13 @@ Attributes:
 Example:
     >>> from logic.src.cli.registry import get_parser
     >>> parser = get_parser()
-    >>> parser.parse_args(["gui", "--app_style", "fusion"])
-    Namespace(command='gui', app_style='fusion', test_only=False, _subcommand_parser=ArgumentParser(prog='gui', description='Launch the GUI'))
+    >>> parser.parse_args(["test_suite", "-v"])
+    Namespace(command='test_suite', verbose=True, ...)
 """
 
 from logic.src.cli.base import ConfigsParser
 from logic.src.cli.benchmark_parser import add_benchmark_args
 from logic.src.cli.fs_parser import add_files_args
-from logic.src.cli.gui_parser import add_gui_args
 from logic.src.cli.output_parser import add_excel_summary_args, add_output_args
 from logic.src.cli.target_parser import add_ms_update_args, add_ri_update_args
 from logic.src.cli.ts_parser import add_test_suite_args
@@ -34,10 +33,6 @@ def get_parser() -> ConfigsParser:
     # Files
     files_parser = subparsers.add_parser("file_system", help="File system operations")
     add_files_args(files_parser)
-
-    # GUI
-    gui_p = subparsers.add_parser("gui", help="Launch the GUI")
-    add_gui_args(gui_p)
 
     # Test Suite
     ts_parser = subparsers.add_parser("test_suite", help="Run the test suite")

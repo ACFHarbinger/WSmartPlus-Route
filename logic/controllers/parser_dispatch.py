@@ -176,11 +176,7 @@ def parser_entry_point(args) -> None:
                 perform_cryptographic_operations(opts)
         else:
             pretty_print_args(comm, opts, inner_comm)
-            if comm == "gui":
-                from gui.src.app import run_app_gui
-
-                exit_code = run_app_gui(opts)
-            elif comm == "benchmark":
+            if comm == "benchmark":
                 run_benchmarks(opts)
             elif comm == "clean_results":
                 exit_code = _run_clean_results(argparse.Namespace(**opts))
