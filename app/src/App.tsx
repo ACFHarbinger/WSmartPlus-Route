@@ -168,31 +168,57 @@ export default function App() {
   useHashSync();
   useDuckDbInit();
 
-  // Warm critical route chunks on startup (§G.7)
+  // Warm all lazy route + vendor chunks on startup (§G.7)
   useEffect(() => {
     void Promise.all([
       import("./pages/monitor/SimulationMonitor"),
+      import("./pages/monitor/TrainingMonitor"),
+      import("./pages/monitor/ProcessMonitor"),
       import("./pages/analysis/SimulationSummary"),
       import("./pages/analysis/BenchmarkAnalysis"),
       import("./pages/analysis/CityComparison"),
       import("./pages/analysis/AlgorithmComparison"),
       import("./pages/analysis/OlapExplorer"),
-      import("./pages/monitor/ProcessMonitor"),
+      import("./pages/analysis/DataExplorer"),
+      import("./pages/analysis/ExperimentTracker"),
+      import("./pages/analysis/HPOTracker"),
+      import("./pages/launch/SimulationLauncher"),
+      import("./pages/launch/TrainingHub"),
+      import("./pages/launch/DataGeneration"),
+      import("./pages/launch/EvaluationRunner"),
+      import("./pages/files/ConfigEditor"),
       import("./pages/files/OutputBrowser"),
+      import("./pages/app/Settings"),
       import("echarts-for-react"),
       import("./components/maps/DeckRouteMap"),
       import("maplibre-gl"),
       import("@deck.gl/react"),
       import("@monaco-editor/react"),
+      import("@duckdb/duckdb-wasm"),
+      import("sigma"),
+      import("@react-three/fiber"),
     ]).then(() => markStartup("prefetchDone"));
-    prefetchPage("simulation");
-    prefetchPage("simulation_summary");
-    prefetchPage("benchmark");
-    prefetchPage("city_comparison");
-    prefetchPage("algorithms");
-    prefetchPage("olap_explorer");
-    prefetchPage("process_monitor");
-    prefetchPage("output_browser");
+    const modes: AppMode[] = [
+      "simulation",
+      "training",
+      "simulation_summary",
+      "benchmark",
+      "city_comparison",
+      "algorithms",
+      "olap_explorer",
+      "data_explorer",
+      "experiment_tracker",
+      "hpo_tracker",
+      "process_monitor",
+      "sim_launcher",
+      "training_hub",
+      "data_gen",
+      "eval_runner",
+      "config_editor",
+      "output_browser",
+      "settings",
+    ];
+    for (const mode of modes) prefetchPage(mode);
   }, []);
 
   // Sync theme class on mount

@@ -52,6 +52,7 @@ interface ConfigRow {
 export function PortfolioEfficiencyRanking({
   runs,
   showErrorBars = false,
+  logScale = false,
   brushed,
   onPolicyClick,
   onConfigClick,
@@ -59,6 +60,7 @@ export function PortfolioEfficiencyRanking({
 }: {
   runs: PortfolioEfficiencyRun[];
   showErrorBars?: boolean;
+  logScale?: boolean;
   brushed?: string[] | null;
   onPolicyClick?: (policy: string) => void;
   /** Brush both policy and ``run_label`` for portfolio SQL sync (§G.6). */
@@ -100,10 +102,12 @@ export function PortfolioEfficiencyRanking({
       backgroundColor: "transparent",
       grid: { left: 120, right: 24, top: 12, bottom: 12 },
       xAxis: {
-        type: "value" as const,
+        type: (logScale ? "log" : "value") as "log" | "value",
+        logBase: 10,
         name: "kg/km",
         nameTextStyle: { color: "#9090b0", fontSize: 9 },
         axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
       },
       yAxis: {
         type: "category" as const,
@@ -128,7 +132,7 @@ export function PortfolioEfficiencyRanking({
         {
           type: "bar" as const,
           data: ranked.map((r) => ({
-            value: r.mean,
+            value: logScale ? Math.max(r.mean, 0.001) : r.mean,
             name: r.policy,
             itemStyle: {
               color: strategyColor(r.policy, { [r.policy]: r.policyMeta }),
@@ -136,7 +140,7 @@ export function PortfolioEfficiencyRanking({
             },
           })),
         },
-        ...(showErrorBars
+        ...(showErrorBars && !logScale
           ? [
               {
                 type: "custom" as const,
@@ -179,7 +183,7 @@ export function PortfolioEfficiencyRanking({
           : []),
       ],
     }),
-    [ranked, showErrorBars, brushed]
+    [ranked, showErrorBars, logScale, brushed]
   );
 
   if (ranked.length === 0) return null;
