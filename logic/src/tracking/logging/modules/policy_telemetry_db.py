@@ -199,6 +199,114 @@ def persist_policy_viz_snapshot(
             conn.close()
 
 
+def _x_axis_from_viz(viz_data: Dict[str, List[Any]]) -> List[int]:
+    for key in ("iteration", "generation", "restart"):
+        values = viz_data.get(key)
+        if isinstance(values, list) and values:
+            out: List[int] = []
+            for idx, raw in enumerate(values):
+                if isinstance(raw, bool):
+                    out.append(idx)
+                else:
+                    try:
+                        out.append(int(raw))
+                    except (TypeError, ValueError):
+                        out.append(idx)
+            return out
+    lengths = [len(v) for v in viz_data.values() if isinstance(v, list)]
+    span = max(lengths) if lengths else 0
+    return list(range(span))
+
+
+def _metric_series(
+    policy_type: str, viz_data: Dict[str, List[Any]]
+) -> Tuple[Optional[str], List[float]]:
+    _, metric_name = extract_final_metric(policy_type, viz_data)
+    if not metric_name or metric_name not in viz_data:
+        return None, []
+    values: List[float] = []
+    for raw in viz_data[metric_name]:
+        if isinstance(raw, bool):
+            continue
+        try:
+            values.append(float(raw))
+        except (TypeError, ValueError):
+            continue
+    return metric_name, values
+
+
+def query_policy_trajectory_series(
+    policy: Optional[str] = None,
+    policy_type: Optional[str] = None,
+    limit: int = 12,
+) -> Dict[str, Any]:
+    """Return improvement curves extracted from persisted ring-buffer JSON."""
+    with _DB_LOCK:
+        if not os.path.exists(TELEMETRY_DB_PATH):
+            return {"db_path": TELEMETRY_DB_PATH, "series": []}
+
+        conn = _conn()
+        try:
+            _ensure_schema(conn)
+            sql = """
+                SELECT
+                    s.id,
+                    r.run_label,
+                    r.log_path,
+                    s.policy,
+                    s.day,
+                    s.policy_type,
+                    s.metric_name,
+                    s.data_json
+                FROM policy_viz_snapshots s
+                JOIN simulation_runs r ON r.id = s.run_id
+                WHERE 1=1
+            """
+            params: List[Any] = []
+            if policy:
+                sql += " AND s.policy = ?"
+                params.append(policy)
+            if policy_type:
+                sql += " AND s.policy_type = ?"
+                params.append(policy_type)
+            sql += " ORDER BY s.emitted_at DESC LIMIT ?"
+            params.append(max(1, limit))
+
+            series: List[Dict[str, Any]] = []
+            for row in conn.execute(sql, params).fetchall():
+                try:
+                    viz_data = json.loads(row["data_json"])
+                except json.JSONDecodeError:
+                    continue
+                if not isinstance(viz_data, dict):
+                    continue
+
+                metric_name, y_values = _metric_series(row["policy_type"], viz_data)
+                if not metric_name or len(y_values) < 2:
+                    continue
+
+                x_values = _x_axis_from_viz(viz_data)
+                if len(x_values) != len(y_values):
+                    x_values = list(range(len(y_values)))
+
+                run_label = row["run_label"] or Path(row["log_path"]).stem
+                series.append(
+                    {
+                        "id": int(row["id"]),
+                        "label": f"{run_label} · d{int(row['day'])}",
+                        "policy": row["policy"],
+                        "day": int(row["day"]),
+                        "policy_type": row["policy_type"],
+                        "metric_name": metric_name,
+                        "x": x_values,
+                        "y": y_values,
+                    }
+                )
+            return {"db_path": TELEMETRY_DB_PATH, "series": series}
+        finally:
+            conn.close()
+
+
 def query_policy_telemetry_trends(
     policy_type: Optional[str] = None,
     limit: int = 500,

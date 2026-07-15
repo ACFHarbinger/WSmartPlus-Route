@@ -8,10 +8,15 @@ import type EChartsReact from "echarts-for-react";
 import { Database, RefreshCw } from "lucide-react";
 import { ChartExportButtons } from "../common/ChartExportButtons";
 import { useAppStore } from "../../store/app";
-import type { PolicyTelemetryTrends, PolicyVizType } from "../../types";
+import type {
+  PolicyTelemetryTrends,
+  PolicyTrajectoryTrends,
+  PolicyVizType,
+} from "../../types";
 import {
   buildTrendComparisonOption,
   buildTrendStepsOption,
+  buildTrendTrajectoryOption,
   formatTrendMetric,
   policyVizTypeLabel,
 } from "../../utils/policyTelemetryTrends";
@@ -31,8 +36,12 @@ export function PolicyTelemetryTrendsPanel({
   const { projectRoot, pythonPath } = useAppStore();
   const compareRef = useRef<EChartsReact | null>(null);
   const stepsRef = useRef<EChartsReact | null>(null);
+  const trajectoryRef = useRef<EChartsReact | null>(null);
   const [data, setData] = useState<PolicyTelemetryTrends | null>(null);
+  const [trajectories, setTrajectories] = useState<PolicyTrajectoryTrends | null>(null);
   const [policyType, setPolicyType] = useState<PolicyVizType | "">("");
+  const [selectedPolicy, setSelectedPolicy] = useState("");
+  const [smoothTrajectories, setSmoothTrajectories] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,31 +50,56 @@ export function PolicyTelemetryTrendsPanel({
     setLoading(true);
     setError(null);
     try {
-      const result = await invoke<PolicyTelemetryTrends>("load_policy_telemetry_trends", {
-        projectRoot,
-        pythonExecutable: pythonPath || null,
-        policyType: policyType || null,
-        limit: 200,
-      });
+      const [result, traj] = await Promise.all([
+        invoke<PolicyTelemetryTrends>("load_policy_telemetry_trends", {
+          projectRoot,
+          pythonExecutable: pythonPath || null,
+          policyType: policyType || null,
+          limit: 200,
+        }),
+        invoke<PolicyTrajectoryTrends>("load_policy_trajectory_trends", {
+          projectRoot,
+          pythonExecutable: pythonPath || null,
+          policy: selectedPolicy || null,
+          policyType: policyType || null,
+          limit: 12,
+        }),
+      ]);
       setData(result);
+      setTrajectories(traj);
     } catch (err) {
       setError(String(err));
       setData(null);
+      setTrajectories(null);
     } finally {
       setLoading(false);
     }
-  }, [projectRoot, pythonPath, policyType]);
+  }, [projectRoot, pythonPath, policyType, selectedPolicy]);
 
   useEffect(() => {
     void loadTrends();
   }, [loadTrends, refreshKey]);
 
   const rows = data?.rows ?? [];
+  const policyNames = useMemo(
+    () => [...new Set(rows.map((r) => r.policy))].sort(),
+    [rows]
+  );
   const compareOption = useMemo(
     () => buildTrendComparisonOption(rows, theme, logScale),
     [rows, theme, logScale]
   );
   const stepsOption = useMemo(() => buildTrendStepsOption(rows.slice(0, 12), theme), [rows, theme]);
+  const trajectoryOption = useMemo(
+    () =>
+      buildTrendTrajectoryOption(
+        trajectories?.series ?? [],
+        theme,
+        logScale,
+        smoothTrajectories
+      ),
+    [trajectories?.series, theme, logScale, smoothTrajectories]
+  );
 
   if (!projectRoot) return null;
 
@@ -97,6 +131,27 @@ export function PolicyTelemetryTrendsPanel({
               </option>
             ))}
           </select>
+          <select
+            className="input text-xs py-1 max-w-[14rem]"
+            value={selectedPolicy}
+            onChange={(e) => setSelectedPolicy(e.target.value)}
+          >
+            <option value="">All policies (trajectories)</option>
+            {policyNames.map((name) => (
+              <option key={name} value={name}>
+                {name.length > 36 ? `${name.slice(0, 34)}…` : name}
+              </option>
+            ))}
+          </select>
+          <label className="inline-flex items-center gap-1 text-[11px] text-canvas-muted">
+            <input
+              type="checkbox"
+              className="rounded border-canvas-border"
+              checked={smoothTrajectories}
+              onChange={(e) => setSmoothTrajectories(e.target.checked)}
+            />
+            EMA smooth
+          </label>
           <button
             type="button"
             className="btn-secondary text-xs py-1 px-2 inline-flex items-center gap-1"
@@ -118,6 +173,24 @@ export function PolicyTelemetryTrendsPanel({
         </p>
       ) : (
         <>
+          {trajectoryOption ? (
+            <div className="relative rounded-lg border border-canvas-border bg-canvas-elevated/40 p-2">
+              <div className="absolute right-2 top-2 z-10">
+                <ChartExportButtons
+                  chartRef={trajectoryRef}
+                  filenameStem="policy-telemetry-trajectories"
+                />
+              </div>
+              <ReactECharts
+                ref={trajectoryRef}
+                option={trajectoryOption}
+                style={{ height: 260, width: "100%" }}
+                notMerge
+                lazyUpdate
+              />
+            </div>
+          ) : null}
+
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
             {compareOption ? (
               <div className="relative rounded-lg border border-canvas-border bg-canvas-elevated/40 p-2">

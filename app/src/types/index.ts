@@ -101,6 +101,22 @@ export interface PolicyTelemetryTrends {
   policy_types: PolicyVizType[];
 }
 
+export interface PolicyTrajectorySeries {
+  id: number;
+  label: string;
+  policy: string;
+  day: number;
+  policy_type: PolicyVizType;
+  metric_name: string;
+  x: number[];
+  y: number[];
+}
+
+export interface PolicyTrajectoryTrends {
+  db_path: string;
+  series: PolicyTrajectorySeries[];
+}
+
 // ── Simulation failure analysis (FailureAnalyzer → Studio §A.6) ─────────────
 
 export interface SimFailureEntry {

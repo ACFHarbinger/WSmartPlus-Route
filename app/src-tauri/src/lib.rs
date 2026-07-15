@@ -42,6 +42,7 @@ pub fn run() {
             data::load_training_health_log,
             data::load_attention_viz_log,
             telemetry::load_policy_telemetry_trends,
+            telemetry::load_policy_trajectory_trends,
             data::load_csv_file,
             data::list_output_dirs,
             data::list_training_runs,

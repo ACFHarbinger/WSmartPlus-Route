@@ -2,8 +2,8 @@
  * Cross-run policy telemetry chart builders (§A.3 Option C).
  */
 import type { EChartsOption } from "echarts";
-import type { PolicyTelemetryTrendRow } from "../types";
-import { policyVizTypeLabel } from "./policyTelemetry";
+import type { PolicyTelemetryTrendRow, PolicyTrajectorySeries } from "../types";
+import { ema, policyVizTypeLabel } from "./policyTelemetry";
 
 const CHART_COLORS = ["#60a5fa", "#fbbf24", "#4ade80", "#f87171", "#c084fc", "#94a3b8"];
 
@@ -116,6 +116,64 @@ export function formatTrendMetric(row: PolicyTelemetryTrendRow): string {
   if (row.final_metric == null) return "—";
   const name = row.metric_name ?? "metric";
   return `${row.final_metric.toLocaleString(undefined, { maximumFractionDigits: 3 })} (${name})`;
+}
+
+export function buildTrendTrajectoryOption(
+  series: PolicyTrajectorySeries[],
+  theme: "dark" | "light",
+  logScale = false,
+  smooth = false
+): EChartsOption | null {
+  if (series.length === 0) return null;
+
+  const metricName = series[0]?.metric_name ?? "metric";
+  const maxLen = Math.max(...series.map((s) => s.x.length));
+  const xLabels = Array.from({ length: maxLen }, (_, i) => String(i));
+
+  return {
+    backgroundColor: "transparent",
+    title: {
+      text: `Improvement trajectories (${metricName})`,
+      left: 8,
+      top: 4,
+      textStyle: { color: theme === "dark" ? "#d1d5db" : "#374151", fontSize: 12 },
+    },
+    grid: { left: 56, right: 16, top: 44, bottom: 40 },
+    tooltip: { trigger: "axis" },
+    legend: {
+      type: "scroll",
+      top: 4,
+      right: 8,
+      textStyle: { color: theme === "dark" ? "#9ca3af" : "#6b7280", fontSize: 10 },
+    },
+    xAxis: {
+      type: "category",
+      name: "step",
+      data: xLabels,
+      axisLabel: { color: theme === "dark" ? "#9ca3af" : "#6b7280", fontSize: 10 },
+    },
+    yAxis: {
+      type: logScale ? "log" : "value",
+      name: metricName,
+      nameTextStyle: { color: theme === "dark" ? "#9ca3af" : "#6b7280", fontSize: 10 },
+      axisLabel: { color: theme === "dark" ? "#9ca3af" : "#6b7280", fontSize: 10 },
+      splitLine: { lineStyle: { color: theme === "dark" ? "#1f2937" : "#e5e7eb" } },
+    },
+    series: series.map((item, idx) => {
+      const values = smooth ? ema(item.y) : item.y;
+      const padded: Array<number | null> = [...values];
+      while (padded.length < maxLen) padded.push(null);
+      return {
+        name: item.label,
+        type: "line" as const,
+        smooth: smooth,
+        showSymbol: false,
+        data: padded,
+        lineStyle: { width: 2 },
+        itemStyle: { color: CHART_COLORS[idx % CHART_COLORS.length] },
+      };
+    }),
+  };
 }
 
 export { policyVizTypeLabel };
