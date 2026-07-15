@@ -24,7 +24,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
 import { useAppStore } from "../../store/app";
-import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
@@ -49,7 +49,11 @@ import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryP
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { RouteViz } from "../../components/analysis/RouteViz";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
-import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+import {
+  formatPipelineTimingBadge,
+  portfolioRunLabel,
+  runSimulationArrowPipeline,
+} from "../../utils/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import { filterFailureEntries } from "../../utils/simFailure";
@@ -388,7 +392,12 @@ export function SimulationMonitor() {
   } = useDuckDbStore();
 
   const [activeLogPath, setActiveLogPath] = useState<string | null>(null);
-  const activeRunLabel = useLogPathRunLabelBrush(activeLogPath);
+  useLogPathRunLabelBrush(activeLogPath);
+  const sourceRunLabel = useMemo(
+    () =>
+      activeLogPath ? portfolioRunLabel(activeLogPath, undefined, projectRoot) : null,
+    [activeLogPath, projectRoot]
+  );
   const [graphPreset, setGraphPreset] = useState(GRAPH_PRESETS[0].id);
   const [loadingGraphCoords, setLoadingGraphCoords] = useState(false);
 
@@ -405,7 +414,11 @@ export function SimulationMonitor() {
       loadFailureEntries(failureHistorical);
       setActiveLogPath(path);
       if (watch) setWatchPath(path);
-      pushRecent({ path, label: recentFileLabel(path), kind: "log" });
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "log",
+      });
 
       if (duckdbReady) {
         setDuckdbLoading(true);
@@ -596,7 +609,7 @@ export function SimulationMonitor() {
       {entries.length > 0 && (
         <GlobalFilterBar
           showLogScale
-          runLabels={activeRunLabel ? [activeRunLabel] : []}
+          runLabels={sourceRunLabel ? [sourceRunLabel] : []}
         />
       )}
 
@@ -1034,7 +1047,7 @@ export function SimulationMonitor() {
             logScale={logScale}
             refreshKey={telemetryTrendsKey}
             initialPolicy={selectedPolicy}
-            initialRunLabel={activeRunLabel}
+            initialRunLabel={sourceRunLabel}
           />
 
           <GraphTopologyPanel
@@ -1057,11 +1070,11 @@ export function SimulationMonitor() {
               onDaySelect={(day) => setSelectedDay(day)}
               onProfitRange={(min, max) => setDuckdbProfitRange([min, max])}
               highlightPolicies={selectedPolicy ? [selectedPolicy] : null}
-              highlightRunLabels={activeRunLabel ? [activeRunLabel] : null}
+              highlightRunLabels={sourceRunLabel ? [sourceRunLabel] : null}
               brushSqlSync
               autoRunOnBrushSync
               portfolioMode
-              portfolioRunLabels={activeRunLabel ? [activeRunLabel] : []}
+              portfolioRunLabels={sourceRunLabel ? [sourceRunLabel] : []}
             />
           )}
         </>

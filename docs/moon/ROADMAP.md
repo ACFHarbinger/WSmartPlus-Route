@@ -1274,6 +1274,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary — comparison-run ``LoadedRunRow`` labels re-derived via ``portfolioRunLabel`` when ``projectRoot`` changes (§G.1 / §D.7)
 - [x] §G.1 / §G.1.6 Benchmark Analysis + City Comparison portfolio loaded-run list + filter-bar relative-path ``run_label`` brush/SQL parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-first pass)**
+
+- [x] Data Explorer — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push when CSV lacks ``run_label`` column (§G.6 / §D.7)
+- [x] Algorithm Comparison — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, and Policy Telemetry Trends (§G.16 / §D.7)
+- [x] Simulation Monitor — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push (§G.16 / §D.7)
+- [x] Simulation Summary — recent-file push label via ``portfolioRunLabel`` for Command Palette brush parity (§G.1 / §D.7)
+- [x] §G.6 / §G.16 single-log open-file relative-path ``run_label`` brush/SQL parity across Data Explorer, Algorithm Comparison, and Simulation Monitor checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1857,6 +1865,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary portfolio UI ``run_label`` — ``portfolioRunLabel`` on add-comparison-run, output-portfolio load, ``allRuns`` brush, and ``allDuckDbLogs`` ingest (hundred-ninety-ninth pass; §G.1 / §G.6 / §D.7)
 - [x] Benchmark Analysis + City Comparison portfolio UI ``run_label`` — ``normalizedRuns`` + ``portfolioDuckDbLogs`` ``portfolioRunLabel`` on loaded-run list, portfolio brush, and DuckDB ingest (two-hundredth pass; §G.1 / §G.1.6 / §G.6 / §D.7)
 - [x] OLAP Explorer custom JSONL ingest ``run_label`` — ``portfolioRunLabel`` on ingest path for DuckDB brush/SQL parity (two-hundredth pass; §G.6 / §D.7)
+- [x] Data Explorer single-log open-file ``run_label`` — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push (two-hundred-and-first pass; §G.6 / §D.7)
+- [x] Algorithm Comparison + Simulation Monitor single-log ``run_label`` — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push (two-hundred-and-first pass; §G.16 / §D.7)
+- [x] Simulation Summary recent-file push ``run_label`` — ``portfolioRunLabel`` on log open for Command Palette brush parity (two-hundred-and-first pass; §G.1 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-first pass (§G.6 + §G.16 + §G.1 + §D.7)
+
+Two-hundred-and-first pass closes the single-log open-file UI ``run_label`` gaps left
+after pass 200 unified portfolio loaded-run lists. ``portfolioRunLabel`` now drives
+Data Explorer, Algorithm Comparison, and Simulation Monitor filter-bar selectors,
+``SqlQueryPanel`` brush/SQL sync, and Policy Telemetry Trends scoping when CSV/logs
+lack a ``run_label`` column. Recent-file labels on open use the same helper so
+Command Palette entries stay aligned when ``projectRoot`` changes.
+
+**React frontend**
+- Data Explorer — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push (§G.6 / §D.7)
+- Algorithm Comparison — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, and Policy Telemetry Trends (§G.16 / §D.7)
+- Simulation Monitor — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push (§G.16 / §D.7)
+- Simulation Summary — recent-file push label via ``portfolioRunLabel`` (§G.1 / §D.7)
+
+**ROADMAP**
+- §G.6 Data Explorer single-log open-file relative-path ``run_label`` brush/SQL parity checked
+- §G.16 Algorithm Comparison + Simulation Monitor single-log DuckDB ``run_label`` brush/SQL parity checked
+- §D.7 single-log open-file UI/DuckDB ``run_label`` relative-path brush/SQL parity across Data Explorer, Algorithm Comparison, Simulation Monitor, and Simulation Summary recent files checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundredth pass (§G.1 + §G.1.6 + §G.6 + §D.7)
 
 Two-hundredth pass closes the Benchmark Analysis and City Comparison portfolio UI

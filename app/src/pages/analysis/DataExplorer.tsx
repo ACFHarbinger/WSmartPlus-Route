@@ -16,9 +16,13 @@ import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
-import { formatPipelineTimingBadge, runCsvArrowPipeline } from "../../utils/arrowPipeline";
+import {
+  formatPipelineTimingBadge,
+  portfolioRunLabel,
+  runCsvArrowPipeline,
+} from "../../utils/arrowPipeline";
 import { groupRunLabelsByCity, resolveBrushedRunLabels } from "../../utils/cityComparison";
 import { useDuckDbStore } from "../../store/duckdb";
 
@@ -73,7 +77,11 @@ export function DataExplorer() {
     setSortCol(null);
     setSortDir("asc");
     setFilterText("");
-    pushRecent({ path, label: recentFileLabel(path), kind: "csv" });
+    pushRecent({
+      path,
+      label: portfolioRunLabel(path, undefined, projectRoot),
+      kind: "csv",
+    });
 
     if (duckdbReady) {
       setLoading(true);
@@ -109,7 +117,11 @@ export function DataExplorer() {
     () => (file && runLabelCol ? distinctColumnValues(file.rows, runLabelCol) : []),
     [file, runLabelCol]
   );
-  const derivedRunLabel = useLogPathRunLabelBrush(file?.path ?? null);
+  useLogPathRunLabelBrush(file?.path ?? null);
+  const sourceRunLabel = useMemo(
+    () => (file ? portfolioRunLabel(file.path, undefined, projectRoot) : null),
+    [file, projectRoot]
+  );
   const derivedTableRunLabel = useTableRunLabelBrush(
     lastPipeline?.tableName === "explorer_csv" ? "explorer_csv" : null,
     csvRunLabels,
@@ -243,8 +255,8 @@ export function DataExplorer() {
           runLabels={
             csvRunLabels.length > 0
               ? csvRunLabels
-              : derivedRunLabel
-                ? [derivedRunLabel]
+              : sourceRunLabel
+                ? [sourceRunLabel]
                 : derivedTableRunLabel
                   ? [derivedTableRunLabel]
                   : []
@@ -334,7 +346,7 @@ export function DataExplorer() {
           initialRunLabel={
             activeRunLabel ??
             (csvRunLabels.length === 1 ? csvRunLabels[0]! : null) ??
-            derivedRunLabel ??
+            sourceRunLabel ??
             derivedTableRunLabel
           }
         />
@@ -347,17 +359,23 @@ export function DataExplorer() {
           highlightPolicies={highlightPolicies}
           highlightRunLabels={
             highlightRunLabels ??
-            (derivedTableRunLabel ? [derivedTableRunLabel] : null)
+            (derivedTableRunLabel
+              ? [derivedTableRunLabel]
+              : sourceRunLabel
+                ? [sourceRunLabel]
+                : null)
           }
-          brushSqlSync={hasBrushColumns || Boolean(derivedTableRunLabel)}
-          autoRunOnBrushSync={hasBrushColumns || Boolean(derivedTableRunLabel)}
-          portfolioMode={Boolean(runLabelCol) || Boolean(derivedTableRunLabel)}
+          brushSqlSync={hasBrushColumns || Boolean(derivedTableRunLabel || sourceRunLabel)}
+          autoRunOnBrushSync={hasBrushColumns || Boolean(derivedTableRunLabel || sourceRunLabel)}
+          portfolioMode={Boolean(runLabelCol) || Boolean(derivedTableRunLabel || sourceRunLabel)}
           portfolioRunLabels={
             csvRunLabels.length > 0
               ? csvRunLabels
               : derivedTableRunLabel
                 ? [derivedTableRunLabel]
-                : []
+                : sourceRunLabel
+                  ? [sourceRunLabel]
+                  : []
           }
         />
       )}
