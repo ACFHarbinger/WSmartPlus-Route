@@ -1957,6 +1957,13 @@ export function SimulationSummary() {
       });
       if (loaded.length > 0) {
         const [primary, ...rest] = loaded;
+        for (const r of loaded) {
+          pushRecent({
+            path: r.path,
+            label: portfolioRunLabel(r.path, r.label, projectRoot),
+            kind: "log",
+          });
+        }
         if (!logPath) {
           await loadLog(primary.path);
         }
@@ -1984,7 +1991,7 @@ export function SimulationSummary() {
     } finally {
       setPortfolioLoading(false);
     }
-  }, [projectRoot, logPath, loadLog]);
+  }, [projectRoot, logPath, loadLog, pushRecent]);
 
   const removeComparisonRun = useCallback((path: string) => {
     setComparisonRuns((prev) => prev.filter((r) => r.path !== path));

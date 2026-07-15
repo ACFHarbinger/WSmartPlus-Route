@@ -3,12 +3,15 @@ import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { useAppStore } from "../store/app";
 import { useLayoutStore } from "../store/layout";
+import { useRecentFilesStore } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
+import { portfolioRunLabel } from "../utils/arrowPipeline";
 import { useFileDrop } from "./useFileDrop";
 
 /** App-wide drop handler for `.wsroute` bundles and `.jsonl` logs (§G.8 / §G.14). */
 export function useGlobalFileDrop() {
   const { projectRoot, setMode, setPendingLogPath } = useAppStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const setFileDropDragging = useLayoutStore((s) => s.setFileDropDragging);
 
   const handleDrop = useCallback(
@@ -29,6 +32,11 @@ export function useGlobalFileDrop() {
           });
           toast.success(`Extracted ${result.extracted_files.length} files`);
           if (result.log_path) {
+            pushRecent({
+              path: result.log_path,
+              label: portfolioRunLabel(result.log_path, undefined, projectRoot),
+              kind: "log",
+            });
             setPendingLogPath(result.log_path);
             setMode("simulation_summary");
           } else {
@@ -42,6 +50,11 @@ export function useGlobalFileDrop() {
       }
 
       if (jsonl) {
+        pushRecent({
+          path: jsonl,
+          label: portfolioRunLabel(jsonl, undefined, projectRoot),
+          kind: "log",
+        });
         setPendingLogPath(jsonl);
         setMode("simulation_summary");
         toast.success("Log loaded", { description: jsonl.split("/").pop() });
@@ -50,7 +63,7 @@ export function useGlobalFileDrop() {
 
       toast.error("Drop a .wsroute bundle or .jsonl log file");
     },
-    [projectRoot, setMode, setPendingLogPath]
+    [projectRoot, pushRecent, setMode, setPendingLogPath]
   );
 
   return useFileDrop(handleDrop, true, setFileDropDragging);

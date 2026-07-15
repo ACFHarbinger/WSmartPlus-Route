@@ -3,11 +3,14 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { useAppStore } from "../store/app";
+import { useRecentFilesStore } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
+import { portfolioRunLabel } from "../utils/arrowPipeline";
 
 /** Pick a `.wsroute` bundle, extract it, and open the log in Simulation Summary. */
 export function useWsrouteImport() {
-  const { setPendingLogPath, setMode } = useAppStore();
+  const { projectRoot, setPendingLogPath, setMode } = useAppStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   return useCallback(async () => {
     const bundlePath = (await open({
@@ -29,6 +32,11 @@ export function useWsrouteImport() {
       });
       toast.success(`Extracted ${result.extracted_files.length} files`);
       if (result.log_path) {
+        pushRecent({
+          path: result.log_path,
+          label: portfolioRunLabel(result.log_path, undefined, projectRoot),
+          kind: "log",
+        });
         setPendingLogPath(result.log_path);
         setMode("simulation_summary");
       } else {
@@ -38,5 +46,5 @@ export function useWsrouteImport() {
     } catch (err) {
       toast.error("Failed to import bundle", { description: String(err) });
     }
-  }, [setPendingLogPath, setMode]);
+  }, [projectRoot, pushRecent, setPendingLogPath, setMode]);
 }

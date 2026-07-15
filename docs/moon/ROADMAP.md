@@ -1296,6 +1296,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Benchmark Analysis + City Comparison — ``pushRecent`` on ``pendingBenchmarkLogs`` consume for Output Browser compare handoff parity (§G.1 / §G.1.6 / §D.7)
 - [x] §G.14 Output Browser compare + §G.1 / §G.1.6 portfolio handoff recent-file ``portfolioRunLabel`` parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-fourth pass)**
+
+- [x] Output Browser — ``openInSimSummary`` + ``extractBundleAndOpen`` ``pushRecent`` via ``portfolioRunLabel`` on Simulation Summary handoff (§G.14 / §G.1 / §D.7)
+- [x] ``useGlobalFileDrop`` + ``useWsrouteImport`` — ``pushRecent`` via ``portfolioRunLabel`` on dropped/imported ``.jsonl`` / ``.wsroute`` log handoff (§G.8 / §G.14 / §D.7)
+- [x] Benchmark Analysis + City Comparison + Simulation Summary — ``pushRecent`` on ``loadOutputPortfolio`` for each scanned log via ``portfolioRunLabel`` (§G.1 / §G.1.6 / §D.7)
+- [x] Command Palette — refresh recent log/run/csv labels via ``portfolioRunLabel`` on open for ``projectRoot`` brush parity (§G.7 / §D.7)
+- [x] §G.1 / §G.1.6 / §G.8 / §G.14 portfolio load + bundle/drop handoff recent-file ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1885,6 +1893,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser compare handoff ``run_label`` — ``compareSelectedRuns`` refs use ``portfolioRunLabel`` + ``pushRecent`` for Benchmark Analysis handoff (two-hundred-and-third pass; §G.14 / §G.1 / §D.7)
 - [x] Simulation Summary add-comparison-run recent-file push — ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-third pass; §G.1 / §D.7)
 - [x] Benchmark Analysis + City Comparison ``pendingBenchmarkLogs`` recent-file push — ``pushRecent`` on Output Browser compare consume (two-hundred-and-third pass; §G.1 / §G.1.6 / §D.7)
+- [x] Output Browser Simulation Summary handoff recent-file push — ``openInSimSummary`` + ``extractBundleAndOpen`` ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-fourth pass; §G.14 / §G.1 / §D.7)
+- [x] Global file drop + wsroute import recent-file push — ``useGlobalFileDrop`` + ``useWsrouteImport`` ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-fourth pass; §G.8 / §G.14 / §D.7)
+- [x] Portfolio load recent-file push — ``loadOutputPortfolio`` on Benchmark Analysis, City Comparison, and Simulation Summary (two-hundred-and-fourth pass; §G.1 / §G.1.6 / §D.7)
+- [x] Command Palette recent-file label refresh — ``portfolioRunLabel`` on log/run/csv open (two-hundred-and-fourth pass; §G.7 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

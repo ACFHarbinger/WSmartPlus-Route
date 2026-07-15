@@ -339,12 +339,14 @@ export function BenchmarkAnalysis() {
           toast.loading(`Loading portfolio… ${n} / ${total}`, { id: progressId });
         },
       });
-      setRuns(
-        loaded.map((r) => ({
-          ...r,
-          label: portfolioRunLabel(r.path, r.label, projectRoot),
-        }))
-      );
+      const normalized = loaded.map((r) => ({
+        ...r,
+        label: portfolioRunLabel(r.path, r.label, projectRoot),
+      }));
+      for (const r of normalized) {
+        pushRecent({ path: r.path, label: r.label, kind: "log" });
+      }
+      setRuns(normalized);
       toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`, {
         id: progressId,
       });
@@ -353,7 +355,7 @@ export function BenchmarkAnalysis() {
     } finally {
       setPortfolioLoading(false);
     }
-  }, [projectRoot]);
+  }, [projectRoot, pushRecent]);
 
   const exportComparisonCsv = useCallback(() => {
     const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];

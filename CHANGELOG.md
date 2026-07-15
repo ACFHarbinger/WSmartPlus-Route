@@ -11,6 +11,35 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fourth pass (§G.1 + §G.1.6 + §G.7 + §G.8 + §G.14 + §D.7)
+
+Two-hundred-and-fourth pass closes the portfolio load, bundle/drop import, and
+Simulation Summary handoff recent-file ``run_label`` gaps left after pass 203
+unified compare handoff and add-run Command Palette labels. ``portfolioRunLabel``
+now drives ``pushRecent`` on Output Browser ``openInSimSummary`` /
+``extractBundleAndOpen``, global ``.jsonl`` / ``.wsroute`` drop and import hooks,
+and ``loadOutputPortfolio`` on Benchmark Analysis, City Comparison, and Simulation
+Summary. Command Palette re-derives stored recent log/run/csv labels on open so
+entries stay aligned when ``projectRoot`` changes.
+
+**React frontend**
+- Output Browser — ``openInSimSummary`` + ``extractBundleAndOpen`` ``pushRecent`` via ``portfolioRunLabel`` (§G.14 / §G.1 / §D.7)
+- ``useGlobalFileDrop`` — ``pushRecent`` on dropped ``.jsonl`` / extracted bundle log (§G.8 / §G.14 / §D.7)
+- ``useWsrouteImport`` — ``pushRecent`` on imported bundle log handoff (§G.8 / §G.14 / §D.7)
+- Benchmark Analysis — ``pushRecent`` on ``loadOutputPortfolio`` via ``portfolioRunLabel`` (§G.1 / §D.7)
+- City Comparison — ``pushRecent`` on ``loadOutputPortfolio`` via ``portfolioRunLabel`` (§G.1.6 / §D.7)
+- Simulation Summary — ``pushRecent`` on ``loadOutputPortfolio`` for each scanned log (§G.1 / §D.7)
+- Command Palette — refresh recent log/run/csv labels via ``portfolioRunLabel`` on open (§G.7 / §D.7)
+
+**ROADMAP**
+- §G.14 Output Browser Simulation Summary handoff recent-file ``portfolioRunLabel`` parity checked
+- §G.8 Global file drop + wsroute import recent-file ``portfolioRunLabel`` parity checked
+- §G.1 / §G.1.6 Benchmark Analysis + City Comparison + Simulation Summary ``loadOutputPortfolio`` recent-file parity checked
+- §G.7 Command Palette recent-file label refresh on open checked
+- §D.7 Portfolio load + bundle/drop handoff recent-file relative-path brush/SQL parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-third pass (§G.14 + §G.1 + §G.1.6 + §D.7)
 
 Two-hundred-and-third pass closes the Output Browser multi-run compare and portfolio
