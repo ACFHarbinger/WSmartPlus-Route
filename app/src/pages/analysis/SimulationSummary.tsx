@@ -1923,6 +1923,7 @@ export function SimulationSummary() {
     try {
       const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
       const label = portfolioRunLabel(path, undefined, projectRoot);
+      pushRecent({ path, label, kind: "log" });
       setComparisonRuns((prev) => [
         ...prev.filter((r) => r.path !== path),
         { path, label, entries: loaded },
@@ -1930,7 +1931,7 @@ export function SimulationSummary() {
     } catch (err) {
       toast.error("Failed to load comparison log", { description: String(err) });
     }
-  }, [projectRoot]);
+  }, [projectRoot, pushRecent]);
 
   const loadOutputPortfolio = useCallback(async () => {
     if (!projectRoot) {

@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-third pass (§G.14 + §G.1 + §G.1.6 + §D.7)
+
+Two-hundred-and-third pass closes the Output Browser multi-run compare and portfolio
+add-comparison-run recent-file ``run_label`` gaps left after pass 202 unified single-log
+and add-run Command Palette labels. ``compareSelectedRuns`` now derives Benchmark
+Analysis handoff refs via ``portfolioRunLabel`` and pushes each compared log to recent
+files. Simulation Summary add-comparison-run and Benchmark Analysis / City Comparison
+``pendingBenchmarkLogs`` consume paths use the same helper for Command Palette parity
+when ``projectRoot`` changes.
+
+**React frontend**
+- Output Browser — ``compareSelectedRuns`` Benchmark handoff + ``pushRecent`` via ``portfolioRunLabel`` (§G.14 / §G.1 / §D.7)
+- Simulation Summary — ``pushRecent`` on add-comparison-run via ``portfolioRunLabel`` (§G.1 / §D.7)
+- Benchmark Analysis — ``pushRecent`` on ``pendingBenchmarkLogs`` consume via ``portfolioRunLabel`` (§G.1 / §D.7)
+- City Comparison — ``pushRecent`` on ``pendingBenchmarkLogs`` consume via ``portfolioRunLabel`` (§G.1.6 / §D.7)
+
+**ROADMAP**
+- §G.14 Output Browser compare handoff relative-path ``run_label`` + recent-file parity checked
+- §G.1 Simulation Summary add-comparison-run ``portfolioRunLabel`` recent-file parity checked
+- §G.1 / §G.1.6 Benchmark Analysis + City Comparison ``pendingBenchmarkLogs`` recent-file parity checked
+- §D.7 Output Browser compare + portfolio handoff recent-file relative-path brush/SQL parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-second pass (§G.14 + §G.6 + §G.1 + §G.1.6 + §D.7)
 
 Two-hundred-and-second pass closes the Output Browser, OLAP Explorer, and portfolio

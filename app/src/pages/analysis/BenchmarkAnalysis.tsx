@@ -290,9 +290,11 @@ export function BenchmarkAnalysis() {
       const loaded: RunFile[] = [];
       for (const ref of pendingBenchmarkLogs) {
         const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
+        const label = portfolioRunLabel(ref.path, ref.label, projectRoot);
+        pushRecent({ path: ref.path, label, kind: "log" });
         loaded.push({
           path: ref.path,
-          label: portfolioRunLabel(ref.path, ref.label, projectRoot),
+          label,
           entries,
         });
       }
@@ -300,7 +302,7 @@ export function BenchmarkAnalysis() {
       setPendingBenchmarkLogs(null);
     };
     load().catch(console.error);
-  }, [pendingBenchmarkLogs, projectRoot, setPendingBenchmarkLogs]);
+  }, [pendingBenchmarkLogs, projectRoot, pushRecent, setPendingBenchmarkLogs]);
 
   const addRun = useCallback(async () => {
     const path = (await open({

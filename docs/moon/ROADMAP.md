@@ -1289,6 +1289,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Benchmark Analysis + City Comparison — ``pushRecent`` on add-run via ``portfolioRunLabel`` for Command Palette parity (§G.1 / §G.1.6 / §D.7)
 - [x] §G.14 Output Browser + §G.6 OLAP Explorer single-log / run-directory relative-path ``run_label`` brush/SQL + recent-file parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-third pass)**
+
+- [x] Output Browser — ``compareSelectedRuns`` Benchmark handoff refs use ``portfolioRunLabel``; ``pushRecent`` on multi-run compare for Command Palette parity (§G.14 / §G.1 / §D.7)
+- [x] Simulation Summary — ``pushRecent`` on add-comparison-run via ``portfolioRunLabel`` (§G.1 / §D.7)
+- [x] Benchmark Analysis + City Comparison — ``pushRecent`` on ``pendingBenchmarkLogs`` consume for Output Browser compare handoff parity (§G.1 / §G.1.6 / §D.7)
+- [x] §G.14 Output Browser compare + §G.1 / §G.1.6 portfolio handoff recent-file ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1875,6 +1882,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Explorer single-log open-file ``run_label`` — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push (two-hundred-and-first pass; §G.6 / §D.7)
 - [x] Algorithm Comparison + Simulation Monitor single-log ``run_label`` — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and recent-file push (two-hundred-and-first pass; §G.16 / §D.7)
 - [x] Simulation Summary recent-file push ``run_label`` — ``portfolioRunLabel`` on log open for Command Palette brush parity (two-hundred-and-first pass; §G.1 / §D.7)
+- [x] Output Browser compare handoff ``run_label`` — ``compareSelectedRuns`` refs use ``portfolioRunLabel`` + ``pushRecent`` for Benchmark Analysis handoff (two-hundred-and-third pass; §G.14 / §G.1 / §D.7)
+- [x] Simulation Summary add-comparison-run recent-file push — ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-third pass; §G.1 / §D.7)
+- [x] Benchmark Analysis + City Comparison ``pendingBenchmarkLogs`` recent-file push — ``pushRecent`` on Output Browser compare consume (two-hundred-and-third pass; §G.1 / §G.1.6 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
