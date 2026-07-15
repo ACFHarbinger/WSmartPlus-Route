@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-sixth pass (§G.1 + §G.6 + §G.7 + §G.9 + §G.13 + §G.16 + §D.7)
+
+Two-hundred-and-twenty-sixth pass completes path-handoff surface parity after pass 225
+covered eval, portfolio, and tracker chips. ``PathHandoffButtons`` now accepts log
+``targets`` so Summary-only / Monitor-only toolbars and ``LauncherNavMesh`` can drop
+direct ``LogHandoffButtons`` imports. Analytics open-path chips (Summary, Monitor,
+Algorithm Comparison, OLAP, Data Explorer) and Config Editor YAML chips share the
+same kind-aware control.
+
+**React frontend**
+- ``PathHandoffButtons`` — optional ``targets`` forwarded to ``LogHandoffButtons`` (§G.1 / §G.16 / §D.7)
+- ``LauncherNavMesh`` — sim log shortcuts use ``PathHandoffButtons`` ``kind="log"`` + ``targets`` (§G.9 / §D.7)
+- Simulation Summary / Simulation Monitor / Algorithm Comparison — toolbar + open-path chip handoffs (§G.1 / §G.16 / §D.7)
+- OLAP Explorer — labeled + chip handoffs for ``.jsonl`` dual and CSV Data Explorer destinations (§G.6 / §D.7)
+- Data Explorer open-CSV chip; Config Editor primary + diff path chips (§G.6 / §G.13 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.6 / §G.9 / §G.13 / §G.16 analytics + config path-handoff surface parity checked
+- §D.7 ``PathHandoffButtons`` log ``targets`` + remaining LogHandoff call-site migration checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-fifth pass (§G.1 + §G.7 + §G.10 + §G.11 + §G.12 + §G.14 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Two-hundred-and-twenty-fifth pass extends path-handoff surface parity after pass 224

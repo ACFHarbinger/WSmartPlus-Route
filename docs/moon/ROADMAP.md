@@ -1475,6 +1475,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Generation sensor CSV + HPO Tracker trial log dirs / report dir + Experiment Tracker MLflow run dirs — path-kind icon handoffs (§G.11 / §G.18 / §D.7)
 - [x] §G.12 / §G.10 / §G.1 / §G.14 / §G.17 / §G.18 eval + portfolio + tracker path-handoff surface parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-sixth pass)**
+
+- [x] ``PathHandoffButtons`` ``targets`` prop — forwarded to ``LogHandoffButtons`` for Summary-only / Monitor-only toolbars (§G.1 / §G.16 / §D.7)
+- [x] ``LauncherNavMesh`` sim log shortcuts migrate to ``PathHandoffButtons`` ``kind="log"`` + ``targets`` (§G.9 / §D.7)
+- [x] Simulation Summary / Simulation Monitor / Algorithm Comparison toolbars migrate off direct ``LogHandoffButtons`` onto ``PathHandoffButtons``; open-path chips gain dual icon handoffs (§G.1 / §G.16 / §D.7)
+- [x] OLAP Explorer — ingest path labeled + chip ``PathHandoffButtons`` for ``.jsonl`` dual and CSV Data Explorer handoffs (§G.6 / §D.7)
+- [x] Data Explorer open-CSV chip + Config Editor primary / diff path chips — path-kind icon handoffs (§G.6 / §G.13 / §D.7)
+- [x] §G.1 / §G.6 / §G.9 / §G.13 / §G.16 analytics + config path-handoff surface parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1901,6 +1910,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · kg · symlog-overflows row when global log toggle off (§G.1)
 - [x] City Comparison section follows global ``logScale``: log-scale profit + symlog-overflows bars when on; linear raw values when off; `BenchmarkAnalysis` + `SimulationSummary` + dedicated `CityComparison` page with portfolio load + summary table (§G.1.6 / §G.7)
 - [x] City Comparison error-bar whiskers: profit · symlog-overflows · kg/km grouped bars show mean ± std via ``showErrorBars`` toggle on ``cityComparisonChartOption``; log/symlog whiskers via ``errorBarBounds`` + ``groupedBarWhiskerX`` on Benchmark Analysis, Simulation Summary portfolio mode, and City Comparison page (§G.1.6 / §G.7)
+- [x] Simulation Summary / Algorithm Comparison open-log toolbars + path chips use shared ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.1 / §G.16 / §D.7)
 
 **Status**: §G.1 complete — all checklist items delivered.
 
@@ -2152,6 +2162,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Auto-chart line cross-filter: time-series point click → ``onDaySelect`` when ``xKey`` is ``day`` (§G.6)
 - [x] Auto-chart line type in override alternatives for day/epoch/step queries (§G.6)
 - [x] Pivot table heatmap PNG export: ``exportChartPng()`` on ``PivotTablePanel`` pivot heatmap with toast feedback (§G.6 / §G.7)
+- [x] OLAP Explorer ingest path + Data Explorer open-CSV path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.6 / §D.7)
 
 **Status**: §G.6 complete — all checklist items delivered.
 
@@ -2247,6 +2258,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``simLivePanelTitle`` shared sim live panel title helper; Simulation Launcher imports shared title (hundred-sixty-ninth pass; §G.9 / §D.7)
 - [x] Simulation Launcher card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.9 / §D.7)
 - [x] ``LauncherNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser / checkpoint / Training Monitor / Data Explorer labeled handoffs with empty-path mode-only fallback (§G.9 / §G.11 / §G.12 / §D.7)
+- [x] ``LauncherNavMesh`` sim log dual/single-target shortcuts migrate to ``PathHandoffButtons`` ``kind="log"`` + ``targets`` (two-hundred-and-twenty-sixth pass; §G.9 / §G.1 / §G.16 / §D.7)
 
 ---
 
@@ -2371,6 +2383,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Monaco Editor integration for the Raw YAML mode (§D.6 Option C): lazy-loaded `YamlEditor` with syntax highlighting and theme sync
 - [x] "Apply to Launcher" button: target selector (Simulation Launcher / Training Hub / Data Generation); `applyConfigToLauncher()` maps flat YAML keys to Zustand store patches and navigates to the target page
 - [x] ``Ctrl+S`` keyboard shortcut saves dirty config to disk when a file path is open (§D.7 / §G.13)
+- [x] Configuration Editor primary YAML + diff comparison path chips — Config Editor path-kind icon handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.13 / §D.7)
 
 ---
 
@@ -2480,6 +2493,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Daily KPI timeseries follow global ``logScale``**: ``MetricTimeseries`` symlog overflows + log profit/km/kg when on; ``GlobalFilterBar`` on Simulation Monitor (§G.16 / §G.7)
 - [x] **deck.gl route map PNG export with toast feedback**: ``DeckRouteMap`` ``exportCanvasPng()`` names export ``route-map-tile.png`` (Mercator) or ``route-map-orbit.png`` (OrbitView) with toast feedback (§G.16 / §G.7)
 - [x] Simulation Monitor ``GlobalFilterBar`` ``runLabels`` + ``useLogPathRunLabelBrush`` on log open (hundred-seventy-fourth pass; §G.16 / §D.7)
+- [x] Simulation Monitor open-log toolbar + path chip path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.16 / §G.1 / §D.7)
 
 **Status**: §G.16 complete — all checklist items delivered.
 

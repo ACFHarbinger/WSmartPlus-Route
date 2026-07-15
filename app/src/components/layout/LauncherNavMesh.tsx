@@ -1,7 +1,6 @@
 /**
  * Cross-page sim / data-gen / eval launcher shortcuts (§D.7 / §G.9 / §G.11 / §G.12).
  */
-import { LogHandoffButtons } from "../common/LogHandoffButtons";
 import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import type { LauncherKind } from "../../utils/launcherProcess";
@@ -69,8 +68,9 @@ export function LauncherNavMesh({
       )}
 
       {kind === "sim" && (
-        <LogHandoffButtons
+        <PathHandoffButtons
           path={simLogPath}
+          kind="log"
           labeled
           iconSize={12}
           targets={showPostRun ? ["summary", "monitor"] : ["monitor"]}

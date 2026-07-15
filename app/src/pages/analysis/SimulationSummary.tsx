@@ -21,7 +21,7 @@ import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
@@ -2265,8 +2265,9 @@ export function SimulationSummary() {
                 {portfolioLoading ? "Scanning output…" : "Load output portfolio"}
               </button>
             )}
-            <LogHandoffButtons
+            <PathHandoffButtons
               path={logPath}
+              kind="log"
               targets={["monitor"]}
               labeled
               iconSize={14}
@@ -2279,6 +2280,7 @@ export function SimulationSummary() {
             projectRoot={projectRoot}
             trailing={
               <>
+                <PathHandoffButtons path={logPath} kind="log" iconSize={11} />
                 {duckdbLoading && <span className="shrink-0">· DuckDB ingesting…</span>}
                 {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
                   <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>

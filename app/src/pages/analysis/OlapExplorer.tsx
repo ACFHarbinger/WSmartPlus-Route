@@ -7,10 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
-import {
-  isSimulationLogPath,
-  LogHandoffButtons,
-} from "../../components/common/LogHandoffButtons";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
@@ -247,8 +244,8 @@ export function OlapExplorer() {
           <FolderOpen size={12} />
           Ingest CSV / JSONL
         </button>
-        {selectedIngestPath && isSimulationLogPath(selectedIngestPath) && (
-          <LogHandoffButtons
+        {selectedIngestPath && (
+          <PathHandoffButtons
             path={selectedIngestPath}
             storedLabel={sourceRunLabel ?? undefined}
             labeled
@@ -260,9 +257,16 @@ export function OlapExplorer() {
             path={selectedIngestPath}
             projectRoot={projectRoot}
             trailing={
-              !loading && lastPipeline ? (
-                <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
-              ) : undefined
+              <>
+                <PathHandoffButtons
+                  path={selectedIngestPath}
+                  storedLabel={sourceRunLabel ?? undefined}
+                  iconSize={11}
+                />
+                {!loading && lastPipeline ? (
+                  <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+                ) : null}
+              </>
             }
           />
         )}
