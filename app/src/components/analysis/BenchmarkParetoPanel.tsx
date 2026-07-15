@@ -4,8 +4,7 @@
 import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Download } from "lucide-react";
-import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
 import { chartMetricDisplay, chartMetricUsesSymlog } from "../../utils/chartLogScale";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
@@ -128,24 +127,11 @@ export function BenchmarkParetoPanel({
   return (
     <div className="card space-y-1">
       <div className="flex items-center justify-end gap-1">
-        <button
-          type="button"
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportStem}.png`)}
-          className="btn-ghost text-xs flex items-center gap-1"
-          title="Export Pareto panel as PNG"
-        >
-          <Download size={11} />
-          PNG
-        </button>
-        <button
-          type="button"
-          onClick={() => exportChartSvgWithToast({ current: chartRef.current }, `${exportStem}.svg`)}
-          className="btn-ghost text-xs flex items-center gap-1"
-          title="Export Pareto panel as SVG"
-        >
-          <Download size={11} />
-          SVG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem={exportStem}
+          size={11}
+        />
       </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
     </div>

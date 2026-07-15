@@ -3,7 +3,7 @@
  */
 import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
-import { ChevronDown, ChevronUp, Download, ImageDown, Play } from "lucide-react";
+import { ChevronDown, ChevronUp, Download, Play } from "lucide-react";
 import { toast } from "sonner";
 import { PivotTablePanel } from "./PivotTablePanel";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -14,7 +14,7 @@ import {
   sqlTemplates,
   type PortfolioBrushFilter,
 } from "../../utils/duckdbTemplates";
-import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
 import {
   buildAutoChartOption,
   heatmapCellLabels,
@@ -530,22 +530,12 @@ export function SqlQueryPanel({
                     ))}
                   </div>
                 )}
-                <button
-                  type="button"
-                  onClick={() => exportChartPngWithToast(autoChartRef, "auto-chart.png")}
-                  className="btn-ghost text-[10px] flex items-center gap-1 py-0.5"
-                >
-                  <ImageDown size={11} />
-                  PNG
-                </button>
-                <button
-                  type="button"
-                  onClick={() => exportChartSvgWithToast(autoChartRef, "auto-chart.svg")}
-                  className="btn-ghost text-[10px] flex items-center gap-1 py-0.5"
-                >
-                  <ImageDown size={11} />
-                  SVG
-                </button>
+                <ChartExportButtons
+                  chartRef={autoChartRef}
+                  filenameStem="auto-chart"
+                  size={11}
+                  className="py-0.5"
+                />
 
               </div>
               <ReactECharts

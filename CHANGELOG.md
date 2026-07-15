@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifth pass (§G.7)
+
+Hundred-fifth pass propagates the shared ``ChartExportButtons`` component to all
+remaining portfolio facet, OLAP, monitor, topology, and ML introspection ECharts
+panels that still used inline PNG/SVG export buttons.
+
+**React frontend**
+- Portfolio facets — ``ChartExportButtons`` on ``BenchmarkParetoPanel``,
+  ``BenchmarkPortfolioParallel``, ``BenchmarkDistributionHeatmap``,
+  ``BenchmarkGraphHeatmap``, ``BenchmarkPortfolioHeatmap``
+- OLAP — ``ChartExportButtons`` on ``PivotTablePanel`` pivot heatmap and
+  ``SqlQueryPanel`` auto-chart
+- Simulation Monitor — ``ChartExportButtons`` on ECharts route-map preview
+- Graph Topology — ``ChartExportButtons`` on ECharts view; WebGL Sigma/Cosmograph
+  keeps canvas PNG export
+- ML Introspection — ``ChartExportButtons`` on attention graph/heatmap (primary +
+  compare), loss contour map; WebGL terrain/Sigma keeps canvas PNG export
+
+**ROADMAP**
+- §G.7 ``ChartExportButtons`` propagated to portfolio facets, OLAP, route-map,
+  topology ECharts, and ML introspection ECharts panels
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fourth pass (§G.7)
 
 Hundred-fourth pass adds SVG export on all remaining PNG-only ECharts analytics

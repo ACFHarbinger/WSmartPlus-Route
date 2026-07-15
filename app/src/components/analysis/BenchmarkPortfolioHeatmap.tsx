@@ -4,7 +4,6 @@
 import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Download } from "lucide-react";
 import {
   formatLogMeta,
   formatPolicyMeta,
@@ -13,7 +12,7 @@ import {
   type PolicyMeta,
 } from "../../utils/simMetadata";
 import { isHighlighted } from "../../utils/chartHighlight";
-import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
 import {
   activeHeatmapMetrics,
   buildNormalizedHeatmapCells,
@@ -158,30 +157,10 @@ export function BenchmarkPortfolioHeatmap({
               ))}
             </div>
           )}
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() =>
-                exportChartPngWithToast({ current: chartRef.current }, "portfolio-heatmap.png")
-              }
-              className="btn-ghost text-xs flex items-center gap-1"
-              title="Export portfolio heatmap as PNG"
-            >
-              <Download size={12} />
-              PNG
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                exportChartSvgWithToast({ current: chartRef.current }, "portfolio-heatmap.svg")
-              }
-              className="btn-ghost text-xs flex items-center gap-1"
-              title="Export portfolio heatmap as SVG"
-            >
-              <Download size={12} />
-              SVG
-            </button>
-          </div>
+          <ChartExportButtons
+            chartRef={{ current: chartRef.current }}
+            filenameStem="portfolio-heatmap"
+          />
         </div>
       </div>
       <ReactECharts
