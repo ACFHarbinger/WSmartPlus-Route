@@ -6,7 +6,11 @@
  */
 
 import type { SimDayData, SimFailureSummary } from "../types";
-import { failureBinIdSets } from "./routeFailureOverlay";
+import {
+  failureBinIdSets,
+  TOUR_DIFF_RGB,
+  type TourDiffSets,
+} from "./routeFailureOverlay";
 import { resolveBinPositions } from "./mapPositions";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "./vehicleTours";
 
@@ -28,6 +32,89 @@ export function nodeSizeFromDemand(fill: number, collected = 0, mandatory = fals
 export interface RouteVizBuildOptions {
   title?: string;
   failureOverlay?: SimFailureSummary | null;
+  showFailureOverlay?: boolean;
+  compareData?: SimDayData | null;
+  tourDiff?: TourDiffSets | null;
+  showTourDiff?: boolean;
+  primaryLabel?: string;
+  compareLabel?: string;
+}
+
+function rgbCss([r, g, b]: [number, number, number]): string {
+  return `rgb(${r},${g},${b})`;
+}
+
+function nodeBorderStyle(
+  binId: number,
+  mandatory: boolean,
+  showFailure: boolean,
+  overflowIds: Set<number>,
+  skippedIds: Set<number>,
+  showTourDiff: boolean,
+  tourDiff?: TourDiffSets | null
+): { borderColor?: string; borderWidth: number } {
+  if (showTourDiff && tourDiff) {
+    if (tourDiff.onlyFirst.has(binId)) {
+      return { borderColor: rgbCss(TOUR_DIFF_RGB.onlyFirst), borderWidth: 3 };
+    }
+    if (tourDiff.onlySecond.has(binId)) {
+      return { borderColor: rgbCss(TOUR_DIFF_RGB.onlySecond), borderWidth: 3 };
+    }
+  }
+
+  if (showFailure) {
+    if (overflowIds.has(binId) || skippedIds.has(binId)) {
+      return { borderColor: "#ffffff", borderWidth: 2 };
+    }
+  }
+
+  if (mandatory) {
+    return { borderColor: "#a78bfa", borderWidth: 2 };
+  }
+
+  return { borderWidth: 0 };
+}
+
+function nodeFillColor(
+  binId: number,
+  fillPct: number,
+  showFailure: boolean,
+  overflowIds: Set<number>,
+  skippedIds: Set<number>
+): string {
+  if (showFailure && overflowIds.has(binId)) return "#ef4444";
+  if (showFailure && skippedIds.has(binId)) return "#fb923c";
+  return fillColorForPct(fillPct);
+}
+
+function buildVehiclePathSeries(
+  data: SimDayData,
+  posById: Map<number, [number, number]>,
+  depotPos: [number, number] | undefined,
+  paletteOffset: number,
+  namePrefix: string
+): Record<string, unknown>[] {
+  const segments = splitVehicleTourIndices(data);
+  return segments.map((segment, vi) => {
+    const pathCoords: [number, number][] = [];
+    if (depotPos) pathCoords.push(depotPos);
+    for (const binId of segment) {
+      const pos = posById.get(binId);
+      if (pos) pathCoords.push(pos);
+    }
+    if (depotPos && pathCoords.length > 1) pathCoords.push(depotPos);
+    const [r, g, b] = VEHICLE_COLORS_RGB[(vi + paletteOffset) % VEHICLE_COLORS_RGB.length];
+    const routeName =
+      segments.length > 1 ? `${namePrefix} · V${vi + 1}` : namePrefix;
+    return {
+      name: routeName,
+      type: "line" as const,
+      data: pathCoords,
+      lineStyle: { color: `rgb(${r},${g},${b})`, width: 2 },
+      symbol: "none",
+      z: 1,
+    };
+  });
 }
 
 export function buildRouteVizOption(
@@ -37,11 +124,17 @@ export function buildRouteVizOption(
   const { all_bin_coords, tour_indices, bin_state_c, bin_state_collected, mandatory } = data;
   if (!all_bin_coords?.length) return null;
 
+  const showFailure = opts.showFailureOverlay !== false;
+  const showTourDiff = opts.showTourDiff === true && opts.tourDiff != null;
+  const tourDiff = opts.tourDiff ?? null;
+
   const { posById } = resolveBinPositions(all_bin_coords);
   const mandatorySet = new Set(mandatory ?? []);
   const tourSet = new Set(tour_indices ?? []);
 
-  const { overflowIds, skippedIds } = failureBinIdSets(opts.failureOverlay);
+  const { overflowIds, skippedIds } = showFailure
+    ? failureBinIdSets(opts.failureOverlay)
+    : { overflowIds: new Set<number>(), skippedIds: new Set<number>() };
 
   const idleBins = all_bin_coords
     .filter((b) => b.id >= 0 && !tourSet.has(b.id))
@@ -49,18 +142,29 @@ export function buildRouteVizOption(
       const pos = posById.get(b.id);
       if (!pos) return null;
       const fill = bin_state_c?.[b.id] ?? 0;
-      const isOverflow = overflowIds.has(b.id);
-      const isSkipped = skippedIds.has(b.id);
+      const isOverflow = showFailure && overflowIds.has(b.id);
+      const border = nodeBorderStyle(
+        b.id,
+        false,
+        showFailure,
+        overflowIds,
+        skippedIds,
+        showTourDiff,
+        tourDiff
+      );
       return {
         value: pos,
         name: `#${b.id}`,
         symbolSize: nodeSizeFromDemand(fill),
         itemStyle: {
-          color: isOverflow ? "#ef4444" : isSkipped ? "#fb923c" : "#4b5563",
-          borderColor: isOverflow || isSkipped ? "#ffffff" : undefined,
-          borderWidth: isOverflow || isSkipped ? 2 : 0,
+          color: showFailure && (overflowIds.has(b.id) || skippedIds.has(b.id))
+            ? nodeFillColor(b.id, fill * 100, showFailure, overflowIds, skippedIds)
+            : "#4b5563",
+          ...border,
         },
-        label: isOverflow ? { show: true, formatter: "OVF", fontSize: 8, color: "#fecaca" } : undefined,
+        label: isOverflow
+          ? { show: true, formatter: "OVF", fontSize: 8, color: "#fecaca" }
+          : undefined,
       };
     })
     .filter(Boolean);
@@ -70,21 +174,23 @@ export function buildRouteVizOption(
     const fill = bin_state_c?.[binId] ?? 0;
     const collected = bin_state_collected?.[binId] ?? 0;
     const pct = Math.min(100, fill * 100);
-    const isOverflow = overflowIds.has(binId);
-    const isSkipped = skippedIds.has(binId);
+    const border = nodeBorderStyle(
+      binId,
+      mandatorySet.has(binId),
+      showFailure,
+      overflowIds,
+      skippedIds,
+      showTourDiff,
+      tourDiff
+    );
     return pos
       ? {
           value: pos,
           name: `#${binId}`,
           symbolSize: nodeSizeFromDemand(fill, collected, mandatorySet.has(binId)),
           itemStyle: {
-            color: isOverflow ? "#ef4444" : isSkipped ? "#fb923c" : fillColorForPct(pct),
-            borderColor: mandatorySet.has(binId)
-              ? "#a78bfa"
-              : isOverflow || isSkipped
-                ? "#ffffff"
-                : undefined,
-            borderWidth: mandatorySet.has(binId) || isOverflow || isSkipped ? 2 : 0,
+            color: nodeFillColor(binId, pct, showFailure, overflowIds, skippedIds),
+            ...border,
           },
         }
       : null;
@@ -92,25 +198,19 @@ export function buildRouteVizOption(
 
   const depotPos = posById.get(-1);
 
-  const segments = splitVehicleTourIndices(data);
-  const vehiclePaths = segments.map((segment, vi) => {
-    const pathCoords: [number, number][] = [];
-    if (depotPos) pathCoords.push(depotPos);
-    for (const binId of segment) {
-      const pos = posById.get(binId);
-      if (pos) pathCoords.push(pos);
-    }
-    if (depotPos && pathCoords.length > 1) pathCoords.push(depotPos);
-    const [r, g, b] = VEHICLE_COLORS_RGB[vi % VEHICLE_COLORS_RGB.length];
-    return {
-      name: segments.length > 1 ? `Vehicle ${vi + 1}` : "Route",
-      type: "line" as const,
-      data: pathCoords,
-      lineStyle: { color: `rgb(${r},${g},${b})`, width: 2 },
-      symbol: "none",
-      z: 1,
-    };
-  });
+  const primaryLabel = opts.primaryLabel ?? "Route";
+  const vehiclePaths = buildVehiclePathSeries(data, posById, depotPos, 0, primaryLabel);
+
+  const comparePaths =
+    opts.compareData?.all_bin_coords?.length
+      ? buildVehiclePathSeries(
+          opts.compareData,
+          posById,
+          depotPos,
+          3,
+          opts.compareLabel ?? "Compare"
+        )
+      : [];
 
   return {
     backgroundColor: "transparent",
@@ -122,6 +222,7 @@ export function buildRouteVizOption(
     yAxis: { type: "value", scale: true, axisLabel: { color: "#9090b0", fontSize: 10 } },
     series: [
       ...vehiclePaths,
+      ...comparePaths,
       {
         name: "Idle bins",
         type: "scatter",
@@ -152,7 +253,7 @@ export function buildRouteVizOption(
       trigger: "item",
       formatter: (p: { seriesName?: string; name?: string; data?: { name?: string } }) => {
         const label = p.name ?? p.data?.name ?? "";
-        if (p.seriesName?.startsWith("Vehicle") || p.seriesName === "Route") {
+        if (p.seriesName?.includes("· V") || p.seriesName === "Route" || p.seriesName?.includes("Compare")) {
           return `${p.seriesName}`;
         }
         return label ? `${label}${p.seriesName ? ` · ${p.seriesName}` : ""}` : p.seriesName ?? "";

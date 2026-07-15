@@ -1840,6 +1840,8 @@ export function SimulationSummary() {
   const [logPath, setLogPath] = useState<string | null>(null);
   const [comparisonRuns, setComparisonRuns] = useState<ComparisonRun[]>([]);
   const [routeVizDay, setRouteVizDay] = useState(1);
+  const [showFailureOverlay, setShowFailureOverlay] = useState(true);
+  const [showRouteDiff, setShowRouteDiff] = useState(false);
   const cityCompareChartRef = useRef<EChartsReact | null>(null);
 
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
@@ -2018,6 +2020,17 @@ export function SimulationSummary() {
         .map((p) => filteredEntries.find((e) => e.policy === p && e.day === routeVizDay))
         .filter((e): e is DayLogEntry => e != null && (e.data.all_bin_coords?.length ?? 0) > 0),
     [filteredEntries, routeVizPolicies, routeVizDay]
+  );
+
+  const routeVizHasFailureData = useMemo(
+    () =>
+      routeVizEntries.some(
+        (e) =>
+          e.data.failure_analysis?.has_failure &&
+          ((e.data.failure_analysis.overflow_bins?.length ?? 0) > 0 ||
+            (e.data.failure_analysis.skipped_high_fill_bins?.length ?? 0) > 0)
+      ),
+    [routeVizEntries]
   );
 
   const maxOverflow = useMemo(
@@ -2454,10 +2467,28 @@ export function SimulationSummary() {
                   <p className="text-xs font-semibold text-gray-300">Route Solution (§A.1 / §A.6)</p>
                   <p className="text-[10px] text-canvas-muted">
                     ECharts spatial overlay — depot, demand-sized nodes, per-vehicle edges;
-                    failure highlights when ``failure_analysis`` is present in day logs
+                    failure + route-diff toggles when comparing two policies (§A.6)
                   </p>
                 </div>
-                <div className="flex items-center gap-2">
+                <div className="flex items-center gap-2 flex-wrap justify-end">
+                  {routeVizHasFailureData && (
+                    <button
+                      className={`btn-ghost text-xs ${
+                        showFailureOverlay ? "text-accent-danger" : ""
+                      }`}
+                      onClick={() => setShowFailureOverlay((v) => !v)}
+                    >
+                      {showFailureOverlay ? "Hide" : "Show"} failure overlay
+                    </button>
+                  )}
+                  {routeVizEntries.length === 2 && (
+                    <button
+                      className={`btn-ghost text-xs ${showRouteDiff ? "text-accent-secondary" : ""}`}
+                      onClick={() => setShowRouteDiff((v) => !v)}
+                    >
+                      {showRouteDiff ? "Hide" : "Show"} route diff
+                    </button>
+                  )}
                   <button
                     onClick={() => {
                       const idx = routeVizDays.indexOf(routeVizDay);
@@ -2496,21 +2527,36 @@ export function SimulationSummary() {
                 </div>
               </div>
               {routeVizEntries.length > 0 ? (
-                <div
-                  className={`grid gap-3 ${
-                    routeVizEntries.length > 1 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
-                  }`}
-                >
-                  {routeVizEntries.map((entry) => (
-                    <RouteViz
-                      key={`${entry.policy}-${entry.day}`}
-                      data={entry.data}
-                      title="Route Solution"
-                      subtitle={`${parsePolicyLabel(entry.policy).selectionStrategy} · Day ${entry.day}`}
-                      filenameStem={`route-viz-day${entry.day}-${entry.policy}`}
-                    />
-                  ))}
-                </div>
+                showRouteDiff && routeVizEntries.length === 2 ? (
+                  <RouteViz
+                    data={routeVizEntries[0].data}
+                    compareData={routeVizEntries[1].data}
+                    primaryLabel={routeVizEntries[0].policy}
+                    compareLabel={routeVizEntries[1].policy}
+                    title="Route Solution"
+                    subtitle={`Day ${routeVizDay} · overlay compare`}
+                    filenameStem={`route-viz-overlay-day${routeVizDay}`}
+                    showFailureOverlay={showFailureOverlay}
+                    showTourDiff
+                  />
+                ) : (
+                  <div
+                    className={`grid gap-3 ${
+                      routeVizEntries.length > 1 ? "grid-cols-1 lg:grid-cols-2" : "grid-cols-1"
+                    }`}
+                  >
+                    {routeVizEntries.map((entry) => (
+                      <RouteViz
+                        key={`${entry.policy}-${entry.day}`}
+                        data={entry.data}
+                        title="Route Solution"
+                        subtitle={`${parsePolicyLabel(entry.policy).selectionStrategy} · Day ${entry.day}`}
+                        filenameStem={`route-viz-day${entry.day}-${entry.policy}`}
+                        showFailureOverlay={showFailureOverlay}
+                      />
+                    ))}
+                  </div>
+                )
               ) : (
                 <p className="text-xs text-canvas-muted py-4 text-center card">
                   No bin coordinates for day {routeVizDay} — run simulation with coordinate logging enabled.

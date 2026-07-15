@@ -950,16 +950,30 @@ export function SimulationMonitor() {
                       title="Route Map Preview"
                       subtitle={route.label}
                       filenameStem="route-map"
+                      showFailureOverlay={showFailureOverlay}
                     />
                   </div>
                 ))}
               </div>
+            ) : mapRoutes.length === 2 && mapLayout === "overlay" ? (
+              <RouteViz
+                data={mapRoutes[0].data}
+                compareData={mapRoutes[1].data}
+                primaryLabel={mapRoutes[0].label}
+                compareLabel={mapRoutes[1].label}
+                title="Route Map Preview"
+                subtitle={`Day ${displayDay} · overlay compare`}
+                filenameStem="route-map-overlay"
+                showFailureOverlay={showFailureOverlay}
+                showTourDiff={showRouteDiff}
+              />
             ) : displayEntry ? (
               <RouteViz
                 data={displayEntry.data}
                 title="Route Map Preview"
                 subtitle={`Day ${displayDay} · ${displayEntry.policy}`}
                 filenameStem="route-map"
+                showFailureOverlay={showFailureOverlay}
               />
             ) : null
           ) : null}

@@ -7,7 +7,11 @@ import type EChartsReact from "echarts-for-react";
 import { ChartExportButtons } from "../common/ChartExportButtons";
 import { FailureOverlayLegend } from "./FailureOverlayLegend";
 import { buildRouteVizOption } from "../../utils/routeViz";
-import { hasFailureOverlay } from "../../utils/routeFailureOverlay";
+import {
+  computeTourDiff,
+  hasFailureOverlay,
+  resolveFailureOverlay,
+} from "../../utils/routeFailureOverlay";
 import type { SimDayData, SimFailureSummary } from "../../types";
 
 export interface RouteVizProps {
@@ -18,6 +22,11 @@ export interface RouteVizProps {
   filenameStem?: string;
   showExport?: boolean;
   failureOverlay?: SimFailureSummary | null;
+  showFailureOverlay?: boolean;
+  compareData?: SimDayData | null;
+  compareLabel?: string;
+  primaryLabel?: string;
+  showTourDiff?: boolean;
   className?: string;
 }
 
@@ -29,17 +38,45 @@ export function RouteViz({
   filenameStem = "route-viz",
   showExport = true,
   failureOverlay,
+  showFailureOverlay = true,
+  compareData,
+  compareLabel,
+  primaryLabel,
+  showTourDiff = false,
   className = "",
 }: RouteVizProps) {
   const chartRef = useRef<EChartsReact | null>(null);
+
+  const resolvedFailure = resolveFailureOverlay(data, failureOverlay);
+  const tourDiff = useMemo(
+    () => (showTourDiff && compareData ? computeTourDiff(data, compareData) : null),
+    [showTourDiff, compareData, data]
+  );
 
   const option = useMemo(
     () =>
       buildRouteVizOption(data, {
         title: subtitle ? `${title} · ${subtitle}` : title,
-        failureOverlay: failureOverlay ?? data.failure_analysis ?? null,
+        failureOverlay: resolvedFailure,
+        showFailureOverlay,
+        compareData,
+        compareLabel,
+        primaryLabel,
+        tourDiff,
+        showTourDiff: showTourDiff && compareData != null,
       }),
-    [data, title, subtitle, failureOverlay]
+    [
+      data,
+      title,
+      subtitle,
+      resolvedFailure,
+      showFailureOverlay,
+      compareData,
+      compareLabel,
+      primaryLabel,
+      tourDiff,
+      showTourDiff,
+    ]
   );
 
   if (!option) {
@@ -50,8 +87,13 @@ export function RouteViz({
     );
   }
 
-  const resolvedFailure = failureOverlay ?? data.failure_analysis ?? null;
-  const showFailureLegend = hasFailureOverlay(resolvedFailure);
+  const showFailureLegend =
+    showFailureOverlay && hasFailureOverlay(resolvedFailure);
+  const showDiffLegend =
+    showTourDiff &&
+    compareData != null &&
+    tourDiff != null &&
+    (tourDiff.onlyFirst.size > 0 || tourDiff.onlySecond.size > 0);
 
   return (
     <div className={`card space-y-2 ${className}`.trim()}>
@@ -68,12 +110,30 @@ export function RouteViz({
               Failure overlay
             </span>
           )}
+          {showDiffLegend && (
+            <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-secondary/20 text-accent-secondary">
+              Route diff
+            </span>
+          )}
           {showExport && (
             <ChartExportButtons chartRef={chartRef} filenameStem={filenameStem} />
           )}
         </div>
       </div>
-      {showFailureLegend && <FailureOverlayLegend />}
+      {(showFailureLegend || showDiffLegend) && (
+        <FailureOverlayLegend
+          showOverflow={showFailureLegend}
+          showSkipped={showFailureLegend}
+          showTourDiff={showDiffLegend}
+          tourDiffLabels={
+            showDiffLegend && primaryLabel && compareLabel
+              ? [primaryLabel, compareLabel]
+              : showDiffLegend && compareLabel
+                ? ["Policy A", compareLabel]
+                : undefined
+          }
+        />
+      )}
       <ReactECharts ref={chartRef} option={option} style={{ height }} />
     </div>
   );
