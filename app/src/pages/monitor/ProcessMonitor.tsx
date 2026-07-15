@@ -28,7 +28,7 @@ import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
-import { getLatestProgress, progressPercent } from "../../utils/processProgress";
+import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 
 /**
@@ -189,34 +189,13 @@ function ProcessRow({
         </div>
       </div>
 
-      {/* Progress bar — shown when process:stdout emits PROGRESS:{...} markers */}
-      {proc.status === "running" && (() => {
-        const prog = getLatestProgress(proc.logLines);
-        if (!prog) return null;
-        const pct = progressPercent(prog);
-        return (
-          <div className="px-4 py-1.5 bg-canvas-bg border-t border-canvas-border/40 flex items-center gap-3">
-            <div className="flex-1 h-1.5 bg-canvas-elevated rounded-full overflow-hidden">
-              {pct !== null ? (
-                <div
-                  className="h-full bg-accent-primary rounded-full transition-all duration-300"
-                  style={{ width: `${pct}%` }}
-                />
-              ) : (
-                <div className="h-full bg-accent-primary/40 rounded-full animate-pulse w-full" />
-              )}
-            </div>
-            <span className="text-[10px] font-mono text-canvas-muted shrink-0">
-              {pct !== null
-                ? `${pct.toFixed(0)}%`
-                : prog.label ?? `${prog.value}`}
-            </span>
-            {prog.label && pct !== null && (
-              <span className="text-[10px] text-canvas-muted shrink-0">{prog.label}</span>
-            )}
-          </div>
-        );
-      })()}
+      {/* Progress bar + ETA — PROGRESS:{...} markers via LiveTrainProgressBar (§D.2 / §G.15) */}
+      {proc.status === "running" && (
+        <LiveTrainProgressBar
+          processId={id}
+          className="px-4 py-1.5 bg-canvas-bg border-t border-canvas-border/40"
+        />
+      )}
 
       {/* Log viewer */}
       {expanded && (
