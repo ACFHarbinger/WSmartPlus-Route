@@ -241,13 +241,27 @@ export function BenchmarkAnalysis() {
   const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
 
-  const filteredRuns = useMemo(
+  const normalizedRuns = useMemo(
     () =>
       runs.map((r) => ({
         ...r,
+        label: portfolioRunLabel(r.path, r.label, projectRoot),
+      })),
+    [runs, projectRoot]
+  );
+
+  const portfolioDuckDbLogs = useMemo(
+    () => normalizedRuns.map((r) => ({ path: r.path, label: r.label })),
+    [normalizedRuns]
+  );
+
+  const filteredRuns = useMemo(
+    () =>
+      normalizedRuns.map((r) => ({
+        ...r,
         entries: filterEntries(r.entries, policy, sampleId),
       })),
-    [runs, policy, sampleId]
+    [normalizedRuns, policy, sampleId]
   );
 
   // Consume pending eval results on mount
@@ -259,17 +273,13 @@ export function BenchmarkAnalysis() {
   }, [pendingEvalResults, setPendingEvalResults]);
 
   useEffect(() => {
-    if (!duckdbReady || runs.length === 0) return;
+    if (!duckdbReady || portfolioDuckDbLogs.length === 0) return;
     setDuckdbLoading(true);
-    runPortfolioSimulationArrowPipeline(
-      runs.map((r) => ({ path: r.path, label: r.label })),
-      BENCHMARK_SIM_TABLE,
-      projectRoot
-    )
+    runPortfolioSimulationArrowPipeline(portfolioDuckDbLogs, BENCHMARK_SIM_TABLE, projectRoot)
       .then(setLastPipeline)
       .catch((err) => console.warn("Benchmark Arrow pipeline:", err))
       .finally(() => setDuckdbLoading(false));
-  }, [runs, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
+  }, [portfolioDuckDbLogs, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
 
   // Consume pending benchmark logs from Output Browser compare action
   useEffect(() => {
@@ -697,7 +707,7 @@ export function BenchmarkAnalysis() {
             Loaded Runs
           </p>
           <div className="space-y-1">
-            {runs.map((r) => (
+            {normalizedRuns.map((r) => (
               <LoadedRunRow
                 key={r.path}
                 path={r.path}

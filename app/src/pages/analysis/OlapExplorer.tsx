@@ -18,6 +18,7 @@ import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
   formatPipelineTimingBadge,
+  portfolioRunLabel,
   runCsvArrowPipeline,
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
@@ -29,7 +30,6 @@ import {
   listDuckDbTables,
 } from "../../utils/duckdbClient";
 import {
-  runLabelFromSourcePath,
   runLabelMapFromSingleTableLabels,
   runLabelMapFromTablePaths,
   tableRunLabelBrushActive,
@@ -171,7 +171,7 @@ export function OlapExplorer() {
         ?.replace(/\.(csv|jsonl)$/i, "") ?? "data";
     const tableName = `${CUSTOM_TABLE_PREFIX}${base.replace(/[^a-zA-Z0-9_]/g, "_")}`;
     const isJsonl = path.toLowerCase().endsWith(".jsonl");
-    const runLabel = runLabelFromSourcePath(path, projectRoot);
+    const runLabel = portfolioRunLabel(path, undefined, projectRoot);
     setLoading(true);
     try {
       const timing = isJsonl
