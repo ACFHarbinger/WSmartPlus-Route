@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-ninth pass (§G.6 + §G.14 + §G.16 + §D.7)
+
+Hundred-seventy-ninth pass closes the single-log DuckDB run-label brush gap left after the
+hundred-seventy-eighth pass (which unified OLAP built-in portfolio table brush parity).
+Simulation Monitor, Algorithm Comparison, and Data Explorer now share Output Browser
+path-chip ring-highlight + click-to-brush behaviour, and single-log Arrow pipelines
+annotate DuckDB tables with ``run_label`` + ``city_scale`` when absent.
+
+**React frontend**
+- ``annotateTableWithRunLabelIfMissing`` — ``runSimulationArrowPipeline`` / ``runCsvArrowPipeline``
+  add path-derived ``run_label`` + ``city_scale`` columns when missing (§G.6 / §D.7)
+- ``pathRunLabelBrushActive`` / ``useRunLabelBrushToggle`` / ``PathRunLabelChip`` — shared
+  path-chip ring highlight + click-to-brush helpers (§G.14–§G.16 / §D.7)
+- Simulation Monitor — watch-path ``PathRunLabelChip``; ``monitor_sim`` ``SqlQueryPanel``
+  ``brushSqlSync`` + run-label filter parity (§G.16 / §D.7)
+- Algorithm Comparison — watch-path ``PathRunLabelChip``; ``algorithm_sim`` ``SqlQueryPanel``
+  run-label brush sync via ``portfolioMode`` (§G.1 / §G.16 / §D.7)
+- Data Explorer — open-file ``PathRunLabelChip``; ``useTableRunLabelBrush`` on ``explorer_csv``
+  when CSV lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.6 single-log DuckDB ``run_label`` annotation + ``SqlQueryPanel`` brush sync checked
+- §G.14–§G.16 file-path chip run-label brush + ring-highlight parity checked
+- §D.7 Monitor / Algorithm Comparison / Data Explorer path-chip brush parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-eighth pass (§G.6 + §G.14 + §G.16 + §D.7)
 
 Hundred-seventy-eighth pass closes the OLAP Explorer built-in DuckDB portfolio table run-label

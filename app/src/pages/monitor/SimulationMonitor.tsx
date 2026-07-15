@@ -29,6 +29,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { hexToRgb } from "../../utils/colors";
 import {
   enrichEntriesWithGraphCoords,
@@ -607,16 +608,20 @@ export function SimulationMonitor() {
         </button>
 
         {watchPath && (
-          <span className="flex items-center gap-1.5 text-xs text-canvas-muted truncate max-w-md">
-            {isWatching && (
-              <RefreshCw size={11} className="animate-spin text-accent-success" />
-            )}
-            {watchPath.split("/").pop()}
-            {duckdbLoading && " · DuckDB ingesting…"}
-            {!duckdbLoading && lastPipeline?.tableName === "monitor_sim" && (
-              <> · {formatPipelineTimingBadge(lastPipeline)}</>
-            )}
-          </span>
+          <PathRunLabelChip
+            path={watchPath}
+            trailing={
+              <>
+                {isWatching && (
+                  <RefreshCw size={11} className="animate-spin text-accent-success shrink-0" />
+                )}
+                {duckdbLoading && <span className="shrink-0">· DuckDB ingesting…</span>}
+                {!duckdbLoading && lastPipeline?.tableName === "monitor_sim" && (
+                  <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+                )}
+              </>
+            }
+          />
         )}
 
         {policies.length > 0 && (
@@ -1050,6 +1055,12 @@ export function SimulationMonitor() {
               theme={theme}
               onDaySelect={(day) => setSelectedDay(day)}
               onProfitRange={(min, max) => setDuckdbProfitRange([min, max])}
+              highlightPolicies={selectedPolicy ? [selectedPolicy] : null}
+              highlightRunLabels={activeRunLabel ? [activeRunLabel] : null}
+              brushSqlSync
+              autoRunOnBrushSync
+              portfolioMode
+              portfolioRunLabels={activeRunLabel ? [activeRunLabel] : []}
             />
           )}
         </>

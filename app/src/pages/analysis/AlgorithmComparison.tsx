@@ -8,6 +8,7 @@ import type EChartsReact from "echarts-for-react";
 import { Map } from "lucide-react";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
@@ -163,12 +164,14 @@ export function AlgorithmComparison() {
 
       <div className="flex items-center gap-3 flex-wrap">
         {watchPath && (
-          <span className="text-xs text-canvas-muted font-mono truncate">
-            {watchPath.split("/").pop()}
-            {!duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE && (
-              <> · {formatPipelineTimingBadge(lastPipeline)}</>
-            )}
-          </span>
+          <PathRunLabelChip
+            path={watchPath}
+            trailing={
+              !duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE ? (
+                <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+              ) : undefined
+            }
+          />
         )}
         <button onClick={openOnMap} className="btn-ghost text-xs flex items-center gap-1.5">
           <Map size={12} />
@@ -341,8 +344,11 @@ export function AlgorithmComparison() {
           tableName={ALGORITHM_SIM_TABLE}
           theme={theme}
           highlightPolicies={brushedPolicies}
+          highlightRunLabels={derivedRunLabel ? [derivedRunLabel] : null}
           brushSqlSync
           autoRunOnBrushSync
+          portfolioMode
+          portfolioRunLabels={derivedRunLabel ? [derivedRunLabel] : []}
           algorithmMode
         />
       )}

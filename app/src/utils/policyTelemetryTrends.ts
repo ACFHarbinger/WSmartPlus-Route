@@ -90,6 +90,11 @@ export function tableRunLabelBrushActive(
   return Boolean(activeRunLabel && labels?.includes(activeRunLabel));
 }
 
+/** Whether a global ``run_label`` brush matches a file/log path stem (§G.14–§G.16 / §D.7). */
+export function pathRunLabelBrushActive(path: string, activeRunLabel: string | null): boolean {
+  return Boolean(activeRunLabel && runLabelFromPath(path) === activeRunLabel);
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;

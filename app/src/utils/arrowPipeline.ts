@@ -5,7 +5,14 @@
  */
 import { invoke } from "@tauri-apps/api/core";
 import { cityScaleFromRunLabel } from "./cityComparison";
-import { duckDbRowCount, ingestArrowIpc, initDuckDb, queryDuckDb } from "./duckdbClient";
+import {
+  duckDbHasColumn,
+  duckDbRowCount,
+  ingestArrowIpc,
+  initDuckDb,
+  queryDuckDb,
+} from "./duckdbClient";
+import { runLabelFromPath } from "./policyTelemetryTrends";
 
 export const ARROW_PIPELINE_BUDGET_MS = 500;
 
@@ -35,6 +42,24 @@ export interface ArrowPipelineTiming {
 
 function sqlStringLiteral(value: string): string {
   return `'${value.replace(/'/g, "''")}'`;
+}
+
+/** Add ``run_label`` + ``city_scale`` when a single-log table lacks portfolio columns (§G.6 / §D.7). */
+async function annotateTableWithRunLabelIfMissing(
+  tableName: string,
+  sourcePath: string
+): Promise<void> {
+  const hasRunLabel = await duckDbHasColumn(tableName, "run_label");
+  if (hasRunLabel) return;
+
+  const runLabel = runLabelFromPath(sourcePath);
+  const cityScale = cityScaleFromRunLabel(runLabel);
+  const rawName = `_annotate_${tableName}_raw`;
+  await queryDuckDb(`ALTER TABLE "${tableName}" RENAME TO "${rawName}"`);
+  await queryDuckDb(
+    `CREATE TABLE "${tableName}" AS SELECT *, ${sqlStringLiteral(runLabel)} AS run_label, ${sqlStringLiteral(cityScale)} AS city_scale FROM "${rawName}"`
+  );
+  await queryDuckDb(`DROP TABLE IF EXISTS "${rawName}"`).catch(() => {});
 }
 
 /** Human-readable DuckDB ingest timing for toolbar badges (§G.0 / §G.7). */
@@ -141,6 +166,7 @@ export async function runCsvArrowPipeline(
   const hasSidecar = await invoke<boolean>("path_exists", { path: sidecar });
   if (hasSidecar) {
     const timing = await runArrowSidecarPipeline(sidecar, tableName);
+    await annotateTableWithRunLabelIfMissing(tableName, csvPath);
     return { ...timing, columnCount: timing.columnCount };
   }
 
@@ -157,7 +183,8 @@ export async function runCsvArrowPipeline(
   const t3 = performance.now();
 
   const rowCount = await duckDbRowCount(tableName);
-  const totalMs = Math.round(t3 - t0);
+  await annotateTableWithRunLabelIfMissing(tableName, csvPath);
+  const totalMs = Math.round(performance.now() - t0);
 
   return {
     rowCount,
@@ -228,6 +255,7 @@ export async function runSimulationArrowPipeline(
   const hasSidecar = await invoke<boolean>("path_exists", { path: sidecar });
   if (hasSidecar) {
     const timing = await runArrowSidecarPipeline(sidecar, tableName);
+    await annotateTableWithRunLabelIfMissing(tableName, logPath);
     return { ...timing, logCount: 1, sidecarCount: 1 };
   }
 
@@ -241,7 +269,8 @@ export async function runSimulationArrowPipeline(
   const t2 = performance.now();
 
   const rowCount = await duckDbRowCount(tableName);
-  const totalMs = Math.round(t2 - t0);
+  await annotateTableWithRunLabelIfMissing(tableName, logPath);
+  const totalMs = Math.round(performance.now() - t0);
 
   return {
     rowCount,
