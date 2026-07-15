@@ -989,6 +989,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` — ``Training Hub →`` shortcut on eval workflows; ``hideHub`` prop suppresses self-link on Training Hub eval panel (§G.10 / §G.12 / §G.15 / §D.7)
 - [x] §G.10 / §G.12 / §G.15 eval launcher progress + navigation parity across Training Hub, Evaluation Runner, and Process Monitor (§D.7)
 
+**Delivered (§D.7 — hundred-sixty-eighth pass)**
+
+- [x] ``evalLivePanelTitle`` — shared live/post-run eval panel title helper in ``evalResults.ts`` (§G.10 / §G.12 / §G.15 / §D.7)
+- [x] Training Hub + Evaluation Runner — deduplicated inline eval live title strings; import shared ``evalLivePanelTitle`` (§G.10 / §G.12 / §D.7)
+- [x] Process Monitor — selected ``eval`` embedded section uses dynamic ``evalLivePanelTitle`` instead of static ``Eval results`` subtitle (§G.12 / §G.15 / §D.7)
+- [x] §G.10 / §G.12 / §G.15 eval launcher live panel title parity across Training Hub, Evaluation Runner, and Process Monitor (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1703,6 +1710,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessLogTail`` shared stdout tail display on Training Hub train/HPO live panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.10 / §D.7)
 - [x] Training Hub eval mode — ``LauncherLivePanel`` + ``EvalCheckpointLiveCard`` / ``EvalResultCard`` live panel shell parity with Evaluation Runner (hundred-sixty-sixth pass; §G.10 / §G.12 / §D.7)
 - [x] Training Hub eval mode — single-checkpoint progress bar via ``EvalCheckpointLiveCard`` only; ``LauncherNavMesh`` ``Training Hub →`` + ``hideHub`` parity (hundred-sixty-seventh pass; §G.10 / §G.12 / §D.7)
+- [x] ``evalLivePanelTitle`` shared eval live panel title helper; Training Hub eval mode imports shared title (hundred-sixty-eighth pass; §G.10 / §D.7)
 
 ---
 
@@ -1758,6 +1766,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``processLogTail`` + Process Monitor ``EvalCheckpointLiveCard`` live eval parity (hundred-sixtieth pass; §G.12 / §G.15 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display inside ``EvalCheckpointLiveCard`` (hundred-sixty-first pass; §G.12 / §D.7)
 - [x] ``EvalCheckpointLiveCard`` accepts raw ``logLines``; Evaluation Runner passes ``logLines`` instead of pre-formatted tail (hundred-sixty-second pass; §G.12 / §D.7)
+- [x] ``EvalCheckpointLiveCard`` ``showLogTail={false}`` + ``LauncherLivePanel`` shell ``logLines`` for single-checkpoint eval (hundred-sixty-fifth pass; §G.12 / §D.7)
+- [x] ``LauncherNavMesh`` ``Training Hub →`` shortcut on eval workflows (hundred-sixty-seventh pass; §G.12 / §D.7)
+- [x] ``evalLivePanelTitle`` shared eval live panel title; Evaluation Runner imports shared title (hundred-sixty-eighth pass; §G.12 / §D.7)
 
 ---
 
@@ -1847,6 +1858,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessLogTail`` shared stdout tail display on selected ``test_sim`` embedded workflow section via ``LauncherLivePanel`` (hundred-sixty-fourth pass; §G.9 / §G.15 / §D.7)
 - [x] Process Monitor eval embedded section passes raw ``logLines`` to ``EvalCheckpointLiveCard`` (hundred-sixty-second pass; §G.12 / §G.15 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on selected ``train_`` / ``hpo_`` embedded analytics section via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.15 / §D.7)
+- [x] Process Monitor eval embedded section passes ``logLines`` to ``LauncherLivePanel`` instead of inline ``ProcessLogTail`` on ``EvalCheckpointLiveCard`` (hundred-sixty-fifth pass; §G.12 / §G.15 / §D.7)
+- [x] ``LauncherNavMesh`` ``Training Hub →`` shortcut on selected ``eval`` embedded section (hundred-sixty-seventh pass; §G.12 / §G.15 / §D.7)
+- [x] Process Monitor eval embedded section uses dynamic ``evalLivePanelTitle`` instead of static ``Eval results`` subtitle (hundred-sixty-eighth pass; §G.12 / §G.15 / §D.7)
 
 ---
 

@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-eighth pass (§G.10 + §G.12 + §G.15 + §D.7)
+
+Hundred-sixty-eighth pass closes the eval live panel title gap left after the
+hundred-sixty-seventh pass (which fixed Training Hub eval progress duplication and
+added ``Training Hub →`` to eval ``LauncherNavMesh``). All three eval surfaces now
+share one title helper for running, completed, and failed states.
+
+**React frontend**
+- ``evalLivePanelTitle`` — shared live/post-run eval panel title helper in
+  ``evalResults.ts``; supports single- and multi-checkpoint batch wording
+  (§G.10 / §G.12 / §G.15 / §D.7)
+- Training Hub + Evaluation Runner — deduplicated inline eval live title strings;
+  import shared ``evalLivePanelTitle`` (§G.10 / §G.12 / §D.7)
+- Process Monitor — selected ``eval`` embedded section uses dynamic
+  ``evalLivePanelTitle`` instead of static ``Eval results`` subtitle
+  (§G.12 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub ``evalLivePanelTitle`` checked
+- §G.12 Evaluation Runner ``evalLivePanelTitle`` checked
+- §G.15 Process Monitor eval embedded live panel title checked
+- §D.7 eval launcher live panel title parity across Training Hub, Evaluation Runner, and Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-seventh pass (§G.10 + §G.12 + §G.15 + §D.7)
 
 Hundred-sixty-seventh pass closes the eval progress and navigation gaps left after the

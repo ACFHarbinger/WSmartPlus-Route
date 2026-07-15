@@ -36,6 +36,7 @@ import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics"
 import {
   checkpointLabelFromEvalProcess,
   collectEvalResultFromLogLines,
+  evalLivePanelTitle,
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
@@ -365,11 +366,10 @@ export function TrainingHub() {
     setMode("benchmark");
   }, [evalResult, setPendingEvalResults, setMode]);
 
-  const evalLiveTitle = isDone
-    ? runStatus === "completed"
-      ? "Evaluation Complete"
-      : `Evaluation ${runStatus}`
-    : "Evaluating…";
+  const evalLiveTitle = evalLivePanelTitle({
+    isRunning: !isDone,
+    status: runStatus ?? undefined,
+  });
 
   const completedEvalCheckpointPath =
     mode === "eval" && isDone && runStatus === "completed" ? checkpointPath || null : null;
