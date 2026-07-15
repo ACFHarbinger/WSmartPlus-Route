@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-first pass (§G.19 + §G.18 + §D.7)
+
+Hundred-ninety-first pass closes the Settings, MLflow tracking URI, and Optuna
+storage URL path-chip gaps left after the hundred-ninetieth pass (which unified
+live-eval, dataset-input, data-gen source, and telemetry-store ``PathRunLabelChip``
+parity). Project root, Python executable, MLflow tracking store, and Optuna
+storage inputs now share ``PathRunLabelChip`` ring-highlight + click-to-brush
+behaviour with analysis views.
+
+**React frontend**
+- ``resolveLocalProjectPath`` — resolve MLflow tracking URI / relative paths against
+  ``projectRoot`` for path-chip brush (§G.18 / §G.19 / §D.7)
+- Settings — project root + Python executable ``PathRunLabelChip`` below filled path
+  inputs (§G.19 / §D.7)
+- Experiment Tracker — MLflow tracking URI ``PathRunLabelChip`` below filled tracking
+  URI when local path resolves (§G.18 / §D.7)
+- HPO Tracker — Optuna storage URL ``PathRunLabelChip`` below filled input; inline
+  chip parity with eval dataset inputs (§G.18 / §D.7)
+
+**ROADMAP**
+- §G.19 Settings project-root + Python path path-chip brush parity checked
+- §G.18 Experiment Tracker MLflow tracking URI path-chip brush parity checked
+- §G.18 HPO Tracker Optuna storage URL path-chip brush parity checked
+- §D.7 Settings + tracker storage/tracking URI path-chip run-label brush parity across Settings, Experiment Tracker, and HPO Tracker checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninetieth pass (§G.12 + §G.10 + §G.11 + §G.15 + §G.7 + §D.7)
 
 Hundred-ninetieth pass closes the live-eval, dataset-input, data-gen source, and

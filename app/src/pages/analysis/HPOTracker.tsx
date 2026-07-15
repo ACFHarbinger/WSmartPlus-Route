@@ -525,12 +525,9 @@ export function HPOTracker() {
             Refresh
           </button>
         </div>
-        {storageDbPath && (
-          <div className="flex items-center gap-2 min-w-0">
-            <span className="text-[10px] text-canvas-muted shrink-0">Storage DB</span>
-            <PathRunLabelChip path={storageDbPath} className="flex-1 min-w-0" />
-          </div>
-        )}
+        {storageDbPath ? (
+          <PathRunLabelChip path={storageDbPath} className="max-w-full" />
+        ) : null}
         {lastReportDir && (
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-[10px] text-canvas-muted shrink-0">Reports</span>
