@@ -1421,6 +1421,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser — JSONL viewer dual handoffs via shared labeled control (§G.14 / §D.7)
 - [x] §G.1 / §G.14 / §G.16 studio-wide ``LogHandoffButtons`` toolbar migration checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-nineteenth pass)**
+
+- [x] ``LogHandoffButtons`` optional ``path`` — empty path navigates to Summary / Monitor mode without pending-path handoff (§G.1 / §G.16 / §D.7)
+- [x] ``LauncherNavMesh`` — sim **Simulation Summary →** / **Simulation Monitor →** via shared labeled control; Monitor-only while running, both when ``showPostRun`` (§G.9 / §G.15 / §D.7)
+- [x] Simulation Launcher + Process Monitor sim panels inherit shared log-handoff control through ``simLogPath`` (§G.9 / §G.15 / §G.16 / §D.7)
+- [x] §G.9 / §G.15 launcher nav-mesh ``LogHandoffButtons`` migration checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions

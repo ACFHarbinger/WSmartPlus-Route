@@ -1,6 +1,7 @@
 /**
  * Cross-page sim / data-gen / eval launcher shortcuts (§D.7 / §G.9 / §G.11 / §G.12).
  */
+import { LogHandoffButtons } from "../common/LogHandoffButtons";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import type { LauncherKind } from "../../utils/launcherProcess";
 
@@ -21,8 +22,9 @@ export interface LauncherNavMeshProps {
   /** Auto-select this run in Output Browser via ``pendingRunPath``. */
   outputRunPath?: string | null;
   /**
-   * Post-run sim log (``.jsonl``) for Simulation Summary handoff via
-   * ``pendingLogPath`` (§G.9 / §G.1 / §D.7).
+   * Post-run sim log (``.jsonl``) for Simulation Summary / Monitor handoff via
+   * ``pendingLogPath`` (§G.9 / §G.1 / §G.16 / §D.7). When unset, the shared
+   * log-handoff control still navigates to each destination mode.
    */
   simLogPath?: string | null;
   className?: string;
@@ -66,35 +68,12 @@ export function LauncherNavMesh({
       )}
 
       {kind === "sim" && (
-        <>
-          <button
-            onClick={() => {
-              // Post-run: hand off ``.jsonl`` so Digital Twin auto-loads (§G.16 / §G.9).
-              if (simLogPath) {
-                handoff(simLogPath, "log", { mode: "simulation" });
-              } else {
-                setMode("simulation");
-              }
-            }}
-            className="btn-ghost text-xs text-canvas-muted"
-          >
-            Simulation Monitor →
-          </button>
-          {showPostRun && (
-            <button
-              onClick={() => {
-                if (simLogPath) {
-                  handoff(simLogPath, "log");
-                } else {
-                  setMode("simulation_summary");
-                }
-              }}
-              className="btn-ghost text-xs text-accent-primary"
-            >
-              Simulation Summary →
-            </button>
-          )}
-        </>
+        <LogHandoffButtons
+          path={simLogPath}
+          labeled
+          iconSize={12}
+          targets={showPostRun ? ["summary", "monitor"] : ["monitor"]}
+        />
       )}
 
       {kind === "data_gen" && showPostRun && (
