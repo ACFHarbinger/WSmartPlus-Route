@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-seventh pass (§G.7 + §G.10 + §G.12 + §G.14 + §G.17 + §D.7)
+
+Two-hundred-and-seventh pass closes the eval-checkpoint recent-file gaps left after
+pass 206 unified Training Monitor and nav-mesh handoff labels. ``RecentFileKind``
+gains ``checkpoint`` for ``.pt`` / ``.ckpt`` / ``.pth`` model files. Training Monitor
+checkpoint browser, Output Browser ``loadInEvalRunner``, and ``LauncherNavMesh``
+post-run ``Load in Eval Runner`` push recent files via ``portfolioRunLabel`` before
+``pendingCheckpoint`` handoff. Evaluation Runner and Training Hub file pickers and
+``pendingCheckpoint`` consume use the same labels. Command Palette opens checkpoint
+recents into Evaluation Runner.
+
+**React frontend**
+- ``recentFiles`` store — ``checkpoint`` kind for model checkpoint files (§G.12 / §G.7 / §D.7)
+- Training Monitor — checkpoint browser ``pushRecent`` via ``portfolioRunLabel`` on eval handoff (§G.17 / §G.12 / §D.7)
+- Output Browser — ``loadInEvalRunner`` ``pushRecent`` via ``portfolioRunLabel`` (§G.14 / §G.12 / §D.7)
+- ``LauncherNavMesh`` — post-run eval checkpoint handoff ``pushRecent`` via ``portfolioRunLabel`` (§G.9–§G.12 / §G.15 / §D.7)
+- Evaluation Runner — ``pendingCheckpoint`` consume + checkpoint file picker ``pushRecent`` (§G.12 / §D.7)
+- Training Hub — eval-mode checkpoint file picker ``pushRecent`` (§G.10 / §G.12 / §D.7)
+- Command Palette — recent checkpoint handoff via ``pendingCheckpoint`` (§G.7 / §G.12 / §D.7)
+
+**ROADMAP**
+- §G.12 Evaluation Runner checkpoint recent-file ``portfolioRunLabel`` parity checked
+- §G.7 Command Palette checkpoint recent-file handoff checked
+- §G.10 / §G.14 / §G.17 Training Hub + Output Browser + Training Monitor checkpoint handoff recent-file parity checked
+- §D.7 Eval checkpoint relative-path brush/SQL recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-sixth pass (§G.7 + §G.9–§G.12 + §G.15 + §G.17 + §D.7)
 
 Two-hundred-and-sixth pass closes the Training Monitor and launcher/train-HPO

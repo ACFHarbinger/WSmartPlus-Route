@@ -35,7 +35,9 @@ import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useProcessStore } from "../../store/process";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 import type { ProcessStatus } from "../../types";
 import {
   type EvalResult,
@@ -285,6 +287,7 @@ export function EvaluationRunner() {
     useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   // Checkpoint list — pre-populated from Training Monitor "Load in Eval Runner" action
   const [checkpoints, setCheckpoints] = useState<CheckpointEntry[]>([
@@ -294,10 +297,15 @@ export function EvaluationRunner() {
   // Consume pendingCheckpoint set by TrainingMonitor checkpoint browser
   useEffect(() => {
     if (pendingCheckpoint) {
+      pushRecent({
+        path: pendingCheckpoint,
+        label: portfolioRunLabel(pendingCheckpoint, undefined, projectRoot),
+        kind: "checkpoint",
+      });
       setCheckpoints([{ id: "ckpt_pending", path: pendingCheckpoint }]);
       setPendingCheckpoint(null);
     }
-  }, [pendingCheckpoint, setPendingCheckpoint]);
+  }, [pendingCheckpoint, projectRoot, pushRecent, setPendingCheckpoint]);
 
   // Eval params
   const [problem, setProblem] = useState("vrpp");
@@ -407,7 +415,13 @@ export function EvaluationRunner() {
     const path = (await open({
       filters: [{ name: "Checkpoint", extensions: ["pt", "ckpt", "pth"] }],
     })) as string | null;
-    if (path) updateCheckpoint(id, path);
+    if (!path) return;
+    pushRecent({
+      path,
+      label: portfolioRunLabel(path, undefined, projectRoot),
+      kind: "checkpoint",
+    });
+    updateCheckpoint(id, path);
   };
 
   const pickDataset = async () => {

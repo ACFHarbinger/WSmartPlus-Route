@@ -736,10 +736,15 @@ export function TrainingMonitor() {
 
   const handleLoadCheckpoint = useCallback(
     (checkpointPath: string) => {
+      pushRecent({
+        path: checkpointPath,
+        label: portfolioRunLabel(checkpointPath, undefined, projectRoot),
+        kind: "checkpoint",
+      });
       setPendingCheckpoint(checkpointPath);
       setMode("eval_runner");
     },
-    [setPendingCheckpoint, setMode]
+    [pushRecent, projectRoot, setPendingCheckpoint, setMode]
   );
 
   if (!projectRoot) {

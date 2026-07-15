@@ -1320,6 +1320,17 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` + ``TrainHpoNavMesh`` — Output Browser / Training Monitor handoff ``pushRecent`` via ``portfolioRunLabel`` (§G.9–§G.12 / §G.15 / §G.17 / §D.7)
 - [x] §G.17 / §G.7 Training Monitor + nav-mesh recent-file ``portfolioRunLabel`` parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-seventh pass)**
+
+- [x] ``RecentFileKind`` — ``checkpoint`` kind for ``.pt`` / ``.ckpt`` / ``.pth`` model files alongside log/run/csv/training (§G.12 / §G.7 / §D.7)
+- [x] Training Monitor — checkpoint browser ``handleLoadCheckpoint`` ``pushRecent`` via ``portfolioRunLabel`` before ``pendingCheckpoint`` handoff (§G.17 / §G.12 / §D.7)
+- [x] Output Browser — ``loadInEvalRunner`` checkpoint handoff ``pushRecent`` via ``portfolioRunLabel`` (§G.14 / §G.12 / §D.7)
+- [x] ``LauncherNavMesh`` — post-run ``Load in Eval Runner`` ``pushRecent`` via ``portfolioRunLabel`` (§G.9–§G.12 / §G.15 / §D.7)
+- [x] Evaluation Runner — ``pendingCheckpoint`` consume + file-picker ``pushRecent`` via ``portfolioRunLabel`` (§G.12 / §D.7)
+- [x] Training Hub — eval-mode checkpoint file picker ``pushRecent`` via ``portfolioRunLabel`` (§G.10 / §G.12 / §D.7)
+- [x] Command Palette — open recent checkpoints via ``pendingCheckpoint`` + Evaluation Runner mode (§G.7 / §G.12 / §D.7)
+- [x] §G.12 / §G.7 eval checkpoint recent-file ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1920,6 +1931,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor run select + ``pendingTrainingRunPath`` + post-run auto-select recent-file push — ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-sixth pass; §G.17 / §D.7)
 - [x] Command Palette training recent-file handoff — ``pendingTrainingRunPath`` + Training Monitor mode (two-hundred-and-sixth pass; §G.7 / §G.17 / §D.7)
 - [x] Launcher / train-HPO nav-mesh Output Browser + Training Monitor handoff recent-file push — ``portfolioRunLabel`` (two-hundred-and-sixth pass; §G.9–§G.12 / §G.15 / §G.17 / §D.7)
+- [x] ``RecentFileKind`` ``checkpoint`` — model checkpoint recent-file kind (two-hundred-and-seventh pass; §G.12 / §G.7 / §D.7)
+- [x] Training Monitor + Output Browser + ``LauncherNavMesh`` eval checkpoint handoff recent-file push — ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-seventh pass; §G.12 / §G.14 / §G.17 / §D.7)
+- [x] Evaluation Runner + Training Hub checkpoint pick / ``pendingCheckpoint`` consume recent-file push — ``portfolioRunLabel`` (two-hundred-and-seventh pass; §G.10 / §G.12 / §D.7)
+- [x] Command Palette checkpoint recent-file handoff — ``pendingCheckpoint`` + Evaluation Runner mode (two-hundred-and-seventh pass; §G.7 / §G.12 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
