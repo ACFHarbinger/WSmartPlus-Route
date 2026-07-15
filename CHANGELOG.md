@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-eighth pass (§G.2 / §G.3)
+
+Ninety-eighth pass extends the shared strategy legend to the policy hierarchy
+panel, colours drill-down profit bars by mandatory-selection strategy, and
+marks §G.3 geospatial routing complete in the ROADMAP.
+
+**React frontend**
+- `policyHierarchy.ts` — ``resolveDrillBarColor()`` colours strategy-depth
+  drill bars via ``selectionStrategyColor()``; constructor depth reuses kg/km or
+  overflow gradient
+- `PolicyHierarchyPanel` — ``StrategyLegend`` chips; drill-down bars use
+  ``resolveDrillBarColor()`` instead of flat indigo fill
+
+**ROADMAP**
+- §G.2 Shared strategy legend on ``PolicyHierarchyPanel`` + drill-down strategy
+  bar colouring checked
+- §G.3 Stale partial/deferred markers removed; Phase 3 status marked complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-seventh pass (§G.1.4 / §G.2)
 
 Ninety-seventh pass centralises mandatory-selection strategy legends and adds

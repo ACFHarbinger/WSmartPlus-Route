@@ -49,6 +49,7 @@ import {
   childrenAtPath,
   enrichDrillChildren,
   policiesAtPath,
+  resolveDrillBarColor,
   type HierarchyColorMode,
   type PortfolioHierarchyRun,
 } from "../../utils/policyHierarchy";
@@ -1148,10 +1149,10 @@ function PolicyHierarchyPanel({
                 value: logScale ? Math.max(c.profit, 0.001) : c.profit,
                 name: c.name,
                 itemStyle: {
+                  color: resolveDrillBarColor(c.name, c.policies, stats, colorMode),
                   opacity: c.policies.some((p) => isHighlighted(p, brushed ?? null)) ? 1 : 0.25,
                 },
               })),
-              itemStyle: { color: "#6366f1" },
               universalTransition: { enabled: true },
             },
             ...(showErrorBars
@@ -1257,7 +1258,8 @@ function PolicyHierarchyPanel({
           <p className="text-xs font-semibold text-gray-300">Policy Hierarchy (§G.2)</p>
           <p className="text-[10px] text-canvas-muted">
             Span = profit · color ={" "}
-            {colorMode === "kgkm" ? "kg/km efficiency" : "mean overflows"}
+            {colorMode === "kgkm" ? "kg/km efficiency" : "mean overflows"} · strategy ring
+            borders + drill bars use mandatory-selection palette
           </p>
         </div>
         <div className="flex items-center gap-2">
@@ -1311,6 +1313,8 @@ function PolicyHierarchyPanel({
           onBrushPolicies(next.length ? policiesAtPath(tree, next) : policies);
         }}
       />
+
+      <StrategyLegend />
 
       <ReactECharts
         ref={chartRef}
