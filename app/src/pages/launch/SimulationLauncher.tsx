@@ -14,6 +14,7 @@ import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle,
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
@@ -549,6 +550,10 @@ export function SimulationLauncher() {
               </button>
             </div>
           </div>
+
+          {!isDone && liveProcessId && (
+            <LiveTrainProgressBar processId={liveProcessId} />
+          )}
 
           {liveEntries.length === 0 ? (
             <p className="text-xs text-canvas-muted">
