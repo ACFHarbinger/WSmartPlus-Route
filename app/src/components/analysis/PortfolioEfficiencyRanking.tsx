@@ -41,6 +41,7 @@ function fmt(n: number, d = 2) {
 interface ConfigRow {
   id: string;
   label: string;
+  runLabel: string;
   policy: string;
   mean: number;
   std: number;
@@ -53,12 +54,15 @@ export function PortfolioEfficiencyRanking({
   showErrorBars = false,
   brushed,
   onPolicyClick,
+  onConfigClick,
   maxRows = 24,
 }: {
   runs: PortfolioEfficiencyRun[];
   showErrorBars?: boolean;
   brushed?: string[] | null;
   onPolicyClick?: (policy: string) => void;
+  /** Brush both policy and ``run_label`` for portfolio SQL sync (§G.6). */
+  onConfigClick?: (policy: string, runLabel: string) => void;
   maxRows?: number;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
@@ -79,6 +83,7 @@ export function PortfolioEfficiencyRanking({
         rows.push({
           id: `${run.path}::${policy}`,
           label: `${graph} · ${policyMeta.selectionStrategy}`,
+          runLabel: run.label,
           policy,
           mean: mean(vals),
           std: std(vals),
@@ -203,10 +208,16 @@ export function PortfolioEfficiencyRanking({
         option={option}
         style={{ height: Math.min(480, 80 + ranked.length * 22) }}
         onEvents={
-          onPolicyClick
+          onPolicyClick || onConfigClick
             ? {
-                click: (params: { name?: string }) => {
-                  if (params.name) onPolicyClick(params.name);
+                click: (params: { dataIndex?: number; name?: string }) => {
+                  const row =
+                    params.dataIndex != null ? ranked[params.dataIndex] : undefined;
+                  if (row && onConfigClick) {
+                    onConfigClick(row.policy, row.runLabel);
+                    return;
+                  }
+                  if (params.name && onPolicyClick) onPolicyClick(params.name);
                 },
               }
             : undefined

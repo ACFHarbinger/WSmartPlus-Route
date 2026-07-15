@@ -190,6 +190,7 @@ export function BenchmarkAnalysis() {
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
   const [logScale, setLogScale] = useState(false);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
+  const [brushedCity, setBrushedCity] = useState<string | null>(null);
   const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
 
@@ -326,6 +327,24 @@ export function BenchmarkAnalysis() {
   const cityComparisonOption = useMemo(
     () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),
     [cityGroups]
+  );
+
+  const brushedRunLabels = useMemo(() => {
+    if (!brushedCity) return null;
+    const group = cityGroups.find(([city]) => city === brushedCity);
+    if (!group) return null;
+    return group[1].map((r) => r.label);
+  }, [brushedCity, cityGroups]);
+
+  const handleCityClick = useCallback((city: string) => {
+    setBrushedCity((current) => (current === city ? null : city));
+  }, []);
+
+  const onCityChartClick = useCallback(
+    (params: { name?: string }) => {
+      if (params.name) handleCityClick(params.name);
+    },
+    [handleCityClick]
   );
 
   const handlePolicyClick = useCallback(
@@ -567,6 +586,7 @@ export function BenchmarkAnalysis() {
             }}
             option={cityComparisonOption}
             style={{ height: 240 }}
+            onEvents={{ click: onCityChartClick }}
           />
         </div>
       )}
@@ -601,6 +621,7 @@ export function BenchmarkAnalysis() {
           tableName={BENCHMARK_SIM_TABLE}
           theme={theme}
           highlightPolicies={brushedPolicies}
+          highlightRunLabels={brushedRunLabels}
           brushSqlSync
           autoRunOnBrushSync
           portfolioMode={runs.length > 1}

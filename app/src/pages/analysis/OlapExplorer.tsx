@@ -21,6 +21,14 @@ import { duckDbRowCount, listDuckDbTables } from "../../utils/duckdbClient";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
 
+const PORTFOLIO_TABLES = new Set([
+  "summary_sim",
+  "benchmark_sim",
+  "city_sim",
+  "algorithm_sim",
+  "studio_portfolio",
+]);
+
 export function OlapExplorer() {
   const { theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
@@ -95,6 +103,7 @@ export function OlapExplorer() {
   }, [refreshTables, setLastPipeline, setLoading]);
 
   const highlightPolicies = activePolicy ? [activePolicy] : null;
+  const portfolioMode = PORTFOLIO_TABLES.has(selectedTable);
 
   return (
     <div className="space-y-4">
@@ -154,6 +163,10 @@ export function OlapExplorer() {
           tableName={selectedTable}
           theme={theme}
           highlightPolicies={highlightPolicies}
+          brushSqlSync
+          autoRunOnBrushSync
+          portfolioMode={portfolioMode}
+          algorithmMode={selectedTable === "algorithm_sim"}
           defaultOpen
         />
       )}

@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-fourth pass (§G.6)
+
+Sixty-fourth pass extends portfolio ``run_label`` brush SQL sync to Simulation Summary
+and Benchmark Analysis, and connects the standalone OLAP Explorer to global policy filters.
+
+**React frontend**
+- `SimulationSummary` — comparison-run click, city chart click, and portfolio efficiency
+  ranking click set ``run_label`` brush; `SqlQueryPanel` `highlightRunLabels` on `summary_sim`
+- `BenchmarkAnalysis` — city comparison chart click filters by ``run_label`` on `benchmark_sim`
+- `PortfolioEfficiencyRanking` — `onConfigClick(policy, runLabel)` for run×policy bar clicks
+- `OlapExplorer` — `brushSqlSync` + `autoRunOnBrushSync` from `GlobalFilterBar` policy;
+  portfolio/algorithm template modes for known ingested tables
+
+**ROADMAP**
+- §G.6 Simulation Summary + Benchmark Analysis run_label brush SQL sync checked
+- §G.6 OLAP Explorer global policy brush SQL sync checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-third pass (§G.6)
 
 Sixty-third pass extends bidirectional chart ↔ DuckDB brush sync to Benchmark Analysis
