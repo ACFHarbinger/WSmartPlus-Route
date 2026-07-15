@@ -902,6 +902,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 1.1 KPI Summary Bar / Box Charts
 - [x] Mean ± std overflows per constructor, grouped by mandatory-selection strategy: `GroupedMetricBarChart` overflows by selection strategy on Simulation Summary; portfolio mode swaps to overflows by city/scale across loaded runs (§G.1.1)
 - [x] Mean ± std kg/km per constructor, grouped by city/scale: `GroupedMetricBarChart` kg/km by constructor on Simulation Summary; portfolio mode swaps to kg/km by city/scale across loaded runs (§G.1.1)
+- [x] Grouped metric bar charts follow global ``logScale``: overflows groups use symlog y-axis; kg/km groups use log y-axis; error-bar whiskers hidden when log on (§G.1.1 / §G.7)
 - [x] Interactive brushing: selecting a bar cross-filters all panels on the dashboard: `PolicyBrushBar` + `toggleBrush` dims non-selected policies across all charts; `SimulationSummary` ingests log → DuckDB + `SqlQueryPanel` `brushSqlSync` / `brushedPoliciesSql` (§G.1)
 
 #### 1.2 Overflow vs Efficiency Scatter (Pareto Front)
@@ -1120,7 +1121,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Startup vendor prefetch: echarts, maplibre-gl, @deck.gl/react, @monaco-editor/react, @duckdb/duckdb-wasm, sigma, @react-three/fiber + DeckRouteMap warmed on mount (§G.7)
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
-- [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
+- [x] Responsive layout: `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`); sidebar auto-collapses below `lg` breakpoint via `matchMedia`; analytics chart grids use `grid-cols-1 sm:grid-cols-2` / `md:grid-cols-2` breakpoints (§G.7)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Settings Arrow benchmark uses shared `formatPipelineTimingBadge()` for last-ingest summary (§G.0 / §G.7)
 - [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking

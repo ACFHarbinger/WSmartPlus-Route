@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-ninth pass (§G.1 / §G.7)
+
+Seventy-ninth pass extends global log-scale to grouped metric bar charts on Simulation
+Summary and polishes responsive layout for narrow viewports.
+
+**React frontend**
+- `GroupedMetricBarChart` — ``logScale`` + ``useSymlog`` props; symlog overflows axis;
+  log kg/km axis; whiskers suppressed on log scale
+- `SimulationSummary` — grouped overflow/kg/km charts follow global ``logScale``; Pareto
+  panel grid `md:grid-cols-2`; metric bar grid `sm:grid-cols-2`
+- `Layout` — sidebar auto-collapses below `lg` via `matchMedia` listener
+
+**ROADMAP**
+- §G.1.1 Grouped metric bar charts global log-scale checked
+- §G.7 Responsive layout partial marker removed; mobile sidebar + chart grids checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-eighth pass (§G.7)
 
 Seventy-eighth pass completes full startup prefetch for every lazy route and heavy
