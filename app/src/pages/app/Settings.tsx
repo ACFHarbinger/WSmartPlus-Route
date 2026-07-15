@@ -270,7 +270,11 @@ export function Settings() {
           spellCheck={false}
         />
         {draftPython.trim() ? (
-          <PathRunLabelChip path={draftPython.trim()} className="max-w-full" />
+          <PathRunLabelChip
+            path={draftPython.trim()}
+            projectRoot={draftRoot.trim() || null}
+            className="max-w-full"
+          />
         ) : null}
         <ValidationBadge v={pythonValidation} />
       </div>
@@ -351,7 +355,11 @@ export function Settings() {
           </button>
         </div>
         {importSettingsPath.trim() ? (
-          <PathRunLabelChip path={importSettingsPath.trim()} className="max-w-full" />
+          <PathRunLabelChip
+            path={importSettingsPath.trim()}
+            projectRoot={draftRoot.trim() || null}
+            className="max-w-full"
+          />
         ) : null}
       </div>
 
@@ -391,7 +399,11 @@ export function Settings() {
           </div>
         )}
         {arrowBenchPath.trim() ? (
-          <PathRunLabelChip path={arrowBenchPath.trim()} className="max-w-full" />
+          <PathRunLabelChip
+            path={arrowBenchPath.trim()}
+            projectRoot={draftRoot.trim() || null}
+            className="max-w-full"
+          />
         ) : null}
         <button
           disabled={!duckdbReady || benchRunning || loading}

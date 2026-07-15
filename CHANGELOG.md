@@ -11,6 +11,47 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-third pass (§G.12 + §G.10 + §G.11 + §G.13 + §G.5 + §G.1 + §G.15 + §G.19 + §D.7)
+
+Hundred-ninety-third pass closes the launcher-workflow relative-path resolution gaps
+left after the hundred-ninety-second pass (which unified tracker storage, telemetry
+SQLite, data-gen preview, and Settings benchmark/import ``PathRunLabelChip`` parity
+against ``projectRoot``). Eval checkpoint and dataset inputs, data-gen source paths,
+config editor open/diff files, ML introspection tensor archives, and Settings
+secondary paths now resolve against ``projectRoot`` and share ``PathRunLabelChip``
+ring-highlight + click-to-brush behaviour with analysis views.
+
+**React frontend**
+- ``PathRunLabelChip`` — optional ``projectRoot`` prop resolves relative paths via
+  ``resolveLocalProjectPath`` before brush + tooltip (§G.10–§G.13 / §D.7)
+- ``parentRunBrushLabelFromCheckpointPath`` — optional ``projectRoot`` for
+  checkpoint parent-run brush label derivation (§G.12 / §G.14 / §G.17 / §D.7)
+- Evaluation Runner — checkpoint list, dataset input, results table, and live eval
+  cards use ``projectRoot``-resolved path chips (§G.12 / §D.7)
+- Training Hub — eval checkpoint + dataset path chips use ``projectRoot`` resolution
+  (§G.10 / §G.12 / §D.7)
+- Data Generation Wizard — TSPLIB/sensor source + instance preview path chips use
+  ``projectRoot`` resolution (§G.11 / §D.7)
+- Configuration Editor — open YAML + diff comparison path chips use ``projectRoot``
+  resolution (§G.13 / §D.7)
+- ML Introspection — tensor archive path chip uses ``projectRoot`` resolution
+  (§G.5 / §D.7)
+- Benchmark Analysis + Process Monitor — eval results / live eval cards use
+  ``projectRoot``-resolved checkpoint path chips (§G.1 / §G.12 / §G.15 / §D.7)
+- Settings — Python executable + import JSON + Arrow benchmark path chips resolve
+  against draft project root (§G.19 / §D.7)
+
+**ROADMAP**
+- §G.12 Evaluation Runner launcher path-chip relative-path brush parity checked
+- §G.10 / §G.12 Training Hub eval checkpoint + dataset path-chip brush parity checked
+- §G.11 Data Generation Wizard source + preview path-chip brush parity checked
+- §G.13 Configuration Editor open + diff path-chip brush parity checked
+- §G.5 ML Introspection tensor archive path-chip brush parity checked
+- §G.1 / §G.15 Benchmark Analysis + Process Monitor eval checkpoint path-chip brush parity checked
+- §D.7 launcher + workflow relative-path path-chip run-label brush parity across Evaluation Runner, Training Hub, Data Generation, Config Editor, ML Introspection, and Settings checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-second pass (§G.18 + §G.11 + §G.19 + §G.7 + §A.3 + §D.7)
 
 Hundred-ninety-second pass closes the relative-path resolution and secondary

@@ -9,12 +9,14 @@ import { EvalResultKpiRow } from "./EvalResultKpiRow";
 
 export interface EvalResultCardProps {
   result: EvalResult;
+  projectRoot?: string | null;
   onOpenAnalytics?: () => void;
   className?: string;
 }
 
 export function EvalResultCard({
   result,
+  projectRoot,
   onOpenAnalytics,
   className = "",
 }: EvalResultCardProps) {
@@ -24,8 +26,12 @@ export function EvalResultCard({
         {result.checkpointPath ? (
           <PathRunLabelChip
             path={result.checkpointPath}
+            projectRoot={projectRoot}
             label={result.checkpointName}
-            brushLabel={parentRunBrushLabelFromCheckpointPath(result.checkpointPath)}
+            brushLabel={parentRunBrushLabelFromCheckpointPath(
+              result.checkpointPath,
+              projectRoot
+            )}
             className="font-semibold text-gray-200 max-w-full"
           />
         ) : (

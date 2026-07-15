@@ -656,7 +656,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
           </button>
         )}
         {archivePath && (
-          <PathRunLabelChip path={archivePath} className="max-w-md" />
+          <PathRunLabelChip path={archivePath} projectRoot={projectRoot} className="max-w-md" />
         )}
       </div>
 

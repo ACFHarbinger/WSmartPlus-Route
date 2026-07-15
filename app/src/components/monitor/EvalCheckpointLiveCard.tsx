@@ -15,6 +15,7 @@ export interface EvalCheckpointLiveCardProps {
   checkpointName: string;
   /** Hydra ``eval.policy.model.load_path`` when known — enables path-chip brush (§G.12 / §D.7). */
   checkpointPath?: string | null;
+  projectRoot?: string | null;
   status?: string;
   isRunning: boolean;
   result?: EvalResult;
@@ -29,6 +30,7 @@ export function EvalCheckpointLiveCard({
   procId,
   checkpointName,
   checkpointPath,
+  projectRoot,
   status,
   isRunning,
   result,
@@ -45,8 +47,9 @@ export function EvalCheckpointLiveCard({
         {checkpointPath ? (
           <PathRunLabelChip
             path={checkpointPath}
+            projectRoot={projectRoot}
             label={checkpointName}
-            brushLabel={parentRunBrushLabelFromCheckpointPath(checkpointPath)}
+            brushLabel={parentRunBrushLabelFromCheckpointPath(checkpointPath, projectRoot)}
             className="max-w-full"
           />
         ) : (

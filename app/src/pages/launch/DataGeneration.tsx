@@ -281,7 +281,11 @@ export function DataGeneration() {
               </button>
             </div>
             {tsplibPath.trim() ? (
-              <PathRunLabelChip path={tsplibPath.trim()} className="max-w-full" />
+              <PathRunLabelChip
+                path={tsplibPath.trim()}
+                projectRoot={projectRoot}
+                className="max-w-full"
+              />
             ) : null}
           </div>
         )}
@@ -300,7 +304,11 @@ export function DataGeneration() {
               </button>
             </div>
             {sensorCsvPath.trim() ? (
-              <PathRunLabelChip path={sensorCsvPath.trim()} className="max-w-full" />
+              <PathRunLabelChip
+                path={sensorCsvPath.trim()}
+                projectRoot={projectRoot}
+                className="max-w-full"
+              />
             ) : null}
             <p className="text-[10px] text-canvas-muted">
               CSV format: timestamp, bin_id, fill_level, waste_type (§12.3 sensor schema)
@@ -323,7 +331,11 @@ export function DataGeneration() {
           </button>
         </div>
         {previewDatasetPath.trim() ? (
-          <PathRunLabelChip path={previewDatasetPath.trim()} className="max-w-full" />
+          <PathRunLabelChip
+            path={previewDatasetPath.trim()}
+            projectRoot={projectRoot}
+            className="max-w-full"
+          />
         ) : null}
         {previewStats ? (
           <div className="space-y-3">

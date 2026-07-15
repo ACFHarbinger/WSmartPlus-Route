@@ -491,7 +491,11 @@ export function TrainingHub() {
             {checkpointPath.trim() ? (
               <PathRunLabelChip
                 path={checkpointPath.trim()}
-                brushLabel={parentRunBrushLabelFromCheckpointPath(checkpointPath.trim())}
+                projectRoot={projectRoot}
+                brushLabel={parentRunBrushLabelFromCheckpointPath(
+                  checkpointPath.trim(),
+                  projectRoot
+                )}
                 className="max-w-full"
               />
             ) : null}
@@ -511,7 +515,11 @@ export function TrainingHub() {
               </button>
             </div>
             {evalDataset.trim() ? (
-              <PathRunLabelChip path={evalDataset.trim()} className="max-w-full" />
+              <PathRunLabelChip
+                path={evalDataset.trim()}
+                projectRoot={projectRoot}
+                className="max-w-full"
+              />
             ) : null}
           </div>
           <div className="flex flex-wrap gap-4 items-end">
@@ -606,6 +614,7 @@ export function TrainingHub() {
               procId={displayProcessId}
               checkpointName={evalCheckpointName}
               checkpointPath={completedEvalCheckpointPath ?? (checkpointPath.trim() || null)}
+              projectRoot={projectRoot}
               status={displayProc.status}
               isRunning={!isDone}
               result={evalResult ?? undefined}
@@ -613,7 +622,11 @@ export function TrainingHub() {
               showLogTail={false}
             />
           ) : (
-            <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
+            <EvalResultCard
+              result={evalResult}
+              projectRoot={projectRoot}
+              onOpenAnalytics={openEvalInAnalytics}
+            />
           )}
         </LauncherLivePanel>
       )}
