@@ -13,6 +13,7 @@ import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgress
 import {
   GradNormSparkline,
   LrSparkline,
+  TrainingMetricSnapshot,
 } from "../../components/monitor/TrainingMetricSparklines";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
@@ -22,7 +23,10 @@ import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
+import {
+  collectTrainingMetricsFromLogLines,
+  postRunTrainingRehydrationMessage,
+} from "../../utils/trainingMetrics";
 import { findRecentHpoProcessId } from "../../utils/trainingProcess";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
@@ -320,33 +324,16 @@ export function ExperimentTracker() {
           ) : (
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
-              {liveMetrics.length > 0
-                ? "Post-run metrics rehydrated from process store — sparklines persist after navigation"
-                : "Post-run shortcuts — open Output Browser or Training Monitor for this sweep"}
+              {postRunTrainingRehydrationMessage({
+                metricCount: liveMetrics.length,
+                healthCount: liveHealthEntries.length,
+                attentionCount: liveAttentionEntries.length,
+                fallback:
+                  "Post-run shortcuts — open Output Browser or Training Monitor for this sweep",
+              })}
             </div>
           )}
-          {latestLiveMetric && (
-            <div className="flex flex-wrap gap-4 text-xs">
-              {latestLiveMetric.epoch != null && (
-                <div>
-                  <span className="text-canvas-muted">Epoch </span>
-                  <span className="font-mono text-gray-200">{latestLiveMetric.epoch}</span>
-                </div>
-              )}
-              {latestLiveMetric.train_loss != null && (
-                <div>
-                  <span className="text-canvas-muted">Train loss </span>
-                  <span className="font-mono text-gray-200">{latestLiveMetric.train_loss.toFixed(4)}</span>
-                </div>
-              )}
-              {latestLiveMetric.val_loss != null && (
-                <div>
-                  <span className="text-canvas-muted">Val loss </span>
-                  <span className="font-mono text-gray-200">{latestLiveMetric.val_loss.toFixed(4)}</span>
-                </div>
-              )}
-            </div>
-          )}
+          {latestLiveMetric && <TrainingMetricSnapshot metric={latestLiveMetric} />}
           {liveMetrics.length >= 2 && (
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <GradNormSparkline

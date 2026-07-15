@@ -59,3 +59,25 @@ export function collectTrainingMetricsFromLogLines(
   }
   return rows;
 }
+
+/** Post-run banner text when train/HPO panels rehydrate from ``useProcessStore``. */
+export function postRunTrainingRehydrationMessage({
+  metricCount,
+  healthCount = 0,
+  attentionCount = 0,
+  fallback = "Post-run shortcuts — open Training Monitor or Output Browser for this run",
+}: {
+  metricCount: number;
+  healthCount?: number;
+  attentionCount?: number;
+  fallback?: string;
+}): string {
+  if (metricCount === 0 && healthCount === 0 && attentionCount === 0) {
+    return fallback;
+  }
+  const parts: string[] = [];
+  if (metricCount > 0) parts.push("metrics + sparklines");
+  if (healthCount > 0) parts.push("health alerts");
+  if (attentionCount > 0) parts.push("attention snapshots");
+  return `Post-run ${parts.join(", ")} rehydrated from process store — persist after navigation`;
+}

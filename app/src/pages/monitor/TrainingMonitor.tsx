@@ -42,6 +42,7 @@ import {
   collectTrainingMetricsFromLogLines,
   normalizeTrainingMetricRow,
   parseTrainingMetricLine,
+  postRunTrainingRehydrationMessage,
 } from "../../utils/trainingMetrics";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
@@ -766,9 +767,13 @@ export function TrainingMonitor() {
           {recentTrainDone && (
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
-              {effectiveLiveMetrics.length > 0
-                ? "Post-run metrics rehydrated from process store — sparklines persist after navigation"
-                : "Post-run shortcuts — open Output Browser or refresh metrics from the completed run"}
+              {postRunTrainingRehydrationMessage({
+                metricCount: effectiveLiveMetrics.length,
+                healthCount: effectiveLiveHealth.length,
+                attentionCount: effectiveLiveAttention.length,
+                fallback:
+                  "Post-run shortcuts — open Output Browser or refresh metrics from the completed run",
+              })}
             </div>
           )}
         </div>
