@@ -15,6 +15,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
 import { formatPipelineTimingBadge, runCsvArrowPipeline } from "../../utils/arrowPipeline";
+import { groupRunLabelsByCity, resolveBrushedRunLabels } from "../../utils/cityComparison";
 import { useDuckDbStore } from "../../store/duckdb";
 
 interface CsvRow {
@@ -27,9 +28,24 @@ interface CsvFile {
   rows: CsvRow[];
 }
 
+function headerCol(headers: string[], pattern: RegExp): string | undefined {
+  return headers.find((h) => pattern.test(h));
+}
+
+function distinctColumnValues(rows: CsvRow[], col: string): string[] {
+  return [...new Set(rows.map((r) => String(r[col] ?? "")).filter(Boolean))].sort();
+}
+
 export function DataExplorer() {
   const { projectRoot, theme } = useAppStore();
-  const activePolicy = useGlobalFiltersStore((s) => s.policy);
+  const {
+    policy: activePolicy,
+    runLabel: activeRunLabel,
+    brushedCity,
+    setPolicy,
+    setRunLabel,
+    setBrushedCity,
+  } = useGlobalFiltersStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
     useDuckDbStore();
@@ -67,6 +83,101 @@ export function DataExplorer() {
     }
   }, [pushRecent, duckdbReady, setLastPipeline, setLoading]);
 
+  const policyCol = useMemo(
+    () => (file ? headerCol(file.headers, /^policy$/i) : undefined),
+    [file]
+  );
+  const runLabelCol = useMemo(
+    () => (file ? headerCol(file.headers, /^run_label$/i) : undefined),
+    [file]
+  );
+  const cityScaleCol = useMemo(
+    () => (file ? headerCol(file.headers, /^city_scale$/i) : undefined),
+    [file]
+  );
+
+  const csvPolicies = useMemo(
+    () => (file && policyCol ? distinctColumnValues(file.rows, policyCol) : []),
+    [file, policyCol]
+  );
+  const csvRunLabels = useMemo(
+    () => (file && runLabelCol ? distinctColumnValues(file.rows, runLabelCol) : []),
+    [file, runLabelCol]
+  );
+  const csvCities = useMemo(() => {
+    if (!file) return [];
+    if (cityScaleCol) return distinctColumnValues(file.rows, cityScaleCol);
+    if (runLabelCol) return groupRunLabelsByCity(csvRunLabels).map(([city]) => city);
+    return [];
+  }, [file, cityScaleCol, runLabelCol, csvRunLabels]);
+
+  const hasBrushColumns = Boolean(policyCol || runLabelCol || cityScaleCol);
+
+  const highlightPolicies = useMemo(
+    () => (activePolicy ? [activePolicy] : null),
+    [activePolicy]
+  );
+  const highlightRunLabels = useMemo(
+    () =>
+      resolveBrushedRunLabels(csvRunLabels, activeRunLabel, brushedCity) ??
+      (activeRunLabel ? [activeRunLabel] : null),
+    [csvRunLabels, activeRunLabel, brushedCity]
+  );
+
+  const rowMatchesHighlight = useCallback(
+    (row: CsvRow) => {
+      const policyMatch =
+        !highlightPolicies?.length ||
+        !policyCol ||
+        highlightPolicies.includes(String(row[policyCol] ?? ""));
+      const runMatch =
+        !highlightRunLabels?.length ||
+        !runLabelCol ||
+        highlightRunLabels.includes(String(row[runLabelCol] ?? ""));
+      const cityMatch =
+        !brushedCity ||
+        (cityScaleCol
+          ? String(row[cityScaleCol] ?? "") === brushedCity
+          : !runLabelCol ||
+            (resolveBrushedRunLabels(csvRunLabels, null, brushedCity)?.includes(
+              String(row[runLabelCol] ?? "")
+            ) ??
+              false));
+      return policyMatch && runMatch && cityMatch;
+    },
+    [
+      highlightPolicies,
+      highlightRunLabels,
+      brushedCity,
+      policyCol,
+      runLabelCol,
+      cityScaleCol,
+      csvRunLabels,
+    ]
+  );
+
+  const applyCrossFilter = useCallback(
+    (col: string, value: string) => {
+      if (/^policy$/i.test(col)) {
+        setPolicy(value);
+        toast.success("Cross-filter applied", { description: `Policy: ${value}` });
+        return;
+      }
+      if (/^run_label$/i.test(col)) {
+        setBrushedCity(null);
+        setRunLabel(value);
+        toast.success("Cross-filter applied", { description: `Run: ${value}` });
+        return;
+      }
+      if (/^city_scale$/i.test(col)) {
+        setRunLabel(null);
+        setBrushedCity(value);
+        toast.success("Cross-filter applied", { description: `City: ${value}` });
+      }
+    },
+    [setPolicy, setRunLabel, setBrushedCity]
+  );
+
   const filteredRows = useMemo(() => {
     if (!file) return [];
     const q = filterText.trim().toLowerCase();
@@ -97,15 +208,6 @@ export function DataExplorer() {
   const pageRows = sortedRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = file ? Math.ceil(sortedRows.length / PAGE_SIZE) : 0;
 
-  const hasPolicyCol = useMemo(
-    () => file?.headers.some((h) => /^policy$/i.test(h)) ?? false,
-    [file]
-  );
-  const highlightPolicies = useMemo(
-    () => (activePolicy ? [activePolicy] : null),
-    [activePolicy]
-  );
-
   const toggleSort = (col: string) => {
     if (sortCol === col) setSortDir((d) => (d === "asc" ? "desc" : "asc"));
     else {
@@ -117,7 +219,13 @@ export function DataExplorer() {
 
   return (
     <div className="space-y-4">
-      {hasPolicyCol && <GlobalFilterBar />}
+      {hasBrushColumns && (
+        <GlobalFilterBar
+          policies={csvPolicies}
+          runLabels={csvRunLabels}
+          cities={csvCities.length > 1 ? csvCities : []}
+        />
+      )}
 
       <div className="flex items-center gap-3">
         <button onClick={openCsv} className="btn-primary flex items-center gap-2">
@@ -185,8 +293,11 @@ export function DataExplorer() {
           tableName={lastPipeline.tableName}
           theme={theme}
           highlightPolicies={highlightPolicies}
-          brushSqlSync={hasPolicyCol}
-          autoRunOnBrushSync={hasPolicyCol}
+          highlightRunLabels={highlightRunLabels}
+          brushSqlSync={hasBrushColumns}
+          autoRunOnBrushSync={hasBrushColumns}
+          portfolioMode={Boolean(runLabelCol)}
+          portfolioRunLabels={csvRunLabels}
         />
       )}
 
@@ -229,15 +340,52 @@ export function DataExplorer() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-canvas-border">
-                {pageRows.map((row, i) => (
-                  <tr key={i} className="hover:bg-canvas-hover">
-                    {file.headers.map((h) => (
-                      <td key={h} className="px-3 py-1.5 text-gray-300 whitespace-nowrap font-mono">
-                        {row[h] ?? "—"}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
+                {pageRows.map((row, i) => {
+                  const highlighted = hasBrushColumns ? rowMatchesHighlight(row) : true;
+                  const isActive =
+                    (policyCol &&
+                      activePolicy &&
+                      String(row[policyCol] ?? "") === activePolicy) ||
+                    (runLabelCol &&
+                      activeRunLabel &&
+                      String(row[runLabelCol] ?? "") === activeRunLabel) ||
+                    (cityScaleCol &&
+                      brushedCity &&
+                      String(row[cityScaleCol] ?? "") === brushedCity);
+                  return (
+                    <tr
+                      key={i}
+                      className={`hover:bg-canvas-hover ${
+                        hasBrushColumns ? "cursor-pointer" : ""
+                      } ${
+                        isActive
+                          ? "bg-accent-primary/15 ring-1 ring-inset ring-accent-primary/40"
+                          : highlighted
+                            ? ""
+                            : hasBrushColumns
+                              ? "opacity-35"
+                              : ""
+                      }`}
+                      onClick={() => {
+                        if (policyCol && row[policyCol] != null) {
+                          applyCrossFilter(policyCol, String(row[policyCol]));
+                        }
+                        if (runLabelCol && row[runLabelCol] != null) {
+                          applyCrossFilter(runLabelCol, String(row[runLabelCol]));
+                        }
+                        if (cityScaleCol && row[cityScaleCol] != null) {
+                          applyCrossFilter(cityScaleCol, String(row[cityScaleCol]));
+                        }
+                      }}
+                    >
+                      {file.headers.map((h) => (
+                        <td key={h} className="px-3 py-1.5 text-gray-300 whitespace-nowrap font-mono">
+                          {row[h] ?? "—"}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })}
               </tbody>
             </table>
           </div>

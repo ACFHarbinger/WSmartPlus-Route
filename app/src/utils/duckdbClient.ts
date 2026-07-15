@@ -83,3 +83,22 @@ ORDER BY value`
   );
   return rows.map((r) => String(r.value ?? "")).filter(Boolean);
 }
+
+/** Column names for an ingested DuckDB table (§G.6 OLAP portfolio detection). */
+export async function duckDbTableColumns(tableName: string): Promise<string[]> {
+  const rows = await queryDuckDb<{ column_name: string }>(
+    `SELECT column_name FROM information_schema.columns
+WHERE table_name = '${tableName.replace(/'/g, "''")}'
+ORDER BY ordinal_position`
+  );
+  return rows.map((r) => r.column_name);
+}
+
+/** True when the table exposes a portfolio dimension column (§G.6). */
+export async function duckDbHasColumn(
+  tableName: string,
+  column: string
+): Promise<boolean> {
+  const cols = await duckDbTableColumns(tableName);
+  return cols.some((c) => c.toLowerCase() === column.toLowerCase());
+}

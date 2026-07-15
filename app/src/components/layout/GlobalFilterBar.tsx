@@ -7,13 +7,15 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples } from "../../store/sim";
 
 interface Props {
+  /** Override policy options (e.g. CSV-derived values in Data Explorer). */
+  policies?: string[];
   /** Portfolio ``run_label`` options when a multi-run table is active (§G.6). */
   runLabels?: string[];
   /** City/scale group options for portfolio city brush (§G.6). */
   cities?: string[];
 }
 
-export function GlobalFilterBar({ runLabels = [], cities = [] }: Props) {
+export function GlobalFilterBar({ policies: policiesProp, runLabels = [], cities = [] }: Props) {
   const { entries } = useSimStore();
   const {
     policy,
@@ -27,10 +29,11 @@ export function GlobalFilterBar({ runLabels = [], cities = [] }: Props) {
     reset,
   } = useGlobalFiltersStore();
 
-  const policies = uniquePolicies(entries);
+  const policies = policiesProp?.length ? policiesProp : uniquePolicies(entries);
   const samples = uniqueSamples(entries);
 
   if (
+    policies.length === 0 &&
     entries.length === 0 &&
     policy == null &&
     sampleId == null &&
@@ -46,7 +49,7 @@ export function GlobalFilterBar({ runLabels = [], cities = [] }: Props) {
     <div className="flex items-center gap-2 flex-wrap text-xs bg-canvas-elevated/50 border border-canvas-border rounded-lg px-3 py-1.5">
       <span className="text-canvas-muted shrink-0">Filters</span>
 
-      {policies.length > 0 ? (
+      {policies.length > 0 && (
         <select
           className="select-base w-36 text-xs"
           value={policy ?? ""}
@@ -57,8 +60,6 @@ export function GlobalFilterBar({ runLabels = [], cities = [] }: Props) {
             <option key={p} value={p}>{p}</option>
           ))}
         </select>
-      ) : (
-        <span className="text-canvas-muted italic">Load a sim log for policy options</span>
       )}
 
       {samples.length > 1 && (
