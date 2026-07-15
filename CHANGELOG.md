@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eightieth pass (§G.1 / §G.7)
+
+Eightieth pass extends global log-scale and responsive layout polish to Benchmark
+Analysis, including portfolio efficiency ranking and eval checkpoint charts.
+
+**React frontend**
+- `BenchmarkAnalysis` — multi-run ``PortfolioEfficiencyRanking`` with global
+  ``logScale``; single-run efficiency chart log x-axis; symlog overflows on
+  multi-run metric bars when log on; eval checkpoint charts follow ``logScale``
+- `BenchmarkAnalysis` — responsive grids: Pareto ``md:grid-cols-2``, metric bars
+  ``sm:grid-cols-2``, eval results ``sm:grid-cols-2 lg:grid-cols-3``; city
+  comparison subtitle reflects linear vs log mode
+
+**ROADMAP**
+- §G.1.5 BenchmarkAnalysis efficiency ranking global log-scale checked
+- §G.1.1 BenchmarkAnalysis symlog overflows on log-scale metric bars checked
+- §G.7 BenchmarkAnalysis responsive chart grids checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-ninth pass (§G.1 / §G.7)
 
 Seventy-ninth pass extends global log-scale to grouped metric bar charts on Simulation
