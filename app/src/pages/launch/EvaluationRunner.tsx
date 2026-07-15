@@ -712,6 +712,7 @@ export function EvaluationRunner() {
             <ProcessIdFooter
               processIds={displayProcessIds}
               logPath={liveLogPath}
+              runLabel={liveRunLabel}
               projectRoot={projectRoot}
             />
           }

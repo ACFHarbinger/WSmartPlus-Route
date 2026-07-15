@@ -131,6 +131,7 @@ function ProcessRow({
   selected,
   runBrushActive,
   logPath,
+  brushLabel,
   projectRoot,
   onSelect,
 }: {
@@ -138,6 +139,8 @@ function ProcessRow({
   selected: boolean;
   runBrushActive?: boolean;
   logPath?: string | null;
+  /** Process-derived ``run_label`` for chip brush / ring-highlight parity (§G.15 / §D.7). */
+  brushLabel?: string | null;
   projectRoot: string | null;
   onSelect: () => void;
 }) {
@@ -183,6 +186,7 @@ function ProcessRow({
             <OpenPathToolbar
               path={logPath}
               projectRoot={projectRoot}
+              brushLabel={brushLabel?.trim() ? brushLabel : undefined}
               chipClassName="max-w-full flex-1 min-w-0"
               className="max-w-full min-w-0"
             >
@@ -478,6 +482,7 @@ export function ProcessMonitor() {
             Boolean(activeRunLabel) && processRunBrushById[id] === activeRunLabel
           }
           logPath={processLogPathById[id]}
+          brushLabel={processRunBrushById[id]}
           projectRoot={projectRoot}
           onSelect={() => setSelectedId((prev) => (prev === id ? null : id))}
         />
@@ -507,6 +512,7 @@ export function ProcessMonitor() {
             <ProcessIdFooter
               processId={selectedProc.id}
               logPath={processLogPath}
+              runLabel={processRunLabel}
               projectRoot={projectRoot}
             />
           }
@@ -577,6 +583,7 @@ export function ProcessMonitor() {
             <ProcessIdFooter
               processId={selectedProc.id}
               logPath={processLogPath}
+              runLabel={processRunLabel}
               projectRoot={projectRoot}
             />
           }
@@ -630,6 +637,7 @@ export function ProcessMonitor() {
             <ProcessIdFooter
               processId={selectedProc.id}
               logPath={processLogPath}
+              runLabel={processRunLabel}
               projectRoot={projectRoot}
             />
           }
@@ -687,6 +695,7 @@ export function ProcessMonitor() {
             <ProcessIdFooter
               processId={selectedProc.id}
               logPath={processLogPath}
+              runLabel={processRunLabel}
               projectRoot={projectRoot}
             />
           }

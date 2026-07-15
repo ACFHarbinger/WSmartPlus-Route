@@ -372,6 +372,7 @@ export function ExperimentTracker() {
             <ProcessIdFooter
               processId={recentHpoId}
               logPath={processLogPath}
+              runLabel={processRunLabel}
               projectRoot={projectRoot}
             />
           }

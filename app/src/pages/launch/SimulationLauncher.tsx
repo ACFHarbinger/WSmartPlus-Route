@@ -517,6 +517,7 @@ export function SimulationLauncher() {
             <ProcessIdFooter
               processId={displayProcessId}
               logPath={liveLogPath}
+              runLabel={liveRunLabel}
               projectRoot={projectRoot}
             />
           }

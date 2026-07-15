@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-seventh pass (§G.9–§G.12 + §G.15 + §G.17 + §G.18 + §D.7 + §D.8)
+
+Two-hundred-and-thirty-seventh pass closes residual brush-label parity after pass 236
+fixed live-header chips. Process-row and live-panel footer ``OpenPathToolbar`` shells
+now brush process-derived ``run_label`` so click-to-brush stays aligned with row ring
+highlights and ``GlobalFilterBar`` when path stems diverge (train dirs, process-id
+fallback). Eval completion toasts gain **Eval** / **Output** handoff actions from the
+checkpoint load path and run root.
+
+**React frontend**
+- ``ProcessIdFooter`` — optional ``runLabel`` → ``OpenPathToolbar`` ``brushLabel`` (§G.9–§G.18 / §D.7)
+- Process Monitor process rows — ``brushLabel`` from ``processRunBrushById`` (§G.15 / §D.7)
+- Live-panel footers on all launcher / monitor / tracker surfaces pass process ``runLabel`` (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- ``useProcessMonitor`` — eval toast **Eval** (checkpoint) + optional **Output** actions (§D.8 / §G.12 / §G.14)
+
+**ROADMAP**
+- §G.9–§G.12 / §G.15 / §G.17 / §G.18 process-row + footer brush-label residual parity checked
+- §D.7 ``ProcessIdFooter`` / process-row brush-label parity checked
+- §D.8 eval checkpoint toast handoff checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-sixth pass (§G.4 + §G.7 + §G.9–§G.12 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Two-hundred-and-thirty-sixth pass polishes residual ``OpenPathToolbar`` shells after

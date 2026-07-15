@@ -9,6 +9,11 @@ export interface ProcessIdFooterProps {
   processIds?: string[];
   /** When set, renders ``OpenPathToolbar`` for click-to-brush + path handoffs (§G.9–§G.18 / §D.7). */
   logPath?: string | null;
+  /**
+   * Process-derived ``run_label`` for chip brush parity with live headers / GlobalFilterBar
+   * when the path stem would otherwise diverge (train dirs, process-id fallback) (§D.7).
+   */
+  runLabel?: string | null;
   /** Resolve relative log paths against project root before brush (§G.9–§G.18 / §D.7). */
   projectRoot?: string | null;
   className?: string;
@@ -18,6 +23,7 @@ export function ProcessIdFooter({
   processId,
   processIds,
   logPath,
+  runLabel,
   projectRoot,
   className = "",
 }: ProcessIdFooterProps) {
@@ -32,6 +38,7 @@ export function ProcessIdFooter({
       <OpenPathToolbar
         path={logPath}
         projectRoot={effectiveProjectRoot}
+        brushLabel={runLabel?.trim() ? runLabel : undefined}
         chipClassName="flex-1 min-w-0 max-w-none"
         className={`flex-1 min-w-0 ${className}`.trim()}
       >

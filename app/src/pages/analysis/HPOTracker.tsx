@@ -524,6 +524,7 @@ export function HPOTracker() {
             <ProcessIdFooter
               processId={recentHpoId}
               logPath={processLogPath}
+              runLabel={processRunLabel}
               projectRoot={projectRoot}
             />
           }

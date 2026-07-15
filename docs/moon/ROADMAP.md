@@ -1569,6 +1569,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Graph Topology distance-matrix path migrates to ``OpenPathToolbar``; CSV Data Explorer handoff (§G.4 / §D.7)
 - [x] §G.4 / §G.7 / §G.9–§G.18 residual open-path toolbar shell polish checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-thirty-seventh pass)**
+
+- [x] ``ProcessIdFooter`` accepts process-derived ``runLabel`` → ``OpenPathToolbar`` ``brushLabel`` so footer chips match live headers / ``GlobalFilterBar`` (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Process Monitor process-row ``OpenPathToolbar`` brushes ``processRunBrushById`` labels (path-stem vs process-id fallback parity) (§G.15 / §D.7)
+- [x] Live-panel footers on Simulation Launcher / Data Generation / Evaluation Runner / Training Hub / Training Monitor / HPO Tracker / Experiment Tracker / Process Monitor pass ``runLabel`` into ``ProcessIdFooter`` (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] §G.9–§G.12 / §G.15 / §G.17 / §G.18 process-row + footer brush-label residual parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1597,6 +1604,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 **Delivered (§D.8 — two-hundred-and-twenty-third pass)**
 
 - [x] Train/HPO completion toasts expose dual **Training** + **Output** actions when stdout yields both a training run path and an assets/output root (§D.8 / §G.17 / §G.14 / §D.7)
+
+**Delivered (§D.8 — two-hundred-and-thirty-seventh pass)**
+
+- [x] Eval completion toasts expose **Eval** (checkpoint → Evaluation Runner) and optional **Output** when stdout / command yields a load path + run root (§D.8 / §G.12 / §G.14 / §D.7)
 
 **Status**: §D.8 Options A+B complete — Option C (sound) deferred.
 
@@ -2362,6 +2373,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live-panel header path chips gain handoffs via ``RunLabelHeaderSuffix`` default ``handoff`` (two-hundred-and-twenty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 - [x] Live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 - [x] Live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] Live-panel ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 
 ---
 
@@ -2406,6 +2418,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Hub eval checkpoint + dataset path previews use shared ``OpenPathToolbar``; checkpoint labeled Eval Runner handoff (two-hundred-and-thirty-first pass; §G.10 / §G.12 / §D.7)
 - [x] Training Hub live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.10 / §D.7)
 - [x] Training Hub live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.10 / §D.7)
+- [x] Training Hub live-panel ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.10 / §D.7)
 
 ---
 
@@ -2477,6 +2490,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner results-table checkpoint cells use shared ``OpenPathToolbar`` (two-hundred-and-thirty-third pass; §G.12 / §D.7)
 - [x] Evaluation Runner multi-checkpoint ``ProcessIdFooter`` shows batch process count as ``children`` when ``logPath`` is set (two-hundred-and-thirty-sixth pass; §G.12 / §D.7)
 - [x] Evaluation Runner live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.12 / §D.7)
+- [x] Evaluation Runner ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.12 / §D.7)
+- [x] Eval completion toasts hand off checkpoint → Evaluation Runner (+ optional Output) (two-hundred-and-thirty-seventh pass; §G.12 / §D.8 / §D.7)
 
 ---
 
@@ -2599,6 +2614,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.15 / §D.7)
 - [x] Process Monitor live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.15 / §D.7)
 - [x] ``ProcessIdFooter`` multi-process batch meta as ``children`` when ``logPath`` is set (two-hundred-and-thirty-sixth pass; §G.12 / §G.15 / §D.7)
+- [x] Process Monitor process-row + ``ProcessIdFooter`` brush process-derived ``runLabel`` (two-hundred-and-thirty-seventh pass; §G.15 / §D.7)
 
 ---
 
@@ -2672,6 +2688,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Training Monitor checkpoint browser rows use shared ``OpenPathToolbar``; labeled Eval Runner handoff + size ``children`` (two-hundred-and-thirty-second pass; §G.17 / §G.12 / §D.7)
 - [x] Training Monitor live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.17 / §D.7)
 - [x] Training Monitor live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.17 / §D.7)
+- [x] Training Monitor live-panel ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.17 / §D.7)
 
 ---
 
@@ -2721,6 +2738,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] Experiment Tracker MLflow run-dir table cells use shared ``OpenPathToolbar``; run-id meta as ``children`` (two-hundred-and-thirty-third pass; §G.18 / §D.7)
 - [x] HPO Tracker + Experiment Tracker live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.18 / §D.7)
 - [x] HPO Tracker + Experiment Tracker live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.18 / §D.7)
+- [x] HPO Tracker + Experiment Tracker live-panel ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.18 / §D.7)
 
 ---
 

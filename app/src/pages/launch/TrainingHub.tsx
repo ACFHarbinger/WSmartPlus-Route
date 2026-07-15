@@ -623,6 +623,7 @@ export function TrainingHub() {
             <ProcessIdFooter
               processId={displayProcessId}
               logPath={liveLogPath}
+              runLabel={liveRunLabel}
               projectRoot={projectRoot}
             />
           }
@@ -719,6 +720,7 @@ export function TrainingHub() {
             <ProcessIdFooter
               processId={displayProcessId}
               logPath={liveLogPath}
+              runLabel={liveRunLabel}
               projectRoot={projectRoot}
             />
           }
