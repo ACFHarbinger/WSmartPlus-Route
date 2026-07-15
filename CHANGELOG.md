@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-fourth pass (§G.1 + §G.8 + §G.9–§G.15 + §G.17 + §G.18 + §D.7)
+
+Two-hundred-and-thirty-fourth pass expands ``OpenPathToolbar`` after pass 233 covered
+residual table-row chips. Shared live-panel footers and portfolio loaded-run rows migrate
+onto the cluster so process-id meta and day-count trailing render as ``children``; Output
+Browser ``.wsroute`` manifest members adopt the same path shell.
+
+**React frontend**
+- ``ProcessIdFooter`` log-path chip → ``OpenPathToolbar``; process id as ``children`` (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- ``LoadedRunRow`` path chip → ``OpenPathToolbar``; meta ``trailing`` as ``children`` (§G.1 / §G.14 / §D.7)
+- Output Browser ``.wsroute`` manifest members → ``OpenPathToolbar`` auto-classify (§G.8 / §G.14 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.8 / §G.9–§G.15 / §G.17 / §G.18 shared footer + portfolio open-path toolbar parity checked
+- §D.7 ``OpenPathToolbar`` ProcessIdFooter / LoadedRunRow / ``.wsroute`` surface expansion checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-third pass (§G.1 + §G.12 + §G.15 + §G.18 + §D.7)
 
 Two-hundred-and-thirty-third pass expands ``OpenPathToolbar`` after pass 232 covered

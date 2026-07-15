@@ -1,13 +1,13 @@
 /**
  * Shared process-id footer row for launcher and train/HPO live panels (§G.9–§G.12 / §G.10 / §G.15 / §G.17 / §G.18 / §D.7).
  */
-import { PathRunLabelChip } from "../common/PathRunLabelChip";
+import { OpenPathToolbar } from "../common/OpenPathToolbar";
 import { useAppStore } from "../../store/app";
 
 export interface ProcessIdFooterProps {
   processId?: string;
   processIds?: string[];
-  /** When set, renders ``PathRunLabelChip`` for click-to-brush parity with panel headers (§G.9–§G.18 / §D.7). */
+  /** When set, renders ``OpenPathToolbar`` for click-to-brush + path handoffs (§G.9–§G.18 / §D.7). */
   logPath?: string | null;
   /** Resolve relative log paths against project root before brush (§G.9–§G.18 / §D.7). */
   projectRoot?: string | null;
@@ -29,19 +29,18 @@ export function ProcessIdFooter({
 
   if (logPath) {
     return (
-      <div className={`flex items-center gap-2 min-w-0 ${className}`.trim()}>
-        <PathRunLabelChip
-          path={logPath}
-          projectRoot={effectiveProjectRoot}
-          className="flex-1 min-w-0"
-          handoff
-        />
-        {ids.length === 1 && (
+      <OpenPathToolbar
+        path={logPath}
+        projectRoot={effectiveProjectRoot}
+        chipClassName="flex-1 min-w-0 max-w-none"
+        className={`flex-1 min-w-0 ${className}`.trim()}
+      >
+        {ids.length === 1 ? (
           <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
             {ids[0]}
           </span>
-        )}
-      </div>
+        ) : null}
+      </OpenPathToolbar>
     );
   }
 
