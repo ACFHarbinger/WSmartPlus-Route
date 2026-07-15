@@ -43,7 +43,11 @@ import {
   parseTrainingMetricLine,
 } from "../../utils/trainingMetrics";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import {
+  brushLogPathFromProcessLines,
+  outputRunPathFromLogLines,
+  resolveLocalProjectPath,
+} from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import {
   findActiveLiveTrainProcessId,
@@ -664,9 +668,11 @@ export function TrainingMonitor() {
 
   const filterRunLabels = useMemo(() => {
     if (processRunLabel) return [processRunLabel];
-    const labels = selectedRunObjects.map((r) => runLabelFromPath(r.path));
+    const labels = selectedRunObjects.map((r) =>
+      runLabelFromPath(resolveLocalProjectPath(r.path, projectRoot) ?? r.path)
+    );
     return labels.length > 0 ? labels : [];
-  }, [processRunLabel, selectedRunObjects]);
+  }, [processRunLabel, projectRoot, selectedRunObjects]);
 
   const displayedHealth = useMemo(() => {
     const merged: TrainingHealthEntry[] = [];
@@ -857,6 +863,7 @@ export function TrainingMonitor() {
                   />
                   <LoadedRunRow
                     path={run.path}
+                    projectRoot={projectRoot}
                     label={run.name}
                     activeRunLabel={activeRunLabel}
                     trailing={trailing}

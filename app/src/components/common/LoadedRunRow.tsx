@@ -1,13 +1,17 @@
 /**
  * Portfolio / comparison loaded-run row with ``PathRunLabelChip`` brush parity (§G.1 / §G.14 / §D.7).
  */
-import type { ReactNode } from "react";
+import { useMemo, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { PathRunLabelChip } from "./PathRunLabelChip";
+import { useAppStore } from "../../store/app";
+import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 
 interface Props {
   path: string;
+  /** Resolve relative paths against project root before brush (§G.1 / §G.14–§G.17 / §D.7). */
+  projectRoot?: string | null;
   /** Display label for portfolio single-run highlight; defaults to path stem. */
   label?: string;
   activeRunLabel?: string | null;
@@ -20,6 +24,7 @@ interface Props {
 
 export function LoadedRunRow({
   path,
+  projectRoot,
   label,
   activeRunLabel = null,
   selected = false,
@@ -28,7 +33,13 @@ export function LoadedRunRow({
   trailing,
   className = "",
 }: Props) {
-  const runLabel = label ?? runLabelFromPath(path);
+  const storeProjectRoot = useAppStore((s) => s.projectRoot);
+  const effectiveProjectRoot = projectRoot ?? storeProjectRoot;
+  const resolvedPath = useMemo(
+    () => resolveLocalProjectPath(path, effectiveProjectRoot) ?? path,
+    [path, effectiveProjectRoot]
+  );
+  const runLabel = label ?? runLabelFromPath(resolvedPath);
   const portfolioActive = Boolean(activeRunLabel && activeRunLabel === runLabel);
 
   return (
@@ -47,7 +58,13 @@ export function LoadedRunRow({
           <X size={12} />
         </button>
       )}
-      <PathRunLabelChip path={path} label={label} className="flex-1 min-w-0" trailing={trailing} />
+      <PathRunLabelChip
+        path={path}
+        projectRoot={effectiveProjectRoot}
+        label={label}
+        className="flex-1 min-w-0"
+        trailing={trailing}
+      />
     </div>
   );
 }

@@ -1222,6 +1222,17 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser — selected-run, checkpoint sidebar, file viewer, checkpoint preview, and ``.wsroute`` manifest rows use ``projectRoot``-resolved path chips (§G.14 / §G.8 / §G.12 / §D.7)
 - [x] §G.14 / §G.17 / §G.18 analysis + monitor + file browser relative-path path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninety-fifth pass)**
+
+- [x] ``useLogPathRunLabelBrush`` — resolves log/run paths against ``useAppStore`` ``projectRoot`` before global ``run_label`` brush sync (§G.1 / §G.14–§G.16 / §D.7)
+- [x] ``LoadedRunRow`` — optional ``projectRoot`` prop + store fallback; portfolio ring-highlight compares resolved run labels (§G.1 / §G.14 / §G.17 / §D.7)
+- [x] Simulation Summary + Benchmark Analysis + City Comparison + Experiment Tracker + Training Monitor + Output Browser — ``LoadedRunRow`` passes ``projectRoot`` for portfolio/run-list path-chip brush parity (§G.1 / §G.14 / §G.17 / §G.18 / §D.7)
+- [x] Simulation Summary + Data Explorer + OLAP Explorer + Algorithm Comparison + Simulation Monitor — open-file ``PathRunLabelChip`` headers pass ``projectRoot`` (§G.1 / §G.6 / §G.16 / §G.15 / §D.7)
+- [x] Process Monitor — process-row ``PathRunLabelChip`` passes ``projectRoot`` for stdout-resolved log paths (§G.15 / §D.7)
+- [x] Training Monitor — ``GlobalFilterBar`` ``runLabels`` derived from ``projectRoot``-resolved Lightning log paths (§G.17 / §D.7)
+- [x] Output Browser — ``parentRunBrushLabel`` resolves selected-run path against ``projectRoot`` before manifest brush (§G.14 / §G.8 / §D.7)
+- [x] §G.1 / §G.6 / §G.14–§G.17 portfolio + open-file relative-path path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1797,6 +1808,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``PathRunLabelChip`` store fallback — auto ``projectRoot`` resolution for analysis/monitor/file path chips when prop omitted (hundred-ninety-fourth pass; §G.1 / §G.14–§G.18 / §D.7)
 - [x] HPO Tracker trial ``log_dir`` + Experiment Tracker MLflow ``artifact_uri`` — ``projectRoot``-resolved path-chip brush parity (hundred-ninety-fourth pass; §G.18 / §D.7)
 - [x] Training Monitor + Output Browser — ``projectRoot``-resolved checkpoint + run-directory path-chip brush parity (hundred-ninety-fourth pass; §G.14 / §G.17 / §G.12 / §D.7)
+- [x] ``useLogPathRunLabelBrush`` + ``LoadedRunRow`` — ``projectRoot``-resolved portfolio/open-file brush sync + ring-highlight parity (hundred-ninety-fifth pass; §G.1 / §G.6 / §G.14–§G.17 / §D.7)
+- [x] Simulation Summary + Data Explorer + OLAP Explorer + Algorithm Comparison + Simulation Monitor + Process Monitor — open-file/process-row path-chip ``projectRoot`` parity (hundred-ninety-fifth pass; §G.1 / §G.6 / §G.15 / §G.16 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

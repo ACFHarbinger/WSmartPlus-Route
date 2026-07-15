@@ -37,7 +37,7 @@ import {
 const CUSTOM_TABLE_PREFIX = "olap_";
 
 export function OlapExplorer() {
-  const { effectiveTheme: theme } = useAppStore();
+  const { projectRoot, effectiveTheme: theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
   const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
@@ -229,6 +229,7 @@ export function OlapExplorer() {
         {selectedIngestPath && (
           <PathRunLabelChip
             path={selectedIngestPath}
+            projectRoot={projectRoot}
             trailing={
               !loading && lastPipeline ? (
                 <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>

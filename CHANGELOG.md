@@ -11,6 +11,43 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-fifth pass (§G.1 + §G.6 + §G.14–§G.17 + §G.15 + §G.16 + §D.7)
+
+Hundred-ninety-fifth pass closes the portfolio and open-file relative-path resolution
+gaps left after the hundred-ninety-fourth pass (which added ``PathRunLabelChip``
+store fallback and explicit ``projectRoot`` on analysis/monitor/file browsers).
+``useLogPathRunLabelBrush`` and ``LoadedRunRow`` now resolve paths against
+``projectRoot`` before global ``run_label`` brush sync and portfolio ring-highlight
+comparison. Portfolio run lists, analytics open-file headers, and Process Monitor
+process rows pass explicit ``projectRoot`` for path-chip brush parity.
+
+**React frontend**
+- ``useLogPathRunLabelBrush`` — resolves log/run paths against ``useAppStore``
+  ``projectRoot`` before ``run_label`` brush sync (§G.1 / §G.14–§G.16 / §D.7)
+- ``LoadedRunRow`` — optional ``projectRoot`` prop + store fallback; portfolio
+  ring-highlight compares resolved run labels (§G.1 / §G.14 / §G.17 / §D.7)
+- Simulation Summary + Benchmark Analysis + City Comparison + Experiment Tracker +
+  Training Monitor + Output Browser — ``LoadedRunRow`` ``projectRoot`` on portfolio
+  and run-directory lists (§G.1 / §G.14 / §G.17 / §G.18 / §D.7)
+- Simulation Summary + Data Explorer + OLAP Explorer + Algorithm Comparison +
+  Simulation Monitor — open-file ``PathRunLabelChip`` headers pass ``projectRoot``
+  (§G.1 / §G.6 / §G.16 / §G.15 / §D.7)
+- Process Monitor — process-row ``PathRunLabelChip`` passes ``projectRoot`` for
+  stdout-resolved log paths (§G.15 / §D.7)
+- Training Monitor — ``GlobalFilterBar`` ``runLabels`` from ``projectRoot``-resolved
+  Lightning log paths (§G.17 / §D.7)
+- Output Browser — ``parentRunBrushLabel`` resolves selected-run path against
+  ``projectRoot`` before ``.wsroute`` manifest brush (§G.14 / §G.8 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.6 portfolio loaded-run list relative-path path-chip brush parity checked
+- §G.14–§G.17 Training Monitor + Output Browser run-list ``LoadedRunRow`` projectRoot parity checked
+- §G.1 / §G.6 / §G.16 analytics open-file header relative-path path-chip brush parity checked
+- §G.15 Process Monitor process-row relative-path path-chip brush parity checked
+- §D.7 portfolio + open-file relative-path path-chip run-label brush parity across Simulation Summary, Benchmark Analysis, City Comparison, Data Explorer, OLAP Explorer, Algorithm Comparison, Simulation Monitor, Process Monitor, Training Monitor, and Output Browser checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-fourth pass (§G.14 + §G.17 + §G.18 + §G.8 + §G.12 + §G.9–§G.18 + §D.7)
 
 Hundred-ninety-fourth pass closes the analysis/monitor/file-browser relative-path

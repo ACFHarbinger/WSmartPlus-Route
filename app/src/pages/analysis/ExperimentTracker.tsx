@@ -642,6 +642,7 @@ export function ExperimentTracker() {
                 <td className="py-2 px-3">
                   <LoadedRunRow
                     path={d.path}
+                    projectRoot={projectRoot}
                     label={d.name}
                     activeRunLabel={activeRunLabel}
                   />

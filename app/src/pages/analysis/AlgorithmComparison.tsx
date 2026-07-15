@@ -48,7 +48,7 @@ const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"
 
 export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
-  const { setMode, setPendingMapCompare, effectiveTheme: theme } = useAppStore();
+  const { projectRoot, setMode, setPendingMapCompare, effectiveTheme: theme } = useAppStore();
   const { policy, sampleId, runLabel, setPolicy } = useGlobalFiltersStore();
   const derivedRunLabel = useLogPathRunLabelBrush(watchPath);
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
@@ -166,6 +166,7 @@ export function AlgorithmComparison() {
         {watchPath && (
           <PathRunLabelChip
             path={watchPath}
+            projectRoot={projectRoot}
             trailing={
               !duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE ? (
                 <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>

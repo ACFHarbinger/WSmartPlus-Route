@@ -690,6 +690,7 @@ export function BenchmarkAnalysis() {
               <LoadedRunRow
                 key={r.path}
                 path={r.path}
+                projectRoot={projectRoot}
                 label={r.label}
                 activeRunLabel={activeRunLabel}
                 onRemove={() => removeRun(r.path)}
