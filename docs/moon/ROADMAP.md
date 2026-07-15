@@ -977,6 +977,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — selected ``eval`` embedded section passes ``logLines`` to ``LauncherLivePanel`` instead of inline ``ProcessLogTail`` on ``EvalCheckpointLiveCard`` (§G.12 / §G.15 / §D.7)
 - [x] §G.12 / §G.15 eval launcher log tail shell parity across Evaluation Runner and Process Monitor embedded section (§D.7)
 
+**Delivered (§D.7 — hundred-sixty-sixth pass)**
+
+- [x] Training Hub — eval mode uses ``LauncherLivePanel`` + ``EvalCheckpointLiveCard`` / ``EvalResultCard`` instead of ``TrainHpoLivePanel``; shared log tail via panel ``logLines`` prop (§G.10 / §G.12 / §D.7)
+- [x] Training Hub — eval live panel ``LauncherNavMesh`` post-run shortcuts (Output Browser, Evaluation Runner reload, Benchmark Analysis) parity with Evaluation Runner (§G.10 / §G.12 / §D.7)
+- [x] §G.10 / §G.12 eval launcher live panel shell parity across Training Hub and Evaluation Runner (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1688,7 +1694,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoLivePanelHeader`` shared live panel header row with ``split`` layout + ``activity`` running icon (hundred-fifty-fourth pass; §G.10 / §D.7)
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``footer`` process-id row + ``showAnalytics`` slots (hundred-fifty-sixth pass; §G.10 / §D.7)
 - [x] ``ProcessIdFooter`` shared process-id footer row on Training Hub live panel (hundred-fifty-eighth pass; §G.10 / §D.7)
-- [x] ``ProcessLogTail`` shared stdout tail display on Training Hub live panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.10 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display on Training Hub train/HPO live panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.10 / §D.7)
+- [x] Training Hub eval mode — ``LauncherLivePanel`` + ``EvalCheckpointLiveCard`` / ``EvalResultCard`` live panel shell parity with Evaluation Runner (hundred-sixty-sixth pass; §G.10 / §G.12 / §D.7)
 
 ---
 

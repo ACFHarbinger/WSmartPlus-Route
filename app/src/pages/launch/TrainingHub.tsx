@@ -15,6 +15,9 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
+import { EvalResultCard } from "../../components/monitor/EvalResultCard";
+import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
@@ -30,6 +33,12 @@ import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
+import {
+  checkpointLabelFromEvalProcess,
+  collectEvalResultFromLogLines,
+  hasEvalMetrics,
+  toEvalAnalyticsRows,
+} from "../../utils/evalResults";
 import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import {
   findRecentHpoProcessId,
@@ -160,7 +169,7 @@ function LiveChart({
 }
 
 export function TrainingHub() {
-  const { projectRoot, effectiveTheme } = useAppStore();
+  const { projectRoot, effectiveTheme, setMode, setPendingEvalResults } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
 
@@ -340,6 +349,31 @@ export function TrainingHub() {
       ? liveTrainProcessLabel(displayProcessId)
       : "Live Progress";
 
+  const evalCheckpointName = useMemo(() => {
+    if (!displayProcessId || !displayProc) return checkpointPath.split(/[/\\]/).pop() ?? "checkpoint";
+    return checkpointLabelFromEvalProcess(displayProcessId, displayProc.command ?? "");
+  }, [displayProcessId, displayProc, checkpointPath]);
+
+  const evalResult = useMemo(() => {
+    if (mode !== "eval" || !displayProc) return null;
+    return collectEvalResultFromLogLines(liveLogLines, evalCheckpointName);
+  }, [mode, displayProc, liveLogLines, evalCheckpointName]);
+
+  const openEvalInAnalytics = useCallback(() => {
+    if (!evalResult || !hasEvalMetrics(evalResult)) return;
+    setPendingEvalResults(toEvalAnalyticsRows([evalResult]));
+    setMode("benchmark");
+  }, [evalResult, setPendingEvalResults, setMode]);
+
+  const evalLiveTitle = isDone
+    ? runStatus === "completed"
+      ? "Evaluation Complete"
+      : `Evaluation ${runStatus}`
+    : "Evaluating…";
+
+  const completedEvalCheckpointPath =
+    mode === "eval" && isDone && runStatus === "completed" ? checkpointPath || null : null;
+
   return (
     <div className="space-y-4 max-w-2xl">
       {/* Mode selector */}
@@ -513,7 +547,48 @@ export function TrainingHub() {
       </div>
 
       {/* Live progress panel */}
-      {displayProcessId && (
+      {displayProcessId && mode === "eval" && displayProc && (
+        <LauncherLivePanel
+          header={{
+            status: isDone ? runStatus ?? "running" : "running",
+            title: evalLiveTitle,
+            navMesh: {
+              kind: "eval",
+              hideSelf: true,
+              showPostRun: isDone && runStatus === "completed",
+              showOutputBrowser: isDone && runStatus === "completed",
+              outputRunPath,
+              checkpointPath: completedEvalCheckpointPath,
+              onOpenAnalytics:
+                evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined,
+            },
+          }}
+          progress={
+            !isDone
+              ? { processId: displayProcessId }
+              : undefined
+          }
+          footer={<ProcessIdFooter processId={displayProcessId} />}
+          logLines={liveLogLines}
+          logTailWaiting={!isDone}
+        >
+          {!isDone || !evalResult || !hasEvalMetrics(evalResult) ? (
+            <EvalCheckpointLiveCard
+              procId={displayProcessId}
+              checkpointName={evalCheckpointName}
+              status={displayProc.status}
+              isRunning={!isDone}
+              result={evalResult ?? undefined}
+              logLines={liveLogLines}
+              showLogTail={false}
+            />
+          ) : (
+            <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
+          )}
+        </LauncherLivePanel>
+      )}
+
+      {displayProcessId && mode !== "eval" && (
         <TrainHpoLivePanel
           header={{
             status: isDone ? runStatus : "running",
