@@ -15,7 +15,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { EvalResultCard } from "../../components/monitor/EvalResultCard";
@@ -498,15 +498,17 @@ export function TrainingHub() {
               </button>
             </div>
             {checkpointPath.trim() ? (
-              <PathRunLabelChip
+              <OpenPathToolbar
                 path={checkpointPath.trim()}
                 projectRoot={projectRoot}
+                kind="checkpoint"
+                labeled
+                labeledIconSize={12}
                 brushLabel={parentRunBrushLabelFromCheckpointPath(
                   checkpointPath.trim(),
                   projectRoot
                 )}
-                className="max-w-full"
-                handoff="checkpoint"
+                chipClassName="max-w-full"
               />
             ) : null}
           </div>
@@ -525,10 +527,11 @@ export function TrainingHub() {
               </button>
             </div>
             {evalDataset.trim() ? (
-              <PathRunLabelChip
+              <OpenPathToolbar
                 path={evalDataset.trim()}
                 projectRoot={projectRoot}
-                className="max-w-full"
+                chipClassName="max-w-full"
+                handoff={false}
               />
             ) : null}
           </div>

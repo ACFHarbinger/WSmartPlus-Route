@@ -2,7 +2,7 @@
  * Shared per-checkpoint live eval row for Evaluation Runner and Process Monitor
  * (§G.12 / §G.15 / §D.7).
  */
-import { PathRunLabelChip } from "../common/PathRunLabelChip";
+import { OpenPathToolbar } from "../common/OpenPathToolbar";
 import type { EvalResult } from "../../utils/evalResults";
 import { hasEvalMetrics } from "../../utils/evalResults";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
@@ -45,13 +45,14 @@ export function EvalCheckpointLiveCard({
     >
       <div className="flex items-center justify-between gap-2">
         {checkpointPath ? (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={checkpointPath}
             projectRoot={projectRoot}
+            kind="checkpoint"
             label={checkpointName}
             brushLabel={parentRunBrushLabelFromCheckpointPath(checkpointPath, projectRoot)}
-            className="max-w-full"
-            handoff="checkpoint"
+            chipClassName="max-w-full"
+            className="min-w-0 flex-1"
           />
         ) : (
           <span className="text-xs font-mono text-gray-300 truncate">{checkpointName}</span>

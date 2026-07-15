@@ -11,7 +11,7 @@ import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, BarChart2 } from "lucide-react";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -281,10 +281,11 @@ export function DataGeneration() {
               </button>
             </div>
             {tsplibPath.trim() ? (
-              <PathRunLabelChip
+              <OpenPathToolbar
                 path={tsplibPath.trim()}
                 projectRoot={projectRoot}
-                className="max-w-full"
+                chipClassName="max-w-full"
+                handoff={false}
               />
             ) : null}
           </div>
@@ -304,11 +305,13 @@ export function DataGeneration() {
               </button>
             </div>
             {sensorCsvPath.trim() ? (
-              <PathRunLabelChip
+              <OpenPathToolbar
                 path={sensorCsvPath.trim()}
                 projectRoot={projectRoot}
-                className="max-w-full"
-                handoff="csv"
+                kind="csv"
+                labeled
+                labeledIconSize={12}
+                chipClassName="max-w-full"
               />
             ) : null}
             <p className="text-[10px] text-canvas-muted">
@@ -332,10 +335,11 @@ export function DataGeneration() {
           </button>
         </div>
         {previewDatasetPath.trim() ? (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={previewDatasetPath.trim()}
             projectRoot={projectRoot}
-            className="max-w-full"
+            chipClassName="max-w-full"
+            handoff={false}
           />
         ) : null}
         {previewStats ? (

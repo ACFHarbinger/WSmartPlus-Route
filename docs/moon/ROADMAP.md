@@ -1521,6 +1521,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Settings project root / Python / import JSON / Arrow benchmark paths migrate to ``OpenPathToolbar``; benchmark auto-classifies CSV/log handoffs (§G.19 / §D.7)
 - [x] §G.5 / §G.17 / §G.18 / §G.19 residual open-path toolbar surface expansion checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-thirty-first pass)**
+
+- [x] Evaluation Runner checkpoint-row + dataset path previews migrate to ``OpenPathToolbar`` (§G.12 / §D.7)
+- [x] Training Hub eval checkpoint + dataset path previews migrate to ``OpenPathToolbar``; checkpoint labeled Eval Runner handoff (§G.10 / §G.12 / §D.7)
+- [x] Data Generation sensor CSV / TSPLIB / preview path previews migrate to ``OpenPathToolbar``; sensor labeled Data Explorer handoff (§G.11 / §G.6 / §D.7)
+- [x] ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers migrate to ``OpenPathToolbar`` (§G.12 / §G.15 / §D.7)
+- [x] §G.10 / §G.11 / §G.12 launcher selected-path open-path toolbar parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -2345,6 +2353,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Hub card live panel headers pass ``runLabel`` + · live suffix for eval and train/HPO modes (hundred-seventy-second pass; §G.10 / §D.7)
 - [x] ``TrainHpoNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser + Training Monitor labeled handoffs with empty-path mode-only fallback (§G.10 / §G.15 / §G.17 / §D.7)
 - [x] Training Hub eval checkpoint path-kind handoff via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.10 / §G.12 / §D.7)
+- [x] Training Hub eval checkpoint + dataset path previews use shared ``OpenPathToolbar``; checkpoint labeled Eval Runner handoff (two-hundred-and-thirty-first pass; §G.10 / §G.12 / §D.7)
 
 ---
 
@@ -2373,6 +2382,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``dataGenLivePanelTitle`` shared data-gen live panel title helper; Data Generation imports shared title (hundred-sixty-ninth pass; §G.11 / §D.7)
 - [x] Data Generation card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.11 / §D.7)
 - [x] Data Generation sensor CSV path-kind handoff via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.11 / §G.6 / §D.7)
+- [x] Data Generation sensor CSV / TSPLIB / instance-preview path previews use shared ``OpenPathToolbar``; sensor labeled Data Explorer handoff (two-hundred-and-thirty-first pass; §G.11 / §G.6 / §D.7)
 
 ---
 
@@ -2410,6 +2420,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner checkpoint input + results table path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.12 / §D.7)
 - [x] ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint icon handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.12 / §G.15 / §D.7)
 - [x] Evaluation Runner + eval live/result cards checkpoint chips use ``PathRunLabelChip`` ``handoff="checkpoint"`` (two-hundred-and-twenty-seventh pass; §G.12 / §D.7)
+- [x] Evaluation Runner checkpoint-row + dataset path previews use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.12 / §D.7)
+- [x] ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.12 / §G.15 / §D.7)
 
 ---
 
@@ -2522,6 +2534,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor process row ring highlight + global ``run_label`` brush sync for all workflow kinds (hundred-seventy-first pass; §G.15 / §D.7)
 - [x] Process Monitor ``useProcessRunLabelBrush`` + ``runLabelMapFromProcesses`` shared run-label brush hook parity (hundred-seventy-third pass; §G.15 / §D.7)
 - [x] Process Monitor process-row + ``ProcessIdFooter`` chips + live-header suffix handoffs via ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.15 / §D.7)
+- [x] Process Monitor ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.15 / §G.12 / §D.7)
 
 ---
 
