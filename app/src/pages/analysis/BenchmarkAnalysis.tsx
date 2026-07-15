@@ -581,6 +581,7 @@ export function BenchmarkAnalysis() {
                 graphLabel={graph}
                 runs={graphRuns}
                 heatmapMode={heatmapMode}
+                logScale={logScale}
               />
             ))}
           </div>

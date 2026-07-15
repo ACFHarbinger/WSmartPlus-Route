@@ -56,7 +56,10 @@ import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphH
 import { BenchmarkDistributionHeatmap } from "../../components/analysis/BenchmarkDistributionHeatmap";
 import { BenchmarkPortfolioHeatmap } from "../../components/analysis/BenchmarkPortfolioHeatmap";
 import { BenchmarkPortfolioParallel } from "../../components/analysis/BenchmarkPortfolioParallel";
-import type { HeatmapMode } from "../../utils/heatmapMetrics";
+import {
+  buildNormalizedHeatmapCells,
+  type HeatmapMode,
+} from "../../utils/heatmapMetrics";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { buildParetoByPanel, type PortfolioRunSlice } from "../../utils/paretoPortfolio";
 import { groupRunsByDistribution } from "../../utils/portfolioDistribution";
@@ -727,6 +730,7 @@ function PolicyHeatmapChart({
   onModeChange,
   brushed,
   policyMeta,
+  logScale = false,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
@@ -734,6 +738,7 @@ function PolicyHeatmapChart({
   onModeChange?: (mode: HeatmapMode) => void;
   brushed?: string[] | null;
   policyMeta?: Record<string, PolicyMeta>;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -746,22 +751,18 @@ function PolicyHeatmapChart({
   );
 
   const option = useMemo(() => {
-    const cells: Array<[number, number, number]> = [];
-    for (let mi = 0; mi < activeMetrics.length; mi++) {
-      const { key, higherBetter } = activeMetrics[mi];
-      const raw = policies.map((p) =>
-        key === "kg/km" ? mean(stats[p]["kg/km"]) : mean(stats[p][key as MetricKey])
-      );
-      const min = Math.min(...raw);
-      const max = Math.max(...raw);
-      const span = max - min || 1;
-      for (let pi = 0; pi < policies.length; pi++) {
-        let norm = (raw[pi] - min) / span;
-        if (!higherBetter) norm = 1 - norm;
-        if (!isHighlighted(policies[pi], brushed ?? null)) norm *= 0.15;
-        cells.push([pi, mi, norm]);
-      }
-    }
+    const getRaw = (policy: string, metricKey: string) =>
+      metricKey === "kg/km"
+        ? mean(stats[policy]["kg/km"])
+        : mean(stats[policy][metricKey as MetricKey]);
+
+    const { cells, raw: rawValues } = buildNormalizedHeatmapCells(
+      policies,
+      activeMetrics,
+      getRaw,
+      (p) => (isHighlighted(p, brushed ?? null) ? 1 : 0.15),
+      logScale
+    );
 
     return {
       backgroundColor: "transparent",
@@ -800,17 +801,13 @@ function PolicyHeatmapChart({
       tooltip: {
         formatter: (p: { value: [number, number, number] }) => {
           const [pi, mi, norm] = p.value;
-          const { key, label } = activeMetrics[mi];
+          const { label } = activeMetrics[mi];
           const policy = policies[pi];
-          const raw =
-            key === "kg/km"
-              ? mean(stats[policy]["kg/km"])
-              : mean(stats[policy][key as MetricKey]);
           const meta = policyMeta?.[policy];
           return [
             policy,
             meta ? formatPolicyMeta(meta) : "",
-            `${label}: ${fmt(raw, 2)}`,
+            `${label}: ${fmt(rawValues[mi][pi], 2)}`,
             `Score: ${fmt(norm * 100, 0)}%`,
           ]
             .filter(Boolean)
@@ -818,7 +815,7 @@ function PolicyHeatmapChart({
         },
       },
     };
-  }, [stats, policies, activeMetrics, brushed, policyMeta]);
+  }, [stats, policies, activeMetrics, brushed, policyMeta, logScale]);
 
   const MODE_OPTS: Array<{ key: HeatmapMode; label: string }> = [
     { key: "all", label: "All metrics" },
@@ -829,7 +826,9 @@ function PolicyHeatmapChart({
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between flex-wrap gap-2">
-        <p className="text-xs font-semibold text-gray-300">Policy Metric Heatmap</p>
+        <p className="text-xs font-semibold text-gray-300">
+          Policy Metric Heatmap{logScale ? " · log-normalised" : ""}
+        </p>
         <div className="flex items-center gap-2">
           {onModeChange && (
             <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
@@ -1334,6 +1333,7 @@ function DistributionFacetHeatmaps({
   heatmapMode,
   onModeChange,
   brushed,
+  logScale = false,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
@@ -1341,6 +1341,7 @@ function DistributionFacetHeatmaps({
   heatmapMode: HeatmapMode;
   onModeChange: (mode: HeatmapMode) => void;
   brushed?: string[] | null;
+  logScale?: boolean;
 }) {
   const facets = useMemo(() => {
     const map = new Map<string, string[]>();
@@ -1362,13 +1363,17 @@ function DistributionFacetHeatmaps({
         onModeChange={onModeChange}
         brushed={brushed}
         policyMeta={policyMeta}
+        logScale={logScale}
       />
     );
   }
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold text-gray-300">Policy Heatmaps by Distribution (§G.1.3)</p>
+      <p className="text-xs font-semibold text-gray-300">
+        Policy Heatmaps by Distribution (§G.1.3)
+        {logScale ? " · log-normalised" : ""}
+      </p>
       <div className={`grid gap-4 ${facets.length >= 2 ? "grid-cols-1 lg:grid-cols-2" : ""}`}>
         {facets.map(([dist, ps]) => (
           <div key={dist} className="space-y-1">
@@ -1380,6 +1385,7 @@ function DistributionFacetHeatmaps({
               onModeChange={onModeChange}
               brushed={brushed}
               policyMeta={policyMeta}
+              logScale={logScale}
             />
           </div>
         ))}
@@ -2284,6 +2290,7 @@ export function SimulationSummary() {
               heatmapMode={heatmapMode}
               onModeChange={setHeatmapMode}
               brushed={effectiveBrushed}
+              logScale={logScale}
             />
           )}
 
@@ -2368,6 +2375,7 @@ export function SimulationSummary() {
                     distributionLabel={dist}
                     runs={distRuns}
                     heatmapMode={heatmapMode}
+                    logScale={logScale}
                   />
                 ))}
               </div>
@@ -2384,6 +2392,7 @@ export function SimulationSummary() {
                     graphLabel={graph}
                     runs={graphRuns}
                     heatmapMode={heatmapMode}
+                    logScale={logScale}
                   />
                 ))}
               </div>
@@ -2479,6 +2488,7 @@ export function SimulationSummary() {
             heatmapMode={heatmapMode}
             onModeChange={setHeatmapMode}
             brushed={effectiveBrushed}
+            logScale={logScale}
           />
 
           {portfolioMode && (

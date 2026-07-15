@@ -29,10 +29,12 @@ export function BenchmarkDistributionHeatmap({
   distributionLabel,
   runs,
   heatmapMode,
+  logScale = false,
 }: {
   distributionLabel: string;
   runs: DistributionHeatmapRun[];
   heatmapMode: HeatmapMode;
+  logScale?: boolean;
 }) {
   const policies = useMemo(
     () => [...new Set(runs.flatMap((r) => r.entries.map((e) => e.policy)))],
@@ -52,7 +54,13 @@ export function BenchmarkDistributionHeatmap({
       return mean(vals);
     };
 
-    const { cells, raw } = buildNormalizedHeatmapCells(policies, metrics, getRaw);
+    const { cells, raw } = buildNormalizedHeatmapCells(
+      policies,
+      metrics,
+      getRaw,
+      undefined,
+      logScale
+    );
 
     return {
       backgroundColor: "transparent",
@@ -76,7 +84,7 @@ export function BenchmarkDistributionHeatmap({
         },
       },
     };
-  }, [policies, runs, metrics]);
+  }, [policies, runs, metrics, logScale]);
 
   return (
     <div className="card space-y-1">

@@ -47,11 +47,13 @@ export function BenchmarkPortfolioHeatmap({
   heatmapMode,
   onModeChange,
   brushed,
+  logScale = false,
 }: {
   runs: PortfolioHeatmapRun[];
   heatmapMode: HeatmapMode;
   onModeChange?: (mode: HeatmapMode) => void;
   brushed?: string[] | null;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
 
@@ -83,7 +85,8 @@ export function BenchmarkPortfolioHeatmap({
       policies,
       metrics,
       getRaw,
-      (p) => (isHighlighted(p, brushed ?? null) ? 1 : 0.15)
+      (p) => (isHighlighted(p, brushed ?? null) ? 1 : 0.15),
+      logScale
     );
 
     return {
@@ -125,7 +128,7 @@ export function BenchmarkPortfolioHeatmap({
         },
       },
     };
-  }, [policies, runs, metrics, brushed, policyMeta]);
+  }, [policies, runs, metrics, brushed, policyMeta, logScale]);
 
   return (
     <div className="card space-y-2">
@@ -134,6 +137,7 @@ export function BenchmarkPortfolioHeatmap({
           <p className="text-xs font-semibold text-gray-300">Portfolio Policy×Metric Heatmap (§G.1.3)</p>
           <p className="text-[10px] text-canvas-muted">
             {runs.length} runs · {policies.length} policies
+            {logScale ? " · log-normalised cells" : ""}
           </p>
         </div>
         <div className="flex items-center gap-2">

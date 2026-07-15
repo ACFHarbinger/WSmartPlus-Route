@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-ninth pass (§G.1 / §G.7)
+
+Eighty-ninth pass extends global log-scale to §G.1.3 policy configuration
+heatmaps so KPI cells are symlog/log-transformed before min–max normalisation.
+
+**React frontend**
+- `heatmapMetrics.ts` — ``buildNormalizedHeatmapCells`` accepts ``logScale``;
+  applies ``displayBarValue`` symlog/log transform before row normalisation;
+  tooltips retain raw KPI values
+- `PolicyHeatmapChart` / `DistributionFacetHeatmaps` — log-normalised cells
+  when global ``logScale`` on; subtitle reflects mode
+- `BenchmarkPortfolioHeatmap` / `BenchmarkDistributionHeatmap` /
+  `BenchmarkGraphHeatmap` — accept ``logScale`` prop from Simulation Summary
+  and Benchmark Analysis
+
+**ROADMAP**
+- §G.1.3 Policy configuration heatmaps log-scale checked
+- §G.7 Global log-scale propagation includes policy configuration heatmaps
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-eighth pass (§G.1 / §G.6 / §G.7)
 
 Eighty-eighth pass aligns Pareto scatter charts with symlog-overflows convention and

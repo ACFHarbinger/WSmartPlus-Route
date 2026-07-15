@@ -2,6 +2,8 @@
  * Shared heatmap metric schema for §G.1.3 policy configuration heatmaps.
  */
 
+import { displayBarValue } from "./chartLogScale";
+
 export type HeatmapMode = "all" | "overflows" | "kg/km";
 
 export const HEATMAP_METRICS = [
@@ -22,15 +24,19 @@ export function buildNormalizedHeatmapCells(
   policies: string[],
   metrics: Array<{ key: string; higherBetter: boolean }>,
   getRaw: (policy: string, metricKey: string) => number,
-  policyOpacity?: (policy: string) => number
+  policyOpacity?: (policy: string) => number,
+  logScale = false
 ): { cells: Array<[number, number, number]>; raw: number[][] } {
   const raw: number[][] = [];
   const cells: Array<[number, number, number]> = [];
 
   for (let mi = 0; mi < metrics.length; mi++) {
     const { key, higherBetter } = metrics[mi];
-    const row = policies.map((p) => getRaw(p, key));
-    raw.push(row);
+    const row = policies.map((p) => {
+      const v = getRaw(p, key);
+      return logScale ? displayBarValue(v, key, true) : v;
+    });
+    raw.push(policies.map((p) => getRaw(p, key)));
     const min = Math.min(...row);
     const max = Math.max(...row);
     const span = max - min || 1;
