@@ -11,6 +11,35 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-sixth pass (§G.10 + §G.15 + §G.17 + §G.18 + §A.2 + §A.4 + §D.7)
+
+Hundred-fifty-sixth pass closes the live panel shell gap left after the
+hundred-fifty-fifth pass (which added ``TrainHpoLivePanelHeader`` ``overlaySelect``
+parity on Training Monitor). All five train/HPO workflow pages now share
+``TrainHpoLivePanel`` so header, progress bar, and analytics strip render inside
+one consistent card or embedded shell.
+
+**React frontend**
+- ``TrainHpoLivePanel`` — shared header + ``LiveTrainProgressBar`` +
+  ``TrainHpoAnalyticsStrip`` shell with ``card`` / ``embedded`` variants (§G.10 /
+  §G.15 / §G.17 / §G.18 / §A.2 / §A.4 / §D.7)
+- Training Hub — ``footer`` process-id row + ``showAnalytics`` /
+  ``analyticsWrapperClassName`` slots preserved via shared panel (§G.10 / §D.7)
+- Process Monitor — ``embedded`` variant for selected train/HPO analytics section (§G.15 / §D.7)
+- Training Monitor — ``overlaySelect`` + ``showHealthAttention={false}`` options
+  preserved via shared panel (§G.17 / §A.2 / §A.4 / §D.7)
+- HPO Tracker + Experiment Tracker — deduplicated inline live HPO card markup (§G.18 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub ``TrainHpoLivePanel`` shell checked
+- §G.15 Process Monitor ``embedded`` variant checked
+- §G.17 Training Monitor overlay + analytics options preserved checked
+- §G.18 HPO Tracker + Experiment Tracker shared live panel shell checked
+- §A.2 / §A.4 train/HPO workflow live panel shell parity checked
+- §D.7 train/HPO workflow panel shell parity across all five pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-fifth pass (§G.17 + §A.2 + §A.4 + §D.7)
 
 Hundred-fifty-fifth pass closes the Training Monitor live panel header gap left after the

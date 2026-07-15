@@ -9,9 +9,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Copy, Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
+import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
@@ -397,41 +395,45 @@ export function HPOTracker() {
       <GlobalFilterBar showLogScale />
 
       {recentHpoId && recentHpoProc && (
-        <div className="card border-accent-success/30 space-y-3">
-          <TrainHpoLivePanelHeader
-            status={recentHpoRunning ? "running" : recentHpoProc.status}
-            title={
-              recentHpoRunning
-                ? "Live HPO"
-                : recentHpoProc.status === "completed"
-                  ? "HPO Complete"
-                  : `HPO ${recentHpoProc.status}`
-            }
-            processId={recentHpoId}
-            metricCount={liveMetrics.length}
-            healthCount={liveHealthEntries.length}
-            attentionCount={liveAttentionEntries.length}
-            navMesh={{
+        <TrainHpoLivePanel
+          cardClassName="border-accent-success/30"
+          header={{
+            status: recentHpoRunning ? "running" : recentHpoProc.status,
+            title: recentHpoRunning
+              ? "Live HPO"
+              : recentHpoProc.status === "completed"
+                ? "HPO Complete"
+                : `HPO ${recentHpoProc.status}`,
+            processId: recentHpoId,
+            metricCount: liveMetrics.length,
+            healthCount: liveHealthEntries.length,
+            attentionCount: liveAttentionEntries.length,
+            navMesh: {
               showHpoLinks: true,
               showOutputBrowser: recentHpoDone && recentHpoProc.status === "completed",
               outputRunPath,
               trainingRunPath,
-            }}
-          />
-          {recentHpoRunning ? (
-            <LiveTrainProgressBar processId={recentHpoId} />
-          ) : null}
-          <TrainHpoAnalyticsStrip
-            metrics={liveMetrics}
-            healthEntries={liveHealthEntries}
-            attentionEntries={liveAttentionEntries}
-            logScale={logScale}
-            theme={effectiveTheme}
-            exportNamePrefix="hpo-tracker"
-            isPostRun={!recentHpoRunning}
-            postRunFallback="Post-run shortcuts — open Output Browser or Training Monitor for this sweep"
-          />
-        </div>
+            },
+          }}
+          progress={
+            recentHpoRunning
+              ? {
+                  processId: recentHpoId,
+                }
+              : undefined
+          }
+          analytics={{
+            metrics: liveMetrics,
+            healthEntries: liveHealthEntries,
+            attentionEntries: liveAttentionEntries,
+            logScale,
+            theme: effectiveTheme,
+            exportNamePrefix: "hpo-tracker",
+            isPostRun: !recentHpoRunning,
+            postRunFallback:
+              "Post-run shortcuts — open Output Browser or Training Monitor for this sweep",
+          }}
+        />
       )}
 
       {/* Storage bar */}

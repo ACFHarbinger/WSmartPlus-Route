@@ -38,8 +38,7 @@ import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics"
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
+import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import {
   isSimProcess,
   launcherKindFromProcess,
@@ -585,46 +584,48 @@ export function ProcessMonitor() {
       )}
 
       {selectedIsTrain && selectedProc && (
-        <div className="space-y-3 pt-2 border-t border-canvas-border">
-          <TrainHpoLivePanelHeader
-            status={selectedProc.status}
-            title={
+        <TrainHpoLivePanel
+          variant="embedded"
+          header={{
+            status: selectedProc.status,
+            title: (
               <>
                 Training analytics for{" "}
                 <span className="font-mono text-gray-300">{selectedProc.id}</span>
               </>
-            }
-            metricCount={trainingMetrics.length}
-            healthCount={trainingHealthEntries.length}
-            attentionCount={attentionEntries.length}
-            titleTone="muted"
-            showLiveSuffix
-            navMesh={{
+            ),
+            metricCount: trainingMetrics.length,
+            healthCount: trainingHealthEntries.length,
+            attentionCount: attentionEntries.length,
+            titleTone: "muted",
+            showLiveSuffix: true,
+            navMesh: {
               showHpoLinks: isHpoProcess(selectedProc.id, selectedProc.command),
               showOutputBrowser: selectedProc.status === "completed",
               outputRunPath: trainOutputRunPath,
               trainingRunPath: trainRunPath,
-            }}
-          />
-
-          {selectedProc.status === "running" && (
-            <LiveTrainProgressBar
-              processId={selectedProc.id}
-              fallbackValue={latestTrainingMetric?.epoch}
-            />
-          )}
-
-          <TrainHpoAnalyticsStrip
-            metrics={trainingMetrics}
-            healthEntries={trainingHealthEntries}
-            attentionEntries={attentionEntries}
-            logScale={logScale}
-            theme={theme}
-            exportNamePrefix="process-monitor"
-            isPostRun={selectedProc.status !== "running"}
-            postRunFallback="Post-run shortcuts — open Training Monitor or Output Browser for this run"
-          />
-        </div>
+            },
+          }}
+          progress={
+            selectedProc.status === "running"
+              ? {
+                  processId: selectedProc.id,
+                  fallbackValue: latestTrainingMetric?.epoch,
+                }
+              : undefined
+          }
+          analytics={{
+            metrics: trainingMetrics,
+            healthEntries: trainingHealthEntries,
+            attentionEntries: attentionEntries,
+            logScale,
+            theme,
+            exportNamePrefix: "process-monitor",
+            isPostRun: selectedProc.status !== "running",
+            postRunFallback:
+              "Post-run shortcuts — open Training Monitor or Output Browser for this run",
+          }}
+        />
       )}
     </div>
   );

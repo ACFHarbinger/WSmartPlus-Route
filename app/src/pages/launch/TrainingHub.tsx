@@ -15,9 +15,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
+import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
@@ -515,73 +513,71 @@ export function TrainingHub() {
 
       {/* Live progress panel */}
       {displayProcessId && (
-        <div className="card space-y-3">
-          <TrainHpoLivePanelHeader
-            status={isDone ? runStatus : "running"}
-            title={
-              isDone
-                ? runStatus === "completed"
-                  ? "Run Complete"
-                  : `Run ${runStatus}`
-                : liveProgressLabel
-            }
-            metricCount={liveMetrics.length}
-            healthCount={liveHealth.length}
-            attentionCount={liveAttention.length}
-            layout="split"
-            runningIcon="activity"
-            titleTone="heading"
-            navMesh={{
+        <TrainHpoLivePanel
+          header={{
+            status: isDone ? runStatus : "running",
+            title: isDone
+              ? runStatus === "completed"
+                ? "Run Complete"
+                : `Run ${runStatus}`
+              : liveProgressLabel,
+            metricCount: liveMetrics.length,
+            healthCount: liveHealth.length,
+            attentionCount: liveAttention.length,
+            layout: "split",
+            runningIcon: "activity",
+            titleTone: "heading",
+            navMesh: {
               hideHub: true,
               showTrainLinks: showTrainingAnalytics,
               showHpoLinks: mode === "hpo",
               showOutputBrowser: isDone && runStatus === "completed",
               outputRunPath,
               trainingRunPath,
-            }}
-          />
-
-          {!isDone && displayProcessId && (
-            <LiveTrainProgressBar
-              processId={displayProcessId}
-              fallbackTotal={mode === "train" ? epochs : undefined}
-              fallbackValue={latestMetric?.epoch}
-            />
-          )}
-
-          {showTrainingAnalytics && (
-            <div className={isDone ? undefined : "pt-0"}>
-              <TrainHpoAnalyticsStrip
-                metrics={liveMetrics}
-                healthEntries={liveHealth}
-                attentionEntries={liveAttention}
-                logScale={logScale}
-                theme={effectiveTheme}
-                exportNamePrefix="training-hub"
-                isPostRun={isDone}
-                postRunFallback="Post-run shortcuts — open Training Monitor or Output Browser for this run"
-                middleContent={
-                  <>
-                    {liveMetrics.length >= 2 && <GlobalFilterBar showLogScale />}
-                    {liveMetrics.length >= 2 ? (
-                      <LiveChart metrics={liveMetrics} logScale={logScale} />
-                    ) : (
-                      <p className="text-xs text-canvas-muted">
-                        {isDone
-                          ? liveMetrics.length === 0
-                            ? "No JSON metric lines detected in stdout."
-                            : "Only one metric update received."
-                          : "Waiting for metric JSON lines on stdout…"}
-                      </p>
-                    )}
-                  </>
+            },
+          }}
+          progress={
+            !isDone && displayProcessId
+              ? {
+                  processId: displayProcessId,
+                  fallbackTotal: mode === "train" ? epochs : undefined,
+                  fallbackValue: latestMetric?.epoch,
                 }
-              />
-            </div>
-          )}
-
-          <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
-        </div>
+              : undefined
+          }
+          showAnalytics={showTrainingAnalytics}
+          analyticsWrapperClassName={isDone ? undefined : "pt-0"}
+          analytics={{
+            metrics: liveMetrics,
+            healthEntries: liveHealth,
+            attentionEntries: liveAttention,
+            logScale,
+            theme: effectiveTheme,
+            exportNamePrefix: "training-hub",
+            isPostRun: isDone,
+            postRunFallback:
+              "Post-run shortcuts — open Training Monitor or Output Browser for this run",
+            middleContent: (
+              <>
+                {liveMetrics.length >= 2 && <GlobalFilterBar showLogScale />}
+                {liveMetrics.length >= 2 ? (
+                  <LiveChart metrics={liveMetrics} logScale={logScale} />
+                ) : (
+                  <p className="text-xs text-canvas-muted">
+                    {isDone
+                      ? liveMetrics.length === 0
+                        ? "No JSON metric lines detected in stdout."
+                        : "Only one metric update received."
+                      : "Waiting for metric JSON lines on stdout…"}
+                  </p>
+                )}
+              </>
+            ),
+          }}
+          footer={
+            <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
+          }
+        />
       )}
     </div>
   );
