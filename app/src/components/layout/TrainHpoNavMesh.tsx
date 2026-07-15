@@ -1,6 +1,7 @@
 /**
  * Cross-page train/HPO workflow shortcuts (§A.2 / §A.4 / §G.10 / §G.15 / §G.17 / §G.18).
  */
+import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 
 export interface TrainHpoNavMeshProps {
@@ -28,23 +29,17 @@ export function TrainHpoNavMesh({
   showTrainLinks = true,
   className = "",
 }: TrainHpoNavMeshProps) {
-  const { setMode, handoff } = useRecentHandoff();
+  const { setMode } = useRecentHandoff();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
       {showOutputBrowser && (
-        <button
-          onClick={() => {
-            if (outputRunPath) {
-              handoff(outputRunPath, "run");
-            } else {
-              setMode("output_browser");
-            }
-          }}
-          className="btn-ghost text-xs text-accent-success"
-        >
-          Output Browser →
-        </button>
+        <PathHandoffButtons
+          path={outputRunPath}
+          kind="run"
+          labeled
+          iconSize={12}
+        />
       )}
       {showTrainLinks && (
         <>
@@ -56,18 +51,12 @@ export function TrainHpoNavMesh({
               Training Hub →
             </button>
           )}
-          <button
-            onClick={() => {
-              if (trainingRunPath) {
-                handoff(trainingRunPath, "training");
-              } else {
-                setMode("training");
-              }
-            }}
-            className="btn-ghost text-xs text-canvas-muted"
-          >
-            Training Monitor →
-          </button>
+          <PathHandoffButtons
+            path={trainingRunPath}
+            kind="training"
+            labeled
+            iconSize={12}
+          />
           {showHpoLinks && (
             <>
               <button

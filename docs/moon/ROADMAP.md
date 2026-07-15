@@ -1455,6 +1455,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process train/HPO toasts — dual **Training** + **Output** actions when both paths are present in stdout (§D.8 / §G.17 / §G.14 / §D.7)
 - [x] §G.15 / §G.7 non-log path-handoff surface parity with log dual-handoff surfaces checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-fourth pass)**
+
+- [x] ``PathHandoffButtons`` optional empty ``path`` + explicit ``kind`` — mode-only navigation without pending-path handoff (nav-mesh parity with ``LogHandoffButtons``) (§G.7 / §G.9 / §G.10 / §D.7)
+- [x] ``LauncherNavMesh`` — Output Browser / checkpoint / Training Monitor / Data Explorer path shortcuts via shared labeled ``PathHandoffButtons`` (§G.9 / §G.11 / §G.12 / §D.7)
+- [x] ``TrainHpoNavMesh`` — Output Browser + Training Monitor path shortcuts via shared labeled ``PathHandoffButtons`` (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Output Browser — run-header path-kind handoffs (log dual or run single); file-viewer CSV / config / checkpoint / log via labeled ``PathHandoffButtons``; checkpoint sidebar icon handoffs (§G.14 / §G.12 / §D.7)
+- [x] Training Monitor — run-panel training path + checkpoint browser icon handoffs via ``PathHandoffButtons`` (§G.17 / §G.12 / §D.7)
+- [x] §G.14 / §G.9 / §G.10 / §G.17 Output Browser + nav-mesh + Training Monitor path-handoff surface parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -2226,6 +2235,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessLogTail`` shared stdout tail display on Simulation Launcher live panel via ``LauncherLivePanel`` (hundred-sixty-fourth pass; §G.9 / §D.7)
 - [x] ``simLivePanelTitle`` shared sim live panel title helper; Simulation Launcher imports shared title (hundred-sixty-ninth pass; §G.9 / §D.7)
 - [x] Simulation Launcher card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.9 / §D.7)
+- [x] ``LauncherNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser / checkpoint / Training Monitor / Data Explorer labeled handoffs with empty-path mode-only fallback (§G.9 / §G.11 / §G.12 / §D.7)
 
 ---
 
@@ -2265,6 +2275,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``evalLivePanelTitle`` shared eval live panel title helper; Training Hub eval mode imports shared title (hundred-sixty-eighth pass; §G.10 / §D.7)
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Hub train/HPO modes import shared title (hundred-seventieth pass; §G.10 / §D.7)
 - [x] Training Hub card live panel headers pass ``runLabel`` + · live suffix for eval and train/HPO modes (hundred-seventy-second pass; §G.10 / §D.7)
+- [x] ``TrainHpoNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser + Training Monitor labeled handoffs with empty-path mode-only fallback (§G.10 / §G.15 / §G.17 / §D.7)
 
 ---
 
@@ -2372,6 +2383,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``outputRunPathFromHydraArtifact`` + Hydra snapshot / pruned-config stdout parsing (hundred-forty-fourth pass; §G.14 / §G.9 / §G.12)
 - [x] Output Browser ``useLogPathRunLabelBrush`` replaces inline ``setRunLabel`` on run select (hundred-seventy-fourth pass; §G.14 / §D.7)
 - [x] Output Browser ``runLabelMapFromPaths`` replaces inline ``runLabelFromPath`` in run list ring highlights (hundred-seventy-fifth pass; §G.14 / §D.7)
+- [x] Output Browser path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-header log dual / run single; file-viewer CSV / config / checkpoint / log labeled controls; checkpoint sidebar icon Eval handoffs (§G.14 / §G.7 / §D.7)
 
 ---
 
@@ -2490,6 +2502,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``ProcessLogTail`` shared stdout tail display on live/recent train panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.17 / §D.7)
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Monitor imports shared title (hundred-seventieth pass; §G.17 / §D.7)
 - [x] Training Monitor ``TrainHpoLivePanel`` card header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.17 / §D.7)
+- [x] Training Monitor path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-panel training icon + checkpoint browser Eval icon (§G.17 / §G.12 / §D.7)
 
 ---
 

@@ -2,6 +2,7 @@
  * Cross-page sim / data-gen / eval launcher shortcuts (§D.7 / §G.9 / §G.11 / §G.12).
  */
 import { LogHandoffButtons } from "../common/LogHandoffButtons";
+import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import type { LauncherKind } from "../../utils/launcherProcess";
 
@@ -54,7 +55,7 @@ export function LauncherNavMesh({
   simLogPath = null,
   className = "",
 }: LauncherNavMeshProps) {
-  const { setMode, handoff } = useRecentHandoff();
+  const { setMode } = useRecentHandoff();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -77,12 +78,7 @@ export function LauncherNavMesh({
       )}
 
       {kind === "data_gen" && showPostRun && (
-        <button
-          onClick={() => setMode("data_explorer")}
-          className="btn-ghost text-xs text-accent-primary"
-        >
-          Data Explorer →
-        </button>
+        <PathHandoffButtons kind="csv" labeled iconSize={12} />
       )}
 
       {kind === "eval" && (
@@ -95,21 +91,14 @@ export function LauncherNavMesh({
               Training Hub →
             </button>
           )}
-          <button
-            onClick={() => setMode("training")}
-            className="btn-ghost text-xs text-canvas-muted"
-          >
-            Training Monitor →
-          </button>
+          <PathHandoffButtons kind="training" labeled iconSize={12} />
           {showPostRun && checkpointPath && (
-            <button
-              onClick={() => {
-                handoff(checkpointPath, "checkpoint");
-              }}
-              className="btn-ghost text-xs text-accent-secondary"
-            >
-              Load in Eval Runner →
-            </button>
+            <PathHandoffButtons
+              path={checkpointPath}
+              kind="checkpoint"
+              labeled
+              iconSize={12}
+            />
           )}
           {showPostRun && onOpenAnalytics && (
             <button
@@ -123,18 +112,12 @@ export function LauncherNavMesh({
       )}
 
       {showOutputBrowser && (
-        <button
-          onClick={() => {
-            if (outputRunPath) {
-              handoff(outputRunPath, "run");
-            } else {
-              setMode("output_browser");
-            }
-          }}
-          className="btn-ghost text-xs text-accent-success"
-        >
-          Output Browser →
-        </button>
+        <PathHandoffButtons
+          path={outputRunPath}
+          kind="run"
+          labeled
+          iconSize={12}
+        />
       )}
 
       <button

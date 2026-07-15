@@ -27,9 +27,8 @@ import {
   Trash2,
   Package,
   Archive,
-  ClipboardList,
 } from "lucide-react";
-import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -359,27 +358,6 @@ export function OutputBrowser() {
     }
   }, [toggleDir, handoff]);
 
-  const loadInEvalRunner = useCallback(
-    (path: string) => {
-      handoff(path, "checkpoint");
-    },
-    [handoff]
-  );
-
-  const openInConfigEditor = useCallback(
-    (path: string) => {
-      handoff(path, "config");
-    },
-    [handoff]
-  );
-
-  const openInDataExplorer = useCallback(
-    (path: string) => {
-      handoff(path, "csv");
-    },
-    [handoff]
-  );
-
   const toggleCompareRun = useCallback((runPath: string) => {
     setCompareSelection((prev) => {
       const next = new Set(prev);
@@ -700,13 +678,12 @@ export function OutputBrowser() {
                   projectRoot={projectRoot}
                   className="font-medium max-w-none"
                   trailing={
-                    runJsonlPath ? (
-                      <LogHandoffButtons
-                        path={runJsonlPath}
-                        storedLabel={selectedRun.name}
-                        iconSize={11}
-                      />
-                    ) : undefined
+                    <PathHandoffButtons
+                      path={runJsonlPath ?? selectedRun.path}
+                      kind={runJsonlPath ? "log" : "run"}
+                      storedLabel={selectedRun.name}
+                      iconSize={11}
+                    />
                   }
                 />
               </div>
@@ -738,14 +715,15 @@ export function OutputBrowser() {
                       label={ckpt.name}
                       brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
                       className="flex-1 min-w-0 max-w-none text-[10px]"
+                      trailing={
+                        <PathHandoffButtons
+                          path={ckpt.path}
+                          kind="checkpoint"
+                          iconSize={11}
+                        />
+                      }
                     />
                     <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
-                    <button
-                      onClick={() => loadInEvalRunner(ckpt.path)}
-                      className="btn-ghost text-[10px] shrink-0 text-accent-secondary"
-                    >
-                      Eval →
-                    </button>
                   </div>
                 ))}
               </div>
@@ -839,15 +817,6 @@ export function OutputBrowser() {
                 Extract & Open
               </button>
             )}
-            {viewingPath && CSV_EXTENSIONS.has(viewingExt) && (
-              <button
-                onClick={() => openInDataExplorer(viewingPath)}
-                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
-              >
-                <BarChart2 size={12} />
-                Open in Data Explorer →
-              </button>
-            )}
             {viewingPath && CSV_EXTENSIONS.has(viewingExt) && projectRoot && (
               <button
                 onClick={async () => {
@@ -876,32 +845,27 @@ export function OutputBrowser() {
                 Export Parquet
               </button>
             )}
-            {viewingPath && LOG_EXTENSIONS.has(viewingExt) && (
-              <LogHandoffButtons
-                path={viewingPath}
-                labeled
-                iconSize={12}
-                className="shrink-0"
-              />
-            )}
-            {viewingPath && CONFIG_EXTENSIONS.has(viewingExt) && (
-              <button
-                onClick={() => openInConfigEditor(viewingPath)}
-                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
-              >
-                <FileText size={12} />
-                Open in Config Editor →
-              </button>
-            )}
-            {viewingCheckpoint && (
-              <button
-                onClick={() => loadInEvalRunner(viewingCheckpoint.path)}
-                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
-              >
-                <ClipboardList size={12} />
-                Load in Eval Runner →
-              </button>
-            )}
+            {viewingPath &&
+              (LOG_EXTENSIONS.has(viewingExt) ||
+                CSV_EXTENSIONS.has(viewingExt) ||
+                CONFIG_EXTENSIONS.has(viewingExt) ||
+                viewingCheckpoint != null) && (
+                <PathHandoffButtons
+                  path={viewingPath}
+                  kind={
+                    viewingCheckpoint
+                      ? "checkpoint"
+                      : LOG_EXTENSIONS.has(viewingExt)
+                        ? "log"
+                        : CSV_EXTENSIONS.has(viewingExt)
+                          ? "csv"
+                          : "config"
+                  }
+                  labeled
+                  iconSize={12}
+                  className="shrink-0"
+                />
+              )}
           </div>
         )}
 
@@ -920,13 +884,12 @@ export function OutputBrowser() {
             <p className="text-canvas-muted text-xs">
               {formatBytes(viewingCheckpoint.size_bytes)} checkpoint weight file
             </p>
-            <button
-              onClick={() => loadInEvalRunner(viewingCheckpoint.path)}
-              className="btn-primary text-xs flex items-center gap-1.5"
-            >
-              <ClipboardList size={12} />
-              Load in Eval Runner →
-            </button>
+            <PathHandoffButtons
+              path={viewingCheckpoint.path}
+              kind="checkpoint"
+              labeled
+              iconSize={12}
+            />
           </div>
         )}
 
