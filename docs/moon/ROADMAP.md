@@ -902,6 +902,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor — ``overlaySelect`` + ``showHealthAttention={false}`` analytics options preserved via shared panel (§G.17 / §A.2 / §A.4 / §D.7)
 - [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow live panel shell parity across all five pages (§D.7)
 
+**Delivered (§D.7 — hundred-fifty-seventh pass)**
+
+- [x] ``LauncherLivePanelHeader`` — shared status icon + title + ``LauncherNavMesh`` header row for sim / data-gen / eval launcher workflows (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] ``LauncherLivePanel`` — shared header + ``LiveTrainProgressBar`` + children shell with ``card`` vs ``embedded`` variant parity (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] Simulation Launcher + Data Generation + Evaluation Runner — deduplicated inline live progress card markup; ``navTrailing`` slot preserves sim auto-summary countdown (§G.9 / §G.11 / §G.12 / §D.7)
+- [x] Process Monitor — ``embedded`` variant for selected ``test_sim`` / ``gen_data`` / ``eval`` analytics sections; run-label + live suffix parity on sim panel (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] §G.9 / §G.11 / §G.12 / §G.15 launcher workflow live panel shell parity across all four pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1577,6 +1585,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed simulations (hundred-forty-second pass; §G.14 / §D.7)
 - [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains ``.jsonl`` (hundred-forty-third pass; §G.14 / §D.7)
 - [x] Post-run panel persistence via ``findRecentLauncherProcessId`` when navigation clears local state (hundred-forty-sixth pass; §G.9 / §D.7)
+- [x] ``LauncherLivePanel`` shared live/post-run panel shell with ``navTrailing`` auto-summary countdown slot (hundred-fifty-seventh pass; §G.9 / §D.7)
 
 ---
 
@@ -1631,6 +1640,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed data generation runs (hundred-forty-second pass; §G.14 / §D.7)
 - [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains a log path (hundred-forty-third pass; §G.14 / §D.7)
 - [x] Post-run panel persistence via ``findRecentLauncherProcessId`` when navigation clears local state (hundred-forty-sixth pass; §G.11 / §D.7)
+- [x] ``LauncherLivePanel`` shared live progress panel shell (hundred-fifty-seventh pass; §G.11 / §D.7)
 
 ---
 
@@ -1655,6 +1665,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Single-checkpoint live panel passes ``checkpointPath`` to ``LauncherNavMesh`` for post-run reload (hundred-forty-second pass; §G.12 / §D.7)
 - [x] Post-run ``outputRunPath`` deep-link on Evaluation Runner live panel (hundred-forty-fourth pass; §G.14 / §D.7)
 - [x] Multi-checkpoint batch persistence via ``findRecentEvalProcessIds`` + ``collectEvalResultFromLogLines`` when navigation clears local state (hundred-forty-sixth pass; §G.12 / §D.7)
+- [x] ``LauncherLivePanel`` shared live progress panel shell for multi-checkpoint eval runs (hundred-fifty-seventh pass; §G.12 / §D.7)
 
 ---
 
@@ -1736,6 +1747,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.15 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` ``muted`` analytics subtitle header + badges-before-nav ordering parity (hundred-fifty-fourth pass; §G.15 / §D.7)
 - [x] ``TrainHpoLivePanel`` ``embedded`` variant for selected train/HPO analytics section (hundred-fifty-sixth pass; §G.15 / §D.7)
+- [x] ``LauncherLivePanelHeader`` ``embedded`` muted subtitle header + run-label + live suffix parity on selected ``test_sim`` processes (hundred-fifty-seventh pass; §G.9 / §G.15 / §D.7)
+- [x] ``LauncherLivePanel`` ``embedded`` variant for selected ``test_sim`` / ``gen_data`` / ``eval`` analytics sections (hundred-fifty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 
 ---
 

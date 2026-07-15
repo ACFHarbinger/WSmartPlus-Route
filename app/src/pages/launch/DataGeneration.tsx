@@ -9,13 +9,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
-import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, FolderOpen, BarChart2 } from "lucide-react";
+import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, BarChart2 } from "lucide-react";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
-import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
@@ -539,33 +538,28 @@ export function DataGeneration() {
       {displayProcessId && (() => {
         const isDone = runStatus !== null && runStatus !== "running";
         return (
-          <div className="card space-y-2">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                {isDone ? (
-                  runStatus === "completed"
-                    ? <CheckCircle size={14} className="text-accent-success" />
-                    : <XCircle size={14} className="text-accent-danger" />
-                ) : (
-                  <Activity size={14} className="text-accent-primary animate-pulse" />
-                )}
-                <h2 className="text-sm font-semibold text-gray-200">
-                  {isDone
-                    ? runStatus === "completed" ? "Generation Complete" : `Generation ${runStatus}`
-                    : "Generating…"}
-                </h2>
-              </div>
-              <LauncherNavMesh
-                kind="data_gen"
-                hideSelf
-                showPostRun={isDone && runStatus === "completed"}
-                showOutputBrowser={isDone && runStatus === "completed"}
-                outputRunPath={outputRunPath}
-              />
-            </div>
-            {!isDone && displayProcessId && (
-              <LiveTrainProgressBar processId={displayProcessId} />
-            )}
+          <LauncherLivePanel
+            header={{
+              status: isDone ? (runStatus ?? "running") : "running",
+              title: isDone
+                ? runStatus === "completed"
+                  ? "Generation Complete"
+                  : `Generation ${runStatus}`
+                : "Generating…",
+              navMesh: {
+                kind: "data_gen",
+                hideSelf: true,
+                showPostRun: isDone && runStatus === "completed",
+                showOutputBrowser: isDone && runStatus === "completed",
+                outputRunPath,
+              },
+            }}
+            progress={
+              !isDone && displayProcessId
+                ? { processId: displayProcessId }
+                : undefined
+            }
+          >
             {logTail.length > 0 && (
               <div className="bg-canvas-bg rounded-lg p-2 space-y-0.5 max-h-36 overflow-auto">
                 {logTail.map((line, i) => (
@@ -576,7 +570,7 @@ export function DataGeneration() {
             {logTail.length === 0 && !isDone && (
               <p className="text-xs text-canvas-muted">Waiting for output…</p>
             )}
-          </div>
+          </LauncherLivePanel>
         );
       })()}
     </div>

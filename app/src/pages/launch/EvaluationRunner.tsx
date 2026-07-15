@@ -13,9 +13,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import {
-  Activity,
   BarChart3,
-  CheckCircle,
   ChevronDown,
   ChevronUp,
   Download,
@@ -24,11 +22,10 @@ import {
   Plus,
   Terminal,
   Trash2,
-  XCircle,
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
+import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
@@ -602,43 +599,33 @@ export function EvaluationRunner() {
 
       {/* Live progress panel */}
       {liveRunSummary && (
-        <div className="card space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {liveRunSummary.allDone ? (
-                liveRunSummary.aggregate === "completed" ? (
-                  <CheckCircle size={14} className="text-accent-success" />
-                ) : (
-                  <XCircle size={14} className="text-accent-danger" />
-                )
-              ) : (
-                <Activity size={14} className="text-accent-primary animate-pulse" />
-              )}
-              <h2 className="text-sm font-semibold text-gray-200">
-                {liveRunSummary.allDone
-                  ? liveRunSummary.aggregate === "completed"
-                    ? liveRunSummary.completed > 1
-                    ? `Evaluation Complete (${liveRunSummary.completed}/${displayProcessIds.length})`
-                    : "Evaluation Complete"
-                    : `Evaluation ${liveRunSummary.aggregate}`
-                  : displayProcessIds.length > 1
-                    ? `Evaluating ${displayProcessIds.length - liveRunSummary.running}/${displayProcessIds.length}…`
-                    : "Evaluating…"}
-              </h2>
-            </div>
-            <LauncherNavMesh
-              kind="eval"
-              hideSelf
-              showPostRun={liveRunSummary.allDone && liveRunSummary.aggregate === "completed"}
-              showOutputBrowser={
-                liveRunSummary.allDone && liveRunSummary.aggregate === "completed"
-              }
-              outputRunPath={outputRunPath}
-              checkpointPath={completedCheckpointPath}
-              onOpenAnalytics={results.length > 0 ? openInAnalytics : undefined}
-            />
-          </div>
-
+        <LauncherLivePanel
+          header={{
+            status: liveRunSummary.allDone
+              ? liveRunSummary.aggregate
+              : "running",
+            title: liveRunSummary.allDone
+              ? liveRunSummary.aggregate === "completed"
+                ? liveRunSummary.completed > 1
+                  ? `Evaluation Complete (${liveRunSummary.completed}/${displayProcessIds.length})`
+                  : "Evaluation Complete"
+                : `Evaluation ${liveRunSummary.aggregate}`
+              : displayProcessIds.length > 1
+                ? `Evaluating ${displayProcessIds.length - liveRunSummary.running}/${displayProcessIds.length}…`
+                : "Evaluating…",
+            navMesh: {
+              kind: "eval",
+              hideSelf: true,
+              showPostRun:
+                liveRunSummary.allDone && liveRunSummary.aggregate === "completed",
+              showOutputBrowser:
+                liveRunSummary.allDone && liveRunSummary.aggregate === "completed",
+              outputRunPath,
+              checkpointPath: completedCheckpointPath,
+              onOpenAnalytics: results.length > 0 ? openInAnalytics : undefined,
+            },
+          }}
+        >
           <div className="space-y-2">
             {displayProcessIds.map((procId) => {
               const proc = processes[procId];
@@ -710,7 +697,7 @@ export function EvaluationRunner() {
               );
             })}
           </div>
-        </div>
+        </LauncherLivePanel>
       )}
     </div>
   );
