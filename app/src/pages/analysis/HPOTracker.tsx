@@ -550,6 +550,77 @@ export function HPOTracker() {
         </div>
       )}
 
+      {studyData && studyData.trials.length > 0 && (
+        <div className="card space-y-2">
+          <p className="text-xs text-canvas-muted">Trial Health (§A.4)</p>
+          <p className="text-[10px] text-canvas-muted">
+            Gradient norm and entropy captured per trial via HPO health metrics — unhealthy trials
+            are pruned early when thresholds are exceeded.
+          </p>
+          <div className="overflow-x-auto">
+            <table className="w-full text-xs">
+              <thead>
+                <tr className="text-left text-canvas-muted border-b border-canvas-border">
+                  <th className="py-2 pr-3">#</th>
+                  <th className="py-2 pr-3">State</th>
+                  <th className="py-2 pr-3">Objective</th>
+                  <th className="py-2 pr-3">Grad Norm</th>
+                  <th className="py-2 pr-3">Entropy</th>
+                  <th className="py-2">Health</th>
+                </tr>
+              </thead>
+              <tbody>
+                {studyData.trials.map((trial) => {
+                  const attrs = trial.user_attrs ?? {};
+                  const gradNorm = attrs.last_grad_norm;
+                  const entropy = attrs.last_entropy;
+                  const healthPruned = attrs.health_pruned;
+                  const gradHigh =
+                    typeof gradNorm === "number" && gradNorm > 100;
+                  const entropyLow =
+                    typeof entropy === "number" && entropy < 0.01;
+                  return (
+                    <tr
+                      key={trial.number}
+                      className="border-b border-canvas-border/50 text-gray-200"
+                    >
+                      <td className="py-1.5 pr-3 font-mono">{trial.number}</td>
+                      <td className="py-1.5 pr-3">{trial.state}</td>
+                      <td className="py-1.5 pr-3 font-mono">
+                        {trial.value != null ? trial.value.toFixed(4) : "—"}
+                      </td>
+                      <td
+                        className={`py-1.5 pr-3 font-mono ${
+                          gradHigh ? "text-accent-danger" : ""
+                        }`}
+                      >
+                        {typeof gradNorm === "number" ? gradNorm.toFixed(3) : "—"}
+                      </td>
+                      <td
+                        className={`py-1.5 pr-3 font-mono ${
+                          entropyLow ? "text-accent-warning" : ""
+                        }`}
+                      >
+                        {typeof entropy === "number" ? entropy.toFixed(4) : "—"}
+                      </td>
+                      <td className="py-1.5">
+                        {typeof healthPruned === "string" ? (
+                          <span className="text-accent-danger">{healthPruned}</span>
+                        ) : gradHigh || entropyLow ? (
+                          <span className="text-accent-warning">unhealthy</span>
+                        ) : (
+                          <span className="text-canvas-muted">ok</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
+
       {studies.length === 0 && !loading && (
         <div className="flex items-center justify-center h-48 text-canvas-muted text-sm">
           No Optuna studies found. Check the storage URL or run an HPO sweep first.

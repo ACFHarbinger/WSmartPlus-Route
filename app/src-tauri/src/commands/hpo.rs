@@ -19,6 +19,8 @@ pub struct OptunaTrial {
     pub value: Option<f64>,
     pub state: String,
     pub params: HashMap<String, serde_json::Value>,
+    #[serde(default)]
+    pub user_attrs: HashMap<String, serde_json::Value>,
 }
 
 #[derive(Debug, Serialize, Deserialize, Clone)]
@@ -81,6 +83,7 @@ for t in study.trials:
         "value": t.value,
         "state": t.state.name,
         "params": {k: v for k, v in t.params.items()},
+        "user_attrs": {k: v for k, v in t.user_attrs.items()},
     })
 completed = [t for t in study.trials if t.state.name == "COMPLETE"]
 importances = {}

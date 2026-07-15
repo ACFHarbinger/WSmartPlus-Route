@@ -38,6 +38,10 @@ from omegaconf import OmegaConf
 
 from logic.src.configs import Config
 from logic.src.pipeline.features.train.model_factory import create_model
+from logic.src.pipeline.callbacks.pytorch.hpo_health import (
+    HpoHealthMetricsCallback,
+    apply_dehb_health_penalty,
+)
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband, OptunaHPO, RayTuneHPO
 from logic.src.pipeline.rl.hpo.base import BaseHPO, apply_params, normalise_search_space
@@ -99,7 +103,10 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
     # 4. Build model and trainer
     model = create_model(cfg)
 
-    pruning_callback = PyTorchLightningPruningCallback(trial, monitor="val/reward")
+    callbacks = []
+    if PyTorchLightningPruningCallback is not None:
+        callbacks.append(PyTorchLightningPruningCallback(trial, monitor="val/reward"))
+    callbacks.append(HpoHealthMetricsCallback(trial=trial))
 
     trainer = WSTrainer(
         max_epochs=cfg.hpo.n_epochs_per_trial,
@@ -107,7 +114,7 @@ def objective(trial: optuna.Trial, base_cfg: Config) -> float:
         devices=1 if cfg.device == "cuda" else "auto",
         enable_progress_bar=False,
         logger=False,
-        callbacks=[pruning_callback],
+        callbacks=callbacks,
         log_every_n_steps=cfg.tracking.log_step,
         tracking_cfg=cfg.tracking,
     )
@@ -146,6 +153,7 @@ def _ray_tune_objective(trial_cfg: Config) -> float:
         devices=1 if trial_cfg.device == "cuda" else "auto",
         enable_progress_bar=False,
         logger=False,
+        callbacks=[HpoHealthMetricsCallback(report_to_ray=True)],
         log_every_n_steps=trial_cfg.tracking.log_step,
         tracking_cfg=trial_cfg.tracking,
     )
@@ -222,12 +230,22 @@ def run_hpo(cfg: Config) -> float:
                     max_epochs=int(fidelity),
                     enable_progress_bar=False,
                     logger=False,
+                    callbacks=[HpoHealthMetricsCallback(prune_on_unhealthy=False)],
                     log_every_n_steps=temp_cfg.tracking.log_step,
                     tracking_cfg=temp_cfg.tracking,
                 )
                 trainer.fit(model)
                 reward = trainer.callback_metrics.get("val/reward", torch.tensor(0.0)).item()
-                return {"fitness": -reward}
+                grad_norm_tensor = trainer.callback_metrics.get("train/grad_norm")
+                entropy_tensor = trainer.callback_metrics.get("train/entropy")
+                grad_norm = grad_norm_tensor.item() if grad_norm_tensor is not None else None
+                entropy = entropy_tensor.item() if entropy_tensor is not None else None
+                fitness = apply_dehb_health_penalty(-reward, grad_norm, entropy)
+                return {
+                    "fitness": fitness,
+                    "grad_norm": grad_norm if grad_norm is not None else 0.0,
+                    "entropy": entropy if entropy is not None else 0.0,
+                }
 
             dehb = DifferentialEvolutionHyperband(
                 cfg=cfg,

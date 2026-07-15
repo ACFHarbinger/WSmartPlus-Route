@@ -221,6 +221,7 @@ export interface OptunaTrial {
   value: number | null;
   state: string;
   params: Record<string, string | number | boolean>;
+  user_attrs?: Record<string, string | number | boolean | null>;
 }
 
 export interface DatasetPreviewStats {
