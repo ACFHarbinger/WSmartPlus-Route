@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-first pass (§G.10 + §G.11 + §G.12 + §G.15 + §D.7)
+
+Two-hundred-and-thirty-first pass expands ``OpenPathToolbar`` after pass 230 covered
+tracker / settings / ML residual path previews. Launcher selected-path previews under
+eval / train / data-gen form inputs migrate onto the shared cluster so checkpoint, dataset,
+sensor CSV, TSPLIB, and instance-preview rows share one path+handoff surface. Training Hub
+checkpoints and Data Generation sensor CSVs gain labeled Eval Runner / Data Explorer
+controls; eval live/result card headers adopt the same cluster.
+
+**React frontend**
+- Evaluation Runner checkpoint-row + dataset path previews → ``OpenPathToolbar`` (§G.12 / §D.7)
+- Training Hub eval checkpoint + dataset path previews → ``OpenPathToolbar``; checkpoint ``kind="checkpoint"`` labeled (§G.10 / §G.12 / §D.7)
+- Data Generation sensor CSV / TSPLIB / preview paths → ``OpenPathToolbar``; sensor ``kind="csv"`` labeled (§G.11 / §G.6 / §D.7)
+- ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers → ``OpenPathToolbar`` (§G.12 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.10 / §G.11 / §G.12 launcher selected-path open-path toolbar parity checked
+- §D.7 ``OpenPathToolbar`` launcher + eval-card surface expansion checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirtieth pass (§G.5 + §G.17 + §G.18 + §G.19 + §A.3 + §D.7)
 
 Two-hundred-and-thirtieth pass expands ``OpenPathToolbar`` after pass 229 covered the

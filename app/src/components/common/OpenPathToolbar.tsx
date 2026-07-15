@@ -1,12 +1,13 @@
 /**
  * Open-path toolbar cluster: optional labeled reverse-handoff buttons + path chip
- * with icon handoffs (§G.1 / §G.5–§G.7 / §G.13–§G.19 / §D.7).
+ * with icon handoffs (§G.1 / §G.5–§G.7 / §G.9–§G.19 / §D.7).
  *
  * Collapses the repeated dual-control pattern on analytics open-log toolbars,
  * OLAP / Data Explorer ingest paths, Config Editor YAML paths, Output Browser
  * run headers / file viewers, Training Monitor logs discovery, HPO / Experiment
- * tracker paths, ML introspection archives, Settings path previews, and residual
- * open-path surfaces after pass 227 put chip handoffs on ``PathRunLabelChip``.
+ * tracker paths, ML introspection archives, Settings path previews, launcher
+ * selected-path previews (eval / train / data-gen), and residual open-path
+ * surfaces after pass 227 put chip handoffs on ``PathRunLabelChip``.
  */
 import type { ReactNode } from "react";
 import type { RecentFileKind } from "../../store/recentFiles";

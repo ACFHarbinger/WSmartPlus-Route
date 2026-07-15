@@ -25,6 +25,7 @@ import {
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
@@ -271,12 +272,12 @@ function CheckpointRow({
         </button>
       </div>
       {trimmedPath ? (
-        <PathRunLabelChip
+        <OpenPathToolbar
           path={trimmedPath}
           projectRoot={projectRoot}
+          kind="checkpoint"
           brushLabel={parentRunBrushLabelFromCheckpointPath(trimmedPath, projectRoot)}
-          className="max-w-full"
-          handoff="checkpoint"
+          chipClassName="max-w-full"
         />
       ) : null}
     </div>
@@ -554,10 +555,11 @@ export function EvaluationRunner() {
             </button>
           </div>
           {datasetPath.trim() ? (
-            <PathRunLabelChip
+            <OpenPathToolbar
               path={datasetPath.trim()}
               projectRoot={projectRoot}
-              className="max-w-full"
+              chipClassName="max-w-full"
+              handoff={false}
             />
           ) : null}
         </div>
