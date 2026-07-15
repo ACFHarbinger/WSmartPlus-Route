@@ -53,7 +53,7 @@ import {
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
-import { processLogTail } from "../../utils/processLog";
+
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 
@@ -368,11 +368,6 @@ export function ProcessMonitor() {
     return collectEvalResultFromLogLines(selectedProc.logLines, evalCheckpointName);
   }, [selectedProc, selectedIsEval, evalCheckpointName]);
 
-  const evalLogTail = useMemo(() => {
-    if (!selectedProc) return [];
-    return processLogTail(selectedProc.logLines);
-  }, [selectedProc]);
-
   const evalCheckpointPath = useMemo(() => {
     if (!selectedProc || !selectedIsEval) return null;
     return checkpointPathFromEvalCommand(selectedProc.command);
@@ -497,6 +492,12 @@ export function ProcessMonitor() {
             initialPolicy={selectedPolicy}
             initialRunLabel={processRunLabel}
           />
+
+          <ProcessLogTail
+            logLines={selectedProc.logLines}
+            maxLines={20}
+            waiting={selectedProc.status === "running"}
+          />
         </LauncherLivePanel>
       )}
 
@@ -527,7 +528,7 @@ export function ProcessMonitor() {
               status={selectedProc.status}
               isRunning={selectedProc.status === "running"}
               result={evalResult ?? undefined}
-              tail={evalLogTail}
+              logLines={selectedProc.logLines}
             />
           ) : (
             <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
