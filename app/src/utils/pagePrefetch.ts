@@ -19,6 +19,7 @@ const PREFETCH: Partial<Record<AppMode, () => Promise<unknown>>> = {
   eval_runner: () => import("../pages/launch/EvaluationRunner"),
   config_editor: () => import("../pages/files/ConfigEditor"),
   output_browser: () => import("../pages/files/OutputBrowser"),
+  system_tools: () => import("../pages/files/SystemTools"),
   settings: () => import("../pages/app/Settings"),
 };
 

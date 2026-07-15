@@ -66,6 +66,9 @@ const ConfigEditor = lazy(() =>
 const OutputBrowser = lazy(() =>
   import("./pages/files/OutputBrowser").then((m) => ({ default: m.OutputBrowser }))
 );
+const SystemTools = lazy(() =>
+  import("./pages/files/SystemTools").then((m) => ({ default: m.SystemTools }))
+);
 const Settings = lazy(() =>
   import("./pages/app/Settings").then((m) => ({ default: m.Settings }))
 );
@@ -135,6 +138,9 @@ function ActivePage() {
     case "eval_runner":
       page = <EvaluationRunner />;
       break;
+    case "system_tools":
+      page = <SystemTools />;
+      break;
     case "settings":
       page = <Settings />;
       break;
@@ -196,6 +202,7 @@ export default function App() {
       import("./pages/launch/EvaluationRunner"),
       import("./pages/files/ConfigEditor"),
       import("./pages/files/OutputBrowser"),
+      import("./pages/files/SystemTools"),
       import("./pages/app/Settings"),
       import("echarts-for-react"),
       import("./components/maps/DeckRouteMap"),
@@ -224,6 +231,7 @@ export default function App() {
       "eval_runner",
       "config_editor",
       "output_browser",
+      "system_tools",
       "settings",
     ];
     for (const mode of modes) prefetchPage(mode);

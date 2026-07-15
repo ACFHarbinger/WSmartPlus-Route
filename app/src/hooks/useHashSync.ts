@@ -8,7 +8,7 @@ const VALID_MODES = new Set<string>([
   "olap_explorer", "data_explorer",
   "experiment_tracker", "algorithms", "hpo_tracker", "process_monitor",
   "sim_launcher", "training_hub", "data_gen", "config_editor", "output_browser",
-  "eval_runner", "settings",
+  "eval_runner", "system_tools", "settings",
 ]);
 
 function encodeHash(

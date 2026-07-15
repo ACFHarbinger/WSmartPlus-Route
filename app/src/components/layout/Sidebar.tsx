@@ -18,6 +18,7 @@ import {
   Zap,
   FolderOpen,
   ClipboardList,
+  Wrench,
 } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
@@ -60,6 +61,7 @@ const NAV: NavSection[] = [
     items: [
       { mode: "output_browser", label: "Output Browser" },
       { mode: "config_editor", label: "Config Editor" },
+      { mode: "system_tools", label: "System Tools" },
     ],
   },
   {
@@ -88,6 +90,7 @@ const ICON: Record<AppMode, React.ReactNode> = {
   config_editor: <FileText size={15} />,
   output_browser: <FolderOpen size={15} />,
   eval_runner: <ClipboardList size={15} />,
+  system_tools: <Wrench size={15} />,
   settings: <Settings size={15} />,
 };
 
