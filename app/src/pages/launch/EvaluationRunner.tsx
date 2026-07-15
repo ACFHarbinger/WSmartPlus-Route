@@ -12,16 +12,31 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { BarChart3, ChevronDown, ChevronUp, Download, Play, Plus, Terminal, Trash2, FolderOpen } from "lucide-react";
+import {
+  Activity,
+  BarChart3,
+  CheckCircle,
+  ChevronDown,
+  ChevronUp,
+  Download,
+  FolderOpen,
+  Play,
+  Plus,
+  Terminal,
+  Trash2,
+  XCircle,
+} from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
+import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import type { StdoutLine, StatusUpdate } from "../../types";
+import type { ProcessStatus, StdoutLine, StatusUpdate } from "../../types";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;
@@ -269,6 +284,28 @@ export function EvaluationRunner() {
   // Map process ID → checkpoint name for attribution
   const processToCheckpoint = useRef<Record<string, string>>({});
 
+  // Live progress state (§D.2 / §G.12)
+  const [liveProcessIds, setLiveProcessIds] = useState<string[]>([]);
+  const [logTails, setLogTails] = useState<Record<string, string[]>>({});
+  const processes = useProcessStore((s) => s.processes);
+
+  const liveRunSummary = useMemo(() => {
+    if (liveProcessIds.length === 0) return null;
+    const statuses = liveProcessIds.map((id) => processes[id]?.status ?? "running");
+    const running = statuses.filter((s) => s === "running").length;
+    const completed = statuses.filter((s) => s === "completed").length;
+    const failed = statuses.filter((s) => s === "failed" || s === "cancelled").length;
+    const allDone = running === 0;
+    const aggregate: ProcessStatus | "running" = allDone
+      ? failed > 0 && completed === 0
+        ? "failed"
+        : failed > 0
+          ? "cancelled"
+          : "completed"
+      : "running";
+    return { running, completed, failed, allDone, aggregate };
+  }, [liveProcessIds, processes]);
+
   // Subscribe globally to process:stdout — parse structured eval result JSON lines
   useEffect(() => {
     let unlistenOut: (() => void) | null = null;
@@ -311,6 +348,25 @@ export function EvaluationRunner() {
 
     return () => { unlistenOut?.(); unlistenStatus?.(); };
   }, []);
+
+  // Live stdout tail for active eval processes
+  useEffect(() => {
+    if (liveProcessIds.length === 0) return;
+    const active = new Set(liveProcessIds);
+    let unlistenOut: (() => void) | null = null;
+
+    listen<StdoutLine>("process:stdout", (event) => {
+      const { id, line } = event.payload;
+      if (!active.has(id)) return;
+      const text = line.startsWith("[stderr]") ? line.slice(8) : line;
+      setLogTails((prev) => ({
+        ...prev,
+        [id]: [...(prev[id] ?? []).slice(-9), text],
+      }));
+    }).then((fn) => { unlistenOut = fn; });
+
+    return () => { unlistenOut?.(); };
+  }, [liveProcessIds]);
 
   const addCheckpoint = () => {
     setCheckpoints((prev) => [
@@ -387,10 +443,14 @@ export function EvaluationRunner() {
       .map((l) => l.trim())
       .filter(Boolean);
 
-    for (const ckpt of validCheckpoints) {
+    const launchedIds: string[] = [];
+    const baseTs = Date.now();
+
+    for (const [idx, ckpt] of validCheckpoints.entries()) {
       const ckptName = ckpt.path.split(/[/\\]/).pop() ?? ckpt.id;
-      const procId = `eval_${ckptName}_${Date.now()}`;
+      const procId = `eval_${ckptName}_${baseTs}_${idx}`;
       processToCheckpoint.current[procId] = ckptName;
+      launchedIds.push(procId);
       const hydraArgs = [
         `eval.problem=${problem}`,
         `eval.val_size=${valSize}`,
@@ -406,6 +466,9 @@ export function EvaluationRunner() {
         workingDir: projectRoot,
       });
     }
+
+    setLiveProcessIds(launchedIds);
+    setLogTails({});
   }, [
     projectRoot, validCheckpoints, problem, valSize, strategy, device,
     datasetPath, extraOverrides, spawn,
@@ -579,6 +642,86 @@ export function EvaluationRunner() {
             : "Evaluate"}
         </button>
       </div>
+
+      {/* Live progress panel */}
+      {liveRunSummary && (
+        <div className="card space-y-3">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              {liveRunSummary.allDone ? (
+                liveRunSummary.aggregate === "completed" ? (
+                  <CheckCircle size={14} className="text-accent-success" />
+                ) : (
+                  <XCircle size={14} className="text-accent-danger" />
+                )
+              ) : (
+                <Activity size={14} className="text-accent-primary animate-pulse" />
+              )}
+              <h2 className="text-sm font-semibold text-gray-200">
+                {liveRunSummary.allDone
+                  ? liveRunSummary.aggregate === "completed"
+                    ? liveRunSummary.completed > 1
+                      ? `Evaluation Complete (${liveRunSummary.completed}/${liveProcessIds.length})`
+                      : "Evaluation Complete"
+                    : `Evaluation ${liveRunSummary.aggregate}`
+                  : liveProcessIds.length > 1
+                    ? `Evaluating ${liveProcessIds.length - liveRunSummary.running}/${liveProcessIds.length}…`
+                    : "Evaluating…"}
+              </h2>
+            </div>
+            <button
+              onClick={() => setMode("process_monitor")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Process Monitor
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {liveProcessIds.map((procId) => {
+              const ckptName = processToCheckpoint.current[procId] ?? procId;
+              const proc = processes[procId];
+              const isRunning = proc?.status === "running";
+              const tail = logTails[procId] ?? [];
+
+              return (
+                <div
+                  key={procId}
+                  className="rounded-lg border border-canvas-border/60 bg-canvas-bg/40 p-2 space-y-1.5"
+                >
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="text-xs font-mono text-gray-300 truncate">{ckptName}</span>
+                    {proc && !isRunning && (
+                      <span
+                        className={`text-[10px] shrink-0 ${
+                          proc.status === "completed"
+                            ? "text-accent-success"
+                            : "text-accent-danger"
+                        }`}
+                      >
+                        {proc.status}
+                      </span>
+                    )}
+                  </div>
+                  {isRunning && <LiveTrainProgressBar processId={procId} />}
+                  {tail.length > 0 && (
+                    <div className="space-y-0.5 max-h-20 overflow-auto">
+                      {tail.map((line, i) => (
+                        <p key={i} className="text-[10px] font-mono text-gray-400 leading-snug truncate">
+                          {line}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                  {isRunning && tail.length === 0 && (
+                    <p className="text-[10px] text-canvas-muted">Waiting for output…</p>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        </div>
+      )}
     </div>
   );
 }

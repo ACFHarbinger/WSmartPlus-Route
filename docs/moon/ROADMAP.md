@@ -300,6 +300,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Simulation Launcher — ``LiveTrainProgressBar`` in live status panel during running ``test_sim`` processes (§D.2 / §G.9 / §A.4)
 - [x] Data Generation Wizard — ``LiveTrainProgressBar`` in live progress panel during ``gen_data`` runs (§D.2 / §G.11 / §A.4)
 
+**Delivered (§A.4 Option A — hundred-thirty-eighth pass)**
+
+- [x] Evaluation Runner — live progress panel with per-checkpoint ``LiveTrainProgressBar`` during ``eval`` runs; multi-checkpoint aggregate status header + stdout tail (§D.2 / §G.12 / §A.4)
+
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
 ---
@@ -825,7 +829,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0 ✅ (Zustand persist)           |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
-| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (all launchers + monitors progress/ETA) |
+| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (all launchers + monitors + eval progress/ETA) |
 | §D.1 Option A (ECharts route panel)         | Medium   | High   | P2 ✅ (RouteViz + Summary)        |
 | §D.6 Option A (override table)              | Medium   | High   | P2 ✅ (all launchers)             |
 | §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 ✅ (§G.3 / §G.16)              |
@@ -1525,6 +1529,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] "Open in Analytics" button pre-loads eval results into BenchmarkAnalysis via `pendingEvalResults` store field; shows cost/gap/time bar charts + summary table
 - [x] Inline results bar charts on Evaluation Runner results grid with per-metric PNG export (§G.12)
 - [x] EvaluationRunner inline checkpoint charts follow global ``logScale``: log y-axis on cost/gap/time when on; ``GlobalFilterBar`` toggle above results grid (§G.12 / §G.7)
+- [x] Live progress + ETA (hundred-thirty-eighth pass): per-checkpoint ``LiveTrainProgressBar`` in live progress panel during ``eval`` runs; multi-checkpoint aggregate status + stdout tail (§D.2 / §G.12)
 
 ---
 
