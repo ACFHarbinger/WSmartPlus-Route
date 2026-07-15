@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-fifth pass (§G.18 + §D.7)
+
+Hundred-eighty-fifth pass closes the Experiment Tracker path-chip gap left after the
+hundred-eighty-fourth pass (which unified Training Monitor run-discovery ``PathRunLabelChip``
+parity). MLflow run table rows, output directory list, and ``GlobalFilterBar`` ``runLabels``
+now share ``PathRunLabelChip`` ring-highlight + click-to-brush behaviour with analysis views.
+
+**React frontend**
+- ``localPathFromUri`` / ``mlflowRunDirFromArtifactUri`` — resolve MLflow ``artifact_uri`` to
+  local run directory for path-chip brush (§G.18 / §D.7)
+- ``PathRunLabelChip`` — optional ``label`` prop overrides brush + display text; ``LoadedRunRow``
+  passes ``label`` through to chip (§G.1 / §G.14 / §D.7)
+- Experiment Tracker — MLflow run table rows render ``PathRunLabelChip`` when ``artifact_uri``
+  resolves a local path; muted run-id suffix parity with Process Monitor (§G.18 / §D.7)
+- Experiment Tracker — output directory list ``LoadedRunRow`` + ``PathRunLabelChip``
+  ring-highlight + click-to-brush parity (§G.18 / §G.14 / §D.7)
+- Experiment Tracker — ``GlobalFilterBar`` ``runLabels`` from selected MLflow runs when no
+  live process brush is active (§G.18 / §D.7)
+
+**ROADMAP**
+- §G.18 Experiment Tracker MLflow run table path-chip run-label brush + ring-highlight parity checked
+- §G.18 Experiment Tracker output directory list path-chip brush parity checked
+- §D.7 tracker-page path-chip run-label brush parity across all file-based analysis views checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-fourth pass (§G.17 + §G.15 + §D.7)
 
 Hundred-eighty-fourth pass closes the Training Monitor run-discovery path-chip gap left after the

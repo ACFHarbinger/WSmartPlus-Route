@@ -1124,6 +1124,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — process list rows show muted process-id suffix alongside ``PathRunLabelChip`` when stdout resolves a log path; footer parity (§G.15 / §D.7)
 - [x] §G.17 Training Monitor run-discovery list path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-fifth pass)**
+
+- [x] ``localPathFromUri`` / ``mlflowRunDirFromArtifactUri`` — resolve MLflow ``artifact_uri`` to local run directory for path-chip brush (§G.18 / §D.7)
+- [x] ``PathRunLabelChip`` — optional ``label`` prop overrides brush + display text; ``LoadedRunRow`` passes ``label`` through to chip (§G.1 / §G.14 / §D.7)
+- [x] Experiment Tracker — MLflow run table rows render ``PathRunLabelChip`` when ``artifact_uri`` resolves a local path; muted run-id suffix parity with Process Monitor (§G.18 / §D.7)
+- [x] Experiment Tracker — output directory list ``LoadedRunRow`` + ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.18 / §G.14 / §D.7)
+- [x] Experiment Tracker — ``GlobalFilterBar`` ``runLabels`` from selected MLflow runs when no live process brush is active (§G.18 / §D.7)
+- [x] §G.18 Experiment Tracker MLflow + output-dir path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1673,6 +1682,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Launcher/monitor live panel headers — ``RunLabelHeaderSuffix`` + ``PathRunLabelChip`` on sim/data-gen/eval/train/HPO live cards when process stdout resolves a log path (hundred-eighty-second pass; §G.9–§G.18 / §D.7)
 - [x] Process Monitor process rows + live panel footers — ``PathRunLabelChip`` when stdout resolves a log path; Command Palette recent files path-chip brush parity (hundred-eighty-third pass; §G.7 / §G.15 / §D.7)
 - [x] Training Monitor run discovery list + per-run panel headers — ``LoadedRunRow`` + ``PathRunLabelChip`` on Lightning log directories; Process Monitor row muted process-id suffix (hundred-eighty-fourth pass; §G.17 / §G.15 / §D.7)
+- [x] Experiment Tracker MLflow run table + output directory list — ``PathRunLabelChip`` / ``LoadedRunRow`` on ``artifact_uri`` and ``assets/output`` paths; ``GlobalFilterBar`` ``runLabels`` from selected MLflow runs (hundred-eighty-fifth pass; §G.18 / §G.14 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

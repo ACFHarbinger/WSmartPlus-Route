@@ -47,7 +47,7 @@ export function LoadedRunRow({
           <X size={12} />
         </button>
       )}
-      <PathRunLabelChip path={path} className="flex-1 min-w-0" trailing={trailing} />
+      <PathRunLabelChip path={path} label={label} className="flex-1 min-w-0" trailing={trailing} />
     </div>
   );
 }
