@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-fifth pass (§G.7 + §G.9–§G.12 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Two-hundred-and-thirty-fifth pass expands ``OpenPathToolbar`` after pass 234 covered
+shared footer / portfolio shells. Residual live-panel header path chips and Command
+Palette recent-file rows migrate onto the cluster so every open-path surface shares
+one path+handoff shell. ``handoffOnAfterOpen`` closes the palette after icon handoffs;
+``RunLabelHeaderSuffix`` composes the toolbar for launcher / train-HPO headers.
+
+**React frontend**
+- ``OpenPathToolbar`` — ``handoffOnAfterOpen`` forwarded to labeled + chip handoffs (§G.7 / §D.7)
+- ``RunLabelHeaderSuffix`` → ``OpenPathToolbar``; lives beside the toolbar module (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- ``LauncherLivePanelHeader`` / ``TrainHpoLivePanelHeader`` import suffix from ``OpenPathToolbar`` (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- Command Palette recent-file rows → ``OpenPathToolbar``; kind meta as ``children`` + ``handoffOnAfterOpen`` close (§G.7 / §D.7)
+
+**ROADMAP**
+- §G.7 / §G.9–§G.12 / §G.15 / §G.17 / §G.18 live-header + palette open-path toolbar parity checked
+- §D.7 ``OpenPathToolbar`` header / palette residual surface expansion checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-fourth pass (§G.1 + §G.8 + §G.9–§G.15 + §G.17 + §G.18 + §D.7)
 
 Two-hundred-and-thirty-fourth pass expands ``OpenPathToolbar`` after pass 233 covered

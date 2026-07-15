@@ -10,7 +10,8 @@
  * dirs), ML introspection archives, Settings path previews, launcher
  * selected-path previews (eval / train / data-gen), eval / benchmark
  * results-table checkpoints, Process Monitor process rows, live-panel
- * ``ProcessIdFooter`` chips, portfolio ``LoadedRunRow`` lists, and residual
+ * ``ProcessIdFooter`` chips, portfolio ``LoadedRunRow`` lists, Command Palette
+ * recent-file rows, live-panel ``RunLabelHeaderSuffix`` chips, and residual
  * open-path surfaces after pass 227 put chip handoffs on ``PathRunLabelChip``.
  */
 import type { ReactNode } from "react";
@@ -49,6 +50,8 @@ export interface OpenPathToolbarProps {
    * reverse-destination parity between labeled and chip controls.
    */
   handoffTargets?: LogHandoffTarget[];
+  /** Called after a chip/labeled handoff (e.g. close Command Palette). */
+  handoffOnAfterOpen?: () => void;
   /** Chip trailing meta (pipeline timing, row counts, live spinners). */
   trailing?: ReactNode;
   /** Chip display label override. */
@@ -77,6 +80,7 @@ export function OpenPathToolbar({
   labeledIconSize = 14,
   handoff,
   handoffTargets,
+  handoffOnAfterOpen,
   trailing,
   label,
   brushLabel,
@@ -100,6 +104,7 @@ export function OpenPathToolbar({
       labeled
       iconSize={labeledIconSize}
       className="shrink-0"
+      onAfterOpen={handoffOnAfterOpen}
     />
   ) : null;
 
@@ -113,6 +118,7 @@ export function OpenPathToolbar({
       handoff={chipHandoff}
       handoffStoredLabel={storedLabel}
       handoffTargets={chipTargets}
+      handoffOnAfterOpen={handoffOnAfterOpen}
       trailing={trailing}
     />
   );
@@ -133,4 +139,50 @@ export function OpenPathToolbar({
       {children}
     </span>
   );
+}
+
+interface HeaderSuffixProps {
+  logPath?: string | null;
+  runLabel?: string | null;
+  /** Resolve relative log paths against project root before brush (§G.9–§G.18 / §D.7). */
+  projectRoot?: string | null;
+  /** embedded / muted headers use accent-secondary without font-normal. */
+  tone?: "default" | "muted";
+  chipClassName?: string;
+  /**
+   * Show path-kind handoffs on the header chip (default true when ``logPath`` is set).
+   * Covers Simulation Launcher / Process Monitor / train-HPO live headers (§G.9–§G.18 / §D.7).
+   */
+  handoff?: boolean | RecentFileKind;
+}
+
+/**
+ * Inline run-label suffix for live panel headers — ``OpenPathToolbar`` when path
+ * known, else plain text (§G.9–§G.18 / §D.7).
+ */
+export function RunLabelHeaderSuffix({
+  logPath,
+  runLabel,
+  projectRoot,
+  tone = "default",
+  chipClassName = "ml-2",
+  handoff = true,
+}: HeaderSuffixProps) {
+  if (logPath) {
+    return (
+      <OpenPathToolbar
+        path={logPath}
+        projectRoot={projectRoot}
+        chipClassName={chipClassName}
+        className="inline-flex items-center gap-1.5 min-w-0"
+        handoff={handoff}
+      />
+    );
+  }
+  if (!runLabel) return null;
+  const textClass =
+    tone === "muted"
+      ? "ml-2 text-accent-secondary"
+      : "ml-2 text-xs font-normal text-accent-secondary";
+  return <span className={textClass}>· {runLabel}</span>;
 }

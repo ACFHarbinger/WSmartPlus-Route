@@ -1553,6 +1553,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser ``.wsroute`` manifest members migrate to ``OpenPathToolbar`` (auto-classify handoff) (§G.8 / §G.14 / §D.7)
 - [x] §G.1 / §G.8 / §G.9–§G.15 / §G.17 / §G.18 shared footer + portfolio open-path toolbar parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-thirty-fifth pass)**
+
+- [x] ``OpenPathToolbar`` gains ``handoffOnAfterOpen`` (labeled + chip) for palette close-after-handoff (§G.7 / §D.7)
+- [x] ``RunLabelHeaderSuffix`` migrates to ``OpenPathToolbar``; co-located with toolbar module (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] ``LauncherLivePanelHeader`` / ``TrainHpoLivePanelHeader`` import ``RunLabelHeaderSuffix`` from ``OpenPathToolbar`` (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Command Palette recent-file rows migrate to ``OpenPathToolbar``; kind meta as ``children`` + ``handoffOnAfterOpen`` (§G.7 / §D.7)
+- [x] §G.7 / §G.9–§G.12 / §G.15 / §G.17 / §G.18 live-header + palette open-path toolbar parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -2283,6 +2291,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6)
 - [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6)
 - [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6)
+- [x] Command Palette recent-file rows use shared ``OpenPathToolbar``; kind meta as ``children`` + ``handoffOnAfterOpen`` palette close (two-hundred-and-thirty-fifth pass; §G.7 / §D.7)
+- [x] ``OpenPathToolbar`` ``handoffOnAfterOpen`` forwarded to labeled + chip handoffs (two-hundred-and-thirty-fifth pass; §G.7 / §D.7)
 
 **Status**: §G.7 complete — all checklist items delivered.
 
@@ -2340,6 +2350,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser / checkpoint / Training Monitor / Data Explorer labeled handoffs with empty-path mode-only fallback (§G.9 / §G.11 / §G.12 / §D.7)
 - [x] ``LauncherNavMesh`` sim log dual/single-target shortcuts migrate to ``PathHandoffButtons`` ``kind="log"`` + ``targets`` (two-hundred-and-twenty-sixth pass; §G.9 / §G.1 / §G.16 / §D.7)
 - [x] Live-panel header path chips gain handoffs via ``RunLabelHeaderSuffix`` default ``handoff`` (two-hundred-and-twenty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] Live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 
 ---
 
@@ -2382,6 +2393,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser + Training Monitor labeled handoffs with empty-path mode-only fallback (§G.10 / §G.15 / §G.17 / §D.7)
 - [x] Training Hub eval checkpoint path-kind handoff via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.10 / §G.12 / §D.7)
 - [x] Training Hub eval checkpoint + dataset path previews use shared ``OpenPathToolbar``; checkpoint labeled Eval Runner handoff (two-hundred-and-thirty-first pass; §G.10 / §G.12 / §D.7)
+- [x] Training Hub live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.10 / §D.7)
 
 ---
 
@@ -2570,6 +2582,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers use shared ``OpenPathToolbar`` (two-hundred-and-thirty-first pass; §G.15 / §G.12 / §D.7)
 - [x] Process Monitor process-row path chips use shared ``OpenPathToolbar``; process id as ``children`` (two-hundred-and-thirty-third pass; §G.15 / §D.7)
 - [x] ``ProcessIdFooter`` log-path chip uses shared ``OpenPathToolbar``; process id as ``children`` (two-hundred-and-thirty-fourth pass; §G.15 / §G.9–§G.12 / §G.17 / §G.18 / §D.7)
+- [x] Process Monitor live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.15 / §D.7)
 
 ---
 
@@ -2641,6 +2654,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Training Monitor empty-state logs-root chip uses shared ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §G.17 / §D.7)
 - [x] Training Monitor ``RunPanel`` path header uses shared ``OpenPathToolbar``; epochs meta as ``children`` (two-hundred-and-thirty-second pass; §G.17 / §D.7)
 - [x] Training Monitor checkpoint browser rows use shared ``OpenPathToolbar``; labeled Eval Runner handoff + size ``children`` (two-hundred-and-thirty-second pass; §G.17 / §G.12 / §D.7)
+- [x] Training Monitor live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.17 / §D.7)
 
 ---
 
@@ -2688,6 +2702,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] Experiment Tracker MLflow tracking URI path uses shared ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §G.18 / §D.7)
 - [x] HPO Tracker trial log-dir table cells use shared ``OpenPathToolbar``; trial number as ``children`` (two-hundred-and-thirty-third pass; §G.18 / §D.7)
 - [x] Experiment Tracker MLflow run-dir table cells use shared ``OpenPathToolbar``; run-id meta as ``children`` (two-hundred-and-thirty-third pass; §G.18 / §D.7)
+- [x] HPO Tracker + Experiment Tracker live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.18 / §D.7)
 
 ---
 

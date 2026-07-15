@@ -4,6 +4,9 @@
  * Optional ``handoff`` appends kind-aware ``PathHandoffButtons`` (Summary / Monitor dual
  * for ``.jsonl``, single-icon destinations for other recent-file kinds) so live headers,
  * footers, and open-path chips share one control surface (§G.7 / §D.7).
+ *
+ * Prefer ``OpenPathToolbar`` / ``RunLabelHeaderSuffix`` at call sites; this chip remains
+ * the atomic path+brush control composed by those shared shells.
  */
 import { useMemo, type ReactNode } from "react";
 import { useRunLabelBrushToggle } from "../../hooks/useRunLabelBrushToggle";
@@ -95,46 +98,4 @@ export function PathRunLabelChip({
       {autoTrailing}
     </button>
   );
-}
-
-interface HeaderSuffixProps {
-  logPath?: string | null;
-  runLabel?: string | null;
-  /** Resolve relative log paths against project root before brush (§G.9–§G.18 / §D.7). */
-  projectRoot?: string | null;
-  /** embedded / muted headers use accent-secondary without font-normal. */
-  tone?: "default" | "muted";
-  chipClassName?: string;
-  /**
-   * Show path-kind handoffs on the header chip (default true when ``logPath`` is set).
-   * Covers Simulation Launcher / Process Monitor / train-HPO live headers (§G.9–§G.18 / §D.7).
-   */
-  handoff?: boolean | RecentFileKind;
-}
-
-/** Inline run-label suffix for live panel headers — chip when path known, else plain text (§G.9–§G.18 / §D.7). */
-export function RunLabelHeaderSuffix({
-  logPath,
-  runLabel,
-  projectRoot,
-  tone = "default",
-  chipClassName = "ml-2",
-  handoff = true,
-}: HeaderSuffixProps) {
-  if (logPath) {
-    return (
-      <PathRunLabelChip
-        path={logPath}
-        projectRoot={projectRoot}
-        className={chipClassName}
-        handoff={handoff}
-      />
-    );
-  }
-  if (!runLabel) return null;
-  const textClass =
-    tone === "muted"
-      ? "ml-2 text-accent-secondary"
-      : "ml-2 text-xs font-normal text-accent-secondary";
-  return <span className={textClass}>· {runLabel}</span>;
 }

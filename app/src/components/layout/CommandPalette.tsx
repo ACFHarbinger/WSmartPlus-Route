@@ -7,7 +7,7 @@ import { useAppStore } from "../../store/app";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useLayoutStore } from "../../store/layout";
 import { nextThemePreference } from "../../utils/theme";
-import { PathRunLabelChip } from "../common/PathRunLabelChip";
+import { OpenPathToolbar } from "../common/OpenPathToolbar";
 import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
 
@@ -211,13 +211,15 @@ export function CommandPalette() {
                       }`}
                     >
                       {isKnownRecentKind(file.kind) ? (
-                        <PathRunLabelChip
+                        <OpenPathToolbar
                           path={file.path}
                           projectRoot={projectRoot}
-                          className="flex-1 min-w-0"
+                          kind={file.kind}
+                          storedLabel={file.label}
                           handoff={file.kind}
-                          handoffStoredLabel={file.label}
                           handoffOnAfterOpen={closePalette}
+                          chipClassName="flex-1 min-w-0 max-w-none"
+                          className="flex-1 min-w-0"
                         />
                       ) : (
                         <span className="truncate">{file.label}</span>
