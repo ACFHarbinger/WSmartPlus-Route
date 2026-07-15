@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirtieth pass (§G.5 + §G.17 + §G.18 + §G.19 + §A.3 + §D.7)
+
+Two-hundred-and-thirtieth pass expands ``OpenPathToolbar`` after pass 229 covered the
+remaining analytics/config/output open-path toolbars. Residual path previews on HPO /
+Experiment trackers, Training Monitor empty-state, Policy Telemetry SQLite header, ML
+Introspection archives, and Settings migrate onto the shared cluster. HPO report
+directories gain a labeled Output Browser handoff beside the existing file-manager Open
+action.
+
+**React frontend**
+- HPO Tracker storage DB path + report directory → ``OpenPathToolbar``; reports ``kind="run"`` labeled + ExternalLink ``children`` (§G.18 / §D.7)
+- Experiment Tracker MLflow tracking URI → ``OpenPathToolbar`` (§G.18 / §D.7)
+- Training Monitor empty-state logs-root chip → ``OpenPathToolbar`` (§G.17 / §D.7)
+- ``PolicyTelemetryTrendsPanel`` SQLite ``db_path`` → ``OpenPathToolbar`` (§A.3 / §D.7)
+- ML Introspection tensor archive path → ``OpenPathToolbar`` (§G.5 / §D.7)
+- Settings project root / Python / import JSON / Arrow benchmark paths → ``OpenPathToolbar``; benchmark auto-classifies CSV/log handoffs (§G.19 / §D.7)
+
+**ROADMAP**
+- §G.5 / §G.17 / §G.18 / §G.19 residual open-path toolbar surface expansion checked
+- §D.7 ``OpenPathToolbar`` tracker / settings / ML residual parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-ninth pass (§G.1 + §G.6 + §G.7 + §G.13 + §G.14 + §G.17 + §D.7)
 
 Two-hundred-and-twenty-ninth pass expands ``OpenPathToolbar`` after pass 228 introduced

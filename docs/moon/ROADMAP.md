@@ -1180,6 +1180,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner + Training Hub — checkpoint input chips use ``parentRunBrushLabelFromCheckpointPath`` ``brushLabel`` parity with results table (§G.12 / §G.10 / §D.7)
 - [x] Data Generation Wizard — TSPLIB instance + sensor CSV source path ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.11 / §D.7)
 - [x] ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` header uses ``PathRunLabelChip`` instead of plain font-mono text (§G.7 / §A.3 / §D.7)
+- [x] ``PolicyTelemetryTrendsPanel`` — SQLite ``db_path`` header migrates to ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §A.3 / §D.7)
 - [x] §G.12 / §G.10 / §G.11 / §G.15 live-eval + dataset + data-gen source path-chip run-label brush + ring-highlight parity checked (§D.7)
 
 **Delivered (§D.7 — hundred-ninety-first pass)**
@@ -1509,6 +1510,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor logs-root discovery chip migrates to ``OpenPathToolbar`` (§G.17 / §D.7)
 - [x] Simulation Summary ``ConfigMetaBanner`` migrates to ``OpenPathToolbar`` with reverse Monitor ``labeledTargets`` (§G.1 / §D.7)
 - [x] §G.1 / §G.6 / §G.13 / §G.14 / §G.17 remaining open-path toolbar surface expansion checked (§D.7)
+
+**Delivered (§D.7 — two-hundred-and-thirtieth pass)**
+
+- [x] HPO Tracker storage DB path + report directory migrate to ``OpenPathToolbar``; reports gain labeled Output Browser handoff + file-manager ``children`` (§G.18 / §D.7)
+- [x] Experiment Tracker MLflow tracking URI path migrates to ``OpenPathToolbar`` (§G.18 / §D.7)
+- [x] Training Monitor empty-state logs-root chip migrates to ``OpenPathToolbar`` (discovery toolbar parity) (§G.17 / §D.7)
+- [x] ``PolicyTelemetryTrendsPanel`` SQLite ``db_path`` chip migrates to ``OpenPathToolbar`` (§A.3 / §D.7)
+- [x] ML Introspection tensor archive path migrates to ``OpenPathToolbar`` (§G.5 / §D.7)
+- [x] Settings project root / Python / import JSON / Arrow benchmark paths migrate to ``OpenPathToolbar``; benchmark auto-classifies CSV/log handoffs (§G.19 / §D.7)
+- [x] §G.5 / §G.17 / §G.18 / §G.19 residual open-path toolbar surface expansion checked (§D.7)
 
 ---
 
@@ -2054,6 +2065,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ML introspection ECharts PNG/SVG export: ``exportChartPng()`` / ``exportChartSvg()`` on ``MLIntrospectionPanel`` attention heatmap (primary + compare panels), attention bipartite graph, and loss contour map (§G.5 / §G.7)
 - [x] Loss landscape 3D terrain PNG export: ``exportContainerCanvasPng()`` on ``LossLandscape3D`` R3F canvas (surface mesh + InstancedMesh voxels) via ``MLIntrospectionPanel`` Loss tab (§G.5.2 / §G.7)
 - [x] Attention Sigma.js WebGL PNG export: ``exportContainerCanvasPng()`` on ``AttentionSigmaView`` canvas via ``MLIntrospectionPanel`` Attention tab (§G.5.3 / §G.7)
+- [x] ML Introspection tensor archive path uses shared ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §G.5 / §D.7)
 
 **Status**: §G.5 complete — all checklist items delivered.
 
@@ -2578,6 +2590,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Training Monitor run-discovery list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.17 / §D.7)
 - [x] Training Monitor run-panel + checkpoint browser chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.17 / §G.12 / §D.7)
 - [x] Training Monitor logs-root discovery chip uses shared ``OpenPathToolbar`` (two-hundred-and-twenty-ninth pass; §G.17 / §D.7)
+- [x] Training Monitor empty-state logs-root chip uses shared ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §G.17 / §D.7)
 
 ---
 
@@ -2621,6 +2634,8 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] HPO Tracker trial log dirs + report directory path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.18 / §D.7)
 - [x] Experiment Tracker MLflow run dirs + output directory list ``pathHandoffs`` via ``PathHandoffButtons`` / ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.18 / §G.14 / §D.7)
 - [x] HPO Tracker trial log dirs + report dir + Experiment Tracker MLflow run dirs use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.18 / §D.7)
+- [x] HPO Tracker storage DB path + report directory use shared ``OpenPathToolbar``; reports labeled Output Browser + file-manager open (two-hundred-and-thirtieth pass; §G.18 / §D.7)
+- [x] Experiment Tracker MLflow tracking URI path uses shared ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §G.18 / §D.7)
 
 ---
 
@@ -2640,6 +2655,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] First-run onboarding wizard: `OnboardingDialog` modal when `projectRoot` is empty; inline directory picker + validation; dismissible via `useLayoutStore.onboardingDismissed` persistence
 - [x] Guided tour: `GuidedTour` 5-step overlay with `data-tour` spotlight rings (sidebar, command palette, simulation twin, output browser, launch/monitor); TopBar compass button, command palette action, Settings "Take Guided Tour", `Ctrl+Shift+/` shortcut; auto-offered after first onboarding; dismissal persisted via `guidedTourDismissed`
 - [x] System theme following (§D.3 Option C): `theme` preference extended to `dark` / `light` / `system`; `effectiveTheme` resolves `prefers-color-scheme` via `useThemeSync`; TopBar + command palette cycle all three modes; Settings Appearance radio includes System (§G.19 / §D.3)
+- [x] Settings project root / Python / import JSON / Arrow benchmark paths use shared ``OpenPathToolbar``; Arrow benchmark auto-classifies CSV/log handoffs (two-hundred-and-thirtieth pass; §G.19 / §D.7)
 
 **Status**: §G.19 complete — all checklist items delivered.
 

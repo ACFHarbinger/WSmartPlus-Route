@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
@@ -440,7 +441,11 @@ export function ExperimentTracker() {
               placeholder="mlruns"
             />
             {trackingUriPath ? (
-              <PathRunLabelChip path={trackingUriPath} className="max-w-full" />
+              <OpenPathToolbar
+                path={trackingUriPath}
+                chipClassName="max-w-full"
+                handoff={false}
+              />
             ) : null}
           </div>
           <div className="flex flex-col gap-1">

@@ -12,6 +12,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { toast } from "sonner";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
@@ -554,24 +555,31 @@ export function HPOTracker() {
           </button>
         </div>
         {storageDbPath ? (
-          <PathRunLabelChip path={storageDbPath} className="max-w-full" />
+          <OpenPathToolbar
+            path={storageDbPath}
+            chipClassName="max-w-full"
+            handoff={false}
+          />
         ) : null}
         {reportDirPath && (
           <div className="flex items-center gap-2 min-w-0">
             <span className="text-[10px] text-canvas-muted shrink-0">Reports</span>
-            <PathRunLabelChip
+            <OpenPathToolbar
               path={reportDirPath}
+              kind="run"
+              labeled
+              chipClassName="flex-1 min-w-0"
               className="flex-1 min-w-0"
-              handoff="run"
-            />
-            <button
-              onClick={openReportDir}
-              className="btn-ghost text-xs flex items-center gap-1 shrink-0"
-              title="Open report folder in file manager"
             >
-              <ExternalLink size={12} />
-              Open
-            </button>
+              <button
+                onClick={openReportDir}
+                className="btn-ghost text-xs flex items-center gap-1 shrink-0"
+                title="Open report folder in file manager"
+              >
+                <ExternalLink size={12} />
+                Open
+              </button>
+            </OpenPathToolbar>
           </div>
         )}
       </div>
