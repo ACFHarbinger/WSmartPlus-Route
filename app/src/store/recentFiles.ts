@@ -55,3 +55,13 @@ export const useRecentFilesStore = create<RecentFilesState>()(
 export function recentFileLabel(path: string): string {
   return path.split("/").pop() ?? path;
 }
+
+/** Classify a filesystem path into a recent-file kind for drop/open handoff (§G.7 / §G.8 / §D.7). */
+export function recentKindFromPath(path: string): RecentFileKind | null {
+  const base = (path.replace(/\\/g, "/").split("/").pop() ?? path).toLowerCase();
+  if (base.endsWith(".jsonl") || base.endsWith(".log")) return "log";
+  if (base.endsWith(".csv")) return "csv";
+  if (/\.(pt|ckpt|pth)$/.test(base)) return "checkpoint";
+  if (/\.(ya?ml|toml|cfg|ini)$/.test(base)) return "config";
+  return null;
+}
