@@ -13,10 +13,20 @@ import { useCallback, useEffect, useMemo, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Terminal, Activity, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 import { listen } from "@tauri-apps/api/event";
 import { invoke } from "@tauri-apps/api/core";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useSimLauncherStore } from "../../store/launchers";
+import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import {
+  collectPolicyVizFromLogLines,
+  uniquePolicyVizPolicies,
+} from "../../utils/policyTelemetry";
+import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import type { DayLogEntry, SimPolicyEntry, StdoutLine, StatusUpdate, ProcessStatus } from "../../types";
 
 /** Fallback when project root is unset or registry load fails. */
@@ -68,12 +78,30 @@ function fmt(n: number | undefined, decimals = 1): string {
 }
 
 /** Live per-policy KPI card shown while a simulation is running. */
-function PolicyLiveCard({ policy, entry }: { policy: string; entry: DayLogEntry }) {
+function PolicyLiveCard({
+  policy,
+  entry,
+  brushed,
+  onBrush,
+}: {
+  policy: string;
+  entry: DayLogEntry;
+  brushed?: boolean;
+  onBrush?: () => void;
+}) {
   const d = entry.data;
   return (
     <div className="rounded-lg border border-canvas-border bg-canvas-surface px-3 py-2 space-y-1">
       <div className="flex items-center justify-between">
-        <span className="text-xs font-mono font-semibold text-accent-secondary">{policy}</span>
+        <span
+          className={`text-xs font-mono font-semibold ${
+            brushed ? "text-accent-secondary" : "text-gray-200"
+          } ${onBrush ? "cursor-pointer hover:text-accent-primary" : ""}`}
+          title={onBrush ? `${policy} — click to brush policy` : undefined}
+          onClick={onBrush}
+        >
+          {policy}
+        </span>
         <span className="text-xs text-canvas-muted">Day {entry.day}</span>
       </div>
       <div className="grid grid-cols-2 gap-x-4 gap-y-0.5 text-xs">
@@ -93,7 +121,14 @@ function PolicyLiveCard({ policy, entry }: { policy: string; entry: DayLogEntry 
 }
 
 export function SimulationLauncher() {
-  const { projectRoot, setMode } = useAppStore();
+  const { projectRoot, setMode, effectiveTheme: theme } = useAppStore();
+  const {
+    policy: activePolicy,
+    runLabel: activeRunLabel,
+    logScale,
+    setPolicy,
+    setRunLabel,
+  } = useGlobalFiltersStore();
   const { spawn, launching } = useSpawnProcess();
 
   // Persisted form state (§D.4 session persistence)
@@ -265,6 +300,40 @@ export function SimulationLauncher() {
   const isDone = simStatus === "completed" || simStatus === "failed" || simStatus === "cancelled";
   const liveEntries = Object.values(latestByPolicy);
 
+  const liveLogLines = useProcessStore((s) =>
+    liveProcessId ? s.processes[liveProcessId]?.logLines ?? [] : []
+  );
+  const liveProcStatus = useProcessStore((s) =>
+    liveProcessId ? s.processes[liveProcessId]?.status ?? null : null
+  );
+
+  const policyVizEntries = useMemo(
+    () => collectPolicyVizFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
+  const vizPolicies = useMemo(
+    () => uniquePolicyVizPolicies(policyVizEntries),
+    [policyVizEntries]
+  );
+  const selectedPolicy = activePolicy ?? vizPolicies[0] ?? null;
+  const liveRunLabel = useMemo(
+    () => (liveProcessId ? runLabelFromLogLines(liveLogLines, liveProcessId) : null),
+    [liveLogLines, liveProcessId]
+  );
+  const policyVizLive = liveProcStatus === "running";
+  const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
+
+  useEffect(() => {
+    if (!liveProcessId || !liveRunLabel) return;
+    setRunLabel(liveRunLabel);
+  }, [liveProcessId, liveRunLabel, setRunLabel]);
+
+  useEffect(() => {
+    if (policyVizEntries.length > 0) {
+      setTelemetryTrendsKey((k) => k + 1);
+    }
+  }, [policyVizEntries.length, liveLogLines.length]);
+
   return (
     <div className="space-y-4 max-w-2xl">
       {/* Policy selection */}
@@ -424,6 +493,13 @@ export function SimulationLauncher() {
 
       {/* Live status panel — shown once a process has been spawned */}
       {liveProcessId && (
+        <div className="space-y-3">
+          <GlobalFilterBar
+            policies={vizPolicies.length > 0 ? vizPolicies : undefined}
+            runLabels={liveRunLabel ? [liveRunLabel] : []}
+            showLogScale
+          />
+
         <div className="card space-y-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -487,12 +563,55 @@ export function SimulationLauncher() {
                     key={`${entry.policy}::${entry.sample_id}`}
                     policy={`${entry.policy}${liveEntries.filter(e => e.policy === entry.policy).length > 1 ? ` #${entry.sample_id}` : ""}`}
                     entry={entry}
+                    brushed={activePolicy === entry.policy}
+                    onBrush={() => setPolicy(activePolicy === entry.policy ? null : entry.policy)}
                   />
                 ))}
             </div>
           )}
 
           <p className="text-xs text-canvas-muted font-mono truncate">{liveProcessId}</p>
+        </div>
+
+          {policyVizEntries.length > 0 && (
+            <div className="space-y-3">
+              {vizPolicies.length > 1 && (
+                <div className="flex flex-wrap gap-1.5">
+                  {vizPolicies.map((pol) => (
+                    <button
+                      key={pol}
+                      onClick={() => setPolicy(activePolicy === pol ? null : pol)}
+                      className={`text-[10px] font-mono px-2 py-0.5 rounded border transition-colors ${
+                        selectedPolicy === pol
+                          ? "border-accent-secondary text-accent-secondary bg-accent-secondary/10"
+                          : "border-canvas-border text-gray-400 hover:text-gray-200"
+                      }`}
+                    >
+                      {pol}
+                    </button>
+                  ))}
+                </div>
+              )}
+
+              <PolicyTelemetryPanel
+                entries={policyVizEntries}
+                policy={selectedPolicy}
+                sampleId={null}
+                day={null}
+                theme={theme}
+                logScale={logScale}
+                live={policyVizLive}
+              />
+
+              <PolicyTelemetryTrendsPanel
+                theme={theme}
+                logScale={logScale}
+                refreshKey={telemetryTrendsKey}
+                initialPolicy={selectedPolicy}
+                initialRunLabel={liveRunLabel ?? activeRunLabel}
+              />
+            </div>
+          )}
         </div>
       )}
     </div>

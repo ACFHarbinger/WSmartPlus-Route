@@ -21,10 +21,7 @@ import {
   collectPolicyVizFromLogLines,
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
-import {
-  extractJsonlPathFromLogLines,
-  runLabelFromPath,
-} from "../../utils/policyTelemetryTrends";
+import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -114,10 +111,12 @@ function useLiveDuration(startTime: number, stopped: boolean): string {
 function ProcessRow({
   id,
   selected,
+  runBrushActive,
   onSelect,
 }: {
   id: string;
   selected: boolean;
+  runBrushActive?: boolean;
   onSelect: () => void;
 }) {
   const proc = useProcessStore((s) => s.processes[id]);
@@ -146,7 +145,7 @@ function ProcessRow({
     <div
       className={`border rounded-xl overflow-hidden ${
         selected ? "border-accent-secondary/60" : "border-canvas-border"
-      }`}
+      } ${runBrushActive ? "ring-1 ring-accent-secondary/40" : ""}`}
     >
       {/* Table row */}
       <div
@@ -327,17 +326,23 @@ export function ProcessMonitor() {
 
   const processRunLabel = useMemo(() => {
     if (!selectedProc) return null;
-    const jsonl = extractJsonlPathFromLogLines(selectedProc.logLines);
-    if (jsonl) return runLabelFromPath(jsonl);
-    return runLabelFromPath(selectedProc.id);
+    return runLabelFromLogLines(selectedProc.logLines, selectedProc.id);
   }, [selectedProc]);
+
+  const processRunBrushById = useMemo(() => {
+    const map: Record<string, string> = {};
+    for (const id of ids) {
+      const proc = processes[id];
+      if (!proc || !isTestSimProcess(proc.command)) continue;
+      map[id] = runLabelFromLogLines(proc.logLines, proc.id);
+    }
+    return map;
+  }, [ids, processes]);
 
   useEffect(() => {
     if (!selectedIsSim || !processRunLabel) return;
-    if (!activeRunLabel) {
-      setRunLabel(processRunLabel);
-    }
-  }, [selectedIsSim, processRunLabel, activeRunLabel, setRunLabel]);
+    setRunLabel(processRunLabel);
+  }, [selectedIsSim, processRunLabel, setRunLabel]);
 
   useEffect(() => {
     if (policyVizEntries.length > 0) {
@@ -387,6 +392,9 @@ export function ProcessMonitor() {
           key={id}
           id={id}
           selected={selectedId === id}
+          runBrushActive={
+            Boolean(activeRunLabel) && processRunBrushById[id] === activeRunLabel
+          }
           onSelect={() => setSelectedId((prev) => (prev === id ? null : id))}
         />
       ))}
