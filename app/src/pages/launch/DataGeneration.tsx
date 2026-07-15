@@ -28,6 +28,7 @@ import { useDataGenStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
+import { dataExplorerPathFromGenData } from "../../utils/genDataPath";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { dataGenLivePanelTitle, findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import type { DatasetPreviewStats } from "../../types";
@@ -237,6 +238,13 @@ export function DataGeneration() {
     () => outputRunPathFromLogLines(liveLogLines),
     [liveLogLines]
   );
+  const dataExplorerCsvPath = useMemo(() => {
+    if (sensorCsvPath.trim()) return sensorCsvPath.trim();
+    if (displayProc?.command) {
+      return dataExplorerPathFromGenData(displayProc.command, liveLogLines);
+    }
+    return dataExplorerPathFromGenData("", liveLogLines);
+  }, [sensorCsvPath, displayProc?.command, liveLogLines]);
   const liveLogPath = useMemo(
     () => brushLogPathFromProcessLines(liveLogLines, "sim"),
     [liveLogLines]
@@ -588,6 +596,7 @@ export function DataGeneration() {
                 showPostRun: isDone && runStatus === "completed",
                 showOutputBrowser: isDone && runStatus === "completed",
                 outputRunPath,
+                csvPath: dataExplorerCsvPath,
               },
             }}
             progress={

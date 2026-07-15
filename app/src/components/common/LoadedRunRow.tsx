@@ -81,6 +81,7 @@ export function LoadedRunRow({
         projectRoot={effectiveProjectRoot}
         kind={handoffKind}
         label={label}
+        brushLabel={runLabel}
         storedLabel={label}
         chipClassName="flex-1 min-w-0 max-w-none"
         className="flex-1 min-w-0"

@@ -816,6 +816,8 @@ export function HPOTracker() {
                           <OpenPathToolbar
                             path={trialLogDir}
                             kind="training"
+                            brushLabel={brushLabel ?? undefined}
+                            storedLabel={brushLabel ?? undefined}
                             chipClassName="flex-1 min-w-0 max-w-none"
                             className="flex-1 min-w-0"
                           >

@@ -11,7 +11,8 @@ import { applyStoreRecentHandoff } from "./useRecentHandoff";
 import { useProcessStore } from "../store/process";
 import { useSimStore } from "../store/sim";
 import { checkpointPathFromEvalCommand } from "../utils/evalResults";
-import { isEvalProcess } from "../utils/launcherProcess";
+import { dataExplorerPathFromGenData } from "../utils/genDataPath";
+import { isEvalProcess, isGenDataProcess } from "../utils/launcherProcess";
 import { outputRunPathFromLogLines } from "../utils/outputRunPath";
 import { extractJsonlPathFromLogLines } from "../utils/policyTelemetryTrends";
 import { parsePolicyVizLine } from "../utils/policyTelemetry";
@@ -38,7 +39,7 @@ async function maybeSendOsNotification(title: string, body: string) {
 
 /**
  * Sonner action buttons for process terminal toasts when stdout yields a
- * navigable artefact (§D.8 / §G.1 / §G.14 / §G.16 / §G.17).
+ * navigable artefact (§D.8 / §G.1 / §G.11 / §G.12 / §G.14 / §G.16 / §G.17).
  */
 function processToastHandoffOptions(id: string): {
   action?: { label: string; onClick: () => void };
@@ -140,6 +141,51 @@ function processToastHandoffOptions(id: string): {
           label: "Eval",
           onClick: () => {
             applyStoreRecentHandoff(checkpoint, "checkpoint");
+          },
+        },
+      };
+    }
+    if (runPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Output",
+          onClick: () => {
+            applyStoreRecentHandoff(runPath, "run");
+          },
+        },
+      };
+    }
+    return {};
+  }
+
+  if (isGenDataProcess(id, proc.command)) {
+    const csvPath = dataExplorerPathFromGenData(proc.command, lines);
+    const runPath = outputRunPathFromLogLines(lines);
+    if (csvPath && runPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Data",
+          onClick: () => {
+            applyStoreRecentHandoff(csvPath, "csv");
+          },
+        },
+        cancel: {
+          label: "Output",
+          onClick: () => {
+            applyStoreRecentHandoff(runPath, "run");
+          },
+        },
+      };
+    }
+    if (csvPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Data",
+          onClick: () => {
+            applyStoreRecentHandoff(csvPath, "csv");
           },
         },
       };

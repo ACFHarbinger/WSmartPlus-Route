@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-eighth pass (§G.1 + §G.6 + §G.11 + §G.15 + §G.17 + §G.18 + §D.7 + §D.8)
+
+Two-hundred-and-thirty-eighth pass closes residual tracker / portfolio brush-label
+parity and data-gen completion toast handoffs after pass 237 covered process footers
+and eval toasts. HPO trial rows, Experiment Tracker MLflow rows, Training Monitor
+run panels, and portfolio ``LoadedRunRow`` shells brush explicit ``run_label`` values
+so click-to-brush stays aligned with row rings and ``GlobalFilterBar``. Data-gen
+toasts gain **Data** / **Output** actions from sensor CSV (or generated ``.csv``) and
+run root; ``LauncherNavMesh`` accepts ``csvPath`` for path-aware Data Explorer post-run.
+
+**React frontend**
+- ``genDataPath.ts`` — sensor / TSPLIB / ``Generated`` path extractors + Data Explorer preferer (§G.11 / §D.8)
+- ``useProcessMonitor`` — data-gen toast **Data** (CSV) + optional **Output** actions (§D.8 / §G.11 / §G.14)
+- ``LauncherNavMesh`` — optional ``csvPath`` for post-run Data Explorer handoff (§G.11 / §G.6 / §D.7)
+- Data Generation + Process Monitor data-gen panels pass ``csvPath`` into nav mesh (§G.11 / §G.15)
+- HPO Tracker trial log-dir cells — ``brushLabel`` / ``storedLabel`` from ``trialBrushLabel`` (§G.18 / §D.7)
+- Experiment Tracker MLflow run-dir cells — explicit ``brushLabel`` with run name (§G.18 / §D.7)
+- Training Monitor ``RunPanel`` path header — ``label`` / ``brushLabel`` / ``storedLabel`` from ``run.name`` (§G.17 / §D.7)
+- ``LoadedRunRow`` — ``brushLabel`` from resolved portfolio run label (§G.1 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.11 / §G.15 / §G.17 / §G.18 residual table + portfolio brush-label parity checked
+- §D.7 tracker / portfolio / run-panel brush-label residual parity checked
+- §D.8 data-gen toast + ``LauncherNavMesh`` CSV handoff checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-seventh pass (§G.9–§G.12 + §G.15 + §G.17 + §G.18 + §D.7 + §D.8)
 
 Two-hundred-and-thirty-seventh pass closes residual brush-label parity after pass 236

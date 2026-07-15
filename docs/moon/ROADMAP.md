@@ -1576,6 +1576,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live-panel footers on Simulation Launcher / Data Generation / Evaluation Runner / Training Hub / Training Monitor / HPO Tracker / Experiment Tracker / Process Monitor pass ``runLabel`` into ``ProcessIdFooter`` (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7)
 - [x] §G.9–§G.12 / §G.15 / §G.17 / §G.18 process-row + footer brush-label residual parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-thirty-eighth pass)**
+
+- [x] HPO Tracker trial log-dir cells pass ``brushLabel`` / ``storedLabel`` from ``trialBrushLabel`` so click-to-brush matches row rings (§G.18 / §D.7)
+- [x] Experiment Tracker MLflow run-dir cells pass explicit ``brushLabel`` (run name) for path-stem divergence parity (§G.18 / §D.7)
+- [x] Training Monitor ``RunPanel`` path header brushes ``run.name`` (list / panel shell parity) (§G.17 / §D.7)
+- [x] ``LoadedRunRow`` passes ``brushLabel`` from resolved portfolio run label (§G.1 / §D.7)
+- [x] ``LauncherNavMesh`` accepts optional ``csvPath`` for data-gen post-run Data Explorer handoff (§G.11 / §G.6 / §D.7)
+- [x] Data Generation + Process Monitor data-gen panels pass sensor / generated CSV into ``LauncherNavMesh`` (§G.11 / §G.15 / §D.7)
+- [x] §G.1 / §G.11 / §G.15 / §G.17 / §G.18 tracker + portfolio + run-panel brush-label residual parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1608,6 +1618,11 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 **Delivered (§D.8 — two-hundred-and-thirty-seventh pass)**
 
 - [x] Eval completion toasts expose **Eval** (checkpoint → Evaluation Runner) and optional **Output** when stdout / command yields a load path + run root (§D.8 / §G.12 / §G.14 / §D.7)
+
+**Delivered (§D.8 — two-hundred-and-thirty-eighth pass)**
+
+- [x] Data-gen completion toasts expose **Data** (sensor CSV / generated ``.csv`` → Data Explorer) and optional **Output** when stdout / command yields a path + run root (§D.8 / §G.11 / §G.6 / §G.14 / §D.7)
+- [x] ``genDataPath.ts`` shared sensor / TSPLIB / ``Generated`` path extractors for toasts + nav mesh (§G.11 / §D.8 / §D.7)
 
 **Status**: §D.8 Options A+B complete — Option C (sound) deferred.
 
@@ -2011,6 +2026,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary / Algorithm Comparison open-log toolbars use shared ``OpenPathToolbar`` labeled+chip cluster (two-hundred-and-twenty-eighth pass; §G.1 / §G.16 / §D.7)
 - [x] Simulation Summary ``ConfigMetaBanner`` uses shared ``OpenPathToolbar`` with reverse Monitor ``labeledTargets`` (two-hundred-and-twenty-ninth pass; §G.1 / §D.7)
 - [x] Benchmark Analysis results-table checkpoint cells use shared ``OpenPathToolbar`` (two-hundred-and-thirty-third pass; §G.1 / §G.12 / §D.7)
+- [x] ``LoadedRunRow`` portfolio lists pass explicit ``brushLabel`` from resolved run label (two-hundred-and-thirty-eighth pass; §G.1 / §D.7)
 
 **Status**: §G.1 complete — all checklist items delivered.
 
@@ -2448,6 +2464,10 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Generation card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.11 / §D.7)
 - [x] Data Generation sensor CSV path-kind handoff via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.11 / §G.6 / §D.7)
 - [x] Data Generation sensor CSV / TSPLIB / instance-preview path previews use shared ``OpenPathToolbar``; sensor labeled Data Explorer handoff (two-hundred-and-thirty-first pass; §G.11 / §G.6 / §D.7)
+- [x] Data Generation live-panel ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.11 / §D.7)
+- [x] ``LauncherNavMesh`` data-gen post-run Data Explorer accepts optional ``csvPath`` (two-hundred-and-thirty-eighth pass; §G.11 / §G.6 / §D.7)
+- [x] Data Generation passes sensor / generated CSV into ``LauncherNavMesh`` post-run handoff (two-hundred-and-thirty-eighth pass; §G.11 / §D.7)
+- [x] Data-gen completion toasts hand off sensor CSV → Data Explorer (+ optional Output) (two-hundred-and-thirty-eighth pass; §G.11 / §D.8 / §D.7)
 
 ---
 
@@ -2615,6 +2635,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.15 / §D.7)
 - [x] ``ProcessIdFooter`` multi-process batch meta as ``children`` when ``logPath`` is set (two-hundred-and-thirty-sixth pass; §G.12 / §G.15 / §D.7)
 - [x] Process Monitor process-row + ``ProcessIdFooter`` brush process-derived ``runLabel`` (two-hundred-and-thirty-seventh pass; §G.15 / §D.7)
+- [x] Process Monitor data-gen embedded panel passes ``csvPath`` into ``LauncherNavMesh`` (two-hundred-and-thirty-eighth pass; §G.15 / §G.11 / §D.7)
 
 ---
 
@@ -2689,6 +2710,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Training Monitor live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.17 / §D.7)
 - [x] Training Monitor live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.17 / §D.7)
 - [x] Training Monitor live-panel ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.17 / §D.7)
+- [x] Training Monitor ``RunPanel`` path header brushes ``run.name`` (list / panel shell parity) (two-hundred-and-thirty-eighth pass; §G.17 / §D.7)
 
 ---
 
@@ -2739,6 +2761,8 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] HPO Tracker + Experiment Tracker live-panel ``RunLabelHeaderSuffix`` uses shared ``OpenPathToolbar`` (two-hundred-and-thirty-fifth pass; §G.18 / §D.7)
 - [x] HPO Tracker + Experiment Tracker live-panel ``RunLabelHeaderSuffix`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-sixth pass; §G.18 / §D.7)
 - [x] HPO Tracker + Experiment Tracker live-panel ``ProcessIdFooter`` brushes process-derived ``runLabel`` when set (two-hundred-and-thirty-seventh pass; §G.18 / §D.7)
+- [x] HPO Tracker trial log-dir cells pass ``brushLabel`` / ``storedLabel`` from ``trialBrushLabel`` (two-hundred-and-thirty-eighth pass; §G.18 / §D.7)
+- [x] Experiment Tracker MLflow run-dir cells pass explicit ``brushLabel`` (run name) (two-hundred-and-thirty-eighth pass; §G.18 / §D.7)
 
 ---
 
