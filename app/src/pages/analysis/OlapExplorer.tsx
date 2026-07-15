@@ -19,20 +19,13 @@ import {
 } from "../../utils/arrowPipeline";
 import { groupRunLabelsByCity } from "../../utils/cityComparison";
 import {
+  duckDbHasColumn,
   duckDbRowCount,
   listDuckDbDistinctValues,
   listDuckDbTables,
 } from "../../utils/duckdbClient";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
-
-const PORTFOLIO_TABLES = new Set([
-  "summary_sim",
-  "benchmark_sim",
-  "city_sim",
-  "algorithm_sim",
-  "studio_portfolio",
-]);
 
 export function OlapExplorer() {
   const { theme } = useAppStore();
@@ -49,6 +42,7 @@ export function OlapExplorer() {
   const [rowCounts, setRowCounts] = useState<Record<string, number>>({});
   const [refreshing, setRefreshing] = useState(false);
   const [runLabels, setRunLabels] = useState<string[]>([]);
+  const [portfolioMode, setPortfolioMode] = useState(false);
 
   const refreshTables = useCallback(async () => {
     if (!duckdbReady) return;
@@ -78,16 +72,24 @@ export function OlapExplorer() {
   }, [refreshTables]);
 
   useEffect(() => {
-    if (!duckdbReady || !selectedTable || !PORTFOLIO_TABLES.has(selectedTable)) {
+    if (!duckdbReady || !selectedTable) {
       setRunLabels([]);
+      setPortfolioMode(false);
       return;
     }
     void (async () => {
       try {
+        const hasRunLabel = await duckDbHasColumn(selectedTable, "run_label");
+        setPortfolioMode(hasRunLabel);
+        if (!hasRunLabel) {
+          setRunLabels([]);
+          return;
+        }
         const labels = await listDuckDbDistinctValues(selectedTable, "run_label");
         setRunLabels(labels);
       } catch {
         setRunLabels([]);
+        setPortfolioMode(false);
       }
     })();
   }, [duckdbReady, selectedTable]);
@@ -124,7 +126,6 @@ export function OlapExplorer() {
     }
   }, [refreshTables, setLastPipeline, setLoading]);
 
-  const portfolioMode = PORTFOLIO_TABLES.has(selectedTable);
   const cityGroups = useMemo(
     () => (portfolioMode ? groupRunLabelsByCity(runLabels) : []),
     [portfolioMode, runLabels]

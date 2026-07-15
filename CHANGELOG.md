@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-first pass (§G.6)
+
+Seventy-first pass extends Data Explorer portfolio brushing to CSV-derived filter
+options, detects portfolio tables dynamically in OLAP Explorer, and adds grouped
+auto-charts for multi-dimension SQL results.
+
+**React frontend**
+- `GlobalFilterBar` — optional ``policies`` prop for CSV/DuckDB-derived policy options
+- `DataExplorer` — CSV-derived policy / ``run_label`` / city selectors; SQL + HTML
+  table row cross-filter dimming when brush columns present
+- `OlapExplorer` — portfolio mode via ``duckDbHasColumn(run_label)`` instead of
+  hardcoded table set (custom ``olap_*`` ingests included)
+- `queryAutoChart` — ``grouped-bar`` chart type for ``city_scale`` × ``policy`` results
+- `duckdbClient` — ``duckDbTableColumns()`` + ``duckDbHasColumn()`` helpers
+
+**ROADMAP**
+- §G.6 Data Explorer CSV-derived filter bar + row cross-filter checked
+- §G.6 OLAP dynamic portfolio column detection checked
+- §G.6 Auto-chart grouped bar for multi-dimension GROUP BY checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventieth pass (§G.6)
 
 Seventieth pass ensures single-log portfolio ingests always carry ``run_label`` and

@@ -2,13 +2,15 @@
  * Suggest ECharts visualizations from DuckDB query results (§G.6).
  */
 
-export type AutoChartType = "bar" | "line" | "scatter";
+export type AutoChartType = "bar" | "grouped-bar" | "line" | "scatter";
 
 export interface AutoChartSpec {
   type: AutoChartType;
   label: string;
   xKey: string;
   yKey: string;
+  /** Second dimension for grouped bars (e.g. policy within city_scale). */
+  seriesKey?: string;
 }
 
 const PREFERRED_DIMS = ["city_scale", "run_label", "policy", "day", "sample_id"];
@@ -66,6 +68,25 @@ export function suggestChart(
     return { type: "line", label: `${yKey} over ${timeCol}`, xKey: timeCol, yKey };
   }
 
+  if (stringCols.length >= 2 && numericCols.length >= 1) {
+    const lower = new Map(columns.map((c) => [c.toLowerCase(), c]));
+    const groupKey =
+      lower.get("city_scale") ?? lower.get("run_label") ?? findPreferredDim(columns, stringCols);
+    const seriesKey =
+      lower.get("policy") ??
+      stringCols.find((c) => c !== groupKey);
+    if (groupKey && seriesKey && groupKey !== seriesKey) {
+      const yKey = findPreferredMetric(numericCols, groupKey);
+      return {
+        type: "grouped-bar",
+        label: `${yKey} by ${groupKey} × ${seriesKey}`,
+        xKey: groupKey,
+        seriesKey,
+        yKey,
+      };
+    }
+  }
+
   if (stringCols.length >= 1 && numericCols.length >= 1) {
     const xKey = findPreferredDim(columns, stringCols) ?? stringCols[0];
     const yKey = findPreferredMetric(numericCols, xKey);
@@ -108,6 +129,39 @@ export function buildAutoChartOption(
       },
       yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
       series: [{ type: "bar", data: values, itemStyle: { color: "#6366f1" } }],
+      tooltip: { trigger: "axis" },
+    };
+  }
+
+  if (spec.type === "grouped-bar" && spec.seriesKey) {
+    const groupLabels = [...new Set(rows.map((r) => String(r[spec.xKey] ?? "")))];
+    const seriesLabels = [...new Set(rows.map((r) => String(r[spec.seriesKey!] ?? "")))];
+    const palette = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
+    const lookup = new Map<string, number>();
+    for (const row of rows) {
+      lookup.set(
+        `${row[spec.xKey]}::${row[spec.seriesKey]}`,
+        toNum(row[spec.yKey])
+      );
+    }
+    return {
+      backgroundColor: "transparent",
+      grid: { left: 48, right: 12, top: 36, bottom: 48 },
+      legend: { data: seriesLabels, textStyle: { color: "#9090b0", fontSize: 9 } },
+      xAxis: {
+        type: "category",
+        data: groupLabels,
+        axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
+      },
+      yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
+      series: seriesLabels.map((name, i) => ({
+        name,
+        type: "bar",
+        data: groupLabels.map(
+          (group) => lookup.get(`${group}::${name}`) ?? 0
+        ),
+        itemStyle: { color: palette[i % palette.length] },
+      })),
       tooltip: { trigger: "axis" },
     };
   }
