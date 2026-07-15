@@ -11,6 +11,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { Download, FolderOpen, X } from "lucide-react";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
@@ -46,7 +47,6 @@ export function CityComparison() {
   const { projectRoot, theme } = useAppStore();
   const { policy: filterPolicy, sampleId: filterSample } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (filterPolicy ? [filterPolicy] : null), [filterPolicy]);
-  const [brushedCity, setBrushedCity] = useState<string | null>(null);
   const {
     ready: duckdbReady,
     loading: duckdbLoading,
@@ -68,6 +68,12 @@ export function CityComparison() {
   );
 
   const cityGroups = useMemo(() => groupRunsByCity(filteredRuns), [filteredRuns]);
+  const {
+    runLabels: portfolioRunLabels,
+    brushedCity,
+    brushedRunLabels,
+    handleCityClick,
+  } = usePortfolioRunBrush(filteredRuns, cityGroups);
   const series = useMemo(() => buildCityComparisonSeries(cityGroups), [cityGroups]);
   const chartOption = useMemo(() => cityComparisonChartOption(series), [series]);
 
@@ -149,17 +155,6 @@ export function CityComparison() {
     })();
   }, [pendingBenchmarkLogs, setPendingBenchmarkLogs]);
 
-  const brushedRunLabels = useMemo(() => {
-    if (!brushedCity) return null;
-    const group = cityGroups.find(([city]) => city === brushedCity);
-    if (!group) return null;
-    return group[1].map((r) => r.label);
-  }, [brushedCity, cityGroups]);
-
-  const handleCityClick = useCallback((city: string) => {
-    setBrushedCity((current) => (current === city ? null : city));
-  }, []);
-
   const onChartClick = useCallback(
     (params: { name?: string }) => {
       if (params.name) handleCityClick(params.name);
@@ -192,7 +187,7 @@ export function CityComparison() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar />
+      <GlobalFilterBar runLabels={runs.length > 1 ? portfolioRunLabels : []} />
 
       <div className="flex items-center gap-3 flex-wrap">
         <button onClick={() => void addRun()} className="btn-primary flex items-center gap-2 text-xs">

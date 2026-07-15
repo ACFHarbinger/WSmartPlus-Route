@@ -1055,6 +1055,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] OLAP Explorer global policy brush SQL sync: `GlobalFilterBar` policy → `brushSqlSync` + `autoRunOnBrushSync`; portfolio/algorithm template modes per ingested table (§G.6)
 - [x] OLAP Explorer global run_label brush SQL sync: `GlobalFilterBar` run selector + `highlightRunLabels` on portfolio tables; distinct ``run_label`` values from DuckDB (§G.6)
 - [x] SQL result row + pivot run_label cross-filter: click policy or ``run_label`` cell → `useGlobalFiltersStore` → `brushSqlSync` + row dimming (§G.6)
+- [x] Portfolio global run_label filter bar: `usePortfolioRunBrush` + `GlobalFilterBar` run selector on Simulation Summary, Benchmark Analysis, and City Comparison when ≥2 runs loaded (§G.6)
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns and export to CSV: `SqlQueryPanel` sortable result table + CSV export (§G.6 partial)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)
@@ -1070,6 +1071,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] App-level navigation: `WorkflowNav` strip — Overview → Drill-Down → Geospatial → Registry → ML → HPO → Launch (§G.7)
 - [x] Global filter state management (Zustand): `useGlobalFiltersStore` + `GlobalFilterBar` propagates policy/sample filters across SimulationMonitor, AlgorithmComparison, SimulationSummary, and BenchmarkAnalysis
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
+- [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
 - [x] Keyboard shortcuts help overlay: `KeyboardShortcutsHelp` modal + TopBar button; `Escape` dismisses

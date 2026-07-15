@@ -11,25 +11,42 @@ const VALID_MODES = new Set<string>([
   "eval_runner", "settings",
 ]);
 
-function encodeHash(mode: AppMode, policy: string | null, sampleId: number | null): string {
+function encodeHash(
+  mode: AppMode,
+  policy: string | null,
+  sampleId: number | null,
+  runLabel: string | null
+): string {
   const params = new URLSearchParams();
   params.set("m", mode);
   if (policy) params.set("p", policy);
   if (sampleId != null) params.set("s", String(sampleId));
+  if (runLabel) params.set("r", runLabel);
   return `#${params.toString()}`;
 }
 
-function parseHash(hash: string): { mode?: AppMode; policy?: string; sampleId?: number } {
+function parseHash(hash: string): {
+  mode?: AppMode;
+  policy?: string;
+  sampleId?: number;
+  runLabel?: string;
+} {
   const raw = hash.startsWith("#") ? hash.slice(1) : hash;
   if (!raw) return {};
   const params = new URLSearchParams(raw);
-  const result: { mode?: AppMode; policy?: string; sampleId?: number } = {};
+  const result: {
+    mode?: AppMode;
+    policy?: string;
+    sampleId?: number;
+    runLabel?: string;
+  } = {};
   const m = params.get("m");
   if (m && VALID_MODES.has(m)) result.mode = m as AppMode;
   const p = params.get("p");
   if (p) result.policy = p;
   const s = params.get("s");
   if (s != null && s !== "" && !Number.isNaN(Number(s))) result.sampleId = Number(s);
+  if (params.has("r")) result.runLabel = params.get("r") ?? "";
   return result;
 }
 
@@ -39,8 +56,10 @@ export function useHashSync() {
   const setMode = useAppStore((s) => s.setMode);
   const policy = useGlobalFiltersStore((s) => s.policy);
   const sampleId = useGlobalFiltersStore((s) => s.sampleId);
+  const runLabel = useGlobalFiltersStore((s) => s.runLabel);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
   const setSampleId = useGlobalFiltersStore((s) => s.setSampleId);
+  const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
   const hydrated = useRef(false);
 
   // Restore from hash on first mount
@@ -49,17 +68,18 @@ export function useHashSync() {
     if (parsed.mode) setMode(parsed.mode);
     if (parsed.policy !== undefined) setPolicy(parsed.policy);
     if (parsed.sampleId !== undefined) setSampleId(parsed.sampleId);
+    if ("runLabel" in parsed) setRunLabel(parsed.runLabel || null);
     hydrated.current = true;
-  }, [setMode, setPolicy, setSampleId]);
+  }, [setMode, setPolicy, setSampleId, setRunLabel]);
 
   // Write hash when state changes (after initial hydration)
   useEffect(() => {
     if (!hydrated.current) return;
-    const next = encodeHash(mode, policy, sampleId);
+    const next = encodeHash(mode, policy, sampleId, runLabel);
     if (window.location.hash !== next) {
       window.history.replaceState(null, "", next);
     }
-  }, [mode, policy, sampleId]);
+  }, [mode, policy, sampleId, runLabel]);
 
   // Respond to browser back/forward
   useEffect(() => {
@@ -68,8 +88,9 @@ export function useHashSync() {
       if (parsed.mode) setMode(parsed.mode);
       if ("policy" in parsed) setPolicy(parsed.policy ?? null);
       if ("sampleId" in parsed) setSampleId(parsed.sampleId ?? null);
+      if ("runLabel" in parsed) setRunLabel(parsed.runLabel ?? null);
     };
     window.addEventListener("hashchange", onHashChange);
     return () => window.removeEventListener("hashchange", onHashChange);
-  }, [setMode, setPolicy, setSampleId]);
+  }, [setMode, setPolicy, setSampleId, setRunLabel]);
 }

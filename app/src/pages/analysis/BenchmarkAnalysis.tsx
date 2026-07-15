@@ -12,6 +12,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, X, Download } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
@@ -190,7 +191,6 @@ export function BenchmarkAnalysis() {
   const [evalRows, setEvalRows] = useState<EvalAnalyticsRow[] | null>(null);
   const [logScale, setLogScale] = useState(false);
   const [heatmapMode, setHeatmapMode] = useState<HeatmapMode>("all");
-  const [brushedCity, setBrushedCity] = useState<string | null>(null);
   const { policy, sampleId, setPolicy } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
 
@@ -324,21 +324,13 @@ export function BenchmarkAnalysis() {
 
   const cityGroups = useMemo(() => groupRunsByCity(filteredRuns), [filteredRuns]);
 
+  const { runLabels: portfolioRunLabels, brushedRunLabels, handleCityClick } =
+    usePortfolioRunBrush(filteredRuns, cityGroups);
+
   const cityComparisonOption = useMemo(
     () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),
     [cityGroups]
   );
-
-  const brushedRunLabels = useMemo(() => {
-    if (!brushedCity) return null;
-    const group = cityGroups.find(([city]) => city === brushedCity);
-    if (!group) return null;
-    return group[1].map((r) => r.label);
-  }, [brushedCity, cityGroups]);
-
-  const handleCityClick = useCallback((city: string) => {
-    setBrushedCity((current) => (current === city ? null : city));
-  }, []);
 
   const onCityChartClick = useCallback(
     (params: { name?: string }) => {
@@ -442,7 +434,7 @@ export function BenchmarkAnalysis() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar />
+      <GlobalFilterBar runLabels={filteredRuns.length > 1 ? portfolioRunLabels : []} />
 
       {evalRows && evalRows.length > 0 && (
         <EvalResultsPanel rows={evalRows} onDismiss={() => setEvalRows(null)} />

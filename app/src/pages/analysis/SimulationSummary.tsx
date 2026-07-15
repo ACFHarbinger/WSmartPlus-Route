@@ -16,6 +16,7 @@ import { FolderOpen, ChevronUp, ChevronDown, Download, X } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { exportChartPng } from "../../utils/chartExport";
@@ -1762,8 +1763,6 @@ export function SimulationSummary() {
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
   const [comparisonRuns, setComparisonRuns] = useState<ComparisonRun[]>([]);
-  const [brushedCity, setBrushedCity] = useState<string | null>(null);
-  const [brushedRunLabel, setBrushedRunLabel] = useState<string | null>(null);
   const cityCompareChartRef = useRef<EChartsReact | null>(null);
 
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
@@ -1990,33 +1989,23 @@ export function SimulationSummary() {
 
   const cityGroups = useMemo(() => groupRunsByCity(allRuns), [allRuns]);
 
+  const {
+    runLabels: portfolioRunLabels,
+    runLabel: activeRunLabel,
+    brushedRunLabels,
+    handleCityClick,
+    handleRunLabelClick,
+  } = usePortfolioRunBrush(allRuns, cityGroups);
+
   const cityComparisonOption = useMemo(
     () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),
     [cityGroups]
   );
 
-  const brushedRunLabels = useMemo(() => {
-    if (brushedRunLabel) return [brushedRunLabel];
-    if (!brushedCity) return null;
-    const group = cityGroups.find(([city]) => city === brushedCity);
-    if (!group) return null;
-    return group[1].map((r) => r.label);
-  }, [brushedCity, brushedRunLabel, cityGroups]);
-
-  const handleCityClick = useCallback((city: string) => {
-    setBrushedRunLabel(null);
-    setBrushedCity((current) => (current === city ? null : city));
-  }, []);
-
-  const handleRunLabelClick = useCallback((label: string) => {
-    setBrushedCity(null);
-    setBrushedRunLabel((current) => (current === label ? null : label));
-  }, []);
-
   const handlePortfolioConfigClick = useCallback(
-    (policyName: string, runLabel: string) => {
+    (policyName: string, label: string) => {
       handlePolicyClick(policyName);
-      handleRunLabelClick(runLabel);
+      handleRunLabelClick(label);
     },
     [handlePolicyClick, handleRunLabelClick]
   );
@@ -2096,7 +2085,7 @@ export function SimulationSummary() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar />
+      <GlobalFilterBar runLabels={portfolioMode ? portfolioRunLabels : []} />
 
       <div className="flex items-center gap-3 flex-wrap">
         <button onClick={openLog} className="btn-primary flex items-center gap-2">
@@ -2145,7 +2134,7 @@ export function SimulationSummary() {
               <div
                 key={r.path}
                 className={`flex items-center gap-2 text-xs text-gray-300 rounded px-1 -mx-1 ${
-                  brushedRunLabel === r.label ? "bg-accent-primary/15" : ""
+                  activeRunLabel === r.label ? "bg-accent-primary/15" : ""
                 }`}
               >
                 <button
