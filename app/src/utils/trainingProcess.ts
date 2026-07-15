@@ -7,8 +7,13 @@ export function isTrainOrHpoProcess(id: string, command: string): boolean {
   return (
     id.startsWith("train_") ||
     id.startsWith("hpo_") ||
-    /\bmain\.py\s+(train|hpo)\b/.test(command)
+    id.startsWith("meta_") ||
+    /\bmain\.py\s+(train|hpo|meta_train)\b/.test(command)
   );
+}
+
+export function isMetaTrainProcess(id: string, command: string): boolean {
+  return id.startsWith("meta_") || /\bmain\.py\s+meta_train\b/.test(command);
 }
 
 export function isHpoProcess(id: string, command: string): boolean {
@@ -20,6 +25,20 @@ export function isTrainProcess(id: string, command: string): boolean {
     id.startsWith("train_") ||
     (/\bmain\.py\s+train\b/.test(command) && !isHpoProcess(id, command))
   );
+}
+
+/** Newest meta-RL training process that is running or recently finished (Training Hub meta mode). */
+export function findRecentMetaTrainProcessId(
+  processes: Record<string, ProcessEntry>
+): string | null {
+  const candidates = Object.entries(processes)
+    .filter(
+      ([id, proc]) =>
+        (proc.status === "running" || isRecentTerminalStatus(proc.status)) &&
+        isMetaTrainProcess(id, proc.command)
+    )
+    .sort((a, b) => b[1].startTime - a[1].startTime);
+  return candidates[0]?.[0] ?? null;
 }
 
 /** Newest running train/HPO process, or null when none are active. */

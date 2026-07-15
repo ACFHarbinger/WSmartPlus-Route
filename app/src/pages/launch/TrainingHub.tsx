@@ -47,18 +47,20 @@ import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import {
   findRecentHpoProcessId,
+  findRecentMetaTrainProcessId,
   findRecentTrainProcessId,
   trainHpoLivePanelTitle,
 } from "../../utils/trainingProcess";
 import type { ProcessEntry, TrainingMetricsRow } from "../../types";
 
-type Mode = "train" | "hpo" | "eval";
+type Mode = "train" | "hpo" | "meta" | "eval";
 
 function findRecentHubProcessId(
   processes: Record<string, ProcessEntry>,
   hubMode: Mode
 ): string | null {
   if (hubMode === "hpo") return findRecentHpoProcessId(processes);
+  if (hubMode === "meta") return findRecentMetaTrainProcessId(processes);
   if (hubMode === "eval") return findRecentLauncherProcessId(processes, "eval");
   return findRecentTrainProcessId(processes);
 }
@@ -67,6 +69,7 @@ const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const MODELS = ["am", "tam", "ddam", "moe"] as const;
 const ENCODERS = ["gat", "gcn", "mha"] as const;
 const HPO_METHODS = ["nsgaii", "tpe", "dehb", "random"] as const;
+const META_STRATEGIES = ["hrl", "weight_learning", "hypernet", "maml"] as const;
 const EVAL_STRATEGIES = ["greedy", "sampling", "beam"] as const;
 
 function LiveChart({
@@ -184,6 +187,7 @@ export function TrainingHub() {
     trainMode: mode, problem, seed, wandb, extraOverrides,
     model, encoder, batchSize, epochs,
     hpoTrials, hpoMethod, hpoWorkers,
+    metaStrategy, metaLr, metaHistoryLength, mrlBatchSize, mrlStep,
     checkpointPath, evalDataset, evalSamples, evalStrategy,
     patch,
   } = useTrainHubStore();
@@ -200,6 +204,11 @@ export function TrainingHub() {
   const setHpoTrials = (v: number) => patch({ hpoTrials: v });
   const setHpoMethod = (v: string) => patch({ hpoMethod: v });
   const setHpoWorkers = (v: number) => patch({ hpoWorkers: v });
+  const setMetaStrategy = (v: string) => patch({ metaStrategy: v });
+  const setMetaLr = (v: number) => patch({ metaLr: v });
+  const setMetaHistoryLength = (v: number) => patch({ metaHistoryLength: v });
+  const setMrlBatchSize = (v: number) => patch({ mrlBatchSize: v });
+  const setMrlStep = (v: number) => patch({ mrlStep: v });
   const setCheckpointPath = (v: string) => patch({ checkpointPath: v });
   const setEvalDataset = (v: string) => patch({ evalDataset: v });
   const setEvalSamples = (v: number) => patch({ evalSamples: v });
@@ -272,6 +281,19 @@ export function TrainingHub() {
         ...extra,
       ];
     }
+    if (mode === "meta") {
+      // meta_train uses the `tracking` config group (no `tracker.enabled` key)
+      return [
+        `seed=${seed}`,
+        ...(wandb ? ["tracking.wandb_mode=online"] : []),
+        `meta_rl.meta_strategy=${metaStrategy}`,
+        `meta_rl.meta_lr=${metaLr}`,
+        `meta_rl.meta_history_length=${metaHistoryLength}`,
+        `meta_rl.mrl_batch_size=${mrlBatchSize}`,
+        `meta_rl.mrl_step=${mrlStep}`,
+        ...extra,
+      ];
+    }
     return [
       ...base,
       ...(checkpointPath ? [`eval.policy.model.load_path=${checkpointPath}`] : []),
@@ -284,11 +306,13 @@ export function TrainingHub() {
   }, [
     mode, seed, wandb, problem, model, encoder, batchSize, epochs,
     hpoTrials, hpoMethod, hpoWorkers,
+    metaStrategy, metaLr, metaHistoryLength, mrlBatchSize, mrlStep,
     checkpointPath, evalDataset, evalSamples, evalStrategy,
     extraOverrides,
   ]);
 
-  const entrypoint = mode === "train" ? "train" : mode === "hpo" ? "train" : "eval";
+  const entrypoint =
+    mode === "meta" ? "meta_train" : mode === "train" || mode === "hpo" ? "train" : "eval";
   const commandPreview = `python main.py ${entrypoint} \\\n  ${hydraArgs.join(" \\\n  ")}`;
 
   const launch = useCallback(async () => {
@@ -361,7 +385,7 @@ export function TrainingHub() {
   const isDone = runStatus !== null && runStatus !== "running";
   const latestMetric = liveMetrics[liveMetrics.length - 1];
   const showTrainingAnalytics =
-    displayProcessId != null && (mode === "train" || mode === "hpo");
+    displayProcessId != null && (mode === "train" || mode === "hpo" || mode === "meta");
   const trainHpoLiveTitle = trainHpoLivePanelTitle({
     isRunning: !isDone,
     status: runStatus ?? undefined,
@@ -403,13 +427,13 @@ export function TrainingHub() {
       <div className="card space-y-3">
         <h2 className="text-sm font-semibold text-gray-200">Mode</h2>
         <div className="flex gap-2">
-          {(["train", "hpo", "eval"] as const).map((m) => (
+          {(["train", "hpo", "meta", "eval"] as const).map((m) => (
             <button
               key={m}
               onClick={() => setTrainMode(m)}
               className={mode === m ? "btn-primary text-sm py-1.5 px-4" : "btn-ghost text-sm py-1.5 px-4"}
             >
-              {m === "train" ? "Train" : m === "hpo" ? "HPO Sweep" : "Evaluate"}
+              {m === "train" ? "Train" : m === "hpo" ? "HPO Sweep" : m === "meta" ? "Meta-RL" : "Evaluate"}
             </button>
           ))}
         </div>
@@ -419,7 +443,9 @@ export function TrainingHub() {
       <div className="card space-y-4">
         <h2 className="text-sm font-semibold text-gray-200">Common</h2>
         <div className="flex flex-wrap gap-4 items-end">
-          <SelectField label="Problem" value={problem} onChange={setProblem} options={PROBLEMS} />
+          {mode !== "meta" && (
+            <SelectField label="Problem" value={problem} onChange={setProblem} options={PROBLEMS} />
+          )}
           <div className="flex flex-col gap-1">
             <label className="text-xs text-canvas-muted">Seed</label>
             <input
@@ -477,6 +503,65 @@ export function TrainingHub() {
               </>
             )}
           </div>
+        </div>
+      )}
+
+      {mode === "meta" && (
+        <div className="card space-y-4">
+          <h2 className="text-sm font-semibold text-gray-200">Meta-Learning</h2>
+          <div className="flex flex-wrap gap-4 items-end">
+            <SelectField
+              label="Strategy"
+              value={metaStrategy}
+              onChange={setMetaStrategy}
+              options={META_STRATEGIES}
+            />
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-canvas-muted">Meta LR</label>
+              <input
+                type="number"
+                className="input-base font-mono text-sm w-28"
+                value={metaLr}
+                min={0}
+                step={0.000001}
+                onChange={(e) => setMetaLr(Number(e.target.value))}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-canvas-muted">History Length</label>
+              <input
+                type="number"
+                className="input-base font-mono text-sm w-24"
+                value={metaHistoryLength}
+                min={1}
+                onChange={(e) => setMetaHistoryLength(Number(e.target.value))}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-canvas-muted">Batch Size</label>
+              <input
+                type="number"
+                className="input-base font-mono text-sm w-24"
+                value={mrlBatchSize}
+                min={1}
+                onChange={(e) => setMrlBatchSize(Number(e.target.value))}
+              />
+            </div>
+            <div className="flex flex-col gap-1">
+              <label className="text-xs text-canvas-muted">Meta Step</label>
+              <input
+                type="number"
+                className="input-base font-mono text-sm w-20"
+                value={mrlStep}
+                min={1}
+                onChange={(e) => setMrlStep(Number(e.target.value))}
+              />
+            </div>
+          </div>
+          <p className="text-[10px] text-canvas-muted">
+            Runs <code>main.py meta_train</code> — problem defaults to the meta-RL environment
+            (cwcvrp); override via <code>meta_rl.env.name</code> in Extra Hydra Overrides.
+          </p>
         </div>
       )}
 
