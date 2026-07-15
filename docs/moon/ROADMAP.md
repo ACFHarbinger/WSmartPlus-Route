@@ -1116,6 +1116,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Command Palette — recent log/run/csv entries use ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.7 / §D.7)
 - [x] §G.15 Process Monitor process-row path-chip run-label brush + ring-highlight parity across all workflow kinds (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-fourth pass)**
+
+- [x] Training Monitor — run discovery list uses ``LoadedRunRow`` + ``PathRunLabelChip`` instead of inline font-mono run names; ring-highlight parity via ``activeRunLabel`` (§G.17 / §D.7)
+- [x] Training Monitor — ``RunPanel`` per-run header uses ``PathRunLabelChip`` instead of plain font-mono text (§G.17 / §D.7)
+- [x] Training Monitor — ``GlobalFilterBar`` ``runLabels`` from selected Lightning log paths when no live process brush is active (§G.17 / §D.7)
+- [x] Process Monitor — process list rows show muted process-id suffix alongside ``PathRunLabelChip`` when stdout resolves a log path; footer parity (§G.15 / §D.7)
+- [x] §G.17 Training Monitor run-discovery list path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1664,6 +1672,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Portfolio loaded-run lists — ``LoadedRunRow`` + ``PathRunLabelChip`` on Benchmark Analysis, City Comparison, Simulation Summary comparison runs, and Output Browser run-directory list (hundred-eighty-first pass; §G.1 / §G.6 / §G.14 / §D.7)
 - [x] Launcher/monitor live panel headers — ``RunLabelHeaderSuffix`` + ``PathRunLabelChip`` on sim/data-gen/eval/train/HPO live cards when process stdout resolves a log path (hundred-eighty-second pass; §G.9–§G.18 / §D.7)
 - [x] Process Monitor process rows + live panel footers — ``PathRunLabelChip`` when stdout resolves a log path; Command Palette recent files path-chip brush parity (hundred-eighty-third pass; §G.7 / §G.15 / §D.7)
+- [x] Training Monitor run discovery list + per-run panel headers — ``LoadedRunRow`` + ``PathRunLabelChip`` on Lightning log directories; Process Monitor row muted process-id suffix (hundred-eighty-fourth pass; §G.17 / §G.15 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
