@@ -11,6 +11,8 @@ export interface AutoChartSpec {
   yKey: string;
   /** Second dimension for grouped bars (e.g. policy within city_scale). */
   seriesKey?: string;
+  /** Point label for scatter cross-filter (e.g. policy on profit vs overflows). */
+  labelKey?: string;
 }
 
 const PREFERRED_DIMS = ["city_scale", "run_label", "policy", "day", "sample_id"];
@@ -98,7 +100,34 @@ export function suggestChartAlternatives(
     if (!alternatives.some((a) => a.type === "bar")) alternatives.push(bar);
   }
 
+  const labeledScatter = findLabeledMetricScatter(columns, rows);
+  if (labeledScatter && !alternatives.some((a) => a.type === "scatter")) {
+    alternatives.push(labeledScatter);
+  }
+
   return alternatives;
+}
+
+function findLabeledMetricScatter(
+  columns: string[],
+  rows: Record<string, unknown>[]
+): AutoChartSpec | null {
+  const lower = new Map(columns.map((c) => [c.toLowerCase(), c]));
+  const labelKey =
+    lower.get("policy") ??
+    lower.get("run_label") ??
+    lower.get("city_scale");
+  const profitKey = lower.get("mean_profit") ?? lower.get("profit");
+  const overflowKey = lower.get("mean_overflows") ?? lower.get("overflows");
+  if (!labelKey || !profitKey || !overflowKey) return null;
+  if (!rows.every((r) => r[labelKey] != null && r[labelKey] !== "")) return null;
+  return {
+    type: "scatter",
+    label: `${overflowKey} vs ${profitKey}`,
+    xKey: profitKey,
+    yKey: overflowKey,
+    labelKey,
+  };
 }
 
 export function suggestChart(
@@ -109,6 +138,9 @@ export function suggestChart(
 
   const numericCols = columns.filter((c) => isNumericCol(c, rows));
   const stringCols = columns.filter((c) => !numericCols.includes(c));
+
+  const labeledScatter = findLabeledMetricScatter(columns, rows);
+  if (labeledScatter) return labeledScatter;
 
   const timeCol = columns.find((c) => /^(day|epoch|step|time|sample)/i.test(c));
 
@@ -320,7 +352,13 @@ export function buildAutoChartOption(
     };
   }
 
-  const points = rows.map((r) => [toNum(r[spec.xKey]), toNum(r[spec.yKey])]);
+  const points = spec.labelKey
+    ? rows.map((r) => ({
+        name: String(r[spec.labelKey!] ?? ""),
+        value: [toNum(r[spec.xKey]), toNum(r[spec.yKey])] as [number, number],
+      }))
+    : rows.map((r) => [toNum(r[spec.xKey]), toNum(r[spec.yKey])]);
+
   return {
     backgroundColor: "transparent",
     grid: { left: 48, right: 12, top: 24, bottom: 32 },
@@ -330,8 +368,11 @@ export function buildAutoChartOption(
       {
         type: "scatter",
         data: points,
-        symbolSize: 8,
+        symbolSize: spec.labelKey ? 10 : 8,
         itemStyle: { color: "#6366f1" },
+        label: spec.labelKey
+          ? { show: rows.length <= 24, position: "top", color: "#9090b0", fontSize: 8 }
+          : undefined,
       },
     ],
     tooltip: { trigger: "item" },

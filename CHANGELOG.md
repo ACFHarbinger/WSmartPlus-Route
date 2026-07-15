@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-fourth pass (§G.6)
+
+Seventy-fourth pass completes §G.6 pre-built query templates and auto-chart scatter
+polish: Pareto efficiency frontier SQL, labeled scatter cross-filter, and SVG export.
+
+**React frontend**
+- `duckdbTemplates` — ``Pareto efficiency frontier`` template (single-log + portfolio)
+- `queryAutoChart` — labeled profit vs overflows scatter with ``labelKey`` for brush
+  resolution; point labels when ≤24 rows
+- `SqlQueryPanel` — scatter click cross-filter; SVG export alongside PNG
+
+**ROADMAP**
+- §G.6 Pareto efficiency frontier SQL template checked
+- §G.6 Auto-chart scatter cross-filter checked
+- §G.6 Auto-chart SVG export checked
+- §G.6 Pre-built query templates marked complete (partial removed)
+- §G.6 Data Explorer sort/filter/export partial markers removed
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-third pass (§G.6)
 
 Seventy-third pass closes remaining §G.6 auto-chart polish: click-to-cross-filter on

@@ -89,6 +89,28 @@ FROM ${t}
 GROUP BY policy
 ORDER BY mean_profit DESC`,
   },
+  {
+    id: "pareto-frontier",
+    label: "Pareto efficiency frontier",
+    sql: `WITH agg AS (
+  SELECT policy,
+    ROUND(AVG(profit), 4) AS mean_profit,
+    ROUND(AVG(overflows), 4) AS mean_overflows,
+    ROUND(AVG(kg_per_km), 4) AS mean_kgkm
+  FROM ${t}
+  GROUP BY policy
+)
+SELECT a.policy, a.mean_profit, a.mean_overflows, a.mean_kgkm
+FROM agg a
+WHERE NOT EXISTS (
+  SELECT 1 FROM agg b
+  WHERE b.policy <> a.policy
+    AND b.mean_profit >= a.mean_profit
+    AND b.mean_overflows <= a.mean_overflows
+    AND (b.mean_profit > a.mean_profit OR b.mean_overflows < a.mean_overflows)
+)
+ORDER BY a.mean_profit DESC, a.mean_overflows ASC`,
+  },
 ];
 
 /** Algorithm Comparison templates for single-log policy analysis (§G.6). */
@@ -226,6 +248,28 @@ ORDER BY city_scale, mean_kgkm DESC`,
 FROM ${t}
 GROUP BY run_label, policy
 ORDER BY run_label, mean_kgkm DESC`,
+    },
+    {
+      id: "portfolio-pareto-frontier",
+      label: "Pareto efficiency frontier",
+      sql: `WITH agg AS (
+  SELECT run_label, policy,
+    ROUND(AVG(profit), 4) AS mean_profit,
+    ROUND(AVG(overflows), 4) AS mean_overflows,
+    ROUND(AVG(kg_per_km), 4) AS mean_kgkm
+  FROM ${t}
+  GROUP BY run_label, policy
+)
+SELECT a.run_label, a.policy, a.mean_profit, a.mean_overflows, a.mean_kgkm
+FROM agg a
+WHERE NOT EXISTS (
+  SELECT 1 FROM agg b
+  WHERE (b.run_label <> a.run_label OR b.policy <> a.policy)
+    AND b.mean_profit >= a.mean_profit
+    AND b.mean_overflows <= a.mean_overflows
+    AND (b.mean_profit > a.mean_profit OR b.mean_overflows < a.mean_overflows)
+)
+ORDER BY a.mean_profit DESC, a.mean_overflows ASC`,
     },
   ];
 }

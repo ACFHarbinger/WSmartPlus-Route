@@ -14,7 +14,7 @@ import {
   sqlTemplates,
   type PortfolioBrushFilter,
 } from "../../utils/duckdbTemplates";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
 import {
   buildAutoChartOption,
   heatmapCellLabels,
@@ -365,6 +365,18 @@ export function SqlQueryPanel({
         );
         if (colLabel) applyCrossFilter(chartSpec.xKey, colLabel);
         if (rowLabel) applyCrossFilter(chartSpec.seriesKey, rowLabel);
+        return;
+      }
+
+      if (chartSpec.type === "scatter" && chartSpec.labelKey) {
+        const label =
+          params.name ??
+          (typeof params.value === "object" &&
+          params.value != null &&
+          "name" in (params.value as object)
+            ? String((params.value as { name?: string }).name ?? "")
+            : "");
+        if (label) applyCrossFilter(chartSpec.labelKey, label);
       }
     },
     [chartSpec, rows, applyCrossFilter]
@@ -377,6 +389,9 @@ export function SqlQueryPanel({
     }
     if (chartSpec.type === "grouped-bar" || chartSpec.type === "heatmap") {
       return Boolean(chartSpec.seriesKey);
+    }
+    if (chartSpec.type === "scatter" && chartSpec.labelKey) {
+      return /^(policy|run_label|city_scale)$/i.test(chartSpec.labelKey);
     }
     return false;
   }, [chartSpec]);
@@ -497,6 +512,18 @@ export function SqlQueryPanel({
                   <ImageDown size={11} />
                   PNG
                 </button>
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (exportChartSvg(autoChartRef, "auto-chart.svg")) {
+                      toast.success("Chart exported", { description: "auto-chart.svg" });
+                    }
+                  }}
+                  className="btn-ghost text-[10px] flex items-center gap-1 py-0.5"
+                >
+                  <ImageDown size={11} />
+                  SVG
+                </button>
               </div>
               <ReactECharts
                 ref={autoChartRef}
@@ -508,7 +535,7 @@ export function SqlQueryPanel({
               />
               {autoChartCrossFilterHint && (
                 <p className="text-[10px] text-canvas-muted">
-                  Click a bar or heatmap cell to cross-filter linked panels.
+                  Click a bar, scatter point, or heatmap cell to cross-filter linked panels.
                 </p>
               )}
             </div>
