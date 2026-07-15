@@ -8,8 +8,7 @@ import type EChartsReact from "echarts-for-react";
 import { Map } from "lucide-react";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
@@ -180,24 +179,19 @@ export function AlgorithmComparison() {
 
       <div className="flex items-center gap-3 flex-wrap">
         {watchPath && (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={watchPath}
             projectRoot={projectRoot}
-            handoff="log"
+            kind="log"
+            labeled
+            labeledTargets={["summary"]}
+            labeledIconSize={12}
+            order="chip-first"
             trailing={
               !duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE ? (
                 <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
               ) : null
             }
-          />
-        )}
-        {watchPath && (
-          <PathHandoffButtons
-            path={watchPath}
-            kind="log"
-            targets={["summary"]}
-            labeled
-            iconSize={12}
           />
         )}
         <button onClick={openOnMap} className="btn-ghost text-xs flex items-center gap-1.5">

@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-eighth pass (§G.1 + §G.6 + §G.7 + §G.14 + §G.16 + §D.7)
+
+Two-hundred-and-twenty-eighth pass unifies open-path toolbars after pass 227 put
+icon handoffs on ``PathRunLabelChip``. ``OpenPathToolbar`` composes optional labeled
+reverse-handoff buttons with the path chip so analytics open-log rows, OLAP ingest,
+and Output Browser file viewers share one cluster. Host pages pass reverse-destination
+``labeledTargets`` (Summary → Monitor, Monitor → Summary) so chip icons stay in parity
+with the labeled control.
+
+**React frontend**
+- ``OpenPathToolbar`` — labeled + chip cluster (``labeledTargets`` / host-aware chip targets / ``order`` / children) (§G.7 / §D.7)
+- Simulation Summary / Simulation Monitor / Algorithm Comparison open-log toolbars (§G.1 / §G.16 / §D.7)
+- OLAP Explorer ingest path toolbar (§G.6 / §D.7)
+- Output Browser file viewer + checkpoint panel (§G.14 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.6 / §G.14 / §G.16 open-path labeled+chip toolbar unification checked
+- §D.7 ``OpenPathToolbar`` surface parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-seventh pass (§G.7 + §G.9–§G.18 + §D.7)
 
 Two-hundred-and-twenty-seventh pass unifies path-chip handoffs after pass 226 put

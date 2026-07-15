@@ -1493,6 +1493,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Shared eval / launcher / tracker chips (Eval cards, Evaluation Runner, Training Hub, Training Monitor, Benchmark, HPO, Experiment Tracker, Command Palette, Data Explorer, OLAP, Config Editor) use ``handoff`` instead of ad-hoc ``trailing={<PathHandoffButtons/>}`` (§G.7 / §G.10–§G.18 / §D.7)
 - [x] §G.7 / §G.9–§G.18 path-chip handoff unification via ``PathRunLabelChip`` checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-eighth pass)**
+
+- [x] ``OpenPathToolbar`` — shared open-path cluster: optional labeled reverse-handoff + ``PathRunLabelChip`` icon handoffs (``labeledTargets`` / host-aware chip targets / ``order`` / children) (§G.7 / §G.1 / §G.16 / §D.7)
+- [x] Simulation Summary / Simulation Monitor / Algorithm Comparison open-log toolbars migrate to ``OpenPathToolbar`` with reverse-destination ``labeledTargets`` (§G.1 / §G.16 / §D.7)
+- [x] OLAP Explorer ingest path toolbar migrates to ``OpenPathToolbar`` (§G.6 / §D.7)
+- [x] Output Browser file viewer + checkpoint panel migrate labeled + chip dual control to ``OpenPathToolbar`` (§G.14 / §D.7)
+- [x] §G.1 / §G.6 / §G.14 / §G.16 open-path labeled+chip toolbar unification checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1921,6 +1929,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] City Comparison error-bar whiskers: profit · symlog-overflows · kg/km grouped bars show mean ± std via ``showErrorBars`` toggle on ``cityComparisonChartOption``; log/symlog whiskers via ``errorBarBounds`` + ``groupedBarWhiskerX`` on Benchmark Analysis, Simulation Summary portfolio mode, and City Comparison page (§G.1.6 / §G.7)
 - [x] Simulation Summary / Algorithm Comparison open-log toolbars + path chips use shared ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Simulation Summary ConfigMetaBanner + open-path chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.1 / §D.7)
+- [x] Simulation Summary / Algorithm Comparison open-log toolbars use shared ``OpenPathToolbar`` labeled+chip cluster (two-hundred-and-twenty-eighth pass; §G.1 / §G.16 / §D.7)
 
 **Status**: §G.1 complete — all checklist items delivered.
 
@@ -2174,6 +2183,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Pivot table heatmap PNG export: ``exportChartPng()`` on ``PivotTablePanel`` pivot heatmap with toast feedback (§G.6 / §G.7)
 - [x] OLAP Explorer ingest path + Data Explorer open-CSV path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.6 / §D.7)
 - [x] OLAP / Data Explorer open-path chips migrate to ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.6 / §D.7)
+- [x] OLAP Explorer ingest path toolbar uses shared ``OpenPathToolbar`` labeled+chip cluster (two-hundred-and-twenty-eighth pass; §G.6 / §D.7)
 
 **Status**: §G.6 complete — all checklist items delivered.
 
@@ -2428,6 +2438,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-header log dual / run single; file-viewer CSV / config / checkpoint / log labeled controls; checkpoint sidebar icon Eval handoffs (§G.14 / §G.7 / §D.7)
 - [x] Output Browser run list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.14 / §D.7)
 - [x] Output Browser run header / checkpoint sidebar / file-viewer / checkpoint panel chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.14 / §D.7)
+- [x] Output Browser file viewer + checkpoint panel labeled+chip dual control uses shared ``OpenPathToolbar`` (two-hundred-and-twenty-eighth pass; §G.14 / §D.7)
 
 ---
 
@@ -2511,6 +2522,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] Simulation Monitor ``GlobalFilterBar`` ``runLabels`` + ``useLogPathRunLabelBrush`` on log open (hundred-seventy-fourth pass; §G.16 / §D.7)
 - [x] Simulation Monitor open-log toolbar + path chip path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.16 / §G.1 / §D.7)
 - [x] Simulation Monitor open-path chip uses ``PathRunLabelChip`` ``handoff="log"`` (two-hundred-and-twenty-seventh pass; §G.16 / §D.7)
+- [x] Simulation Monitor open-log toolbar uses shared ``OpenPathToolbar`` with reverse Summary ``labeledTargets`` (two-hundred-and-twenty-eighth pass; §G.16 / §D.7)
 
 **Status**: §G.16 complete — all checklist items delivered.
 
