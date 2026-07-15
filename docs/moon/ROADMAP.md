@@ -954,6 +954,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — selected ``test_sim`` processes show ``ProcessLogTail`` in embedded workflow section (§G.9 / §G.15 / §D.7)
 - [x] §G.9 / §G.11 / §G.12 / §G.15 launcher log tail display parity across all four launcher pages + Process Monitor embedded sections (§D.7)
 
+**Delivered (§D.7 — hundred-sixty-third pass)**
+
+- [x] ``TrainHpoLivePanel`` — optional ``logLines`` + ``logTailWaiting`` props render shared ``ProcessLogTail`` below analytics strip (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Training Hub — ``ProcessLogTail`` in live progress panel during train/hpo/eval runs (§G.10 / §D.7)
+- [x] Process Monitor — selected ``train_`` / ``hpo_`` processes show ``ProcessLogTail`` in embedded analytics section (§G.15 / §D.7)
+- [x] Training Monitor + HPO Tracker + Experiment Tracker — ``ProcessLogTail`` on live/recent train/HPO panels (§G.17 / §G.18 / §D.7)
+- [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow log tail display parity across all five pages + Process Monitor embedded section (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1665,6 +1673,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoLivePanelHeader`` shared live panel header row with ``split`` layout + ``activity`` running icon (hundred-fifty-fourth pass; §G.10 / §D.7)
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``footer`` process-id row + ``showAnalytics`` slots (hundred-fifty-sixth pass; §G.10 / §D.7)
 - [x] ``ProcessIdFooter`` shared process-id footer row on Training Hub live panel (hundred-fifty-eighth pass; §G.10 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display on Training Hub live panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.10 / §D.7)
 
 ---
 
@@ -1808,6 +1817,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessLogTail`` shared stdout tail display on selected ``gen_data`` embedded workflow section (hundred-sixty-first pass; §G.11 / §G.15 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on selected ``test_sim`` embedded workflow section (hundred-sixty-second pass; §G.9 / §G.15 / §D.7)
 - [x] Process Monitor eval embedded section passes raw ``logLines`` to ``EvalCheckpointLiveCard`` (hundred-sixty-second pass; §G.12 / §G.15 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display on selected ``train_`` / ``hpo_`` embedded analytics section via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.15 / §D.7)
 
 ---
 
@@ -1865,6 +1875,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` deduplicated live/recent header with ``overlaySelect`` ``LIVE_KEY`` checkbox parity (hundred-fifty-fifth pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``overlaySelect`` + ``showHealthAttention={false}`` options (hundred-fifty-sixth pass; §G.17 / §A.2 / §A.4 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display on live/recent train panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.17 / §D.7)
 
 ---
 
@@ -1901,6 +1912,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.18 / §A.2 / §A.4 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` deduplicated live HPO header blocks on HPO Tracker + Experiment Tracker (hundred-fifty-fourth pass; §G.18 / §G.17 / §D.7)
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell on HPO Tracker + Experiment Tracker (hundred-fifty-sixth pass; §G.18 / §G.17 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display on HPO Tracker + Experiment Tracker live panels via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.18 / §D.7)
 
 ---
 

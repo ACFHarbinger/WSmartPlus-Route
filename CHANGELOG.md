@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-third pass (§G.10 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Hundred-sixty-third pass closes the train/HPO log tail display gap left after the
+hundred-sixty-second pass (which added ``ProcessLogTail`` on Simulation Launcher,
+Data Generation, Evaluation Runner, and Process Monitor sim/data-gen/eval
+embedded sections). Train/HPO workflows now show the shared stdout tail via
+``TrainHpoLivePanel`` across Training Hub, Training Monitor, HPO Tracker,
+Experiment Tracker, and Process Monitor train/HPO embedded sections.
+
+**React frontend**
+- ``TrainHpoLivePanel`` — optional ``logLines`` + ``logTailWaiting`` props render
+  shared ``ProcessLogTail`` below analytics strip (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- Training Hub — ``ProcessLogTail`` in live progress panel during train/hpo/eval runs
+  (§G.10 / §D.7)
+- Process Monitor — selected ``train_`` / ``hpo_`` processes show ``ProcessLogTail``
+  in embedded analytics section (§G.15 / §D.7)
+- Training Monitor — ``ProcessLogTail`` on live/recent train panel (§G.17 / §D.7)
+- HPO Tracker + Experiment Tracker — ``ProcessLogTail`` on live HPO panels (§G.18 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub ``ProcessLogTail`` checked
+- §G.15 Process Monitor train/HPO embedded log tail checked
+- §G.17 Training Monitor ``ProcessLogTail`` checked
+- §G.18 HPO Tracker + Experiment Tracker ``ProcessLogTail`` checked
+- §D.7 train/HPO workflow log tail display parity across all five pages + Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-second pass (§G.9 + §G.12 + §G.15 + §D.7)
 
 Hundred-sixty-second pass closes the remaining launcher log tail display gaps left

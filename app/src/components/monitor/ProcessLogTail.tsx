@@ -1,5 +1,6 @@
 /**
- * Shared stdout/stderr tail display for launcher live panels (§G.11 / §G.12 / §G.15 / §D.7).
+ * Shared stdout/stderr tail display for launcher and train/HPO live panels
+ * (§G.9–§G.12 / §G.15 / §G.17 / §G.18 / §D.7).
  */
 import { useMemo } from "react";
 import { processLogTail } from "../../utils/processLog";

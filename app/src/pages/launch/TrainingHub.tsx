@@ -575,6 +575,8 @@ export function TrainingHub() {
               </>
             ),
           }}
+          logLines={liveLogLines}
+          logTailWaiting={!isDone}
           footer={<ProcessIdFooter processId={displayProcessId} />}
         />
       )}

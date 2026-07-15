@@ -596,6 +596,8 @@ export function ProcessMonitor() {
             postRunFallback:
               "Post-run shortcuts — open Training Monitor or Output Browser for this run",
           }}
+          logLines={selectedProc.logLines}
+          logTailWaiting={selectedProc.status === "running"}
           footer={<ProcessIdFooter processId={selectedProc.id} />}
         />
       )}

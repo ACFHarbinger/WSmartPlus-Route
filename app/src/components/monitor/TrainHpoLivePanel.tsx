@@ -3,6 +3,7 @@
  */
 import type { ReactNode } from "react";
 import { LiveTrainProgressBar, type LiveTrainProgressBarProps } from "./LiveTrainProgressBar";
+import { ProcessLogTail } from "./ProcessLogTail";
 import {
   TrainHpoAnalyticsStrip,
   type TrainHpoAnalyticsStripProps,
@@ -29,6 +30,10 @@ export interface TrainHpoLivePanelProps {
   /** When false, omit the analytics strip (Training Hub non-train/HPO modes). */
   showAnalytics?: boolean;
   analyticsWrapperClassName?: string;
+  /** Raw process stdout/stderr lines for the shared log tail (§G.10 / §G.15 / §G.17 / §G.18 / §D.7). */
+  logLines?: string[];
+  logTailMaxLines?: number;
+  logTailWaiting?: boolean;
 }
 
 export function TrainHpoLivePanel({
@@ -40,6 +45,9 @@ export function TrainHpoLivePanel({
   footer,
   showAnalytics = true,
   analyticsWrapperClassName,
+  logLines,
+  logTailMaxLines = 20,
+  logTailWaiting = false,
 }: TrainHpoLivePanelProps) {
   const showProgress = progress?.show !== false && progress?.processId != null;
 
@@ -58,6 +66,14 @@ export function TrainHpoLivePanel({
         <div className={analyticsWrapperClassName}>
           <TrainHpoAnalyticsStrip {...analytics} />
         </div>
+      )}
+      {logLines !== undefined && (
+        <ProcessLogTail
+          logLines={logLines}
+          maxLines={logTailMaxLines}
+          waiting={logTailWaiting}
+          variant="default"
+        />
       )}
       {footer}
     </>
