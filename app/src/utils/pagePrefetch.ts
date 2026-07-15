@@ -17,6 +17,7 @@ const PREFETCH: Partial<Record<AppMode, () => Promise<unknown>>> = {
   training_hub: () => import("../pages/launch/TrainingHub"),
   data_gen: () => import("../pages/launch/DataGeneration"),
   eval_runner: () => import("../pages/launch/EvaluationRunner"),
+  report_studio: () => import("../pages/launch/ReportStudio"),
   config_editor: () => import("../pages/files/ConfigEditor"),
   output_browser: () => import("../pages/files/OutputBrowser"),
   system_tools: () => import("../pages/files/SystemTools"),

@@ -412,6 +412,7 @@ export type AppMode =
   | "config_editor"     // Configuration Editor     — §G.13
   | "output_browser"    // Output Browser           — §G.14
   | "eval_runner"       // Evaluation Runner        — §G.12
+  | "report_studio"     // Report & Deck Generator  — §H interim (archived logic/gen pipeline)
   | "system_tools"      // File System Tools & Test Suite — PySide6 GUI parity
   | "settings";         // App Settings             — §G.19
 

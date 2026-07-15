@@ -66,6 +66,9 @@ const ConfigEditor = lazy(() =>
 const OutputBrowser = lazy(() =>
   import("./pages/files/OutputBrowser").then((m) => ({ default: m.OutputBrowser }))
 );
+const ReportStudio = lazy(() =>
+  import("./pages/launch/ReportStudio").then((m) => ({ default: m.ReportStudio }))
+);
 const SystemTools = lazy(() =>
   import("./pages/files/SystemTools").then((m) => ({ default: m.SystemTools }))
 );
@@ -138,6 +141,9 @@ function ActivePage() {
     case "eval_runner":
       page = <EvaluationRunner />;
       break;
+    case "report_studio":
+      page = <ReportStudio />;
+      break;
     case "system_tools":
       page = <SystemTools />;
       break;
@@ -200,6 +206,7 @@ export default function App() {
       import("./pages/launch/TrainingHub"),
       import("./pages/launch/DataGeneration"),
       import("./pages/launch/EvaluationRunner"),
+      import("./pages/launch/ReportStudio"),
       import("./pages/files/ConfigEditor"),
       import("./pages/files/OutputBrowser"),
       import("./pages/files/SystemTools"),
@@ -229,6 +236,7 @@ export default function App() {
       "training_hub",
       "data_gen",
       "eval_runner",
+      "report_studio",
       "config_editor",
       "output_browser",
       "system_tools",
