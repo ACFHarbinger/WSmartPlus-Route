@@ -1484,6 +1484,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Session persistence for form values: `useSimLauncherStore` (Zustand `persist`, key `wsroute-sim-launcher`) stores `selectedPolicies`, `area`, `numLoc`, `samples`, `nCores`, `seed`, `distribution`, `extraOverrides`; ephemeral runtime state stays in component state
 - [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live status panel during running simulations (§D.2 / §G.9)
 - [x] ``LauncherNavMesh`` shared navigation + ``Simulation Monitor →`` / ``Simulation Summary →`` post-run shortcuts (hundred-thirty-ninth pass; §D.7)
+- [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed simulations (hundred-forty-second pass; §G.14 / §D.7)
 
 ---
 
@@ -1526,6 +1527,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Session persistence: `useDataGenStore` (Zustand `persist`, key `wsroute-data-gen`) stores all form fields; ephemeral runtime state stays in component state
 - [x] Live progress + ETA (hundred-thirty-seventh pass): ``LiveTrainProgressBar`` in live progress panel during ``gen_data`` runs (§D.2 / §G.11)
 - [x] ``LauncherNavMesh`` + ``Data Explorer →`` post-run shortcut (hundred-thirty-ninth pass; §D.7)
+- [x] ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut on completed data generation runs (hundred-forty-second pass; §G.14 / §D.7)
 
 ---
 
@@ -1547,6 +1549,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``evalResults.ts`` shared stdout JSON parsing + ``toEvalAnalyticsRows`` helpers (hundred-fortieth pass; §G.12 / §G.15)
 - [x] Live progress per-checkpoint KPI row + ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut (hundred-forty-first pass; §G.12 / §G.14 / §D.7)
 - [x] ``checkpointPathFromEvalCommand`` + ``Load in Eval Runner →`` from completed eval processes (hundred-forty-first pass; §G.12 / §G.15)
+- [x] Single-checkpoint live panel passes ``checkpointPath`` to ``LauncherNavMesh`` for post-run reload (hundred-forty-second pass; §G.12 / §D.7)
 
 ---
 
@@ -1584,6 +1587,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] "Compare runs": per-run checkbox multi-select (≥2); `findRunJsonl()` locates logs in top-level or `hydra/`; navigates to BenchmarkAnalysis with `pendingBenchmarkLogs`
 - [x] Session profiles (§D.4 Option C): `useSessionProfilesStore` persists named snapshots of all three launcher stores; save/load/delete UI in Output Browser sidebar (max 20 profiles)
 - [x] Recent files/runs: `useRecentFilesStore` tracks last 12 opened logs, output runs, and CSVs; surfaced in command palette
+- [x] Checkpoint browser (hundred-forty-second pass): auto-expand ``checkpoints/`` on run select; sidebar card lists ``.pt/.ckpt/.pth`` with **Eval →** shortcut; file tree highlights checkpoint artefacts; **Load in Eval Runner →** on selected checkpoint files via ``pendingCheckpoint`` (§G.14 / §G.12 / §G.17)
+- [x] ``checkpoints.ts`` — shared ``isCheckpointEntry`` / ``filterCheckpointEntries`` helpers used by Output Browser + Training Monitor (§G.14 / §G.12)
 
 ---
 

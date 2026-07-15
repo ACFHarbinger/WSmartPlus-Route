@@ -28,6 +28,7 @@ import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { parseAttentionVizLine } from "../../utils/attentionViz";
+import { filterCheckpointEntries } from "../../utils/checkpoints";
 import { parseTrainingHealthLine } from "../../utils/trainingHealth";
 import {
   findActiveLiveTrainProcessId,
@@ -415,11 +416,7 @@ function CheckpointBrowser({
   useEffect(() => {
     invoke<DirEntry[]>("list_dir", { path: `${runPath}/checkpoints` })
       .then((entries) =>
-        setCheckpoints(
-          entries
-            .filter((e) => !e.is_dir && ["pt", "ckpt", "pth"].includes(e.extension))
-            .sort((a, b) => a.name.localeCompare(b.name))
-        )
+        setCheckpoints(filterCheckpointEntries(entries))
       )
       .catch(() => setCheckpoints([]));
   }, [runPath]);

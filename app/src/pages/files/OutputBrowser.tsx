@@ -25,6 +25,7 @@ import {
   Trash2,
   Package,
   Archive,
+  ClipboardList,
 } from "lucide-react";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
@@ -36,6 +37,7 @@ import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtrac
 import { findRunJsonl } from "../../utils/outputRunLogs";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { downloadParquetFromCsv } from "../../utils/tableExport";
+import { filterCheckpointEntries, isCheckpointEntry } from "../../utils/checkpoints";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -108,6 +110,7 @@ export function OutputBrowser() {
     setPendingBenchmarkLogs,
     pendingRunPath,
     setPendingRunPath,
+    setPendingCheckpoint,
   } = useAppStore();
   const {
     policy: activePolicy,
@@ -141,6 +144,8 @@ export function OutputBrowser() {
   // KPI summary parsed from the first .jsonl found in the run directory
   const [runKpi, setRunKpi] = useState<Array<{ policy: string; overflows: number; kgkm: number; profit: number }> | null>(null);
   const [runJsonlPath, setRunJsonlPath] = useState<string | null>(null);
+  const [runCheckpoints, setRunCheckpoints] = useState<DirEntry[] | null>(null);
+  const [viewingCheckpoint, setViewingCheckpoint] = useState<DirEntry | null>(null);
 
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
 
@@ -170,23 +175,48 @@ export function OutputBrowser() {
     setCsvRows(null);
     setViewingPath(null);
     setViewingExt("");
+    setViewingCheckpoint(null);
     setExpandedDirs(new Set());
     setSubEntries({});
     setRunMeta(null);
     setRunKpi(null);
     setRunJsonlPath(null);
+    setRunCheckpoints(null);
     try {
       const e = sortEntries(await invoke<DirEntry[]>("list_dir", { path: run.path }));
       setEntries(e);
+
+      const expanded = new Set<string>();
+      const subs: Record<string, DirEntry[]> = {};
 
       // Auto-expand hydra/ subdirectory for structured tree view
       const hydraDir = e.find((f) => f.is_dir && f.name === "hydra");
       let hydraSub: DirEntry[] = [];
       if (hydraDir) {
-        setExpandedDirs(new Set([hydraDir.path]));
+        expanded.add(hydraDir.path);
         hydraSub = sortEntries(await invoke<DirEntry[]>("list_dir", { path: hydraDir.path }));
-        setSubEntries({ [hydraDir.path]: hydraSub });
+        subs[hydraDir.path] = hydraSub;
       }
+
+      // Auto-expand checkpoints/ and surface eval-ready weights (§G.14 / §G.12)
+      const ckptDir = e.find((f) => f.is_dir && f.name === "checkpoints");
+      if (ckptDir) {
+        try {
+          const ckpts = filterCheckpointEntries(
+            await invoke<DirEntry[]>("list_dir", { path: ckptDir.path })
+          );
+          if (ckpts.length > 0) {
+            expanded.add(ckptDir.path);
+            subs[ckptDir.path] = ckpts;
+            setRunCheckpoints(ckpts);
+          }
+        } catch {
+          setRunCheckpoints([]);
+        }
+      }
+
+      setExpandedDirs(expanded);
+      setSubEntries(subs);
 
       // Auto-load pruned_config.yaml for metadata panel (top-level or hydra/)
       let configEntry = e.find((f) => f.name === "pruned_config.yaml" || f.name === "config.yaml");
@@ -275,9 +305,13 @@ export function OutputBrowser() {
     setFileContent(null);
     setCsvRows(null);
     setWsrouteBundle(null);
+    setViewingCheckpoint(isCheckpointEntry(entry) ? entry : null);
     setFileLoading(true);
 
     try {
+      if (isCheckpointEntry(entry)) {
+        return;
+      }
       if (entry.extension === "wsroute") {
         const info = await invoke<WsrouteBundleInfo>("inspect_wsroute_bundle", {
           path: entry.path,
@@ -305,6 +339,11 @@ export function OutputBrowser() {
     setPendingLogPath(path);
     setMode("simulation_summary");
   }, [setPendingLogPath, setMode]);
+
+  const loadInEvalRunner = useCallback((path: string) => {
+    setPendingCheckpoint(path);
+    setMode("eval_runner");
+  }, [setPendingCheckpoint, setMode]);
 
   const toggleCompareRun = useCallback((runPath: string) => {
     setCompareSelection((prev) => {
@@ -435,6 +474,8 @@ export function OutputBrowser() {
                 ? "text-accent-secondary font-medium"
                 : e.extension === "jsonl"
                 ? "text-accent-success"
+                : isCheckpointEntry(e)
+                ? "text-accent-primary font-medium"
                 : ""
             }`}
           >
@@ -625,6 +666,27 @@ export function OutputBrowser() {
                 ))}
               </div>
             )}
+            {runCheckpoints && runCheckpoints.length > 0 && (
+              <div className="card p-2 space-y-1 overflow-auto max-h-40">
+                <p className="text-xs font-semibold text-gray-300 mb-1.5">
+                  Checkpoints ({runCheckpoints.length})
+                </p>
+                {runCheckpoints.map((ckpt) => (
+                  <div key={ckpt.path} className="flex items-center gap-2 text-[10px] leading-tight">
+                    <span className="font-mono text-gray-300 truncate flex-1" title={ckpt.name}>
+                      {ckpt.name}
+                    </span>
+                    <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
+                    <button
+                      onClick={() => loadInEvalRunner(ckpt.path)}
+                      className="btn-ghost text-[10px] shrink-0 text-accent-secondary"
+                    >
+                      Eval →
+                    </button>
+                  </div>
+                ))}
+              </div>
+            )}
             {runKpi && runKpi.length > 0 && (
               <div className="card p-2 space-y-1 overflow-auto max-h-48">
                 <p className="text-xs font-semibold text-gray-300 mb-1.5">KPI Summary</p>
@@ -689,7 +751,7 @@ export function OutputBrowser() {
           </div>
         )}
 
-        {!fileLoading && (fileContent !== null || csvRows !== null || wsrouteBundle !== null) && (
+        {!fileLoading && (fileContent !== null || csvRows !== null || wsrouteBundle !== null || viewingCheckpoint !== null) && (
           <div className="flex items-center gap-3 shrink-0">
             <p className="text-xs text-canvas-muted font-mono truncate flex-1">{viewingPath}</p>
             {viewingPath && viewingExt === "wsroute" && (
@@ -743,6 +805,33 @@ export function OutputBrowser() {
                 Open in Sim Summary
               </button>
             )}
+            {viewingCheckpoint && (
+              <button
+                onClick={() => loadInEvalRunner(viewingCheckpoint.path)}
+                className="btn-ghost text-xs flex items-center gap-1.5 text-accent-secondary shrink-0"
+              >
+                <ClipboardList size={12} />
+                Load in Eval Runner →
+              </button>
+            )}
+          </div>
+        )}
+
+        {!fileLoading && viewingCheckpoint !== null && (
+          <div className="card flex-1 flex flex-col items-center justify-center gap-3 text-sm">
+            <p className="text-gray-300 font-mono text-xs truncate max-w-full px-4">
+              {viewingCheckpoint.name}
+            </p>
+            <p className="text-canvas-muted text-xs">
+              {formatBytes(viewingCheckpoint.size_bytes)} checkpoint weight file
+            </p>
+            <button
+              onClick={() => loadInEvalRunner(viewingCheckpoint.path)}
+              className="btn-primary text-xs flex items-center gap-1.5"
+            >
+              <ClipboardList size={12} />
+              Load in Eval Runner →
+            </button>
           </div>
         )}
 
