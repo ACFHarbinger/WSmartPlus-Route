@@ -11,6 +11,20 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### Analysis & Presentation Studio — native §H engine (`app/src/gen/`)
+
+Full native port of the archived `gen` pipeline into the Studio — no Python in the loop:
+
+- **§H.0 foundation**: gen images/SVGs bundled as typed assets; the five JSON configs + reference-links XML as typed TS config modules (themes merged with the mplstyle sheets); Rust `write_binary_file` / `list_files_recursive` / `load_npz_flat` commands
+- **§H.1 data engine** (`gen/data/`): output-tree filename decoding (metadata-driven), horizon CSV loading, scenario detection + config narrowing, CF/SL variant aggregation, Pareto fronts, hierarchical results matrix + all markdown tables; dataset extended stats (median/variance/quartiles/IQR/fences/binned mode), Gaussian KDE, raw NPZ waste loading
+- **§H.2 chart library** (`gen/charts/`): ECharts ports of every figure — Pareto scatter with step fronts + filled/open markers + symlog, KPI bars/combined grid with min–max whiskers + hatch decals, km violins, policy×scenario & scenario×constructor heatmaps (RdYlGn, symlog norm), strategy/improver bubbles with label dodging, constructor ranking, radar, improver delta, horizon comparison/delta/ranking, and the full dataset-analysis chart family; headless render-to-PNG (preview ≡ export)
+- **§H.5 report builders** (`gen/report/`): both markdown reports as native TS templates with figure/table numbering, `<figure>` wrapping, TOC/scope construction, parse-output→CSV mode, and scatter-mode bin maps with stripped-decimal repair
+- **§H.3/§H.4/§H.6 deck builder** (`gen/deck/`): 21-slide PPTX via pptxgenjs — cover/agenda/diagram/equation/figure slides, native-shape diagrams (pipeline chevrons, policy grid, taxonomy, DoE tree, simulator scene), seeded SVG illustrations (QA route, B&B tree, LS operators, knapsack, framework objective, metaheuristic family panels) with reference-link fetch mode, MathJax LaTeX equations (image embed + ported plain-text fallback), the results table as a **native PPTX table** (merged spans, global best highlighting, split partitioning), speaker-script DOCX (`docx`) and results XLSX (`exceljs`)
+- **§H.7 (partial)**: Report Studio **Native/Legacy engine toggle** — native runs in-app with live progress log and artefact chips; legacy still spawns the archived scripts
+- Data-engine parity verified against the Python reference (filename decoding, Pareto, aggregation, tables, numpy-style percentiles, KDE normalisation, equation fallback)
+
+Remaining §H scope: document spec + override patch layer, native OMML equations, HTML/PDF exports, live preview/editing canvas.
+
 #### Report Studio — §H interim launcher
 
 - **Report Studio** Launch-section page (`report_studio` mode): generates the dataset / simulation analysis reports and the results presentation deck from the Studio — three tabs assembling the full CLI for the archived `gen_dataset_analysis.py`, `gen_simulation_analysis.py` (report + raw-output→CSV parse modes) and `gen_presentation.py` (PPTX / speaker-script DOCX / XLSX), with persisted forms (`useReportGenStore`), command preview, live log tail, and post-run artefact path chips (§H interim)
