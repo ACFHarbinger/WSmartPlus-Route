@@ -1212,6 +1212,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Settings — Python executable + import JSON + Arrow benchmark path chips resolve against draft project root (§G.19 / §D.7)
 - [x] §G.10 / §G.11 / §G.12 / §G.13 launcher + workflow relative-path path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninety-fourth pass)**
+
+- [x] ``PathRunLabelChip`` — falls back to ``useAppStore`` ``projectRoot`` when prop omitted; analysis/monitor/file chips auto-resolve relative paths (§G.1 / §G.14–§G.18 / §D.7)
+- [x] ``RunLabelHeaderSuffix`` — optional ``projectRoot`` prop; inherits store fallback via ``PathRunLabelChip`` (§G.9–§G.18 / §D.7)
+- [x] HPO Tracker — trial ``log_dir`` user-attribute paths resolved against ``projectRoot`` before path-chip brush (§G.18 / §D.7)
+- [x] Experiment Tracker — MLflow ``artifact_uri`` run directories resolved against ``projectRoot`` before path-chip brush (§G.18 / §D.7)
+- [x] Training Monitor — logs root, run-discovery list, per-run headers, and checkpoint browser use ``projectRoot``-resolved path chips (§G.17 / §G.12 / §D.7)
+- [x] Output Browser — selected-run, checkpoint sidebar, file viewer, checkpoint preview, and ``.wsroute`` manifest rows use ``projectRoot``-resolved path chips (§G.14 / §G.8 / §G.12 / §D.7)
+- [x] §G.14 / §G.17 / §G.18 analysis + monitor + file browser relative-path path-chip run-label brush + ring-highlight parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1784,6 +1794,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] PolicyTelemetryTrendsPanel ``db_path`` — ``resolveLocalProjectPath`` before path-chip brush (hundred-ninety-second pass; §G.7 / §A.3 / §D.7)
 - [x] Launcher workflow path chips — ``PathRunLabelChip`` ``projectRoot`` prop on eval checkpoint/dataset, data-gen source/preview, config editor, ML introspection, and Settings secondary paths (hundred-ninety-third pass; §G.5 / §G.10–§G.13 / §G.19 / §D.7)
 - [x] Eval live/result cards + Benchmark Analysis eval table — ``projectRoot``-resolved checkpoint ``brushLabel`` parity (hundred-ninety-third pass; §G.1 / §G.12 / §G.15 / §D.7)
+- [x] ``PathRunLabelChip`` store fallback — auto ``projectRoot`` resolution for analysis/monitor/file path chips when prop omitted (hundred-ninety-fourth pass; §G.1 / §G.14–§G.18 / §D.7)
+- [x] HPO Tracker trial ``log_dir`` + Experiment Tracker MLflow ``artifact_uri`` — ``projectRoot``-resolved path-chip brush parity (hundred-ninety-fourth pass; §G.18 / §D.7)
+- [x] Training Monitor + Output Browser — ``projectRoot``-resolved checkpoint + run-directory path-chip brush parity (hundred-ninety-fourth pass; §G.14 / §G.17 / §G.12 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

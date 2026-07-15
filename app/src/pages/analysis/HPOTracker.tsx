@@ -274,10 +274,15 @@ export function HPOTracker() {
     [lastReportDir, projectRoot]
   );
 
-  const trialBrushLabel = useCallback((trial: OptunaTrial): string | null => {
-    const logDir = trialLogDirFromUserAttrs(trial.user_attrs);
-    return logDir ? runLabelFromPath(logDir) : null;
-  }, []);
+  const trialBrushLabel = useCallback(
+    (trial: OptunaTrial): string | null => {
+      const logDir = trialLogDirFromUserAttrs(trial.user_attrs);
+      if (!logDir) return null;
+      const resolved = resolveLocalProjectPath(logDir, projectRoot) ?? logDir;
+      return runLabelFromPath(resolved);
+    },
+    [projectRoot]
+  );
 
   const filterRunLabels = useMemo(() => {
     if (processRunLabel) return [processRunLabel];
@@ -745,7 +750,10 @@ export function HPOTracker() {
               <tbody>
                 {studyData.trials.map((trial) => {
                   const attrs = trial.user_attrs ?? {};
-                  const trialLogDir = trialLogDirFromUserAttrs(attrs);
+                  const rawTrialLogDir = trialLogDirFromUserAttrs(attrs);
+                  const trialLogDir = rawTrialLogDir
+                    ? resolveLocalProjectPath(rawTrialLogDir, projectRoot) ?? rawTrialLogDir
+                    : null;
                   const brushLabel = trialBrushLabel(trial);
                   const brushActive = Boolean(
                     brushLabel && activeRunLabel && activeRunLabel === brushLabel

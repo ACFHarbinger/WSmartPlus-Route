@@ -129,10 +129,16 @@ export function ExperimentTracker() {
     [recentHpoProc]
   );
 
-  const mlflowRunBrushLabel = useCallback((run: MlflowRun): string => {
-    const runDir = mlflowRunDirFromArtifactUri(run.artifact_uri);
-    return run.run_name || (runDir ? runLabelFromPath(runDir) : run.run_id.slice(0, 8));
-  }, []);
+  const mlflowRunBrushLabel = useCallback(
+    (run: MlflowRun): string => {
+      const runDir = mlflowRunDirFromArtifactUri(run.artifact_uri);
+      const resolved = runDir
+        ? resolveLocalProjectPath(runDir, projectRoot) ?? runDir
+        : null;
+      return run.run_name || (resolved ? runLabelFromPath(resolved) : run.run_id.slice(0, 8));
+    },
+    [projectRoot]
+  );
 
   const trackingUriPath = useMemo(
     () => resolveLocalProjectPath(trackingUri, projectRoot),
@@ -487,7 +493,10 @@ export function ExperimentTracker() {
           </thead>
           <tbody className="divide-y divide-canvas-border">
             {runs.map((r) => {
-              const runDir = mlflowRunDirFromArtifactUri(r.artifact_uri);
+              const rawRunDir = mlflowRunDirFromArtifactUri(r.artifact_uri);
+              const runDir = rawRunDir
+                ? resolveLocalProjectPath(rawRunDir, projectRoot) ?? rawRunDir
+                : null;
               const brushLabel = mlflowRunBrushLabel(r);
               const brushActive = Boolean(activeRunLabel && activeRunLabel === brushLabel);
               return (

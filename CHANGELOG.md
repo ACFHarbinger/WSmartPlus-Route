@@ -11,6 +11,40 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-fourth pass (§G.14 + §G.17 + §G.18 + §G.8 + §G.12 + §G.9–§G.18 + §D.7)
+
+Hundred-ninety-fourth pass closes the analysis/monitor/file-browser relative-path
+resolution gaps left after the hundred-ninety-third pass (which unified launcher
+workflow ``PathRunLabelChip`` ``projectRoot`` parity). ``PathRunLabelChip`` now
+falls back to the persisted ``useAppStore`` project root when the prop is omitted,
+so analysis views, monitor pages, and file browsers auto-resolve relative paths.
+HPO trial log directories, MLflow artifact run directories, Training Monitor
+checkpoint browsers, and Output Browser artefact viewers now pass explicit
+``projectRoot`` for parent-run ``brushLabel`` derivation.
+
+**React frontend**
+- ``PathRunLabelChip`` — falls back to ``useAppStore`` ``projectRoot`` when prop
+  omitted; relative paths resolve before brush + tooltip (§G.1 / §G.14–§G.18 / §D.7)
+- ``RunLabelHeaderSuffix`` — optional ``projectRoot`` prop; inherits store fallback
+  via ``PathRunLabelChip`` (§G.9–§G.18 / §D.7)
+- HPO Tracker — trial ``log_dir`` user-attribute paths resolved against
+  ``projectRoot`` before path-chip brush (§G.18 / §D.7)
+- Experiment Tracker — MLflow ``artifact_uri`` run directories resolved against
+  ``projectRoot`` before path-chip brush (§G.18 / §D.7)
+- Training Monitor — logs root, run-discovery list, per-run headers, and checkpoint
+  browser use ``projectRoot``-resolved path chips + parent-run ``brushLabel`` (§G.17 / §G.12 / §D.7)
+- Output Browser — selected-run, checkpoint sidebar, file viewer, checkpoint preview,
+  and ``.wsroute`` manifest rows use ``projectRoot``-resolved path chips (§G.14 / §G.8 / §G.12 / §D.7)
+
+**ROADMAP**
+- §G.18 HPO Tracker trial log_dir relative-path path-chip brush parity checked
+- §G.18 Experiment Tracker MLflow artifact_uri relative-path path-chip brush parity checked
+- §G.17 Training Monitor logs + checkpoint browser relative-path path-chip brush parity checked
+- §G.14 / §G.8 Output Browser run/checkpoint/manifest relative-path path-chip brush parity checked
+- §D.7 analysis + monitor + file browser relative-path path-chip run-label brush parity across HPO Tracker, Experiment Tracker, Training Monitor, and Output Browser checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-third pass (§G.12 + §G.10 + §G.11 + §G.13 + §G.5 + §G.1 + §G.15 + §G.19 + §D.7)
 
 Hundred-ninety-third pass closes the launcher-workflow relative-path resolution gaps
