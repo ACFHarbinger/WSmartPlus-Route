@@ -9,6 +9,7 @@ import { Map } from "lucide-react";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -48,6 +49,7 @@ export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
   const { setMode, setPendingMapCompare, effectiveTheme: theme } = useAppStore();
   const { policy, sampleId, runLabel, setPolicy } = useGlobalFiltersStore();
+  const derivedRunLabel = useLogPathRunLabelBrush(watchPath);
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
   const {
     ready: duckdbReady,
@@ -154,7 +156,10 @@ export function AlgorithmComparison() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar showLogScale />
+      <GlobalFilterBar
+        runLabels={derivedRunLabel ? [derivedRunLabel] : []}
+        showLogScale
+      />
 
       <div className="flex items-center gap-3 flex-wrap">
         {watchPath && (

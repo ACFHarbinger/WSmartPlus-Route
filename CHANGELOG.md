@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-sixth pass (§G.1 + §G.6 + §G.16 + §D.7)
+
+Hundred-seventy-sixth pass closes the portfolio analytics run-label brush hook gap left
+after the hundred-seventy-fifth pass (which unified file-based brush hooks on Simulation
+Summary, Simulation Monitor, and Output Browser). Benchmark Analysis and City Comparison
+loaded-run lists now share Simulation Summary ring-highlight + click-to-brush parity, and
+Algorithm Comparison / Data Explorer gain path-derived run-label brush hooks.
+
+**React frontend**
+- Benchmark Analysis — ``runLabelMapFromPaths`` + ``handleRunLabelClick`` on loaded-run
+  list; ring highlight when global brush matches; ``GlobalFilterBar`` ``runLabels`` in
+  single-run portfolio mode (§G.1 / §G.6 / §D.7)
+- City Comparison — loaded-run list ring highlight + click-to-brush parity with
+  Simulation Summary comparison runs (§G.1.6 / §G.6 / §D.7)
+- Algorithm Comparison — ``useLogPathRunLabelBrush`` on Simulation Monitor watch path;
+  ``GlobalFilterBar`` ``runLabels`` when a log is active (§G.1 / §G.16 / §D.7)
+- Data Explorer — ``useLogPathRunLabelBrush`` on open CSV path; path-derived
+  ``runLabels`` + ``PolicyTelemetryTrendsPanel`` ``initialRunLabel`` fallback when CSV
+  lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.1 Benchmark Analysis + City Comparison portfolio run-label ring-highlight parity checked
+- §G.6 portfolio loaded-run brush + single-run filter bar parity checked
+- §G.16 Algorithm Comparison + Data Explorer path-derived run-label brush hook parity checked
+- §D.7 portfolio + analytics page run-label brush parity across all analysis views checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-fifth pass (§G.1 + §G.14 + §G.16 + §D.7)
 
 Hundred-seventy-fifth pass closes the Simulation Summary file-based run-label brush hook gap left

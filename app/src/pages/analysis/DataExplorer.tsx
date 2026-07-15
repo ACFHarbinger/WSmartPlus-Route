@@ -11,6 +11,7 @@ import { toast } from "sonner";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
@@ -52,6 +53,7 @@ export function DataExplorer() {
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
     useDuckDbStore();
   const [file, setFile] = useState<CsvFile | null>(null);
+  const derivedRunLabel = useLogPathRunLabelBrush(file?.path ?? null);
   const [exporting, setExporting] = useState(false);
   const [page, setPage] = useState(0);
   const [sortCol, setSortCol] = useState<string | null>(null);
@@ -231,7 +233,13 @@ export function DataExplorer() {
       {hasBrushColumns && (
         <GlobalFilterBar
           policies={csvPolicies}
-          runLabels={csvRunLabels}
+          runLabels={
+            csvRunLabels.length > 0
+              ? csvRunLabels
+              : derivedRunLabel
+                ? [derivedRunLabel]
+                : []
+          }
           cities={csvCities.length > 1 ? csvCities : []}
           showLogScale
         />
@@ -307,7 +315,9 @@ export function DataExplorer() {
           logScale={logScale}
           initialPolicy={activePolicy}
           initialRunLabel={
-            activeRunLabel ?? (csvRunLabels.length === 1 ? csvRunLabels[0]! : null)
+            activeRunLabel ??
+            (csvRunLabels.length === 1 ? csvRunLabels[0]! : null) ??
+            derivedRunLabel
           }
         />
       )}
