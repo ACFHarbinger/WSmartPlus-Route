@@ -19,7 +19,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { ChevronLeft, ChevronRight, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
+import { BarChart2, ChevronLeft, ChevronRight, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
@@ -614,6 +614,17 @@ export function SimulationMonitor() {
           <FolderOpen size={14} />
           Open Log File
         </button>
+
+        {watchPath && (
+          <button
+            onClick={() => handoff(watchPath, "log")}
+            className="btn-ghost flex items-center gap-2 text-xs text-accent-primary"
+            title="Open this log in Simulation Summary"
+          >
+            <BarChart2 size={14} />
+            Simulation Summary →
+          </button>
+        )}
 
         {watchPath && (
           <PathRunLabelChip

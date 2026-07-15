@@ -1399,6 +1399,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary — comparison-run rows open Summary / Digital Twin (§G.1 / §D.7)
 - [x] §G.1 / §G.1.6 portfolio loaded-run log-handoff mode-override parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-sixteenth pass)**
+
+- [x] Simulation Monitor — **Simulation Summary →** hands off the open log for reverse open-log parity with Summary's Monitor button (§G.16 / §G.1 / §D.7)
+- [x] Algorithm Comparison — **Simulation Summary →** hands off ``watchPath`` alongside **Compare on Map** (§G.1 / §D.7)
+- [x] §G.16 / §G.1 open-log Simulation Summary handoff parity across Digital Twin + Algorithm Comparison checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions

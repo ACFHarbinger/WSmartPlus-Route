@@ -5,7 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Map } from "lucide-react";
+import { BarChart2, Map } from "lucide-react";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
@@ -188,6 +188,16 @@ export function AlgorithmComparison() {
               ) : undefined
             }
           />
+        )}
+        {watchPath && (
+          <button
+            onClick={() => handoff(watchPath, "log")}
+            className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary"
+            title="Open this log in Simulation Summary"
+          >
+            <BarChart2 size={12} />
+            Simulation Summary →
+          </button>
         )}
         <button onClick={openOnMap} className="btn-ghost text-xs flex items-center gap-1.5">
           <Map size={12} />
