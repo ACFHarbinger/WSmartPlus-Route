@@ -31,6 +31,7 @@ pub struct PolicyTelemetryTrends {
 pub struct PolicyTrajectorySeries {
     pub id: i32,
     pub label: String,
+    pub run_label: Option<String>,
     pub policy: String,
     pub day: i32,
     pub policy_type: String,

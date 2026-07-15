@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-third pass (§A.3 Option C)
+
+Hundred-twenty-third pass extends global brush sync from the trends history table to all
+telemetry charts, adds trajectory CSV export, and surfaces the panel on Simulation Summary.
+
+**Python logic**
+- ``query_policy_trajectory_series`` — each series includes ``run_label`` for run-key brush parity
+- Unit test asserts ``run_label`` on trajectory roundtrip
+
+**Rust backend**
+- ``PolicyTrajectorySeries`` — ``run_label`` field on deserialized trajectory payloads
+
+**React frontend**
+- ``filterTrendRows`` / ``filterTrajectorySeries`` — global policy / ``run_label`` brush filters
+  comparison, steps, and trajectory chart data
+- ``exportPolicyTrajectoryCsv`` — long-format trajectory step export
+- ``PolicyTelemetryTrendsPanel`` — chart click brushes global policy / run; active-brush badge +
+  clear control; trajectory CSV button
+- Simulation Summary — ``PolicyTelemetryTrendsPanel`` with ``initialPolicy`` from active chart brush
+
+**ROADMAP**
+- §A.3 Option C chart brush filter + Simulation Summary panel checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-second pass (§A.3 Option C)
 
 Hundred-twenty-second pass polishes cross-run policy telemetry trending: solver-step

@@ -13,6 +13,42 @@ export function trendRowLabel(row: PolicyTelemetryTrendRow): string {
   return `${run} · d${row.day}`;
 }
 
+export function trendRowRunKey(row: PolicyTelemetryTrendRow): string {
+  return row.run_label ?? row.log_path;
+}
+
+/** Apply global policy / run_label brush to trend rows (§A.3 Option C). */
+export function filterTrendRows(
+  rows: PolicyTelemetryTrendRow[],
+  policy: string | null,
+  runLabel: string | null
+): PolicyTelemetryTrendRow[] {
+  if (!policy && !runLabel) return rows;
+  return rows.filter((row) => {
+    if (policy && row.policy !== policy) return false;
+    if (runLabel && trendRowRunKey(row) !== runLabel) return false;
+    return true;
+  });
+}
+
+export function trajectoryRunKey(series: PolicyTrajectorySeries): string {
+  return series.run_label ?? series.label.split(" · ")[0] ?? series.label;
+}
+
+/** Apply global policy / run_label brush to trajectory series (§A.3 Option C). */
+export function filterTrajectorySeries(
+  series: PolicyTrajectorySeries[],
+  policy: string | null,
+  runLabel: string | null
+): PolicyTrajectorySeries[] {
+  if (!policy && !runLabel) return series;
+  return series.filter((item) => {
+    if (policy && item.policy !== policy) return false;
+    if (runLabel && trajectoryRunKey(item) !== runLabel) return false;
+    return true;
+  });
+}
+
 export function buildTrendComparisonOption(
   rows: PolicyTelemetryTrendRow[],
   theme: "dark" | "light",
@@ -220,6 +256,26 @@ export function exportPolicyTelemetryTrendsCsv(rows: PolicyTelemetryTrendRow[]):
       row.emitted_at,
     ])
   );
+}
+
+export function exportPolicyTrajectoryCsv(series: PolicyTrajectorySeries[]): void {
+  const header = ["label", "run_label", "policy", "policy_type", "day", "metric_name", "step", "value"];
+  const rows: Array<Array<string | number>> = [];
+  for (const item of series) {
+    for (let i = 0; i < item.x.length; i++) {
+      rows.push([
+        item.label,
+        item.run_label ?? "",
+        item.policy,
+        item.policy_type,
+        item.day,
+        item.metric_name,
+        item.x[i]!,
+        item.y[i]!,
+      ]);
+    }
+  }
+  downloadCsv("policy-telemetry-trajectories.csv", header, rows);
 }
 
 export { policyVizTypeLabel };

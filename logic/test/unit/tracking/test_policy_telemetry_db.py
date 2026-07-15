@@ -110,6 +110,7 @@ def test_query_trajectory_series_roundtrip():
     assert series["x"] == [0, 1, 2, 3]
     assert series["y"] == [50.0, 45.0, 42.0, 40.0]
     assert series["label"].endswith("· d2")
+    assert series["run_label"] == "run_traj"
 
 
 def test_query_trajectory_series_filters_policy_type():
