@@ -11,6 +11,22 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-sixth pass (§D.2 + §G.15 + §A.4)
+
+Hundred-thirty-sixth pass closes the Process Monitor progress/ETA gap left after the
+hundred-thirty-fifth pass consolidated train/HPO workflow pages.
+
+**React frontend**
+- Process Monitor — ``LiveTrainProgressBar`` replaces inline ``PROGRESS:`` row renderer;
+  elapsed + ETA on every running process (train/hpo/sim/data gen) (§D.2 / §G.15 / §A.4)
+
+**ROADMAP**
+- §A.4 Process Monitor ``LiveTrainProgressBar`` + ETA checked
+- §D.2 Process Monitor progress/ETA parity checked
+- §G.15 process row elapsed + ETA checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-fifth pass (§D.2 + §D.7 + §A.2 / §A.4)
 
 Hundred-thirty-fifth pass consolidates the train/HPO navigation mesh into a shared

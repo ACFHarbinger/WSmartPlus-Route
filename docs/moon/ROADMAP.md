@@ -291,6 +291,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 - [x] ``LiveTrainProgressBar`` — epoch/trial progress bar + elapsed + ETA on Training Hub, Training Monitor, HPO Tracker, and Experiment Tracker during live runs; shared ``processProgress.ts`` helpers (§D.2 / §G.10 / §G.17 / §G.18 / §A.4)
 
+**Delivered (§A.4 Option A — hundred-thirty-sixth pass)**
+
+- [x] Process Monitor — ``LiveTrainProgressBar`` replaces inline ``PROGRESS:`` row bar; elapsed + ETA parity on all running processes (train/hpo/sim/data gen) (§D.2 / §G.15 / §A.4)
+
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
 ---
@@ -816,7 +820,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0 ✅ (Zustand persist)           |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
-| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (Training Hub + Monitor + progress/ETA) |
+| §D.2 Option A (live training charts)        | Medium   | High   | P1 ✅ (Training Hub + Monitor + Process Monitor progress/ETA) |
 | §D.1 Option A (ECharts route panel)         | Medium   | High   | P2 ✅ (RouteViz + Summary)        |
 | §D.6 Option A (override table)              | Medium   | High   | P2 ✅ (all launchers)             |
 | §D.1 Option B (deck.gl PathLayer)           | High     | High   | P2 ✅ (§G.3 / §G.16)              |
@@ -1572,6 +1576,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] `clearCompleted` action added to process store: removes all non-running entries
 - [x] Process history persistence: `useProcessStore` wrapped in Zustand `persist` middleware; `partialize` strips `logLines` and caps at last 50 completed processes; survives app restart
 - [x] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers — `PROGRESS:{json}` protocol; `getLatestProgress()` scans last 30 log lines; deterministic bar when `total` is known, indeterminate pulse otherwise
+- [x] Process row progress + ETA (hundred-thirty-sixth pass): ``LiveTrainProgressBar`` on each running process row; elapsed + ETA via shared ``processProgress.ts`` helpers (§D.2 / §G.15)
 - [x] Cancel any running process (§D.5): button in the process list row; sends SIGTERM (`cancel_process` command already wired in `ProcessRow`)
 - [x] Toast notification on process completion / failure (§D.8): `useProcessMonitor` fires `toast.success/error/info` on terminal status transitions; label derived from `id.split("_")[0]`
 - [x] Training analytics for ``train_`` / ``hpo_`` processes: ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` parsed from process stdout (§A.4 / §A.2 hundred-thirtieth pass)
