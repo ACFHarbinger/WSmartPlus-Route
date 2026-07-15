@@ -16,8 +16,10 @@ import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
+import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { barOpacity } from "../../utils/chartHighlight";
 import { exportChartPng } from "../../utils/chartExport";
+import { symlog } from "../../utils/symlog";
 import { PARETO_PANELS } from "../../utils/paretoPanels";
 import { buildParetoByPanel } from "../../utils/paretoPortfolio";
 import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
@@ -72,7 +74,15 @@ const EVAL_METRICS = [
 
 const COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3e635"];
 
-function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDismiss: () => void }) {
+function EvalResultsPanel({
+  rows,
+  logScale,
+  onDismiss,
+}: {
+  rows: EvalAnalyticsRow[];
+  logScale: boolean;
+  onDismiss: () => void;
+}) {
   const chartRefs = useRef<Record<string, EChartsReact | null>>({});
   const checkpoints = rows.map((r) => r.checkpoint);
 
@@ -85,15 +95,20 @@ function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDis
       axisLabel: { color: "#9090b0", fontSize: 9, rotate: 25 },
     },
     yAxis: {
-      type: "value",
+      type: logScale ? "log" : "value",
+      logBase: 10,
       name: metricLabel,
       nameTextStyle: { color: "#9090b0" },
       axisLabel: { color: "#9090b0", fontSize: 10 },
+      minorSplitLine: { show: false },
     },
     series: [
       {
         type: "bar",
-        data: rows.map((r) => (r[metricKey] as number | undefined) ?? 0),
+        data: rows.map((r) => {
+          const v = (r[metricKey] as number | undefined) ?? 0;
+          return logScale ? Math.max(v, 0.001) : v;
+        }),
         itemStyle: {
           color: (params: { dataIndex: number }) => COLORS[params.dataIndex % COLORS.length],
         },
@@ -117,7 +132,7 @@ function EvalResultsPanel({ rows, onDismiss }: { rows: EvalAnalyticsRow[]; onDis
         </button>
       </div>
 
-      <div className="grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
         {EVAL_METRICS.map(({ key, label }) => (
           <div key={key} className="card">
             <div className="flex items-center justify-between mb-2">
@@ -359,10 +374,12 @@ export function BenchmarkAnalysis() {
       backgroundColor: "transparent",
       grid: { left: 110, right: 24, top: 12, bottom: 12 },
       xAxis: {
-        type: "value",
+        type: (logScale ? "log" : "value") as "log" | "value",
+        logBase: 10,
         name: "kg/km",
         nameTextStyle: { color: "#9090b0", fontSize: 9 },
         axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
       },
       yAxis: {
         type: "category",
@@ -374,7 +391,7 @@ export function BenchmarkAnalysis() {
         {
           type: "bar",
           data: efficiencyRanking.map((r, i) => ({
-            value: r.value,
+            value: logScale ? Math.max(r.value, 0.001) : r.value,
             itemStyle: {
               color: COLORS[i % COLORS.length],
               opacity: barOpacity(r.policy, brushedPolicies),
@@ -384,10 +401,11 @@ export function BenchmarkAnalysis() {
       ],
       tooltip: { trigger: "axis" },
     }),
-    [efficiencyRanking, brushedPolicies]
+    [efficiencyRanking, brushedPolicies, logScale]
   );
 
   const makeBarOption = (metricKey: string, metricLabel: string) => {
+    const symlogOverflows = logScale && metricKey === "overflows";
     const runLabels = filteredRuns.map((r) => r.label);
     const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];
 
@@ -417,7 +435,7 @@ export function BenchmarkAnalysis() {
         axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
       },
       yAxis: {
-        type: logScale ? "log" : "value",
+        type: (logScale && !symlogOverflows ? "log" : "value") as "log" | "value",
         logBase: 10,
         name: metricLabel,
         nameTextStyle: { color: "#9090b0" },
@@ -426,7 +444,10 @@ export function BenchmarkAnalysis() {
       },
       series: series.map((s) => ({
         ...s,
-        data: (s.data as number[]).map((v) => (logScale ? Math.max(v, 0.001) : v)),
+        data: (s.data as number[]).map((v) => {
+          if (!logScale) return v;
+          return symlogOverflows ? symlog(v) : Math.max(v, 0.001);
+        }),
       })),
       tooltip: { trigger: "axis" },
     };
@@ -441,7 +462,11 @@ export function BenchmarkAnalysis() {
       />
 
       {evalRows && evalRows.length > 0 && (
-        <EvalResultsPanel rows={evalRows} onDismiss={() => setEvalRows(null)} />
+        <EvalResultsPanel
+          rows={evalRows}
+          logScale={logScale}
+          onDismiss={() => setEvalRows(null)}
+        />
       )}
 
       <div className="flex items-center gap-3 flex-wrap">
@@ -509,7 +534,7 @@ export function BenchmarkAnalysis() {
       {runs.length >= 1 && (
         <div className="space-y-2">
           <p className="text-xs font-semibold text-gray-300">Pareto Panels (§G.1.2)</p>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {PARETO_PANELS.map((panel) => (
               <BenchmarkParetoPanel
                 key={panel.id}
@@ -564,7 +589,11 @@ export function BenchmarkAnalysis() {
       {runs.length >= 2 && cityGroups.length >= 1 && (
         <div className="card space-y-2">
           <p className="text-xs font-semibold text-gray-300">City Comparison (§G.1.6)</p>
-          <p className="text-[10px] text-canvas-muted">Log scale only — preserves extreme values</p>
+          <p className="text-[10px] text-canvas-muted">
+            {logScale
+              ? "Log-scale bars — profit · symlog-overflows · kg/km by graph scale"
+              : "Linear bars — profit · overflows · kg/km by graph scale"}
+          </p>
           <ReactECharts
             ref={(el) => {
               chartRefs.current["city-compare"] = el;
@@ -576,7 +605,16 @@ export function BenchmarkAnalysis() {
         </div>
       )}
 
-      {runs.length >= 1 && efficiencyRanking.length > 0 && (
+      {runs.length >= 2 && efficiencyRanking.length > 0 && (
+        <PortfolioEfficiencyRanking
+          runs={filteredRuns}
+          logScale={logScale}
+          brushed={brushedPolicies}
+          onPolicyClick={handlePolicyClick}
+        />
+      )}
+
+      {runs.length === 1 && efficiencyRanking.length > 0 && (
         <div className="card">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-canvas-muted">Efficiency Ranking (kg/km)</p>
@@ -615,7 +653,7 @@ export function BenchmarkAnalysis() {
       )}
 
       {runs.length >= 1 && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           {SIM_METRICS.map(({ key, label }) => (
             <div key={key} className="card">
               <div className="flex items-center justify-between mb-2">

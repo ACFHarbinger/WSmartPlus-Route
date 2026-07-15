@@ -939,6 +939,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1 partial)
 - [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
 - [x] Efficiency ranking charts follow global ``logScale``: ``EfficiencyRankingChart`` + ``PortfolioEfficiencyRanking`` log x-axis; whiskers hidden when log on (§G.1.5 / §G.7)
+- [x] BenchmarkAnalysis efficiency ranking follows global ``logScale``: multi-run ``PortfolioEfficiencyRanking`` + single-run inline chart log x-axis (§G.1.5 / §G.7)
+- [x] BenchmarkAnalysis multi-run metric bars use symlog for overflows when global ``logScale`` on (§G.1.1 / §G.7)
 
 #### 1.6 Secondary Log-Scale Views
 - [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · kg · symlog-overflows row when global log toggle off (§G.1)
@@ -1122,6 +1124,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout: `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`); sidebar auto-collapses below `lg` breakpoint via `matchMedia`; analytics chart grids use `grid-cols-1 sm:grid-cols-2` / `md:grid-cols-2` breakpoints (§G.7)
+- [x] BenchmarkAnalysis responsive chart grids: Pareto panels `md:grid-cols-2`, metric bars `sm:grid-cols-2`, eval checkpoint charts `sm:grid-cols-2 lg:grid-cols-3` (§G.7)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Settings Arrow benchmark uses shared `formatPipelineTimingBadge()` for last-ingest summary (§G.0 / §G.7)
 - [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
