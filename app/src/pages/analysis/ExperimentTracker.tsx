@@ -263,6 +263,12 @@ export function ExperimentTracker() {
               {activeHpoId}
             </span>
             <button
+              onClick={() => setMode("training")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Training Monitor →
+            </button>
+            <button
               onClick={() => setMode("hpo_tracker")}
               className="btn-ghost text-xs text-canvas-muted"
             >

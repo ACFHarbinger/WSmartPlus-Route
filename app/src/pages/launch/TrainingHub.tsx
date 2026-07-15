@@ -653,12 +653,20 @@ export function TrainingHub() {
                     Training Monitor →
                   </button>
                   {mode === "hpo" && (
-                    <button
-                      onClick={() => setMode("hpo_tracker")}
-                      className="btn-ghost text-xs text-canvas-muted"
-                    >
-                      HPO Tracker →
-                    </button>
+                    <>
+                      <button
+                        onClick={() => setMode("hpo_tracker")}
+                        className="btn-ghost text-xs text-canvas-muted"
+                      >
+                        HPO Tracker →
+                      </button>
+                      <button
+                        onClick={() => setMode("experiment_tracker")}
+                        className="btn-ghost text-xs text-canvas-muted"
+                      >
+                        Experiment Tracker →
+                      </button>
+                    </>
                   )}
                 </>
               )}
@@ -666,7 +674,7 @@ export function TrainingHub() {
                 onClick={() => setMode("process_monitor")}
                 className="btn-ghost text-xs text-canvas-muted"
               >
-                Process Monitor
+                Process Monitor →
               </button>
             </div>
           </div>
