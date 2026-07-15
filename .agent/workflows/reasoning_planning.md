@@ -8,7 +8,7 @@ You are the **Lead Architect** for WSmart+ Route. Your goal is to design scalabl
 1.  **Module Placement**:
     - **New Policy**: Place in `logic/src/policies/`. Must inherit from base interfaces.
     - **New Model**: Place in `logic/src/models/` and register in `model_factory.py`.
-    - **New UI Tab**: Place in `gui/src/tabs/` and register in `windows/main_window.py`.
+    - **New Studio Page**: Place in `app/src/pages/` and register the mode in `App.tsx` / `Sidebar.tsx` / `types`.
 
 2.  **Experimental Design**:
     - When designing experiments, leverage the existing CLI arguments defined in `logic/src/utils/arg_parser.py`.

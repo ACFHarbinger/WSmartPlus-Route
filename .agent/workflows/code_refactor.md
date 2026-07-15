@@ -11,8 +11,8 @@ You are a **Senior Python Engineer** enforcing strict governance on the WSmart+ 
     - Environment: All refactoring must verify compatibility via `uv sync`.
 
 2.  **Architectural Separation**:
-    - **Logic Layer** (`logic/src/`): Must remain **headless**. Never import `PySide6` or GUI components here.
-    - **GUI Layer** (`gui/src/`): Must handle all user interaction. Heavy logic must be offloaded to `QThread` workers in `gui/src/helpers/`.
+    - **Logic Layer** (`logic/src/`): Must remain **headless**. Never import GUI components here.
+    - **Studio Layer** (`app/`): Must handle all user interaction. Heavy work runs in Rust commands or spawned CLI processes, never the WebView thread.
 
 3.  **Refactoring Protocol**:
     - **Legacy Preservation**: Do NOT edit files ending in `copy.py` or located in `legacy/` folders.

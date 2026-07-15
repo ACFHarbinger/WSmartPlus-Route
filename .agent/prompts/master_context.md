@@ -10,7 +10,7 @@ Before answering any future requests, strictly ingest the following project gove
 
 1. Tech Stack: Python 3.9+ (managed by `uv`), PyTorch 2.2.2 (CUDA optimized), Gurobi 11.0.3, and Hexaly.
 
-2. Architectural Boundaries: Strict separation between `logic/src` (Physics/AI) and `gui/src` (PySide6/Qt).
+2. Architectural Boundaries: Strict separation between `logic/src` (Physics/AI) and `app/` (WSmart-Route Studio — Tauri/React).
 
 3. Critical Constraints:
    - Never modify `state_*.py` files without verifying `logic/test/test_problems.py`.

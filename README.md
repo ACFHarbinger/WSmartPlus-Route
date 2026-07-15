@@ -19,7 +19,7 @@
 </br>
 
 [![Python](https://img.shields.io/badge/Python-3.9+-3776ab?logo=python&logoColor=white)](https://www.python.org/)
-[![PySide6](https://img.shields.io/badge/PySide6-Qt-41CD52?logo=qt&logoColor=white)](https://doc.qt.io/qtforpython-6/)
+[![Tauri](https://img.shields.io/badge/Tauri-2.0-24C8DB?logo=tauri&logoColor=white)](https://tauri.app/)
 [![uv](https://img.shields.io/badge/managed%20by-uv-261230.svg)](https://github.com/astral-sh/uv)
 [![MyPy](https://img.shields.io/badge/MyPy-checked-2f4f4f.svg)](https://mypy-lang.org/)
 [![pytest](https://img.shields.io/badge/pytest-testing-0A9EDC?logo=pytest&logoColor=white)](https://docs.pytest.org/)
@@ -122,12 +122,12 @@ The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Rese
 | **Research Platform**       | Benchmark neural routing agents against classical OR solvers |
 | **Real-World Application**  | Optimize waste collection routes for municipalities          |
 | **Simulation Environment**  | Test policies on realistic multi-day scenarios               |
-| **User-Friendly Interface** | PySide6 GUI for training, evaluation, and visualization      |
+| **User-Friendly Interface** | WSmart-Route Studio (Tauri) desktop app for training, evaluation, and analytics |
 
 ### Why WSmart+ Route?
 
 1. **Neural + Classical**: Compare attention-based models with exact solvers and metaheuristics
-2. **Production-Ready**: CLI and GUI interfaces for researchers and practitioners
+2. **Production-Ready**: CLI and the WSmart-Route Studio desktop app for researchers and practitioners
 3. **Extensible**: Add new models, policies, and problems with minimal boilerplate
 4. **Well-Tested**: Comprehensive test suite with 50%+ code coverage
 5. **Well-Documented**: Extensive documentation for all skill levels
@@ -170,9 +170,9 @@ The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Rese
 
 | Component              | Description                                      |
 | ---------------------- | ------------------------------------------------ |
-| **PySide6 GUI**        | Modern Qt-based desktop application              |
+| **WSmart-Route Studio** | Tauri 2.0 desktop application (React + Rust)     |
 | **Training Dashboard** | Real-time loss curves and validation metrics     |
-| **Simulation Viewer**  | Interactive route visualization with Folium maps |
+| **Simulation Viewer**  | Interactive deck.gl route visualization          |
 | **Analysis Tools**     | Comparative policy evaluation and statistics     |
 
 ---
@@ -190,8 +190,8 @@ uv sync
 # 2. Activate the environment
 source .venv/bin/activate
 
-# 3. Launch the GUI or run a command
-python main.py gui
+# 3. Launch the WSmart-Route Studio desktop app
+just studio
 # Or run a quick simulation
 python main.py test_sim --policies regular --size 20 --days 7
 ```
@@ -408,10 +408,11 @@ python main.py test_sim --policies am --problem vrpp --size 20 --days 365 --mode
 python main.py test_sim --policies gurobi alns --problem vrpp --size 100 --days 365 --n_samples 10 --resume --cpu_cores -1
 ```
 
-### Graphical User Interface
+### Graphical User Interface (WSmart-Route Studio)
 
 ```bash
-python main.py gui [--test_only]
+just studio          # dev mode (hot reload)
+just studio-build    # release bundle
 ```
 
 ### Test Suite
@@ -455,7 +456,6 @@ python main.py mrl_train --model meta_rnn --problem vrpp --graph_size 20 --n_tas
 | `generate_data` | Generate datasets           |
 | `hp_optim`      | Hyperparameter optimization |
 | `mrl_train`     | Meta-reinforcement learning |
-| `gui`           | Launch graphical interface  |
 | `test_suite`    | Run test suite              |
 | `tui`           | Text user interface         |
 
@@ -536,12 +536,9 @@ WSmart-Route/
 │   │   ├── pipeline/        # Training/evaluation/simulation
 │   │   └── utils/           # Shared utilities
 │   └── test/                # Test suite
-├── gui/                      # User Interface Layer
-│   ├── src/
-│   │   ├── windows/         # Application windows
-│   │   ├── tabs/            # Functional tabs
-│   │   └── helpers/         # Background workers
-│   └── test/                # GUI tests
+├── app/                      # WSmart-Route Studio (Tauri 2.0 desktop app)
+│   ├── src/                 # React + TypeScript frontend
+│   └── src-tauri/           # Rust backend (commands, process management)
 ├── data/                     # Datasets
 ├── assets/                   # Models, configs, outputs
 ├── scripts/                  # Automation scripts

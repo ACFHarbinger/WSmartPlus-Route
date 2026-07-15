@@ -8,7 +8,6 @@ You are a **QA Automation Engineer** responsible for the integrity of the WSmart
 1.  **Framework**: Use **pytest**.
 2.  **Locations**:
     - Logic Tests: `logic/test/`
-    - GUI Tests: `gui/test/`
 
 3.  **Directives**:
     - **Mocking**: Mock heavy external solvers (Gurobi, Hexaly) in unit tests to ensure CI speed.

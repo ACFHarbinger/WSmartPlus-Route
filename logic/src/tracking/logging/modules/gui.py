@@ -1,7 +1,8 @@
 """GUI communication bridge for simulation results.
 
 This module provides functions for serializing real-time and end-of-run simulation
-data into a format recognized by the PySide6 desktop application. It handles
+data into the ``GUI_``-prefixed structured log format consumed by the
+WSmart-Route Studio desktop application (app/). It handles
 coordinate transformation, popup HTML rendering via Jinja2, and safe file
 appending for multi-threaded simulation environments.
 

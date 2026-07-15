@@ -94,15 +94,10 @@ solvers = [
     "fast-tsp>=0.1.4",
     "pyomo>=6.9.5",
 ]
-gui = [
-    "pyside6>=6.9.0",
-    "shiboken6>=6.9.0",
-    "folium>=0.20.0",
+viz = [
     "matplotlib>=3.9.4",
     "seaborn>=0.13.2",
     "plotly>=6.3.0",
-    "streamlit>=1.50.0",
-    "streamlit-folium>=0.25.3",
 ]
 hpo = [
     "optuna>=4.5.0",
@@ -157,12 +152,10 @@ disallow_untyped_defs = false
 explicit_package_bases = true
 allow_redefinition = true
 
-files = ["logic/src", "gui/src"]
+files = ["logic/src"]
 exclude = [
     "logic/test",
-    "gui/test",
     "logic/docs",
-    "gui/docs",
     "logic/benchmark",
     "notebooks",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/test",
@@ -190,7 +183,7 @@ ai_assisted = true          # Enables the "agentic" suggestions seen in your Ant
 venvPath = "."              # The directory containing the venv
 venv = ".venv"              # The name of the venv folder
 type_checking_mode = "basic"
-include = ["gui", "logic"]
+include = ["logic"]
 
 # Ignore rules (Migration of your pyright/pylance ignores)
 ignore = ["**/__init__.py"]
@@ -214,13 +207,12 @@ ignore = ["**/__init__.py"]
 # RUFF CONFIGURATION (from ruff.toml)
 # =================================================================
 [tool.ruff]
-src = ["logic/src", "gui/src"]
+src = ["logic/src"]
 line-length = 120
 target-version = "py310"
 exclude = [
     "notebooks/",
     "logic/docs/*.md",
-    "gui/docs/*.md",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/notebooks",
     "logic/src/pipeline/simulations/wsmart_bin_analysis/export/notebooks",
     "assets/",
@@ -256,7 +248,7 @@ pythonpath = "."
 python_files = ["test_*.py", "*_test.py"]
 python_classes = ["Test*", "*Test"]
 python_functions = ["test_*", "*_test"]
-testpaths = ["logic/test", "gui/test"]
+testpaths = ["logic/test"]
 
 # Console output options (addopts converted to list format)
 addopts = [
@@ -287,7 +279,6 @@ markers = [
     "test_sim: marks tests related to simulator test command",
     "gen_data: marks tests related to data generation command",
     "file_system: marks tests related to file system operations",
-    "gui: marks tests related to GUI operations",
     "test_suite: marks tests related to test suite command",
     "arg_parser: marks tests for argument parser functionality",
     "model: marks tests for model functionality",
@@ -332,7 +323,7 @@ wsr_temp_dir = "./temp_test"
 # COVERAGE CONFIGURATION (from [tool:coverage] and [coverage:*])
 # =================================================================
 [tool.coverage.run]
-source = ["logic/src", "gui/src"]
+source = ["logic/src"]
 omit = [
     "logic/src/pipeline/simulations/wsmart_bin_analysis/python",
     "*/benchmark/*",

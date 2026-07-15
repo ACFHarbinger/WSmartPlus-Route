@@ -11,6 +11,22 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### Studio parity for retired GUI/UI modules
+
+- Training Hub **Meta-RL** mode launching `main.py meta_train` with meta-strategy, meta-LR, history, batch, and step fields (PySide6 "Meta-Learning" tab parity)
+- **System Tools** page (Files section) porting the GUI's File System Tools — update / delete / cryptography — and the Program Test Suite runner (`main.py file_system …` / `main.py test_suite …`) with persisted forms, command preview, live log tail, and destructive-delete warning
+
+### Removed
+
+- **PySide6 GUI module** (`gui/`) and the `gui` CLI command (parser, dispatch, tests, PyInstaller spec) — superseded by WSmart-Route Studio (`app/`)
+- **Streamlit dashboard** (`logic/src/ui/`, `logic/src/utils/ui/`, `dashboard_entry.py`, `logic/configs/ui/`, `.streamlit/`, `tools/ui/`, dashboard constants, `remove_ui.py` packager) — superseded by the Studio
+- PySide6 / Streamlit / folium dependencies; the `gui` extra is now a `viz` extra (matplotlib, seaborn, plotly)
+
+### Changed
+
+- `docker/Dockerfile` now builds the Studio into Linux bundles (`.deb` / `.AppImage`) instead of serving the Streamlit dashboard
+- Docs, justfiles, CI workflow, agent rules/workflows, and packager configs updated for the Studio-only interface
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-eighth pass (§G.1 + §G.6 + §G.11 + §G.15 + §G.17 + §G.18 + §D.7 + §D.8)
 
 Two-hundred-and-thirty-eighth pass closes residual tracker / portfolio brush-label

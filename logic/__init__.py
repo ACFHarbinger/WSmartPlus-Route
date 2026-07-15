@@ -58,7 +58,6 @@ Directory Structure and Module Descriptions:
      - pipeline: Training coordinators, evaluation modules, and Lightning callbacks.
      - policies: Heuristics, metaheuristics, and machine learning decision models.
      - tracking: Telemetry managers, data lineage callbacks, and logger bindings.
-     - ui: Streamlit dashboard layouts and PySide6 application windows.
      - utils: General utility library (file IO, security operations, typing helper).
 
 9. test

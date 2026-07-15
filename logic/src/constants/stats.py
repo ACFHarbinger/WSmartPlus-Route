@@ -15,7 +15,7 @@ and built-ins. Used by:
    - Computes daily/overall statistics for kg, km, overflows, etc.
    - Example: stats["mean"](daily_costs) → average daily cost
 
-2. **GUI chart workers**: gui/src/helpers/chart_worker.py
+2. **Studio chart utilities**: app/src/utils/
    - Generates summary statistics for interactive plots
    - Example: stats["median"](route_lengths) → typical route length
 

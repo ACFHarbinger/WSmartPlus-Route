@@ -3,7 +3,7 @@ Path constants for the project.
 
 This module provides platform-independent path resolution for the WSmart+ Route
 project root and asset locations. Used by:
-- GUI initialization (gui/src/windows/main_window.py) for icon loading
+- Application icon loading for exported tooling
 - All modules needing project-relative paths (configs, data, outputs)
 - CLI entry points (main.py) for workspace detection
 
@@ -67,7 +67,7 @@ ROOT_DIR: Path = root_dir
 # paths.py is at logic/src/constants/paths.py, so .parent×3 == logic/
 CONFIGS_DIR: str = str(Path(__file__).parent.parent.parent / "configs")
 
-# GUI application icon (PNG format, white logo on transparent background)
-# Used in: PySide6 QMainWindow.setWindowIcon(), system tray, taskbar
+# Application icon (PNG format, white logo on transparent background)
+# Used by exported tooling and report generators
 # Dimensions: 512x512 px (scales down for UI)
 ICON_FILE: str = os.path.join(ROOT_DIR, "assets", "images", "logo-wsmartroute-white.png")

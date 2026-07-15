@@ -37,7 +37,6 @@ dependencies:
 - pytest #=8.4
 - pytest-mock
 - python=3.9
-- pyside6
 - pytorch=2.2
 #- pyproj #=2.6
 - ray-all #=2.9

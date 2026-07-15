@@ -5,7 +5,7 @@ set working-directory := '../..'
 
 # Run all tests with coverage
 test:
-    uv run pytest --cov=logic/src --cov=gui/src --cov-report=xml --cov-report=term-missing
+    uv run pytest --cov=logic/src --cov-report=xml --cov-report=term-missing
 
 # Run fast unit tests
 test-fast:
@@ -14,10 +14,6 @@ test-fast:
 # Run logic backend tests
 test-logic:
     uv run pytest logic/test/
-
-# Run GUI tests
-test-gui:
-    uv run pytest gui/test/
 
 # Run tests with a specific marker
 test-marker marker="":

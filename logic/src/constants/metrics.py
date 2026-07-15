@@ -27,7 +27,7 @@ subsystems. Used by:
    - Standardizes metrics across model architectures
    - Example: AM logs "tour_length", HGS logs "cost" → both map to "cost"
 
-4. **GUI components**: gui/src/tabs/analysis/
+4. **Studio analysis pages**: app/src/pages/analysis/
    - Consistent axis labels and table headers
    - User sees "Collection (kg)" regardless of internal metric name
 

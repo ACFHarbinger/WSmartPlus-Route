@@ -30,9 +30,9 @@ WSmart+ Route is a masterclass in bridging Deep Reinforcement Learning with Oper
     - [3.4 Problem Environments](#34-problem-environments-logicsrcproblems)
     - [3.5 The Simulator Engine](#35-the-simulator-engine-logicsrcpipelinesimulator)
     - [3.6 Reinforcement Learning Pipeline](#36-reinforcement-learning-pipeline-logicsrcpipelinerl)
-4.  [GUI Layer: The Command Center (`gui/src/`)](#4-gui-layer-the-command-center-guisrc)
-    - [4.1 PySide6 Architecture](#41-pyside6-architecture)
-    - [4.2 Background Workers](#42-background-workers)
+4.  [Studio Layer: The Command Center (`app/`)](#4-studio-layer-the-command-center-app)
+    - [4.1 Architecture](#41-architecture)
+    - [4.2 Process Infrastructure](#42-process-infrastructure)
     - [4.3 Real-Time Visualization](#43-real-time-visualization)
 5.  [Algorithm Deep Dives](#5-algorithm-deep-dives)
     - [5.1 Attention Mechanism for Routing](#51-attention-mechanism-for-routing)
@@ -45,7 +45,7 @@ WSmart+ Route is a masterclass in bridging Deep Reinforcement Learning with Oper
     - [6.1 Setup & Environment](#61-setup--environment)
     - [6.2 Training Your First Model](#62-training-your-first-model)
     - [6.3 Running Simulations](#63-running-simulations)
-    - [6.4 Using the GUI](#64-using-the-gui)
+    - [6.4 Using the Studio](#64-using-the-studio)
     - [6.5 Hyperparameter Optimization](#65-hyperparameter-optimization)
     - [6.6 Meta-Reinforcement Learning](#66-meta-reinforcement-learning)
 7.  [Extending WSmart+ Route](#7-extending-wsmart-route)
@@ -118,13 +118,9 @@ WSmart-Route/
 │   │   ├── pipeline/        # Training/evaluation orchestration
 │   │   └── utils/           # Shared utilities
 │   └── test/                # Test suite
-├── gui/                      # User Interface Layer
-│   ├── src/
-│   │   ├── windows/         # Application windows
-│   │   ├── tabs/            # Functional tabs
-│   │   ├── helpers/         # Background workers
-│   │   └── components/      # Reusable widgets
-│   └── test/                # GUI tests
+├── app/                      # WSmart-Route Studio (Tauri 2.0)
+│   ├── src/                 # React + TypeScript frontend
+│   └── src-tauri/           # Rust backend
 ├── data/                     # Data Layer
 │   ├── vrpp/                # VRPP datasets
 │   ├── wcvrp/               # Waste collection datasets
@@ -139,7 +135,7 @@ WSmart-Route/
 ### 2.2 Communication Protocols
 
 1.  **Logic ⇄ Data**: File I/O via pickle, JSON, and CSV.
-2.  **Logic ⇄ GUI**: Qt signals/slots and background workers (`QThread`).
+2.  **Logic ⇄ Studio**: spawned `main.py` subprocesses with structured stdout streamed via Tauri events.
 3.  **Configuration**: Centralized YAML configs in `assets/configs/`.
 4.  **Logging**: WandB for experiment tracking, loguru for local logs.
 
@@ -793,85 +789,29 @@ best_config = dehb.run(objective_function, n_trials=100)
 
 ---
 
-## 4. GUI Layer: The Command Center (`gui/src/`)
+## 4. Studio Layer: The Command Center (`app/`)
 
-The GUI provides visual tools for training, evaluation, and analysis.
+WSmart-Route Studio is the Tauri 2.0 desktop application providing visual tools for launching, monitoring, and analysing everything the CLI can do.
 
-### 4.1 PySide6 Architecture
+### 4.1 Architecture
 
-**MainWindow (`windows/main_window.py`):**
+- **Frontend** (`app/src/`): React 19 + TypeScript, Tailwind CSS, Zustand state, ECharts / deck.gl / Sigma.js visualization, DuckDB-Wasm OLAP.
+- **Backend** (`app/src-tauri/`): Rust commands for CSV/Arrow pipelines, tensor inspection, MLflow/ZenML/Optuna readers, and process spawning (`tokio::process`).
 
-- Central container with tabbed interface
-- Menu bar for file operations, help
-- Status bar for real-time feedback
+**Page Structure:**
 
-**Tab Structure:**
+- **Monitor**: Simulation Digital Twin, Training Monitor, Process Monitor
+- **Analysis**: Simulation Summary, Benchmark Analysis, City Comparison, OLAP Explorer, Data Explorer, Experiment Tracker, Algorithm Registry, HPO Tracker
+- **Launch**: Simulation Launcher, Training & HPO Hub (train / HPO / meta-RL / eval), Data Generation, Evaluation Runner
+- **Files**: Output Browser, Config Editor, System Tools (file-system update/delete/cryptography + test-suite runner)
 
-- **Training Tab**: Configure and launch training runs
-- **Evaluation Tab**: Test trained models
-- **Simulator Tab**: Run multi-day simulations
-- **Analysis Tab**: Visualize results and logs
-- **File System Tab**: Manage datasets and models
-- **Meta-RL Tab**: Meta-learning experiments
-- **HPO Tab**: Hyperparameter optimization
+### 4.2 Process Infrastructure
 
-### 4.2 Background Workers (`gui/src/helpers/`)
-
-To keep the GUI responsive, heavy computations run in separate threads.
-
-#### ChartWorker (`helpers/chart_worker.py`)
-
-**Purpose**: Parse simulation logs and emit chart data.
-
-```python
-class ChartWorker(QThread):
-    data_ready = Signal(dict)
-
-    def run(self):
-        while self.running:
-            # Read log file
-            data = self.parse_log(self.log_path)
-
-            # Emit to main thread
-            self.data_ready.emit(data)
-
-            self.msleep(1000)  # Update every second
-```
-
-#### DataLoaderWorker (`helpers/data_loader_worker.py`)
-
-**Purpose**: Load large datasets asynchronously.
-
-```python
-class DataLoaderWorker(QThread):
-    data_loaded = Signal(object)
-    error = Signal(str)
-
-    def run(self):
-        try:
-            data = self.load_dataset(self.path)
-            self.data_loaded.emit(data)
-        except Exception as e:
-            self.error.emit(str(e))
-```
-
-#### FileTailerWorker (`helpers/file_tailer_worker.py`)
-
-**Purpose**: Stream log files in real-time (like `tail -f`).
+Long-running work is spawned as `python main.py <command>` subprocesses from the Rust backend; stdout/stderr and status stream back to the WebView through Tauri events, feeding live metric charts, progress bars, and log tails.
 
 ### 4.3 Real-Time Visualization
 
-**Matplotlib Integration:**
-
-- Embedded canvases using `FigureCanvasQTAgg`
-- Interactive plots with navigation toolbar
-- Real-time updates via worker signals
-
-**Folium Maps:**
-
-- HTML export of route visualizations
-- Interactive markers for bins and depots
-- Color-coded routes by policy
+Structured `GUI_`-prefixed JSON log lines emitted by the simulator (see `logic/src/tracking/logging/modules/gui.py`) are tailed by a Rust file watcher and rendered live in the Digital Twin map and KPI panels.
 
 ---
 
@@ -1124,18 +1064,18 @@ python main.py test_sim \
   --resume
 ```
 
-### 6.4 Using the GUI
+### 6.4 Using the Studio
 
 ```bash
-python main.py gui
+just studio
 ```
 
 **Workflow:**
 
-1.  **Training Tab**: Configure model, problem, and hyperparameters → Click "Start Training"
-2.  **Analysis Tab**: Load training logs, view convergence curves
-3.  **Simulator Tab**: Set policies, days, area → Click "Run Simulation"
-4.  **Results**: View aggregate statistics, route maps, and performance comparisons
+1.  **Training & HPO Hub**: Configure model, problem, and hyperparameters → "Start train"
+2.  **Training Monitor / Experiment Tracker**: Live loss curves and run history
+3.  **Simulation Launcher**: Set policies, days, area → "Start simulation"
+4.  **Simulation Summary / Benchmark Analysis**: Aggregate statistics, route maps, and policy comparisons
 
 ### 6.5 Hyperparameter Optimization
 
@@ -1788,12 +1728,12 @@ A: Reduce batch size or graph size. Clear cache between runs:
 torch.cuda.empty_cache()
 ```
 
-**Q: My GUI won't launch.**
-A: Check PySide6 installation:
+**Q: The Studio won't launch.**
+A: Install its dependencies and start in dev mode:
 
 ```bash
-uv pip install PySide6
-python -c "from PySide6.QtWidgets import QApplication; print('OK')"
+just studio-install
+just studio
 ```
 
 ---

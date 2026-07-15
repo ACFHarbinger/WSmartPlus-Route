@@ -53,7 +53,7 @@ Must include:
 * **Format:** Project-level documentation must use GitHub Flavored Markdown (GFM).
 * **Location and Hierarchy:**
     * **Root README:** The top-level `README.md` serves as the entry point, providing a high-level project overview and installation guides.
-    * **Sub-directory READMEs:** Every major functional directory (e.g., `logic/src`, `gui/src`, `policy/src`) should contain its own `README.md` detailing the specific architecture and logic of that module.
+    * **Sub-directory READMEs:** Every major functional directory (e.g., `logic/src`, `app/src`, `policy/src`) should contain its own `README.md` detailing the specific architecture and logic of that module.
 * **Release Notes:** Significant changes, breaking updates, and bug fixes must be recorded in `CHANGELOG.md` following the [Keep a Changelog](https://keepachangelog.com/) standard.
 * **Dependencies:** Keep `DEPENDENCIES.md` synchronized with `env/requirements.txt` and `pyproject.toml`.
 

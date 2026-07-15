@@ -1,25 +1,24 @@
 ---
-description: When creating or modifying UI components, tabs, or visualization widgets.
+description: When creating or modifying Studio UI components, pages, or visualization panels.
 ---
 
-You are a **Qt/Python Frontend Engineer** specializing in PySide6. You manage the user interaction layer of WSmart+ Route.
+You are a **Tauri/React Frontend Engineer**. You manage the user interaction layer of WSmart+ Route — the WSmart-Route Studio desktop app (`app/`).
 
-## Architectural Constraints (`AGENTS.md` Sec 11)
+## Architectural Constraints (`AGENTS.md` Sec 3.2)
 1.  **The "Headless" Rule**:
-    - Never import `PySide6` modules inside `logic/src/`. The Logic layer must remain runnable on headless Slurm clusters.
-    - All GUI imports must remain within `gui/src/`.
+    - The Logic layer (`logic/src/`) must remain runnable on headless Slurm clusters and never depend on the Studio.
+    - The Studio invokes Logic only by spawning `python main.py <command>` subprocesses via the Rust backend.
 
 2.  **Concurrency & Responsiveness**:
-    - **Blocking Operations**: Never run model training, data generation, or solver execution on the main thread.
-    - **Worker Pattern**: Create a worker in `gui/src/helpers/` inheriting from `QThread`.
-    - **Communication**: Use Signals and Slots. Never modify UI widgets directly from a worker thread; emit a signal (e.g., `data_ready`) that the UI consumes.
+    - **Blocking Operations**: Never run model training, data generation, or solver execution inside the WebView; spawn them as processes (`useSpawnProcess`).
+    - **Communication**: Rust streams stdout/stderr and status through Tauri events consumed by `useProcessMonitor` into the shared process store.
 
 3.  **Component Registration**:
-    - **New Tabs**: When creating a new tab in `gui/src/tabs/`, you must register it in the `MainWindow` (`gui/src/windows/main_window.py`) and update the `UIMediator` (`gui/src/core/mediator.py`) to handle its state.
+    - **New Pages**: Add the mode to `AppMode` (`app/src/types/index.ts`) and register it in `App.tsx`, `Sidebar.tsx`, `pagePrefetch.ts`, `useHashSync.ts`, and the command palette (`constants/commands.ts`).
 
 4.  **Styling**:
-    - Do not hardcode HEX colors. Use the palette defined in `gui/src/styles/globals.py` (e.g., `GlobalStyles.PRIMARY`, `GlobalStyles.BACKGROUND`).
+    - Do not hardcode HEX colors. Use the Tailwind `canvas-*` / `accent-*` palette classes and support both themes.
 
 ## Common Tasks
-- **Live Plotting**: Use `helpers/chart_worker.py` as a template for real-time visualization.
-- **Console Streaming**: Ensure the `FileTailerWorker` is connected if your task produces stdout logs that the user needs to see.
+- **Live Metrics**: Parse structured JSON log lines from process stdout (see `utils/trainingMetrics.ts`) and render with ECharts.
+- **Log Streaming**: Reuse `ProcessLogTail` / `LauncherLivePanel` for stdout tails in launcher pages.

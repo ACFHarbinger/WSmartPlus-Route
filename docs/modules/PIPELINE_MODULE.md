@@ -13,12 +13,11 @@
 4.  [**Features**](#4-features)
 5.  [**Reinforcement Learning (RL)**](#5-reinforcement-learning-rl)
 6.  [**Simulations**](#6-simulations)
-7.  [**User Interface (UI)**](#7-user-interface-ui)
-8.  [**Design Patterns**](#8-design-patterns)
-9.  [**Usage Examples**](#9-usage-examples)
-10. [**Best Practices**](#10-best-practices)
-11. [**Quick Reference**](#11-quick-reference)
-12. [**Conclusion**](#12-conclusion)
+7.  [**Design Patterns**](#7-design-patterns)
+8.  [**Usage Examples**](#8-usage-examples)
+9.  [**Best Practices**](#9-best-practices)
+10. [**Quick Reference**](#10-quick-reference)
+11. [**Conclusion**](#11-conclusion)
 
 ---
 
@@ -40,7 +39,7 @@ The **Pipeline Module** orchestrates the primary operational workflows of the WS
 
 - **Total Python Files**: 184
 - **Lines of Code**: ~25,000+
-- **Major Subdirectories**: 5 (callbacks, features, rl, simulations, ui)
+- **Major Subdirectories**: 4 (callbacks, features, rl, simulations)
 
 ---
 
@@ -75,7 +74,6 @@ logic/src/pipeline/
 │   ├── repository/         # Data loading
 │   └── checkpoints/        # Save/resume simulation
 │
-└── ui/                     # Streamlit dashboard (~20 files)
     ├── app.py              # Main entry point
     ├── pages/              # Training, simulation, benchmark
     ├── services/           # Data loading services
@@ -88,7 +86,7 @@ logic/src/pipeline/
 ```
 ┌─────────────────────────────────────────────────────────────┐
 │                      Main Application                        │
-│                    (main.py / gui)                          │
+│                    (main.py / Studio)                          │
 └──────────────────────┬──────────────────────────────────────┘
                        │
          ┌─────────────┼─────────────┐
@@ -1316,229 +1314,7 @@ for day in range(num_days):
 
 ---
 
-## 7. User Interface (UI)
-
-Streamlit-based dashboard for monitoring training and visualizing simulation results.
-
-### Architecture
-
-```
-ui/
-├── app.py                      # Main entry point
-├── pages/
-│   ├── training.py             # Training monitor page
-│   ├── simulation.py           # Simulation visualizer page
-│   └── benchmark.py            # Benchmark analysis page
-├── services/
-│   ├── log_parser.py           # Parse simulation logs
-│   ├── data_loader.py          # Load datasets
-│   └── benchmark_loader.py     # Load benchmark results
-├── components/
-│   ├── charts.py               # Plotly charts
-│   ├── benchmark_charts.py     # Benchmark-specific charts
-│   ├── sidebar.py              # Navigation sidebar
-│   └── maps/                   # Folium maps
-│       ├── heatmap.py          # Bin fill heatmap
-│       ├── simulation.py       # Single route map
-│       └── multi_route.py      # Multi-policy comparison
-└── styles/
-    └── styling.py              # Custom CSS
-```
-
-### Launch Dashboard
-
-```bash
-# From project root
-streamlit run logic/src/pipeline/ui/app.py
-
-# Or via main.py
-python main.py --ui
-```
-
-### Main Application
-
-**File**: `ui/app.py`
-
-```python
-def main():
-    """Main entry point for dashboard."""
-    st.set_page_config(
-        page_title="WSmart-Route MLOps Dashboard",
-        page_icon="🚛",
-        layout="wide",
-        initial_sidebar_state="expanded",
-    )
-
-    st.markdown(CUSTOM_CSS, unsafe_allow_html=True)
-
-    # Sidebar controls
-    mode = render_mode_selector()  # training / simulation / benchmark
-    auto_refresh, refresh_interval = render_auto_refresh_toggle()
-    render_about_section()
-
-    # Main content
-    if mode == "training":
-        render_training_monitor()
-    elif mode == "simulation":
-        render_simulation_visualizer()
-    else:
-        render_benchmark_analysis()
-
-    # Auto-refresh
-    if auto_refresh:
-        time.sleep(refresh_interval)
-        st.rerun()
-```
-
-### Pages
-
-#### 1. Training Monitor
-
-**File**: `ui/pages/training.py`
-
-**Features**:
-
-- Real-time loss/reward curves
-- Hyperparameter display
-- Model architecture summary
-- GPU utilization graphs
-- Epoch progress tracking
-
-**Usage**: Monitors `logs/` directory for Lightning CSVLogger outputs.
-
-#### 2. Simulation Visualizer
-
-**File**: `ui/pages/simulation.py`
-
-**Features**:
-
-- Interactive Folium route maps
-- Bin fill level heatmaps
-- Time-series metrics plots
-- Policy comparison tables
-- Daily statistics
-
-**Example Screenshot**:
-
-```
-┌─────────────────────────────────────────────────────────┐
-│ 📍 Simulation Map (Day 15)                              │
-├─────────────────────────────────────────────────────────┤
-│  [Interactive Folium Map]                               │
-│  ● Red markers: Bins to collect                         │
-│  ━━━ Blue route: Vehicle path                           │
-│  ⬤ Green: Depot                                         │
-└─────────────────────────────────────────────────────────┘
-
-┌─────────────────────────────────────────────────────────┐
-│ 📊 Metrics Over Time                                    │
-├─────────────────────────────────────────────────────────┤
-│  [Plotly line chart: kg, km, cost, profit by day]      │
-└─────────────────────────────────────────────────────────┘
-
-┌──────────────────┬──────────────────────────────────────┐
-│ Policy           │ Average Metrics                      │
-├──────────────────┼──────────────────────────────────────┤
-│ Gurobi           │ 125.3 kg, 42.1 km, $210.5, 2 ovfl   │
-│ HGS              │ 122.8 kg, 44.6 km, $223.0, 3 ovfl   │
-│ AM (Greedy)      │ 118.5 kg, 47.2 km, $236.0, 5 ovfl   │
-└──────────────────┴──────────────────────────────────────┘
-```
-
-#### 3. Benchmark Analysis
-
-**File**: `ui/pages/benchmark.py`
-
-**Features**:
-
-- Multi-instance performance comparison
-- Scalability analysis (graph size vs. time)
-- Gap to optimal analysis
-- Radar charts for multi-objective comparison
-
-### Map Components
-
-#### Heatmap
-
-**File**: `ui/components/maps/heatmap.py`
-
-```python
-def create_fill_level_heatmap(bins: pd.DataFrame, day: int) -> folium.Map:
-    """
-    Create heatmap showing bin fill levels.
-
-    Args:
-        bins: DataFrame with columns [latitude, longitude, fill_level]
-        day: Current simulation day
-
-    Returns:
-        Folium map with heatmap layer
-    """
-    m = folium.Map(
-        location=[bins.latitude.mean(), bins.longitude.mean()],
-        zoom_start=13,
-    )
-
-    heat_data = [
-        [row.latitude, row.longitude, row.fill_level]
-        for _, row in bins.iterrows()
-    ]
-
-    HeatMap(heat_data, radius=15, blur=25).add_to(m)
-    return m
-```
-
-#### Route Visualization
-
-**File**: `ui/components/maps/simulation.py`
-
-```python
-def create_route_map(
-    coords: pd.DataFrame,
-    tour: List[int],
-    distance_matrix: np.ndarray,
-) -> folium.Map:
-    """
-    Visualize routing solution on map.
-
-    Args:
-        coords: Bin coordinates
-        tour: Tour sequence [0, 3, 5, 12, 0]
-        distance_matrix: Pairwise distances
-    """
-    m = folium.Map(
-        location=[coords.latitude.mean(), coords.longitude.mean()],
-        zoom_start=12,
-    )
-
-    # Add depot marker
-    folium.Marker(
-        [coords.iloc[0].latitude, coords.iloc[0].longitude],
-        popup="Depot",
-        icon=folium.Icon(color="green", icon="home"),
-    ).add_to(m)
-
-    # Add bin markers
-    for idx in tour[1:-1]:
-        folium.Marker(
-            [coords.iloc[idx].latitude, coords.iloc[idx].longitude],
-            popup=f"Bin {idx}",
-            icon=folium.Icon(color="red", icon="trash"),
-        ).add_to(m)
-
-    # Draw route polyline
-    route_coords = [
-        (coords.iloc[i].latitude, coords.iloc[i].longitude)
-        for i in tour
-    ]
-    folium.PolyLine(route_coords, color="blue", weight=3, opacity=0.7).add_to(m)
-
-    return m
-```
-
----
-
-## 8. Design Patterns
+## 7. Design Patterns
 
 ### 1. Factory Pattern
 
@@ -1719,7 +1495,7 @@ model = algo_cls(env=env, policy=policy, ...)
 
 ---
 
-## 9. Usage Examples
+## 8. Usage Examples
 
 ### Example 1: Train PPO Model
 
@@ -1930,21 +1706,19 @@ opts["distance_matrix"] = distance_matrix
 run_wsr_simulator_test(opts)
 ```
 
-### Example 10: Streamlit Dashboard
+### Example 10: WSmart-Route Studio
 
 ```bash
-# Launch dashboard
-streamlit run logic/src/pipeline/ui/app.py
+# Launch the Studio desktop app (dev mode)
+just studio
 
-# Or with custom port
-streamlit run logic/src/pipeline/ui/app.py --server.port 8080
-
-# Access at http://localhost:8080
+# Build a release bundle
+just studio-build
 ```
 
 ---
 
-## 10. Best Practices
+## 9. Best Practices
 
 ### Training
 
@@ -2111,7 +1885,7 @@ streamlit run logic/src/pipeline/ui/app.py --server.port 8080
 
 ---
 
-## 11. Quick Reference
+## 10. Quick Reference
 
 ### Algorithm Selection Guide
 
@@ -2218,8 +1992,8 @@ python main.py test_sim --policies gurobi hgs am_greedy --days 31 --n_samples 10
 # Hyperparameter Optimization
 python main.py train_lightning experiment=hpo env.name=vrpp
 
-# Launch Dashboard
-streamlit run logic/src/pipeline/ui/app.py
+# Launch the Studio desktop app
+just studio
 ```
 
 ### Common Issues and Solutions
@@ -2263,7 +2037,7 @@ streamlit run logic/src/pipeline/ui/app.py
 
 ---
 
-## 12. Conclusion
+## 11. Conclusion
 
 The Pipeline Module is the execution engine of WSmart-Route, orchestrating training, evaluation, simulation, and visualization workflows. With 184 files spanning callbacks, features, RL algorithms, simulation physics, and UI components, it provides a comprehensive MLOps infrastructure for routing optimization research and deployment.
 

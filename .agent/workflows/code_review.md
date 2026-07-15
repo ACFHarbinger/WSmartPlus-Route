@@ -12,8 +12,8 @@ Before providing any review feedback, you must methodically analyze the submissi
 
 ### 1) Architectural Integrity & Governance
 
-- **The "Headless" Rule**: Strictly verify that `logic/src/` NEVER imports `PySide6` or any UI component. Logic must remain runnable on headless Slurm clusters.
-- **Dependency Flow**: Ensure `gui/src/` may import from `logic/src/`, but never the inverse.
+- **The "Headless" Rule**: Strictly verify that `logic/src/` NEVER imports UI components. Logic must remain runnable on headless Slurm clusters.
+- **Dependency Flow**: The Studio (`app/`) invokes Logic only via `main.py` CLI subprocesses; Logic never depends on the Studio.
 - **Environmental Compliance**: All changes must be compatible with the `uv` package manager and Python 3.9+ runtime.
 
 ### 2) Mathematical & DRL Correctness
@@ -40,7 +40,7 @@ Before providing any review feedback, you must methodically analyze the submissi
 
 - **Linter Compliance**: All code must pass `ruff` (mandatory) and follow `black` formatting.
 - **Naming Conventions**: Ensure descriptive `snake_case` for functions/variables that reflect OR/DL concepts.
-- **Test Coverage**: Verify that new logic includes corresponding tests in `logic/test/` or `gui/test/`. If `state_*.py` logic changed, ensure `test_problems.py` still passes.
+- **Test Coverage**: Verify that new logic includes corresponding tests in `logic/test/`. If `state_*.py` logic changed, ensure `test_problems.py` still passes.
 
 ---
 

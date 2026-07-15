@@ -30,7 +30,7 @@ This document serves as the authoritative reference for AI assistants (Claude, G
 8. [Known Constraints & "No-Go" Areas](#8-known-constraints--no-go-areas)
 9. [Usage Note](#9-usage-note)
 10. [Logic Submodule Architecture](#10-logic-submodule-architecture)
-11. [GUI Submodule Architecture](#11-gui-submodule-architecture)
+11. [Studio Submodule Architecture](#11-studio-submodule-architecture)
 12. [Data Formats & Schemas](#12-data-formats--schemas)
 13. [Testing Guidelines for AI](#13-testing-guidelines-for-ai)
 14. [Common Patterns & Anti-Patterns](#14-common-patterns--anti-patterns)
@@ -86,7 +86,7 @@ The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Rese
 | **Hierarchical RL**        | Manager-Worker architecture for temporal decision-making        |
 | **Meta-Learning**          | Cross-distribution generalization via MetaRNN                   |
 | **Real-World Simulation**  | Multi-day scenarios with stochastic bin fill rates              |
-| **Interactive GUI**        | PySide6 desktop application for visualization                   |
+| **Interactive GUI**        | WSmart-Route Studio — Tauri 2.0 desktop app (app/)              |
 
 ---
 
@@ -111,7 +111,6 @@ The project bridges **Deep Reinforcement Learning (DRL)** with **Operations Rese
 | **OR-Tools**          | 9.4     | Google's optimization toolkit      |
 | **PyVRP**             | 0.9.1+  | VRP solver library                 |
 | **ALNS**              | 7.0+    | Adaptive Large Neighborhood Search |
-| **PySide6**           | 6.9.0   | Qt for Python (GUI)                |
 
 ### 2.3 Quality Control Tools
 
@@ -155,35 +154,29 @@ logic/src/
 └── utils/            # Helper functions & utilities
 ```
 
-### 3.2 GUI Layer (`gui/src/`)
+### 3.2 Studio Layer (`app/`)
 
-Desktop application for visualization and interaction.
+WSmart-Route Studio — Tauri 2.0 desktop application for visualization and interaction.
 
 ```
-gui/src/
-├── windows/          # Top-level application windows
-├── tabs/             # Functional UI modules
-│   ├── reinforcement_learning/  # Training configuration
-│   ├── evaluation/              # Model evaluation
-│   ├── test_simulator/          # Simulation testing
-│   ├── generate_data/           # Data generation
-│   ├── analysis/                # Visualization & analysis
-│   └── file_system/             # File management
-├── helpers/          # Background workers (QThread)
-├── core/             # Mediator pattern & signals
-├── components/       # Reusable UI widgets
-├── styles/           # Visual design system
-└── utils/            # GUI-specific utilities
+app/
+├── src/              # React + TypeScript frontend
+│   ├── pages/        # Monitor / Analysis / Launch / Files views
+│   ├── components/   # Charts, maps, layout, live panels
+│   ├── store/        # Zustand state (persisted launcher forms)
+│   ├── hooks/        # Process monitor, DuckDB, file drop, theme
+│   └── utils/        # Arrow pipeline, chart builders, log parsers
+└── src-tauri/        # Rust backend (commands, process spawning, watchers)
 ```
 
 ### 3.3 Critical Boundaries
 
 | Boundary      | Rule                                                       |
 | ------------- | ---------------------------------------------------------- |
-| Logic → GUI   | Logic must **never** import from GUI                       |
-| GUI → Logic   | GUI imports Logic via defined interfaces                   |
+| Logic → Studio | Logic must **never** depend on the Studio app             |
+| Studio → Logic | The Studio invokes Logic only via `main.py` CLI commands  |
 | State Files   | `state_*.py` files are **critical**; test before modifying |
-| Thread Safety | Heavy computation must use `QThread`, never main Qt thread |
+| Thread Safety | Heavy Studio work runs in Rust (tokio) or spawned CLI processes, never the WebView thread |
 
 ---
 
@@ -224,7 +217,7 @@ Always reference these commands when proposing code changes or workflows:
 | Run Simulation     | `python main.py test_sim --policies regular gurobi alns --days 31` |
 | Run Test Suite     | `python main.py test_suite`                                        |
 | Run Specific Tests | `python main.py test_suite --module test_models`                   |
-| Launch GUI         | `python main.py gui`                                               |
+| Launch Studio      | `just studio`                                                      |
 | Launch TUI         | `python main.py tui`                                               |
 
 ### 4.5 Code Quality
@@ -246,7 +239,7 @@ The agent is authorized to use external tools to assist in development:
 
 | Purpose                  | Authorization Level                                   |
 | ------------------------ | ----------------------------------------------------- |
-| **Documentation Lookup** | ✅ Authorized - Gurobi 11+, PySide6, PyTorch 2.2+     |
+| **Documentation Lookup** | ✅ Authorized - Gurobi 11+, Tauri 2.0, PyTorch 2.2+   |
 | **API Verification**     | ✅ Authorized - Verify methods are not deprecated     |
 | **Bug Investigation**    | ✅ Authorized - GitHub issues, Stack Overflow         |
 | **CUDA/Driver Issues**   | ✅ Authorized - NVIDIA driver conflicts, Ubuntu fixes |
@@ -257,7 +250,7 @@ The agent is authorized to use external tools to assist in development:
 
 - Gurobi performance tunings (v11+)
 - PyTorch 2.x features (compile, inductor)
-- PySide6 recent API changes
+- Tauri 2.0 / React 19 recent API changes
 - CUDA 12.x compatibility
 
 ### 5.3 Restricted Actions
@@ -535,12 +528,12 @@ Cluster scripts (`scripts/slurm.sh`) use specific path mappings:
 
 ### 8.3 Linux GUI Stability
 
-When debugging PySide6 GUI on Linux, include these flags:
+When debugging the WSmart-Route Studio (Tauri) on Linux with WebKitGTK rendering issues:
 
 ```bash
 # Recommended debug flags
-export QT_QPA_PLATFORM=xcb
-python main.py gui --use-angle=vulkan --disable-gpu-sandbox
+export WEBKIT_DISABLE_COMPOSITING_MODE=1
+just studio
 ```
 
 ### 8.4 Protected Files
@@ -702,9 +695,8 @@ tensor = tensor.cuda()  # Fails on CPU-only machines
 # ❌ Don't modify state files without tests
 # Always verify: python main.py test_suite --module test_problems
 
-# ❌ Don't block Qt main thread
-def on_click(self):
-    result = expensive_computation()  # Freezes GUI
+# ❌ Don't block the Studio WebView with synchronous work
+# Long operations must run as spawned CLI processes (Rust tokio backend)
 
 # ❌ Don't ignore masks in decoders
 probs = F.softmax(logits, dim=-1)  # Can select invalid nodes
@@ -724,7 +716,7 @@ probs = F.softmax(logits, dim=-1)  # Can select invalid nodes
 | Classical policies  | `logic/src/policies/`             |
 | Problem definitions | `logic/src/envs/`                 |
 | Simulator engine    | `logic/src/pipeline/simulations/` |
-| GUI main window     | `gui/src/windows/main_window.py`  |
+| Studio desktop app  | `app/` (React + Tauri)            |
 | Configuration       | `assets/configs/`                 |
 | Model weights       | `assets/model_weights/`           |
 
@@ -745,7 +737,6 @@ METRICS = ["overflows", "kg", "ncol", "kg_lost", "km", "kg/km", "cost", "profit"
 | `CUDA_VISIBLE_DEVICES` | GPU selection            |
 | `GRB_LICENSE_FILE`     | Gurobi license path      |
 | `WANDB_API_KEY`        | Weights & Biases logging |
-| `QT_QPA_PLATFORM`      | Qt platform backend      |
 
 ---
 
