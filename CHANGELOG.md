@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-fourth pass (§A.3 Option C)
+
+Hundred-twenty-fourth pass completes global brush parity across all analysis pages:
+chart dimming, filtered history table, and ``PolicyTelemetryTrendsPanel`` on Algorithm
+Comparison + City Comparison.
+
+**React frontend**
+- ``TrendBrushFilter`` + chart builders — comparison / steps / trajectory charts dim
+  non-brushed policies and runs at 25% opacity (full dataset retained for context)
+- ``PolicyTelemetryTrendsPanel`` — history table uses ``filteredRows``; empty-state when
+  brush excludes all rows
+- Algorithm Comparison — ``PolicyTelemetryTrendsPanel`` with ``initialPolicy`` from brush
+- City Comparison — ``PolicyTelemetryTrendsPanel`` with ``initialPolicy`` from brush
+- Benchmark Analysis — ``initialPolicy`` brush sync on trends panel (parity with Summary)
+
+**ROADMAP**
+- §A.3 Option C chart brush dimming + Algorithm/City Comparison panels checked
+
+### Fixed
+
+- ``RuntimeAttentionPanel`` — ``ChartExportButtons`` prop renamed from ``basename`` to ``filenameStem`` (build fix)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-third pass (§A.3 Option C)
 
 Hundred-twenty-third pass extends global brush sync from the trends history table to all

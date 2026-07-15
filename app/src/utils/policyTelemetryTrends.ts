@@ -4,7 +4,25 @@
 import type { EChartsOption } from "echarts";
 import type { PolicyTelemetryTrendRow, PolicyTrajectorySeries } from "../types";
 import { ema, policyVizTypeLabel } from "./policyTelemetry";
+import { barOpacity, isHighlighted } from "./chartHighlight";
 import { downloadCsv } from "./tableExport";
+
+export interface TrendBrushFilter {
+  policy: string | null;
+  runLabel: string | null;
+}
+
+function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
+  const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
+  const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;
+  return policyOk && runOk;
+}
+
+function trajectoryHighlighted(series: PolicyTrajectorySeries, brush: TrendBrushFilter): boolean {
+  const policyOk = isHighlighted(series.policy, brush.policy ? [brush.policy] : null);
+  const runOk = !brush.runLabel || trajectoryRunKey(series) === brush.runLabel;
+  return policyOk && runOk;
+}
 
 const CHART_COLORS = ["#60a5fa", "#fbbf24", "#4ade80", "#f87171", "#c084fc", "#94a3b8"];
 
@@ -52,7 +70,8 @@ export function filterTrajectorySeries(
 export function buildTrendComparisonOption(
   rows: PolicyTelemetryTrendRow[],
   theme: "dark" | "light",
-  logScale = false
+  logScale = false,
+  brush: TrendBrushFilter = { policy: null, runLabel: null }
 ): EChartsOption | null {
   const withMetric = rows.filter((r) => r.final_metric != null);
   if (withMetric.length === 0) return null;
@@ -99,18 +118,35 @@ export function buildTrendComparisonOption(
       axisLabel: { color: theme === "dark" ? "#9ca3af" : "#6b7280", fontSize: 10 },
       splitLine: { lineStyle: { color: theme === "dark" ? "#1f2937" : "#e5e7eb" } },
     },
-    series: seriesKeys.map((key, idx) => ({
-      name: key,
-      type: "bar" as const,
-      data: policies.map((policy) => lookup.get(`${key}::${policy}`) ?? null),
-      itemStyle: { color: CHART_COLORS[idx % CHART_COLORS.length] },
-    })),
+    series: seriesKeys.map((key, idx) => {
+      const sampleRow = withMetric.find((row) => trendRowLabel(row) === key);
+      const runKey = sampleRow ? trendRowRunKey(sampleRow) : key;
+      const runHighlighted = !brush.runLabel || runKey === brush.runLabel;
+      const baseColor = CHART_COLORS[idx % CHART_COLORS.length];
+      return {
+        name: key,
+        type: "bar" as const,
+        data: policies.map((policy) => {
+          const value = lookup.get(`${key}::${policy}`) ?? null;
+          if (value == null) return null;
+          const opacity = runHighlighted
+            ? barOpacity(policy, brush.policy ? [brush.policy] : null)
+            : 0.25;
+          return {
+            value,
+            itemStyle: { color: baseColor, opacity },
+          };
+        }),
+        itemStyle: { color: baseColor },
+      };
+    }),
   };
 }
 
 export function buildTrendStepsOption(
   rows: PolicyTelemetryTrendRow[],
-  theme: "dark" | "light"
+  theme: "dark" | "light",
+  brush: TrendBrushFilter = { policy: null, runLabel: null }
 ): EChartsOption | null {
   if (rows.length === 0) return null;
 
@@ -142,7 +178,13 @@ export function buildTrendStepsOption(
     series: [
       {
         type: "bar",
-        data: rows.map((r) => r.step_count),
+        data: rows.map((r) => ({
+          value: r.step_count,
+          itemStyle: {
+            color: CHART_COLORS[0],
+            opacity: trendRowHighlighted(r, brush) ? 1 : 0.25,
+          },
+        })),
         itemStyle: { color: CHART_COLORS[0] },
       },
     ],
@@ -168,7 +210,8 @@ export function buildTrendTrajectoryOption(
   series: PolicyTrajectorySeries[],
   theme: "dark" | "light",
   logScale = false,
-  smooth = false
+  smooth = false,
+  brush: TrendBrushFilter = { policy: null, runLabel: null }
 ): EChartsOption | null {
   if (series.length === 0) return null;
 
@@ -215,14 +258,16 @@ export function buildTrendTrajectoryOption(
         let j = 0;
         data = aligned.map((v) => (v == null ? null : smoothed[j++]!));
       }
+      const color = CHART_COLORS[idx % CHART_COLORS.length];
+      const opacity = trajectoryHighlighted(item, brush) ? 1 : 0.25;
       return {
         name: item.label,
         type: "line" as const,
         smooth,
         showSymbol: false,
         data,
-        lineStyle: { width: 2 },
-        itemStyle: { color: CHART_COLORS[idx % CHART_COLORS.length] },
+        lineStyle: { width: 2, color, opacity },
+        itemStyle: { color, opacity },
       };
     }),
   };
