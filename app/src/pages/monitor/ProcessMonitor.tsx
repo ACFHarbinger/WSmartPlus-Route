@@ -40,6 +40,7 @@ import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
+import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import {
   isSimProcess,
@@ -548,7 +549,13 @@ export function ProcessMonitor() {
             },
           }}
           footer={<ProcessIdFooter processId={selectedProc.id} />}
-        />
+        >
+          <ProcessLogTail
+            logLines={selectedProc.logLines}
+            maxLines={20}
+            waiting={selectedProc.status === "running"}
+          />
+        </LauncherLivePanel>
       )}
 
       {selectedIsTrain && selectedProc && (

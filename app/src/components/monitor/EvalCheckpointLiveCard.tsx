@@ -6,6 +6,7 @@ import type { EvalResult } from "../../utils/evalResults";
 import { hasEvalMetrics } from "../../utils/evalResults";
 import { EvalResultKpiRow } from "./EvalResultKpiRow";
 import { LiveTrainProgressBar } from "./LiveTrainProgressBar";
+import { ProcessLogTail } from "./ProcessLogTail";
 
 export interface EvalCheckpointLiveCardProps {
   procId: string;
@@ -46,21 +47,7 @@ export function EvalCheckpointLiveCard({
         <EvalResultKpiRow result={result} size="compact" showPolicy={false} />
       )}
       {isRunning && <LiveTrainProgressBar processId={procId} />}
-      {tail.length > 0 && (
-        <div className="space-y-0.5 max-h-20 overflow-auto">
-          {tail.map((line, i) => (
-            <p
-              key={i}
-              className="text-[10px] font-mono text-gray-400 leading-snug truncate"
-            >
-              {line}
-            </p>
-          ))}
-        </div>
-      )}
-      {isRunning && tail.length === 0 && (
-        <p className="text-[10px] text-canvas-muted">Waiting for output…</p>
-      )}
+      <ProcessLogTail lines={tail} waiting={isRunning} variant="compact" />
     </div>
   );
 }
