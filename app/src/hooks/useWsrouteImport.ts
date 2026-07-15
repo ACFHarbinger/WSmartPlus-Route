@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { useAppStore } from "../store/app";
 import { useRecentFilesStore } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
-import { portfolioRunLabel } from "../utils/arrowPipeline";
+import { makeRecentEntry } from "../utils/recentHandoff";
 
 /** Pick a `.wsroute` bundle, extract it, and open the log in Simulation Summary. */
 export function useWsrouteImport() {
@@ -32,11 +32,7 @@ export function useWsrouteImport() {
       });
       toast.success(`Extracted ${result.extracted_files.length} files`);
       if (result.log_path) {
-        pushRecent({
-          path: result.log_path,
-          label: portfolioRunLabel(result.log_path, undefined, projectRoot),
-          kind: "log",
-        });
+        pushRecent(makeRecentEntry(result.log_path, "log", projectRoot));
         setPendingLogPath(result.log_path);
         setMode("simulation_summary");
       } else {

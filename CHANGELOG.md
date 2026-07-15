@@ -11,6 +11,35 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-tenth pass (§G.6 + §G.7 + §G.8 + §G.10 + §G.12 + §G.14 + §G.17 + §D.7)
+
+Two-hundred-and-tenth pass closes the shared recent-file handoff and directory-drop
+gaps left after pass 209 introduced ``recentKindFromPath`` without wiring it through
+call sites. ``recentHandoff.ts`` centralises kind → mode / pending-path / toast specs
+and ``makeRecentEntry`` for ``portfolioRunLabel`` labels. Command Palette opens all
+recent kinds via the shared handoff and keyboard-navigates recents with commands.
+``useGlobalFileDrop`` classifies every dropped path (including training ``logs/`` and
+``assets/output`` run directories), pushes all matches to recents, and navigates to the
+highest-priority artefact. Output Browser directory picker and eval/train CSV dataset
+pickers push recents for Command Palette reopen parity.
+
+**React frontend**
+- ``recentHandoff.ts`` — shared handoff specs + ``makeRecentEntry`` + drop priority (§G.7 / §G.8 / §D.7)
+- ``recentKindFromPath`` — training ``logs/`` + ``assets/output`` run directory heuristics (§G.8 / §G.14 / §G.17 / §D.7)
+- Command Palette — unified recent open + keyboard nav over recents and commands (§G.7 / §D.7)
+- ``useGlobalFileDrop`` — multi-path classify/push + directory drop + shared handoff (§G.8 / §G.6 / §G.12 / §G.14 / §G.17 / §D.7)
+- Output Browser — ``pickOutputDir`` + inline open via ``recentKindFromPath`` / ``makeRecentEntry`` (§G.14 / §D.7)
+- Evaluation Runner + Training Hub — CSV dataset pick ``pushRecent`` (§G.12 / §G.10 / §G.6 / §D.7)
+
+**ROADMAP**
+- §G.7 Command Palette shared recent handoff + keyboard nav checked
+- §G.8 Global multi-path + directory drop recent-file parity checked
+- §G.14 Output Browser directory-open recent-file parity checked
+- §G.6 / §G.10 / §G.12 CSV dataset pick recent-file handoff checked
+- §D.7 Shared handoff relative-path brush/SQL recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-ninth pass (§G.6 + §G.7 + §G.8 + §G.12 + §G.13 + §G.14 + §D.7)
 
 Two-hundred-and-ninth pass closes the global file-drop and Output Browser multi-kind

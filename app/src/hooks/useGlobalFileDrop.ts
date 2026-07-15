@@ -3,19 +3,26 @@ import { invoke } from "@tauri-apps/api/core";
 import { toast } from "sonner";
 import { useAppStore } from "../store/app";
 import { useLayoutStore } from "../store/layout";
-import { useRecentFilesStore, type RecentFileKind } from "../store/recentFiles";
+import { useRecentFilesStore, recentKindFromPath, type RecentFileKind } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
-import { portfolioRunLabel } from "../utils/arrowPipeline";
+import {
+  highestPriorityKind,
+  makeRecentEntry,
+  recentHandoffSpec,
+  type RecentPendingKey,
+} from "../utils/recentHandoff";
 import { useFileDrop } from "./useFileDrop";
 
 function findPath(paths: string[], re: RegExp): string | undefined {
   return paths.find((p) => re.test(p));
 }
 
+type PendingSetters = Record<RecentPendingKey, (path: string | null) => void>;
+
 /**
- * App-wide drop handler for Studio artefacts (§G.8 / §G.6 / §G.12 / §G.13 / §G.14).
- * Routes logs, CSVs, checkpoints, configs, and `.wsroute` bundles through the same
- * ``portfolioRunLabel`` + pending-path handoffs used by Command Palette recents.
+ * App-wide drop handler for Studio artefacts (§G.8 / §G.6 / §G.7 / §G.12–§G.14 / §G.17).
+ * Routes logs, CSVs, checkpoints, configs, training/run directories, and `.wsroute`
+ * bundles through shared ``recentKindFromPath`` + ``portfolioRunLabel`` handoffs.
  */
 export function useGlobalFileDrop() {
   const {
@@ -25,38 +32,41 @@ export function useGlobalFileDrop() {
     setPendingCsvPath,
     setPendingCheckpoint,
     setPendingConfigPath,
+    setPendingRunPath,
+    setPendingTrainingRunPath,
   } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const setFileDropDragging = useLayoutStore((s) => s.setFileDropDragging);
 
-  const handoffRecent = useCallback(
-    (
-      path: string,
-      kind: RecentFileKind,
-      setPending: (path: string | null) => void,
-      mode: Parameters<typeof setMode>[0],
-      successLabel: string
-    ) => {
-      pushRecent({
-        path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
-        kind,
-      });
-      setPending(path);
-      setMode(mode);
-      toast.success(successLabel, { description: path.split(/[/\\]/).pop() });
+  const pendingSetters: PendingSetters = {
+    pendingLogPath: setPendingLogPath,
+    pendingRunPath: setPendingRunPath,
+    pendingCsvPath: setPendingCsvPath,
+    pendingTrainingRunPath: setPendingTrainingRunPath,
+    pendingCheckpoint: setPendingCheckpoint,
+    pendingConfigPath: setPendingConfigPath,
+  };
+
+  const handoffKind = useCallback(
+    (path: string, kind: RecentFileKind, toastOnSuccess = true) => {
+      const spec = recentHandoffSpec(kind);
+      pushRecent(makeRecentEntry(path, kind, projectRoot));
+      pendingSetters[spec.pendingKey](path);
+      setMode(spec.mode);
+      if (toastOnSuccess) {
+        toast.success(spec.successLabel, {
+          description: path.split(/[/\\]/).pop(),
+        });
+      }
     },
+    // pending setters are stable Zustand actions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
     [projectRoot, pushRecent, setMode]
   );
 
   const handleDrop = useCallback(
     async (paths: string[]) => {
       const wsroute = findPath(paths, /\.wsroute$/i);
-      const jsonl = findPath(paths, /\.jsonl$/i);
-      const logFile = findPath(paths, /\.log$/i);
-      const checkpoint = findPath(paths, /\.(pt|ckpt|pth)$/i);
-      const config = findPath(paths, /\.(ya?ml|toml|cfg|ini)$/i);
-      const csv = findPath(paths, /\.csv$/i);
 
       if (wsroute) {
         if (!projectRoot) {
@@ -71,13 +81,10 @@ export function useGlobalFileDrop() {
           });
           toast.success(`Extracted ${result.extracted_files.length} files`);
           if (result.log_path) {
-            pushRecent({
-              path: result.log_path,
-              label: portfolioRunLabel(result.log_path, undefined, projectRoot),
-              kind: "log",
+            handoffKind(result.log_path, "log", false);
+            toast.success("Log loaded", {
+              description: result.log_path.split(/[/\\]/).pop(),
             });
-            setPendingLogPath(result.log_path);
-            setMode("simulation_summary");
           } else {
             setMode("output_browser");
             toast.info("No .jsonl log in bundle — browse extracted files in Output Browser");
@@ -88,53 +95,43 @@ export function useGlobalFileDrop() {
         return;
       }
 
-      const logPath = jsonl ?? logFile;
-      if (logPath) {
-        handoffRecent(logPath, "log", setPendingLogPath, "simulation_summary", "Log loaded");
-        return;
+      // Classify every path; push all known kinds, navigate to highest priority.
+      const classified: Array<{ path: string; kind: RecentFileKind }> = [];
+      for (const path of paths) {
+        const kind = recentKindFromPath(path);
+        if (kind) classified.push({ path, kind });
       }
 
-      if (checkpoint) {
-        handoffRecent(
-          checkpoint,
-          "checkpoint",
-          setPendingCheckpoint,
-          "eval_runner",
-          "Checkpoint loaded in Eval Runner"
+      if (classified.length === 0) {
+        toast.error(
+          "Drop a .wsroute, .jsonl, .csv, checkpoint, config, training logs/, or assets/output run"
         );
         return;
       }
 
-      if (config) {
-        handoffRecent(
-          config,
-          "config",
-          setPendingConfigPath,
-          "config_editor",
-          "Config opened in Config Editor"
-        );
-        return;
+      // Push every classified path for Command Palette recents parity.
+      for (const { path, kind } of classified) {
+        pushRecent(makeRecentEntry(path, kind, projectRoot));
       }
 
-      if (csv) {
-        handoffRecent(csv, "csv", setPendingCsvPath, "data_explorer", "CSV loaded in Data Explorer");
-        return;
-      }
+      const primaryKind = highestPriorityKind(classified.map((c) => c.kind));
+      const primary = primaryKind
+        ? classified.find((c) => c.kind === primaryKind)
+        : undefined;
+      if (!primary) return;
 
-      toast.error(
-        "Drop a .wsroute, .jsonl, .csv, checkpoint (.pt/.ckpt/.pth), or config (.yaml/…) file"
-      );
+      const spec = recentHandoffSpec(primary.kind);
+      pendingSetters[spec.pendingKey](primary.path);
+      setMode(spec.mode);
+      const extra =
+        classified.length > 1 ? ` (+${classified.length - 1} more in Recent)` : "";
+      toast.success(`${spec.successLabel}${extra}`, {
+        description: primary.path.split(/[/\\]/).pop(),
+      });
     },
-    [
-      projectRoot,
-      pushRecent,
-      setMode,
-      setPendingLogPath,
-      setPendingCsvPath,
-      setPendingCheckpoint,
-      setPendingConfigPath,
-      handoffRecent,
-    ]
+    // pending setters are stable Zustand actions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [projectRoot, pushRecent, setMode, handoffKind]
   );
 
   return useFileDrop(handleDrop, true, setFileDropDragging);
