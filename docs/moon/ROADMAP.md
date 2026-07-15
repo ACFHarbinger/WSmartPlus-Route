@@ -1464,6 +1464,17 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor — run-panel training path + checkpoint browser icon handoffs via ``PathHandoffButtons`` (§G.17 / §G.12 / §D.7)
 - [x] §G.14 / §G.9 / §G.10 / §G.17 Output Browser + nav-mesh + Training Monitor path-handoff surface parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-fifth pass)**
+
+- [x] ``LoadedRunRow`` — ``pathHandoffs`` + optional ``handoffKind`` via shared ``PathHandoffButtons`` (supersedes direct ``LogHandoffButtons``; ``logHandoffs`` alias retained) (§G.1 / §G.7 / §G.14 / §D.7)
+- [x] Portfolio loaded-run lists (Simulation Summary / Benchmark Analysis / City Comparison) migrate to ``pathHandoffs`` (§G.1 / §G.1.6 / §D.7)
+- [x] Output Browser run list + Experiment Tracker output dirs + Training Monitor run discovery — ``pathHandoffs`` with explicit ``handoffKind`` (§G.14 / §G.17 / §G.18 / §D.7)
+- [x] Evaluation Runner — checkpoint input rows + results table checkpoint ``PathHandoffButtons`` (§G.12 / §D.7)
+- [x] Training Hub eval checkpoint + ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint icon handoffs (§G.10 / §G.12 / §G.15 / §D.7)
+- [x] Benchmark Analysis eval-results checkpoint column ``PathHandoffButtons`` (§G.1 / §G.12 / §D.7)
+- [x] Data Generation sensor CSV + HPO Tracker trial log dirs / report dir + Experiment Tracker MLflow run dirs — path-kind icon handoffs (§G.11 / §G.18 / §D.7)
+- [x] §G.12 / §G.10 / §G.1 / §G.14 / §G.17 / §G.18 eval + portfolio + tracker path-handoff surface parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -2276,6 +2287,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Hub train/HPO modes import shared title (hundred-seventieth pass; §G.10 / §D.7)
 - [x] Training Hub card live panel headers pass ``runLabel`` + · live suffix for eval and train/HPO modes (hundred-seventy-second pass; §G.10 / §D.7)
 - [x] ``TrainHpoNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser + Training Monitor labeled handoffs with empty-path mode-only fallback (§G.10 / §G.15 / §G.17 / §D.7)
+- [x] Training Hub eval checkpoint path-kind handoff via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.10 / §G.12 / §D.7)
 
 ---
 
@@ -2303,6 +2315,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessLogTail`` shared stdout tail display on Data Generation live panel via ``LauncherLivePanel`` (hundred-sixty-fourth pass; §G.11 / §D.7)
 - [x] ``dataGenLivePanelTitle`` shared data-gen live panel title helper; Data Generation imports shared title (hundred-sixty-ninth pass; §G.11 / §D.7)
 - [x] Data Generation card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.11 / §D.7)
+- [x] Data Generation sensor CSV path-kind handoff via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.11 / §G.6 / §D.7)
 
 ---
 
@@ -2337,6 +2350,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherNavMesh`` ``Training Hub →`` shortcut on eval workflows (hundred-sixty-seventh pass; §G.12 / §D.7)
 - [x] ``evalLivePanelTitle`` shared eval live panel title; Evaluation Runner imports shared title (hundred-sixty-eighth pass; §G.12 / §D.7)
 - [x] Evaluation Runner card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.12 / §D.7)
+- [x] Evaluation Runner checkpoint input + results table path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.12 / §D.7)
+- [x] ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint icon handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.12 / §G.15 / §D.7)
 
 ---
 
@@ -2384,6 +2399,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser ``useLogPathRunLabelBrush`` replaces inline ``setRunLabel`` on run select (hundred-seventy-fourth pass; §G.14 / §D.7)
 - [x] Output Browser ``runLabelMapFromPaths`` replaces inline ``runLabelFromPath`` in run list ring highlights (hundred-seventy-fifth pass; §G.14 / §D.7)
 - [x] Output Browser path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-header log dual / run single; file-viewer CSV / config / checkpoint / log labeled controls; checkpoint sidebar icon Eval handoffs (§G.14 / §G.7 / §D.7)
+- [x] Output Browser run list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.14 / §D.7)
 
 ---
 
@@ -2503,10 +2519,12 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Monitor imports shared title (hundred-seventieth pass; §G.17 / §D.7)
 - [x] Training Monitor ``TrainHpoLivePanel`` card header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.17 / §D.7)
 - [x] Training Monitor path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-panel training icon + checkpoint browser Eval icon (§G.17 / §G.12 / §D.7)
+- [x] Training Monitor run-discovery list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.17 / §D.7)
 
 ---
 
 ### §G.18 — Phase 18: Experiment & HPO Tracker ✅
+
 
 **Goal**: Full Streamlit `experiment_tracker` and `hpo_tracker` mode parity — MLflow/ZenML run browser, Optuna study visualization, and cross-experiment comparison.
 
@@ -2542,6 +2560,8 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] ``ProcessLogTail`` shared stdout tail display on HPO Tracker + Experiment Tracker live panels via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.18 / §D.7)
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; HPO Tracker + Experiment Tracker import shared title (hundred-seventieth pass; §G.18 / §D.7)
 - [x] HPO Tracker + Experiment Tracker ``TrainHpoLivePanel`` card headers pass ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.18 / §D.7)
+- [x] HPO Tracker trial log dirs + report directory path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.18 / §D.7)
+- [x] Experiment Tracker MLflow run dirs + output directory list ``pathHandoffs`` via ``PathHandoffButtons`` / ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.18 / §G.14 / §D.7)
 
 ---
 

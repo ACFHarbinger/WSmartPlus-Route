@@ -8,6 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
@@ -530,6 +531,14 @@ export function ExperimentTracker() {
                         path={runDir}
                         label={brushLabel}
                         className="flex-1 min-w-0"
+                        trailing={
+                          <PathHandoffButtons
+                            path={runDir}
+                            kind="training"
+                            storedLabel={brushLabel}
+                            iconSize={11}
+                          />
+                        }
                       />
                       <span className="text-canvas-muted font-mono text-[10px] shrink-0 truncate max-w-[6rem]">
                         {r.run_id.slice(0, 12)}…
@@ -652,6 +661,8 @@ export function ExperimentTracker() {
                     projectRoot={projectRoot}
                     label={d.name}
                     activeRunLabel={activeRunLabel}
+                    pathHandoffs
+                    handoffKind="run"
                   />
                 </td>
                 <td className="py-2 px-3 text-canvas-muted">

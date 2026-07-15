@@ -563,6 +563,8 @@ export function OutputBrowser() {
               label={r.name}
               activeRunLabel={activeRunLabel}
               selected={selectedRun?.path === r.path}
+              pathHandoffs
+              handoffKind="run"
               className="mx-0 px-1"
               leading={
                 <>

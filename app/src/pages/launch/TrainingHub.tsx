@@ -15,6 +15,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
@@ -506,6 +507,13 @@ export function TrainingHub() {
                   projectRoot
                 )}
                 className="max-w-full"
+                trailing={
+                  <PathHandoffButtons
+                    path={checkpointPath.trim()}
+                    kind="checkpoint"
+                    iconSize={11}
+                  />
+                }
               />
             ) : null}
           </div>

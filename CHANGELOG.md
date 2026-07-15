@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-fifth pass (§G.1 + §G.7 + §G.10 + §G.11 + §G.12 + §G.14 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Two-hundred-and-twenty-fifth pass extends path-handoff surface parity after pass 224
+put labeled ``PathHandoffButtons`` on nav meshes, Output Browser, and Training Monitor
+run panels. Eval workflow surfaces (checkpoint inputs, results tables, live/result cards)
+and portfolio / tracker run lists now share the same kind-aware control. ``LoadedRunRow``
+unifies log dual-handoffs and non-log single-icon handoffs behind ``pathHandoffs``.
+
+**React frontend**
+- ``LoadedRunRow`` — ``pathHandoffs`` + optional ``handoffKind`` via ``PathHandoffButtons``; ``logHandoffs`` alias retained (§G.1 / §G.7 / §D.7)
+- Portfolio lists (Simulation Summary / Benchmark / City Comparison) migrate to ``pathHandoffs`` (§G.1 / §G.1.6 / §D.7)
+- Output Browser run list + Training Monitor run discovery + Experiment Tracker output dirs — explicit ``handoffKind`` path handoffs (§G.14 / §G.17 / §G.18 / §D.7)
+- Evaluation Runner — checkpoint input + results table checkpoint icon handoffs (§G.12 / §D.7)
+- Training Hub eval checkpoint; ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint icons (§G.10 / §G.12 / §G.15 / §D.7)
+- Benchmark Analysis eval-results checkpoint column handoffs (§G.1 / §G.12 / §D.7)
+- Data Generation sensor CSV; HPO Tracker trial log dirs + report dir; Experiment Tracker MLflow run dirs (§G.11 / §G.18 / §D.7)
+
+**ROADMAP**
+- §G.12 / §G.10 / §G.1 / §G.14 / §G.17 / §G.18 eval + portfolio + tracker path-handoff surface parity checked
+- §D.7 ``LoadedRunRow`` path-handoff unification + eval/launcher/tracker coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-fourth pass (§G.7 + §G.9 + §G.10 + §G.12 + §G.14 + §G.15 + §G.17 + §D.7)
 
 Two-hundred-and-twenty-fourth pass continues path-handoff surface parity after
