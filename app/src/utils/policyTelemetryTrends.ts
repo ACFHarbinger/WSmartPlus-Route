@@ -5,6 +5,7 @@ import type { EChartsOption } from "echarts";
 import type { PolicyTelemetryTrendRow, PolicyTrajectorySeries } from "../types";
 import { ema, policyVizTypeLabel } from "./policyTelemetry";
 import { barOpacity, isHighlighted } from "./chartHighlight";
+import { resolveLocalProjectPath } from "./outputRunPath";
 import { downloadCsv } from "./tableExport";
 
 export interface TrendBrushFilter {
@@ -29,44 +30,57 @@ export function extractJsonlPathFromLogLines(lines: string[]): string | null {
 }
 
 /** Derive SQLite ``run_label`` from process stdout, falling back to process id. */
-export function runLabelFromLogLines(lines: string[], fallbackId: string): string {
+export function runLabelFromLogLines(
+  lines: string[],
+  fallbackId: string,
+  projectRoot?: string | null
+): string {
   const jsonl = extractJsonlPathFromLogLines(lines);
-  if (jsonl) return runLabelFromPath(jsonl);
+  if (jsonl) {
+    const resolved = resolveLocalProjectPath(jsonl, projectRoot) ?? jsonl;
+    return runLabelFromPath(resolved);
+  }
   return runLabelFromPath(fallbackId);
 }
 
 /** Derive ``run_label`` per process id for row ring-highlight parity (§G.15 / §D.7). */
 export function runLabelMapFromProcesses(
   processes: Record<string, { logLines: string[] }>,
-  ids: string[]
+  ids: string[],
+  projectRoot?: string | null
 ): Record<string, string> {
   const map: Record<string, string> = {};
   for (const id of ids) {
     const proc = processes[id];
     if (!proc) continue;
-    map[id] = runLabelFromLogLines(proc.logLines, id);
+    map[id] = runLabelFromLogLines(proc.logLines, id, projectRoot);
   }
   return map;
 }
 
 /** Derive ``run_label`` per run path for file-based row ring-highlight parity (§G.1 / §G.14 / §D.7). */
 export function runLabelMapFromPaths(
-  items: Array<{ path: string; name?: string }>
+  items: Array<{ path: string; name?: string }>,
+  projectRoot?: string | null
 ): Record<string, string> {
   const map: Record<string, string> = {};
   for (const item of items) {
-    map[item.path] = runLabelFromPath(item.name ?? item.path);
+    const raw = item.name ?? item.path;
+    const resolved = resolveLocalProjectPath(raw, projectRoot) ?? raw;
+    map[item.path] = runLabelFromPath(resolved);
   }
   return map;
 }
 
 /** Derive ``run_label`` per DuckDB table from ingest source paths (§G.6 / §D.7). */
 export function runLabelMapFromTablePaths(
-  tablePaths: Record<string, string>
+  tablePaths: Record<string, string>,
+  projectRoot?: string | null
 ): Record<string, string> {
   const map: Record<string, string> = {};
   for (const [tableName, path] of Object.entries(tablePaths)) {
-    map[tableName] = runLabelFromPath(path);
+    const resolved = resolveLocalProjectPath(path, projectRoot) ?? path;
+    map[tableName] = runLabelFromPath(resolved);
   }
   return map;
 }
@@ -91,8 +105,13 @@ export function tableRunLabelBrushActive(
 }
 
 /** Whether a global ``run_label`` brush matches a file/log path stem (§G.14–§G.16 / §D.7). */
-export function pathRunLabelBrushActive(path: string, activeRunLabel: string | null): boolean {
-  return Boolean(activeRunLabel && runLabelFromPath(path) === activeRunLabel);
+export function pathRunLabelBrushActive(
+  path: string,
+  activeRunLabel: string | null,
+  projectRoot?: string | null
+): boolean {
+  const resolved = resolveLocalProjectPath(path, projectRoot) ?? path;
+  return Boolean(activeRunLabel && runLabelFromPath(resolved) === activeRunLabel);
 }
 
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
