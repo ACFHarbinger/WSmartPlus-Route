@@ -1762,6 +1762,8 @@ export function SimulationSummary() {
   const [entries, setEntries] = useState<DayLogEntry[]>([]);
   const [logPath, setLogPath] = useState<string | null>(null);
   const [comparisonRuns, setComparisonRuns] = useState<ComparisonRun[]>([]);
+  const [brushedCity, setBrushedCity] = useState<string | null>(null);
+  const [brushedRunLabel, setBrushedRunLabel] = useState<string | null>(null);
   const cityCompareChartRef = useRef<EChartsReact | null>(null);
 
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
@@ -1993,6 +1995,39 @@ export function SimulationSummary() {
     [cityGroups]
   );
 
+  const brushedRunLabels = useMemo(() => {
+    if (brushedRunLabel) return [brushedRunLabel];
+    if (!brushedCity) return null;
+    const group = cityGroups.find(([city]) => city === brushedCity);
+    if (!group) return null;
+    return group[1].map((r) => r.label);
+  }, [brushedCity, brushedRunLabel, cityGroups]);
+
+  const handleCityClick = useCallback((city: string) => {
+    setBrushedRunLabel(null);
+    setBrushedCity((current) => (current === city ? null : city));
+  }, []);
+
+  const handleRunLabelClick = useCallback((label: string) => {
+    setBrushedCity(null);
+    setBrushedRunLabel((current) => (current === label ? null : label));
+  }, []);
+
+  const handlePortfolioConfigClick = useCallback(
+    (policyName: string, runLabel: string) => {
+      handlePolicyClick(policyName);
+      handleRunLabelClick(runLabel);
+    },
+    [handlePolicyClick, handleRunLabelClick]
+  );
+
+  const onCityChartClick = useCallback(
+    (params: { name?: string }) => {
+      if (params.name) handleCityClick(params.name);
+    },
+    [handleCityClick]
+  );
+
   const cityScaleKgkmGroups = useMemo(() => {
     if (!portfolioMode) return null;
     return cityGroups.map(([label, runs]) => {
@@ -2107,14 +2142,24 @@ export function SimulationSummary() {
           </p>
           <div className="space-y-1">
             {comparisonRuns.map((r) => (
-              <div key={r.path} className="flex items-center gap-2 text-xs text-gray-300">
+              <div
+                key={r.path}
+                className={`flex items-center gap-2 text-xs text-gray-300 rounded px-1 -mx-1 ${
+                  brushedRunLabel === r.label ? "bg-accent-primary/15" : ""
+                }`}
+              >
                 <button
                   onClick={() => removeComparisonRun(r.path)}
                   className="text-canvas-muted hover:text-accent-danger"
                 >
                   <X size={12} />
                 </button>
-                <span className="font-mono truncate">{r.label}</span>
+                <button
+                  onClick={() => handleRunLabelClick(r.label)}
+                  className="font-mono truncate text-left hover:text-accent-secondary flex-1"
+                >
+                  {r.label}
+                </button>
                 <span className="ml-auto text-canvas-muted">{r.entries.length} days</span>
               </div>
             ))}
@@ -2282,6 +2327,7 @@ export function SimulationSummary() {
                 ref={cityCompareChartRef}
                 option={cityComparisonOption}
                 style={{ height: 240 }}
+                onEvents={{ click: onCityChartClick }}
               />
             </div>
           )}
@@ -2349,7 +2395,7 @@ export function SimulationSummary() {
               runs={allRuns}
               showErrorBars={showErrorBars}
               brushed={effectiveBrushed}
-              onPolicyClick={handlePolicyClick}
+              onConfigClick={handlePortfolioConfigClick}
             />
           )}
 
@@ -2517,6 +2563,7 @@ export function SimulationSummary() {
               tableName={SUMMARY_SIM_TABLE}
               theme={theme}
               highlightPolicies={effectiveBrushed}
+              highlightRunLabels={brushedRunLabels}
               brushSqlSync
               autoRunOnBrushSync
               portfolioMode={allDuckDbLogs.length > 1}
