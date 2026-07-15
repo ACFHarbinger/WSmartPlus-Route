@@ -14,7 +14,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
-import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
@@ -1864,8 +1864,12 @@ export function SimulationSummary() {
     const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     setEntries(loaded);
     setLogPath(path);
-    pushRecent({ path, label: recentFileLabel(path), kind: "log" });
-  }, [pushRecent]);
+    pushRecent({
+      path,
+      label: portfolioRunLabel(path, undefined, projectRoot),
+      kind: "log",
+    });
+  }, [pushRecent, projectRoot]);
 
   const allDuckDbLogs = useMemo(() => {
     const logs: { path: string; label: string }[] = [];

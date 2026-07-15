@@ -15,7 +15,11 @@ import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, filterEntries } from "../../store/sim";
-import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
+import {
+  formatPipelineTimingBadge,
+  portfolioRunLabel,
+  runSimulationArrowPipeline,
+} from "../../utils/arrowPipeline";
 import { barOpacity } from "../../utils/chartHighlight";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { errorBarBounds, radarAxisValue } from "../../utils/chartLogScale";
@@ -50,7 +54,11 @@ export function AlgorithmComparison() {
   const { entries, watchPath } = useSimStore();
   const { projectRoot, setMode, setPendingMapCompare, effectiveTheme: theme } = useAppStore();
   const { policy, sampleId, runLabel, setPolicy } = useGlobalFiltersStore();
-  const derivedRunLabel = useLogPathRunLabelBrush(watchPath);
+  useLogPathRunLabelBrush(watchPath);
+  const sourceRunLabel = useMemo(
+    () => (watchPath ? portfolioRunLabel(watchPath, undefined, projectRoot) : null),
+    [watchPath, projectRoot]
+  );
   const brushedPolicies = useMemo(() => (policy ? [policy] : null), [policy]);
   const {
     ready: duckdbReady,
@@ -158,7 +166,7 @@ export function AlgorithmComparison() {
   return (
     <div className="space-y-4">
       <GlobalFilterBar
-        runLabels={derivedRunLabel ? [derivedRunLabel] : []}
+        runLabels={sourceRunLabel ? [sourceRunLabel] : []}
         showLogScale
       />
 
@@ -336,7 +344,7 @@ export function AlgorithmComparison() {
           theme={theme}
           logScale={logScale}
           initialPolicy={brushedPolicies?.length === 1 ? brushedPolicies[0]! : null}
-          initialRunLabel={runLabel}
+          initialRunLabel={runLabel ?? sourceRunLabel}
         />
       )}
 
@@ -345,11 +353,11 @@ export function AlgorithmComparison() {
           tableName={ALGORITHM_SIM_TABLE}
           theme={theme}
           highlightPolicies={brushedPolicies}
-          highlightRunLabels={derivedRunLabel ? [derivedRunLabel] : null}
+          highlightRunLabels={sourceRunLabel ? [sourceRunLabel] : null}
           brushSqlSync
           autoRunOnBrushSync
           portfolioMode
-          portfolioRunLabels={derivedRunLabel ? [derivedRunLabel] : []}
+          portfolioRunLabels={sourceRunLabel ? [sourceRunLabel] : []}
           algorithmMode
         />
       )}
