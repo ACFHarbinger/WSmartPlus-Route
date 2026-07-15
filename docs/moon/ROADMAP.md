@@ -937,6 +937,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner — deduplicated inline log tail formatting; import shared ``processLogTail`` (§G.12 / §D.7)
 - [x] §G.12 / §G.15 eval live checkpoint card parity across Evaluation Runner and Process Monitor (§D.7)
 
+**Delivered (§D.7 — hundred-sixty-first pass)**
+
+- [x] ``ProcessLogTail`` — shared stdout/stderr tail display component for launcher live panels (§G.11 / §G.12 / §G.15 / §D.7)
+- [x] ``EvalCheckpointLiveCard`` — deduplicated inline log tail markup; import shared ``ProcessLogTail`` (§G.12 / §D.7)
+- [x] Data Generation Wizard — deduplicated inline log tail markup; ``processLogTail`` + ``ProcessLogTail`` parity (§G.11 / §D.7)
+- [x] Process Monitor — selected ``gen_data`` processes show ``ProcessLogTail`` in embedded workflow section (§G.11 / §G.15 / §D.7)
+- [x] §G.11 / §G.12 / §G.15 launcher log tail display parity across Data Generation, Evaluation Runner, and Process Monitor (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1671,6 +1679,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Post-run panel persistence via ``findRecentLauncherProcessId`` when navigation clears local state (hundred-forty-sixth pass; §G.11 / §D.7)
 - [x] ``LauncherLivePanel`` shared live progress panel shell (hundred-fifty-seventh pass; §G.11 / §D.7)
 - [x] ``ProcessIdFooter`` ``footer`` process-id row on Data Generation live panel (hundred-fifty-eighth pass; §G.11 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display on Data Generation live panel (hundred-sixty-first pass; §G.11 / §D.7)
 
 ---
 
@@ -1699,6 +1708,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessIdFooter`` multi-process footer + ``EvalResultKpiRow`` per-checkpoint KPI row on Evaluation Runner live panel (hundred-fifty-eighth pass; §G.12 / §D.7)
 - [x] ``EvalCheckpointLiveCard`` shared per-checkpoint live eval row on Evaluation Runner (hundred-fifty-ninth pass; §G.12 / §D.7)
 - [x] ``processLogTail`` + Process Monitor ``EvalCheckpointLiveCard`` live eval parity (hundred-sixtieth pass; §G.12 / §G.15 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display inside ``EvalCheckpointLiveCard`` (hundred-sixty-first pass; §G.12 / §D.7)
 
 ---
 
@@ -1784,6 +1794,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherLivePanel`` ``embedded`` variant for selected ``test_sim`` / ``gen_data`` / ``eval`` analytics sections (hundred-fifty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 - [x] ``EvalResultCard`` shared eval result card with ``Open in Analytics →`` on selected ``eval`` processes (hundred-fifty-eighth pass; §G.12 / §G.15 / §D.7)
 - [x] ``EvalCheckpointLiveCard`` live progress + stdout tail on selected running ``eval`` processes; ``EvalResultCard`` on completion with metrics (hundred-sixtieth pass; §G.12 / §G.15 / §D.7)
+- [x] ``ProcessLogTail`` shared stdout tail display on selected ``gen_data`` embedded workflow section (hundred-sixty-first pass; §G.11 / §G.15 / §D.7)
 
 ---
 

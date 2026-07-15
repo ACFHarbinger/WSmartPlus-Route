@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-first pass (§G.11 + §G.12 + §G.15 + §D.7)
+
+Hundred-sixty-first pass closes the launcher log tail display gap left after the
+hundred-sixtieth pass (which added ``processLogTail`` helper + Process Monitor
+``EvalCheckpointLiveCard`` eval parity). Log tail rendering is now deduplicated
+into a shared ``ProcessLogTail`` component used across Data Generation, eval live
+cards, and Process Monitor embedded sections.
+
+**React frontend**
+- ``ProcessLogTail`` — shared stdout/stderr tail display with ``compact`` and
+  ``default`` variants for launcher live panels (§G.11 / §G.12 / §G.15 / §D.7)
+- ``EvalCheckpointLiveCard`` — deduplicated inline log tail markup; import shared
+  ``ProcessLogTail`` (§G.12 / §D.7)
+- Data Generation Wizard — deduplicated inline log tail formatting; import shared
+  ``processLogTail`` + ``ProcessLogTail`` (§G.11 / §D.7)
+- Process Monitor — selected ``gen_data`` processes show ``ProcessLogTail`` in
+  embedded workflow section (§G.11 / §G.15 / §D.7)
+
+**ROADMAP**
+- §G.11 Data Generation ``ProcessLogTail`` checked
+- §G.12 ``EvalCheckpointLiveCard`` ``ProcessLogTail`` checked
+- §G.15 Process Monitor ``gen_data`` embedded log tail checked
+- §D.7 launcher log tail display parity across Data Generation, Evaluation Runner, and Process Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixtieth pass (§G.12 + §G.15 + §D.7)
 
 Hundred-sixtieth pass closes the Process Monitor eval live panel gap left after the

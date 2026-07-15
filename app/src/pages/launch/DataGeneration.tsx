@@ -16,6 +16,7 @@ import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
+import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
@@ -228,13 +229,6 @@ export function DataGeneration() {
   }, [dataGenNonce, launch]);
 
   const liveLogLines = displayProc?.logLines ?? [];
-  const logTail = useMemo(
-    () =>
-      liveLogLines
-        .slice(-20)
-        .map((line) => (line.startsWith("[stderr]") ? line.slice(8) : line)),
-    [liveLogLines]
-  );
   const outputRunPath = useMemo(
     () => outputRunPathFromLogLines(liveLogLines),
     [liveLogLines]
@@ -562,16 +556,11 @@ export function DataGeneration() {
             }
             footer={<ProcessIdFooter processId={displayProcessId} />}
           >
-            {logTail.length > 0 && (
-              <div className="bg-canvas-bg rounded-lg p-2 space-y-0.5 max-h-36 overflow-auto">
-                {logTail.map((line, i) => (
-                  <p key={i} className="text-xs font-mono text-gray-400 leading-snug">{line}</p>
-                ))}
-              </div>
-            )}
-            {logTail.length === 0 && !isDone && (
-              <p className="text-xs text-canvas-muted">Waiting for output…</p>
-            )}
+            <ProcessLogTail
+              logLines={liveLogLines}
+              maxLines={20}
+              waiting={!isDone}
+            />
           </LauncherLivePanel>
         );
       })()}
