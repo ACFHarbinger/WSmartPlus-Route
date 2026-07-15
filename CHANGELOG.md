@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-sixteenth pass (§G.1 + §G.16 + §D.7)
+
+Two-hundred-and-sixteenth pass closes the open-log Simulation Summary handoff gap left
+after pass 215 wired portfolio row handoffs and pass 214 exposed Monitor handoffs from
+Summary, Output Browser, and Algorithm Comparison. Simulation Monitor gains **Simulation
+Summary →** for the open ``watchPath``. Algorithm Comparison exposes the same Summary
+handoff next to **Compare on Map** so analytics can jump either direction without
+re-picking the log.
+
+**React frontend**
+- Simulation Monitor — **Simulation Summary →** open-log handoff (§G.16 / §G.1 / §D.7)
+- Algorithm Comparison — **Simulation Summary →** ``watchPath`` handoff (§G.1 / §D.7)
+
+**ROADMAP**
+- §G.16 / §G.1 open-log Simulation Summary handoff parity checked
+- §D.7 reverse open-log Summary surface coverage beyond portfolio rows checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fifteenth pass (§G.1 + §G.1.6 + §G.16 + §D.7)
 
 Two-hundred-and-fifteenth pass closes the portfolio loaded-run log-handoff gap left after
