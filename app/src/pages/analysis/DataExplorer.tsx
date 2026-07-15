@@ -231,6 +231,7 @@ export function DataExplorer() {
           policies={csvPolicies}
           runLabels={csvRunLabels}
           cities={csvCities.length > 1 ? csvCities : []}
+          showLogScale
         />
       )}
 

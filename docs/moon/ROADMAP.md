@@ -1104,6 +1104,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Bookmarkable city/scale brush: `useHashSync` serializes global ``brushedCity`` as ``c`` query param; restored on load and browser back/forward (§G.7)
+- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
+- [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
 - [x] Keyboard shortcuts help overlay: `KeyboardShortcutsHelp` modal + TopBar button; `Escape` dismisses
@@ -1113,8 +1115,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Sidebar page prefetch: `prefetchPage()` warms lazy route chunks on nav item hover
 - [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
 - [x] Recent files quick open: `useRecentFilesStore` persisted list; command palette Recent section; tracked from Simulation Monitor, Summary, Output Browser, Data Explorer
-- [x] Startup route prefetch: `App.tsx` warms simulation, summary, process monitor, output browser chunks on mount (§G.7 performance partial)
-- [x] Startup vendor prefetch: maplibre-gl + @deck.gl/react warmed alongside echarts and DeckRouteMap chunk (§G.7 performance partial)
+- [x] Startup route prefetch: `App.tsx` warms simulation, summary, benchmark, OLAP explorer, process monitor, output browser chunks on mount (§G.7 performance partial)
+- [x] Startup vendor prefetch: maplibre-gl + @deck.gl/react + @monaco-editor/react warmed alongside echarts and DeckRouteMap chunk (§G.7 performance partial)
 - [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7 performance partial)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)

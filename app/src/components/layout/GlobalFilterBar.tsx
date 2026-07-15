@@ -13,19 +13,28 @@ interface Props {
   runLabels?: string[];
   /** City/scale group options for portfolio city brush (§G.6). */
   cities?: string[];
+  /** Show global log-scale toggle for analytics charts (§G.7). */
+  showLogScale?: boolean;
 }
 
-export function GlobalFilterBar({ policies: policiesProp, runLabels = [], cities = [] }: Props) {
+export function GlobalFilterBar({
+  policies: policiesProp,
+  runLabels = [],
+  cities = [],
+  showLogScale = false,
+}: Props) {
   const { entries } = useSimStore();
   const {
     policy,
     sampleId,
     runLabel,
     brushedCity,
+    logScale,
     setPolicy,
     setSampleId,
     setRunLabel,
     setBrushedCity,
+    setLogScale,
     reset,
   } = useGlobalFiltersStore();
 
@@ -33,6 +42,7 @@ export function GlobalFilterBar({ policies: policiesProp, runLabels = [], cities
   const samples = uniqueSamples(entries);
 
   if (
+    !showLogScale &&
     policies.length === 0 &&
     entries.length === 0 &&
     policy == null &&
@@ -107,7 +117,17 @@ export function GlobalFilterBar({ policies: policiesProp, runLabels = [], cities
         </select>
       )}
 
-      {(policy || sampleId != null || runLabel || brushedCity) && (
+      {showLogScale && (
+        <button
+          type="button"
+          onClick={() => setLogScale(!logScale)}
+          className={`btn-ghost text-xs ${logScale ? "text-accent-secondary" : ""}`}
+        >
+          {logScale ? "Log scale (on)" : "Log scale (off)"}
+        </button>
+      )}
+
+      {(policy || sampleId != null || runLabel || brushedCity || logScale) && (
         <button
           onClick={reset}
           className="btn-ghost text-xs flex items-center gap-1 text-canvas-muted"

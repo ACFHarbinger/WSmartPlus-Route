@@ -78,7 +78,7 @@ export function SqlQueryPanel({
   const [sortDir, setSortDir] = useState<"asc" | "desc">("asc");
   const [filterText, setFilterText] = useState("");
   const [chartTypeOverride, setChartTypeOverride] = useState<AutoChartType | null>(null);
-  const [scatterLogScale, setScatterLogScale] = useState(false);
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const autoChartRef = useRef<ReactECharts>(null);
 
   const templates = useMemo(
@@ -171,19 +171,12 @@ export function SqlQueryPanel({
     setChartTypeOverride(null);
   }, [rows]);
 
-  const scatterOverflowAxis = useMemo(
-    () =>
-      chartSpec?.type === "scatter" &&
-      /^(mean_)?overflows$/i.test(chartSpec.yKey),
-    [chartSpec]
-  );
-
   const chartOption = useMemo(
     () =>
       chartSpec
-        ? buildAutoChartOption(chartSpec, rows, { logScale: scatterLogScale })
+        ? buildAutoChartOption(chartSpec, rows, { logScale })
         : null,
-    [chartSpec, rows, scatterLogScale]
+    [chartSpec, rows, logScale]
   );
 
   const sortedRows = useMemo(() => {
@@ -561,17 +554,7 @@ export function SqlQueryPanel({
                   <ImageDown size={11} />
                   SVG
                 </button>
-                {scatterOverflowAxis && (
-                  <button
-                    type="button"
-                    onClick={() => setScatterLogScale((v) => !v)}
-                    className={`btn-ghost text-[10px] py-0.5 ${
-                      scatterLogScale ? "text-accent-secondary" : ""
-                    }`}
-                  >
-                    {scatterLogScale ? "Log overflows (on)" : "Log overflows (off)"}
-                  </button>
-                )}
+
               </div>
               <ReactECharts
                 ref={autoChartRef}

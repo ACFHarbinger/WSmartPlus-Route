@@ -173,15 +173,20 @@ export default function App() {
     void Promise.all([
       import("./pages/monitor/SimulationMonitor"),
       import("./pages/analysis/SimulationSummary"),
+      import("./pages/analysis/BenchmarkAnalysis"),
+      import("./pages/analysis/OlapExplorer"),
       import("./pages/monitor/ProcessMonitor"),
       import("./pages/files/OutputBrowser"),
       import("echarts-for-react"),
       import("./components/maps/DeckRouteMap"),
       import("maplibre-gl"),
       import("@deck.gl/react"),
+      import("@monaco-editor/react"),
     ]).then(() => markStartup("prefetchDone"));
     prefetchPage("simulation");
     prefetchPage("simulation_summary");
+    prefetchPage("benchmark");
+    prefetchPage("olap_explorer");
     prefetchPage("process_monitor");
     prefetchPage("output_browser");
   }, []);

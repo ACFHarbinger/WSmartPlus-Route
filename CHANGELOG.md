@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-sixth pass (§G.7)
+
+Seventy-sixth pass unifies log-scale chart toggles under global filter state and extends
+startup prefetch for analytics routes.
+
+**React frontend**
+- `useGlobalFiltersStore` — global ``logScale`` boolean shared across analytics views
+- `GlobalFilterBar` — ``showLogScale`` prop adds app-wide log-scale toggle; Clear resets it
+- `useHashSync` — bookmarkable ``l=1`` query param for log-scale deep-links
+- `SimulationSummary` / `BenchmarkAnalysis` / `AlgorithmComparison` — consume global
+  ``logScale``; per-page toggles removed
+- `SqlQueryPanel` — auto-chart scatter log overflows axis follows global ``logScale``
+- `App.tsx` — startup prefetch warms benchmark + OLAP explorer routes and Monaco editor chunk
+
+**ROADMAP**
+- §G.7 Global log-scale filter + bookmarkable ``l=1`` hash sync checked
+- §G.7 Startup route prefetch (benchmark + OLAP) checked
+- §G.7 Startup vendor prefetch (@monaco-editor/react) checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-fifth pass (§G.6)
 
 Seventy-fifth pass closes §G.6 auto-chart Pareto polish: frontier step-line overlay on
