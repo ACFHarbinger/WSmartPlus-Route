@@ -11,6 +11,33 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-third pass (§G.10 + §G.15 + §G.17 + §G.18 + §A.2 + §A.4 + §D.7)
+
+Hundred-fifty-third pass closes the header badge parity gap left after the
+hundred-fifty-second pass (which aligned post-run banner counts and metric-label
+styling). All train/HPO workflow pages now share ``TrainHpoRehydrationBadges``
+so live panel headers surface health alerts and attention snapshots alongside
+metric updates when rehydrated from ``useProcessStore``.
+
+**React frontend**
+- ``TrainHpoRehydrationBadges`` — shared metric / health / attention count badges
+  for train/HPO live panel headers (§G.10 / §G.15 / §G.17 / §G.18 / §A.2 / §A.4 / §D.7)
+- Training Hub + Process Monitor + Training Monitor + HPO Tracker + Experiment
+  Tracker — deduplicated inline ``metric updates`` labels; header badges show
+  health + attention counts when present (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- Training Monitor — checkbox live/recent header no longer shows ``0 metric updates``
+  when only health/attention are rehydrated (§G.17 / §A.2 / §A.4 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub ``TrainHpoRehydrationBadges`` deduplication checked
+- §G.15 Process Monitor shared header badges checked
+- §G.17 Training Monitor health/attention header badge parity checked
+- §G.18 HPO Tracker + Experiment Tracker ``TrainHpoRehydrationBadges`` checked
+- §A.2 / §A.4 health/attention header rehydration counts checked
+- §D.7 train/HPO workflow header badge parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-second pass (§G.10 + §G.17 + §A.2 + §A.4 + §D.7)
 
 Hundred-fifty-second pass closes the post-run banner and metric-label parity gap left after the

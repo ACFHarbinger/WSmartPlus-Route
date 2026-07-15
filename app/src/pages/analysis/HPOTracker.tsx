@@ -12,6 +12,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
+import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
@@ -416,11 +417,11 @@ export function HPOTracker() {
             <span className="text-xs text-canvas-muted font-mono truncate flex-1">
               {recentHpoId}
             </span>
-            {liveMetrics.length > 0 && (
-              <span className="text-xs text-accent-success">
-                {liveMetrics.length} metric updates
-              </span>
-            )}
+            <TrainHpoRehydrationBadges
+              metricCount={liveMetrics.length}
+              healthCount={liveHealthEntries.length}
+              attentionCount={liveAttentionEntries.length}
+            />
             <TrainHpoNavMesh
               showHpoLinks
               showOutputBrowser={recentHpoDone && recentHpoProc.status === "completed"}

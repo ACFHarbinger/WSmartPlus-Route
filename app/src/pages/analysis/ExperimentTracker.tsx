@@ -11,6 +11,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
+import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
 import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
@@ -298,11 +299,11 @@ export function ExperimentTracker() {
             <span className="text-xs text-canvas-muted font-mono truncate flex-1">
               {recentHpoId}
             </span>
-            {liveMetrics.length > 0 && (
-              <span className="text-xs text-accent-success">
-                {liveMetrics.length} metric updates
-              </span>
-            )}
+            <TrainHpoRehydrationBadges
+              metricCount={liveMetrics.length}
+              healthCount={liveHealthEntries.length}
+              attentionCount={liveAttentionEntries.length}
+            />
             <TrainHpoNavMesh
               showHpoLinks
               showOutputBrowser={recentHpoDone && recentHpoProc.status === "completed"}
