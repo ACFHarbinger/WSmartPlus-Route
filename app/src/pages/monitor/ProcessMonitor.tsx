@@ -18,6 +18,10 @@ import {
   Terminal,
   Trash2,
 } from "lucide-react";
+import {
+  isSimulationLogPath,
+  LogHandoffButtons,
+} from "../../components/common/LogHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
@@ -185,6 +189,11 @@ function ProcessRow({
                 path={logPath}
                 projectRoot={projectRoot}
                 className="max-w-full flex-1 min-w-0"
+                trailing={
+                  isSimulationLogPath(logPath) ? (
+                    <LogHandoffButtons path={logPath} iconSize={11} />
+                  ) : undefined
+                }
               />
               <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
                 {id}
