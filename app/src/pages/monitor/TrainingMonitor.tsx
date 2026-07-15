@@ -780,6 +780,7 @@ export function TrainingMonitor() {
             }),
             runLabel: processRunLabel,
             logPath: processLogPath,
+            projectRoot,
             showLiveSuffix: activeTrainRunning,
             metricCount: effectiveLiveMetrics.length,
             healthCount: effectiveLiveHealth.length,
@@ -826,7 +827,13 @@ export function TrainingMonitor() {
           }}
           logLines={recentTrainLogLines}
           logTailWaiting={activeTrainRunning}
-          footer={<ProcessIdFooter processId={recentTrainId} logPath={processLogPath} />}
+          footer={
+            <ProcessIdFooter
+              processId={recentTrainId}
+              logPath={processLogPath}
+              projectRoot={projectRoot}
+            />
+          }
         />
       )}
 

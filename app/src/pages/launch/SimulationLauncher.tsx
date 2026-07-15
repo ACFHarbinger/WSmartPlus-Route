@@ -473,6 +473,7 @@ export function SimulationLauncher() {
             }),
             runLabel: liveRunLabel,
             logPath: liveLogPath,
+            projectRoot,
             navMesh: {
               kind: "sim",
               hideSelf: true,
@@ -498,7 +499,13 @@ export function SimulationLauncher() {
               ? { processId: displayProcessId }
               : undefined
           }
-          footer={<ProcessIdFooter processId={displayProcessId} logPath={liveLogPath} />}
+          footer={
+            <ProcessIdFooter
+              processId={displayProcessId}
+              logPath={liveLogPath}
+              projectRoot={projectRoot}
+            />
+          }
           logLines={liveLogLines}
           logTailWaiting={!isDone}
         >

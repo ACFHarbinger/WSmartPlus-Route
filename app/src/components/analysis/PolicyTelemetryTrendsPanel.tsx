@@ -16,7 +16,7 @@ import type {
   PolicyVizType,
 } from "../../types";
 import { isHighlighted } from "../../utils/chartHighlight";
-import { resolveLocalProjectPath } from "../../utils/outputRunPath";
+
 import {
   buildTrendComparisonOption,
   buildTrendStepsOption,
@@ -115,11 +115,6 @@ export function PolicyTelemetryTrendsPanel({
     }
   }, [initialRunLabel, globalRunLabel, setRunLabel]);
 
-  const telemetryDbPath = useMemo(
-    () => (data?.db_path ? resolveLocalProjectPath(data.db_path, projectRoot) : null),
-    [data?.db_path, projectRoot]
-  );
-
   const rows = data?.rows ?? [];
   const displayStepRows = useMemo(() => rows.slice(0, 12), [rows]);
   const allSeries = trajectories?.series ?? [];
@@ -215,8 +210,12 @@ export function PolicyTelemetryTrendsPanel({
               SQLite cross-run store (§A.3 Option C)
             </span>
           </p>
-          {telemetryDbPath && (
-            <PathRunLabelChip path={telemetryDbPath} className="mt-0.5 max-w-xl" />
+          {data?.db_path && (
+            <PathRunLabelChip
+              path={data.db_path}
+              projectRoot={projectRoot}
+              className="mt-0.5 max-w-xl"
+            />
           )}
         </div>
         <div className="flex flex-wrap items-center gap-2">

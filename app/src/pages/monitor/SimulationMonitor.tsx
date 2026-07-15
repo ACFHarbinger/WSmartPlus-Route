@@ -409,13 +409,13 @@ export function SimulationMonitor() {
 
       if (duckdbReady) {
         setDuckdbLoading(true);
-        runSimulationArrowPipeline(path, "monitor_sim")
+        runSimulationArrowPipeline(path, "monitor_sim", projectRoot)
           .then(setLastPipeline)
           .catch((err) => console.warn("Simulation Arrow pipeline:", err))
           .finally(() => setDuckdbLoading(false));
       }
     },
-    [reset, loadEntries, loadPolicyVizEntries, loadFailureEntries, setWatchPath, pushRecent, duckdbReady, setLastPipeline, setDuckdbLoading]
+    [reset, loadEntries, loadPolicyVizEntries, loadFailureEntries, setWatchPath, pushRecent, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]
   );
 
   const openLog = useCallback(async () => {

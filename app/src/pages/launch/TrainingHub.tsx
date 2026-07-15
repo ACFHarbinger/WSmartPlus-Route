@@ -593,6 +593,7 @@ export function TrainingHub() {
             title: evalLiveTitle,
             runLabel: liveRunLabel,
             logPath: liveLogPath,
+            projectRoot,
             navMesh: {
               kind: "eval",
               hideSelf: true,
@@ -605,7 +606,13 @@ export function TrainingHub() {
                 evalResult && hasEvalMetrics(evalResult) ? openEvalInAnalytics : undefined,
             },
           }}
-          footer={<ProcessIdFooter processId={displayProcessId} logPath={liveLogPath} />}
+          footer={
+            <ProcessIdFooter
+              processId={displayProcessId}
+              logPath={liveLogPath}
+              projectRoot={projectRoot}
+            />
+          }
           logLines={liveLogLines}
           logTailWaiting={!isDone}
         >
@@ -638,6 +645,7 @@ export function TrainingHub() {
             title: trainHpoLiveTitle,
             runLabel: liveRunLabel,
             logPath: liveLogPath,
+            projectRoot,
             showLiveSuffix: !isDone,
             metricCount: liveMetrics.length,
             healthCount: liveHealth.length,
@@ -694,7 +702,13 @@ export function TrainingHub() {
           }}
           logLines={liveLogLines}
           logTailWaiting={!isDone}
-          footer={<ProcessIdFooter processId={displayProcessId} logPath={liveLogPath} />}
+          footer={
+            <ProcessIdFooter
+              processId={displayProcessId}
+              logPath={liveLogPath}
+              projectRoot={projectRoot}
+            />
+          }
         />
       )}
     </div>

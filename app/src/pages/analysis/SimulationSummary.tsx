@@ -86,6 +86,7 @@ import {
   formatPipelineTimingBadge,
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
+import { runLabelFromSourcePath } from "../../utils/policyTelemetryTrends";
 
 import { RouteViz } from "../../components/analysis/RouteViz";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
@@ -1870,15 +1871,21 @@ export function SimulationSummary() {
   const allDuckDbLogs = useMemo(() => {
     const logs: { path: string; label: string }[] = [];
     if (logPath) {
-      logs.push({ path: logPath, label: logPath.split(/[/\\]/).pop() ?? logPath });
+      logs.push({
+        path: logPath,
+        label: runLabelFromSourcePath(logPath, projectRoot),
+      });
     }
     for (const r of comparisonRuns) {
       if (!logs.some((l) => l.path === r.path)) {
-        logs.push({ path: r.path, label: r.label });
+        logs.push({
+          path: r.path,
+          label: r.label || runLabelFromSourcePath(r.path, projectRoot),
+        });
       }
     }
     return logs;
-  }, [logPath, comparisonRuns]);
+  }, [logPath, comparisonRuns, projectRoot]);
 
   useEffect(() => {
     if (!duckdbReady || allDuckDbLogs.length === 0) return;
@@ -2079,7 +2086,7 @@ export function SimulationSummary() {
     if (logPath && entries.length > 0) {
       runs.push({
         path: logPath,
-        label: logPath.split(/[/\\]/).pop() ?? logPath,
+        label: runLabelFromSourcePath(logPath, projectRoot),
         entries: filteredEntries,
       });
     }
@@ -2091,7 +2098,7 @@ export function SimulationSummary() {
       });
     }
     return runs;
-  }, [logPath, entries, filteredEntries, comparisonRuns, policy, sampleId]);
+  }, [logPath, entries, filteredEntries, comparisonRuns, policy, sampleId, projectRoot]);
 
   const portfolioMode = allRuns.length >= 2;
 

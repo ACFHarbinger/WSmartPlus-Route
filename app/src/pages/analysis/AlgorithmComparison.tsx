@@ -67,11 +67,11 @@ export function AlgorithmComparison() {
   useEffect(() => {
     if (!duckdbReady || !watchPath) return;
     setDuckdbLoading(true);
-    runSimulationArrowPipeline(watchPath, ALGORITHM_SIM_TABLE)
+    runSimulationArrowPipeline(watchPath, ALGORITHM_SIM_TABLE, projectRoot)
       .then(setLastPipeline)
       .catch((err) => console.warn("Algorithm Arrow pipeline:", err))
       .finally(() => setDuckdbLoading(false));
-  }, [watchPath, duckdbReady, setLastPipeline, setDuckdbLoading]);
+  }, [watchPath, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
 
   const filtered = useMemo(
     () => filterEntries(entries, policy, sampleId),

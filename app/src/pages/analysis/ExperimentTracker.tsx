@@ -336,6 +336,7 @@ export function ExperimentTracker() {
             }),
             runLabel: processRunLabel,
             logPath: processLogPath,
+            projectRoot,
             showLiveSuffix: recentHpoRunning,
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,
@@ -367,7 +368,13 @@ export function ExperimentTracker() {
           }}
           logLines={recentHpoProc.logLines}
           logTailWaiting={recentHpoRunning}
-          footer={<ProcessIdFooter processId={recentHpoId} logPath={processLogPath} />}
+          footer={
+            <ProcessIdFooter
+              processId={recentHpoId}
+              logPath={processLogPath}
+              projectRoot={projectRoot}
+            />
+          }
         />
       )}
 

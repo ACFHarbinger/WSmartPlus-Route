@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-seventh pass (§G.0 + §G.6 + §G.7 + §G.9–§G.18 + §A.3 + §D.7)
+
+Hundred-ninety-seventh pass closes the DuckDB Arrow ingest and explicit live-panel
+``projectRoot`` gaps left after pass 196 unified derived run-label utilities and
+live-panel store-fallback path-chip parity. ``runLabelFromSourcePath`` resolves paths
+against ``projectRoot`` before ``run_label`` derivation. Single-log Arrow pipelines
+annotate DuckDB tables with project-root-resolved labels. Launcher and train/HPO live
+panels pass explicit ``projectRoot`` on headers and footers.
+
+**React frontend**
+- ``runLabelFromSourcePath`` — resolve paths against ``projectRoot`` before ``run_label`` derivation (§G.0 / §G.6 / §G.7 / §D.7)
+- ``annotateTableWithRunLabelIfMissing`` + ``runCsvArrowPipeline`` / ``runSimulationArrowPipeline`` — optional ``projectRoot`` resolves ingest source paths before DuckDB ``run_label`` annotation (§G.0 / §G.6 / §D.7)
+- OLAP Explorer + Data Explorer + Algorithm Comparison + Simulation Monitor + Settings — Arrow pipeline callers pass ``projectRoot`` for single-log DuckDB ingest (§G.0 / §G.6 / §G.16 / §G.19 / §D.7)
+- Simulation Summary — portfolio DuckDB log labels derived via ``runLabelFromSourcePath`` for brush/SQL parity (§G.1 / §G.6 / §D.7)
+- ``PolicyTelemetryTrendsPanel`` — telemetry ``db_path`` ``PathRunLabelChip`` passes ``projectRoot`` (§A.3 / §G.7 / §D.7)
+- Simulation Launcher + Data Generation + Evaluation Runner + Training Hub + Process Monitor + Training Monitor + HPO Tracker + Experiment Tracker — explicit ``projectRoot`` on ``LauncherLivePanelHeader`` / ``TrainHpoLivePanelHeader`` + ``ProcessIdFooter`` (§G.9–§G.18 / §D.7)
+
+**ROADMAP**
+- §G.0 / §G.6 DuckDB Arrow ingest ``run_label`` relative-path resolution checked
+- §G.1 Simulation Summary portfolio DuckDB log-label brush parity checked
+- §A.3 Policy Telemetry Trends db_path path-chip ``projectRoot`` parity checked
+- §G.9–§G.18 launcher + train/HPO live-panel explicit ``projectRoot`` header/footer parity checked
+- §D.7 DuckDB ingest + live-panel explicit ``projectRoot`` path-chip run-label brush parity across Arrow pipelines, Simulation Summary, Policy Telemetry Trends, and all launcher/train/HPO workflow pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-sixth pass (§G.7 + §G.9–§G.18 + §G.15 + §G.6 + §D.7)
 
 Hundred-ninety-sixth pass closes the derived run-label and live-panel relative-path

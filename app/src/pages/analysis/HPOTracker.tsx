@@ -488,6 +488,7 @@ export function HPOTracker() {
             }),
             runLabel: processRunLabel,
             logPath: processLogPath,
+            projectRoot,
             showLiveSuffix: recentHpoRunning,
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,
@@ -519,7 +520,13 @@ export function HPOTracker() {
           }}
           logLines={recentHpoProc.logLines}
           logTailWaiting={recentHpoRunning}
-          footer={<ProcessIdFooter processId={recentHpoId} logPath={processLogPath} />}
+          footer={
+            <ProcessIdFooter
+              processId={recentHpoId}
+              logPath={processLogPath}
+              projectRoot={projectRoot}
+            />
+          }
         />
       )}
 

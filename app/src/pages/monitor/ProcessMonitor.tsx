@@ -485,6 +485,7 @@ export function ProcessMonitor() {
             }),
             runLabel: processRunLabel,
             logPath: processLogPath,
+            projectRoot,
             navMesh: {
               kind: "sim",
               showPostRun: selectedProc.status === "completed",
@@ -493,7 +494,11 @@ export function ProcessMonitor() {
             },
           }}
           footer={
-            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+            <ProcessIdFooter
+              processId={selectedProc.id}
+              logPath={processLogPath}
+              projectRoot={projectRoot}
+            />
           }
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
@@ -547,6 +552,7 @@ export function ProcessMonitor() {
             }),
             runLabel: processRunLabel,
             logPath: processLogPath,
+            projectRoot,
             navMesh: {
               kind: "eval",
               showPostRun: selectedProc.status === "completed",
@@ -558,7 +564,11 @@ export function ProcessMonitor() {
             },
           }}
           footer={
-            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+            <ProcessIdFooter
+              processId={selectedProc.id}
+              logPath={processLogPath}
+              projectRoot={projectRoot}
+            />
           }
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
@@ -598,6 +608,7 @@ export function ProcessMonitor() {
             }),
             runLabel: processRunLabel,
             logPath: processLogPath,
+            projectRoot,
             navMesh: {
               kind: "data_gen",
               showPostRun: selectedProc.status === "completed",
@@ -606,7 +617,11 @@ export function ProcessMonitor() {
             },
           }}
           footer={
-            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+            <ProcessIdFooter
+              processId={selectedProc.id}
+              logPath={processLogPath}
+              projectRoot={projectRoot}
+            />
           }
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
@@ -626,6 +641,7 @@ export function ProcessMonitor() {
             }),
             runLabel: processRunLabel,
             logPath: processLogPath,
+            projectRoot,
             metricCount: trainingMetrics.length,
             healthCount: trainingHealthEntries.length,
             attentionCount: attentionEntries.length,
@@ -658,7 +674,11 @@ export function ProcessMonitor() {
           logLines={selectedProc.logLines}
           logTailWaiting={selectedProc.status === "running"}
           footer={
-            <ProcessIdFooter processId={selectedProc.id} logPath={processLogPath} />
+            <ProcessIdFooter
+              processId={selectedProc.id}
+              logPath={processLogPath}
+              projectRoot={projectRoot}
+            />
           }
         />
       )}

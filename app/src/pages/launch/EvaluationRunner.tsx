@@ -681,6 +681,7 @@ export function EvaluationRunner() {
             }),
             runLabel: liveRunLabel,
             logPath: liveLogPath,
+            projectRoot,
             navMesh: {
               kind: "eval",
               hideSelf: true,
@@ -694,7 +695,11 @@ export function EvaluationRunner() {
             },
           }}
           footer={
-            <ProcessIdFooter processIds={displayProcessIds} logPath={liveLogPath} />
+            <ProcessIdFooter
+              processIds={displayProcessIds}
+              logPath={liveLogPath}
+              projectRoot={projectRoot}
+            />
           }
           logLines={singleCheckpointEval ? singleEvalLogLines : undefined}
           logTailWaiting={singleCheckpointEval ? singleEvalLogTailWaiting : false}
