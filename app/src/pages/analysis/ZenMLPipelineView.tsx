@@ -7,6 +7,10 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { Download, RefreshCw } from "lucide-react";
 import { useAppStore } from "../../store/app";
+import {
+  chartMetricDisplay,
+  chartMetricYAxisType,
+} from "../../utils/chartLogScale";
 import { exportChartPng } from "../../utils/chartExport";
 import { downloadCsv } from "../../utils/tableExport";
 import type { ZenmlPipelineRun, ZenmlPipelineStep } from "../../types";
@@ -26,7 +30,7 @@ function stepColor(status: string): string {
   return "#818cf8";
 }
 
-export function ZenMLPipelineView() {
+export function ZenMLPipelineView({ logScale = false }: { logScale?: boolean }) {
   const { projectRoot, pythonPath } = useAppStore();
   const [runs, setRuns] = useState<ZenmlPipelineRun[]>([]);
   const [selectedRunId, setSelectedRunId] = useState<string | null>(null);
@@ -82,13 +86,16 @@ export function ZenMLPipelineView() {
     const durations = withDuration.map((s) => s.duration_seconds as number);
     const colors = withDuration.map((s) => stepColor(s.status));
 
+    const durationKey = "duration_seconds";
     return {
       backgroundColor: "transparent",
       grid: { left: 120, right: 20, top: 10, bottom: 30 },
       xAxis: {
-        type: "value",
-        name: "Duration (s)",
+        type: chartMetricYAxisType(durationKey, logScale),
+        logBase: 10,
+        name: logScale ? "Duration (s, log)" : "Duration (s)",
         axisLabel: { color: "#9090b0", fontSize: 10 },
+        minorSplitLine: { show: false },
       },
       yAxis: {
         type: "category",
@@ -99,7 +106,8 @@ export function ZenMLPipelineView() {
         {
           type: "bar",
           data: durations.map((d, i) => ({
-            value: d,
+            value: chartMetricDisplay(d, durationKey, logScale) ?? d,
+            rawSeconds: d,
             itemStyle: { color: colors[i] },
           })),
           barMaxWidth: 18,
@@ -109,12 +117,13 @@ export function ZenMLPipelineView() {
         trigger: "axis",
         axisPointer: { type: "shadow" },
         formatter: (params: unknown) => {
-          const p = (params as Array<{ name: string; value: number }>)[0];
-          return p ? `${p.name}: ${p.value.toFixed(2)}s` : "";
+          const p = (params as Array<{ name: string; data: { rawSeconds?: number }; value: number }>)[0];
+          const secs = p?.data?.rawSeconds ?? p?.value;
+          return p ? `${p.name}: ${secs.toFixed(2)}s` : "";
         },
       },
     };
-  }, [steps]);
+  }, [steps, logScale]);
 
   const exportRunsCsv = () => {
     downloadCsv(

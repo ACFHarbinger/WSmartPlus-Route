@@ -14,7 +14,13 @@ import { exportChartPng } from "../../utils/chartExport";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { toast } from "sonner";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
+import {
+  chartMetricYAxisType,
+  displayBarValue,
+} from "../../utils/chartLogScale";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useDataGenStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
@@ -40,12 +46,14 @@ function formatBytes(b: number) {
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
 }
 
-function DemandHistogram({ option }: { option: object }) {
+function DemandHistogram({ option, logScale = false }: { option: object; logScale?: boolean }) {
   const chartRef = useRef<EChartsReact | null>(null);
   return (
     <div>
       <div className="flex items-center justify-between mb-1">
-        <p className="text-xs text-canvas-muted">Demand distribution</p>
+        <p className="text-xs text-canvas-muted">
+          Demand distribution{logScale ? " · log-scale counts" : ""}
+        </p>
         <button
           onClick={() => exportChartPng({ current: chartRef.current }, "dataset-demand-hist.png")}
           className="btn-ghost text-xs flex items-center gap-1"
@@ -61,6 +69,7 @@ function DemandHistogram({ option }: { option: object }) {
 
 export function DataGeneration() {
   const { projectRoot, pythonPath, setMode } = useAppStore();
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
 
   // Persisted form state (§D.4 session persistence)
@@ -159,6 +168,7 @@ export function DataGeneration() {
 
   const demandHistOption = useMemo(() => {
     if (!previewStats?.demand_histogram.length) return null;
+    const yKey = "count";
     return {
       backgroundColor: "transparent",
       grid: { left: 40, right: 10, top: 10, bottom: 30 },
@@ -167,15 +177,20 @@ export function DataGeneration() {
         data: ["0–0.25", "0.25–0.5", "0.5–0.75", "0.75–1.0", "1.0+"],
         axisLabel: { color: "#9090b0", fontSize: 9 },
       },
-      yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
+      yAxis: {
+        type: chartMetricYAxisType(yKey, logScale),
+        logBase: 10,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
+      },
       series: [{
         type: "bar",
-        data: previewStats.demand_histogram,
+        data: previewStats.demand_histogram.map((v) => displayBarValue(v, yKey, logScale)),
         itemStyle: { color: "#6366f1" },
       }],
       tooltip: { trigger: "axis" },
     };
-  }, [previewStats]);
+  }, [previewStats, logScale]);
 
   const hydraArgs = useMemo(() => {
     const distList = distributions.length > 0 ? distributions.join(",") : "gamma3";
@@ -229,6 +244,8 @@ export function DataGeneration() {
 
   return (
     <div className="space-y-4 max-w-2xl">
+      <GlobalFilterBar showLogScale />
+
       {/* Data source */}
       <div className="card space-y-3">
         <h2 className="text-sm font-semibold text-gray-200">Data Source</h2>
@@ -319,7 +336,7 @@ export function DataGeneration() {
               </div>
             </div>
             {demandHistOption && (
-              <DemandHistogram option={demandHistOption} />
+              <DemandHistogram option={demandHistOption} logScale={logScale} />
             )}
           </div>
         ) : (
