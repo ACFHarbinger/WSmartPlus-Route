@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-sixth pass (§G.6 / §G.7)
+
+Sixty-sixth pass unifies portfolio ``run_label`` brushing with the global filter store
+across Summary, Benchmark, and City views, and adds bookmarkable ``run_label`` deep links.
+
+**React frontend**
+- `usePortfolioRunBrush` — shared city/run brush hook; chart clicks set global ``runLabel``;
+  city chart expands to all runs in the group
+- `SimulationSummary` / `BenchmarkAnalysis` / `CityComparison` — `GlobalFilterBar` run
+  selector when ≥2 runs loaded; SQL panels mirror global brush
+- `useHashSync` — serializes ``runLabel`` as ``r`` URL hash param; restores on load and
+  browser back/forward
+
+**ROADMAP**
+- §G.6 Portfolio global run_label filter bar on Summary/Benchmark/City checked
+- §G.7 Bookmarkable run_label URL hash sync checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-fifth pass (§G.6)
 
 Sixty-fifth pass adds global ``run_label`` brush SQL sync to the OLAP Explorer and
