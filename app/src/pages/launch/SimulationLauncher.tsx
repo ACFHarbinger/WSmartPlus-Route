@@ -14,6 +14,7 @@ import { Play, ChevronDown, ChevronUp, Terminal, RefreshCw } from "lucide-react"
 import { invoke } from "@tauri-apps/api/core";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
@@ -504,9 +505,7 @@ export function SimulationLauncher() {
               ? { processId: displayProcessId }
               : undefined
           }
-          footer={
-            <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
-          }
+          footer={<ProcessIdFooter processId={displayProcessId} />}
         >
           {liveEntries.length === 0 ? (
             <p className="text-xs text-canvas-muted">

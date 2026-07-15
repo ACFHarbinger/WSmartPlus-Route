@@ -12,7 +12,6 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import {
   ArrowDown,
-  BarChart3,
   ChevronDown,
   ChevronUp,
   Square,
@@ -36,6 +35,7 @@ import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
+import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
@@ -514,46 +514,7 @@ export function ProcessMonitor() {
           }}
         >
           {evalResult && hasEvalMetrics(evalResult) ? (
-            <div className="card space-y-2">
-              <div className="flex items-center justify-between gap-2">
-                <h3 className="text-xs font-semibold text-gray-200">
-                  {evalResult.checkpointName}
-                </h3>
-                <button
-                  onClick={openEvalInAnalytics}
-                  className="btn-ghost text-xs flex items-center gap-1"
-                >
-                  <BarChart3 size={12} />
-                  Open in Analytics →
-                </button>
-              </div>
-              <div className="flex flex-wrap gap-4 text-xs">
-                {evalResult.cost != null && (
-                  <div>
-                    <span className="text-canvas-muted">Cost </span>
-                    <span className="font-mono text-gray-200">{evalResult.cost.toFixed(4)}</span>
-                  </div>
-                )}
-                {evalResult.gap != null && (
-                  <div>
-                    <span className="text-canvas-muted">Gap </span>
-                    <span className="font-mono text-gray-200">{evalResult.gap.toFixed(4)}%</span>
-                  </div>
-                )}
-                {evalResult.time != null && (
-                  <div>
-                    <span className="text-canvas-muted">Time </span>
-                    <span className="font-mono text-gray-200">{evalResult.time.toFixed(3)}s</span>
-                  </div>
-                )}
-                {evalResult.policy != null && (
-                  <div>
-                    <span className="text-canvas-muted">Policy </span>
-                    <span className="font-mono text-gray-200">{evalResult.policy}</span>
-                  </div>
-                )}
-              </div>
-            </div>
+            <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
           ) : (
             <p className="text-xs text-canvas-muted">
               Waiting for structured eval JSON in process output…

@@ -910,6 +910,17 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — ``embedded`` variant for selected ``test_sim`` / ``gen_data`` / ``eval`` analytics sections; run-label + live suffix parity on sim panel (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 - [x] §G.9 / §G.11 / §G.12 / §G.15 launcher workflow live panel shell parity across all four pages (§D.7)
 
+**Delivered (§D.7 — hundred-fifty-eighth pass)**
+
+- [x] ``ProcessIdFooter`` — shared process-id footer row for launcher and train/HPO live panels (§G.9 / §G.10 / §G.11 / §G.12 / §D.7)
+- [x] Simulation Launcher + Training Hub — deduplicated inline process-id footer markup; import shared ``ProcessIdFooter`` (§G.9 / §G.10 / §D.7)
+- [x] Data Generation Wizard + Evaluation Runner — ``LauncherLivePanel`` ``footer`` process-id row parity with Simulation Launcher (§G.11 / §G.12 / §D.7)
+- [x] Evaluation Runner — multi-checkpoint footer lists all ``displayProcessIds`` when batch eval is active (§G.12 / §D.7)
+- [x] ``EvalResultKpiRow`` — shared cost / gap / time / policy KPI row for eval live panels (§G.12 / §G.15 / §D.7)
+- [x] ``EvalResultCard`` — shared eval result card with ``Open in Analytics →`` for Process Monitor embedded eval section (§G.12 / §G.15 / §D.7)
+- [x] Evaluation Runner — per-checkpoint live panel uses ``EvalResultKpiRow`` ``compact`` variant (§G.12 / §D.7)
+- [x] §G.12 / §G.15 eval result KPI + footer parity across Evaluation Runner and Process Monitor (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1586,6 +1597,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains ``.jsonl`` (hundred-forty-third pass; §G.14 / §D.7)
 - [x] Post-run panel persistence via ``findRecentLauncherProcessId`` when navigation clears local state (hundred-forty-sixth pass; §G.9 / §D.7)
 - [x] ``LauncherLivePanel`` shared live/post-run panel shell with ``navTrailing`` auto-summary countdown slot (hundred-fifty-seventh pass; §G.9 / §D.7)
+- [x] ``ProcessIdFooter`` shared process-id footer row on Simulation Launcher live panel (hundred-fifty-eighth pass; §G.9 / §D.7)
 
 ---
 
@@ -1618,6 +1630,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoRehydrationBadges`` shared header badges for metric / health / attention rehydration counts (hundred-fifty-third pass; §G.10 / §D.7)
 - [x] ``TrainHpoLivePanelHeader`` shared live panel header row with ``split`` layout + ``activity`` running icon (hundred-fifty-fourth pass; §G.10 / §D.7)
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``footer`` process-id row + ``showAnalytics`` slots (hundred-fifty-sixth pass; §G.10 / §D.7)
+- [x] ``ProcessIdFooter`` shared process-id footer row on Training Hub live panel (hundred-fifty-eighth pass; §G.10 / §D.7)
 
 ---
 
@@ -1641,6 +1654,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Post-run Output Browser deep-link via ``outputRunPath`` + ``pendingRunPath`` when stdout contains a log path (hundred-forty-third pass; §G.14 / §D.7)
 - [x] Post-run panel persistence via ``findRecentLauncherProcessId`` when navigation clears local state (hundred-forty-sixth pass; §G.11 / §D.7)
 - [x] ``LauncherLivePanel`` shared live progress panel shell (hundred-fifty-seventh pass; §G.11 / §D.7)
+- [x] ``ProcessIdFooter`` ``footer`` process-id row on Data Generation live panel (hundred-fifty-eighth pass; §G.11 / §D.7)
 
 ---
 
@@ -1666,6 +1680,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Post-run ``outputRunPath`` deep-link on Evaluation Runner live panel (hundred-forty-fourth pass; §G.14 / §D.7)
 - [x] Multi-checkpoint batch persistence via ``findRecentEvalProcessIds`` + ``collectEvalResultFromLogLines`` when navigation clears local state (hundred-forty-sixth pass; §G.12 / §D.7)
 - [x] ``LauncherLivePanel`` shared live progress panel shell for multi-checkpoint eval runs (hundred-fifty-seventh pass; §G.12 / §D.7)
+- [x] ``ProcessIdFooter`` multi-process footer + ``EvalResultKpiRow`` per-checkpoint KPI row on Evaluation Runner live panel (hundred-fifty-eighth pass; §G.12 / §D.7)
 
 ---
 
@@ -1749,6 +1764,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoLivePanel`` ``embedded`` variant for selected train/HPO analytics section (hundred-fifty-sixth pass; §G.15 / §D.7)
 - [x] ``LauncherLivePanelHeader`` ``embedded`` muted subtitle header + run-label + live suffix parity on selected ``test_sim`` processes (hundred-fifty-seventh pass; §G.9 / §G.15 / §D.7)
 - [x] ``LauncherLivePanel`` ``embedded`` variant for selected ``test_sim`` / ``gen_data`` / ``eval`` analytics sections (hundred-fifty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
+- [x] ``EvalResultCard`` shared eval result card with ``Open in Analytics →`` on selected ``eval`` processes (hundred-fifty-eighth pass; §G.12 / §G.15 / §D.7)
 
 ---
 
