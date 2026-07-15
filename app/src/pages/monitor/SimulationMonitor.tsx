@@ -27,6 +27,7 @@ import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
 import { hexToRgb } from "../../utils/colors";
 import {
@@ -271,13 +272,11 @@ function MetricTimeseries({
           {label}
           {metricLog ? " · log" : ""}
         </p>
-        <button
-          className="btn-ghost p-0.5"
-          title="Export PNG"
-          onClick={() => exportChartPngWithToast(chartRef, `${metricKey}-timeseries.png`)}
-        >
-          <Download size={11} className="text-canvas-muted" />
-        </button>
+        <ChartExportButtons
+          chartRef={chartRef}
+          filenameStem={`${metricKey}-timeseries`}
+          size={11}
+        />
       </div>
       <ReactECharts
         ref={chartRef}

@@ -8,14 +8,14 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Download, FolderOpen, X } from "lucide-react";
+import { FolderOpen, X } from "lucide-react";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import {
   buildCityComparisonSeries,
   cityComparisonChartOption,
@@ -265,13 +265,7 @@ export function CityComparison() {
                   : `Linear bars — profit · overflows · kg/km by graph scale${showErrorBars ? " · error bars on" : ""}`}
               </p>
             </div>
-            <button
-              onClick={() => exportChartPngWithToast(chartRef, "city-comparison.png")}
-              className="btn-ghost text-xs flex items-center gap-1"
-            >
-              <Download size={12} />
-              PNG
-            </button>
+            <ChartExportButtons chartRef={chartRef} filenameStem="city-comparison" />
           </div>
           <ReactECharts
             ref={chartRef}

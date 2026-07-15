@@ -13,9 +13,9 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle, Download } from "lucide-react";
+import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
@@ -168,13 +168,10 @@ function LiveChart({
           : "Linear loss · reward on right axis when present"}
       </p>
       <div className="flex justify-end">
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "training-live.png")}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="training-live"
+        />
       </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
     </div>
@@ -205,13 +202,11 @@ function MiniSparkline({
       <div className="flex items-center justify-between mb-1">
         <p className="text-xs text-canvas-muted">{label}</p>
         {exportName && (
-          <button
-            onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
-            className="btn-ghost text-xs flex items-center gap-1"
-          >
-            <Download size={10} />
-            PNG
-          </button>
+          <ChartExportButtons
+            chartRef={{ current: chartRef.current }}
+            filenameStem={exportName}
+            size={10}
+          />
         )}
       </div>
       <ReactECharts

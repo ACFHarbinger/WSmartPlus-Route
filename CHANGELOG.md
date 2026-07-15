@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fourth pass (§G.7)
+
+Hundred-fourth pass adds SVG export on all remaining PNG-only ECharts analytics
+panels and introduces a shared ``ChartExportButtons`` component for paired
+PNG/SVG export with toast feedback.
+
+**React frontend**
+- `ChartExportButtons` — reusable PNG + SVG export button pair with Sonner toasts
+- Simulation Summary — SVG export on trajectory, radar, heatmap, parallel,
+  hierarchy, Pareto, efficiency ranking, metric bars, and city comparison
+- Benchmark Analysis — SVG export on eval/sim metric bars and efficiency ranking
+- Algorithm Comparison — SVG export on radar + per-metric bar charts
+- City Comparison, PortfolioEfficiencyRanking — SVG export
+- Simulation Monitor — SVG export on daily KPI timeseries
+- Training Monitor / Training Hub — SVG export on overlay + sparklines
+- HPO Tracker — SVG export on history, importance, cross-study, parallel charts
+- Experiment Tracker, ZenML pipeline, Data Generation, Evaluation Runner —
+  SVG export on remaining ECharts panels
+
+**ROADMAP**
+- §G.7 ``ChartExportButtons`` shared export component checked
+- §G.7 Global export lists include SVG on all remaining analytics ECharts panels
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-third pass (§G.7)
 
 Hundred-third pass centralises export toast feedback in ``chartExport.ts``, adds SVG

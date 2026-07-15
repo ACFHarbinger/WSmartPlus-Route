@@ -19,7 +19,7 @@ import { filterEntries } from "../../store/sim";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { barOpacity } from "../../utils/chartHighlight";
 import { errorBarBounds, groupedBarWhiskerX } from "../../utils/chartLogScale";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { symlog } from "../../utils/symlog";
 import { PARETO_PANELS } from "../../utils/paretoPanels";
 import { buildParetoByPanel } from "../../utils/paretoPortfolio";
@@ -149,13 +149,10 @@ function EvalResultsPanel({
           <div key={key} className="card">
             <div className="flex items-center justify-between mb-2">
               <p className="text-xs text-canvas-muted">{label}</p>
-              <button
-                onClick={() => exportChartPngWithToast({ current: chartRefs.current[key] }, `eval-${key}.png`)}
-                className="btn-ghost text-xs flex items-center gap-1"
-              >
-                <Download size={12} />
-                PNG
-              </button>
+              <ChartExportButtons
+                chartRef={{ current: chartRefs.current[key] }}
+                filenameStem={`eval-${key}`}
+              />
             </div>
             <ReactECharts
               ref={(el) => {
@@ -778,15 +775,10 @@ export function BenchmarkAnalysis() {
         <div className="card">
           <div className="flex items-center justify-between mb-2">
             <p className="text-xs text-canvas-muted">Efficiency Ranking (kg/km)</p>
-            <button
-              onClick={() =>
-                exportChartPngWithToast({ current: chartRefs.current["efficiency-rank"] }, "benchmark-efficiency-rank.png")
-              }
-              className="btn-ghost text-xs flex items-center gap-1"
-            >
-              <Download size={12} />
-              PNG
-            </button>
+            <ChartExportButtons
+              chartRef={{ current: chartRefs.current["efficiency-rank"] }}
+              filenameStem="benchmark-efficiency-rank"
+            />
           </div>
           <ReactECharts
             ref={(el) => {
@@ -818,13 +810,10 @@ export function BenchmarkAnalysis() {
             <div key={key} className="card">
               <div className="flex items-center justify-between mb-2">
                 <p className="text-xs text-canvas-muted">{label}</p>
-                <button
-                  onClick={() => exportChartPngWithToast({ current: chartRefs.current[key] }, `benchmark-${key}.png`)}
-                  className="btn-ghost text-xs flex items-center gap-1"
-                >
-                  <Download size={12} />
-                  PNG
-                </button>
+                <ChartExportButtons
+                  chartRef={{ current: chartRefs.current[key] }}
+                  filenameStem={`benchmark-${key}`}
+                />
               </div>
               <ReactECharts
                 ref={(el) => {

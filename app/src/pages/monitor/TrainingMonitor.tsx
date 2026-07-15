@@ -17,9 +17,9 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { ChevronDown, ChevronRight, Download, FolderOpen, Radio, RefreshCw } from "lucide-react";
+import { ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
@@ -175,13 +175,10 @@ function MultiRunChart({
         <p className="text-xs text-canvas-muted">
           {logScale ? "Multi-run overlay (log-scale loss)" : "Multi-run overlay"}
         </p>
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "training-overlay.png")}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="training-overlay"
+        />
       </div>
       <ReactECharts
         ref={chartRef}
@@ -246,13 +243,11 @@ function MetricSparkline({
       <div className="flex items-center justify-between mb-1">
         <p className="text-xs text-canvas-muted">{label}</p>
         {exportName && (
-          <button
-            onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
-            className="btn-ghost text-xs flex items-center gap-1"
-          >
-            <Download size={10} />
-            PNG
-          </button>
+          <ChartExportButtons
+            chartRef={{ current: chartRef.current }}
+            filenameStem={exportName}
+            size={10}
+          />
         )}
       </div>
       <ReactECharts

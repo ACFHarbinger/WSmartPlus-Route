@@ -19,7 +19,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
-import { exportChartPngWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
   chartMetricDisplay,
@@ -378,13 +378,10 @@ function GroupedMetricBarChart({
           <p className="text-xs text-canvas-muted">{title}</p>
           {subtitle && <p className="text-[10px] text-canvas-muted">{subtitle}</p>}
         </div>
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem={exportName}
+        />
       </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
     </div>
@@ -598,13 +595,10 @@ function TrajectoryChart({
         </div>
         <div className="flex items-center gap-2">
           {allDays.length > 0 && (
-            <button
-              onClick={() => exportChartPngWithToast({ current: chartRef.current }, `trajectory-${metric}.png`)}
-              className="btn-ghost text-xs flex items-center gap-1"
-            >
-              <Download size={12} />
-              PNG
-            </button>
+            <ChartExportButtons
+              chartRef={{ current: chartRef.current }}
+              filenameStem={`trajectory-${metric}`}
+            />
           )}
         <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
           {METRIC_OPTS.map((o) => (
@@ -710,13 +704,10 @@ function PolicyRadarChart({
         <p className="text-xs font-semibold text-gray-300">
           Policy Radar{logScale ? " · log-normalised axes" : ""}
         </p>
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-radar.png")}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="summary-radar"
+        />
       </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 280 }} />
     </div>
@@ -854,13 +845,10 @@ function PolicyHeatmapChart({
               ))}
             </div>
           )}
-          <button
-            onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-heatmap.png")}
-            className="btn-ghost text-xs flex items-center gap-1"
-          >
-            <Download size={12} />
-            PNG
-          </button>
+          <ChartExportButtons
+            chartRef={{ current: chartRef.current }}
+            filenameStem="summary-heatmap"
+          />
         </div>
       </div>
       <ReactECharts
@@ -1041,13 +1029,10 @@ function PolicyParallelChart({
             </p>
           )}
         </div>
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-parallel.png")}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="summary-parallel"
+        />
       </div>
       <StrategyLegend />
       <ReactECharts
@@ -1293,15 +1278,10 @@ function PolicyHierarchyPanel({
               </button>
             ))}
           </div>
-          <button
-            onClick={() =>
-              exportChartPngWithToast({ current: chartRef.current }, `summary-${view}.png`)
-            }
-            className="btn-ghost text-xs flex items-center gap-1"
-          >
-            <Download size={12} />
-            PNG
-          </button>
+          <ChartExportButtons
+            chartRef={{ current: chartRef.current }}
+            filenameStem={`summary-${view}`}
+          />
         </div>
       </div>
 
@@ -1533,13 +1513,10 @@ function EfficiencyRankingChart({
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs font-semibold text-gray-300">Efficiency Ranking (kg/km)</p>
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-efficiency-rank.png")}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="summary-efficiency-rank"
+        />
       </div>
       <ReactECharts
         ref={chartRef}
@@ -1672,13 +1649,10 @@ function PolicyParetoChart({
           Profit vs Overflows (Pareto)
           {logScale ? " · symlog overflows + log profit" : ""}
         </p>
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, "summary-pareto.png")}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="summary-pareto"
+        />
       </div>
       <ReactECharts
         ref={chartRef}
@@ -1817,13 +1791,10 @@ function MetricBarChart({
     <div className="card">
       <div className="flex items-center justify-between mb-2">
         <p className="text-xs text-canvas-muted">{title}</p>
-        <button
-          onClick={() => exportChartPngWithToast({ current: chartRef.current }, `${exportName}.png`)}
-          className="btn-ghost text-xs flex items-center gap-1"
-        >
-          <Download size={12} />
-          PNG
-        </button>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem={exportName}
+        />
       </div>
       <ReactECharts
         ref={chartRef}
@@ -2434,15 +2405,10 @@ export function SimulationSummary() {
                       : `Linear bars — profit · overflows · kg/km${showErrorBars ? " · error bars on" : ""}`}
                   </p>
                 </div>
-                <button
-                  onClick={() =>
-                    exportChartPngWithToast({ current: cityCompareChartRef.current }, "summary-city-compare.png")
-                  }
-                  className="btn-ghost text-xs flex items-center gap-1"
-                >
-                  <Download size={12} />
-                  PNG
-                </button>
+                <ChartExportButtons
+                  chartRef={{ current: cityCompareChartRef.current }}
+                  filenameStem="summary-city-compare"
+                />
               </div>
               <ReactECharts
                 ref={cityCompareChartRef}
