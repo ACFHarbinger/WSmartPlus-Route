@@ -15,6 +15,7 @@ import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
   formatPipelineTimingBadge,
@@ -60,6 +61,7 @@ export function OlapExplorer() {
   const [portfolioMode, setPortfolioMode] = useState(false);
   const [ingestedTablePaths, setIngestedTablePaths] = useState<Record<string, string>>({});
   const [tableRunLabelsByName, setTableRunLabelsByName] = useState<Record<string, string[]>>({});
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const selectedIngestPath = ingestedTablePaths[selectedTable] ?? null;
   const selectedTableRunLabels = tableRunLabelsByName[selectedTable] ?? [];
@@ -68,6 +70,13 @@ export function OlapExplorer() {
     selectedTable,
     selectedTableRunLabels,
     Boolean(selectedIngestPath)
+  );
+  const sourceRunLabel = useMemo(
+    () =>
+      selectedIngestPath
+        ? portfolioRunLabel(selectedIngestPath, undefined, projectRoot)
+        : null,
+    [selectedIngestPath, projectRoot]
   );
 
   const tableBrushByName = useMemo(
@@ -172,6 +181,11 @@ export function OlapExplorer() {
     const tableName = `${CUSTOM_TABLE_PREFIX}${base.replace(/[^a-zA-Z0-9_]/g, "_")}`;
     const isJsonl = path.toLowerCase().endsWith(".jsonl");
     const runLabel = portfolioRunLabel(path, undefined, projectRoot);
+    pushRecent({
+      path,
+      label: runLabel,
+      kind: isJsonl ? "log" : "csv",
+    });
     setLoading(true);
     try {
       const timing = isJsonl
@@ -194,14 +208,15 @@ export function OlapExplorer() {
     } finally {
       setLoading(false);
     }
-  }, [projectRoot, refreshTables, setLastPipeline, setLoading]);
+  }, [projectRoot, refreshTables, setLastPipeline, setLoading, pushRecent]);
 
   const filterBarRunLabels = useMemo(() => {
     if (portfolioMode && runLabels.length > 0) return runLabels;
+    if (sourceRunLabel) return [sourceRunLabel];
     if (derivedRunLabel) return [derivedRunLabel];
     if (derivedTableRunLabel) return [derivedTableRunLabel];
     return [];
-  }, [portfolioMode, runLabels, derivedRunLabel, derivedTableRunLabel]);
+  }, [portfolioMode, runLabels, sourceRunLabel, derivedRunLabel, derivedTableRunLabel]);
 
   const highlightPolicies = activePolicy ? [activePolicy] : null;
 
@@ -292,9 +307,10 @@ export function OlapExplorer() {
           initialPolicy={activePolicy}
           initialRunLabel={
             activeRunLabel ??
+            (runLabels.length === 1 ? runLabels[0]! : null) ??
+            sourceRunLabel ??
             derivedRunLabel ??
-            derivedTableRunLabel ??
-            (runLabels.length === 1 ? runLabels[0]! : null)
+            derivedTableRunLabel
           }
         />
       )}
@@ -304,11 +320,34 @@ export function OlapExplorer() {
           tableName={selectedTable}
           theme={theme}
           highlightPolicies={highlightPolicies}
-          brushSqlSync
-          autoRunOnBrushSync
-          portfolioMode={portfolioMode}
+          highlightRunLabels={
+            portfolioMode && runLabels.length > 0
+              ? null
+              : sourceRunLabel
+                ? [sourceRunLabel]
+                : derivedTableRunLabel
+                  ? [derivedTableRunLabel]
+                  : null
+          }
+          brushSqlSync={
+            portfolioMode || Boolean(sourceRunLabel || derivedRunLabel || derivedTableRunLabel)
+          }
+          autoRunOnBrushSync={
+            portfolioMode || Boolean(sourceRunLabel || derivedRunLabel || derivedTableRunLabel)
+          }
+          portfolioMode={
+            portfolioMode || Boolean(sourceRunLabel || derivedTableRunLabel)
+          }
           algorithmMode={selectedTable === "algorithm_sim"}
-          portfolioRunLabels={portfolioMode ? runLabels : []}
+          portfolioRunLabels={
+            portfolioMode && runLabels.length > 0
+              ? runLabels
+              : sourceRunLabel
+                ? [sourceRunLabel]
+                : derivedTableRunLabel
+                  ? [derivedTableRunLabel]
+                  : []
+          }
           defaultOpen
         />
       )}
