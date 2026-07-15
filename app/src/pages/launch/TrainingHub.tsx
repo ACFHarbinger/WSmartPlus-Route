@@ -16,6 +16,7 @@ import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
@@ -574,9 +575,7 @@ export function TrainingHub() {
               </>
             ),
           }}
-          footer={
-            <p className="text-xs text-canvas-muted font-mono truncate">{displayProcessId}</p>
-          }
+          footer={<ProcessIdFooter processId={displayProcessId} />}
         />
       )}
     </div>

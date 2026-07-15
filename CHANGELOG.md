@@ -11,6 +11,42 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-eighth pass (§G.9 + §G.10 + §G.11 + §G.12 + §G.15 + §D.7)
+
+Hundred-fifty-eighth pass closes the launcher live panel footer gap left after the
+hundred-fifty-seventh pass (which added ``LauncherLivePanel`` shell parity on sim /
+data-gen / eval workflow pages). All launcher pages now show a shared process-id
+footer row, and eval KPI markup is deduplicated across Evaluation Runner and
+Process Monitor.
+
+**React frontend**
+- ``ProcessIdFooter`` — shared process-id footer row for launcher and train/HPO
+  live panels; supports single id or multi-checkpoint eval batches (§G.9 / §G.10 /
+  §G.11 / §G.12 / §D.7)
+- ``EvalResultKpiRow`` — shared cost / gap / time / policy KPI row with
+  ``compact`` and ``default`` size variants (§G.12 / §G.15 / §D.7)
+- ``EvalResultCard`` — shared eval result card with checkpoint title +
+  ``Open in Analytics →`` for Process Monitor embedded eval sections (§G.12 /
+  §G.15 / §D.7)
+- Simulation Launcher + Training Hub — deduplicated inline process-id footer
+  markup; import shared ``ProcessIdFooter`` (§G.9 / §G.10 / §D.7)
+- Data Generation Wizard + Evaluation Runner — ``LauncherLivePanel`` ``footer``
+  process-id row parity with Simulation Launcher (§G.11 / §G.12 / §D.7)
+- Evaluation Runner — per-checkpoint live panel uses ``EvalResultKpiRow``
+  ``compact`` variant (§G.12 / §D.7)
+- Process Monitor — embedded eval section uses ``EvalResultCard`` (§G.12 / §G.15 /
+  §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher ``ProcessIdFooter`` checked
+- §G.10 Training Hub ``ProcessIdFooter`` checked
+- §G.11 Data Generation ``footer`` process-id row checked
+- §G.12 Evaluation Runner footer + ``EvalResultKpiRow`` checked
+- §G.15 Process Monitor ``EvalResultCard`` checked
+- §D.7 launcher + eval KPI/footer parity across all workflow pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-seventh pass (§G.9 + §G.11 + §G.12 + §G.15 + §D.7)
 
 Hundred-fifty-seventh pass closes the launcher live panel shell gap left after the

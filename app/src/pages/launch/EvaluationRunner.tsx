@@ -25,8 +25,10 @@ import {
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { EvalResultKpiRow } from "../../components/monitor/EvalResultKpiRow";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -625,6 +627,7 @@ export function EvaluationRunner() {
               onOpenAnalytics: results.length > 0 ? openInAnalytics : undefined,
             },
           }}
+          footer={<ProcessIdFooter processIds={displayProcessIds} />}
         >
           <div className="space-y-2">
             {displayProcessIds.map((procId) => {
@@ -659,26 +662,7 @@ export function EvaluationRunner() {
                     )}
                   </div>
                   {ckptResult && hasEvalMetrics(ckptResult) && (
-                    <div className="flex flex-wrap gap-3 text-[10px]">
-                      {ckptResult.cost != null && (
-                        <span>
-                          <span className="text-canvas-muted">Cost </span>
-                          <span className="font-mono text-gray-300">{ckptResult.cost.toFixed(4)}</span>
-                        </span>
-                      )}
-                      {ckptResult.gap != null && (
-                        <span>
-                          <span className="text-canvas-muted">Gap </span>
-                          <span className="font-mono text-gray-300">{ckptResult.gap.toFixed(4)}%</span>
-                        </span>
-                      )}
-                      {ckptResult.time != null && (
-                        <span>
-                          <span className="text-canvas-muted">Time </span>
-                          <span className="font-mono text-gray-300">{ckptResult.time.toFixed(3)}s</span>
-                        </span>
-                      )}
-                    </div>
+                    <EvalResultKpiRow result={ckptResult} size="compact" showPolicy={false} />
                   )}
                   {isRunning && <LiveTrainProgressBar processId={procId} />}
                   {tail.length > 0 && (

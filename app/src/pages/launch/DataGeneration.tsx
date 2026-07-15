@@ -15,6 +15,7 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
@@ -559,6 +560,7 @@ export function DataGeneration() {
                 ? { processId: displayProcessId }
                 : undefined
             }
+            footer={<ProcessIdFooter processId={displayProcessId} />}
           >
             {logTail.length > 0 && (
               <div className="bg-canvas-bg rounded-lg p-2 space-y-0.5 max-h-36 overflow-auto">
