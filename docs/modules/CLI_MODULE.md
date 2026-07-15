@@ -46,7 +46,6 @@ main.py
     ├── Registry (command registration)
     └── Command-specific parsers
         ├── file_system (update, delete, cryptography)
-        ├── gui (app_style, test_only)
         ├── test_suite (module, class, test selection)
         └── benchmark (subset, device, output)
 ```
@@ -79,8 +78,7 @@ logic/src/cli/
 │
 ├── benchmark_parser.py      # Benchmark suite arguments
 ├── ts_parser.py             # Test suite arguments
-├── fs_parser.py             # File system operations
-└── gui_parser.py            # GUI application arguments
+└── fs_parser.py             # File system operations
 ```
 
 ### Module Exports
@@ -107,9 +105,7 @@ from logic.src.cli import parse_params
 command, opts = parse_params()
 
 # Dispatch to appropriate handler
-if command == "gui":
-    run_app_gui(opts)
-elif command == "test_suite":
+if command == "test_suite":
     run_test_suite(opts)
 elif command == "benchmark":
     run_benchmarks(opts)
@@ -709,60 +705,6 @@ python main.py test_suite -l
 python main.py test_suite --list-tests
 ```
 
-### GUI Parser
-
-**File**: `gui_parser.py`
-
-Configures GUI application options.
-
-```python
-def add_gui_args(parser):
-    """Adds all arguments related to the GUI to the given parser."""
-    parser.add_argument(
-        "--app_style",
-        action=LowercaseAction,
-        type=str,
-        default="fusion",
-        help="Style for the GUI application"
-    )
-    parser.add_argument(
-        "--test_only",
-        action="store_true",
-        help="Test mode for the GUI (commands are only printed, not executed)."
-    )
-
-def validate_gui_args(args):
-    """Validates and post-processes arguments for gui."""
-    args = args.copy()
-    assert (
-        args.get("app_style") in [None] + APP_STYLES
-    ), f"Invalid application style '{args.get('app_style')}' - app_style value must be: {[None] + APP_STYLES}"
-    return args
-```
-
-**Usage Examples**
-
-```bash
-# Launch GUI with default style
-python main.py gui
-
-# Launch GUI with specific style
-python main.py gui --app_style windows
-
-# Launch GUI in test mode
-python main.py gui --test_only
-
-# Combine options
-python main.py gui --app_style macintosh --test_only
-```
-
-**Available Styles** (from `logic.src.constants.user_interface`):
-
-- `fusion` (default)
-- `windows`
-- `windowsxp`
-- `macintosh`
-
 ### Benchmark Parser
 
 **File**: `benchmark_parser.py`
@@ -842,10 +784,6 @@ def get_parser() -> ConfigsParser:
     files_parser = subparsers.add_parser("file_system", help="File system operations")
     add_files_args(files_parser)
 
-    # GUI
-    gui_p = subparsers.add_parser("gui", help="Launch the GUI")
-    add_gui_args(gui_p)
-
     # Test Suite
     ts_parser = subparsers.add_parser("test_suite", help="Run the test suite")
     add_test_suite_args(ts_parser)
@@ -862,7 +800,6 @@ def get_parser() -> ConfigsParser:
 | Command       | Description                | Sub-commands                       |
 | ------------- | -------------------------- | ---------------------------------- |
 | `file_system` | File system operations     | `update`, `delete`, `cryptography` |
-| `gui`         | Launch GUI application     | -                                  |
 | `test_suite`  | Run test suite             | -                                  |
 | `benchmark`   | Run performance benchmarks | -                                  |
 
@@ -891,8 +828,6 @@ def parse_params():
             # This returns a tuple: (fs_command, validated_opts)
             command, opts = validate_file_system_args(opts)
             command = ("file_system", command)  # Re-wrap for main() function handling
-        elif command == "gui":
-            opts = validate_gui_args(opts)
         elif command == "test_suite":
             opts = validate_test_suite_args(opts)
         elif command == "benchmark":
@@ -918,11 +853,7 @@ def main():
     command, opts = parse_params()
 
     # Dispatch to appropriate handler
-    if command == "gui":
-        from gui.src.app import run_app_gui
-        run_app_gui(opts)
-
-    elif command == "test_suite":
+    if command == "test_suite":
         exit_code = run_test_suite(opts)
         sys.exit(exit_code)
 
@@ -979,19 +910,6 @@ python main.py file_system delete \
 python main.py file_system cryptography \
     --symkey_name production_key \
     --salt_size 32
-```
-
-**GUI Launch**
-
-```bash
-# Default GUI
-python main.py gui
-
-# Specific style
-python main.py gui --app_style fusion
-
-# Test mode
-python main.py gui --test_only
 ```
 
 **Benchmarks**
@@ -1350,7 +1268,6 @@ from logic.src.cli.base import (
 # Command parsers
 from logic.src.cli.benchmark_parser import add_benchmark_args, validate_benchmark_args
 from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
-from logic.src.cli.gui_parser import add_gui_args, validate_gui_args
 from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 
 # Registry
@@ -1362,7 +1279,6 @@ from logic.src.cli.registry import get_parser
 | Command       | Description            | Example Usage                                     |
 | ------------- | ---------------------- | ------------------------------------------------- |
 | `file_system` | File operations        | `python main.py file_system update --target ... ` |
-| `gui`         | Launch GUI             | `python main.py gui --app_style fusion`           |
 | `test_suite`  | Run tests              | `python main.py test_suite -m test_models`        |
 | `benchmark`   | Performance benchmarks | `python main.py benchmark --subset neural`        |
 
@@ -1403,7 +1319,6 @@ from logic.src.cli.registry import get_parser
 | `benchmark_parser.py`             | 41    | Benchmark arguments             |
 | `ts_parser.py`                    | 100   | Test suite arguments            |
 | `fs_parser.py`                    | 211   | File system arguments           |
-| `gui_parser.py`                   | 43    | GUI arguments                   |
 
 ### Related Documentation
 

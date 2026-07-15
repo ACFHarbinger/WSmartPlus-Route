@@ -54,7 +54,7 @@ python main.py train_lightning model=am env.name=vrpp env.num_loc=20 train.n_epo
 
 - **Generate data**: `python main.py gen_data virtual --problem vrpp --graph_sizes 20 50`
 - **Run simulation**: `python main.py test_sim --policies regular gurobi --days 7`
-- **Launch GUI**: `python main.py gui`
+- **Launch Studio**: `just studio`
 - **Run tests**: `python main.py test_suite`
 
 ### Troubleshooting Quick Fixes
@@ -208,7 +208,6 @@ python -c "import torch; print(f'GPU: {torch.cuda.get_device_name(0) if torch.cu
 
 # Verify core dependencies
 python -c "import torch_geometric; print(f'PyG: {torch_geometric.__version__}')"
-python -c "from PySide6 import __version__; print(f'PySide6: {__version__}')"
 ```
 
 ### 2.5 Alternative Setup Methods
@@ -257,9 +256,9 @@ WSmart-Route/
 │   │   └── utils/         # Utilities
 │   └── test/              # Unit & integration tests
 │
-├── gui/                   # Desktop GUI (PySide6)
-│   ├── src/               # GUI source code
-│   └── test/              # GUI tests
+├── app/                   # WSmart-Route Studio (Tauri 2.0)
+│   ├── src/               # React + TypeScript frontend
+│   └── src-tauri/         # Rust backend
 │
 ├── scripts/               # Shell/batch scripts
 ├── assets/                # Static assets (configs, images, weights)
@@ -330,14 +329,14 @@ python main.py eval data/vrpp/test.pkl --model ./weights/best.pt
 python main.py test_sim --policies regular gurobi --days 31
 ```
 
-#### GUI Mode
+#### GUI Mode (WSmart-Route Studio)
 
 ```bash
-# Launch GUI
-python main.py gui
+# Launch the Studio desktop app (dev mode, hot reload)
+just studio
 
-# GUI with test mode
-python main.py gui --test_only
+# Build a release bundle
+just studio-build
 ```
 
 #### TUI Mode
@@ -360,7 +359,7 @@ uv run ruff check --fix .
 uv run ruff format .
 
 # Type checking
-uv run mypy logic/src/ gui/src/
+uv run mypy logic/src/
 
 # Run all checks (using pre-commit)
 pre-commit run --all-files
@@ -414,7 +413,6 @@ If you have `just` installed, use these commands:
 | `eval`        | Evaluate a trained model    |
 | `test_sim`    | Run simulation tests        |
 | `gen_data`    | Generate datasets           |
-| `gui`         | Launch graphical interface  |
 | `tui`         | Launch terminal UI          |
 | `test_suite`  | Run test suite              |
 | `file_system` | File operations             |
@@ -529,9 +527,6 @@ export LOCALSOLVER_HOME=/path/to/hexaly
 export WANDB_API_KEY=your_key
 export WANDB_PROJECT=wsmart-route
 
-# Qt/PySide6
-export QT_QPA_PLATFORM=xcb
-export QT_LOGGING_RULES="*.debug=false"
 ```
 
 ### 6.4 Using Configs
@@ -614,14 +609,15 @@ logger.warning("Warning message")
 logger.error("Error message")
 ```
 
-### 7.4 GUI Debugging
+### 7.4 Studio Debugging
 
 ```bash
-# Enable Qt debug output
-export QT_LOGGING_RULES="*.debug=true"
+# Launch with WebKitGTK compositing disabled (Linux rendering issues)
+WEBKIT_DISABLE_COMPOSITING_MODE=1 just studio
 
-# Use Vulkan for rendering issues
-python main.py gui --use-angle=vulkan --disable-gpu-sandbox
+# Type-check the frontend / lint the Rust backend
+just studio-check
+just studio-clippy
 ```
 
 ---
@@ -762,14 +758,6 @@ watch -n 1 nvidia-smi
       "request": "launch",
       "program": "${workspaceFolder}/main.py",
       "args": ["test_suite", "--module", "test_models"],
-      "console": "integratedTerminal"
-    },
-    {
-      "name": "Launch GUI",
-      "type": "debugpy",
-      "request": "launch",
-      "program": "${workspaceFolder}/main.py",
-      "args": ["gui"],
       "console": "integratedTerminal"
     }
   ]
@@ -927,8 +915,8 @@ python main.py train --model am --graph_size 20
 python main.py test_suite
 uv run ruff check .
 
-# GUI
-python main.py gui
+# Studio
+just studio
 ```
 
 ### Important Files

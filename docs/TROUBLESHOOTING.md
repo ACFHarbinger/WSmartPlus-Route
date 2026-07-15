@@ -28,7 +28,7 @@ This comprehensive troubleshooting guide is organized by symptom category. Use t
 6.  [Simulation Issues](#6-simulation-issues)
 7.  [Performance Bottlenecks](#7-performance-bottlenecks)
 8.  [Data Generation Issues](#8-data-generation-issues)
-9.  [GUI/PySide6 Issues](#9-guipyside6-issues)
+9.  [Studio (Tauri) Issues](#9-studio-tauri-issues)
 10. [Optimizer Integration Issues](#10-optimizer-integration-issues)
 11. [Neural Network Issues](#11-neural-network-issues)
 12. [Policy Issues](#12-policy-issues)
@@ -72,7 +72,7 @@ uv run ruff check .
 | ------------------- | ----------------------------------------------------- |
 | UV not found        | `curl -LsSf https://astral.sh/uv/install.sh \| sh`    |
 | Python venv missing | `uv sync`                                             |
-| GUI not launching   | `python main.py gui`                                  |
+| Studio not starting | `just studio-install && just studio`                  |
 | Tests failing       | `python main.py test_suite --verbose`                 |
 | CUDA not detected   | `nvidia-smi` to verify driver, then reinstall PyTorch |
 
@@ -261,7 +261,7 @@ uv run ruff check .
 - **Cause**: Hidden imports not specified.
 - **Fix**: Add missing imports to `build.spec`:
   ```python
-  hiddenimports=['torch', 'PySide6.QtCore', 'PySide6.QtWidgets', ...]
+  hiddenimports=['torch', ...]
   ```
 
 ---
@@ -669,78 +669,39 @@ DataLoader(dataset, num_workers=8, pin_memory=True, persistent_workers=True)
 
 ---
 
-## 9. GUI/PySide6 Issues
+## 9. Studio (Tauri) Issues
 
-### 9.1 GUI Won't Launch
+### 9.1 Studio Won't Launch
 
-**Symptom**: `ImportError: PySide6.QtCore not found` or blank window.
-
-**Causes**:
-
-1.  PySide6 not installed.
-2.  Qt dependencies missing (Linux).
-3.  Display server issue (WSL/SSH).
+**Symptom**: Blank window or WebKitGTK errors when running `just studio`.
 
 **Fixes**:
 
 ```bash
-# Install PySide6
-uv pip install PySide6
+# Install JS dependencies (first checkout)
+just studio-install
 
-# Linux: Install Qt dependencies
-sudo apt-get install qt6-base-dev libqt6gui6
+# Linux WebKitGTK rendering issues
+WEBKIT_DISABLE_COMPOSITING_MODE=1 just studio
 
-# Check display
-echo $DISPLAY  # Should output :0 or similar
+# Missing system libraries (Debian/Ubuntu)
+sudo apt-get install libwebkit2gtk-4.1-dev libayatana-appindicator3-dev librsvg2-dev
 ```
 
-### 9.2 GUI Freezes During Training
+### 9.2 Studio Can't Spawn Python Processes
 
-**Symptom**: GUI becomes unresponsive when training starts.
-
-**Cause**: Training running on main thread instead of background worker.
-
-**Fix**: Verify `QThread` implementation in `gui/src/helpers/`.
-
-### 9.3 Charts Not Rendering
-
-**Symptom**: Empty plot areas in analysis tab.
-
-**Causes**:
-
-1.  Data format mismatch.
-2.  Matplotlib backend issue.
+**Symptom**: Launch buttons fail with "Failed to start process".
 
 **Fixes**:
 
-```python
-# Set backend explicitly
-import matplotlib
-matplotlib.use('Qt5Agg')
-import matplotlib.pyplot as plt
-```
+1. Set the correct **Project Root** and **Python executable** in the Studio Settings page.
+2. Verify the CLI works standalone: `uv run python main.py test_sim --help`.
 
-### 9.4 GUI Crashes on Linux with NVIDIA Driver
-
-**Symptom**: Segfault or black screen on launch.
-
-**Fix**: Add Qt platform workarounds:
+### 9.3 Frontend Type Errors After Changes
 
 ```bash
-QT_QPA_PLATFORM=xcb python main.py gui
-# Or
-python main.py gui --use-angle=vulkan --disable-gpu-sandbox
-```
-
-### 9.5 High DPI Display Issues
-
-**Symptom**: GUI elements too small or blurry on high-DPI displays.
-
-**Fix**:
-
-```bash
-export QT_AUTO_SCREEN_SCALE_FACTOR=1
-python main.py gui
+just studio-check   # tsc --noEmit
+just studio-clippy  # Rust lint
 ```
 
 ---

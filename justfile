@@ -65,7 +65,6 @@ mod infrastructure 'tools/infrastructure'
 mod reducer 'tools/reducer'
 mod script 'tools/script'
 mod test 'tools/test'
-mod ui 'tools/ui'
 mod validation 'tools/validation'
 
 # --- Help ---
@@ -111,14 +110,6 @@ gen-data problem=problem: helper::_print_header
 # Generate Figueira da Foz plastic datasets
 gen-data-figfoz-plastic: helper::_print_header
     just controller::gen-data-figfoz-plastic
-
-# Launch the PySide6 GUI
-gui: helper::_print_header
-    just ui::gui
-
-# Launch the Streamlit dashboard
-dashboard: helper::_print_header
-    just ui::dashboard
 
 # Launch WSmart-Route Studio (Tauri desktop app — native window, hot-reload)
 studio: helper::_print_header

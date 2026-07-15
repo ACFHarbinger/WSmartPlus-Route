@@ -1,39 +1,45 @@
-# Use Python 3.9 as the base image
-FROM python:3.9-slim
+# =============================================================================
+# WSmart-Route Studio (Tauri) — Linux bundle build container
+# =============================================================================
+# Builds the Studio desktop application (app/) into distributable Linux
+# bundles (.deb + .AppImage). Extract the artifacts with:
+#
+#   docker build -f docker/Dockerfile --output type=local,dest=dist-studio .
+#
+# The final stage contains only the built bundles.
 
-# Avoid prompts from apt
+FROM rust:1-bookworm AS builder
+
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install system dependencies required for Folium/Map rendering and UV
+# Tauri 2.0 Linux build dependencies (WebKitGTK 4.1) + Node.js 22
 RUN apt-get update && apt-get install -y \
     curl \
     build-essential \
-    libegl1 \
-    libopengl0 \
-    libxcb-cursor0 \
-    libdbus-1-3 \
-    libxkbcommon-x11-0 \
-    libgl1-mesa-glx \
+    libwebkit2gtk-4.1-dev \
+    libayatana-appindicator3-dev \
+    librsvg2-dev \
+    libssl-dev \
+    file \
+    wget \
+    && curl -fsSL https://deb.nodesource.com/setup_22.x | bash - \
+    && apt-get install -y nodejs \
     && rm -rf /var/lib/apt/lists/*
 
-# Install uv for fast package management
-COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+WORKDIR /build
 
-# Set working directory
-WORKDIR /app
+# Install frontend dependencies first (better layer caching)
+COPY app/package.json app/package-lock.json ./app/
+RUN cd app && npm ci
 
-# Copy dependency files first (for better layer caching)
-COPY pyproject.toml uv.lock ./
+# Copy the Studio sources and build the bundles
+COPY app ./app
+RUN cd app && npm run tauri:build:linux
 
-# Install dependencies into a virtual environment
-# We include gui and geo extras as the dashboard usually needs them
-RUN uv sync --frozen --no-dev --extra gui --extra geo
+# -----------------------------------------------------------------------------
+# Final stage: bundles only
+# -----------------------------------------------------------------------------
+FROM scratch AS bundles
 
-# Copy the rest of your application code
-COPY . .
-
-# Expose Streamlit's default port
-EXPOSE 8501
-
-# Run the application
-ENTRYPOINT ["uv", "run", "streamlit", "run", "logic/dashboard_entry.py", "--server.port=8501", "--server.address=0.0.0.0"]
+COPY --from=builder /build/app/src-tauri/target/release/bundle/deb/*.deb /
+COPY --from=builder /build/app/src-tauri/target/release/bundle/appimage/*.AppImage /

@@ -30,11 +30,10 @@ This document provides a comprehensive guide to the WSmart-Route testing infrast
 9. [Test Data Management](#9-test-data-management)
 10. [Debugging Failed Tests](#10-debugging-failed-tests)
 11. [Performance Testing](#11-performance-testing)
-12. [GUI Testing](#12-gui-testing)
-13. [Mutation Testing](#13-mutation-testing)
-14. [Advanced Performance Benchmarking](#14-advanced-performance-benchmarking)
-15. [Solver Contract Tests](#15-solver-contract-tests)
-16. [ELK Stack Logging](#16-elk-stack-logging)
+12. [Mutation Testing](#12-mutation-testing)
+13. [Advanced Performance Benchmarking](#13-advanced-performance-benchmarking)
+14. [Solver Contract Tests](#14-solver-contract-tests)
+15. [ELK Stack Logging](#15-elk-stack-logging)
 
 ---
 
@@ -45,7 +44,6 @@ WSmart-Route utilizes `pytest` as the primary testing framework with comprehensi
 - **Unit Tests**: Isolated component testing
 - **Integration Tests**: Cross-module interaction testing
 - **Simulation Tests**: End-to-end policy evaluation
-- **GUI Tests**: PySide6 interface testing
 
 ### Coverage Requirements
 
@@ -102,20 +100,6 @@ WSmart-Route/
 │       ├── test_utils.py            # Utility functions
 │       ├── test_vectorized_policies.py
 │       └── test_visualize.py        # Visualization utilities
-└── gui/
-    └── test/
-        ├── conftest.py              # GUI-specific fixtures
-        ├── test_components.py       # UI components
-        ├── test_helpers.py          # Background workers
-        ├── test_mediator.py         # UI communication
-        ├── test_tabs_analysis.py
-        ├── test_tabs_evaluation.py
-        ├── test_tabs_file_system.py
-        ├── test_tabs_generate_data.py
-        ├── test_tabs_reinforcement_learning.py
-        ├── test_tabs_root.py
-        ├── test_tabs_test_simulator.py
-        └── test_ts_results_window.py
 ```
 
 ### Test File Naming Conventions
@@ -174,9 +158,6 @@ python main.py test_suite --markers "unit and not slow"
 # Run only logic tests
 uv run pytest logic/test/
 
-# Run only GUI tests
-uv run pytest gui/test/
-
 # Run tests matching a pattern
 uv run pytest -k "attention"
 
@@ -229,7 +210,6 @@ Tests are categorized using pytest markers for selective execution:
 | `@pytest.mark.test_sim`    | Simulator tests                   |
 | `@pytest.mark.gen_data`    | Data generation tests             |
 | `@pytest.mark.file_system` | File system operation tests       |
-| `@pytest.mark.gui`         | GUI-related tests                 |
 | `@pytest.mark.model`       | Model functionality tests         |
 | `@pytest.mark.data`        | Data processing tests             |
 | `@pytest.mark.arg_parser`  | Argument parser tests             |
@@ -530,7 +510,6 @@ omit = [
 | `logic/src/pipeline/` | 60%     | 75%    |
 | `logic/src/envs/`     | 70%     | 85%    |
 | `logic/src/utils/`    | 50%     | 70%    |
-| `gui/src/`            | 40%     | 60%    |
 
 ### Improving Coverage
 
@@ -801,26 +780,7 @@ def test_no_memory_leak(self, model, sample_input):
 
 ---
 
-## 12. GUI Testing
-
-### GUI Test Setup
-
-GUI tests require special handling due to Qt event loop:
-
-````python
-import pytest
-from PySide6.QtWidgets import QApplication
-
-@pytest.fixture(scope="session")
-def qapp():
-    """Create QApplication instance for GUI tests."""
-    app = QApplication.instance()
-    if app is None:
-        app = QApplication([])
-
----
-
-## 13. Mutation Testing
+## 12. Mutation Testing
 
 Mutation testing identifies gaps in the test suite by injecting small bugs (mutations) into the source code and checking if existing tests fail.
 
@@ -832,7 +792,7 @@ Mutation testing identifies gaps in the test suite by injecting small bugs (muta
 
 ---
 
-## 14. Advanced Performance Benchmarking
+## 13. Advanced Performance Benchmarking
 
 A formalized suite to track solver latency, throughput, and solution quality, separate from unit-level performance tests.
 
@@ -842,7 +802,7 @@ A formalized suite to track solver latency, throughput, and solution quality, se
 
 ---
 
-## 15. Solver Contract Tests
+## 14. Solver Contract Tests
 
 Ensures parity and robustness across different optimization engines.
 
@@ -854,7 +814,7 @@ Ensures parity and robustness across different optimization engines.
 
 ---
 
-## 16. ELK Stack Logging
+## 15. ELK Stack Logging
 
 Structured logging infrastructure for visualizing test metrics and benchmarking results.
 
@@ -876,48 +836,6 @@ docker-compose up -d
 ```
 
 The dashboard will be available at `http://localhost:5601`.
-
-@pytest.fixture
-def main_window(qapp):
-"""Create main window for testing."""
-from gui.src.windows.main_window import MainWindow
-window = MainWindow()
-yield window
-window.close()
-
-````
-
-### Testing UI Components
-
-```python
-from PySide6.QtCore import Qt
-
-class TestMainWindow:
-    def test_window_title(self, main_window):
-        """Test window has correct title."""
-        assert "WSmart" in main_window.windowTitle()
-
-    def test_tab_count(self, main_window):
-        """Test all tabs are present."""
-        tab_widget = main_window.tab_widget
-        assert tab_widget.count() >= 5
-
-    def test_button_click(self, main_window, qtbot):
-        """Test button click triggers action."""
-        button = main_window.train_button
-        with qtbot.waitSignal(main_window.training_started, timeout=1000):
-            qtbot.mouseClick(button, Qt.LeftButton)
-````
-
-### Running GUI Tests
-
-```bash
-# Run GUI tests only
-uv run pytest gui/test/ -m "gui"
-
-# Run without display (for CI)
-QT_QPA_PLATFORM=offscreen uv run pytest gui/test/
-```
 
 ---
 

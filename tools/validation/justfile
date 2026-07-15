@@ -7,10 +7,6 @@ set working-directory := '../..'
 pyrefly-logic:
     uv run pyrefly check logic/src --output-format min-text
 
-# Pyrefly type checking for GUI
-pyrefly-gui:
-    uv run pyrefly check gui/src --output-format min-text
-
 # Count lines of code and comments (use group_by=N to aggregate by directory depth)
 count-loc group_by="0":
     uv run python logic/src/utils/validation/count_loc.py logic/src --group-by-dir {{ group_by }}

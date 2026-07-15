@@ -29,4 +29,4 @@ We use `pip-audit` for daily vulnerability scanning in our CI pipeline.
 - **DRL**: PyTorch 2.2.2, PyTorch Lightning
 - **Config**: Hydra Core
 - **OR Solvers**: Gurobi 11.0.3, Hexaly
-- **GUI**: PySide6
+- **GUI**: WSmart-Route Studio (Tauri 2.0 — React 19, TypeScript, Rust)

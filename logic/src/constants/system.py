@@ -76,7 +76,7 @@ def update_lock_wait_time(num_cpu_cores: Optional[int] = None) -> int:
 # operations (delete, update) are auto-cancelled if user does not respond.
 CONFIRM_TIMEOUT: int = 30
 
-# Supported file system operations in GUI. Maps to gui/src/tabs/file_system/ handlers.
+# Supported file system operations (Studio System Tools page + file_system CLI).
 # - create: New file/directory generation
 # - read: File content display
 # - update: In-place modification

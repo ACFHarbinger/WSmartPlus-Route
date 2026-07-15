@@ -40,7 +40,7 @@ Items are marked as:
 | **Classical Solvers**    | Gurobi, HGS, ALNS, PyVRP, OR-Tools, LK, BPC, ACO, SISR, HyperACO, HGS-ALNS                      | PyVRP, OR-Tools, LKH (MTVRP only)                |
 | **Selection Strategies** | Regular, LastMinute, LookAhead, Revenue, ServiceLevel, Combined, Manager                        | None                                             |
 | **Multi-Day Simulation** | Full event-driven simulator with stochastic bins, checkpointing, 6 distance strategies          | None                                             |
-| **Desktop GUI**          | Full PySide6 application with visualization, analysis tabs, file management                     | None                                             |
+| **Desktop GUI**          | WSmart-Route Studio — Tauri 2.0 application with visualization, analysis, launchers, file tools  | None                                             |
 | **HPO**                  | Optuna + DEHB                                                                                   | Hydra sweeps only                                |
 | **Loss Functions**       | NLL, Weighted NLL, KL Divergence, JS Divergence                                                 | Standard REINFORCE only                          |
 | **Graph Convolutions**   | Distance-aware, Gated, Efficient multi-head, 5 GCN variants, MPNN, HetGNN                       | Standard GCN + MPNN + GNN + HetGNN               |

@@ -26,7 +26,7 @@ repos:
       - id: mypy
         args: [--ignore-missing-imports, --check-untyped-defs]
         additional_dependencies: ["tokenize-rt==5.2.0"] # Help with some mypy issues if any
-        exclude: ^logic/test/|^gui/test/
+        exclude: ^logic/test/
         stages: [pre-push]
 
   - repo: local

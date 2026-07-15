@@ -267,9 +267,9 @@ for canonical, aliases in METRIC_MAPPING.items():
 # → Both map to canonical "collection"
 ```
 
-#### 3. GUI Visualization
+#### 3. Studio Visualization
 
-**File**: `gui/src/tabs/analysis/*.py`
+**File**: `app/src/pages/analysis/*.tsx`
 
 ```python
 # Consistent axis labels
@@ -1020,34 +1020,983 @@ LINESTYLES: List[Union[str, Tuple[int, Tuple[int, ...]]]] = [
 
 **Purpose**: Distinguish >6 series (6 colors × 5 linestyles = 30 unique)
 
-### GUI Settings (PySide6)
+### Design Principles
+
+1. **Immutability**: Use tuples and uppercase naming for true constants
+2. **Documentation**: Each constant includes usage context and valid ranges
+3. **Deprecation Safety**: Legacy constants retained with migration warnings
+4. **Type Safety**: Type hints for all mappings and function registries
+
+### Import Strategy
 
 ```python
-CTRL_C_TIMEOUT: float = 2.0  # seconds
+# Import from top-level module (re-exports all sub-modules)
+from logic.src.constants import MAX_WASTE, VEHICLE_CAPACITY, METRICS
+
+# Or import specific sub-module for clarity
+from logic.src.constants.simulation import MAX_WASTE, VEHICLE_CAPACITY
+from logic.src.constants.policies import SIMPLE_POLICIES, THRESHOLD_POLICIES
 ```
 
-**Purpose**: Graceful shutdown time for Ctrl+C
+---
 
-**Includes**: Saving state, closing connections, stopping workers
+## 2. Module Organization
 
-**Typical**: 2s for most Qt applications
+The constants module is split into 15 sub-modules for maintainability:
+
+| File                | Category                           | Primary Use Cases                                |
+| ------------------- | ---------------------------------- | ------------------------------------------------ |
+| `policies.py`       | Policy naming & classification     | Policy factory, CLI parsing, config resolution   |
+| `metrics.py`        | Metric name aliasing               | RL training, logging normalization, GUI charts   |
+| `simulation.py`     | Physics & problem constraints      | Environment definitions, simulation orchestrator |
+| `routing.py`        | Solver parameters & penalties      | Classical algorithms (HGS, ALNS, Gurobi)         |
+| `models.py`         | Architecture hyperparameters       | Model factory, encoder/decoder instantiation     |
+| `waste.py`          | Real-world waste management data   | Portugal case studies, empirical distributions   |
+| `hpo.py`            | Hyperparameter optimization config | Optuna, DEHB, Ray Tune integration               |
+| `user_interface.py` | Visual styling                     | CLI output, matplotlib plots, GUI themes         |
+| `system.py`         | Infrastructure & operations        | File system, operator evaluation, threading      |
+| `paths.py`          | Project directory resolution       | Asset loading, workspace detection               |
+| `testing.py`        | Test suite registry                | pytest integration, CI/CD pipelines              |
+| `stats.py`          | Statistical function mapping       | Data analysis, summary computation               |
+| `dashboard.py`      | Visualization color schemes        | Simulation dashboard, map rendering              |
+| `tasks.py`          | **DEPRECATED**                     | Legacy constants (backward compatibility)        |
+
+---
+
+## 3. Policy Constants
+
+**Module**: `logic/src/constants/policies.py`
+
+### Policy Classification System
+
+Policies are categorized into 4 groups based on their configuration requirements:
+
+#### 1. Engine Policies
+
+**Purpose**: Solvers with multiple backend engines (exact/metaheuristic)
 
 ```python
-APP_STYLES: List[str] = ["fusion", "windows", "windowsxp", "macintosh"]
+ENGINE_POLICIES = {
+    "vrpp": ["gurobi", "hexaly"],
+}
 ```
-
-**Platform Availability**:
-
-- `fusion`: Cross-platform, modern (recommended default)
-- `windows`: Windows native look (Windows only)
-- `windowsxp`: Legacy Windows XP theme (Windows only)
-- `macintosh`: macOS native look (macOS only, deprecated in Qt6)
 
 **Usage**:
 
 ```bash
-python main.py gui --style fusion
+# CLI syntax
+python main.py test_sim --policies vrpp --engine gurobi
+python main.py test_sim --policies vrpp --engine hexaly
 ```
+
+**When to use**: Your policy supports swappable solver backends for the same problem.
+
+#### 2. Threshold Policies
+
+**Purpose**: Algorithms with tunable numeric parameters parsed from policy name
+
+```python
+THRESHOLD_POLICIES = [
+    "vrpp",   # MIP gap tolerance (e.g., "vrpp_0.01" → 1% gap)
+    "sans",   # Cooling rate (e.g., "sans_0.95")
+    "hgs",    # Max iterations (e.g., "hgs_10000")
+    "alns",   # Max iterations (e.g., "alns_5000")
+    "bpc",    # Time limit (e.g., "bpc_300" → 300 seconds)
+]
+```
+
+**Naming Convention**: `{policy}_{threshold}`
+
+**Usage**:
+
+```python
+# In logic/src/policies/__init__.py:get_adapter()
+policy_name = "hgs_10000"
+# Parses to: base_policy="hgs", threshold=10000.0
+```
+
+**When to use**: Policy has a single tunable numeric parameter (iterations, temperature, time limit).
+
+#### 3. Config Char Policies
+
+**Purpose**: Policies with named variants using alphabetic suffixes
+
+```python
+CONFIG_CHAR_POLICIES = {
+    "lac": ["a", "b"],  # LAC variant 'a' (conservative) vs 'b' (aggressive)
+}
+```
+
+**Naming Convention**: `{policy}_{char}_{threshold}`
+
+**Example**:
+
+- `lac_a_1.0` → LAC variant 'a' with threshold 1.0
+- `lac_b_2.0` → LAC variant 'b' with threshold 2.0
+
+**When to use**: Multiple named variants of the same algorithm with different hyperparameter profiles.
+
+#### 4. Simple Policies
+
+**Purpose**: Fixed-configuration policies with direct name mapping
+
+```python
+SIMPLE_POLICIES = {
+    # Neural models → "neural" config
+    ("am", "ddam", "transgcn"): "neural",
+
+    # Selection strategies → direct mapping
+    ("last_minute",): "last_minute",
+    ("regular",): "regular",
+
+    # Classical solvers → direct mapping
+    ("bpc",): "bpc",
+    ("lkh",): "lkh",
+    ("tsp",): "tsp",
+    ("cvrp",): "cvrp",
+}
+```
+
+**Mapping**: `(alias1, alias2, ...) → config_file_name`
+
+**Config Resolution**:
+
+```
+Policy "am" → assets/configs/policies/policy_neural.yaml
+Policy "last_minute" → assets/configs/policies/policy_last_minute.yaml
+```
+
+**When to use**: Policy has fixed configuration with no runtime parameter tuning.
+
+### Configuration File Resolution Example
+
+For policy named `"sans_0.95"`:
+
+1. Check `THRESHOLD_POLICIES` → `"sans"` found
+2. Parse threshold: `0.95`
+3. Load config: `assets/configs/policies/policy_sans.yaml`
+4. Pass `threshold=0.95` to `PolicyConfig` constructor
+
+For policy named `"last_minute"`:
+
+1. Check `SIMPLE_POLICIES` → `("last_minute",)` found
+2. Load config: `assets/configs/policies/policy_last_minute.yaml`
+3. No threshold parsing needed
+
+---
+
+## 4. Metric Constants
+
+**Module**: `logic/src/constants/metrics.py`
+
+### Metric Name Aliasing
+
+Unifies metric names across RL training, simulation, evaluation, and GUI subsystems.
+
+```python
+METRIC_MAPPING = {
+    "collection": [
+        "reward_waste",      # RL reward component
+        "collection",        # Generic charts/tables
+        "total_collected",   # Cumulative episode collection
+        "collected_waste",   # Explicit waste (kg)
+        "real_collection"    # Simulator tracking
+    ],
+    "cost": [
+        "reward_cost",       # RL reward component (negative)
+        "cost",              # Generic cost term
+        "tour_length",       # Route distance (km)
+        "total_cost"         # Cumulative episode cost
+    ],
+    "overflows": [
+        "reward_overflow",   # RL penalty component
+        "overflows",         # Generic overflow count
+        "real_overflows"     # Simulator tracking
+    ],
+    "initial_overflows": [
+        "cur_overflows",     # Current at initialization
+        "reset_overflows"    # Captured during env reset
+    ],
+}
+```
+
+### Usage Context
+
+#### 1. RL Training Pipeline
+
+**File**: `logic/src/pipeline/rl/core/*.py`
+
+```python
+from logic.src.constants import METRIC_MAPPING
+
+# Normalize reward component keys
+for canonical, aliases in METRIC_MAPPING.items():
+    if reward_key in aliases:
+        normalized_key = canonical
+```
+
+#### 2. Simulation Analyzer
+
+**File**: `logic/src/pipeline/simulations/actions/logging.py`
+
+```python
+# Unify metrics from different policies
+# Classical: "real_collection", Neural: "collected_waste"
+# → Both map to canonical "collection"
+```
+
+#### 3. Studio Visualization
+
+**File**: `app/src/pages/analysis/*.tsx`
+
+```python
+# Consistent axis labels
+label = f"Collection (kg)"  # User sees consistent names
+# Internal: chart queries any alias in METRIC_MAPPING["collection"]
+```
+
+#### 4. Data Analysis
+
+**File**: `notebooks/*.ipynb`
+
+```python
+# Simplify querying heterogeneous experiment logs
+df[METRIC_MAPPING["cost"]]  # Captures all cost variants
+```
+
+### Ordering Convention
+
+Aliases are ordered by usage frequency:
+
+1. **First**: Most common name (typically RL training)
+2. **Middle**: Alternative names from different subsystems
+3. **Last**: Legacy names (backward compatibility)
+
+---
+
+## 5. Simulation Constants
+
+**Module**: `logic/src/constants/simulation.py`
+
+### Physical Constants
+
+#### Earth Radius Models
+
+**Spherical Approximation** (faster, ±0.5% error):
+
+```python
+EARTH_RADIUS: int = 6371  # km (mean radius)
+```
+
+**Use when**: Speed > precision (data generation, prototypes)
+
+**WGS84 Ellipsoid** (sub-millimeter precision):
+
+```python
+EARTH_WMP_RADIUS: int = 6378137  # meters (equatorial radius)
+```
+
+**Use when**: Real-world GPS data (OpenStreetMap, Google Maps integration)
+
+**Formula**:
+
+```python
+# Haversine distance
+distance = 2 * EARTH_RADIUS * arcsin(√(sin²(Δlat/2) + cos(lat1)*cos(lat2)*sin²(Δlon/2)))
+```
+
+### Performance Metrics
+
+#### Core Metrics (Daily + Overall)
+
+```python
+METRICS: List[str] = [
+    "overflows",  # Bins exceeding capacity (integer count)
+    "kg",         # Waste collected (float, kilograms)
+    "ncol",       # Collection count (integer)
+    "kg_lost",    # Waste lost to overflows (float, kg)
+    "km",         # Distance traveled (float, kilometers)
+    "kg/km",      # Collection efficiency (float, ratio)
+    "cost",       # Operational cost (float, currency units)
+    "profit",     # Net profit (float, revenue - cost)
+]
+```
+
+**Units Specification**:
+
+| Metric      | Type  | Unit       | Description                              |
+| ----------- | ----- | ---------- | ---------------------------------------- |
+| `overflows` | int   | count      | Constraint violations (minimize to 0)    |
+| `kg`        | float | kilograms  | Waste collected (maximize, no overflows) |
+| `ncol`      | int   | count      | Collection operations (minimize)         |
+| `kg_lost`   | float | kilograms  | Overflow penalty (minimize to 0)         |
+| `km`        | float | kilometers | Distance traveled (minimize)             |
+| `kg/km`     | float | kg/km      | Efficiency ratio (maximize)              |
+| `cost`      | float | currency   | Operational cost (minimize)              |
+| `profit`    | float | currency   | Net profit (maximize, primary objective) |
+
+#### Extended Metrics
+
+```python
+# Simulation metadata
+SIM_METRICS: List[str] = METRICS + ["days", "time"]
+# - days: int (simulation duration, e.g., 31)
+# - time: float (wall-clock seconds)
+
+# Daily log fields
+DAY_METRICS: List[str] = ["day"] + METRICS + ["tour"]
+# - day: int (day number, 1-indexed)
+# - tour: List[int] (node sequence, e.g., [0, 5, 12, 8, 0])
+```
+
+#### Training Loss Components
+
+```python
+LOSS_KEYS: List[str] = ["nll", "reinforce_loss", "baseline_loss"]
+```
+
+**Usage**: RL training loops, logged to WandB/TensorBoard
+
+| Key              | Description                                               |
+| ---------------- | --------------------------------------------------------- |
+| `nll`            | Negative log-likelihood of actions (policy gradient loss) |
+| `reinforce_loss` | REINFORCE loss with baseline                              |
+| `baseline_loss`  | Value network MSE loss (critic training)                  |
+
+### Problem Constraints
+
+#### Bin Capacity
+
+```python
+MAX_WASTE: float = 1.0  # Normalized (100% capacity)
+```
+
+**Usage**: Overflow detection, reward penalty calculation
+
+**Range**: [0.0, 1.0]
+**Overflow**: Occurs when `fill > MAX_WASTE` after waste generation
+
+#### Vehicle Capacity
+
+```python
+VEHICLE_CAPACITY: float = 200.0  # kg (default for synthetic instances)
+```
+
+**Usage**: Capacitated VRP variants (CVRP, CWCVRP, SCWCVRP)
+
+**Route Termination**: When `cumulative_collected >= VEHICLE_CAPACITY`
+
+**Real-world values**:
+
+- Small trucks: 80-120 kg
+- Large trucks: 200-300 kg
+
+#### Route Length Limits
+
+```python
+MAX_LENGTHS: Dict[int, int] = {
+    20: 2,   # 20 customers → max 2 node visits
+    50: 3,   # 50 customers → max 3 node visits
+    100: 4,  # 100 customers → max 4 node visits
+    150: 5,  # 150 customers → max 5 node visits
+    225: 6,  # 225 customers → max 6 node visits
+    317: 7,  # 317 customers → max 7 node visits
+}
+```
+
+**Purpose**: Prevent unbounded routes in waste-collecting problems
+
+**Rationale**: Larger instances need proportionally longer routes (√n heuristic)
+
+**Usage**: VRPP, CVRPP environments enforce these limits
+
+### Supported Problems
+
+```python
+PROBLEMS: List[str] = [
+    "vrpp",     # Vehicle Routing Problem with Profits
+    "cvrpp",    # Capacitated VRPP
+    "wcvrp",    # Waste Collection VRP (dynamic bins, no capacity)
+    "cwcvrp",   # Capacitated WCVRP (standard WSmart+ problem)
+    "scwcvrp",  # Stochastic Capacitated WCVRP
+]
+```
+
+**Mapping**: `{problem_name}` → `logic/src/envs/{problem_name}.py`
+
+---
+
+## 6. Routing Constants
+
+**Module**: `logic/src/constants/routing.py`
+
+### Local Search Parameters
+
+```python
+IMPROVEMENT_EPSILON: float = 1e-3  # 0.1% of typical route cost
+```
+
+**Purpose**: Minimum cost improvement to accept local search move
+
+**Prevents**: Cycling on near-equal solutions
+
+**Usage**: 2-opt, swap, relocate operators
+
+**Tuning**:
+
+- Smaller (1e-6): More thorough, slower
+- Larger (1e-2): Faster, may miss improvements
+
+### Real-World Operational Constraints
+
+#### Collection Time
+
+```python
+COLLECTION_TIME_MINUTES = 3.0  # minutes per bin
+```
+
+**Includes**: Approach, emptying, compaction, departure
+
+**Real-world range**: 2-5 minutes (depends on bin type)
+
+#### Vehicle Speed
+
+```python
+VEHICLE_SPEED_KMH = 40.0  # km/h
+```
+
+**Context**: Urban waste collection with traffic, turns, narrow streets
+
+**Real-world range**: 30-50 km/h (not highway speed)
+
+### Optimization Penalties
+
+```python
+PENALTY_MUST_GO_MISSED = 10000.0  # cost units
+```
+
+**Purpose**: Ensure mandatory bins are never skipped
+
+**Magnitude**: Should be >> typical route cost (50-200 units)
+
+```python
+MAX_CAPACITY_PERCENT = 100.0  # percent (0-100 range)
+```
+
+**Usage**: Overflow detection, capacity feasibility checks
+
+**Note**: Duplicates `simulation.MAX_WASTE` (1.0) in different units. Consider consolidating.
+
+### Gurobi MIP Parameters
+
+```python
+MIP_GAP = 0.01  # 1% optimality gap
+```
+
+**Solver Termination**: When `(best_bound - incumbent) / incumbent ≤ 0.01`
+
+**Trade-off**: Smaller gap = longer runtime, better solution quality
+
+**Industry Standard**: 1% for VRP-class problems
+
+```python
+HEURISTICS_RATIO = 0.5  # balanced
+```
+
+**Range**: [0.0, 1.0]
+
+- `0.0`: No heuristics (pure branch-and-bound)
+- `0.5`: Balanced (default)
+- `1.0`: Maximum heuristics
+
+```python
+NODEFILE_START_GB = 0.5  # GB
+```
+
+**Purpose**: When memory usage exceeds this, Gurobi writes nodes to disk (slower)
+
+**Tuning**: Increase for large instances on high-RAM machines
+
+```python
+SOLVER_OUTPUT_FLAG = 0  # suppress output
+```
+
+**Values**: `0` = silent, `1` = enable solver output
+
+### Simulated Annealing (SANS) Defaults
+
+```python
+DEFAULT_SHIFT_DURATION = 390  # minutes (6.5 hours)
+```
+
+**Context**: Typical waste collection shift: 6-8 hours
+
+```python
+DEFAULT_V_VALUE = 1.0  # weight
+```
+
+**Purpose**: Tradeoff between collection cost and overflow risk
+
+```python
+DEFAULT_COMBINATION = [500, 75, 0.95, 0, 0.095, 0, 0]
+```
+
+**Format**: `[max_iter, beam_width, cooling_rate, init_temp, pert_strength, ...]`
+
+**Source**: OG SANS hyperparameters (7-tuple, see SANS paper)
+
+```python
+DEFAULT_TIME_LIMIT = 600  # seconds (10 minutes)
+```
+
+**Purpose**: Total optimization time before returning best solution
+
+### Batch Size Defaults
+
+```python
+DEFAULT_EVAL_BATCH_SIZE: int = 1024  # instances per batch
+```
+
+**Usage**: HRL policy evaluation (`logic/src/models/hrl_manager/manager.py`)
+
+**GPU Memory**: Optimal for 12GB VRAM; reduce to 512 for 8GB
+
+```python
+DEFAULT_ROLLOUT_BATCH_SIZE: int = 64  # episodes per rollout
+```
+
+**Usage**: REINFORCE/PPO baseline computation
+
+**Rationale**: Smaller than eval batch (rollouts compute full episodes)
+
+---
+
+## 7. Model Constants
+
+**Module**: `logic/src/constants/models.py`
+
+### Problem Size Naming Conventions
+
+**CRITICAL**: Three variable names describe "number of nodes" with distinct semantics. **DO NOT** rename one to another:
+
+#### `num_loc` (Customer Locations)
+
+**Excludes**: Depot
+**Usage**: Configs (`EnvConfig`), generators, environments, CLI
+**Example**: `num_loc = 50` → 50 customers
+
+```python
+# Config
+env = EnvConfig(num_loc=50)
+
+# Generator
+dataset = generate_instances(num_loc=50)
+```
+
+#### `graph_size` (Total Nodes)
+
+**Includes**: Depot
+**Usage**: Model forward passes, encoder/decoder, simulation context
+**Relationship**: `graph_size = num_loc + 1`
+
+```python
+# Model forward pass
+def forward(self, x):
+    batch_size, graph_size, embed_dim = x.size()
+    # graph_size includes depot
+```
+
+#### `n_nodes` (Customer Nodes in Solvers)
+
+**Excludes**: Depot
+**Usage**: Classical solvers (HGS, ALNS, BPC) - local/instance variables
+**Computed**: `n_nodes = len(dist_matrix) - 1`
+
+```python
+# Classical policy
+def solve(self, dist_matrix):
+    n_nodes = len(dist_matrix) - 1  # Exclude depot
+```
+
+### Propagation Flow
+
+```
+Config (num_loc)
+  ↓
+Generator (num_loc)
+  ↓
+Environment (num_loc)
+  ↓
+Model tensors (graph_size = num_loc + 1)
+  ↓
+Classical policies (n_nodes = num_loc)
+  ↓
+Simulator context (graph_size)
+```
+
+### Model Architecture Registries
+
+```python
+SUB_NET_ENCS: List[str] = ["tgc"]
+```
+
+**Purpose**: Models requiring sub-network encoders (edge feature encoding)
+
+**Usage**: `model_factory.py` instantiates `encoder.sub_network`
+
+**Example**: TGC (Transformer Graph Convolution) needs edge features
+
+```python
+PRED_ENC_MODELS: List[str] = ["tam"]
+```
+
+**Purpose**: Models with predictive encoders (future state prediction)
+
+**Usage**: `model_factory.py` instantiates predictor networks
+
+**Example**: TAM (Temporal Attention Model) predicts future bin fill levels
+
+```python
+ENC_DEC_MODELS: List[str] = ["ddam"]
+```
+
+**Purpose**: Models with separate encoder-decoder architecture
+
+**Usage**: `model_factory.py` instantiates both encoder and decoder separately
+
+**Example**: DDAM (Deep Decoder Attention Model) has deep transformer decoder
+
+### Feature Dimensions
+
+```python
+NODE_DIM: int = 3  # [x, y, waste]
+```
+
+**Usage**: Embedding layers, input projections
+
+**Components**: Coordinates (2D) + Node attribute (1D)
+
+```python
+STATIC_DIM: int = 2  # [x, y]
+```
+
+**Usage**: Distance matrix computation, spatial encoders
+
+**Range**: [0, 1] (normalized Euclidean coordinates)
+
+```python
+DEPOT_DIM: int = 2  # [x, y]
+```
+
+**Usage**: Depot-specific encoding, route start/end embeddings
+
+**Note**: Same as `STATIC_DIM`, kept separate for semantic clarity
+
+### Step Context Dimensions
+
+```python
+WC_STEP_CONTEXT_OFFSET: int = 2  # [current_capacity, remaining_capacity]
+```
+
+**Usage**: `wcvrp.py` state embeddings for capacity-aware decoding
+
+```python
+VRPP_STEP_CONTEXT_OFFSET: int = 1  # [collected_profit]
+```
+
+**Usage**: `vrpp.py` state embeddings for profit-aware decoding
+
+**Computation**: `total_context_dim = NODE_DIM + offset`
+
+### Temporal Defaults
+
+```python
+DEFAULT_TEMPORAL_HORIZON: int = 10  # Days
+```
+
+**Usage**: TAM, HRL Manager network
+
+**Context**: Typical waste collection planning horizon is 7-14 days
+
+### Architecture Hyperparameters
+
+```python
+TANH_CLIPPING: float = 10.0
+```
+
+**Purpose**: Prevents `exp()` overflow in softmax
+
+**Formula**: `logits = tanh_clipping * tanh(logits / tanh_clipping)`
+
+**Source**: Kool et al. (2019) - standard for VRP models
+
+```python
+NORM_EPSILON: float = 1e-5
+```
+
+**Purpose**: Layer/batch/instance normalization stability
+
+**Usage**: Prevents division by zero in variance denominator
+
+**Default**: Same as PyTorch `nn.LayerNorm`
+
+```python
+NUMERICAL_EPSILON: float = 1e-8
+```
+
+**Purpose**: General computation stability
+
+**Usage**: Probability clamping, division safety, `kg/km` efficiency
+
+**Rationale**: Smaller than `NORM_EPSILON` to minimize impact on distributions
+
+```python
+FEED_FORWARD_EXPANSION: int = 4
+```
+
+**Formula**: `hidden_dim = embed_dim * 4`
+
+**Source**: Vaswani et al. (2017) "Attention is All You Need"
+
+**Usage**: `feed_forward.py` module instantiation
+
+### Mixture of Experts Defaults
+
+```python
+DEFAULT_MOE_KWARGS = {
+    "encoder": {
+        "hidden_act": "ReLU",      # Expert activation function
+        "num_experts": 4,           # Number of expert networks
+        "k": 2,                     # Top-k routing (activate best 2)
+        "noisy_gating": True,       # Exploration noise
+    },
+    "decoder": {
+        "light_version": True,      # Lightweight MoE (shared routing)
+        "num_experts": 4,
+        "k": 2,
+        "noisy_gating": True,
+    },
+}
+```
+
+**Usage**: `logic/src/models/moe_model.py` when config omits MoE parameters
+
+**Purpose**: Model specialization - different experts for different instances
+
+**Trade-off**: More experts = higher capacity, slower inference
+
+---
+
+## 8. Waste Management Constants
+
+**Module**: `logic/src/constants/waste.py`
+
+### Geographic Mappings
+
+```python
+MAP_DEPOTS: Dict[str, str] = {
+    "mixrmbac": "CTEASO",      # Multi-municipality dataset
+    "riomaior": "CTEASO",      # Rio Maior (central Portugal)
+    "figueiradafoz": "CITVRSU", # Figueira da Foz (coastal)
+}
+```
+
+**Context**: Real municipalities in Portugal served by WSmart+ system
+
+**Depot Codes**:
+
+- **CTEASO**: Centro de Triagem e Estação de RSU (Waste Sorting Center)
+- **CITVRSU**: Centro Integrado de Tratamento e Valorização (Recovery Center)
+
+**Usage**: `logic/src/pipeline/simulations/loader.py` for area-specific data
+
+### Waste Type Classification
+
+```python
+WASTE_TYPES: Dict[str, str] = {
+    "glass": "Embalagens de Vidro",              # Glass packaging (green bins)
+    "plastic": "Mistura de embalagens",          # Mixed packaging (yellow bins)
+    "paper": "Embalagens de papel e cartão",     # Paper/cardboard (blue bins)
+}
+```
+
+**Authority**: Agência Portuguesa do Ambiente (APA) official nomenclature
+
+**Context**: Selective waste collection (recycling), not mixed waste
+
+**Characteristics**:
+
+| Type    | Bin Color | Collection Frequency | Revenue |
+| ------- | --------- | -------------------- | ------- |
+| Glass   | Green     | Biweekly             | Lowest  |
+| Plastic | Yellow    | Weekly               | Highest |
+| Paper   | Blue      | Weekly               | Medium  |
+
+**Usage**: Data loading, report generation, GUI labels, notebooks
+
+### Critical Fill Threshold
+
+```python
+CRITICAL_FILL_THRESHOLD: float = 0.9  # 90% capacity
+```
+
+**Purpose**: Fill level triggering priority collection
+
+**Usage**:
+
+- mandatory bin selection (bins ≥ 0.9 flagged as mandatory)
+- Service Level Agreement (SLA) compliance
+- Look-ahead search (preventive collection)
+
+**Industry Standard**: 0.8-0.9 (WSmart+ uses 0.9 for cost-overflow balance)
+
+---
+
+## 9. HPO Constants
+
+**Module**: `logic/src/constants/hpo.py`
+
+### Configuration Keys
+
+```python
+HOP_KEYS: Tuple[str, ...] = (
+    # Core HPO settings
+    "hpo_method",     # Algorithm: "optuna", "dehb", "ray", "grid"
+    "hpo_range",      # Parameter search space
+    "hpo_epochs",     # Training epochs per trial
+    "metric",         # Objective: "cost", "profit", "kg/km"
+    "cpu_cores",      # Parallel workers
+    "verbose",        # Logging verbosity (0=silent, 1=progress, 2=debug)
+    "train_best",     # Retrain best config on full data
+    "local_mode",     # Run Ray Tune locally vs distributed
+
+    # Optuna-specific
+    "n_trials",           # Total optimization trials
+    "timeout",            # Max HPO time (seconds)
+    "n_startup_trials",   # Random trials before Bayesian optimization
+    "n_warmup_steps",     # Steps before pruner starts
+    "interval_steps",     # Pruning check frequency
+
+    # DEHB-specific
+    "eta",                # Successive halving reduction (default: 3)
+    "max_tres",           # Max resources per trial
+    "reduction_factor",   # Budget reduction (HyperBand)
+    "fevals",             # Total function evaluations
+
+    # Evolutionary (NSGA-II, NSGA-III)
+    "indpb",      # Independent mutation probability
+    "tournsize",  # Tournament selection size (higher = more elitism)
+    "cxpb",       # Crossover probability
+    "mutpb",      # Mutation probability
+    "n_pop",      # Population size
+    "n_gen",      # Number of generations
+
+    # Ray Tune-specific
+    "num_samples",   # Total trials
+    "max_failures",  # Fault tolerance
+    "max_conc",      # Max concurrent trials
+
+    # Grid search
+    "grid",  # Parameter grid definition
+)
+```
+
+### Supported Methods
+
+| Method   | Algorithm                                    | Use Case                                 |
+| -------- | -------------------------------------------- | ---------------------------------------- |
+| `optuna` | Bayesian optimization (TPE, NSGA-II, CMA-ES) | General-purpose, multi-objective         |
+| `dehb`   | Differential Evolution Hyperband             | Efficient multi-fidelity optimization    |
+| `ray`    | Distributed HPO (ASHA, HyperBand, Bayesian)  | Large-scale, cluster computing           |
+| `grid`   | Exhaustive grid search                       | Small search spaces, baseline comparison |
+
+### Usage Example
+
+```yaml
+# assets/configs/tasks/hpo.yaml
+hpo_method: optuna
+n_trials: 100
+timeout: 3600 # 1 hour
+metric: profit
+hpo_range:
+  learning_rate: [1e-5, 1e-3, log]
+  batch_size: [64, 128, 256]
+```
+
+**Validation**: Missing keys trigger default value fallbacks in `logic/src/configs/hpo.py`
+
+**CLI Integration**: Keys map to `logic/src/cli/ts_parser.py` arguments
+
+---
+
+## 10. User Interface Constants
+
+**Module**: `logic/src/constants/user_interface.py`
+
+### Terminal Output
+
+```python
+PBAR_WAIT_TIME: float = 0.1  # seconds (100ms refresh interval)
+```
+
+**Purpose**: tqdm progress bar update rate
+
+**Trade-off**: Lower = smoother (higher CPU), higher = choppier (lower CPU)
+
+**Default**: 10 Hz is smooth without CPU overhead
+
+```python
+TQDM_COLOURS = [
+    "red",      # Worker 0 (or error indicator)
+    "blue",     # Worker 1
+    "green",    # Worker 2 (success indicator)
+    "yellow",   # Worker 3 (warning indicator)
+    "magenta",  # Worker 4
+    "cyan",     # Worker 5
+]
+```
+
+**Usage**: Parallel simulation workers (cycles through colors when >6 workers)
+
+**Note**: "red" reserved for errors; avoid using for normal progress
+
+### Matplotlib Styling
+
+```python
+MARKERS: List[str] = ["P", "s", "^", "8", "*"]
+```
+
+**Shapes**: Pentagon, Square, Triangle, Octagon, Star
+
+**Purpose**: Visual distinction in scatter/line plots
+
+```python
+PLOT_COLOURS: List[str] = [
+    "red",     # Policy 0 or worst-case
+    "blue",    # Policy 1 or baseline
+    "green",   # Policy 2 or best-case
+    "yellow",  # Policy 3 (caution on white backgrounds)
+    "magenta", # Policy 4
+    "cyan",    # Policy 5
+    "black",   # Reference lines, grid, text
+]
+```
+
+**Palette**: ANSI 6-color + black
+
+**Usage**: Multi-policy comparisons, Pareto fronts, time series
+
+```python
+LINESTYLES: List[Union[str, Tuple[int, Tuple[int, ...]]]] = [
+    "dotted",               # · · · ·
+    "dashed",               # - - - -
+    "dashdot",              # -·-·-·-·
+    (0, (3, 5, 1, 5, 1, 5)), # Custom: dash-dot-dot
+    "solid",                # ________
+]
+```
+
+**Purpose**: Distinguish >6 series (6 colors × 5 linestyles = 30 unique)
 
 ### Design Principles
 
@@ -1113,7 +2062,7 @@ CONFIRM_TIMEOUT: int = 30  # seconds
 FS_COMMANDS: List[str] = ["create", "read", "update", "delete", "cryptography"]
 ```
 
-**Mapping**: Maps to `gui/src/tabs/file_system/` handlers
+**Mapping**: Surfaced in the Studio System Tools page (`app/src/pages/files/SystemTools.tsx`)
 
 | Command        | Operation                     | Confirmation Required |
 | -------------- | ----------------------------- | --------------------- |
@@ -1243,7 +2192,7 @@ ROOT_DIR: Path = root_dir
 
 **Supports**:
 
-- Running from any subdirectory (`notebooks/`, `logic/test/`, `gui/`)
+- Running from any subdirectory (`notebooks/`, `logic/test/`)
 - Multiple project clones
 - Virtual environment isolation
 
@@ -1260,7 +2209,7 @@ ROOT_DIR: Path = root_dir
 ICON_FILE: str = os.path.join(ROOT_DIR, "assets", "images", "logo-wsmartroute-white.png")
 ```
 
-**Usage**: PySide6 `QMainWindow.setWindowIcon()`, system tray, taskbar
+**Usage**: Application icon for exported tooling and report generators
 
 **Format**: PNG, white logo on transparent background
 
@@ -1285,7 +2234,6 @@ TEST_MODULES: Dict[str, str] = {
     "eval": "test_eval_command.py",
     "test_sim": "test_test_command.py",
     "file_system": "test_file_system_command.py",
-    "gui": "test_gui_command.py",
 
     # Component Tests
     "actions": "test_custom_actions.py",
@@ -1404,9 +2352,9 @@ mean_cost = STATS_FUNCTION_MAP["mean"](daily_costs)
 median_km = STATS_FUNCTION_MAP["median"](route_lengths)
 ```
 
-#### 2. GUI Chart Workers
+#### 2. Studio Chart Utilities
 
-**File**: `gui/src/helpers/chart_worker.py`
+**File**: `app/src/utils/trainingMetrics.ts`
 
 ```python
 # Generate summary statistics for plots
@@ -1521,7 +2469,7 @@ BIN_COLORS = {
 
 #### 1. Simulation Dashboard
 
-**File**: `gui/src/windows/ts_results_window.py`
+**File**: `app/src/pages/monitor/SimulationMonitor.tsx`
 
 ```python
 for route_id, tour in enumerate(tours):
@@ -1849,7 +2797,6 @@ def check_capacity(load: float, cfg: EnvConfig) -> bool:
 | `logic/src/envs/*.py`                         | `MAX_WASTE`, `VEHICLE_CAPACITY`         | Environment physics     |
 | `logic/src/pipeline/rl/core/*.py`             | `METRIC_MAPPING`, `LOSS_KEYS`           | RL training             |
 | `logic/src/pipeline/simulations/simulator.py` | `METRICS`, `SIM_METRICS`                | Simulation logging      |
-| `gui/src/windows/ts_results_window.py`        | `ROUTE_COLORS`, `BIN_COLORS`            | Dashboard visualization |
 | `logic/src/utils/logging/plotting/*.py`       | `PLOT_COLOURS`, `MARKERS`               | Matplotlib charts       |
 
 ### Configuration Files
