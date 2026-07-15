@@ -39,6 +39,11 @@ export function groupRunLabelsByCity(labels: string[]): Array<[string, string[]]
   return [...map.entries()];
 }
 
+/** City/scale label for a portfolio ``run_label`` (parses label as a log path). */
+export function cityScaleFromRunLabel(label: string): string {
+  return cityScaleLabel(parseLogPath(label));
+}
+
 /** Expand global city brush to ``run_label`` list for SQL sync (§G.6). */
 export function resolveBrushedRunLabels(
   runLabels: string[],

@@ -620,6 +620,7 @@ export function BenchmarkAnalysis() {
           brushSqlSync
           autoRunOnBrushSync
           portfolioMode={runs.length > 1}
+          portfolioRunLabels={runs.length > 1 ? portfolioRunLabels : []}
         />
       )}
 
