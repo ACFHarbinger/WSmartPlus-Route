@@ -17,15 +17,12 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import { Activity, CheckCircle, ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw, XCircle } from "lucide-react";
+import { CheckCircle, ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import {
-  GradNormSparkline,
-  LrSparkline,
-  TrainingMetricSnapshot,
-} from "../../components/monitor/TrainingMetricSparklines";
+import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
+import { GradNormSparkline, LrSparkline } from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
@@ -42,7 +39,6 @@ import {
   collectTrainingMetricsFromLogLines,
   normalizeTrainingMetricRow,
   parseTrainingMetricLine,
-  postRunTrainingRehydrationMessage,
 } from "../../utils/trainingMetrics";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
@@ -732,7 +728,7 @@ export function TrainingMonitor() {
                 </span>
                 <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{recentTrainId}</span>
                 <span className="text-xs text-accent-success">
-                  {effectiveLiveMetrics.length} updates
+                  {effectiveLiveMetrics.length} metric updates
                 </span>
               </label>
             ) : (
@@ -763,19 +759,15 @@ export function TrainingMonitor() {
               fallbackValue={latestLiveMetric?.epoch}
             />
           )}
-          {latestLiveMetric && <TrainingMetricSnapshot metric={latestLiveMetric} />}
-          {recentTrainDone && (
-            <div className="flex items-center gap-2 text-xs text-canvas-muted">
-              <Activity size={12} />
-              {postRunTrainingRehydrationMessage({
-                metricCount: effectiveLiveMetrics.length,
-                healthCount: effectiveLiveHealth.length,
-                attentionCount: effectiveLiveAttention.length,
-                fallback:
-                  "Post-run shortcuts — open Output Browser or refresh metrics from the completed run",
-              })}
-            </div>
-          )}
+          <TrainHpoAnalyticsStrip
+            metrics={effectiveLiveMetrics}
+            logScale={logScale}
+            theme={effectiveTheme}
+            exportNamePrefix="training-monitor"
+            isPostRun={recentTrainDone}
+            postRunFallback="Post-run shortcuts — open Output Browser or refresh metrics from the completed run"
+            showHealthAttention={false}
+          />
         </div>
       )}
 
@@ -834,31 +826,6 @@ export function TrainingMonitor() {
 
       {/* Multi-run overlay chart */}
       {runsMetrics.length > 0 && <MultiRunChart runsMetrics={runsMetrics} logScale={logScale} />}
-
-      {/* Live run detail panel */}
-      {selected.includes(LIVE_KEY) && effectiveLiveMetrics.length > 0 && (
-        <div className="space-y-3">
-          <div className="flex items-center gap-2">
-            <span
-              className={`w-2.5 h-2.5 rounded-full shrink-0 bg-accent-success ${
-                activeTrainRunning ? "animate-pulse" : ""
-              }`}
-            />
-            <p className="text-xs font-mono text-accent-success">{liveProcessLabel}</p>
-            <span className="text-xs text-canvas-muted">{effectiveLiveMetrics.length} updates</span>
-          </div>
-          <GradNormSparkline
-            metrics={effectiveLiveMetrics}
-            logScale={logScale}
-            exportName="training-monitor-live-grad-norm"
-          />
-          <LrSparkline
-            metrics={effectiveLiveMetrics}
-            logScale={logScale}
-            exportName="training-monitor-live-lr"
-          />
-        </div>
-      )}
 
       {/* Per-run panels (grad norm, hparams, checkpoints) */}
       {selectedRunObjects.map((run, i) => {

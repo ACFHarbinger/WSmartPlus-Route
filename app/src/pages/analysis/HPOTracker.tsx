@@ -7,18 +7,12 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
-import { Activity, CheckCircle, Copy, Download, ExternalLink, FolderOpen, Radio, RefreshCw, XCircle } from "lucide-react";
+import { CheckCircle, Copy, Download, ExternalLink, FolderOpen, Radio, RefreshCw, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import {
-  GradNormSparkline,
-  LrSparkline,
-  TrainingMetricSnapshot,
-} from "../../components/monitor/TrainingMetricSparklines";
+import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
-import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -27,10 +21,7 @@ import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import {
-  collectTrainingMetricsFromLogLines,
-  postRunTrainingRehydrationMessage,
-} from "../../utils/trainingMetrics";
+import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { findRecentHpoProcessId } from "../../utils/trainingProcess";
 import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary } from "../../types";
 
@@ -252,7 +243,7 @@ export function HPOTracker() {
         : [],
     [recentHpoProc]
   );
-  const latestLiveMetric = liveMetrics[liveMetrics.length - 1];
+
 
   const refreshStudies = useCallback(async () => {
     if (!projectRoot) return;
@@ -439,38 +430,16 @@ export function HPOTracker() {
           </div>
           {recentHpoRunning ? (
             <LiveTrainProgressBar processId={recentHpoId} />
-          ) : (
-            <div className="flex items-center gap-2 text-xs text-canvas-muted">
-              <Activity size={12} />
-              {postRunTrainingRehydrationMessage({
-                metricCount: liveMetrics.length,
-                healthCount: liveHealthEntries.length,
-                attentionCount: liveAttentionEntries.length,
-                fallback:
-                  "Post-run shortcuts — open Output Browser or Training Monitor for this sweep",
-              })}
-            </div>
-          )}
-          {latestLiveMetric && <TrainingMetricSnapshot metric={latestLiveMetric} />}
-          {liveMetrics.length >= 2 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <GradNormSparkline
-                metrics={liveMetrics}
-                logScale={logScale}
-                exportName="hpo-tracker-grad-norm"
-              />
-              <LrSparkline
-                metrics={liveMetrics}
-                logScale={logScale}
-                exportName="hpo-tracker-lr"
-              />
-            </div>
-          )}
-          <TrainingHealthPanel entries={liveHealthEntries} />
-          <RuntimeAttentionPanel
-            entries={liveAttentionEntries}
-            theme={effectiveTheme}
+          ) : null}
+          <TrainHpoAnalyticsStrip
+            metrics={liveMetrics}
+            healthEntries={liveHealthEntries}
+            attentionEntries={liveAttentionEntries}
             logScale={logScale}
+            theme={effectiveTheme}
+            exportNamePrefix="hpo-tracker"
+            isPostRun={!recentHpoRunning}
+            postRunFallback="Post-run shortcuts — open Output Browser or Training Monitor for this sweep"
           />
         </div>
       )}

@@ -17,14 +17,8 @@ import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCirc
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import {
-  GradNormSparkline,
-  LrSparkline,
-  TrainingMetricSnapshot,
-} from "../../components/monitor/TrainingMetricSparklines";
+import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
-import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -36,10 +30,7 @@ import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import {
-  collectTrainingMetricsFromLogLines,
-  postRunTrainingRehydrationMessage,
-} from "../../utils/trainingMetrics";
+import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import {
   findRecentHpoProcessId,
@@ -540,7 +531,7 @@ export function TrainingHub() {
                   : liveProgressLabel}
               </h2>
               {liveMetrics.length > 0 && (
-                <span className="text-xs text-canvas-muted">{liveMetrics.length} updates</span>
+                <span className="text-xs text-canvas-muted">{liveMetrics.length} metric updates</span>
               )}
             </div>
             <TrainHpoNavMesh
@@ -561,57 +552,33 @@ export function TrainingHub() {
             />
           )}
 
-          {isDone && showTrainingAnalytics && (
-            <div className="flex items-center gap-2 text-xs text-canvas-muted">
-              <Activity size={12} />
-              {postRunTrainingRehydrationMessage({
-                metricCount: liveMetrics.length,
-                healthCount: liveHealth.length,
-                attentionCount: liveAttention.length,
-                fallback:
-                  "Post-run shortcuts — open Training Monitor or Output Browser for this run",
-              })}
-            </div>
-          )}
-
-          {latestMetric && <TrainingMetricSnapshot metric={latestMetric} />}
-
-          {liveMetrics.length >= 2 && <GlobalFilterBar showLogScale />}
-
-          {liveMetrics.length >= 2 ? (
-            <LiveChart metrics={liveMetrics} logScale={logScale} />
-          ) : (
-            <p className="text-xs text-canvas-muted">
-              {isDone
-                ? liveMetrics.length === 0
-                  ? "No JSON metric lines detected in stdout."
-                  : "Only one metric update received."
-                : "Waiting for metric JSON lines on stdout…"}
-            </p>
-          )}
-
-          {liveMetrics.length >= 2 && (
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-              <GradNormSparkline
-                metrics={liveMetrics}
-                logScale={logScale}
-                exportName="training-hub-grad-norm"
-              />
-              <LrSparkline
-                metrics={liveMetrics}
-                logScale={logScale}
-                exportName="training-hub-lr"
-              />
-            </div>
-          )}
-
           {showTrainingAnalytics && (
-            <div className="space-y-3 pt-2 border-t border-canvas-border">
-              <TrainingHealthPanel entries={liveHealth} />
-              <RuntimeAttentionPanel
-                entries={liveAttention}
-                theme={effectiveTheme}
+            <div className={isDone ? undefined : "pt-0"}>
+              <TrainHpoAnalyticsStrip
+                metrics={liveMetrics}
+                healthEntries={liveHealth}
+                attentionEntries={liveAttention}
                 logScale={logScale}
+                theme={effectiveTheme}
+                exportNamePrefix="training-hub"
+                isPostRun={isDone}
+                postRunFallback="Post-run shortcuts — open Training Monitor or Output Browser for this run"
+                middleContent={
+                  <>
+                    {liveMetrics.length >= 2 && <GlobalFilterBar showLogScale />}
+                    {liveMetrics.length >= 2 ? (
+                      <LiveChart metrics={liveMetrics} logScale={logScale} />
+                    ) : (
+                      <p className="text-xs text-canvas-muted">
+                        {isDone
+                          ? liveMetrics.length === 0
+                            ? "No JSON metric lines detected in stdout."
+                            : "Only one metric update received."
+                          : "Waiting for metric JSON lines on stdout…"}
+                      </p>
+                    )}
+                  </>
+                }
               />
             </div>
           )}
