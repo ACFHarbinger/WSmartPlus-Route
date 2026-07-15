@@ -1032,14 +1032,14 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Expose the internals of trained neural CO models (Attention Models, Routing Transformers).
 
 #### 5.1 TensorDict Data Pipeline
-- [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 partial — full native `.td` parse deferred)
+- [x] Rust backend: load `.npy`/`.npz` TensorDict files via `ndarray-npy` crate: `tensor.rs` `inspect_npz_archive` + `load_tensor_slice` (§G.5.1 — full native `.td` parse deferred to logic layer)
 - [x] TensorDict (`.td`) inspect + slice via Python subprocess (`torch.load` + key/shape listing; slice export matches NPZ path): `inspect_npz_archive` / `load_tensor_slice` accept `project_root` + `python_executable`; Archive tab opens `.td` files (§G.5.1)
 - [x] Memory-map large tensor files (avoid full RAM load): `load_npy_plane_mmap` + `load_npz_plane_mmap` via `memmap2` reads only the trailing 2-D plane for standalone `.npy` or stored `.npz` entries > 8 MB; `load_npz_plane_decompress` slices deflated `.npz` entries after single-entry inflate; `TensorSlicePreview.used_memmap` / `used_decompress_slice` surfaced in Archive/Attention tabs; `probe_npy_mmap` covers large stored or compressed `.npz` arrays (§G.5.1)
 - [x] Stream specific tensor slices to frontend over Arrow IPC on demand: `tensor_slice_to_arrow_ipc` long-format `(row, col, value)`; `runTensorArrowPipeline` ingests into DuckDB-Wasm as `studio_tensor` from Archive tab; `.td` slices supported via Python handoff (§G.5.1)
 
 #### 5.2 3D Loss Landscape Visualization (React Three Fiber)
 - [x] Python utility script: compute loss surface grid using Li et al. filter-normalized random directions: `logic/gen/export_loss_landscape.py` with `--probe-mode auto|training|proxy` and `--batch-size` (default 4); training probe averages greedy forward-loss across N synthetic instances per grid point; bundles `probe_mode` + `batch_size` in NPZ (§G.5.2)
-- [x] Export 2D grid of loss values as `.npz`: `loss_grid`, `theta1`, `theta2` keys (§G.5.2 partial)
+- [x] Export 2D grid of loss values as `.npz`: `loss_grid`, `theta1`, `theta2` keys (§G.5.2)
 - [x] React Three Fiber: render grid as vertex-displaced `PlaneGeometry` 3D topography: `LossLandscape3D` lazy chunk (§G.5.2)
 - [x] `InstancedMesh` voxel alternative: per-cell `boxGeometry` cubes with height ∝ loss; Loss tab "Surface mesh / InstancedMesh voxels" toggle (§G.5.2)
 - [x] Color gradient: low loss = deep blue, high loss = bright red (`lossToColor` vertex colours)
@@ -1050,16 +1050,19 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical): `analyzeLossMinima` Laplacian sharpness + ``generalizationNote`` per basin label on 3D terrain + Loss tab (§G.5.2)
 
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
-- [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3 partial)
+- [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3)
 - [x] Render as bipartite graph on top of node coordinates: edge opacity ∝ attention weight magnitude: ECharts `buildAttentionGraphOption` + Sigma.js WebGL `AttentionSigmaView` (ForceAtlas2, lazy `sigma` chunk) with graph preset loader; View toggle: Heatmap / ECharts graph / Sigma.js (§G.5.3)
 - [x] Attention head selector: `detectHeadAxis` + per-head index dropdown; Q/K/V role filter + per-role colour palettes via `classifyAttentionRole` / `groupAttentionKeys` (§G.5.3)
-- [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3 partial)
+- [x] Timeline slider: step through sequential decoding steps: decode-step range on Attention tab (§G.5.3)
 - [x] Sparse Routing Transformer mode: `applySparseTopK` keeps top-k connections per query row (§G.5.3)
 - [x] Spherical k-means query-row clustering: `sphericalKMeans` + row reorder + ECharts `markArea` cluster bands; K-means selector (2–8) on Attention tab (§G.5.3)
 - [x] Compare attention patterns of model trained on Empirical vs Gamma-3 distributions: Attention tab "Empirical vs Gamma-3" compare mode; dual archive picker; `inferDistributionLabel` path heuristics; side-by-side heatmaps + overlay Δ diff (§G.5.3)
-- [x] Side-by-side vs overlay toggle: decode-step compare (side-by-side dual heatmap / overlay Δ diff) (§G.5.3 partial)
+- [x] Side-by-side vs overlay toggle: decode-step compare (side-by-side dual heatmap / overlay Δ diff) (§G.5.3)
 - [x] Attention weight heatmaps follow global ``logScale``: ``MLIntrospectionPanel`` log-transforms raw Q/K/V weight cells when on; overlay/distribution Δ diff panels stay linear; tooltips show raw weights (§G.5.3 / §G.7)
 - [x] Attention bipartite graph overlays follow global ``logScale``: ``buildAttentionGraphOption`` + ``AttentionSigmaView`` log-transform edge opacity/width via ``attentionWeightDisplay``; tooltips and edge weight attributes retain raw attention values (§G.5.3 / §G.7)
+- [x] ML introspection ECharts PNG/SVG export: ``exportChartPng()`` / ``exportChartSvg()`` on ``MLIntrospectionPanel`` attention heatmap (primary + compare panels), attention bipartite graph, and loss contour map (§G.5 / §G.7)
+
+**Status**: §G.5 complete — all checklist items delivered.
 
 ---
 
@@ -1153,7 +1156,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] EvaluationRunner responsive inline chart grid: `sm:grid-cols-2 lg:grid-cols-3` (§G.12 / §G.7)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Settings Arrow benchmark uses shared `formatPipelineTimingBadge()` for last-ingest summary (§G.0 / §G.7)
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts, GraphTopologyPanel (ECharts view); deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts, GraphTopologyPanel (ECharts view), MLIntrospectionPanel (attention heatmap primary + compare, attention graph, loss contour); deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map and MLIntrospectionPanel attention/loss charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6)
 - [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6)
 - [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6)
