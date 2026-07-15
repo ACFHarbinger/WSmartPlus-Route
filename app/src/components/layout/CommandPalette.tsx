@@ -198,13 +198,21 @@ export function CommandPalette() {
               {filteredRecent.map((file, i) => {
                 const itemIndex = i;
                 const active = activeIndex === itemIndex;
+                const kindMeta = (
+                  <span className="text-[10px] text-canvas-muted shrink-0">{file.kind}</span>
+                );
                 return (
                   <li key={file.path}>
-                    <button
-                      type="button"
+                    {/*
+                      Use a div row (not button) so OpenPathToolbar chip/handoff
+                      buttons are not nested interactive elements (§G.7 / §D.7).
+                    */}
+                    <div
+                      role="option"
+                      aria-selected={active}
                       onMouseEnter={() => setActiveIndex(itemIndex)}
                       onClick={() => void openRecentFile(file)}
-                      className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors ${
+                      className={`w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm transition-colors cursor-pointer ${
                         active
                           ? "bg-accent-primary/20 text-accent-secondary"
                           : "text-gray-300 hover:bg-canvas-hover"
@@ -215,17 +223,22 @@ export function CommandPalette() {
                           path={file.path}
                           projectRoot={projectRoot}
                           kind={file.kind}
+                          label={file.label}
                           storedLabel={file.label}
                           handoff={file.kind}
                           handoffOnAfterOpen={closePalette}
                           chipClassName="flex-1 min-w-0 max-w-none"
                           className="flex-1 min-w-0"
-                        />
+                        >
+                          {kindMeta}
+                        </OpenPathToolbar>
                       ) : (
-                        <span className="truncate">{file.label}</span>
+                        <>
+                          <span className="truncate flex-1 min-w-0">{file.label}</span>
+                          {kindMeta}
+                        </>
                       )}
-                      <span className="text-[10px] text-canvas-muted shrink-0">{file.kind}</span>
-                    </button>
+                    </div>
                   </li>
                 );
               })}

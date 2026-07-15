@@ -7,6 +7,7 @@ import type EChartsReact from "echarts-for-react";
 import { ChevronDown, ChevronUp, RefreshCw } from "lucide-react";
 import { CanvasExportButton } from "../common/CanvasExportButton";
 import { ChartExportButtons } from "../common/ChartExportButtons";
+import { OpenPathToolbar } from "../common/OpenPathToolbar";
 import { toast } from "sonner";
 import type { DayLogEntry, SimDayData } from "../../types";
 import {
@@ -286,10 +287,15 @@ export function GraphTopologyPanel({
                 <RefreshCw size={12} className={loading ? "animate-spin" : ""} />
                 {loading ? "Loading…" : "Reload matrix"}
               </button>
-              {matrix && (
-                <span className="text-[10px] text-canvas-muted font-mono truncate max-w-xs">
-                  {matrixPath?.split("/").slice(-3).join("/")}
-                </span>
+              {matrix && matrixPath && (
+                <OpenPathToolbar
+                  path={matrixPath}
+                  projectRoot={projectRoot}
+                  kind="csv"
+                  label={matrixPath.split(/[/\\]/).slice(-3).join("/")}
+                  chipClassName="text-[10px] max-w-xs"
+                  className="min-w-0"
+                />
               )}
               {suggestRadial && layoutMode === "auto" && (
                 <span className="text-[10px] text-amber-400/90">Auto radial (N≥{DENSE_GRAPH_NODE_THRESHOLD})</span>
