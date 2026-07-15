@@ -257,6 +257,8 @@ function GroupedMetricBarChart({
   groups,
   color,
   showErrorBars,
+  logScale = false,
+  useSymlog = false,
   exportName,
 }: {
   title: string;
@@ -264,10 +266,15 @@ function GroupedMetricBarChart({
   groups: GroupRow[];
   color: string;
   showErrorBars?: boolean;
+  logScale?: boolean;
+  useSymlog?: boolean;
   exportName: string;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   const labels = groups.map((g) => g.label);
+  const symlogMode = logScale && useSymlog;
+  const displayValue = (v: number) =>
+    !logScale ? v : symlogMode ? symlog(v) : Math.max(v, 0.001);
 
   const option = useMemo(
     () => ({
@@ -287,16 +294,18 @@ function GroupedMetricBarChart({
         axisLabel: { color: "#9090b0", fontSize: 9 },
       },
       yAxis: {
-        type: "value" as const,
+        type: (logScale && !symlogMode ? "log" : "value") as "log" | "value",
+        logBase: 10,
         axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
       },
       series: [
         {
           type: "bar" as const,
-          data: groups.map((g) => g.mean),
+          data: groups.map((g) => displayValue(g.mean)),
           itemStyle: { color },
         },
-        ...(showErrorBars
+        ...(showErrorBars && !logScale
           ? [
               {
                 type: "custom" as const,
@@ -340,7 +349,7 @@ function GroupedMetricBarChart({
           : []),
       ],
     }),
-    [groups, labels, color, showErrorBars]
+    [groups, labels, color, showErrorBars, logScale, symlogMode]
   );
 
   return (
@@ -2212,7 +2221,7 @@ export function SimulationSummary() {
           {allRuns.length >= 1 && (
             <div className="space-y-2">
               <p className="text-xs font-semibold text-gray-300">Pareto Panels (§G.1.2)</p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 {PARETO_PANELS.map((panel) => (
                   <BenchmarkParetoPanel
                     key={panel.id}
@@ -2228,20 +2237,32 @@ export function SimulationSummary() {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
             {cityScaleOverflowGroups ? (
               <GroupedMetricBarChart
-                title="Overflows by City / Scale"
+                title={
+                  logScale
+                    ? "Overflows by City / Scale (symlog)"
+                    : "Overflows by City / Scale"
+                }
                 subtitle="Mean ± std across portfolio runs (§G.1.1 multi-city)"
                 groups={cityScaleOverflowGroups}
                 color="#f87171"
                 showErrorBars={showErrorBars}
+                logScale={logScale}
+                useSymlog
                 exportName="summary-overflows-city"
               />
             ) : (
               <GroupedMetricBarChart
-                title="Overflows by Selection Strategy"
+                title={
+                  logScale
+                    ? "Overflows by Selection Strategy (symlog)"
+                    : "Overflows by Selection Strategy"
+                }
                 subtitle="Mean ± std across constructor variants (§G.1.1)"
                 groups={overflowGroups}
                 color="#f87171"
                 showErrorBars={showErrorBars}
+                logScale={logScale}
+                useSymlog
                 exportName="summary-overflows-grouped"
               />
             )}
@@ -2252,6 +2273,7 @@ export function SimulationSummary() {
                 groups={cityScaleKgkmGroups}
                 color="#34d399"
                 showErrorBars={showErrorBars}
+                logScale={logScale}
                 exportName="summary-kgkm-city"
               />
             ) : (
@@ -2261,6 +2283,7 @@ export function SimulationSummary() {
                 groups={kgkmGroups}
                 color="#34d399"
                 showErrorBars={showErrorBars}
+                logScale={logScale}
                 exportName="summary-kgkm-grouped"
               />
             )}
@@ -2427,7 +2450,7 @@ export function SimulationSummary() {
           </div>
 
           {/* 4-metric bar charts */}
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <MetricBarChart
               title="Avg Profit by Policy (€) — hover for ±std"
               policies={policies}

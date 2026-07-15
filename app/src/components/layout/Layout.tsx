@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { useGlobalFileDrop } from "../../hooks/useGlobalFileDrop";
 import { useLayoutStore } from "../../store/layout";
 import { CommandPalette } from "./CommandPalette";
@@ -16,6 +17,17 @@ export function Layout({ children }: Props) {
   const sidebarOpen = useLayoutStore((s) => s.sidebarOpen);
   const setSidebarOpen = useLayoutStore((s) => s.setSidebarOpen);
   useGlobalFileDrop();
+
+  // Collapse sidebar on narrow viewports so content is visible on first paint (§G.7)
+  useEffect(() => {
+    const mq = window.matchMedia("(max-width: 1023px)");
+    const apply = () => {
+      if (mq.matches) setSidebarOpen(false);
+    };
+    apply();
+    mq.addEventListener("change", apply);
+    return () => mq.removeEventListener("change", apply);
+  }, [setSidebarOpen]);
 
   return (
     <div className="flex h-screen w-screen overflow-hidden">
