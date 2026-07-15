@@ -7,7 +7,6 @@ import { useAppStore } from "../../store/app";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useLayoutStore } from "../../store/layout";
 import { nextThemePreference } from "../../utils/theme";
-import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
@@ -216,15 +215,9 @@ export function CommandPalette() {
                           path={file.path}
                           projectRoot={projectRoot}
                           className="flex-1 min-w-0"
-                          trailing={
-                            <PathHandoffButtons
-                              path={file.path}
-                              kind={file.kind}
-                              storedLabel={file.label}
-                              iconSize={11}
-                              onAfterOpen={closePalette}
-                            />
-                          }
+                          handoff={file.kind}
+                          handoffStoredLabel={file.label}
+                          handoffOnAfterOpen={closePalette}
                         />
                       ) : (
                         <span className="truncate">{file.label}</span>

@@ -1484,6 +1484,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Explorer open-CSV chip + Config Editor primary / diff path chips — path-kind icon handoffs (§G.6 / §G.13 / §D.7)
 - [x] §G.1 / §G.6 / §G.9 / §G.13 / §G.16 analytics + config path-handoff surface parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-seventh pass)**
+
+- [x] ``PathRunLabelChip`` ``handoff`` prop — composes kind-aware ``PathHandoffButtons`` (optional ``handoffStoredLabel`` / ``handoffTargets`` / ``handoffOnAfterOpen``) with custom ``trailing`` (§G.7 / §G.14 / §D.7)
+- [x] ``RunLabelHeaderSuffix`` defaults ``handoff`` on live-panel header chips — Simulation Launcher / Process Monitor / train-HPO headers gain path handoffs without per-page wiring (§G.9–§G.18 / §D.7)
+- [x] ``ProcessIdFooter`` + Process Monitor process-row chips migrate to ``handoff``; ``LoadedRunRow`` uses chip ``handoff`` for portfolio / run lists (§G.15 / §G.1 / §D.7)
+- [x] Simulation Summary ConfigMetaBanner + open-path chips; Output Browser run header / checkpoint sidebar / file viewer / checkpoint panel chips (§G.1 / §G.14 / §G.16 / §D.7)
+- [x] Shared eval / launcher / tracker chips (Eval cards, Evaluation Runner, Training Hub, Training Monitor, Benchmark, HPO, Experiment Tracker, Command Palette, Data Explorer, OLAP, Config Editor) use ``handoff`` instead of ad-hoc ``trailing={<PathHandoffButtons/>}`` (§G.7 / §G.10–§G.18 / §D.7)
+- [x] §G.7 / §G.9–§G.18 path-chip handoff unification via ``PathRunLabelChip`` checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1911,6 +1920,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] City Comparison section follows global ``logScale``: log-scale profit + symlog-overflows bars when on; linear raw values when off; `BenchmarkAnalysis` + `SimulationSummary` + dedicated `CityComparison` page with portfolio load + summary table (§G.1.6 / §G.7)
 - [x] City Comparison error-bar whiskers: profit · symlog-overflows · kg/km grouped bars show mean ± std via ``showErrorBars`` toggle on ``cityComparisonChartOption``; log/symlog whiskers via ``errorBarBounds`` + ``groupedBarWhiskerX`` on Benchmark Analysis, Simulation Summary portfolio mode, and City Comparison page (§G.1.6 / §G.7)
 - [x] Simulation Summary / Algorithm Comparison open-log toolbars + path chips use shared ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.1 / §G.16 / §D.7)
+- [x] Simulation Summary ConfigMetaBanner + open-path chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.1 / §D.7)
 
 **Status**: §G.1 complete — all checklist items delivered.
 
@@ -2163,6 +2173,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Auto-chart line type in override alternatives for day/epoch/step queries (§G.6)
 - [x] Pivot table heatmap PNG export: ``exportChartPng()`` on ``PivotTablePanel`` pivot heatmap with toast feedback (§G.6 / §G.7)
 - [x] OLAP Explorer ingest path + Data Explorer open-CSV path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.6 / §D.7)
+- [x] OLAP / Data Explorer open-path chips migrate to ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.6 / §D.7)
 
 **Status**: §G.6 complete — all checklist items delivered.
 
@@ -2259,6 +2270,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Launcher card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.9 / §D.7)
 - [x] ``LauncherNavMesh`` path-kind shortcuts via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): Output Browser / checkpoint / Training Monitor / Data Explorer labeled handoffs with empty-path mode-only fallback (§G.9 / §G.11 / §G.12 / §D.7)
 - [x] ``LauncherNavMesh`` sim log dual/single-target shortcuts migrate to ``PathHandoffButtons`` ``kind="log"`` + ``targets`` (two-hundred-and-twenty-sixth pass; §G.9 / §G.1 / §G.16 / §D.7)
+- [x] Live-panel header path chips gain handoffs via ``RunLabelHeaderSuffix`` default ``handoff`` (two-hundred-and-twenty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 
 ---
 
@@ -2364,6 +2376,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.12 / §D.7)
 - [x] Evaluation Runner checkpoint input + results table path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.12 / §D.7)
 - [x] ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint icon handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.12 / §G.15 / §D.7)
+- [x] Evaluation Runner + eval live/result cards checkpoint chips use ``PathRunLabelChip`` ``handoff="checkpoint"`` (two-hundred-and-twenty-seventh pass; §G.12 / §D.7)
 
 ---
 
@@ -2384,6 +2397,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] "Apply to Launcher" button: target selector (Simulation Launcher / Training Hub / Data Generation); `applyConfigToLauncher()` maps flat YAML keys to Zustand store patches and navigates to the target page
 - [x] ``Ctrl+S`` keyboard shortcut saves dirty config to disk when a file path is open (§D.7 / §G.13)
 - [x] Configuration Editor primary YAML + diff comparison path chips — Config Editor path-kind icon handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.13 / §D.7)
+- [x] Configuration Editor path chips migrate to ``PathRunLabelChip`` ``handoff="config"`` (two-hundred-and-twenty-seventh pass; §G.13 / §D.7)
 
 ---
 
@@ -2413,6 +2427,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser ``runLabelMapFromPaths`` replaces inline ``runLabelFromPath`` in run list ring highlights (hundred-seventy-fifth pass; §G.14 / §D.7)
 - [x] Output Browser path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-header log dual / run single; file-viewer CSV / config / checkpoint / log labeled controls; checkpoint sidebar icon Eval handoffs (§G.14 / §G.7 / §D.7)
 - [x] Output Browser run list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.14 / §D.7)
+- [x] Output Browser run header / checkpoint sidebar / file-viewer / checkpoint panel chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.14 / §D.7)
 
 ---
 
@@ -2470,6 +2485,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor train/HPO embedded section uses muted subtitle header + ``runLabel`` + live suffix via ``TrainHpoLivePanel`` ``embedded`` defaults (hundred-seventy-first pass; §G.15 / §D.7)
 - [x] Process Monitor process row ring highlight + global ``run_label`` brush sync for all workflow kinds (hundred-seventy-first pass; §G.15 / §D.7)
 - [x] Process Monitor ``useProcessRunLabelBrush`` + ``runLabelMapFromProcesses`` shared run-label brush hook parity (hundred-seventy-third pass; §G.15 / §D.7)
+- [x] Process Monitor process-row + ``ProcessIdFooter`` chips + live-header suffix handoffs via ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.15 / §D.7)
 
 ---
 
@@ -2494,6 +2510,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **deck.gl route map PNG export with toast feedback**: ``DeckRouteMap`` ``exportCanvasPng()`` names export ``route-map-tile.png`` (Mercator) or ``route-map-orbit.png`` (OrbitView) with toast feedback (§G.16 / §G.7)
 - [x] Simulation Monitor ``GlobalFilterBar`` ``runLabels`` + ``useLogPathRunLabelBrush`` on log open (hundred-seventy-fourth pass; §G.16 / §D.7)
 - [x] Simulation Monitor open-log toolbar + path chip path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.16 / §G.1 / §D.7)
+- [x] Simulation Monitor open-path chip uses ``PathRunLabelChip`` ``handoff="log"`` (two-hundred-and-twenty-seventh pass; §G.16 / §D.7)
 
 **Status**: §G.16 complete — all checklist items delivered.
 
@@ -2534,6 +2551,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Training Monitor ``TrainHpoLivePanel`` card header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.17 / §D.7)
 - [x] Training Monitor path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-panel training icon + checkpoint browser Eval icon (§G.17 / §G.12 / §D.7)
 - [x] Training Monitor run-discovery list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.17 / §D.7)
+- [x] Training Monitor run-panel + checkpoint browser chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.17 / §G.12 / §D.7)
 
 ---
 
@@ -2576,6 +2594,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] HPO Tracker + Experiment Tracker ``TrainHpoLivePanel`` card headers pass ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.18 / §D.7)
 - [x] HPO Tracker trial log dirs + report directory path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fifth pass; §G.18 / §D.7)
 - [x] Experiment Tracker MLflow run dirs + output directory list ``pathHandoffs`` via ``PathHandoffButtons`` / ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.18 / §G.14 / §D.7)
+- [x] HPO Tracker trial log dirs + report dir + Experiment Tracker MLflow run dirs use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.18 / §D.7)
 
 ---
 

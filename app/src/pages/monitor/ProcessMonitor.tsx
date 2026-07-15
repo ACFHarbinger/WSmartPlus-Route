@@ -18,7 +18,6 @@ import {
   Terminal,
   Trash2,
 } from "lucide-react";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
@@ -186,7 +185,7 @@ function ProcessRow({
                 path={logPath}
                 projectRoot={projectRoot}
                 className="max-w-full flex-1 min-w-0"
-                trailing={<PathHandoffButtons path={logPath} iconSize={11} />}
+                handoff
               />
               <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
                 {id}

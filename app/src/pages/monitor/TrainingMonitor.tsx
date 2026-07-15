@@ -19,7 +19,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
@@ -307,13 +306,7 @@ function CheckpointBrowser({
               label={ckpt.name}
               brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
               className="flex-1 min-w-0 max-w-none"
-              trailing={
-                <PathHandoffButtons
-                  path={ckpt.path}
-                  kind="checkpoint"
-                  iconSize={11}
-                />
-              }
+              handoff="checkpoint"
             />
             <span className="text-xs text-canvas-muted shrink-0">
               {formatBytes(ckpt.size_bytes)}
@@ -346,9 +339,7 @@ function RunPanel({
         <PathRunLabelChip
           path={run.path}
           projectRoot={projectRoot}
-          trailing={
-            <PathHandoffButtons path={run.path} kind="training" iconSize={11} />
-          }
+          handoff="training"
         />
         <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
       </div>

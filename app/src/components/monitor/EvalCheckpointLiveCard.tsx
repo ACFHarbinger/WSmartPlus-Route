@@ -2,7 +2,6 @@
  * Shared per-checkpoint live eval row for Evaluation Runner and Process Monitor
  * (§G.12 / §G.15 / §D.7).
  */
-import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import type { EvalResult } from "../../utils/evalResults";
 import { hasEvalMetrics } from "../../utils/evalResults";
@@ -52,13 +51,7 @@ export function EvalCheckpointLiveCard({
             label={checkpointName}
             brushLabel={parentRunBrushLabelFromCheckpointPath(checkpointPath, projectRoot)}
             className="max-w-full"
-            trailing={
-              <PathHandoffButtons
-                path={checkpointPath}
-                kind="checkpoint"
-                iconSize={11}
-              />
-            }
+            handoff="checkpoint"
           />
         ) : (
           <span className="text-xs font-mono text-gray-300 truncate">{checkpointName}</span>

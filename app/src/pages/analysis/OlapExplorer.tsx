@@ -256,17 +256,12 @@ export function OlapExplorer() {
           <PathRunLabelChip
             path={selectedIngestPath}
             projectRoot={projectRoot}
+            handoff
+            handoffStoredLabel={sourceRunLabel ?? undefined}
             trailing={
-              <>
-                <PathHandoffButtons
-                  path={selectedIngestPath}
-                  storedLabel={sourceRunLabel ?? undefined}
-                  iconSize={11}
-                />
-                {!loading && lastPipeline ? (
-                  <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
-                ) : null}
-              </>
+              !loading && lastPipeline ? (
+                <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+              ) : null
             }
           />
         )}

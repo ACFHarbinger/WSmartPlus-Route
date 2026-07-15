@@ -183,13 +183,11 @@ export function AlgorithmComparison() {
           <PathRunLabelChip
             path={watchPath}
             projectRoot={projectRoot}
+            handoff="log"
             trailing={
-              <>
-                <PathHandoffButtons path={watchPath} kind="log" iconSize={11} />
-                {!duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE ? (
-                  <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
-                ) : null}
-              </>
+              !duckdbLoading && lastPipeline?.tableName === ALGORITHM_SIM_TABLE ? (
+                <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>
+              ) : null
             }
           />
         )}

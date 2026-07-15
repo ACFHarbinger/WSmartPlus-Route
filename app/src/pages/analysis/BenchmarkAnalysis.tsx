@@ -47,7 +47,6 @@ import {
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
 import { useDuckDbStore } from "../../store/duckdb";
@@ -200,13 +199,7 @@ function EvalResultsPanel({
                         projectRoot
                       )}
                       className="max-w-full"
-                      trailing={
-                        <PathHandoffButtons
-                          path={r.checkpointPath}
-                          kind="checkpoint"
-                          iconSize={11}
-                        />
-                      }
+                      handoff="checkpoint"
                     />
                   ) : (
                     <span className="font-mono text-gray-300">{r.checkpoint}</span>

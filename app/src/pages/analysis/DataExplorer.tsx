@@ -8,7 +8,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
@@ -286,9 +285,9 @@ export function DataExplorer() {
             <PathRunLabelChip
               path={file.path}
               projectRoot={projectRoot}
+              handoff="csv"
               trailing={
                 <>
-                  <PathHandoffButtons path={file.path} kind="csv" iconSize={11} />
                   <span className="shrink-0">
                     · {file.rows.length.toLocaleString()} rows
                     {hasActiveBrush && hasBrushColumns && (

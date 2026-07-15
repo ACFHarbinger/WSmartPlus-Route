@@ -15,7 +15,6 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
 import { toast } from "sonner";
-import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
@@ -342,9 +341,7 @@ export function ConfigEditor() {
           path={filePath}
           projectRoot={projectRoot}
           className="max-w-full"
-          trailing={
-            <PathHandoffButtons path={filePath} kind="config" iconSize={11} />
-          }
+          handoff="config"
         />
       )}
 
@@ -449,9 +446,7 @@ export function ConfigEditor() {
                 path={diffPath}
                 projectRoot={projectRoot}
                 className="max-w-md"
-                trailing={
-                  <PathHandoffButtons path={diffPath} kind="config" iconSize={11} />
-                }
+                handoff="config"
               />
             ) : null}
           </div>
@@ -470,9 +465,7 @@ export function ConfigEditor() {
                   <PathRunLabelChip
                     path={filePath}
                     projectRoot={projectRoot}
-                    trailing={
-                      <PathHandoffButtons path={filePath} kind="config" iconSize={11} />
-                    }
+                    handoff="config"
                   />
                 ) : null}
                 <span>and</span>
@@ -480,9 +473,7 @@ export function ConfigEditor() {
                   <PathRunLabelChip
                     path={diffPath}
                     projectRoot={projectRoot}
-                    trailing={
-                      <PathHandoffButtons path={diffPath} kind="config" iconSize={11} />
-                    }
+                    handoff="config"
                   />
                 ) : null}
               </p>

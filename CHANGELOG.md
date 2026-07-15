@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-seventh pass (§G.7 + §G.9–§G.18 + §D.7)
+
+Two-hundred-and-twenty-seventh pass unifies path-chip handoffs after pass 226 put
+kind-aware icons on analytics and config surfaces. ``PathRunLabelChip`` gains a
+composable ``handoff`` prop so live headers, footers, portfolio rows, and open-path
+chips no longer wire ``trailing={<PathHandoffButtons/>}`` ad hoc. ``RunLabelHeaderSuffix``
+defaults handoffs on every launcher / Process Monitor / train-HPO live header when a
+log path is known.
+
+**React frontend**
+- ``PathRunLabelChip`` — ``handoff`` / ``handoffStoredLabel`` / ``handoffTargets`` / ``handoffOnAfterOpen`` compose with ``trailing`` (§G.7 / §D.7)
+- ``RunLabelHeaderSuffix`` — default header-chip handoffs for live panels (§G.9–§G.18 / §D.7)
+- ``ProcessIdFooter`` + Process Monitor process rows + ``LoadedRunRow`` migrate to chip ``handoff`` (§G.15 / §G.1 / §D.7)
+- Simulation Summary ConfigMetaBanner + open-path; Output Browser run / checkpoint / viewer chips (§G.1 / §G.14 / §G.16 / §D.7)
+- Eval / launcher / tracker / palette / analytics / Config Editor chips drop ad-hoc ``PathHandoffButtons`` trailing wrappers (§G.7 / §G.10–§G.18 / §D.7)
+
+**ROADMAP**
+- §G.7 / §G.9–§G.18 path-chip handoff unification via ``PathRunLabelChip`` checked
+- §D.7 live-header + studio-wide chip handoff surface parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-sixth pass (§G.1 + §G.6 + §G.7 + §G.9 + §G.13 + §G.16 + §D.7)
 
 Two-hundred-and-twenty-sixth pass completes path-handoff surface parity after pass 225

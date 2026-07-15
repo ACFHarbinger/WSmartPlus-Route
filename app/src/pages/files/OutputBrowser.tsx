@@ -679,14 +679,8 @@ export function OutputBrowser() {
                   path={runJsonlPath ?? selectedRun.path}
                   projectRoot={projectRoot}
                   className="font-medium max-w-none"
-                  trailing={
-                    <PathHandoffButtons
-                      path={runJsonlPath ?? selectedRun.path}
-                      kind={runJsonlPath ? "log" : "run"}
-                      storedLabel={selectedRun.name}
-                      iconSize={11}
-                    />
-                  }
+                  handoff={runJsonlPath ? "log" : "run"}
+                  handoffStoredLabel={selectedRun.name}
                 />
               </div>
               {renderEntries(entries)}
@@ -717,13 +711,7 @@ export function OutputBrowser() {
                       label={ckpt.name}
                       brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
                       className="flex-1 min-w-0 max-w-none text-[10px]"
-                      trailing={
-                        <PathHandoffButtons
-                          path={ckpt.path}
-                          kind="checkpoint"
-                          iconSize={11}
-                        />
-                      }
+                      handoff="checkpoint"
                     />
                     <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
                   </div>
@@ -803,6 +791,17 @@ export function OutputBrowser() {
                     : undefined
                 }
                 className="flex-1"
+                handoff={
+                  viewingCheckpoint
+                    ? "checkpoint"
+                    : LOG_EXTENSIONS.has(viewingExt)
+                      ? "log"
+                      : CSV_EXTENSIONS.has(viewingExt)
+                        ? "csv"
+                        : CONFIG_EXTENSIONS.has(viewingExt)
+                          ? "config"
+                          : true
+                }
               />
             ) : null}
             {viewingPath && viewingExt === "wsroute" && (
@@ -882,6 +881,7 @@ export function OutputBrowser() {
                 projectRoot
               )}
               className="max-w-full px-4"
+              handoff="checkpoint"
             />
             <p className="text-canvas-muted text-xs">
               {formatBytes(viewingCheckpoint.size_bytes)} checkpoint weight file

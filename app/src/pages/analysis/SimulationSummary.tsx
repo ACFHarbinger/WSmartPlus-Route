@@ -201,7 +201,7 @@ function ConfigMetaBanner({
     <div className="card flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-canvas-muted">
       <span className="font-semibold text-gray-300">Run config</span>
       <span>{formatLogMeta(logMeta)}</span>
-      <PathRunLabelChip path={logPath} projectRoot={projectRoot} className="opacity-70" />
+      <PathRunLabelChip path={logPath} projectRoot={projectRoot} className="opacity-70" handoff />
     </div>
   );
 }
@@ -2278,9 +2278,9 @@ export function SimulationSummary() {
           <PathRunLabelChip
             path={logPath}
             projectRoot={projectRoot}
+            handoff="log"
             trailing={
               <>
-                <PathHandoffButtons path={logPath} kind="log" iconSize={11} />
                 {duckdbLoading && <span className="shrink-0">· DuckDB ingesting…</span>}
                 {!duckdbLoading && lastPipeline?.tableName === SUMMARY_SIM_TABLE && (
                   <span className="shrink-0">· {formatPipelineTimingBadge(lastPipeline)}</span>

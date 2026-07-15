@@ -3,7 +3,6 @@
  */
 import { useMemo, type ReactNode } from "react";
 import { X } from "lucide-react";
-import { PathHandoffButtons } from "./PathHandoffButtons";
 import { PathRunLabelChip } from "./PathRunLabelChip";
 import { useAppStore } from "../../store/app";
 import { resolveLocalProjectPath } from "../../utils/outputRunPath";
@@ -80,21 +79,9 @@ export function LoadedRunRow({
         projectRoot={effectiveProjectRoot}
         label={label}
         className="flex-1 min-w-0"
-        trailing={
-          showPathHandoffs || trailing ? (
-            <>
-              {showPathHandoffs && (
-                <PathHandoffButtons
-                  path={path}
-                  kind={handoffKind}
-                  storedLabel={label}
-                  iconSize={11}
-                />
-              )}
-              {trailing}
-            </>
-          ) : undefined
-        }
+        handoff={showPathHandoffs ? (handoffKind ?? true) : false}
+        handoffStoredLabel={label}
+        trailing={trailing}
       />
     </div>
   );
