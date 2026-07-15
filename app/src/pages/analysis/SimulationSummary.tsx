@@ -84,10 +84,9 @@ import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
 import {
   formatPipelineTimingBadge,
+  portfolioRunLabel,
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
-import { runLabelFromSourcePath } from "../../utils/policyTelemetryTrends";
-
 import { RouteViz } from "../../components/analysis/RouteViz";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 
@@ -1873,14 +1872,14 @@ export function SimulationSummary() {
     if (logPath) {
       logs.push({
         path: logPath,
-        label: runLabelFromSourcePath(logPath, projectRoot),
+        label: portfolioRunLabel(logPath, undefined, projectRoot),
       });
     }
     for (const r of comparisonRuns) {
       if (!logs.some((l) => l.path === r.path)) {
         logs.push({
           path: r.path,
-          label: r.label || runLabelFromSourcePath(r.path, projectRoot),
+          label: portfolioRunLabel(r.path, r.label, projectRoot),
         });
       }
     }
@@ -1919,7 +1918,7 @@ export function SimulationSummary() {
     if (!path) return;
     try {
       const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
-      const label = path.split(/[/\\]/).pop() ?? path;
+      const label = portfolioRunLabel(path, undefined, projectRoot);
       setComparisonRuns((prev) => [
         ...prev.filter((r) => r.path !== path),
         { path, label, entries: loaded },
@@ -1927,7 +1926,7 @@ export function SimulationSummary() {
     } catch (err) {
       toast.error("Failed to load comparison log", { description: String(err) });
     }
-  }, []);
+  }, [projectRoot]);
 
   const loadOutputPortfolio = useCallback(async () => {
     if (!projectRoot) {
@@ -1959,10 +1958,16 @@ export function SimulationSummary() {
         setComparisonRuns((prev) => {
           const seen = new Set(prev.map((r) => r.path));
           if (logPath) seen.add(logPath);
+          const normalize = (r: ComparisonRun): ComparisonRun => ({
+            ...r,
+            label: portfolioRunLabel(r.path, r.label, projectRoot),
+          });
           return [
             ...prev,
-            ...rest.filter((r) => !seen.has(r.path)),
-            ...(logPath && primary.path !== logPath && !seen.has(primary.path) ? [primary] : []),
+            ...rest.filter((r) => !seen.has(r.path)).map(normalize),
+            ...(logPath && primary.path !== logPath && !seen.has(primary.path)
+              ? [normalize(primary)]
+              : []),
           ];
         });
       }
@@ -2086,7 +2091,7 @@ export function SimulationSummary() {
     if (logPath && entries.length > 0) {
       runs.push({
         path: logPath,
-        label: runLabelFromSourcePath(logPath, projectRoot),
+        label: portfolioRunLabel(logPath, undefined, projectRoot),
         entries: filteredEntries,
       });
     }
@@ -2094,6 +2099,7 @@ export function SimulationSummary() {
       if (r.path === logPath) continue;
       runs.push({
         ...r,
+        label: portfolioRunLabel(r.path, r.label, projectRoot),
         entries: filterEntries(r.entries, policy, sampleId),
       });
     }
