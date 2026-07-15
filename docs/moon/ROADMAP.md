@@ -187,7 +187,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Studio ``FailureAnalysisPanel`` — severity-coded causes, overflow bin table, skipped high-fill chips on Simulation Monitor
 - [x] Unit tests in ``logic/test/unit/pipeline/simulations/test_failure_analyzer.py``
 
-**Status**: §A.6 Option A complete — Options B/C/D (counterfactual engine, route-diff overlay, DoWhy) deferred.
+**Delivered (§A.6 Option C — hundred-fifteenth pass)**
+
+- [x] ``routeFailureOverlay.ts`` — shared overflow/skipped bin id extraction + tour-diff sets for multi-policy compare
+- [x] ``FailureOverlayLegend`` — reusable legend for overflow (red), skipped high-fill (orange), and tour-diff rings
+- [x] ``DeckRouteMap`` — failure highlight ``ScatterplotLayer`` on Mercator + OrbitView; tour-diff ring overlay when two policies compared in overlay layout
+- [x] Simulation Monitor — **Show/Hide failure overlay** + **Show/Hide route diff** toggles; wired to deck.gl and ECharts ``RouteViz`` (failure colours via embedded ``failure_analysis``)
+- [x] ``RouteViz`` — legend when failure bins present; ``routeViz.ts`` uses shared overlay helper
+
+**Status**: §A.6 Options A+C complete — Options B/D (counterfactual engine, DoWhy) deferred.
 
 ---
 
@@ -200,6 +208,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1 ✅            |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1 ✅            |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1 ✅            |
+| §A.6 Option C (route-diff overlay)       | Medium    | High   | P2 ✅            |
 | §A.1 Option A (ECharts route viz)        | Medium    | High   | P2 ✅            |
 | §A.1 Option E (deck.gl PathLayer)        | High      | High   | P2 ✅ (§G.3/§G.16) |
 | §A.4 Option B (PyHessian)                | High      | Medium | P3 `[Research]` |
@@ -1479,7 +1488,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

@@ -5,7 +5,9 @@ import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { ChartExportButtons } from "../common/ChartExportButtons";
+import { FailureOverlayLegend } from "./FailureOverlayLegend";
 import { buildRouteVizOption } from "../../utils/routeViz";
+import { hasFailureOverlay } from "../../utils/routeFailureOverlay";
 import type { SimDayData, SimFailureSummary } from "../../types";
 
 export interface RouteVizProps {
@@ -48,8 +50,8 @@ export function RouteViz({
     );
   }
 
-  const hasFailureOverlay =
-    (failureOverlay ?? data.failure_analysis)?.has_failure === true;
+  const resolvedFailure = failureOverlay ?? data.failure_analysis ?? null;
+  const showFailureLegend = hasFailureOverlay(resolvedFailure);
 
   return (
     <div className={`card space-y-2 ${className}`.trim()}>
@@ -61,7 +63,7 @@ export function RouteViz({
           )}
         </div>
         <div className="flex items-center gap-2 shrink-0">
-          {hasFailureOverlay && (
+          {showFailureLegend && (
             <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent-danger/20 text-accent-danger">
               Failure overlay
             </span>
@@ -71,6 +73,7 @@ export function RouteViz({
           )}
         </div>
       </div>
+      {showFailureLegend && <FailureOverlayLegend />}
       <ReactECharts ref={chartRef} option={option} style={{ height }} />
     </div>
   );
