@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-eighth pass (§G.1 / §G.6 / §G.7)
+
+Eighty-eighth pass aligns Pareto scatter charts with symlog-overflows convention and
+extends global log-scale to OLAP auto-chart and pivot heatmaps.
+
+**React frontend**
+- `BenchmarkParetoPanel` — symlog overflows y-axis + log profit x-axis when global
+  ``logScale`` on; raw KPI tooltips preserved
+- `SimulationSummary` — ``PolicyParetoChart`` symlog overflows + log profit x-axis;
+  subtitle reflects linear vs symlog/log mode
+- `queryAutoChart.ts` — profit vs overflows scatter uses ``chartMetricDisplay`` symlog;
+  heatmap ``visualMap`` transforms KPI cells when ``logScale`` on
+- `pivotTable.ts` — ``pivotHeatmapOption`` accepts ``logScale`` + ``valueKey`` for
+  log-normalised pivot heatmap cells
+- `PivotTablePanel` / `SqlQueryPanel` — pivot heatmap follows global ``logScale``
+
+**ROADMAP**
+- §G.1.2 Pareto scatter symlog overflows + log profit x-axis checked
+- §G.6 Auto-chart heatmap + pivot heatmap log-scale checked
+- §G.7 Global log-scale propagation includes Pareto symlog + OLAP/pivot heatmaps
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-seventh pass (§G.1 / §G.2 / §G.6 / §G.7)
 
 Eighty-seventh pass extends global log-scale to policy/portfolio parallel

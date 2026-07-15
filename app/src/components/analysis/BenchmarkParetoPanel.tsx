@@ -4,6 +4,7 @@
 import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
+import { chartMetricDisplay, chartMetricUsesSymlog } from "../../utils/chartLogScale";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
   citySymbol,
@@ -31,22 +32,30 @@ export function BenchmarkParetoPanel({
   const option = useMemo(() => {
     const frontIds = new Set(paretoFront(points).map((p) => p.id));
     const step = paretoStepLine(paretoFront(points));
-    const displayY = (y: number) => (logScale ? Math.max(y, 0.001) : y);
+    const overflowSymlog = chartMetricUsesSymlog("overflows", logScale);
+    const displayX = (x: number) => chartMetricDisplay(x, "profit", logScale) ?? x;
+    const displayY = (y: number) => chartMetricDisplay(y, "overflows", logScale) ?? y;
 
     return {
       backgroundColor: "transparent",
-      title: { text: label, left: "center", textStyle: { color: "#9090b0", fontSize: 10 } },
+      title: {
+        text: `${label}${logScale ? " · symlog ovfl" : ""}`,
+        left: "center",
+        textStyle: { color: "#9090b0", fontSize: 10 },
+      },
       grid: { left: 44, right: 10, top: 36, bottom: 32 },
       xAxis: {
-        type: "value",
-        name: "Profit",
+        type: (logScale ? "log" : "value") as "log" | "value",
+        logBase: 10,
+        name: logScale ? "Profit (log)" : "Profit",
         nameTextStyle: { color: "#9090b0", fontSize: 8 },
         axisLabel: { color: "#9090b0", fontSize: 8 },
+        minorSplitLine: { show: false },
       },
       yAxis: {
-        type: logScale ? "log" : "value",
+        type: (logScale && !overflowSymlog ? "log" : "value") as "log" | "value",
         logBase: 10,
-        name: "Ovfl",
+        name: overflowSymlog ? "Ovfl (symlog)" : logScale ? "Ovfl (log)" : "Ovfl",
         nameTextStyle: { color: "#9090b0", fontSize: 8 },
         axisLabel: { color: "#9090b0", fontSize: 8 },
         minorSplitLine: { show: false },
@@ -59,7 +68,7 @@ export function BenchmarkParetoPanel({
             const onFront = frontIds.has(pt.id);
             return {
               name: pt.id,
-              value: [pt.x, displayY(pt.y)],
+              value: [displayX(pt.x), displayY(pt.y)],
               itemStyle: {
                 color: onFront ? strategyColor(pt.policy, { [pt.policy]: policyMeta }) : "#6b7280",
               },
@@ -88,7 +97,7 @@ export function BenchmarkParetoPanel({
           ? [
               {
                 type: "line",
-                data: step.map(([x, y]) => [x, displayY(y)]),
+                data: step.map(([x, y]) => [displayX(x), displayY(y)]),
                 lineStyle: { color: "#f3f4f6", type: "dashed", width: 1 },
                 symbol: "none",
                 tooltip: { show: false },
