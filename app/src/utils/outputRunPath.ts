@@ -2,6 +2,9 @@
  * Derive assets/output run directories from process stdout (§G.14 / §G.9 / §G.15).
  */
 import { extractJsonlPathFromLogLines } from "./policyTelemetryTrends";
+import { trainingRunPathFromLogLines } from "./trainingRunPath";
+
+export type ProcessLogPathKind = "sim" | "train" | "auto";
 
 const PRUNED_CONFIG_RE = /Pruned config saved → (.+)/;
 const HYDRA_SNAPSHOT_RE = /Hydra config snapshot saved → (.+)/;
@@ -68,4 +71,21 @@ export function outputRunPathFromLogLines(lines: string[]): string | null {
   const jsonl = extractJsonlPathFromLogLines(lines);
   if (jsonl) return outputRunPathFromJsonl(jsonl);
   return extractOutputRunPathFromLogLines(lines);
+}
+
+/** Resolve the best log/run path for ``PathRunLabelChip`` brush from process stdout (§G.9–§G.18 / §D.7). */
+export function brushLogPathFromProcessLines(
+  lines: string[],
+  kind: ProcessLogPathKind = "auto"
+): string | null {
+  const jsonl = extractJsonlPathFromLogLines(lines);
+  if (jsonl) return jsonl;
+  if (kind === "train" || kind === "auto") {
+    const train = trainingRunPathFromLogLines(lines);
+    if (train) return train;
+  }
+  if (kind === "sim" || kind === "auto") {
+    return outputRunPathFromLogLines(lines);
+  }
+  return null;
 }

@@ -1097,6 +1097,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser — run-directory list ``LoadedRunRow`` with compare checkbox + folder select leading slots; chip click-to-brush parity with header chips (§G.14 / §D.7)
 - [x] §G.1 / §G.6 / §G.14 portfolio loaded-run list path-chip run-label brush + ring-highlight parity across all analysis views (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-second pass)**
+
+- [x] ``brushLogPathFromProcessLines`` — resolve ``.jsonl`` / Lightning ``logs/`` / ``assets/output`` paths from process stdout for header chip brush (§G.9–§G.18 / §D.7)
+- [x] ``RunLabelHeaderSuffix`` — shared inline header suffix rendering ``PathRunLabelChip`` when ``logPath`` known, else plain ``· runLabel`` text (§G.9–§G.18 / §D.7)
+- [x] ``LauncherLivePanelHeader`` + ``TrainHpoLivePanelHeader`` — optional ``logPath`` prop replaces plain run-label suffix with ``PathRunLabelChip`` ring-highlight + click-to-brush (§G.9–§G.18 / §G.15 / §D.7)
+- [x] Simulation Launcher + Data Generation + Evaluation Runner + Training Hub — live panel headers pass ``logPath`` from process stdout (§G.9–§G.12 / §D.7)
+- [x] Process Monitor + Training Monitor + HPO Tracker + Experiment Tracker — live/post-run panel headers pass ``logPath`` from selected/recent process stdout (§G.15 / §G.17 / §G.18 / §D.7)
+- [x] Simulation Summary — ``ConfigMetaBanner`` run path uses ``PathRunLabelChip`` instead of plain font-mono text (§G.1 / §G.14 / §D.7)
+- [x] §G.9–§G.18 launcher/monitor card header path-chip run-label brush + ring-highlight parity across all live workflow pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1643,6 +1653,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary ``useLogPathRunLabelBrush`` on primary log open; ``GlobalFilterBar`` ``runLabels`` in single-log mode; comparison-run ring highlight via ``runLabelMapFromPaths`` (hundred-seventy-fifth pass; §G.1 / §G.16 / §D.7)
 - [x] Benchmark Analysis + City Comparison loaded-run list ring highlight + click-to-brush via ``runLabelMapFromPaths`` + ``handleRunLabelClick``; single-run ``GlobalFilterBar`` ``runLabels`` (hundred-seventy-sixth pass; §G.1 / §G.6 / §D.7)
 - [x] Portfolio loaded-run lists — ``LoadedRunRow`` + ``PathRunLabelChip`` on Benchmark Analysis, City Comparison, Simulation Summary comparison runs, and Output Browser run-directory list (hundred-eighty-first pass; §G.1 / §G.6 / §G.14 / §D.7)
+- [x] Launcher/monitor live panel headers — ``RunLabelHeaderSuffix`` + ``PathRunLabelChip`` on sim/data-gen/eval/train/HPO live cards when process stdout resolves a log path (hundred-eighty-second pass; §G.9–§G.18 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

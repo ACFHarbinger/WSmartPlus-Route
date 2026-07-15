@@ -28,7 +28,7 @@ import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { useProcessStore } from "../../store/process";
-import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
@@ -342,6 +342,10 @@ export function TrainingHub() {
     () => trainingRunPathFromLogLines(liveLogLines),
     [liveLogLines]
   );
+  const liveLogPath = useMemo(() => {
+    const kind = mode === "eval" ? "sim" : "train";
+    return brushLogPathFromProcessLines(liveLogLines, kind);
+  }, [liveLogLines, mode]);
 
   const isDone = runStatus !== null && runStatus !== "running";
   const latestMetric = liveMetrics[liveMetrics.length - 1];
@@ -565,6 +569,7 @@ export function TrainingHub() {
             status: isDone ? runStatus ?? "running" : "running",
             title: evalLiveTitle,
             runLabel: liveRunLabel,
+            logPath: liveLogPath,
             navMesh: {
               kind: "eval",
               hideSelf: true,
@@ -603,6 +608,7 @@ export function TrainingHub() {
             status: isDone ? runStatus : "running",
             title: trainHpoLiveTitle,
             runLabel: liveRunLabel,
+            logPath: liveLogPath,
             showLiveSuffix: !isDone,
             metricCount: liveMetrics.length,
             healthCount: liveHealth.length,

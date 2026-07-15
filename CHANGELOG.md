@@ -11,6 +11,35 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-second pass (§G.9–§G.18 + §G.1 + §D.7)
+
+Hundred-eighty-second pass closes the launcher/monitor card header path-chip gap left after the
+hundred-eighty-first pass (which unified portfolio loaded-run list ``PathRunLabelChip`` parity).
+Simulation Launcher, Data Generation, Evaluation Runner, Training Hub, Process Monitor,
+Training Monitor, HPO Tracker, and Experiment Tracker live/post-run panel headers now share
+``PathRunLabelChip`` ring-highlight + click-to-brush behaviour with analysis views.
+
+**React frontend**
+- ``brushLogPathFromProcessLines`` — resolve ``.jsonl`` / Lightning ``logs/`` / ``assets/output``
+  paths from process stdout for header chip brush (§G.9–§G.18 / §D.7)
+- ``RunLabelHeaderSuffix`` — shared inline header suffix rendering ``PathRunLabelChip`` when
+  ``logPath`` known, else plain ``· runLabel`` text (§G.9–§G.18 / §D.7)
+- ``LauncherLivePanelHeader`` + ``TrainHpoLivePanelHeader`` — optional ``logPath`` prop replaces
+  plain run-label suffix with ``PathRunLabelChip`` (§G.9–§G.18 / §G.15 / §D.7)
+- Simulation Launcher + Data Generation + Evaluation Runner + Training Hub — live panel headers
+  pass ``logPath`` from process stdout (§G.9–§G.12 / §D.7)
+- Process Monitor + Training Monitor + HPO Tracker + Experiment Tracker — live/post-run panel
+  headers pass ``logPath`` from selected/recent process stdout (§G.15 / §G.17 / §G.18 / §D.7)
+- Simulation Summary — ``ConfigMetaBanner`` run path uses ``PathRunLabelChip`` instead of plain
+  font-mono text (§G.1 / §G.14 / §D.7)
+
+**ROADMAP**
+- §G.9–§G.18 launcher/monitor card header path-chip run-label brush + ring-highlight parity checked
+- §G.1 Simulation Summary config banner path-chip brush parity checked
+- §D.7 live workflow page header path-chip brush parity across all launchers and monitors checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-first pass (§G.1 + §G.6 + §G.14 + §D.7)
 
 Hundred-eighty-first pass closes the portfolio loaded-run list path-chip gap left after the

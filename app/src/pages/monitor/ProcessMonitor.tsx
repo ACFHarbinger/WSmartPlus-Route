@@ -60,7 +60,7 @@ import {
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
 
-import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 
 /**
@@ -383,6 +383,12 @@ export function ProcessMonitor() {
     return trainingRunPathFromLogLines(selectedProc.logLines);
   }, [selectedProc, selectedIsTrain]);
 
+  const processLogPath = useMemo(() => {
+    if (!selectedProc) return null;
+    const kind = selectedIsTrain ? "train" : "sim";
+    return brushLogPathFromProcessLines(selectedProc.logLines, kind);
+  }, [selectedProc, selectedIsTrain]);
+
   const openEvalInAnalytics = useCallback(() => {
     if (!evalResult || !hasEvalMetrics(evalResult)) return;
     setPendingEvalResults(toEvalAnalyticsRows([evalResult]));
@@ -446,6 +452,7 @@ export function ProcessMonitor() {
               status: selectedProc.status,
             }),
             runLabel: processRunLabel,
+            logPath: processLogPath,
             navMesh: {
               kind: "sim",
               showPostRun: selectedProc.status === "completed",
@@ -505,6 +512,7 @@ export function ProcessMonitor() {
               status: selectedProc.status,
             }),
             runLabel: processRunLabel,
+            logPath: processLogPath,
             navMesh: {
               kind: "eval",
               showPostRun: selectedProc.status === "completed",
@@ -547,6 +555,7 @@ export function ProcessMonitor() {
               status: selectedProc.status,
             }),
             runLabel: processRunLabel,
+            logPath: processLogPath,
             navMesh: {
               kind: "data_gen",
               showPostRun: selectedProc.status === "completed",
@@ -572,6 +581,7 @@ export function ProcessMonitor() {
               command: selectedProc.command,
             }),
             runLabel: processRunLabel,
+            logPath: processLogPath,
             metricCount: trainingMetrics.length,
             healthCount: trainingHealthEntries.length,
             attentionCount: attentionEntries.length,

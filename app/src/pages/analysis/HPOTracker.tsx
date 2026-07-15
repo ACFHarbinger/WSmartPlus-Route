@@ -19,7 +19,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/trainingProcess";
@@ -223,6 +223,13 @@ export function HPOTracker() {
     () => (recentHpoProc ? trainingRunPathFromLogLines(recentHpoProc.logLines) : null),
     [recentHpoProc]
   );
+  const processLogPath = useMemo(
+    () =>
+      recentHpoProc
+        ? brushLogPathFromProcessLines(recentHpoProc.logLines, "train")
+        : null,
+    [recentHpoProc]
+  );
 
   const liveHealthEntries = useMemo(
     () =>
@@ -416,6 +423,7 @@ export function HPOTracker() {
               kind: "hpo",
             }),
             runLabel: processRunLabel,
+            logPath: processLogPath,
             showLiveSuffix: recentHpoRunning,
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,

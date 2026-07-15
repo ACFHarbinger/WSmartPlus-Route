@@ -45,7 +45,7 @@ import {
 } from "../../utils/evalResults";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentEvalProcessIds } from "../../utils/launcherProcess";
-import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;
@@ -344,6 +344,10 @@ export function EvaluationRunner() {
     ? processes[primaryEvalProcessId]?.logLines
     : undefined;
   const liveRunLabel = useProcessRunLabelBrush(primaryEvalProcessId, primaryEvalLogLines);
+  const liveLogPath = useMemo(
+    () => brushLogPathFromProcessLines(primaryEvalLogLines ?? [], "sim"),
+    [primaryEvalLogLines]
+  );
 
   const singleCheckpointEval = displayProcessIds.length === 1;
   const singleEvalProc = singleCheckpointEval ? processes[displayProcessIds[0]] : undefined;
@@ -633,6 +637,7 @@ export function EvaluationRunner() {
               completedCount: liveRunSummary.completed,
             }),
             runLabel: liveRunLabel,
+            logPath: liveLogPath,
             navMesh: {
               kind: "eval",
               hideSelf: true,
