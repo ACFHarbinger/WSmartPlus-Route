@@ -707,15 +707,19 @@ export function OutputBrowser() {
                 </p>
                 {runCheckpoints.map((ckpt) => (
                   <div key={ckpt.path} className="flex items-center gap-2 text-[10px] leading-tight">
-                    <PathRunLabelChip
+                    <OpenPathToolbar
                       path={ckpt.path}
                       projectRoot={projectRoot}
+                      kind="checkpoint"
                       label={ckpt.name}
                       brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
-                      className="flex-1 min-w-0 max-w-none text-[10px]"
-                      handoff="checkpoint"
-                    />
-                    <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
+                      chipClassName="flex-1 min-w-0 max-w-none text-[10px]"
+                      labeled
+                      labeledIconSize={11}
+                      className="flex-1 min-w-0"
+                    >
+                      <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
+                    </OpenPathToolbar>
                   </div>
                 ))}
               </div>
@@ -936,6 +940,7 @@ export function OutputBrowser() {
                         projectRoot={projectRoot}
                         brushLabel={sourceRunLabel ?? undefined}
                         className="max-w-full"
+                        handoff
                       />
                     </td>
                     <td className="py-1.5 px-3 text-right text-canvas-muted">{formatBytes(f.size_bytes)}</td>

@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-second pass (§G.8 + §G.14 + §G.17 + §G.12 + §D.7)
+
+Two-hundred-and-thirty-second pass expands ``OpenPathToolbar`` after pass 231 covered
+launcher selected-path previews. Residual Training Monitor run-panel / checkpoint-browser
+rows and Output Browser checkpoint sidebars migrate onto the shared cluster so training
+runs and checkpoint artefacts share one path+handoff surface. Checkpoint rows gain labeled
+Eval Runner controls; ``.wsroute`` manifest member paths gain auto-classified icon handoffs.
+
+**React frontend**
+- Training Monitor ``RunPanel`` path header → ``OpenPathToolbar``; epochs meta as ``children`` (§G.17 / §D.7)
+- Training Monitor checkpoint browser rows → ``OpenPathToolbar``; ``kind="checkpoint"`` labeled + size ``children`` (§G.17 / §G.12 / §D.7)
+- Output Browser checkpoint sidebar rows → ``OpenPathToolbar``; labeled Eval Runner + size ``children`` (§G.14 / §G.12 / §D.7)
+- Output Browser ``.wsroute`` manifest file table → ``PathRunLabelChip`` ``handoff`` auto-classify (§G.8 / §G.14 / §D.7)
+
+**ROADMAP**
+- §G.14 / §G.17 residual panel + checkpoint open-path toolbar parity checked
+- §G.8 ``.wsroute`` member path-handoff surface parity checked
+- §D.7 ``OpenPathToolbar`` monitor / browser residual surface expansion checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-first pass (§G.10 + §G.11 + §G.12 + §G.15 + §D.7)
 
 Two-hundred-and-thirty-first pass expands ``OpenPathToolbar`` after pass 230 covered

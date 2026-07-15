@@ -1169,6 +1169,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Benchmark Analysis — eval results panel checkpoint column ``PathRunLabelChip`` ring-highlight + click-to-brush parity (§G.1 / §G.12 / §D.7)
 - [x] ``EvalResultCard`` — checkpoint header chip on Process Monitor + Training Hub eval panels when path known (§G.10 / §G.12 / §G.15 / §D.7)
 - [x] Output Browser — ``.wsroute`` manifest file table rows use ``PathRunLabelChip`` with selected-run brush label (§G.8 / §G.14 / §D.7)
+- [x] Output Browser — ``.wsroute`` manifest member paths gain auto-classified ``PathRunLabelChip`` handoffs (two-hundred-and-thirty-second pass; §G.8 / §G.14 / §D.7)
 - [x] Output Browser + Training Monitor — checkpoint ``brushLabel`` uses shared ``parentRunBrushLabelFromCheckpointPath`` helper (§G.14 / §G.17 / §D.7)
 - [x] §G.12 / §G.1 / §G.8 eval-results + bundle-manifest path-chip run-label brush + ring-highlight parity checked (§D.7)
 
@@ -1528,6 +1529,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Generation sensor CSV / TSPLIB / preview path previews migrate to ``OpenPathToolbar``; sensor labeled Data Explorer handoff (§G.11 / §G.6 / §D.7)
 - [x] ``EvalResultCard`` / ``EvalCheckpointLiveCard`` checkpoint headers migrate to ``OpenPathToolbar`` (§G.12 / §G.15 / §D.7)
 - [x] §G.10 / §G.11 / §G.12 launcher selected-path open-path toolbar parity checked (§D.7)
+
+**Delivered (§D.7 — two-hundred-and-thirty-second pass)**
+
+- [x] Training Monitor ``RunPanel`` path header migrates to ``OpenPathToolbar``; epochs meta as ``children`` (§G.17 / §D.7)
+- [x] Training Monitor checkpoint browser rows migrate to ``OpenPathToolbar``; labeled Eval Runner handoff + size ``children`` (§G.17 / §G.12 / §D.7)
+- [x] Output Browser checkpoint sidebar rows migrate to ``OpenPathToolbar``; labeled Eval Runner handoff + size ``children`` (§G.14 / §G.12 / §D.7)
+- [x] Output Browser ``.wsroute`` manifest member paths gain ``PathRunLabelChip`` auto-classified handoffs (§G.8 / §G.14 / §D.7)
+- [x] §G.14 / §G.17 residual panel + checkpoint open-path toolbar parity checked (§D.7)
 
 ---
 
@@ -2108,6 +2117,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner + Benchmark Analysis eval results tables — ``PathRunLabelChip`` on checkpoint rows with parent-run ``brushLabel`` when Hydra path known (hundred-eighty-ninth pass; §G.12 / §G.1 / §D.7)
 - [x] EvalResultCard + Process Monitor / Training Hub eval panels — checkpoint header ``PathRunLabelChip`` parity (hundred-eighty-ninth pass; §G.10 / §G.12 / §G.15 / §D.7)
 - [x] Output Browser ``.wsroute`` manifest file table — ``PathRunLabelChip`` on bundle member paths with selected-run brush label (hundred-eighty-ninth pass; §G.8 / §G.14 / §D.7)
+- [x] Output Browser ``.wsroute`` manifest member paths — auto-classified ``PathRunLabelChip`` handoffs for JSONL / CSV / config / checkpoint members (two-hundred-and-thirty-second pass; §G.8 / §G.14 / §D.7)
 - [x] EvalCheckpointLiveCard + launcher eval live panels — ``PathRunLabelChip`` on per-checkpoint live rows when Hydra path known (hundred-ninetieth pass; §G.12 / §G.10 / §G.15 / §D.7)
 - [x] Evaluation Runner + Training Hub eval dataset inputs — ``PathRunLabelChip`` below filled dataset paths (hundred-ninetieth pass; §G.12 / §G.10 / §D.7)
 - [x] Data Generation Wizard TSPLIB + sensor source paths — ``PathRunLabelChip`` on external data source file inputs (hundred-ninetieth pass; §G.11 / §D.7)
@@ -2280,6 +2290,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] App version command: `system::get_app_version` surfaced in Settings About (§G.8 / §G.19)
 - [x] Update check command: `system::check_for_updates` uses Tauri updater plugin when `WSMART_UPDATER_PUBKEY` + `WSMART_UPDATE_URL` are set; falls back to JSON manifest version compare; Settings "Check for Updates" + conditional "Download & Install" button (§G.8)
 - [x] Signed update install: `system::install_app_update` downloads/installs pending signed update via `tauri-plugin-updater`; `updater:default` capability; example manifest at `app/updater.example.json` (partial — release signing keys + CDN hosting deferred)
+- [x] Output Browser ``.wsroute`` manifest member paths — auto-classified ``PathRunLabelChip`` handoffs for JSONL / CSV / config / checkpoint members (two-hundred-and-thirty-second pass; §G.8 / §G.14 / §D.7)
 
 **Status**: §G.8 complete — updater plugin wired; code-signing keys and hosted signed releases deferred to release engineering.
 
@@ -2476,6 +2487,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser run header / checkpoint sidebar / file-viewer / checkpoint panel chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.14 / §D.7)
 - [x] Output Browser file viewer + checkpoint panel labeled+chip dual control uses shared ``OpenPathToolbar`` (two-hundred-and-twenty-eighth pass; §G.14 / §D.7)
 - [x] Output Browser run header uses shared ``OpenPathToolbar``; labeled Summary / Monitor dual when run log is known (two-hundred-and-twenty-ninth pass; §G.14 / §G.1 / §D.7)
+- [x] Output Browser checkpoint sidebar rows use shared ``OpenPathToolbar``; labeled Eval Runner handoff + size ``children`` (two-hundred-and-thirty-second pass; §G.14 / §G.12 / §D.7)
+- [x] Output Browser ``.wsroute`` manifest member paths use ``PathRunLabelChip`` auto-classified handoffs (two-hundred-and-thirty-second pass; §G.8 / §G.14 / §D.7)
 
 ---
 
@@ -2604,6 +2617,8 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Training Monitor run-panel + checkpoint browser chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.17 / §G.12 / §D.7)
 - [x] Training Monitor logs-root discovery chip uses shared ``OpenPathToolbar`` (two-hundred-and-twenty-ninth pass; §G.17 / §D.7)
 - [x] Training Monitor empty-state logs-root chip uses shared ``OpenPathToolbar`` (two-hundred-and-thirtieth pass; §G.17 / §D.7)
+- [x] Training Monitor ``RunPanel`` path header uses shared ``OpenPathToolbar``; epochs meta as ``children`` (two-hundred-and-thirty-second pass; §G.17 / §D.7)
+- [x] Training Monitor checkpoint browser rows use shared ``OpenPathToolbar``; labeled Eval Runner handoff + size ``children`` (two-hundred-and-thirty-second pass; §G.17 / §G.12 / §D.7)
 
 ---
 
