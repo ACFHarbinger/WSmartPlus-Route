@@ -13,13 +13,13 @@ import {
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { Download, FolderOpen, RefreshCw } from "lucide-react";
+import { FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
 import { buildAttentionGraphOption } from "../../utils/attentionGraph";
+import { CanvasExportButton } from "../common/CanvasExportButton";
 import { ChartExportButtons } from "../common/ChartExportButtons";
-import { exportContainerCanvasPngWithToast } from "../../utils/chartExport";
 import {
   distributionDisplayName,
   inferDistributionLabel,
@@ -970,18 +970,10 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
       {tab === "attention" && attentionView === "sigma" && processedValues && graphCoords?.length && (
         <div className="space-y-2">
           <div className="flex justify-end gap-2">
-            <button
-              className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() =>
-                exportContainerCanvasPngWithToast(
-                  attentionSigmaRef.current,
-                  `attention-sigma-${selectedKey}.png`
-                )
-              }
-            >
-              <Download size={12} />
-              PNG
-            </button>
+            <CanvasExportButton
+              container={() => attentionSigmaRef.current}
+              filename={`attention-sigma-${selectedKey}.png`}
+            />
           </div>
           <div ref={attentionSigmaRef}>
             <Suspense
@@ -1080,18 +1072,11 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
                 <div className="space-y-2">
                   <div className="flex justify-end gap-2">
-                    <button
-                      className="btn-ghost text-xs flex items-center gap-1"
-                      onClick={() =>
-                        exportContainerCanvasPngWithToast(
-                          loss3dRef.current,
-                          `loss-terrain-3d-${lossView}.png`
-                        )
-                      }
-                    >
-                      <Download size={12} />
-                      3D PNG
-                    </button>
+                    <CanvasExportButton
+                      container={() => loss3dRef.current}
+                      filename={`loss-terrain-3d-${lossView}.png`}
+                      label="3D PNG"
+                    />
                   </div>
                   <Suspense
                     fallback={

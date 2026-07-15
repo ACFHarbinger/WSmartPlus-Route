@@ -5,8 +5,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckGL from "@deck.gl/react";
 import { OrbitView, COORDINATE_SYSTEM } from "@deck.gl/core";
-import { Download } from "lucide-react";
-import { exportCanvasPngWithToast } from "../../utils/chartExport";
+import { CanvasExportButton } from "../common/CanvasExportButton";
 import { resolveBinPositions } from "../../utils/mapPositions";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { TripsLayer } from "@deck.gl/geo-layers";
@@ -223,11 +222,11 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
   const hasBins = geometries.some((g) => g.hasBins);
   const cartesianMode = hasBins && !hasGeo;
 
-  const exportPng = useCallback(() => {
-    const canvas = containerRef.current?.querySelector("canvas");
-    const stem = cartesianMode ? "route-map-orbit.png" : "route-map-tile.png";
-    exportCanvasPngWithToast(canvas, stem);
-  }, [cartesianMode]);
+  const exportFilename = cartesianMode ? "route-map-orbit.png" : "route-map-tile.png";
+  const getExportCanvas = useCallback(
+    () => containerRef.current?.querySelector("canvas") ?? null,
+    []
+  );
   const maxTripLength = Math.max(...geometries.map((g) => g.tripLength), 0);
   const cartesianSystem = cartesianMode ? COORDINATE_SYSTEM.CARTESIAN : COORDINATE_SYSTEM.LNGLAT;
 
@@ -494,14 +493,12 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
             {pitch3d ? "3D (on)" : "3D (off)"}
           </button>
         )}
-        <button
-          onClick={exportPng}
-          className="btn-ghost text-xs flex items-center gap-1 bg-black/50 rounded px-1.5 py-0.5"
-          title="Export map as PNG"
-        >
-          <Download size={11} />
-          PNG
-        </button>
+        <CanvasExportButton
+          canvas={getExportCanvas}
+          filename={exportFilename}
+          size={11}
+          className="bg-black/50 rounded px-1.5 py-0.5"
+        />
       </div>
       {(routes.length > 1 || geometries.some((g) => g.vehicles.length > 1)) && (
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-1.5 max-w-[90%]">

@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixth pass (§G.7)
+
+Hundred-sixth pass introduces a shared ``CanvasExportButton`` component for WebGL/canvas
+PNG exports and propagates it to all remaining deck.gl, Sigma.js, Cosmograph, and R3F
+panels that still used inline PNG export buttons.
+
+**React frontend**
+- `CanvasExportButton` — reusable canvas/container PNG export button with Sonner toasts
+- `DeckRouteMap` — refactored deck.gl Mercator/OrbitView map PNG export
+- `GraphTopologyPanel` — refactored Sigma.js + Cosmograph WebGL PNG export
+- `MLIntrospectionPanel` — refactored Attention Sigma.js + LossLandscape3D R3F PNG export
+
+**ROADMAP**
+- §G.7 ``CanvasExportButton`` propagated to deck.gl route map, graph topology WebGL,
+  and ML introspection WebGL/R3F panels
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifth pass (§G.7)
 
 Hundred-fifth pass propagates the shared ``ChartExportButtons`` component to all
