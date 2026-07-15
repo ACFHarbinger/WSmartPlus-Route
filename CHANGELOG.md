@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-third pass (§G.15 + §D.7)
+
+Hundred-seventy-third pass closes the Process Monitor run-label brush hook gap left
+after the hundred-seventy-second pass (which unified launcher and monitor card-header
+run-label suffixes). Process Monitor now uses the same shared brush hook and per-process
+run-label map helper as the launcher and monitor card pages.
+
+**React frontend**
+- ``runLabelMapFromProcesses`` — shared helper deriving per-process ``run_label`` from
+  stdout for process row ring highlights (§G.15 / §D.7)
+- Process Monitor — ``useProcessRunLabelBrush`` replaces inline ``runLabelFromLogLines``
+  + manual ``setRunLabel`` effect; global brush sync parity with launcher/monitor pages
+  (§G.15 / §D.7)
+
+**ROADMAP**
+- §G.15 Process Monitor shared run-label brush hook parity checked
+- §D.7 Process Monitor ``useProcessRunLabelBrush`` + ``runLabelMapFromProcesses`` deduplication checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-second pass (§G.9 + §G.10 + §G.11 + §G.12 + §G.15 + §G.17 + §G.18 + §D.7)
 
 Hundred-seventy-second pass closes the launcher and monitor card-header run-label gap left

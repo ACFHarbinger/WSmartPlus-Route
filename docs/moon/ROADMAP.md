@@ -1027,6 +1027,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Monitor + HPO Tracker + Experiment Tracker — ``TrainHpoLivePanel`` card headers pass ``runLabel`` + ``showLiveSuffix``; ``GlobalFilterBar`` ``runLabels`` sync (§G.15 / §G.17 / §G.18 / §D.7)
 - [x] §G.9 / §G.10 / §G.11 / §G.12 / §G.15 / §G.17 / §G.18 launcher + monitor workflow card header run-label + live suffix parity across all eight pages (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-third pass)**
+
+- [x] ``runLabelMapFromProcesses`` — shared helper deriving per-process ``run_label`` from stdout for row ring highlights (§G.15 / §D.7)
+- [x] Process Monitor — ``useProcessRunLabelBrush`` replaces inline ``runLabelFromLogLines`` + manual ``setRunLabel`` effect; brush sync parity with launcher/monitor card pages (§G.15 / §D.7)
+- [x] §G.15 Process Monitor shared run-label brush hook parity across all workflow kinds (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1905,6 +1911,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor eval + data-gen embedded sections pass ``runLabel`` + live suffix parity with sim panel (hundred-seventy-first pass; §G.11 / §G.12 / §G.15 / §D.7)
 - [x] Process Monitor train/HPO embedded section uses muted subtitle header + ``runLabel`` + live suffix via ``TrainHpoLivePanel`` ``embedded`` defaults (hundred-seventy-first pass; §G.15 / §D.7)
 - [x] Process Monitor process row ring highlight + global ``run_label`` brush sync for all workflow kinds (hundred-seventy-first pass; §G.15 / §D.7)
+- [x] Process Monitor ``useProcessRunLabelBrush`` + ``runLabelMapFromProcesses`` shared run-label brush hook parity (hundred-seventy-third pass; §G.15 / §D.7)
 
 ---
 

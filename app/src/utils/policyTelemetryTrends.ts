@@ -35,6 +35,20 @@ export function runLabelFromLogLines(lines: string[], fallbackId: string): strin
   return runLabelFromPath(fallbackId);
 }
 
+/** Derive ``run_label`` per process id for row ring-highlight parity (§G.15 / §D.7). */
+export function runLabelMapFromProcesses(
+  processes: Record<string, { logLines: string[] }>,
+  ids: string[]
+): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const id of ids) {
+    const proc = processes[id];
+    if (!proc) continue;
+    map[id] = runLabelFromLogLines(proc.logLines, id);
+  }
+  return map;
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;

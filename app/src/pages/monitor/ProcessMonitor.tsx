@@ -19,6 +19,7 @@ import {
   Trash2,
 } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 
@@ -31,7 +32,7 @@ import {
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
-import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
+import { runLabelMapFromProcesses } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import {
@@ -279,7 +280,6 @@ export function ProcessMonitor() {
     runLabel: activeRunLabel,
     logScale,
     setPolicy,
-    setRunLabel,
   } = useGlobalFiltersStore();
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
@@ -319,25 +319,15 @@ export function ProcessMonitor() {
 
   const selectedPolicy = activePolicy ?? vizPolicies[0] ?? null;
 
-  const processRunLabel = useMemo(() => {
-    if (!selectedProc) return null;
-    return runLabelFromLogLines(selectedProc.logLines, selectedProc.id);
-  }, [selectedProc]);
+  const processRunLabel = useProcessRunLabelBrush(
+    selectedId,
+    selectedProc?.logLines
+  );
 
-  const processRunBrushById = useMemo(() => {
-    const map: Record<string, string> = {};
-    for (const id of ids) {
-      const proc = processes[id];
-      if (!proc) continue;
-      map[id] = runLabelFromLogLines(proc.logLines, proc.id);
-    }
-    return map;
-  }, [ids, processes]);
-
-  useEffect(() => {
-    if (!selectedProc || !processRunLabel) return;
-    setRunLabel(processRunLabel);
-  }, [selectedProc, processRunLabel, setRunLabel]);
+  const processRunBrushById = useMemo(
+    () => runLabelMapFromProcesses(processes, ids),
+    [ids, processes]
+  );
 
   useEffect(() => {
     if (policyVizEntries.length > 0) {
