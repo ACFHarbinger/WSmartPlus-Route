@@ -1093,6 +1093,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally: pivot/result row click sets `useGlobalFiltersStore` policy; `GlobalFilterBar` policy highlights matching SQL rows + dims pivot heatmap rows via `highlightRowLabels` (§G.6)
 - [x] Auto-chart Pareto frontier step-line overlay: labeled profit vs overflows scatter highlights frontier points + dashed ``paretoStepLine()`` (§G.6)
 - [x] Auto-chart log-scale toggle on overflows scatter axis (§G.6 / §G.1 partial)
+- [x] Auto-chart log-scale on bar / grouped-bar / line when y-axis metric is overflow, loss, or KPI (§G.6 / §G.7)
 - [x] Auto-chart line cross-filter: time-series point click → ``onDaySelect`` when ``xKey`` is ``day`` (§G.6)
 - [x] Auto-chart line type in override alternatives for day/epoch/step queries (§G.6)
 
@@ -1109,7 +1110,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Bookmarkable city/scale brush: `useHashSync` serializes global ``brushedCity`` as ``c`` query param; restored on load and browser back/forward (§G.7)
-- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
+- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary, Benchmark Analysis, Algorithm Comparison, City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker, Experiment Tracker, Simulation Monitor daily KPI charts, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
 - [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
@@ -1306,6 +1307,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Side-by-side route compare**: overlay/split layout toggle when exactly 2 policies visible; split renders labelled dual `DeckRouteMap` or dual ECharts panels (§G.16)
 - [x] **Policy / Sample multi-select**: chip-toggle row shown when ≥2 policies present; `chartPolicies` state (default: all); `MetricTimeseries` refactored to accept `policySeries: { policy; entries; color }[]`; 8-colour `POLICY_COLORS` palette; ECharts legend shown when >1 series; detail panels (KpiCard, BinFill, TourTable) still use single `selectedPolicy` dropdown
 - [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed
+- [x] **Daily KPI timeseries follow global ``logScale``**: ``MetricTimeseries`` symlog overflows + log profit/km/kg when on; ``GlobalFilterBar`` on Simulation Monitor (§G.16 / §G.7)
 
 ---
 
@@ -1343,6 +1345,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
   - Optimization history scatter plot (trial number vs. objective value) with best-so-far line
   - Parameter importance bar chart (FANOVA via `optuna.importance.get_param_importances`)
 - [x] **HPO charts follow global ``logScale``**: optimisation history + cross-study best-so-far lines use log objective axis when on; ``GlobalFilterBar`` on HPO Tracker (§G.18 / §G.7)
+- [x] **MLflow metric comparison follows global ``logScale``**: multi-run overlay chart log y-axis on loss/objective metrics when on; ``GlobalFilterBar`` on Experiment Tracker (§G.18 / §G.7)
 - [x] **Best-trial highlight**: best value KPI card; "Copy best params" button writes trial `params` as Hydra override lines to clipboard
 - [x] **Cross-study comparison**: "Compare with" study dropdown in HPOTracker; overlaid best-so-far optimisation history (ECharts); side-by-side best-value KPI cards for both studies
 - [x] **MLflow dashboard embed fallback**: Runs/Dashboard tab toggle in ExperimentTracker; iframe embed of local MLflow UI (`http://localhost:5000` default) + open-in-browser via shell plugin (native WebView window deferred)

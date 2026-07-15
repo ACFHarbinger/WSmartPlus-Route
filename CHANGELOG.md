@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-fourth pass (§G.6 / §G.7 / §G.16 / §G.18)
+
+Eighty-fourth pass extends global log-scale to Experiment Tracker, Simulation
+Monitor daily KPI charts, and OLAP auto-chart bar/line types.
+
+**React frontend**
+- `chartLogScale.ts` — shared metric heuristics for symlog overflows and log KPI axes
+- `ExperimentTracker` — MLflow metric comparison log y-axis when global ``logScale`` on;
+  ``GlobalFilterBar`` + linear vs log subtitle (disabled when Normalize Y is on)
+- `SimulationMonitor` — ``MetricTimeseries`` symlog overflows + log profit/km/kg;
+  ``GlobalFilterBar`` when a log is loaded; daily KPI subtitle
+- `queryAutoChart.ts` — bar / grouped-bar / line auto-charts follow ``logScale`` on
+  overflow, loss, and KPI y-axis metrics
+
+**ROADMAP**
+- §G.7 Global log-scale propagation includes Experiment Tracker + Simulation Monitor
+- §G.6 Auto-chart log-scale on bar / grouped-bar / line checked
+- §G.16 Simulation Monitor daily KPI timeseries log-scale checked
+- §G.18 Experiment Tracker MLflow metric comparison log-scale checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-third pass (§G.7 / §G.10 / §G.17 / §G.18 / §D.7)
 
 Eighty-third pass extends global log-scale to training and HPO charts and adds

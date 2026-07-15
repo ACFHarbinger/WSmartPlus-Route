@@ -2,6 +2,12 @@
  * Suggest ECharts visualizations from DuckDB query results (§G.6).
  */
 
+import {
+  chartMetricYAxisType,
+  displayBarValue,
+  isLogScaleMetric,
+  isOverflowMetric,
+} from "./chartLogScale";
 import { paretoFront, paretoStepLine } from "./pareto";
 
 export type AutoChartType = "bar" | "grouped-bar" | "heatmap" | "line" | "scatter";
@@ -235,10 +241,6 @@ export interface AutoChartBuildOptions {
   logScale?: boolean;
 }
 
-function isOverflowMetric(key: string): boolean {
-  return /^(mean_)?overflows$/i.test(key);
-}
-
 export function buildAutoChartOption(
   spec: AutoChartSpec,
   rows: Record<string, unknown>[],
@@ -253,7 +255,10 @@ export function buildAutoChartOption(
 
   if (spec.type === "bar") {
     const labels = rows.map((r) => String(r[spec.xKey] ?? ""));
-    const values = rows.map((r) => toNum(r[spec.yKey]));
+    const barLog = logScale && isLogScaleMetric(spec.yKey);
+    const values = rows.map((r) =>
+      displayBarValue(toNum(r[spec.yKey]), spec.yKey, logScale)
+    );
     return {
       backgroundColor: "transparent",
       grid: { left: 48, right: 12, top: 24, bottom: 48 },
@@ -262,7 +267,13 @@ export function buildAutoChartOption(
         data: labels,
         axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
       },
-      yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
+      yAxis: {
+        type: chartMetricYAxisType(spec.yKey, logScale),
+        logBase: 10,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
+        name: barLog ? spec.yKey : undefined,
+      },
       series: [{ type: "bar", data: values, itemStyle: { color: "#6366f1" } }],
       tooltip: { trigger: "axis" },
     };
@@ -331,7 +342,7 @@ export function buildAutoChartOption(
     for (const row of rows) {
       lookup.set(
         `${row[spec.xKey]}::${row[spec.seriesKey]}`,
-        toNum(row[spec.yKey])
+        displayBarValue(toNum(row[spec.yKey]), spec.yKey, logScale)
       );
     }
     return {
@@ -343,7 +354,12 @@ export function buildAutoChartOption(
         data: groupLabels,
         axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
       },
-      yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
+      yAxis: {
+        type: chartMetricYAxisType(spec.yKey, logScale),
+        logBase: 10,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
+      },
       series: seriesLabels.map((name, i) => ({
         name,
         type: "bar",
@@ -358,13 +374,24 @@ export function buildAutoChartOption(
 
   if (spec.type === "line") {
     const points = rows
-      .map((r) => [toNum(r[spec.xKey]), toNum(r[spec.yKey])] as [number, number])
+      .map(
+        (r) =>
+          [
+            toNum(r[spec.xKey]),
+            displayBarValue(toNum(r[spec.yKey]), spec.yKey, logScale),
+          ] as [number, number]
+      )
       .sort((a, b) => a[0] - b[0]);
     return {
       backgroundColor: "transparent",
       grid: { left: 48, right: 12, top: 24, bottom: 32 },
       xAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
-      yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
+      yAxis: {
+        type: chartMetricYAxisType(spec.yKey, logScale),
+        logBase: 10,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
+      },
       series: [
         {
           type: "line",

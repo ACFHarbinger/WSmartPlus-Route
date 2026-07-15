@@ -20,6 +20,7 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { ChevronLeft, ChevronRight, Download, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
 import { useAppStore } from "../../store/app";
@@ -34,6 +35,11 @@ import {
   guessGraphPreset,
   loadGraphCoordinates,
 } from "../../utils/graphCoords";
+import {
+  chartMetricDisplay,
+  chartMetricYAxisType,
+  isLogScaleMetric,
+} from "../../utils/chartLogScale";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
 import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
@@ -228,15 +234,18 @@ function MetricTimeseries({
   policySeries,
   metricKey,
   label,
+  logScale = false,
 }: {
   policySeries: { policy: string; entries: DayLogEntry[]; color: string }[];
   metricKey: string;
   label: string;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<ReactECharts>(null);
   const allDays = [...new Set(policySeries.flatMap((s) => s.entries.map((e) => e.day)))].sort(
     (a, b) => a - b
   );
+  const metricLog = logScale && isLogScaleMetric(metricKey);
 
   const series = policySeries.map(({ policy, entries, color }) => ({
     name: policy,
@@ -249,14 +258,19 @@ function MetricTimeseries({
     areaStyle: policySeries.length === 1 ? { color: `${color}1e` } : undefined,
     data: allDays.map((day) => {
       const e = entries.find((en) => en.day === day);
-      return e ? ((e.data as Record<string, number>)[metricKey] ?? null) : null;
+      if (!e) return null;
+      const raw = (e.data as Record<string, number>)[metricKey];
+      return chartMetricDisplay(raw, metricKey, logScale);
     }),
   }));
 
   return (
     <div className="card">
       <div className="flex items-center justify-between mb-2">
-        <p className="text-xs text-canvas-muted">{label}</p>
+        <p className="text-xs text-canvas-muted">
+          {label}
+          {metricLog ? " · log" : ""}
+        </p>
         <button
           className="btn-ghost p-0.5"
           title="Export PNG"
@@ -275,7 +289,12 @@ function MetricTimeseries({
             data: allDays,
             axisLabel: { color: "#9090b0", fontSize: 10 },
           },
-          yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 10 } },
+          yAxis: {
+            type: chartMetricYAxisType(metricKey, logScale),
+            logBase: 10,
+            axisLabel: { color: "#9090b0", fontSize: 10 },
+            minorSplitLine: { show: false },
+          },
           legend: policySeries.length > 1
             ? { data: policySeries.map((s) => s.policy), textStyle: { color: "#9090b0", fontSize: 9 }, top: 0 }
             : undefined,
@@ -436,8 +455,13 @@ export function SimulationMonitor() {
     reset,
   } = useSimStore();
 
-  const { policy: selectedPolicy, sampleId: selectedSample, setPolicy, setSampleId } =
-    useGlobalFiltersStore();
+  const {
+    policy: selectedPolicy,
+    sampleId: selectedSample,
+    logScale,
+    setPolicy,
+    setSampleId,
+  } = useGlobalFiltersStore();
 
   // Keep sim store in sync for legacy consumers (AlgorithmComparison, etc.)
   useEffect(() => {
@@ -668,6 +692,8 @@ export function SimulationMonitor() {
 
   return (
     <div className="space-y-4">
+      {entries.length > 0 && <GlobalFilterBar showLogScale />}
+
       {/* Header controls */}
       <div className="flex items-center gap-3 flex-wrap">
         <button onClick={openLog} className="btn-primary flex items-center gap-2">
@@ -867,6 +893,11 @@ export function SimulationMonitor() {
           )}
 
           {/* Timeseries charts — one per primary KPI, each overlaying activeChartPolicies */}
+          <p className="text-[10px] text-canvas-muted">
+            {logScale
+              ? "Daily KPI timeseries · log-scale (symlog overflows, log profit/km/kg)"
+              : "Daily KPI timeseries · linear scale"}
+          </p>
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
             {PRIMARY_KPIS.map(({ key, label }) => (
               <MetricTimeseries
@@ -874,6 +905,7 @@ export function SimulationMonitor() {
                 policySeries={policySeries}
                 metricKey={key}
                 label={label}
+                logScale={logScale}
               />
             ))}
           </div>
