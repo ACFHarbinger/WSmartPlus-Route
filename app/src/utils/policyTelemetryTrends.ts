@@ -71,6 +71,25 @@ export function runLabelMapFromTablePaths(
   return map;
 }
 
+/** Map DuckDB table → brush label when the table has exactly one ``run_label`` (§G.6 / §D.7). */
+export function runLabelMapFromSingleTableLabels(
+  tableLabels: Record<string, string[]>
+): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const [tableName, labels] of Object.entries(tableLabels)) {
+    if (labels.length === 1) map[tableName] = labels[0]!;
+  }
+  return map;
+}
+
+/** Whether a global ``run_label`` brush matches any label in a DuckDB table (§G.6 / §D.7). */
+export function tableRunLabelBrushActive(
+  labels: string[] | undefined,
+  activeRunLabel: string | null
+): boolean {
+  return Boolean(activeRunLabel && labels?.includes(activeRunLabel));
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;

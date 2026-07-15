@@ -11,6 +11,7 @@ import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTele
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
+import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -26,7 +27,11 @@ import {
   listDuckDbDistinctValues,
   listDuckDbTables,
 } from "../../utils/duckdbClient";
-import { runLabelMapFromTablePaths } from "../../utils/policyTelemetryTrends";
+import {
+  runLabelMapFromSingleTableLabels,
+  runLabelMapFromTablePaths,
+  tableRunLabelBrushActive,
+} from "../../utils/policyTelemetryTrends";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
 
@@ -52,13 +57,23 @@ export function OlapExplorer() {
   const [cities, setCities] = useState<string[]>([]);
   const [portfolioMode, setPortfolioMode] = useState(false);
   const [ingestedTablePaths, setIngestedTablePaths] = useState<Record<string, string>>({});
+  const [tableRunLabelsByName, setTableRunLabelsByName] = useState<Record<string, string[]>>({});
 
   const selectedIngestPath = ingestedTablePaths[selectedTable] ?? null;
+  const selectedTableRunLabels = tableRunLabelsByName[selectedTable] ?? [];
   const derivedRunLabel = useLogPathRunLabelBrush(selectedIngestPath);
+  const derivedTableRunLabel = useTableRunLabelBrush(
+    selectedTable,
+    selectedTableRunLabels,
+    Boolean(selectedIngestPath)
+  );
 
   const tableBrushByName = useMemo(
-    () => runLabelMapFromTablePaths(ingestedTablePaths),
-    [ingestedTablePaths]
+    () => ({
+      ...runLabelMapFromSingleTableLabels(tableRunLabelsByName),
+      ...runLabelMapFromTablePaths(ingestedTablePaths),
+    }),
+    [tableRunLabelsByName, ingestedTablePaths]
   );
 
   const handleRunLabelClick = useCallback(
@@ -75,12 +90,18 @@ export function OlapExplorer() {
       const names = await listDuckDbTables();
       setTables(names);
       const counts: Record<string, number> = {};
+      const labelsByTable: Record<string, string[]> = {};
       await Promise.all(
         names.map(async (name) => {
           counts[name] = await duckDbRowCount(name);
+          const hasRunLabel = await duckDbHasColumn(name, "run_label");
+          if (hasRunLabel) {
+            labelsByTable[name] = await listDuckDbDistinctValues(name, "run_label");
+          }
         })
       );
       setRowCounts(counts);
+      setTableRunLabelsByName(labelsByTable);
       if (names.length && !names.includes(selectedTable)) {
         setSelectedTable(names[0]);
       }
@@ -172,8 +193,9 @@ export function OlapExplorer() {
   const filterBarRunLabels = useMemo(() => {
     if (portfolioMode && runLabels.length > 0) return runLabels;
     if (derivedRunLabel) return [derivedRunLabel];
+    if (derivedTableRunLabel) return [derivedTableRunLabel];
     return [];
-  }, [portfolioMode, runLabels, derivedRunLabel]);
+  }, [portfolioMode, runLabels, derivedRunLabel, derivedTableRunLabel]);
 
   const highlightPolicies = activePolicy ? [activePolicy] : null;
 
@@ -217,7 +239,8 @@ export function OlapExplorer() {
           <div className="flex flex-wrap gap-2">
             {tables.map((name) => {
               const runBrushActive =
-                Boolean(activeRunLabel) && tableBrushByName[name] === activeRunLabel;
+                tableBrushByName[name] === activeRunLabel ||
+                tableRunLabelBrushActive(tableRunLabelsByName[name], activeRunLabel);
               const tableRunLabel = tableBrushByName[name];
               return (
                 <button
@@ -249,7 +272,10 @@ export function OlapExplorer() {
           logScale={logScale}
           initialPolicy={activePolicy}
           initialRunLabel={
-            activeRunLabel ?? derivedRunLabel ?? (runLabels.length === 1 ? runLabels[0]! : null)
+            activeRunLabel ??
+            derivedRunLabel ??
+            derivedTableRunLabel ??
+            (runLabels.length === 1 ? runLabels[0]! : null)
           }
         />
       )}

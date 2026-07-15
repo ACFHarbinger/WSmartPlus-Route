@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-eighth pass (§G.6 + §G.14 + §G.16 + §D.7)
+
+Hundred-seventy-eighth pass closes the OLAP Explorer built-in DuckDB portfolio table run-label
+brush gap left after the hundred-seventy-seventh pass (which unified custom ingested-table
+brush hooks). Built-in tables such as ``summary_sim``, ``benchmark_sim``, ``city_sim``, and
+``algorithm_sim`` now share table-picker ring-highlight + click-to-brush parity even when no
+custom ingest path is tracked.
+
+**React frontend**
+- ``runLabelMapFromSingleTableLabels`` / ``tableRunLabelBrushActive`` — DuckDB table
+  ``run_label`` helpers for portfolio table-picker brush parity (§G.6 / §D.7)
+- ``useTableRunLabelBrush`` — shared hook syncing global brush when a table has exactly one
+  distinct ``run_label`` (§G.6 / §D.7)
+- OLAP Explorer — ``refreshTables`` indexes per-table ``run_label`` values; built-in portfolio
+  tables share ring highlight when global brush matches any contained label (§G.6 / §G.14 / §D.7)
+- OLAP Explorer — single-run built-in table brush sync + ``GlobalFilterBar`` / trends fallback
+  via ``useTableRunLabelBrush`` when no ingest path is tracked (§G.6 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.6 OLAP Explorer built-in DuckDB portfolio table run-label brush + table-picker ring-highlight parity checked
+- §G.14 OLAP Explorer built-in table click-to-brush parity with Output Browser run list checked
+- §G.16 OLAP Explorer DuckDB-derived run-label brush hook parity with Data Explorer checked
+- §D.7 file-based + built-in DuckDB table run-label brush parity across all analysis views including OLAP Explorer checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-seventh pass (§G.6 + §G.14 + §G.16 + §D.7)
 
 Hundred-seventy-seventh pass closes the OLAP Explorer run-label brush hook gap left

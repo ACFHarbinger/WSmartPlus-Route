@@ -1064,6 +1064,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] OLAP Explorer — path-derived ``GlobalFilterBar`` ``runLabels`` + trends ``initialRunLabel`` fallback when table lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
 - [x] §G.6 OLAP Explorer file-based run-label brush + ring-highlight parity across all analysis views (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-eighth pass)**
+
+- [x] ``runLabelMapFromSingleTableLabels`` / ``tableRunLabelBrushActive`` — DuckDB table ``run_label`` helpers for portfolio table-picker brush parity (§G.6 / §D.7)
+- [x] ``useTableRunLabelBrush`` — shared hook syncing global brush when a built-in DuckDB table has exactly one ``run_label`` (§G.6 / §D.7)
+- [x] OLAP Explorer — ``refreshTables`` indexes distinct ``run_label`` values per table; built-in portfolio tables (``summary_sim`` / ``benchmark_sim`` / ``city_sim`` / ``algorithm_sim``) share table-picker ring-highlight + click-to-brush parity (§G.6 / §G.14 / §D.7)
+- [x] OLAP Explorer — single-run built-in table brush sync + ``GlobalFilterBar`` / trends fallback when no custom ingest path is tracked (§G.6 / §G.16 / §D.7)
+- [x] §G.6 OLAP Explorer built-in DuckDB portfolio table run-label brush + ring-highlight parity across all analysis views (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1612,6 +1620,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
+- [x] OLAP Explorer built-in DuckDB portfolio tables — ``useTableRunLabelBrush`` + ``runLabelMapFromSingleTableLabels`` table-picker ring highlight + click-to-brush when ``summary_sim`` / ``benchmark_sim`` / ``city_sim`` / ``algorithm_sim`` are loaded without custom ingest paths (hundred-seventy-eighth pass; §G.6 / §G.14 / §D.7)
 - [x] Benchmark Analysis city chart run_label brush: city comparison chart click → `highlightRunLabels` + `brushSqlSync` on `benchmark_sim` (§G.6)
 - [x] OLAP Explorer global policy brush SQL sync: `GlobalFilterBar` policy → `brushSqlSync` + `autoRunOnBrushSync`; portfolio/algorithm template modes per ingested table (§G.6)
 - [x] OLAP Explorer global run_label brush SQL sync: `GlobalFilterBar` run selector + `highlightRunLabels` on portfolio tables; distinct ``run_label`` values from DuckDB (§G.6)
