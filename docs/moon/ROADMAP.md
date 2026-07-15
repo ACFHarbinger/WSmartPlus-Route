@@ -1261,6 +1261,11 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary + OLAP Explorer — portfolio DuckDB pipeline callers pass ``projectRoot`` for multi-log union ingest (§G.1 / §G.6 / §D.7)
 - [x] §G.1 / §G.1.6 portfolio DuckDB ``run_label`` relative-path brush/SQL parity across Benchmark Analysis, City Comparison, Simulation Summary, and OLAP Explorer checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninety-ninth pass)**
+
+- [x] Simulation Summary — ``portfolioRunLabel`` on add-comparison-run, output-portfolio load, ``allRuns`` portfolio brush, and ``allDuckDbLogs`` union ingest for UI/DuckDB ``run_label`` parity (§G.1 / §G.6 / §D.7)
+- [x] §G.1 Simulation Summary portfolio loaded-run list + filter-bar relative-path ``run_label`` brush/SQL parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1841,6 +1846,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Derived run-label utilities + live-panel headers — ``runLabelFromLogLines`` / ``useProcessRunLabelBrush`` / ``runLabelMapFrom*`` ``projectRoot`` resolution; Command Palette + Process Monitor row ring-highlight + live-panel footer/header path-chip parity (hundred-ninety-sixth pass; §G.7 / §G.9–§G.18 / §D.7)
 - [x] DuckDB Arrow ingest + explicit live-panel ``projectRoot`` — ``runLabelFromSourcePath`` + pipeline ``projectRoot`` annotation; Simulation Summary portfolio labels; Policy Telemetry db_path chip; launcher/train/HPO page header/footer parity (hundred-ninety-seventh pass; §G.0 / §G.6 / §G.9–§G.18 / §A.3 / §D.7)
 - [x] Portfolio DuckDB union ingest ``projectRoot`` — ``portfolioRunLabel`` + ``runPortfolioSimulationArrowPipeline`` ``projectRoot``; Benchmark Analysis + City Comparison portfolio label parity; Simulation Summary + OLAP Explorer multi-log callers (hundred-ninety-eighth pass; §G.0 / §G.1 / §G.1.6 / §G.6 / §D.7)
+- [x] Simulation Summary portfolio UI ``run_label`` — ``portfolioRunLabel`` on add-comparison-run, output-portfolio load, ``allRuns`` brush, and ``allDuckDbLogs`` ingest (hundred-ninety-ninth pass; §G.1 / §G.6 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

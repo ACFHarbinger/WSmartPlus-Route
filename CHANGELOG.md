@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-ninth pass (§G.1 + §G.6 + §D.7)
+
+Hundred-ninety-ninth pass closes the Simulation Summary portfolio UI ``run_label``
+gaps left after pass 198 unified DuckDB union ingest ``projectRoot`` resolution.
+Add-comparison-run, output-portfolio load, ``allRuns`` portfolio brush, and
+``allDuckDbLogs`` now derive labels via ``portfolioRunLabel`` so loaded-run rows,
+``GlobalFilterBar`` run selectors, and DuckDB ``run_label`` columns stay aligned
+for relative paths.
+
+**React frontend**
+- Simulation Summary — ``portfolioRunLabel`` on add-comparison-run, output-portfolio load, ``allRuns`` portfolio brush, and ``allDuckDbLogs`` union ingest (§G.1 / §G.6 / §D.7)
+
+**ROADMAP**
+- §G.1 Simulation Summary portfolio loaded-run list + filter-bar relative-path ``run_label`` brush/SQL parity checked
+- §D.7 Simulation Summary portfolio UI/DuckDB ``run_label`` relative-path brush/SQL parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-eighth pass (§G.0 + §G.1 + §G.1.6 + §G.6 + §D.7)
 
 Hundred-ninety-eighth pass closes the portfolio DuckDB union ingest ``run_label``
