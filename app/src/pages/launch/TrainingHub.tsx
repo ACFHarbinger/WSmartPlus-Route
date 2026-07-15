@@ -28,8 +28,10 @@ import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
-import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { useProcessStore } from "../../store/process";
+import { useRecentFilesStore } from "../../store/recentFiles";
+import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
@@ -176,6 +178,7 @@ export function TrainingHub() {
   const { projectRoot, effectiveTheme, setMode, setPendingEvalResults } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   // Persisted form state (§D.4 session persistence)
   const {
@@ -220,7 +223,13 @@ export function TrainingHub() {
     const path = (await open({
       filters: [{ name: "Checkpoint", extensions: ["pt", "ckpt", "pth"] }],
     })) as string | null;
-    if (path) setCheckpointPath(path);
+    if (!path) return;
+    pushRecent({
+      path,
+      label: portfolioRunLabel(path, undefined, projectRoot),
+      kind: "checkpoint",
+    });
+    setCheckpointPath(path);
   };
 
   const pickDataset = async () => {

@@ -109,6 +109,11 @@ export function LauncherNavMesh({
           {showPostRun && checkpointPath && (
             <button
               onClick={() => {
+                pushRecent({
+                  path: checkpointPath,
+                  label: portfolioRunLabel(checkpointPath, undefined, projectRoot),
+                  kind: "checkpoint",
+                });
                 setPendingCheckpoint(checkpointPath);
                 setMode("eval_runner");
               }}

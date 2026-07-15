@@ -381,10 +381,18 @@ export function OutputBrowser() {
     [pushRecent, projectRoot, setPendingLogPath, setMode]
   );
 
-  const loadInEvalRunner = useCallback((path: string) => {
-    setPendingCheckpoint(path);
-    setMode("eval_runner");
-  }, [setPendingCheckpoint, setMode]);
+  const loadInEvalRunner = useCallback(
+    (path: string) => {
+      pushRecent({
+        path,
+        label: portfolioRunLabel(path, undefined, projectRoot),
+        kind: "checkpoint",
+      });
+      setPendingCheckpoint(path);
+      setMode("eval_runner");
+    },
+    [pushRecent, projectRoot, setPendingCheckpoint, setMode]
+  );
 
   const toggleCompareRun = useCallback((runPath: string) => {
     setCompareSelection((prev) => {
