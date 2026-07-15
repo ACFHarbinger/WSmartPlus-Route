@@ -49,6 +49,17 @@ export function runLabelMapFromProcesses(
   return map;
 }
 
+/** Derive ``run_label`` per run path for file-based row ring-highlight parity (§G.1 / §G.14 / §D.7). */
+export function runLabelMapFromPaths(
+  items: Array<{ path: string; name?: string }>
+): Record<string, string> {
+  const map: Record<string, string> = {};
+  for (const item of items) {
+    map[item.path] = runLabelFromPath(item.name ?? item.path);
+  }
+  return map;
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;

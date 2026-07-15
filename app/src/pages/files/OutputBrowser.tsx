@@ -8,7 +8,7 @@
  *   - File viewer: CSV → DataExplorer-style table; YAML/text → raw view
  *   - "Open in Sim Summary" button for .jsonl log files
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLayoutStore } from "../../store/layout";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
@@ -36,7 +36,7 @@ import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
 import { findRunJsonl } from "../../utils/outputRunLogs";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
+import { runLabelMapFromPaths } from "../../utils/policyTelemetryTrends";
 import { downloadParquetFromCsv } from "../../utils/tableExport";
 import { filterCheckpointEntries, isCheckpointEntry } from "../../utils/checkpoints";
 
@@ -150,6 +150,10 @@ export function OutputBrowser() {
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
   const brushLogPath = selectedRun ? (runJsonlPath ?? selectedRun.name) : null;
   const derivedRunLabel = useLogPathRunLabelBrush(brushLogPath);
+  const runBrushByPath = useMemo(
+    () => runLabelMapFromPaths(runs.map((r) => ({ path: r.path, name: r.name }))),
+    [runs]
+  );
 
   const refresh = useCallback(async () => {
     if (!outputPath) return;
@@ -538,8 +542,8 @@ export function OutputBrowser() {
 
         <div className="card flex-1 overflow-auto p-1">
           {runs.map((r) => {
-            const runBrushLabel = runLabelFromPath(r.name);
-            const runBrushActive = activeRunLabel === runBrushLabel;
+            const runBrushActive =
+              Boolean(activeRunLabel) && runBrushByPath[r.path] === activeRunLabel;
             return (
             <div
               key={r.path}

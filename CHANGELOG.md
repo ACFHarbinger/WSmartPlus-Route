@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-fifth pass (§G.1 + §G.14 + §G.16 + §D.7)
+
+Hundred-seventy-fifth pass closes the Simulation Summary file-based run-label brush hook gap left
+after the hundred-seventy-fourth pass (which unified Simulation Monitor and Output Browser
+file-based brush hooks). Simulation Summary now auto-syncs the global brush on log open, and
+file-based pages share one path-derived run-label map helper for list ring highlights.
+
+**React frontend**
+- ``runLabelMapFromPaths`` — shared helper deriving per-run ``run_label`` from paths for
+  file-based row ring highlights (§G.1 / §G.14 / §D.7)
+- Simulation Summary — ``useLogPathRunLabelBrush`` on primary log open; ``GlobalFilterBar``
+  ``runLabels`` in single-log mode; ``PolicyTelemetryTrendsPanel`` uses hook-derived label
+  (§G.1 / §G.16 / §D.7)
+- Output Browser — ``runLabelMapFromPaths`` replaces inline ``runLabelFromPath`` in run list
+  ring highlights (§G.14 / §D.7)
+- Simulation Summary — comparison-run list ring highlight via ``runLabelMapFromPaths``
+  (§G.1 / §G.6 / §D.7)
+
+**ROADMAP**
+- §G.1 Simulation Summary ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` run-label parity checked
+- §G.14 Output Browser ``runLabelMapFromPaths`` ring-highlight parity checked
+- §G.16 Simulation Summary file-based run-label brush hook parity with Simulation Monitor checked
+- §D.7 file-based run-label brush + ring-highlight parity across Summary / Monitor / Output Browser checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-fourth pass (§G.14 + §G.16 + §D.7)
 
 Hundred-seventy-fourth pass closes the file-based run-label brush hook gap left

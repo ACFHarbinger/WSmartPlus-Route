@@ -1040,6 +1040,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser — ``useLogPathRunLabelBrush`` replaces inline ``setRunLabel`` in ``selectRun``; trends panel uses hook-derived label (§G.14 / §D.7)
 - [x] §G.14 / §G.16 file-based workflow run-label brush hook parity with process-based launcher/monitor pages (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-fifth pass)**
+
+- [x] ``runLabelMapFromPaths`` — shared helper deriving per-run ``run_label`` from paths for file-based row ring highlights (§G.1 / §G.14 / §D.7)
+- [x] Simulation Summary — ``useLogPathRunLabelBrush`` on primary log open; ``GlobalFilterBar`` ``runLabels`` in single-log mode; trends panel uses hook-derived label (§G.1 / §G.16 / §D.7)
+- [x] Output Browser — ``runLabelMapFromPaths`` replaces inline ``runLabelFromPath`` in run list ring highlights (§G.14 / §D.7)
+- [x] Simulation Summary — comparison-run list ring highlight via ``runLabelMapFromPaths`` (§G.1 / §G.6 / §D.7)
+- [x] §G.1 / §G.14 / §G.16 file-based run-label brush + ring-highlight parity across Simulation Summary, Simulation Monitor, and Output Browser (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1583,6 +1591,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Benchmark Analysis brush SQL sync: efficiency ranking + metric bar click → global policy filter → `brushSqlSync` + `autoRunOnBrushSync` on `benchmark_sim` (§G.6)
 - [x] City Comparison brush SQL sync: city chart / summary table click → `run_label` filter → `brushSqlSync` + `autoRunOnBrushSync` on `city_sim`; `brushedPortfolioSql()` unifies policy + run_label brushes (§G.6)
 - [x] Simulation Summary portfolio run_label brush SQL sync: comparison-run click, city chart click, portfolio efficiency ranking click → `highlightRunLabels` + `brushSqlSync` on `summary_sim` (§G.6)
+- [x] Simulation Summary ``useLogPathRunLabelBrush`` on primary log open; ``GlobalFilterBar`` ``runLabels`` in single-log mode; comparison-run ring highlight via ``runLabelMapFromPaths`` (hundred-seventy-fifth pass; §G.1 / §G.16 / §D.7)
 - [x] Benchmark Analysis city chart run_label brush: city comparison chart click → `highlightRunLabels` + `brushSqlSync` on `benchmark_sim` (§G.6)
 - [x] OLAP Explorer global policy brush SQL sync: `GlobalFilterBar` policy → `brushSqlSync` + `autoRunOnBrushSync`; portfolio/algorithm template modes per ingested table (§G.6)
 - [x] OLAP Explorer global run_label brush SQL sync: `GlobalFilterBar` run selector + `highlightRunLabels` on portfolio tables; distinct ``run_label`` values from DuckDB (§G.6)
@@ -1863,6 +1872,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser refreshes run list when ``pendingRunPath`` is set but the run is not yet indexed (hundred-forty-third pass; §G.14)
 - [x] ``outputRunPathFromHydraArtifact`` + Hydra snapshot / pruned-config stdout parsing (hundred-forty-fourth pass; §G.14 / §G.9 / §G.12)
 - [x] Output Browser ``useLogPathRunLabelBrush`` replaces inline ``setRunLabel`` on run select (hundred-seventy-fourth pass; §G.14 / §D.7)
+- [x] Output Browser ``runLabelMapFromPaths`` replaces inline ``runLabelFromPath`` in run list ring highlights (hundred-seventy-fifth pass; §G.14 / §D.7)
 
 ---
 
