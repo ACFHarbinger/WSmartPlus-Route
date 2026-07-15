@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-first pass (§G.1 + §G.7 + §G.15 + §G.16 + §D.7)
+
+Two-hundred-and-twenty-first pass continues log-handoff surface parity after pass 220
+put dual handoffs on the Output Browser run-select tree header. Process Monitor process
+rows expose icon Summary / Monitor controls when the stdout-derived path is a ``.jsonl``
+so live/recent sims can open analytics without expanding the process first. Command
+Palette recent log entries gain the same dual icons for explicit Summary vs Digital Twin
+open (``onAfterOpen`` closes the palette after handoff).
+
+**React frontend**
+- ``LogHandoffButtons`` optional ``onAfterOpen`` callback (§G.1 / §G.7 / §D.7)
+- Process Monitor — process-row ``LogHandoffButtons`` when ``logPath`` is ``.jsonl`` (§G.15 / §G.1 / §G.16 / §D.7)
+- Command Palette — recent log dual handoffs + close after open (§G.7 / §G.1 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.15 / §G.7 process-row + palette recent-log handoff surface parity checked
+- §D.7 process list and command-palette log-handoff coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twentieth pass (§G.1 + §G.14 + §G.16 + §D.7)
 
 Two-hundred-and-twentieth pass closes the Output Browser run-select log-handoff gap

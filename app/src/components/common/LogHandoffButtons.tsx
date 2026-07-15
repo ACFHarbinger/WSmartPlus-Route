@@ -33,6 +33,10 @@ interface Props {
    * Monitor-only before a post-run Summary surface is appropriate.
    */
   targets?: LogHandoffTarget[];
+  /**
+   * Called after a handoff or mode-only navigation (e.g. close Command Palette).
+   */
+  onAfterOpen?: () => void;
 }
 
 export function LogHandoffButtons({
@@ -42,6 +46,7 @@ export function LogHandoffButtons({
   iconSize = 11,
   labeled = false,
   targets = ["summary", "monitor"],
+  onAfterOpen,
 }: Props) {
   const { handoff, setMode } = useRecentHandoff();
   const showSummary = targets.includes("summary");
@@ -57,6 +62,7 @@ export function LogHandoffButtons({
     } else {
       setMode("simulation_summary");
     }
+    onAfterOpen?.();
   };
 
   const openMonitor = (e: MouseEvent) => {
@@ -66,6 +72,7 @@ export function LogHandoffButtons({
     } else {
       setMode("simulation");
     }
+    onAfterOpen?.();
   };
 
   if (labeled) {

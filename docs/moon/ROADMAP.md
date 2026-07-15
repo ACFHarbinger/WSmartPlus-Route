@@ -1433,6 +1433,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser — selected-run tree header exposes icon Summary / Monitor handoffs when ``runJsonlPath`` is discovered (no need to open the ``.jsonl`` file first) (§G.14 / §G.1 / §G.16 / §D.7)
 - [x] §G.14 run-select log-handoff surface parity with JSONL file viewer checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-first pass)**
+
+- [x] ``LogHandoffButtons`` optional ``onAfterOpen`` — e.g. close Command Palette after handoff (§G.1 / §G.7 / §D.7)
+- [x] Process Monitor process rows — icon Summary / Monitor handoffs when stdout-derived ``logPath`` is a ``.jsonl`` (no need to select the process first) (§G.15 / §G.1 / §G.16 / §D.7)
+- [x] Command Palette recent log entries — dual icon handoffs for explicit Summary vs Digital Twin open (§G.7 / §G.1 / §G.16 / §D.7)
+- [x] §G.15 / §G.7 process-row + palette recent-log handoff surface parity with Output Browser run header checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
