@@ -6,14 +6,28 @@ import { X } from "lucide-react";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples } from "../../store/sim";
 
-export function GlobalFilterBar() {
+interface Props {
+  /** Portfolio ``run_label`` options when a multi-run table is active (§G.6). */
+  runLabels?: string[];
+}
+
+export function GlobalFilterBar({ runLabels = [] }: Props) {
   const { entries } = useSimStore();
-  const { policy, sampleId, setPolicy, setSampleId, reset } = useGlobalFiltersStore();
+  const { policy, sampleId, runLabel, setPolicy, setSampleId, setRunLabel, reset } =
+    useGlobalFiltersStore();
 
   const policies = uniquePolicies(entries);
   const samples = uniqueSamples(entries);
 
-  if (entries.length === 0 && policy == null && sampleId == null) return null;
+  if (
+    entries.length === 0 &&
+    policy == null &&
+    sampleId == null &&
+    runLabel == null &&
+    runLabels.length === 0
+  ) {
+    return null;
+  }
 
   return (
     <div className="flex items-center gap-2 flex-wrap text-xs bg-canvas-elevated/50 border border-canvas-border rounded-lg px-3 py-1.5">
@@ -47,7 +61,20 @@ export function GlobalFilterBar() {
         </select>
       )}
 
-      {(policy || sampleId != null) && (
+      {runLabels.length > 0 && (
+        <select
+          className="select-base w-44 text-xs"
+          value={runLabel ?? ""}
+          onChange={(e) => setRunLabel(e.target.value || null)}
+        >
+          <option value="">All runs</option>
+          {runLabels.map((label) => (
+            <option key={label} value={label}>{label}</option>
+          ))}
+        </select>
+      )}
+
+      {(policy || sampleId != null || runLabel) && (
         <button
           onClick={reset}
           className="btn-ghost text-xs flex items-center gap-1 text-canvas-muted"

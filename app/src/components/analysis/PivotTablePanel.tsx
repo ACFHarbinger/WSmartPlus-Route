@@ -14,7 +14,9 @@ interface Props {
   rows: Record<string, unknown>[];
   onRowClick?: (rowKey: string, rowLabel: string) => void;
   /** Bidirectional brush: dim pivot rows not matching active policy filter (§G.6). */
-  highlightRowLabels?: string[] | null;
+  highlightPolicyLabels?: string[] | null;
+  /** Bidirectional brush: dim pivot rows not matching active run_label filter (§G.6). */
+  highlightRunLabels?: string[] | null;
 }
 
 type PivotWell = "row" | "col" | "value";
@@ -69,7 +71,13 @@ function DimensionWell({
   );
 }
 
-export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels }: Props) {
+export function PivotTablePanel({
+  columns,
+  rows,
+  onRowClick,
+  highlightPolicyLabels,
+  highlightRunLabels,
+}: Props) {
   const [rowKey, setRowKey] = useState(columns[0] ?? "");
   const [colKey, setColKey] = useState<string>("");
   const [valueKey, setValueKey] = useState(columns.find((c) => c !== rowKey) ?? "");
@@ -119,9 +127,14 @@ export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels 
   }, [rows, rowKey, colKey, valueKey, agg]);
 
   const pivotHighlights = useMemo(() => {
-    if (!highlightRowLabels?.length || !/^policy$/i.test(rowKey)) return null;
-    return highlightRowLabels;
-  }, [highlightRowLabels, rowKey]);
+    if (/^policy$/i.test(rowKey) && highlightPolicyLabels?.length) {
+      return highlightPolicyLabels;
+    }
+    if (/^run_label$/i.test(rowKey) && highlightRunLabels?.length) {
+      return highlightRunLabels;
+    }
+    return null;
+  }, [highlightPolicyLabels, highlightRunLabels, rowKey]);
 
   const chartOption = useMemo(
     () =>
@@ -209,7 +222,7 @@ export function PivotTablePanel({ columns, rows, onRowClick, highlightRowLabels 
         />
       )}
 
-      {onRowClick && /policy/i.test(rowKey) && (
+      {onRowClick && (/policy/i.test(rowKey) || /run_label/i.test(rowKey)) && (
         <p className="text-[10px] text-canvas-muted">
           Drag columns into wells · click pivot row to cross-filter
           {pivotHighlights?.length ? " · highlighted rows match active filter" : ""}.

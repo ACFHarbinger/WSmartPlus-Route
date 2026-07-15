@@ -17,7 +17,11 @@ import {
   runCsvArrowPipeline,
   runSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
-import { duckDbRowCount, listDuckDbTables } from "../../utils/duckdbClient";
+import {
+  duckDbRowCount,
+  listDuckDbDistinctValues,
+  listDuckDbTables,
+} from "../../utils/duckdbClient";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
 
@@ -32,6 +36,7 @@ const PORTFOLIO_TABLES = new Set([
 export function OlapExplorer() {
   const { theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
+  const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
   const {
     ready: duckdbReady,
     loading,
@@ -43,6 +48,7 @@ export function OlapExplorer() {
   const [selectedTable, setSelectedTable] = useState("summary_sim");
   const [rowCounts, setRowCounts] = useState<Record<string, number>>({});
   const [refreshing, setRefreshing] = useState(false);
+  const [runLabels, setRunLabels] = useState<string[]>([]);
 
   const refreshTables = useCallback(async () => {
     if (!duckdbReady) return;
@@ -70,6 +76,21 @@ export function OlapExplorer() {
   useEffect(() => {
     void refreshTables();
   }, [refreshTables]);
+
+  useEffect(() => {
+    if (!duckdbReady || !selectedTable || !PORTFOLIO_TABLES.has(selectedTable)) {
+      setRunLabels([]);
+      return;
+    }
+    void (async () => {
+      try {
+        const labels = await listDuckDbDistinctValues(selectedTable, "run_label");
+        setRunLabels(labels);
+      } catch {
+        setRunLabels([]);
+      }
+    })();
+  }, [duckdbReady, selectedTable]);
 
   const ingestData = useCallback(async () => {
     const path = (await open({
@@ -103,11 +124,12 @@ export function OlapExplorer() {
   }, [refreshTables, setLastPipeline, setLoading]);
 
   const highlightPolicies = activePolicy ? [activePolicy] : null;
+  const highlightRunLabels = activeRunLabel ? [activeRunLabel] : null;
   const portfolioMode = PORTFOLIO_TABLES.has(selectedTable);
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar />
+      <GlobalFilterBar runLabels={portfolioMode ? runLabels : []} />
 
       <div className="flex items-center gap-3 flex-wrap">
         <button
@@ -163,6 +185,7 @@ export function OlapExplorer() {
           tableName={selectedTable}
           theme={theme}
           highlightPolicies={highlightPolicies}
+          highlightRunLabels={highlightRunLabels}
           brushSqlSync
           autoRunOnBrushSync
           portfolioMode={portfolioMode}

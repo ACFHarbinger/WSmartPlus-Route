@@ -69,3 +69,17 @@ export async function listDuckDbTables(): Promise<string[]> {
   const rows = await queryDuckDb<{ name: string }>("SHOW TABLES");
   return rows.map((r) => r.name).sort();
 }
+
+/** Distinct values for a column (e.g. portfolio ``run_label`` options in OLAP). */
+export async function listDuckDbDistinctValues(
+  tableName: string,
+  column: string
+): Promise<string[]> {
+  const rows = await queryDuckDb<Record<string, unknown>>(
+    `SELECT DISTINCT "${column}" AS value
+FROM "${tableName}"
+WHERE "${column}" IS NOT NULL
+ORDER BY value`
+  );
+  return rows.map((r) => String(r.value ?? "")).filter(Boolean);
+}

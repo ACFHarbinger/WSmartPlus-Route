@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-fifth pass (§G.6)
+
+Sixty-fifth pass adds global ``run_label`` brush SQL sync to the OLAP Explorer and
+bidirectional ``run_label`` cross-filtering from SQL result rows and pivot tables.
+
+**React frontend**
+- `useGlobalFiltersStore` — `runLabel` + `setRunLabel`; cleared on filter reset
+- `GlobalFilterBar` — optional ``run_label`` dropdown when portfolio run options are supplied
+- `SqlQueryPanel` — result row + pivot click sets global ``run_label``; row dimming +
+  `brushSqlSync` mirrors policy + run brushes
+- `PivotTablePanel` — separate policy / ``run_label`` pivot highlight props
+- `OlapExplorer` — loads distinct ``run_label`` values per portfolio table; passes run
+  filter to `GlobalFilterBar` + `SqlQueryPanel`
+
+**Utilities**
+- `duckdbClient.ts` — `listDuckDbDistinctValues()` for OLAP run selector options
+
+**ROADMAP**
+- §G.6 OLAP Explorer global run_label brush SQL sync checked
+- §G.6 SQL result row + pivot run_label cross-filter checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-fourth pass (§G.6)
 
 Sixty-fourth pass extends portfolio ``run_label`` brush SQL sync to Simulation Summary

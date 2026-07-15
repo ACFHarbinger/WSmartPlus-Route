@@ -53,7 +53,9 @@ export function SqlQueryPanel({
   algorithmMode = false,
 }: Props) {
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
+  const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
+  const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
   const [open, setOpen] = useState(defaultOpen);
   const [sql, setSql] = useState(`SELECT * FROM "${tableName}" LIMIT 100`);
   const [running, setRunning] = useState(false);
@@ -167,6 +169,11 @@ export function SqlQueryPanel({
     if (/^policy$/i.test(col)) {
       setPolicy(value);
       toast.success("Cross-filter applied", { description: `Policy: ${value}` });
+      return;
+    }
+    if (/^run_label$/i.test(col)) {
+      setRunLabel(value);
+      toast.success("Cross-filter applied", { description: `Run: ${value}` });
     }
   };
 
@@ -193,8 +200,9 @@ export function SqlQueryPanel({
 
   const highlightRunLabels = useMemo(() => {
     if (highlightRunLabelsProp?.length) return highlightRunLabelsProp;
+    if (activeRunLabel) return [activeRunLabel];
     return null;
-  }, [highlightRunLabelsProp]);
+  }, [highlightRunLabelsProp, activeRunLabel]);
 
   const rowMatchesHighlight = useCallback(
     (row: Record<string, unknown>) => {
@@ -319,7 +327,8 @@ export function SqlQueryPanel({
               columns={columns}
               rows={rows}
               onRowClick={handlePivotCrossFilter}
-              highlightRowLabels={highlightPolicies}
+              highlightPolicyLabels={highlightPolicies}
+              highlightRunLabels={highlightRunLabels}
             />
           )}
 
@@ -347,9 +356,12 @@ export function SqlQueryPanel({
                   {sortedRows.slice(0, 200).map((row, i) => {
                     const highlighted = rowMatchesHighlight(row);
                     const isActive =
-                      policyCol &&
-                      activePolicy &&
-                      String(row[policyCol] ?? "") === activePolicy;
+                      (policyCol &&
+                        activePolicy &&
+                        String(row[policyCol] ?? "") === activePolicy) ||
+                      (runLabelCol &&
+                        activeRunLabel &&
+                        String(row[runLabelCol] ?? "") === activeRunLabel);
                     return (
                     <tr
                       key={i}
@@ -363,6 +375,9 @@ export function SqlQueryPanel({
                       onClick={() => {
                         if (policyCol && row[policyCol] != null) {
                           applyCrossFilter(policyCol, String(row[policyCol]));
+                        }
+                        if (runLabelCol && row[runLabelCol] != null) {
+                          applyCrossFilter(runLabelCol, String(row[runLabelCol]));
                         }
                         const dayCol = columns.find((c) => /^day$/i.test(c));
                         if (dayCol && row[dayCol] != null && onDaySelect) {
