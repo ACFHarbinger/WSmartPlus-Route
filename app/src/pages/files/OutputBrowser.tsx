@@ -664,6 +664,7 @@ export function OutputBrowser() {
               <div className="px-2 py-1 shrink-0">
                 <PathRunLabelChip
                   path={runJsonlPath ?? selectedRun.path}
+                  projectRoot={projectRoot}
                   className="font-medium"
                 />
               </div>
@@ -691,8 +692,9 @@ export function OutputBrowser() {
                   <div key={ckpt.path} className="flex items-center gap-2 text-[10px] leading-tight">
                     <PathRunLabelChip
                       path={ckpt.path}
+                      projectRoot={projectRoot}
                       label={ckpt.name}
-                      brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path)}
+                      brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
                       className="flex-1 min-w-0 max-w-none text-[10px]"
                     />
                     <span className="text-canvas-muted shrink-0">{formatBytes(ckpt.size_bytes)}</span>
@@ -772,9 +774,10 @@ export function OutputBrowser() {
             {viewingPath ? (
               <PathRunLabelChip
                 path={viewingPath}
+                projectRoot={projectRoot}
                 brushLabel={
                   isCheckpointEntry({ is_dir: false, extension: viewingExt })
-                    ? parentRunBrushLabelFromCheckpointPath(viewingPath)
+                    ? parentRunBrushLabelFromCheckpointPath(viewingPath, projectRoot)
                     : undefined
                 }
                 className="flex-1"
@@ -847,8 +850,12 @@ export function OutputBrowser() {
           <div className="card flex-1 flex flex-col items-center justify-center gap-3 text-sm">
             <PathRunLabelChip
               path={viewingCheckpoint.path}
+              projectRoot={projectRoot}
               label={viewingCheckpoint.name}
-              brushLabel={parentRunBrushLabelFromCheckpointPath(viewingCheckpoint.path)}
+              brushLabel={parentRunBrushLabelFromCheckpointPath(
+                viewingCheckpoint.path,
+                projectRoot
+              )}
               className="max-w-full px-4"
             />
             <p className="text-canvas-muted text-xs">
@@ -902,6 +909,7 @@ export function OutputBrowser() {
                     <td className="py-1.5 px-3 max-w-md">
                       <PathRunLabelChip
                         path={f.path}
+                        projectRoot={projectRoot}
                         brushLabel={parentRunBrushLabel ?? undefined}
                         className="max-w-full"
                       />

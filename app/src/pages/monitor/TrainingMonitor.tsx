@@ -268,9 +268,11 @@ function HparamsPanel({ runPath }: { runPath: string }) {
 // ── Checkpoint browser
 function CheckpointBrowser({
   runPath,
+  projectRoot,
   onLoadInEvalRunner,
 }: {
   runPath: string;
+  projectRoot: string | null;
   onLoadInEvalRunner: (path: string) => void;
 }) {
   const [checkpoints, setCheckpoints] = useState<DirEntry[] | null>(null);
@@ -297,8 +299,9 @@ function CheckpointBrowser({
           <div key={ckpt.path} className="flex items-center gap-3 px-4 py-2">
             <PathRunLabelChip
               path={ckpt.path}
+              projectRoot={projectRoot}
               label={ckpt.name}
-              brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path)}
+              brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
               className="flex-1 min-w-0 max-w-none"
             />
             <span className="text-xs text-canvas-muted shrink-0">
@@ -323,12 +326,14 @@ function RunPanel({
   run,
   metrics,
   color,
+  projectRoot,
   onLoadCheckpoint,
   logScale = false,
 }: {
   run: TrainingRun;
   metrics: TrainingMetricsRow[];
   color: string;
+  projectRoot: string | null;
   onLoadCheckpoint: (path: string) => void;
   logScale?: boolean;
 }) {
@@ -336,7 +341,7 @@ function RunPanel({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-        <PathRunLabelChip path={run.path} />
+        <PathRunLabelChip path={run.path} projectRoot={projectRoot} />
         <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
       </div>
       <GradNormSparkline
@@ -350,7 +355,11 @@ function RunPanel({
         exportName="training-monitor-lr"
       />
       {run.has_hparams && <HparamsPanel runPath={run.path} />}
-      <CheckpointBrowser runPath={run.path} onLoadInEvalRunner={onLoadCheckpoint} />
+      <CheckpointBrowser
+        runPath={run.path}
+        projectRoot={projectRoot}
+        onLoadInEvalRunner={onLoadCheckpoint}
+      />
     </div>
   );
 }
@@ -728,14 +737,21 @@ export function TrainingMonitor() {
           Discover Runs
         </button>
         {logsPath ? (
-          <PathRunLabelChip path={logsPath} label="logs" className="max-w-xs" />
+          <PathRunLabelChip
+            path={logsPath}
+            projectRoot={projectRoot}
+            label="logs"
+            className="max-w-xs"
+          />
         ) : null}
       </div>
 
       {runs.length === 0 && !loading && (
         <div className="card text-canvas-muted text-sm flex flex-wrap items-center gap-1">
           <span>No training runs found in</span>
-          {logsPath ? <PathRunLabelChip path={logsPath} label="logs" /> : null}
+          {logsPath ? (
+            <PathRunLabelChip path={logsPath} projectRoot={projectRoot} label="logs" />
+          ) : null}
           <span>.</span>
         </div>
       )}
@@ -887,6 +903,7 @@ export function TrainingMonitor() {
             run={run}
             metrics={metrics}
             color={RUN_COLORS[(i + liveOffset) % RUN_COLORS.length]}
+            projectRoot={projectRoot}
             onLoadCheckpoint={handleLoadCheckpoint}
             logScale={logScale}
           />

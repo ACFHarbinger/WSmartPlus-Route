@@ -3,6 +3,7 @@
  */
 import { useMemo, type ReactNode } from "react";
 import { useRunLabelBrushToggle } from "../../hooks/useRunLabelBrushToggle";
+import { useAppStore } from "../../store/app";
 import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 
@@ -27,9 +28,11 @@ export function PathRunLabelChip({
   trailing,
 }: Props) {
   const { handleRunLabelClick, isBrushActive } = useRunLabelBrushToggle();
+  const storeProjectRoot = useAppStore((s) => s.projectRoot);
+  const effectiveProjectRoot = projectRoot ?? storeProjectRoot;
   const resolvedPath = useMemo(
-    () => resolveLocalProjectPath(path, projectRoot) ?? path,
-    [path, projectRoot]
+    () => resolveLocalProjectPath(path, effectiveProjectRoot) ?? path,
+    [path, effectiveProjectRoot]
   );
   const runLabel = brushLabel ?? label ?? runLabelFromPath(resolvedPath);
   const brushActive = isBrushActive(runLabel);
@@ -53,6 +56,8 @@ export function PathRunLabelChip({
 interface HeaderSuffixProps {
   logPath?: string | null;
   runLabel?: string | null;
+  /** Resolve relative log paths against project root before brush (§G.9–§G.18 / §D.7). */
+  projectRoot?: string | null;
   /** embedded / muted headers use accent-secondary without font-normal. */
   tone?: "default" | "muted";
   chipClassName?: string;
@@ -62,11 +67,14 @@ interface HeaderSuffixProps {
 export function RunLabelHeaderSuffix({
   logPath,
   runLabel,
+  projectRoot,
   tone = "default",
   chipClassName = "ml-2",
 }: HeaderSuffixProps) {
   if (logPath) {
-    return <PathRunLabelChip path={logPath} className={chipClassName} />;
+    return (
+      <PathRunLabelChip path={logPath} projectRoot={projectRoot} className={chipClassName} />
+    );
   }
   if (!runLabel) return null;
   const textClass =
