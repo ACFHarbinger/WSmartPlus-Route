@@ -273,6 +273,95 @@ pub fn read_text_file(path: String) -> Result<String, String> {
     std::fs::read_to_string(&path).map_err(|e| format!("{e}: {path}"))
 }
 
+/// Write (overwrite) a binary file from a base64 payload — used by the native
+/// Report Studio exporters (PNG figures, PPTX/DOCX/XLSX artefacts; §H).
+#[tauri::command]
+pub fn write_binary_file(path: String, base64: String) -> Result<(), String> {
+    let bytes = base64_decode(&base64).map_err(|e| format!("base64: {e}"))?;
+    if let Some(parent) = Path::new(&path).parent() {
+        fs::create_dir_all(parent).map_err(|e| format!("mkdir: {e}"))?;
+    }
+    fs::write(&path, bytes).map_err(|e| format!("{e}: {path}"))
+}
+
+/// Minimal RFC 4648 base64 decoder (standard alphabet, `=` padding).
+fn base64_decode(input: &str) -> Result<Vec<u8>, String> {
+    fn val(c: u8) -> Result<u32, String> {
+        match c {
+            b'A'..=b'Z' => Ok((c - b'A') as u32),
+            b'a'..=b'z' => Ok((c - b'a') as u32 + 26),
+            b'0'..=b'9' => Ok((c - b'0') as u32 + 52),
+            b'+' => Ok(62),
+            b'/' => Ok(63),
+            _ => Err(format!("invalid base64 byte {c}")),
+        }
+    }
+    let clean: Vec<u8> = input
+        .bytes()
+        .filter(|b| !b" \t\r\n".contains(b))
+        .collect();
+    let stripped: &[u8] = {
+        let mut end = clean.len();
+        while end > 0 && clean[end - 1] == b'=' {
+            end -= 1;
+        }
+        &clean[..end]
+    };
+    let mut out = Vec::with_capacity(stripped.len() * 3 / 4);
+    for chunk in stripped.chunks(4) {
+        let mut acc: u32 = 0;
+        for (i, &c) in chunk.iter().enumerate() {
+            acc |= val(c)? << (18 - 6 * i);
+        }
+        let n_bytes = match chunk.len() {
+            4 => 3,
+            3 => 2,
+            2 => 1,
+            _ => return Err("truncated base64 quantum".into()),
+        };
+        for i in 0..n_bytes {
+            out.push(((acc >> (16 - 8 * i)) & 0xFF) as u8);
+        }
+    }
+    Ok(out)
+}
+
+/// Recursively list files under `root` whose name matches `prefix`/`suffix`
+/// filters — used by the native Report Studio output-tree parser (§H.1).
+#[tauri::command]
+pub fn list_files_recursive(
+    root: String,
+    prefix: Option<String>,
+    suffix: Option<String>,
+) -> Result<Vec<String>, String> {
+    let base = PathBuf::from(&root);
+    if !base.is_dir() {
+        return Ok(vec![]);
+    }
+    let mut out: Vec<String> = Vec::new();
+    let mut stack = vec![base];
+    while let Some(dir) = stack.pop() {
+        let entries = match fs::read_dir(&dir) {
+            Ok(e) => e,
+            Err(_) => continue,
+        };
+        for entry in entries.flatten() {
+            let path = entry.path();
+            if path.is_dir() {
+                stack.push(path);
+            } else if let Some(name) = path.file_name().and_then(|n| n.to_str()) {
+                let pre_ok = prefix.as_deref().is_none_or(|p| name.starts_with(p));
+                let suf_ok = suffix.as_deref().is_none_or(|s| name.ends_with(s));
+                if pre_ok && suf_ok {
+                    out.push(path.to_string_lossy().to_string());
+                }
+            }
+        }
+    }
+    out.sort();
+    Ok(out)
+}
+
 /// Write (overwrite) any text file — used by ConfigEditor to save changes to YAML configs.
 #[tauri::command]
 pub fn write_text_file(path: String, content: String) -> Result<(), String> {

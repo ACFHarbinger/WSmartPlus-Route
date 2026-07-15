@@ -49,6 +49,8 @@ pub fn run() {
             data::load_training_metrics,
             data::read_text_file,
             data::write_text_file,
+            data::write_binary_file,
+            data::list_files_recursive,
             data::list_dir,
             data::preview_dataset_stats,
             data::inspect_wsroute_bundle,
@@ -60,6 +62,7 @@ pub fn run() {
             tensor::inspect_npz_archive,
             tensor::load_tensor_slice,
             tensor::load_npz_vectors,
+            tensor::load_npz_flat,
             tensor::tensor_slice_to_arrow_ipc,
             tensor::probe_npy_mmap,
             // Simulation file watcher

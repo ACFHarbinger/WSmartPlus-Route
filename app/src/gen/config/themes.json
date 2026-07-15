@@ -1,0 +1,26 @@
+{
+  "dark": {
+    "mplstyle": "dark.mplstyle",
+    "plotly_template": "plotly_dark",
+    "fg": "#e0e0e0",
+    "muted": "#a0a0c0",
+    "faint": "#3a3a5e",
+    "accent_line": "#ffffff",
+    "guide_line": "#a0a0c0",
+    "button_bg": "#1a2255",
+    "button_border": "#4455aa",
+    "gamma_lighten": 60
+  },
+  "light": {
+    "mplstyle": "light.mplstyle",
+    "plotly_template": "plotly_white",
+    "fg": "#333333",
+    "muted": "#606080",
+    "faint": "#c8c8d8",
+    "accent_line": "#000000",
+    "guide_line": "#808090",
+    "button_bg": "#e8ecff",
+    "button_border": "#4455aa",
+    "gamma_lighten": -60
+  }
+}
