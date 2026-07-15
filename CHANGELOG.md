@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-nineteenth pass (§G.1 + §G.9 + §G.15 + §G.16 + §D.7)
+
+Two-hundred-and-nineteenth pass continues the shared log-handoff control migration
+after pass 218 covered analytics toolbars. ``LogHandoffButtons`` accepts an optional
+``path`` so launcher nav can still open Summary / Monitor before a ``.jsonl`` is
+emitted. ``LauncherNavMesh`` replaces inline sim handoff markup with the shared
+labeled control (Monitor-only while running; Summary + Monitor when post-run).
+
+**React frontend**
+- ``LogHandoffButtons`` optional ``path`` — mode-only navigation without handoff (§G.1 / §G.16 / §D.7)
+- ``LauncherNavMesh`` — sim Summary / Monitor via shared labeled control (§G.9 / §G.15 / §D.7)
+- Simulation Launcher + Process Monitor — inherit nav-mesh log handoffs via ``simLogPath`` (§G.9 / §G.15 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.9 / §G.15 launcher nav-mesh ``LogHandoffButtons`` migration checked
+- §D.7 empty-path log-handoff navigation coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-eighteenth pass (§G.1 + §G.14 + §G.16 + §D.7)
 
 Two-hundred-and-eighteenth pass completes the shared log-handoff control migration
