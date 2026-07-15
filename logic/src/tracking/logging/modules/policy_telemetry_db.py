@@ -294,6 +294,7 @@ def query_policy_trajectory_series(
                     {
                         "id": int(row["id"]),
                         "label": f"{run_label} · d{int(row['day'])}",
+                        "run_label": run_label,
                         "policy": row["policy"],
                         "day": int(row["day"]),
                         "policy_type": row["policy_type"],

@@ -85,6 +85,7 @@ import {
 } from "../../utils/arrowPipeline";
 
 import { RouteViz } from "../../components/analysis/RouteViz";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -2793,6 +2794,14 @@ export function SimulationSummary() {
                 />
               </div>
             </div>
+          )}
+
+          {logPath && (
+            <PolicyTelemetryTrendsPanel
+              theme={theme}
+              logScale={logScale}
+              initialPolicy={effectiveBrushed?.length === 1 ? effectiveBrushed[0]! : null}
+            />
           )}
 
           {logPath && duckdbReady && (

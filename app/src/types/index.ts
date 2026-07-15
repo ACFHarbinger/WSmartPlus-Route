@@ -104,6 +104,7 @@ export interface PolicyTelemetryTrends {
 export interface PolicyTrajectorySeries {
   id: number;
   label: string;
+  run_label: string | null;
   policy: string;
   day: number;
   policy_type: PolicyVizType;

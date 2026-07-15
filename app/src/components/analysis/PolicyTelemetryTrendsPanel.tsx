@@ -20,8 +20,14 @@ import {
   buildTrendStepsOption,
   buildTrendTrajectoryOption,
   exportPolicyTelemetryTrendsCsv,
+  exportPolicyTrajectoryCsv,
+  filterTrajectorySeries,
+  filterTrendRows,
   formatTrendMetric,
   policyVizTypeLabel,
+  trendRowLabel,
+  trendRowRunKey,
+  trajectoryRunKey,
 } from "../../utils/policyTelemetryTrends";
 
 interface Props {
@@ -97,6 +103,15 @@ export function PolicyTelemetryTrendsPanel({
   }, [initialPolicy, selectedPolicy]);
 
   const rows = data?.rows ?? [];
+  const allSeries = trajectories?.series ?? [];
+  const filteredRows = useMemo(
+    () => filterTrendRows(rows, globalPolicy, globalRunLabel),
+    [rows, globalPolicy, globalRunLabel]
+  );
+  const filteredSeries = useMemo(
+    () => filterTrajectorySeries(allSeries, globalPolicy, globalRunLabel),
+    [allSeries, globalPolicy, globalRunLabel]
+  );
   const brushedPolicies = useMemo(
     () => (globalPolicy ? [globalPolicy] : null),
     [globalPolicy]
@@ -120,19 +135,48 @@ export function PolicyTelemetryTrendsPanel({
     [rows]
   );
   const compareOption = useMemo(
-    () => buildTrendComparisonOption(rows, theme, logScale),
-    [rows, theme, logScale]
+    () => buildTrendComparisonOption(filteredRows, theme, logScale),
+    [filteredRows, theme, logScale]
   );
-  const stepsOption = useMemo(() => buildTrendStepsOption(rows.slice(0, 12), theme), [rows, theme]);
+  const stepsOption = useMemo(
+    () => buildTrendStepsOption(filteredRows.slice(0, 12), theme),
+    [filteredRows, theme]
+  );
   const trajectoryOption = useMemo(
     () =>
-      buildTrendTrajectoryOption(
-        trajectories?.series ?? [],
-        theme,
-        logScale,
-        smoothTrajectories
-      ),
-    [trajectories?.series, theme, logScale, smoothTrajectories]
+      buildTrendTrajectoryOption(filteredSeries, theme, logScale, smoothTrajectories),
+    [filteredSeries, theme, logScale, smoothTrajectories]
+  );
+
+  const handleComparisonClick = useCallback(
+    (params: { seriesName?: string; name?: string }) => {
+      if (params.name) handlePolicyBrush(params.name);
+      if (params.seriesName) {
+        const match = rows.find((row) => trendRowLabel(row) === params.seriesName);
+        if (match) handleRunBrush(trendRowRunKey(match));
+      }
+    },
+    [rows, handlePolicyBrush, handleRunBrush]
+  );
+
+  const handleStepsClick = useCallback(
+    (params: { dataIndex?: number }) => {
+      const row = params.dataIndex != null ? filteredRows[params.dataIndex] : undefined;
+      if (!row) return;
+      handlePolicyBrush(row.policy);
+      handleRunBrush(trendRowRunKey(row));
+    },
+    [filteredRows, handlePolicyBrush, handleRunBrush]
+  );
+
+  const handleTrajectoryClick = useCallback(
+    (params: { seriesIndex?: number }) => {
+      const item = params.seriesIndex != null ? filteredSeries[params.seriesIndex] : undefined;
+      if (!item) return;
+      handlePolicyBrush(item.policy);
+      handleRunBrush(trajectoryRunKey(item));
+    },
+    [filteredSeries, handlePolicyBrush, handleRunBrush]
   );
 
   if (!projectRoot) return null;
@@ -199,14 +243,43 @@ export function PolicyTelemetryTrendsPanel({
             <button
               type="button"
               className="btn-secondary text-xs py-1 px-2 inline-flex items-center gap-1"
-              onClick={() => exportPolicyTelemetryTrendsCsv(rows)}
+              onClick={() => exportPolicyTelemetryTrendsCsv(filteredRows)}
             >
               <Download size={12} />
               Export CSV
             </button>
           )}
+          {filteredSeries.length > 0 && (
+            <button
+              type="button"
+              className="btn-secondary text-xs py-1 px-2 inline-flex items-center gap-1"
+              onClick={() => exportPolicyTrajectoryCsv(filteredSeries)}
+            >
+              <Download size={12} />
+              Trajectory CSV
+            </button>
+          )}
         </div>
       </div>
+
+      {(globalPolicy || globalRunLabel) && (
+        <p className="text-[11px] text-canvas-muted">
+          Global brush active
+          {globalPolicy ? ` · policy: ${globalPolicy}` : ""}
+          {globalRunLabel ? ` · run: ${globalRunLabel}` : ""}
+          {" — "}
+          <button
+            type="button"
+            className="text-accent-primary hover:underline"
+            onClick={() => {
+              setPolicy(null);
+              setRunLabel(null);
+            }}
+          >
+            Clear brush
+          </button>
+        </p>
+      )}
 
       {error && <p className="text-xs text-accent-danger">{error}</p>}
 
@@ -231,6 +304,7 @@ export function PolicyTelemetryTrendsPanel({
                 style={{ height: 260, width: "100%" }}
                 notMerge
                 lazyUpdate
+                onEvents={{ click: handleTrajectoryClick }}
               />
             </div>
           ) : null}
@@ -250,6 +324,7 @@ export function PolicyTelemetryTrendsPanel({
                   style={{ height: 240, width: "100%" }}
                   notMerge
                   lazyUpdate
+                  onEvents={{ click: handleComparisonClick }}
                 />
               </div>
             ) : null}
@@ -264,6 +339,7 @@ export function PolicyTelemetryTrendsPanel({
                   style={{ height: 240, width: "100%" }}
                   notMerge
                   lazyUpdate
+                  onEvents={{ click: handleStepsClick }}
                 />
               </div>
             ) : null}
@@ -283,7 +359,7 @@ export function PolicyTelemetryTrendsPanel({
               </thead>
               <tbody>
                 {rows.slice(0, 20).map((row) => {
-                  const runKey = row.run_label ?? row.log_path;
+                  const runKey = trendRowRunKey(row);
                   const dimmed =
                     !isHighlighted(row.policy, brushedPolicies) ||
                     (globalRunLabel != null && runKey !== globalRunLabel);
