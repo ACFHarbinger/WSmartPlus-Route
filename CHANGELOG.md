@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fiftieth pass (§G.18 + §G.17 + §A.2 + §A.4 + §D.7)
+
+Hundred-fiftieth pass closes the analytics snapshot and health/attention banner gap left after the
+hundred-forty-ninth pass (which deduplicated sparklines on Training Hub and Training Monitor).
+HPO Tracker and Experiment Tracker now use the shared ``TrainingMetricSnapshot`` component, and
+all train/HPO workflow pages share ``postRunTrainingRehydrationMessage`` for post-run banners
+that mention metrics, health alerts, and attention snapshots when rehydrated from the process store.
+
+**React frontend**
+- ``trainingMetrics.ts`` — ``postRunTrainingRehydrationMessage`` shared post-run banner helper
+  (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- HPO Tracker + Experiment Tracker — deduplicated inline metric snapshot rows; import shared
+  ``TrainingMetricSnapshot`` (§G.18 / §G.17 / §D.7)
+- Training Hub + Training Monitor + Process Monitor — post-run banner uses shared helper for
+  health/attention rehydration parity (§G.10 / §G.15 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.18 HPO Tracker + Experiment Tracker ``TrainingMetricSnapshot`` deduplication checked
+- §G.17 analytics post-run snapshot parity checked
+- §A.2 / §A.4 post-run health/attention banner rehydration checked
+- §D.7 train/HPO workflow post-run banner parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-ninth pass (§G.10 + §G.17 + §D.7)
 
 Hundred-forty-ninth pass closes the launcher sparkline gap left after the

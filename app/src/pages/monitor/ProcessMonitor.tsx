@@ -36,7 +36,10 @@ import {
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
+import {
+  collectTrainingMetricsFromLogLines,
+  postRunTrainingRehydrationMessage,
+} from "../../utils/trainingMetrics";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
@@ -625,9 +628,13 @@ export function ProcessMonitor() {
           {selectedProc.status !== "running" && (
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
-              {trainingMetrics.length > 0
-                ? "Post-run metrics rehydrated from process store — sparklines persist after completion"
-                : "Post-run shortcuts — open Training Monitor or Output Browser for this run"}
+              {postRunTrainingRehydrationMessage({
+                metricCount: trainingMetrics.length,
+                healthCount: trainingHealthEntries.length,
+                attentionCount: attentionEntries.length,
+                fallback:
+                  "Post-run shortcuts — open Training Monitor or Output Browser for this run",
+              })}
             </div>
           )}
 

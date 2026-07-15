@@ -36,7 +36,10 @@ import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
+import {
+  collectTrainingMetricsFromLogLines,
+  postRunTrainingRehydrationMessage,
+} from "../../utils/trainingMetrics";
 import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import {
   findRecentHpoProcessId,
@@ -561,9 +564,13 @@ export function TrainingHub() {
           {isDone && showTrainingAnalytics && (
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
-              {liveMetrics.length > 0
-                ? "Post-run metrics rehydrated from process store — sparklines persist after navigation"
-                : "Post-run shortcuts — open Training Monitor or Output Browser for this run"}
+              {postRunTrainingRehydrationMessage({
+                metricCount: liveMetrics.length,
+                healthCount: liveHealth.length,
+                attentionCount: liveAttention.length,
+                fallback:
+                  "Post-run shortcuts — open Training Monitor or Output Browser for this run",
+              })}
             </div>
           )}
 
