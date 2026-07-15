@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-second pass (§G.6)
+
+Seventy-second pass closes partial §G.6 OLAP/Data Explorer polish: DuckDB-derived
+filter options in OLAP Explorer, heatmap auto-charts for matrix query results,
+cell-level cross-filtering, and brush-aware CSV export.
+
+**React frontend**
+- `OlapExplorer` — DuckDB-derived ``policy`` + ``city_scale`` options for
+  ``GlobalFilterBar`` on any ingested table
+- `queryAutoChart` — ``heatmap`` chart type for ``city_scale`` × ``policy`` and
+  ``run_label`` × ``policy`` matrix results
+- `DataExplorer` — cell-level brush cross-filter; export respects global brush +
+  text filter + sort order
+- `SqlQueryPanel` — cell-level brush cross-filter on result grid (policy /
+  ``run_label`` / ``city_scale`` columns)
+
+**ROADMAP**
+- §G.6 Auto-chart heatmap for city×policy matrix checked
+- §G.6 OLAP DuckDB-derived policy / city_scale filter bar checked
+- §G.6 Data Explorer cell-level cross-filter + brush-aware export checked
+- §G.6 SQL result grid cell-level cross-filter checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-first pass (§G.6)
 
 Seventy-first pass extends Data Explorer portfolio brushing to CSV-derived filter

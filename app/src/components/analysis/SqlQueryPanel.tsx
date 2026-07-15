@@ -452,38 +452,45 @@ export function SqlQueryPanel({
                       (cityScaleCol &&
                         brushedCity &&
                         String(row[cityScaleCol] ?? "") === brushedCity);
+                    const dayCol = columns.find((c) => /^day$/i.test(c));
                     return (
                     <tr
                       key={i}
-                      className={`hover:bg-canvas-hover cursor-pointer ${
+                      className={`hover:bg-canvas-hover ${
                         isActive
                           ? "bg-accent-primary/15 ring-1 ring-inset ring-accent-primary/40"
                           : highlighted
                             ? ""
                             : "opacity-35"
                       }`}
-                      onClick={() => {
-                        if (policyCol && row[policyCol] != null) {
-                          applyCrossFilter(policyCol, String(row[policyCol]));
-                        }
-                        if (runLabelCol && row[runLabelCol] != null) {
-                          applyCrossFilter(runLabelCol, String(row[runLabelCol]));
-                        }
-                        if (cityScaleCol && row[cityScaleCol] != null) {
-                          applyCrossFilter(cityScaleCol, String(row[cityScaleCol]));
-                        }
-                        const dayCol = columns.find((c) => /^day$/i.test(c));
-                        if (dayCol && row[dayCol] != null && onDaySelect) {
-                          const day = Number(row[dayCol]);
-                          if (Number.isFinite(day)) onDaySelect(day);
-                        }
-                      }}
                     >
-                      {columns.map((c) => (
-                        <td key={c} className="px-3 py-1.5 text-gray-300 whitespace-nowrap font-mono">
-                          {String(row[c] ?? "—")}
-                        </td>
-                      ))}
+                      {columns.map((c) => {
+                        const isBrushCol =
+                          c === policyCol || c === runLabelCol || c === cityScaleCol;
+                        const isDayCol = c === dayCol && onDaySelect != null;
+                        return (
+                          <td
+                            key={c}
+                            onClick={() => {
+                              if (isBrushCol) {
+                                applyCrossFilter(c, String(row[c] ?? ""));
+                                return;
+                              }
+                              if (isDayCol && row[c] != null) {
+                                const day = Number(row[c]);
+                                if (Number.isFinite(day)) onDaySelect(day);
+                              }
+                            }}
+                            className={`px-3 py-1.5 text-gray-300 whitespace-nowrap font-mono ${
+                              isBrushCol || isDayCol
+                                ? "cursor-pointer hover:text-accent-secondary"
+                                : ""
+                            }`}
+                          >
+                            {String(row[c] ?? "—")}
+                          </td>
+                        );
+                      })}
                     </tr>
                     );
                   })}
