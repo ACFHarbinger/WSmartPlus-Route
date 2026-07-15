@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-fourth pass (§G.14 + §G.16 + §D.7)
+
+Hundred-seventy-fourth pass closes the file-based run-label brush hook gap left
+after the hundred-seventy-third pass (which unified Process Monitor process-based
+run-label brush hooks). Simulation Monitor and Output Browser now use the same
+shared path-based brush hook as process launcher/monitor pages.
+
+**React frontend**
+- ``useLogPathRunLabelBrush`` — shared hook deriving ``run_label`` from log/run
+  paths and syncing the global brush (§G.14 / §G.16 / §D.7)
+- Simulation Monitor — ``GlobalFilterBar`` ``runLabels`` when a log is open;
+  global brush sync on log open via shared hook (§G.16 / §D.7)
+- Output Browser — ``useLogPathRunLabelBrush`` replaces inline ``setRunLabel``
+  in ``selectRun``; ``PolicyTelemetryTrendsPanel`` uses hook-derived label
+  (§G.14 / §D.7)
+
+**ROADMAP**
+- §G.14 Output Browser shared log-path run-label brush hook parity checked
+- §G.16 Simulation Monitor ``GlobalFilterBar`` run-label + brush sync parity checked
+- §D.7 file-based workflow run-label brush hook parity with process-based pages checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-third pass (§G.15 + §D.7)
 
 Hundred-seventy-third pass closes the Process Monitor run-label brush hook gap left

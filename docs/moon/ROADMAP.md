@@ -1033,6 +1033,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — ``useProcessRunLabelBrush`` replaces inline ``runLabelFromLogLines`` + manual ``setRunLabel`` effect; brush sync parity with launcher/monitor card pages (§G.15 / §D.7)
 - [x] §G.15 Process Monitor shared run-label brush hook parity across all workflow kinds (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-fourth pass)**
+
+- [x] ``useLogPathRunLabelBrush`` — shared hook deriving ``run_label`` from log/run paths and syncing global brush (§G.14 / §G.16 / §D.7)
+- [x] Simulation Monitor — ``GlobalFilterBar`` ``runLabels`` when a log is open; global brush sync on log open via shared hook (§G.16 / §D.7)
+- [x] Output Browser — ``useLogPathRunLabelBrush`` replaces inline ``setRunLabel`` in ``selectRun``; trends panel uses hook-derived label (§G.14 / §D.7)
+- [x] §G.14 / §G.16 file-based workflow run-label brush hook parity with process-based launcher/monitor pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1855,6 +1862,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``outputRunPath.ts`` + ``pendingRunPath`` auto-select when opened from launcher / Process Monitor shortcuts (hundred-forty-third pass; §G.9 / §G.11 / §G.15 / §D.7)
 - [x] Output Browser refreshes run list when ``pendingRunPath`` is set but the run is not yet indexed (hundred-forty-third pass; §G.14)
 - [x] ``outputRunPathFromHydraArtifact`` + Hydra snapshot / pruned-config stdout parsing (hundred-forty-fourth pass; §G.14 / §G.9 / §G.12)
+- [x] Output Browser ``useLogPathRunLabelBrush`` replaces inline ``setRunLabel`` on run select (hundred-seventy-fourth pass; §G.14 / §D.7)
 
 ---
 
@@ -1934,6 +1942,7 @@ Source files ported from: `logic/src/ui/pages/simulation/{kpi,map,charts,bins,to
 - [x] **Streamlit parity check**: `PRIMARY_KPIS` and `SECONDARY_KPIS` in `SimulationMonitor.tsx` verified against `_PRIMARY_KPI_MAP` and `_SECONDARY_KPI_MAP` in `kpi.py` — exact match confirmed
 - [x] **Daily KPI timeseries follow global ``logScale``**: ``MetricTimeseries`` symlog overflows + log profit/km/kg when on; ``GlobalFilterBar`` on Simulation Monitor (§G.16 / §G.7)
 - [x] **deck.gl route map PNG export with toast feedback**: ``DeckRouteMap`` ``exportCanvasPng()`` names export ``route-map-tile.png`` (Mercator) or ``route-map-orbit.png`` (OrbitView) with toast feedback (§G.16 / §G.7)
+- [x] Simulation Monitor ``GlobalFilterBar`` ``runLabels`` + ``useLogPathRunLabelBrush`` on log open (hundred-seventy-fourth pass; §G.16 / §D.7)
 
 **Status**: §G.16 complete — all checklist items delivered.
 

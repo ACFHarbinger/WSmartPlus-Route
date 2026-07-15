@@ -52,7 +52,7 @@ import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../uti
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import { filterFailureEntries } from "../../utils/simFailure";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import type { DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));
@@ -387,6 +387,7 @@ export function SimulationMonitor() {
   } = useDuckDbStore();
 
   const [activeLogPath, setActiveLogPath] = useState<string | null>(null);
+  const activeRunLabel = useLogPathRunLabelBrush(activeLogPath);
   const [graphPreset, setGraphPreset] = useState(GRAPH_PRESETS[0].id);
   const [loadingGraphCoords, setLoadingGraphCoords] = useState(false);
 
@@ -591,7 +592,12 @@ export function SimulationMonitor() {
 
   return (
     <div className="space-y-4">
-      {entries.length > 0 && <GlobalFilterBar showLogScale />}
+      {entries.length > 0 && (
+        <GlobalFilterBar
+          showLogScale
+          runLabels={activeRunLabel ? [activeRunLabel] : []}
+        />
+      )}
 
       {/* Header controls */}
       <div className="flex items-center gap-3 flex-wrap">
@@ -1022,7 +1028,7 @@ export function SimulationMonitor() {
             logScale={logScale}
             refreshKey={telemetryTrendsKey}
             initialPolicy={selectedPolicy}
-            initialRunLabel={activeLogPath ? runLabelFromPath(activeLogPath) : null}
+            initialRunLabel={activeRunLabel}
           />
 
           <GraphTopologyPanel
