@@ -423,6 +423,8 @@ export function SimulationMonitor() {
   const [isPlaying, setIsPlaying] = useState(false);
   const [playbackSpeed, setPlaybackSpeed] = useState<1 | 2 | 4>(1);
   const [mapLayout, setMapLayout] = useState<"overlay" | "split">("overlay");
+  const [showFailureOverlay, setShowFailureOverlay] = useState(true);
+  const [showRouteDiff, setShowRouteDiff] = useState(false);
   const [duckdbProfitRange, setDuckdbProfitRange] = useState<[number, number] | null>(null);
 
   useEffect(() => {
@@ -532,6 +534,17 @@ export function SimulationMonitor() {
         };
       });
   }, [entries, displayDay, selectedSample, activeMapPolicies, policies]);
+
+  const mapHasFailureData = useMemo(
+    () =>
+      mapRoutes.some(
+        (r) =>
+          r.data.failure_analysis?.has_failure &&
+          ((r.data.failure_analysis.overflow_bins?.length ?? 0) > 0 ||
+            (r.data.failure_analysis.skipped_high_fill_bins?.length ?? 0) > 0)
+      ),
+    [mapRoutes]
+  );
 
   // Build per-policy series for MetricTimeseries
   useEffect(() => {
@@ -863,6 +876,24 @@ export function SimulationMonitor() {
                 </button>
               </div>
             )}
+            {showRouteMap && mapHasFailureData && (
+              <button
+                className={`btn-ghost text-xs ml-1 ${
+                  showFailureOverlay ? "text-accent-danger" : ""
+                }`}
+                onClick={() => setShowFailureOverlay((v) => !v)}
+              >
+                {showFailureOverlay ? "Hide" : "Show"} failure overlay
+              </button>
+            )}
+            {showRouteMap && mapRoutes.length === 2 && mapLayout === "overlay" && (
+              <button
+                className={`btn-ghost text-xs ${showRouteDiff ? "text-accent-secondary" : ""}`}
+                onClick={() => setShowRouteDiff((v) => !v)}
+              >
+                {showRouteDiff ? "Hide" : "Show"} route diff
+              </button>
+            )}
             {showRouteMap && hasBinCoords && (
               <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5 ml-1">
                 {(["echarts", "deckgl"] as const).map((m) => (
@@ -894,6 +925,7 @@ export function SimulationMonitor() {
                           routes={[route]}
                           animate={isPlaying}
                           playbackSpeed={playbackSpeed}
+                          showFailureOverlay={showFailureOverlay}
                         />
                       </div>
                     ))}
@@ -903,6 +935,8 @@ export function SimulationMonitor() {
                     routes={mapRoutes}
                     animate={isPlaying}
                     playbackSpeed={playbackSpeed}
+                    showFailureOverlay={showFailureOverlay}
+                    showRouteDiff={showRouteDiff}
                   />
                 )}
               </Suspense>

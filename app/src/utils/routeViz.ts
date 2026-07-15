@@ -6,6 +6,7 @@
  */
 
 import type { SimDayData, SimFailureSummary } from "../types";
+import { failureBinIdSets } from "./routeFailureOverlay";
 import { resolveBinPositions } from "./mapPositions";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "./vehicleTours";
 
@@ -40,12 +41,7 @@ export function buildRouteVizOption(
   const mandatorySet = new Set(mandatory ?? []);
   const tourSet = new Set(tour_indices ?? []);
 
-  const overflowIds = new Set(
-    (opts.failureOverlay?.overflow_bins ?? []).map((b) => b.bin_id)
-  );
-  const skippedIds = new Set(
-    (opts.failureOverlay?.skipped_high_fill_bins ?? []).map((b) => b.bin_id)
-  );
+  const { overflowIds, skippedIds } = failureBinIdSets(opts.failureOverlay);
 
   const idleBins = all_bin_coords
     .filter((b) => b.id >= 0 && !tourSet.has(b.id))

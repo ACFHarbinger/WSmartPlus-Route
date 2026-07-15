@@ -2451,9 +2451,10 @@ export function SimulationSummary() {
             <div className="space-y-2">
               <div className="flex items-center justify-between gap-2 flex-wrap">
                 <div>
-                  <p className="text-xs font-semibold text-gray-300">Route Solution (§A.1)</p>
+                  <p className="text-xs font-semibold text-gray-300">Route Solution (§A.1 / §A.6)</p>
                   <p className="text-[10px] text-canvas-muted">
-                    ECharts spatial overlay — depot, demand-sized nodes, per-vehicle edges
+                    ECharts spatial overlay — depot, demand-sized nodes, per-vehicle edges;
+                    failure highlights when ``failure_analysis`` is present in day logs
                   </p>
                 </div>
                 <div className="flex items-center gap-2">

@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifteenth pass (§A.6 Option C)
+
+Hundred-fifteenth pass adds failure route-diff overlays on the Studio geospatial view,
+completing ROADMAP §A.6 Option C.
+
+**React frontend**
+- ``routeFailureOverlay.ts`` — shared overflow/skipped bin sets + tour-diff computation
+- ``FailureOverlayLegend`` — reusable legend for failure and tour-diff highlights
+- ``DeckRouteMap`` — red overflow + orange skipped ``ScatterplotLayer`` highlights on
+  Mercator and OrbitView; cyan/purple tour-diff rings when two policies are overlaid
+- Simulation Monitor — **Show/Hide failure overlay** and **Show/Hide route diff** toggles
+- ``RouteViz`` — failure legend; ``routeViz.ts`` refactored to shared overlay helper
+- Simulation Summary — route panel subtitle notes embedded ``failure_analysis`` highlights
+
+**ROADMAP**
+- §A.6 Option C route-diff overlay checked (Options B/D deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fourteenth pass (§A.1)
 
 Hundred-fourteenth pass adds a shared ``RouteViz`` ECharts spatial panel for interactive

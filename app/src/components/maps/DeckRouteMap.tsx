@@ -6,12 +6,19 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckGL from "@deck.gl/react";
 import { OrbitView, COORDINATE_SYSTEM } from "@deck.gl/core";
 import { CanvasExportButton } from "../common/CanvasExportButton";
+import { FailureOverlayLegend } from "../analysis/FailureOverlayLegend";
 import { resolveBinPositions } from "../../utils/mapPositions";
+import {
+  computeTourDiff,
+  FAILURE_RGB,
+  failureBinIdSets,
+  TOUR_DIFF_RGB,
+} from "../../utils/routeFailureOverlay";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { TripsLayer } from "@deck.gl/geo-layers";
 import MapGL from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
-import type { SimDayData } from "../../types";
+import type { SimDayData, SimFailureSummary } from "../../types";
 import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
@@ -189,13 +196,71 @@ function buildRouteGeometry(data: SimDayData) {
   };
 }
 
+interface FailureHighlightPoint {
+  position: [number, number];
+  kind: "overflow" | "skipped";
+}
+
+interface TourDiffPoint {
+  position: [number, number];
+  side: "onlyFirst" | "onlySecond";
+}
+
 interface Props {
   routes: MapRoute[];
   animate?: boolean;
   playbackSpeed?: number;
+  showFailureOverlay?: boolean;
+  showRouteDiff?: boolean;
 }
 
-export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 1 }: Props) {
+function buildFailureHighlights(
+  posById: Map<number, [number, number]>,
+  summary: SimFailureSummary | null | undefined
+): FailureHighlightPoint[] {
+  const { overflowIds, skippedIds } = failureBinIdSets(summary);
+  const points: FailureHighlightPoint[] = [];
+
+  for (const id of overflowIds) {
+    const position = posById.get(id);
+    if (position) points.push({ position, kind: "overflow" });
+  }
+  for (const id of skippedIds) {
+    if (overflowIds.has(id)) continue;
+    const position = posById.get(id);
+    if (position) points.push({ position, kind: "skipped" });
+  }
+
+  return points;
+}
+
+function buildTourDiffHighlights(
+  first: SimDayData,
+  second: SimDayData,
+  posById: Map<number, [number, number]>
+): TourDiffPoint[] {
+  const diff = computeTourDiff(first, second);
+  const points: TourDiffPoint[] = [];
+
+  for (const id of diff.onlyFirst) {
+    const position = posById.get(id);
+    if (position) points.push({ position, side: "onlyFirst" });
+  }
+  for (const id of diff.onlySecond) {
+    const position = posById.get(id);
+    if (position) points.push({ position, side: "onlySecond" });
+  }
+
+  return points;
+}
+
+export default function DeckRouteMap({
+  routes,
+  animate = false,
+  playbackSpeed = 1,
+  showFailureOverlay = true,
+  showRouteDiff = false,
+}: Props) {
   const containerRef = useRef<HTMLDivElement>(null);
   const [currentTime, setCurrentTime] = useState(0);
   const [pitch3d, setPitch3d] = useState(false);
@@ -275,6 +340,39 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
   }, [animate, playbackSpeed, maxTripLength]);
 
   const pos3d = (p: [number, number], z = 0): [number, number, number] => [p[0], p[1], z];
+
+  const failureHighlights = useMemo(() => {
+    if (!showFailureOverlay) return [] as FailureHighlightPoint[];
+    const base = geometries[0];
+    if (!base?.hasBins) return [];
+    const coords = routes.find((r) => r.data.all_bin_coords?.length)?.data.all_bin_coords;
+    if (!coords?.length) return [];
+    const { posById } = resolveBinPositions(coords);
+    const merged: FailureHighlightPoint[] = [];
+    const seen = new Set<string>();
+
+    for (const route of routes) {
+      for (const point of buildFailureHighlights(posById, route.data.failure_analysis)) {
+        const key = `${point.kind}:${point.position.join(",")}`;
+        if (seen.has(key)) continue;
+        seen.add(key);
+        merged.push(point);
+      }
+    }
+    return merged;
+  }, [geometries, routes, showFailureOverlay]);
+
+  const tourDiffHighlights = useMemo(() => {
+    if (!showRouteDiff || routes.length !== 2) return [] as TourDiffPoint[];
+    const first = routes[0]?.data;
+    const second = routes[1]?.data;
+    if (!first?.all_bin_coords?.length || !second?.all_bin_coords?.length) return [];
+    const { posById } = resolveBinPositions(first.all_bin_coords);
+    return buildTourDiffHighlights(first, second, posById);
+  }, [routes, showRouteDiff]);
+
+  const showFailureLegend = showFailureOverlay && failureHighlights.length > 0;
+  const showDiffLegend = showRouteDiff && tourDiffHighlights.length > 0 && routes.length === 2;
 
   const layers = useMemo(() => {
     const result = [];
@@ -424,8 +522,103 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
       }
     }
 
+    if (failureHighlights.length) {
+      const overflowPts = failureHighlights.filter((p) => p.kind === "overflow");
+      const skippedPts = failureHighlights.filter((p) => p.kind === "skipped");
+
+      if (overflowPts.length) {
+        result.push(
+          new ScatterplotLayer({
+            id: "failure-overflow",
+            data: overflowPts,
+            coordinateSystem: cartesianSystem,
+            getPosition: (d: FailureHighlightPoint) =>
+              cartesianMode ? pos3d(d.position, 0.08) : d.position,
+            getFillColor: [...FAILURE_RGB.overflow, 255] as [number, number, number, number],
+            getLineColor: [255, 255, 255, 255],
+            stroked: true,
+            getRadius: 95,
+            radiusMinPixels: 7,
+            radiusMaxPixels: 16,
+          })
+        );
+      }
+
+      if (skippedPts.length) {
+        result.push(
+          new ScatterplotLayer({
+            id: "failure-skipped",
+            data: skippedPts,
+            coordinateSystem: cartesianSystem,
+            getPosition: (d: FailureHighlightPoint) =>
+              cartesianMode ? pos3d(d.position, 0.06) : d.position,
+            getFillColor: [...FAILURE_RGB.skipped, 240] as [number, number, number, number],
+            getLineColor: [255, 255, 255, 220],
+            stroked: true,
+            getRadius: 80,
+            radiusMinPixels: 6,
+            radiusMaxPixels: 14,
+          })
+        );
+      }
+    }
+
+    if (tourDiffHighlights.length) {
+      const onlyFirst = tourDiffHighlights.filter((p) => p.side === "onlyFirst");
+      const onlySecond = tourDiffHighlights.filter((p) => p.side === "onlySecond");
+
+      if (onlyFirst.length) {
+        result.push(
+          new ScatterplotLayer({
+            id: "tour-diff-first",
+            data: onlyFirst,
+            coordinateSystem: cartesianSystem,
+            getPosition: (d: TourDiffPoint) =>
+              cartesianMode ? pos3d(d.position, 0.1) : d.position,
+            getFillColor: [0, 0, 0, 0],
+            getLineColor: [...TOUR_DIFF_RGB.onlyFirst, 255] as [number, number, number, number],
+            stroked: true,
+            filled: false,
+            getRadius: 110,
+            radiusMinPixels: 8,
+            radiusMaxPixels: 18,
+            lineWidthMinPixels: 2,
+          })
+        );
+      }
+
+      if (onlySecond.length) {
+        result.push(
+          new ScatterplotLayer({
+            id: "tour-diff-second",
+            data: onlySecond,
+            coordinateSystem: cartesianSystem,
+            getPosition: (d: TourDiffPoint) =>
+              cartesianMode ? pos3d(d.position, 0.1) : d.position,
+            getFillColor: [0, 0, 0, 0],
+            getLineColor: [...TOUR_DIFF_RGB.onlySecond, 255] as [number, number, number, number],
+            stroked: true,
+            filled: false,
+            getRadius: 110,
+            radiusMinPixels: 8,
+            radiusMaxPixels: 18,
+            lineWidthMinPixels: 2,
+          })
+        );
+      }
+    }
+
     return result;
-  }, [geometries, animate, currentTime, routes.length, cartesianMode, cartesianSystem]);
+  }, [
+    geometries,
+    animate,
+    currentTime,
+    routes.length,
+    cartesianMode,
+    cartesianSystem,
+    failureHighlights,
+    tourDiffHighlights,
+  ]);
 
   if (!hasBins) {
     return (
@@ -500,6 +693,18 @@ export default function DeckRouteMap({ routes, animate = false, playbackSpeed = 
           className="bg-black/50 rounded px-1.5 py-0.5"
         />
       </div>
+      {(showFailureLegend || showDiffLegend) && (
+        <div className="absolute bottom-2 right-2 max-w-[55%] rounded bg-black/55 px-2 py-1">
+          <FailureOverlayLegend
+            showOverflow={failureHighlights.some((p) => p.kind === "overflow")}
+            showSkipped={failureHighlights.some((p) => p.kind === "skipped")}
+            showTourDiff={showDiffLegend}
+            tourDiffLabels={
+              showDiffLegend ? [routes[0].label, routes[1].label] : undefined
+            }
+          />
+        </div>
+      )}
       {(routes.length > 1 || geometries.some((g) => g.vehicles.length > 1)) && (
         <div className="absolute bottom-2 left-2 flex flex-wrap gap-1.5 max-w-[90%]">
           {routes.map((r) => {
