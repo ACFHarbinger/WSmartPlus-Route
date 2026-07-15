@@ -15,6 +15,7 @@ import threading
 from typing import Any, Dict, List, Optional
 
 import logic.src.constants as udef
+from logic.src.tracking.logging.modules.policy_telemetry_db import persist_policy_viz_snapshot
 from logic.src.utils.infrastructure.setup_sims import deep_sanitize
 
 POLICY_VIZ_MARKER = "POLICY_VIZ_START:"
@@ -185,6 +186,13 @@ def send_policy_viz_to_gui(
     log_msg = f"{POLICY_VIZ_MARKER}{policy},{sample_idx},{day},{policy_type},{json_payload}"
 
     print(log_msg, flush=True)
+
+    try:
+        persist_policy_viz_snapshot(
+            payload, policy, sample_idx, day, policy_type, log_path
+        )
+    except Exception as exc:
+        print(f"Warning: Failed to persist policy telemetry: {exc}", file=sys.stderr)
 
     if not log_path:
         return

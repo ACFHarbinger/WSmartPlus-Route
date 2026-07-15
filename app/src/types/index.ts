@@ -79,6 +79,28 @@ export interface PolicyVizEntry {
   data: Record<string, Array<number | string | boolean>>;
 }
 
+/** Cross-run policy telemetry row from ``assets/telemetry.db`` (§A.3 Option C). */
+export interface PolicyTelemetryTrendRow {
+  id: number;
+  log_path: string;
+  run_label: string | null;
+  run_created_at: string;
+  policy: string;
+  sample_idx: number;
+  day: number;
+  policy_type: PolicyVizType;
+  step_count: number;
+  final_metric: number | null;
+  metric_name: string | null;
+  emitted_at: string;
+}
+
+export interface PolicyTelemetryTrends {
+  db_path: string;
+  rows: PolicyTelemetryTrendRow[];
+  policy_types: PolicyVizType[];
+}
+
 // ── Simulation failure analysis (FailureAnalyzer → Studio §A.6) ─────────────
 
 export interface SimFailureEntry {

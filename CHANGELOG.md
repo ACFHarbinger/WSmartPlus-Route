@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twentieth pass (§A.3 Option C)
+
+Hundred-twentieth pass adds SQLite persistence for policy telemetry cross-run trending,
+completing ROADMAP §A.3 Option C.
+
+**Python logic**
+- ``policy_telemetry_db.py`` — ``assets/telemetry.db`` schema with ``simulation_runs`` and
+  ``policy_viz_snapshots`` tables; ``extract_final_metric`` for comparable terminal KPIs
+- ``persist_policy_viz_snapshot`` — upserts on each ``POLICY_VIZ_START:`` emit from
+  ``policy_viz_emit.py``
+- ``query_policy_telemetry_trends`` — cross-run snapshot query with algorithm-family filter
+- Unit tests in ``logic/test/unit/tracking/test_policy_telemetry_db.py``
+
+**Rust backend**
+- ``load_policy_telemetry_trends`` command — Python subprocess bridge to query SQLite store
+
+**React frontend**
+- ``PolicyTelemetryTrendsPanel`` — cross-run final-metric bar chart, solver-steps chart,
+  and history table on Simulation Monitor
+- ``policyTelemetryTrends.ts`` — ECharts builders + row formatters
+
+**ROADMAP**
+- §A.3 Option C SQLite cross-run trending checked (§A.3 complete)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-nineteenth pass (§A.3 Option B)
 
 Hundred-nineteenth pass adds 2 Hz live policy telemetry streaming during simulation

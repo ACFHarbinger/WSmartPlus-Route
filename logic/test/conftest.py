@@ -47,10 +47,17 @@ _original_sqlite3_connect = sqlite3.connect
 def _test_safe_sqlite3_connect(database, *args, **kwargs):
     if isinstance(database, (str, Path)):
         db_str = str(database).replace("\\", "/")
-        if "tracking.db" in db_str and "test_tracking" not in db_str:
+        is_prod_tracking = "tracking.db" in db_str and "test_tracking" not in db_str
+        is_prod_telemetry = (
+            "telemetry.db" in db_str
+            and "test_tracking" not in db_str
+            and "/assets/" in db_str
+        )
+        if is_prod_tracking or is_prod_telemetry:
             test_dir = Path.cwd() / "test_tracking"
             test_dir.mkdir(exist_ok=True, parents=True)
-            database = str(test_dir / "tracking.db")
+            fname = "telemetry.db" if is_prod_telemetry else "tracking.db"
+            database = str(test_dir / fname)
     return _original_sqlite3_connect(database, *args, **kwargs)
 
 
