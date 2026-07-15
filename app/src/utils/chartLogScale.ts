@@ -9,9 +9,21 @@ export function isOverflowMetric(key: string): boolean {
 export function isLogScaleMetric(key: string): boolean {
   return (
     isOverflowMetric(key) ||
-    /loss|cost|gap|profit|objective|reward|km|kg|entropy|grad|duration|seconds|time|count|histogram|instances/i.test(
+    /loss|cost|gap|profit|objective|reward|km|kg|entropy|grad|duration|seconds|time|count|histogram|instances|attention|weight/i.test(
       key
     )
+  );
+}
+
+/** Transform a 2-D matrix for log-scale heatmap colour mapping; preserves raw tooltips separately. */
+export function transformMatrixLogScale(
+  values: number[][],
+  metricKey: string,
+  logScale: boolean
+): number[][] {
+  if (!logScale) return values;
+  return values.map((row) =>
+    row.map((v) => (Number.isFinite(v) ? (chartMetricDisplay(v, metricKey, true) ?? v) : v))
   );
 }
 

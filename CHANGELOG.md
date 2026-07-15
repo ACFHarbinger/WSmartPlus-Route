@@ -11,6 +11,24 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninetieth pass (§G.5 / §G.7)
+
+Ninetieth pass extends global log-scale to §G.5.3 attention weight heatmaps so
+low-magnitude Q/K/V cells are visible without distorting overlay Δ diff panels.
+
+**React frontend**
+- `chartLogScale.ts` — ``transformMatrixLogScale()`` helper; ``attention``/``weight``
+  metrics recognised by ``isLogScaleMetric``
+- `MLIntrospectionPanel` — ``buildLogAwareMatrixHeatmap`` log-transforms raw attention
+  cells when global ``logScale`` on; overlay/distribution Δ diff stays linear;
+  tooltips retain raw weight values; subtitle reflects mode
+
+**ROADMAP**
+- §G.5.3 Attention weight heatmaps log-scale checked
+- §G.7 Global log-scale propagation includes ML attention heatmaps
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-ninth pass (§G.1 / §G.7)
 
 Eighty-ninth pass extends global log-scale to §G.1.3 policy configuration
