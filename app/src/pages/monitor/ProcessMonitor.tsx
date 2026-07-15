@@ -175,7 +175,12 @@ function ProcessRow({
 
         <div className="flex-1 min-w-0 space-y-0.5">
           {logPath ? (
-            <PathRunLabelChip path={logPath} className="max-w-full" />
+            <div className="flex items-center gap-2 min-w-0">
+              <PathRunLabelChip path={logPath} className="max-w-full flex-1 min-w-0" />
+              <span className="text-[10px] text-canvas-muted font-mono shrink-0 truncate max-w-[8rem]">
+                {id}
+              </span>
+            </div>
           ) : (
             <p className="text-xs font-mono text-gray-200 truncate">{id}</p>
           )}

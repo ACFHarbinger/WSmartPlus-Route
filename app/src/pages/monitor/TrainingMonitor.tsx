@@ -18,6 +18,8 @@ import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
+import { LoadedRunRow } from "../../components/common/LoadedRunRow";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
@@ -40,6 +42,7 @@ import {
   normalizeTrainingMetricRow,
   parseTrainingMetricLine,
 } from "../../utils/trainingMetrics";
+import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import {
@@ -328,7 +331,7 @@ function RunPanel({
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-        <p className="text-xs font-mono text-gray-300">{run.name}</p>
+        <PathRunLabelChip path={run.path} />
         <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
       </div>
       <GradNormSparkline
@@ -357,7 +360,7 @@ export function TrainingMonitor() {
     pendingTrainingRunPath,
     setPendingTrainingRunPath,
   } = useAppStore();
-  const logScale = useGlobalFiltersStore((s) => s.logScale);
+  const { logScale, runLabel: activeRunLabel } = useGlobalFiltersStore();
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, TrainingMetricsRow[]>>({});
@@ -645,6 +648,12 @@ export function TrainingMonitor() {
     [runs, selected]
   );
 
+  const filterRunLabels = useMemo(() => {
+    if (processRunLabel) return [processRunLabel];
+    const labels = selectedRunObjects.map((r) => runLabelFromPath(r.path));
+    return labels.length > 0 ? labels : [];
+  }, [processRunLabel, selectedRunObjects]);
+
   const displayedHealth = useMemo(() => {
     const merged: TrainingHealthEntry[] = [];
     if (effectiveLiveHealth.length > 0) {
@@ -701,10 +710,7 @@ export function TrainingMonitor() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar
-        showLogScale
-        runLabels={processRunLabel ? [processRunLabel] : []}
-      />
+      <GlobalFilterBar showLogScale runLabels={filterRunLabels} />
 
       {/* Controls */}
       <div className="flex items-center gap-3">
@@ -804,29 +810,35 @@ export function TrainingMonitor() {
             {runs.map((run, i) => {
               const liveOffset = activeTrainId ? 1 : 0;
               const color = RUN_COLORS[(i + liveOffset) % RUN_COLORS.length];
+              const trailing = (
+                <span className="flex gap-2 text-xs text-canvas-muted shrink-0">
+                  {run.has_metrics && <span className="text-accent-success">metrics</span>}
+                  {run.has_hparams && <span>hparams</span>}
+                </span>
+              );
               return (
-                <label
+                <div
                   key={run.name}
-                  className="flex items-center gap-3 py-1.5 px-2 rounded-lg hover:bg-canvas-hover cursor-pointer"
+                  className="flex items-center gap-2 py-1.5 px-2 rounded-lg hover:bg-canvas-hover"
                 >
                   <input
                     type="checkbox"
                     checked={selected.includes(run.name)}
                     onChange={() => toggleRun(run)}
-                    className="accent-accent-primary"
+                    className="accent-accent-primary shrink-0"
                   />
                   <span
                     className="w-2 h-2 rounded-full shrink-0"
                     style={{ backgroundColor: selected.includes(run.name) ? color : "#444" }}
                   />
-                  <span className="text-sm text-gray-300 font-mono flex-1 truncate">
-                    {run.name}
-                  </span>
-                  <span className="flex gap-2 text-xs text-canvas-muted">
-                    {run.has_metrics && <span className="text-accent-success">metrics</span>}
-                    {run.has_hparams && <span>hparams</span>}
-                  </span>
-                </label>
+                  <LoadedRunRow
+                    path={run.path}
+                    label={run.name}
+                    activeRunLabel={activeRunLabel}
+                    trailing={trailing}
+                    className="flex-1 min-w-0"
+                  />
+                </div>
               );
             })}
           </div>

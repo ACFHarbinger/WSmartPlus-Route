@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-fourth pass (§G.17 + §G.15 + §D.7)
+
+Hundred-eighty-fourth pass closes the Training Monitor run-discovery path-chip gap left after the
+hundred-eighty-third pass (which unified process-row and live-panel footer ``PathRunLabelChip``
+parity). Lightning log run list rows, per-run panel headers, and Process Monitor process-id
+suffixes now share ``PathRunLabelChip`` ring-highlight + click-to-brush behaviour with analysis
+views.
+
+**React frontend**
+- Training Monitor — run discovery list uses ``LoadedRunRow`` + ``PathRunLabelChip`` instead of
+  inline font-mono run names; ring-highlight parity via global ``run_label`` brush (§G.17 / §D.7)
+- Training Monitor — ``RunPanel`` per-run header uses ``PathRunLabelChip`` instead of plain
+  font-mono text (§G.17 / §D.7)
+- Training Monitor — ``GlobalFilterBar`` ``runLabels`` from selected Lightning log paths when no
+  live process brush is active (§G.17 / §D.7)
+- Process Monitor — process list rows show muted process-id suffix alongside ``PathRunLabelChip``
+  when stdout resolves a log path; footer parity (§G.15 / §D.7)
+
+**ROADMAP**
+- §G.17 Training Monitor run-discovery list path-chip run-label brush + ring-highlight parity checked
+- §G.15 Process Monitor process-row muted process-id suffix parity with ``ProcessIdFooter`` checked
+- §D.7 file-based Lightning log path-chip run-label brush parity across Training Monitor checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-third pass (§G.7 + §G.15 + §G.9–§G.18 + §D.7)
 
 Hundred-eighty-third pass closes the process-row and live-panel footer path-chip gap left after the
