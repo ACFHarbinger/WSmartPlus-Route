@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-second pass (§G.1 / §G.5 / §G.7)
+
+Ninety-second pass enables log-scale error-bar whiskers on bar and efficiency
+ranking charts, and surfaces per-basin generalization notes on the loss landscape.
+
+**React frontend**
+- `chartLogScale.ts` — ``errorBarBounds()`` helper for symlog/log whisker endpoints
+- `SimulationSummary` — ``MetricBarChart``, ``GroupedMetricBarChart``, and
+  ``EfficiencyRankingChart`` show mean ± std whiskers when global ``logScale`` on
+- `PortfolioEfficiencyRanking` — horizontal kg/km whiskers on log x-axis
+- `lossLandscape.ts` — ``generalizationNote`` per flat/moderate/sharp basin label
+- `MLIntrospectionPanel` / `LossLandscape3D` — display Empirical vs Gamma-3 notes
+
+**ROADMAP**
+- §G.1 error-bar whiskers log-scale checked (partial markers removed)
+- §G.1.5 efficiency ranking whiskers on log axis checked
+- §G.5.2 loss minima generalization notes checked (partial marker removed)
+- §G.7 Global log-scale propagation includes error-bar whiskers
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-first pass (§G.5 / §G.7)
 
 Ninety-first pass extends global log-scale to attention bipartite graph overlays

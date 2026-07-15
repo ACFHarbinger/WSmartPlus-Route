@@ -240,7 +240,7 @@ export function LossLandscape3D({
           {minima && (
             <>
               Global min {minima.value.toFixed(4)} at ({minima.row}, {minima.col}) · sharpness{" "}
-              {minima.sharpness.toFixed(3)} ({minima.label} basin)
+              {minima.sharpness.toFixed(3)} ({minima.label} basin) — {minima.generalizationNote}
             </>
           )}
           {markers.map((m) => (

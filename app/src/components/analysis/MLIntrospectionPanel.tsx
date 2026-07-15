@@ -1082,7 +1082,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
               {lossMinima && (
                 <p className="text-[10px] text-canvas-muted">
                   Minima annotation: {lossMinima.label} basin (sharpness {lossMinima.sharpness.toFixed(3)}).
-                  Flatter minima often generalize better across Empirical vs Gamma-3 distributions.
+                  {lossMinima.generalizationNote}
                   {lossMarkers.length > 0
                     ? " Amber diamond = BPC exact-solver projection on the landscape."
                     : " Bundle bpc_theta1/bpc_theta2 in the NPZ (see export_loss_landscape.py) for the BPC marker."}

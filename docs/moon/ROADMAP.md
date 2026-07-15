@@ -917,7 +917,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] AlgorithmComparison per-metric bar charts follow global ``logScale`` (§G.1 / §G.7)
 - [x] AlgorithmComparison symlog overflows on log-scale metric bars (§G.1.1 / §G.7)
 - [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export; log-normalised axes when global ``logScale`` on (Simulation Summary + Algorithm Comparison; §G.1 / §G.7)
-- [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
+- [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std; log/symlog whiskers via ``errorBarBounds`` when global ``logScale`` on (§G.1 / §G.7)
 - [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts; `BenchmarkParetoPanel` adds `formatLogMeta` + `formatPolicyMeta` per run×policy point (§G.1.2)
 
 #### 1.3 Policy Configuration Heatmaps
@@ -939,9 +939,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 #### 1.5 Constructor Ranking Chart
 - [x] Horizontal bar chart: `EfficiencyRankingChart` ranks policies by mean kg/km, bottom-up ordering; portfolio mode adds `PortfolioEfficiencyRanking` for run×policy configs (§G.1.5)
 - [x] Rank by mean kg/km across all configurations: Simulation Summary efficiency ranking + `PortfolioEfficiencyRanking` + BenchmarkAnalysis `kg/km` metric column (§G.1.5)
-- [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1 partial)
-- [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
-- [x] Efficiency ranking charts follow global ``logScale``: ``EfficiencyRankingChart`` + ``PortfolioEfficiencyRanking`` log x-axis; whiskers hidden when log on (§G.1.5 / §G.7)
+- [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1)
+- [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1)
+- [x] Efficiency ranking charts follow global ``logScale``: ``EfficiencyRankingChart`` + ``PortfolioEfficiencyRanking`` log x-axis; horizontal whiskers via ``errorBarBounds`` when log on (§G.1.5 / §G.7)
 - [x] BenchmarkAnalysis efficiency ranking follows global ``logScale``: multi-run ``PortfolioEfficiencyRanking`` + single-run inline chart log x-axis (§G.1.5 / §G.7)
 - [x] BenchmarkAnalysis multi-run metric bars use symlog for overflows when global ``logScale`` on (§G.1.1 / §G.7)
 
@@ -1032,7 +1032,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab side-by-side grid; log-scale colour map when global ``logScale`` on with raw-loss tooltips (§G.5.2 / §G.7)
 - [x] Loss landscape 3D terrain follows global ``logScale``: ``LossLandscape3D`` log-transforms height/colour via ``transformMatrixLogScale`` when on; minima sharpness analysis stays on raw loss grid (§G.5.2 / §G.7)
 - [x] Project exact-solver solutions (BPC optimum) as a marker on the landscape: `export_loss_landscape.py` bundles `bpc_theta1`/`bpc_theta2`/`bpc_loss`; `load_npz_vectors` + `resolveBpcMarker` + amber octahedron in `LossLandscape3D` + ECharts `markPoint` on contour (§G.5.2)
-- [x] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical): `analyzeLossMinima` Laplacian sharpness + cyan global-min sphere marker (§G.5.2 partial)
+- [x] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical): `analyzeLossMinima` Laplacian sharpness + ``generalizationNote`` per basin label on 3D terrain + Loss tab (§G.5.2)
 
 #### 5.3 Attention Weight Visualization (Sigma.js overlay)
 - [x] Load attention weight matrices from TensorDict for a selected simulation step: `load_tensor_slice` with leading-dim indices + decode-step slider (§G.5.3 partial)
