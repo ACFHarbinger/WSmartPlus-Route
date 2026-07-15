@@ -12,6 +12,8 @@ export interface TrainHpoNavMeshProps {
   showOutputBrowser?: boolean;
   /** Auto-select this run in Output Browser via ``pendingRunPath``. */
   outputRunPath?: string | null;
+  /** Auto-select this run in Training Monitor via ``pendingTrainingRunPath``. */
+  trainingRunPath?: string | null;
   /** When false, only Process Monitor (+ optional output browser) are shown. */
   showTrainLinks?: boolean;
   className?: string;
@@ -22,10 +24,11 @@ export function TrainHpoNavMesh({
   showHpoLinks = false,
   showOutputBrowser = false,
   outputRunPath = null,
+  trainingRunPath = null,
   showTrainLinks = true,
   className = "",
 }: TrainHpoNavMeshProps) {
-  const { setMode, setPendingRunPath } = useAppStore();
+  const { setMode, setPendingRunPath, setPendingTrainingRunPath } = useAppStore();
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -51,7 +54,10 @@ export function TrainHpoNavMesh({
             </button>
           )}
           <button
-            onClick={() => setMode("training")}
+            onClick={() => {
+              if (trainingRunPath) setPendingTrainingRunPath(trainingRunPath);
+              setMode("training");
+            }}
             className="btn-ghost text-xs text-canvas-muted"
           >
             Training Monitor →

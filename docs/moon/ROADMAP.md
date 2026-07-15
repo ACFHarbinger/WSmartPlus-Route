@@ -819,6 +819,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Launcher + Data Generation — post-run Output Browser deep-links to the completed run when stdout contains a log path (§G.9 / §G.11 / §G.14)
 - [x] Process Monitor — ``Output Browser →`` on completed ``test_sim`` / ``gen_data`` processes with run deep-link (§G.15 / §G.14)
 
+**Delivered (§D.7 — hundred-forty-fourth pass)**
+
+- [x] ``outputRunPath.ts`` — Hydra snapshot / pruned-config / ``assets/output`` path parsing as fallback when no ``.jsonl`` in stdout (§G.14 / §G.9 / §G.12 / §G.15)
+- [x] ``trainingRunPath.ts`` + ``pendingTrainingRunPath`` — Training Monitor deep-link from completed train/HPO processes (§G.10 / §G.17 / §D.7)
+- [x] Evaluation Runner + Process Monitor eval — ``outputRunPath`` deep-link parity on completed eval workflows (§G.12 / §G.14 / §G.15)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1516,6 +1522,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live training health + runtime attention (§A.4 / §A.2): ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` in live progress panel during train/hpo; ``Training Monitor →`` navigation shortcut (hundred-thirtieth pass)
 - [x] Live HPO label + ``HPO Tracker →`` navigation during live HPO runs (hundred-thirty-second pass)
 - [x] ``TrainHpoNavMesh`` shared navigation + ``LiveTrainProgressBar`` epoch progress/ETA during live train/HPO (hundred-thirty-fifth pass; §D.2)
+- [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on Training Hub live panel (hundred-forty-fourth pass; §G.14 / §G.17 / §D.7)
 
 ---
 
@@ -1559,6 +1566,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live progress per-checkpoint KPI row + ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut (hundred-forty-first pass; §G.12 / §G.14 / §D.7)
 - [x] ``checkpointPathFromEvalCommand`` + ``Load in Eval Runner →`` from completed eval processes (hundred-forty-first pass; §G.12 / §G.15)
 - [x] Single-checkpoint live panel passes ``checkpointPath`` to ``LauncherNavMesh`` for post-run reload (hundred-forty-second pass; §G.12 / §D.7)
+- [x] Post-run ``outputRunPath`` deep-link on Evaluation Runner live panel (hundred-forty-fourth pass; §G.14 / §D.7)
 
 ---
 
@@ -1600,6 +1608,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``checkpoints.ts`` — shared ``isCheckpointEntry`` / ``filterCheckpointEntries`` helpers used by Output Browser + Training Monitor (§G.14 / §G.12)
 - [x] ``outputRunPath.ts`` + ``pendingRunPath`` auto-select when opened from launcher / Process Monitor shortcuts (hundred-forty-third pass; §G.9 / §G.11 / §G.15 / §D.7)
 - [x] Output Browser refreshes run list when ``pendingRunPath`` is set but the run is not yet indexed (hundred-forty-third pass; §G.14)
+- [x] ``outputRunPathFromHydraArtifact`` + Hydra snapshot / pruned-config stdout parsing (hundred-forty-fourth pass; §G.14 / §G.9 / §G.12)
 
 ---
 
@@ -1631,6 +1640,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoNavMesh`` ``Output Browser →`` on completed ``train_`` / ``hpo_`` processes (hundred-fortieth pass; §G.10 / §D.7)
 - [x] ``LauncherNavMesh`` ``Output Browser →`` + ``Load in Eval Runner →`` on completed eval processes (hundred-forty-first pass; §G.12 / §G.14 / §D.7)
 - [x] Process Monitor ``Output Browser →`` on completed ``test_sim`` / ``gen_data`` processes with run deep-link (hundred-forty-third pass; §G.9 / §G.11 / §G.14 / §D.7)
+- [x] Process Monitor eval ``outputRunPath`` deep-link parity (hundred-forty-fourth pass; §G.12 / §G.14 / §D.7)
+- [x] Process Monitor train/HPO ``outputRunPath`` + ``trainingRunPath`` deep-links on ``TrainHpoNavMesh`` (hundred-forty-fourth pass; §G.10 / §G.17 / §D.7)
 
 ---
 
@@ -1675,6 +1686,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] **Live training mode**: `LIVE_KEY = "__live__"` virtual entry in `metricsMap`; `activeTrainId` from `useProcessStore` (newest running `train_*` or `hpo_*` process via ``findActiveLiveTrainProcessId``); `process:stdout` listener appends parsed metric rows to `metricsMap[LIVE_KEY]` without touching the CSV; live entry auto-selected in run list with `Radio` icon + pulse animation; ``Live HPO`` label when an ``hpo_*`` process is active; live `RunPanel` shows `GradNormSparkline` + `LrSparkline`; auto-deselected when process exits (hundred-thirty-first pass extends HPO coverage)
 - [x] **Column normalization**: `normalizeMetricRow()` maps Lightning CSV aliases (`train/rl_loss` → `train_loss`, `val/cost` → `val_loss`, `lr-Adam` → `lr`) applied at both CSV load time and live stdout parse time; same normalization applied to `TrainingHub.tsx`
 - [x] **Streamlit parity check**: Lightning CSV columns `train_loss`, `val_loss`, `reward`, `grad_norm`, `lr`, `epoch`, `step` all rendered; aliased column variants covered by `normalizeMetricRow`
+- [x] ``pendingTrainingRunPath`` auto-select when opened from Training Hub / Process Monitor train/HPO shortcuts (hundred-forty-fourth pass; §G.10 / §G.15 / §D.7)
 
 ---
 

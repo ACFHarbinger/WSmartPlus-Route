@@ -44,6 +44,7 @@ import {
   parseEvalResultLine,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
+import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;
@@ -311,6 +312,11 @@ export function EvaluationRunner() {
     if (!liveRunSummary?.allDone || liveRunSummary.aggregate !== "completed") return null;
     return validCheckpoints[0].path;
   }, [validCheckpoints, liveRunSummary]);
+
+  const outputRunPath = useMemo(() => {
+    const lines = liveProcessIds.flatMap((id) => processes[id]?.logLines ?? []);
+    return outputRunPathFromLogLines(lines);
+  }, [liveProcessIds, processes]);
 
   // Subscribe globally to process:stdout — parse structured eval result JSON lines
   useEffect(() => {
@@ -667,6 +673,7 @@ export function EvaluationRunner() {
               showOutputBrowser={
                 liveRunSummary.allDone && liveRunSummary.aggregate === "completed"
               }
+              outputRunPath={outputRunPath}
               checkpointPath={completedCheckpointPath}
               onOpenAnalytics={results.length > 0 ? openInAnalytics : undefined}
             />

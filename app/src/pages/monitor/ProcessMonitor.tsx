@@ -51,6 +51,7 @@ import {
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -360,9 +361,18 @@ export function ProcessMonitor() {
 
   const launcherOutputRunPath = useMemo(() => {
     if (!selectedProc || !selectedLauncherKind) return null;
-    if (selectedLauncherKind !== "sim" && selectedLauncherKind !== "data_gen") return null;
     return outputRunPathFromLogLines(selectedProc.logLines);
   }, [selectedProc, selectedLauncherKind]);
+
+  const trainOutputRunPath = useMemo(() => {
+    if (!selectedProc || !selectedIsTrain) return null;
+    return outputRunPathFromLogLines(selectedProc.logLines);
+  }, [selectedProc, selectedIsTrain]);
+
+  const trainRunPath = useMemo(() => {
+    if (!selectedProc || !selectedIsTrain) return null;
+    return trainingRunPathFromLogLines(selectedProc.logLines);
+  }, [selectedProc, selectedIsTrain]);
 
   const openEvalInAnalytics = useCallback(() => {
     if (!evalResult || !hasEvalMetrics(evalResult)) return;
@@ -580,6 +590,8 @@ export function ProcessMonitor() {
             <TrainHpoNavMesh
               showHpoLinks={isHpoProcess(selectedProc.id, selectedProc.command)}
               showOutputBrowser={selectedProc.status === "completed"}
+              outputRunPath={trainOutputRunPath}
+              trainingRunPath={trainRunPath}
             />
           </div>
           <TrainingHealthPanel entries={trainingHealthEntries} />

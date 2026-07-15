@@ -27,6 +27,9 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { useProcessStore } from "../../store/process";
+import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { parseAttentionVizLine } from "../../utils/attentionViz";
 import { parseTrainingHealthLine } from "../../utils/trainingHealth";
 import { liveTrainProcessLabel } from "../../utils/trainingProcess";
@@ -436,6 +439,18 @@ export function TrainingHub() {
     );
   }
 
+  const liveLogLines = useProcessStore((s) =>
+    liveProcessId ? s.processes[liveProcessId]?.logLines ?? [] : []
+  );
+  const outputRunPath = useMemo(
+    () => outputRunPathFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
+  const trainingRunPath = useMemo(
+    () => trainingRunPathFromLogLines(liveLogLines),
+    [liveLogLines]
+  );
+
   const isDone = runStatus !== null && runStatus !== "running";
   const latestMetric = liveMetrics[liveMetrics.length - 1];
   const showTrainingAnalytics = liveProcessId != null && (mode === "train" || mode === "hpo");
@@ -642,6 +657,8 @@ export function TrainingHub() {
               showTrainLinks={showTrainingAnalytics}
               showHpoLinks={mode === "hpo"}
               showOutputBrowser={isDone && runStatus === "completed"}
+              outputRunPath={outputRunPath}
+              trainingRunPath={trainingRunPath}
             />
           </div>
 
