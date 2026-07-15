@@ -15,6 +15,8 @@ function sqlQuoteList(values: string[]): string {
 export interface PortfolioBrushFilter {
   policies?: string[];
   runLabels?: string[];
+  /** City/scale group brush — prefers ``city_scale`` column when present (§G.6). */
+  cityScale?: string;
 }
 
 /** SQL that mirrors chart brushes on policy and/or ``run_label`` (§G.1 / §G.6). */
@@ -29,6 +31,8 @@ export function brushedPortfolioSql(
   }
   if (filter.runLabels?.length) {
     clauses.push(`run_label IN (${sqlQuoteList(filter.runLabels)})`);
+  } else if (filter.cityScale) {
+    clauses.push(`city_scale = '${filter.cityScale.replace(/'/g, "''")}'`);
   }
   if (!clauses.length) {
     return `SELECT * FROM ${t} ORDER BY day, policy LIMIT 500`;
@@ -186,6 +190,18 @@ ORDER BY profit_var DESC`,
 FROM ${t}
 GROUP BY run_label, policy
 ORDER BY run_label, mean_profit DESC`,
+    },
+    {
+      id: "portfolio-city-leaderboard",
+      label: "City leaderboard (kg/km)",
+      sql: `SELECT city_scale,
+  ROUND(AVG(kg_per_km), 4) AS mean_kgkm,
+  ROUND(AVG(overflows), 4) AS mean_overflows,
+  ROUND(AVG(profit), 4) AS mean_profit,
+  COUNT(DISTINCT run_label)::INTEGER AS n_runs
+FROM ${t}
+GROUP BY city_scale
+ORDER BY mean_kgkm DESC`,
     },
   ];
 }

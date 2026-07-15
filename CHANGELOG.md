@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-ninth pass (§G.6)
+
+Sixty-ninth pass wires GlobalFilterBar selections into DuckDB SQL brush sync,
+adds a ``city_scale`` column on portfolio ingest, and extends SQL cross-filtering.
+
+**React frontend**
+- `SqlQueryPanel` — ``brushFilter`` merges global policy / ``run_label`` / city
+  brush when chart props are absent; ``city_scale`` row cross-filter + dimming
+- `arrowPipeline` — portfolio union adds ``city_scale`` via `cityScaleFromRunLabel()`
+- `cityComparison` — `cityScaleFromRunLabel()` helper for ingest + SQL
+- `duckdbTemplates` — city leaderboard template; ``city_scale`` WHERE clause in
+  ``brushedPortfolioSql()``
+- `SimulationSummary` / `BenchmarkAnalysis` / `CityComparison` — pass
+  ``portfolioRunLabels`` to SQL panel for filter-bar city expansion
+
+**ROADMAP**
+- §G.6 Global filter bar → SQL brush sync checked
+- §G.6 Portfolio ``city_scale`` column + city leaderboard template checked
+- §G.6 SQL ``city_scale`` row cross-filter checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-eighth pass (§G.6)
 
 Sixty-eighth pass wires OLAP Explorer city brushing into DuckDB SQL sync and

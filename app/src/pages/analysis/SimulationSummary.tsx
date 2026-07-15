@@ -2559,6 +2559,7 @@ export function SimulationSummary() {
               brushSqlSync
               autoRunOnBrushSync
               portfolioMode={allDuckDbLogs.length > 1}
+              portfolioRunLabels={portfolioMode ? portfolioRunLabels : []}
             />
           )}
         </>

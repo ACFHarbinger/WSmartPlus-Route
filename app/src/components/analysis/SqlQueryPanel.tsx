@@ -78,12 +78,40 @@ export function SqlQueryPanel({
 
   const brushFilter = useMemo((): PortfolioBrushFilter => {
     const filter: PortfolioBrushFilter = {};
-    if (highlightPoliciesProp?.length) filter.policies = highlightPoliciesProp;
-    if (highlightRunLabelsProp?.length) filter.runLabels = highlightRunLabelsProp;
+    if (highlightPoliciesProp?.length) {
+      filter.policies = highlightPoliciesProp;
+    } else if (activePolicy) {
+      filter.policies = [activePolicy];
+    }
+    if (highlightRunLabelsProp?.length) {
+      filter.runLabels = highlightRunLabelsProp;
+    } else if (brushedCity) {
+      const expanded = resolveBrushedRunLabels(
+        portfolioRunLabels,
+        null,
+        brushedCity
+      );
+      if (expanded?.length) {
+        filter.runLabels = expanded;
+      } else {
+        filter.cityScale = brushedCity;
+      }
+    } else if (activeRunLabel) {
+      filter.runLabels = [activeRunLabel];
+    }
     return filter;
-  }, [highlightPoliciesProp, highlightRunLabelsProp]);
+  }, [
+    highlightPoliciesProp,
+    highlightRunLabelsProp,
+    activePolicy,
+    activeRunLabel,
+    brushedCity,
+    portfolioRunLabels,
+  ]);
 
-  const hasBrushFilter = Boolean(brushFilter.policies?.length || brushFilter.runLabels?.length);
+  const hasBrushFilter = Boolean(
+    brushFilter.policies?.length || brushFilter.runLabels?.length || brushFilter.cityScale
+  );
 
   useEffect(() => {
     if (!brushSqlSync) return;
@@ -192,6 +220,12 @@ export function SqlQueryPanel({
       setBrushedCity(null);
       setRunLabel(value);
       toast.success("Cross-filter applied", { description: `Run: ${value}` });
+      return;
+    }
+    if (/^city_scale$/i.test(col)) {
+      setRunLabel(null);
+      setBrushedCity(value);
+      toast.success("Cross-filter applied", { description: `City: ${value}` });
     }
   };
 
@@ -207,6 +241,11 @@ export function SqlQueryPanel({
 
   const runLabelCol = useMemo(
     () => columns.find((c) => /^run_label$/i.test(c)) ?? null,
+    [columns]
+  );
+
+  const cityScaleCol = useMemo(
+    () => columns.find((c) => /^city_scale$/i.test(c)) ?? null,
     [columns]
   );
 
@@ -238,9 +277,13 @@ export function SqlQueryPanel({
         !highlightRunLabels?.length ||
         !runLabelCol ||
         highlightRunLabels.includes(String(row[runLabelCol] ?? ""));
-      return policyMatch && runMatch;
+      const cityMatch =
+        !brushedCity ||
+        !cityScaleCol ||
+        String(row[cityScaleCol] ?? "") === brushedCity;
+      return policyMatch && runMatch && cityMatch;
     },
-    [highlightPolicies, highlightRunLabels, policyCol, runLabelCol]
+    [highlightPolicies, highlightRunLabels, brushedCity, policyCol, runLabelCol, cityScaleCol]
   );
 
   const applyProfitBrush = useCallback(() => {
@@ -399,7 +442,10 @@ export function SqlQueryPanel({
                         String(row[policyCol] ?? "") === activePolicy) ||
                       (runLabelCol &&
                         activeRunLabel &&
-                        String(row[runLabelCol] ?? "") === activeRunLabel);
+                        String(row[runLabelCol] ?? "") === activeRunLabel) ||
+                      (cityScaleCol &&
+                        brushedCity &&
+                        String(row[cityScaleCol] ?? "") === brushedCity);
                     return (
                     <tr
                       key={i}
@@ -416,6 +462,9 @@ export function SqlQueryPanel({
                         }
                         if (runLabelCol && row[runLabelCol] != null) {
                           applyCrossFilter(runLabelCol, String(row[runLabelCol]));
+                        }
+                        if (cityScaleCol && row[cityScaleCol] != null) {
+                          applyCrossFilter(cityScaleCol, String(row[cityScaleCol]));
                         }
                         const dayCol = columns.find((c) => /^day$/i.test(c));
                         if (dayCol && row[dayCol] != null && onDaySelect) {

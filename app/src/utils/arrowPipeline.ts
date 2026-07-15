@@ -4,6 +4,7 @@
  * (CSV and simulation JSONL; §G.8).
  */
 import { invoke } from "@tauri-apps/api/core";
+import { cityScaleFromRunLabel } from "./cityComparison";
 import { duckDbRowCount, ingestArrowIpc, initDuckDb, queryDuckDb } from "./duckdbClient";
 
 export const ARROW_PIPELINE_BUDGET_MS = 500;
@@ -294,10 +295,10 @@ export async function runPortfolioSimulationArrowPipeline(
   }
 
   const unionSql = logs
-    .map(
-      (log, i) =>
-        `SELECT *, ${sqlStringLiteral(log.label)} AS run_label FROM "${tempTables[i]}"`
-    )
+    .map((log, i) => {
+      const cityScale = cityScaleFromRunLabel(log.label);
+      return `SELECT *, ${sqlStringLiteral(log.label)} AS run_label, ${sqlStringLiteral(cityScale)} AS city_scale FROM "${tempTables[i]}"`;
+    })
     .join("\nUNION ALL BY NAME\n");
 
   await queryDuckDb(`DROP TABLE IF EXISTS "${tableName}"`);
