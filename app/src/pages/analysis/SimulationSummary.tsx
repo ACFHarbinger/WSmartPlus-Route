@@ -25,6 +25,7 @@ import {
   chartMetricDisplay,
   chartMetricUsesSymlog,
   chartMetricYAxisType,
+  errorBarBounds,
   invertParallelAxisValue,
   isLogScaleMetric,
   parallelAxisValue,
@@ -317,7 +318,7 @@ function GroupedMetricBarChart({
           data: groups.map((g) => displayValue(g.mean)),
           itemStyle: { color },
         },
-        ...(showErrorBars && !logScale
+        ...(showErrorBars
           ? [
               {
                 type: "custom" as const,
@@ -329,9 +330,11 @@ function GroupedMetricBarChart({
                   }
                 ) => {
                   const g = groups[params.dataIndex];
-                  const x = api.coord([params.dataIndex, g.mean])[0];
-                  const yTop = api.coord([params.dataIndex, g.mean + g.std])[1];
-                  const yBot = api.coord([params.dataIndex, Math.max(0, g.mean - g.std)])[1];
+                  const metricKey = symlogMode ? "overflows" : "profit";
+                  const bounds = errorBarBounds(g.mean, g.std, metricKey, logScale, symlogMode);
+                  const x = api.coord([params.dataIndex, bounds.center])[0];
+                  const yTop = api.coord([params.dataIndex, bounds.high])[1];
+                  const yBot = api.coord([params.dataIndex, bounds.low])[1];
                   const cap = 5;
                   return {
                     type: "group",
@@ -1465,7 +1468,7 @@ function EfficiencyRankingChart({
             },
           })),
         },
-        ...(showErrorBars && !logScale
+        ...(showErrorBars
           ? [
               {
                 type: "custom" as const,
@@ -1478,9 +1481,10 @@ function EfficiencyRankingChart({
                 ) => {
                   const i = params.dataIndex;
                   const r = ranked[i];
-                  const y = api.coord([r.mean, i])[1];
-                  const xLeft = api.coord([Math.max(0, r.mean - r.std), i])[0];
-                  const xRight = api.coord([r.mean + r.std, i])[0];
+                  const bounds = errorBarBounds(r.mean, r.std, "kg/km", logScale);
+                  const y = api.coord([bounds.center, i])[1];
+                  const xLeft = api.coord([bounds.low, i])[0];
+                  const xRight = api.coord([bounds.high, i])[0];
                   const cap = 4;
                   return {
                     type: "group",
@@ -1749,7 +1753,7 @@ function MetricBarChart({
           };
         }),
       },
-      ...(showErrorBars && !logScale
+      ...(showErrorBars
         ? [
             {
               type: "custom" as const,
@@ -1762,9 +1766,11 @@ function MetricBarChart({
               ) => {
                 const i = params.dataIndex;
                 const v = values[i];
-                const x = api.coord([i, v.mean])[0];
-                const yTop = api.coord([i, v.mean + v.std])[1];
-                const yBot = api.coord([i, Math.max(0, v.mean - v.std)])[1];
+                const metricKey = symlogMode ? "overflows" : "profit";
+                const bounds = errorBarBounds(v.mean, v.std, metricKey, logScale, symlogMode);
+                const x = api.coord([i, bounds.center])[0];
+                const yTop = api.coord([i, bounds.high])[1];
+                const yBot = api.coord([i, bounds.low])[1];
                 const cap = 5;
                 return {
                   type: "group",

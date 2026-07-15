@@ -15,6 +15,7 @@ import {
   type PolicyMeta,
 } from "../../utils/simMetadata";
 import { barOpacity } from "../../utils/chartHighlight";
+import { errorBarBounds } from "../../utils/chartLogScale";
 import { exportChartPng } from "../../utils/chartExport";
 import type { DayLogEntry } from "../../types";
 
@@ -140,7 +141,7 @@ export function PortfolioEfficiencyRanking({
             },
           })),
         },
-        ...(showErrorBars && !logScale
+        ...(showErrorBars
           ? [
               {
                 type: "custom" as const,
@@ -153,9 +154,10 @@ export function PortfolioEfficiencyRanking({
                 ) => {
                   const i = params.dataIndex;
                   const r = ranked[i];
-                  const y = api.coord([r.mean, i])[1];
-                  const xLeft = api.coord([Math.max(0, r.mean - r.std), i])[0];
-                  const xRight = api.coord([r.mean + r.std, i])[0];
+                  const bounds = errorBarBounds(r.mean, r.std, "kg/km", logScale);
+                  const y = api.coord([bounds.center, i])[1];
+                  const xLeft = api.coord([bounds.low, i])[0];
+                  const xRight = api.coord([bounds.high, i])[0];
                   const cap = 4;
                   return {
                     type: "group",

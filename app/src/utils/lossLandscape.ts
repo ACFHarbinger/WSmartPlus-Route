@@ -9,7 +9,17 @@ export interface LossMinimaInfo {
   /** Finite-difference Hessian trace proxy — higher = sharper basin. */
   sharpness: number;
   label: "flat" | "moderate" | "sharp";
+  /** Empirical vs Gamma-3 generalization heuristic (§G.5.2). */
+  generalizationNote: string;
 }
+
+const GENERALIZATION_NOTES: Record<LossMinimaInfo["label"], string> = {
+  flat: "Flat basin — tends to generalize well across Empirical and Gamma-3 distribution shifts.",
+  moderate:
+    "Moderate curvature — may show mild distribution sensitivity; validate on held-out splits.",
+  sharp:
+    "Sharp basin — higher overfitting risk; compare Empirical vs Gamma-3 eval before deployment.",
+};
 
 /** Locate global minimum and estimate basin sharpness via Laplacian. */
 export function analyzeLossMinima(values: number[][]): LossMinimaInfo | null {
@@ -44,7 +54,14 @@ export function analyzeLossMinima(values: number[][]): LossMinimaInfo | null {
   if (sharpness > 0.5) label = "moderate";
   if (sharpness > 2.0) label = "sharp";
 
-  return { row: minR, col: minC, value: minVal, sharpness, label };
+  return {
+    row: minR,
+    col: minC,
+    value: minVal,
+    sharpness,
+    label,
+    generalizationNote: GENERALIZATION_NOTES[label],
+  };
 }
 
 /** Map loss value to RGB (deep blue → bright red). */

@@ -101,3 +101,31 @@ export function invertParallelAxisValue(
   if (isOverflowMetric(metricKey)) return symexp(value);
   return value;
 }
+
+/** Display-space mean ± std whisker endpoints for error bars (§G.1 / §G.7). */
+export function errorBarBounds(
+  mean: number,
+  std: number,
+  metricKey: string,
+  logScale: boolean,
+  symlogMode = false
+): { low: number; high: number; center: number } {
+  const rawLow = Math.max(0, mean - std);
+  const rawHigh = mean + std;
+  if (!logScale) {
+    return { low: rawLow, high: rawHigh, center: mean };
+  }
+  if (symlogMode || chartMetricUsesSymlog(metricKey, true)) {
+    return {
+      low: symlog(rawLow),
+      high: symlog(rawHigh),
+      center: symlog(mean),
+    };
+  }
+  const floor = 1e-8;
+  return {
+    low: Math.max(rawLow, floor),
+    high: Math.max(rawHigh, floor),
+    center: Math.max(mean, floor),
+  };
+}
