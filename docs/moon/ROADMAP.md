@@ -916,7 +916,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] BenchmarkAnalysis multi-run comparison bar charts follow global ``logScale`` (§G.1 / §G.7)
 - [x] AlgorithmComparison per-metric bar charts follow global ``logScale`` (§G.1 / §G.7)
 - [x] AlgorithmComparison symlog overflows on log-scale metric bars (§G.1.1 / §G.7)
-- [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export (§G.1 partial)
+- [x] Policy radar chart on Simulation Summary: normalised multi-metric overlay per policy with PNG export; log-normalised axes when global ``logScale`` on (Simulation Summary + Algorithm Comparison; §G.1 / §G.7)
 - [x] Error-bar whiskers on Simulation Summary bar charts: custom ECharts series showing mean ± std (linear scale; §G.1 partial)
 - [x] Hover tooltip: all config values + KPI values: `simMetadata.ts` + `policyTooltipFooter()` on bar/Pareto/heatmap/radar/parallel charts; `BenchmarkParetoPanel` adds `formatLogMeta` + `formatPolicyMeta` per run×policy point (§G.1.2)
 
@@ -1027,7 +1027,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] `InstancedMesh` voxel alternative: per-cell `boxGeometry` cubes with height ∝ loss; Loss tab "Surface mesh / InstancedMesh voxels" toggle (§G.5.2)
 - [x] Color gradient: low loss = deep blue, high loss = bright red (`lossToColor` vertex colours)
 - [x] Camera: orbit, zoom, perspective controls (`OrbitControls` + `Canvas`)
-- [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab side-by-side grid (§G.5.2)
+- [x] Overlay 2D ECharts contour map adjacent to the 3D canvas (CSS positioned): `MLIntrospectionPanel` Loss tab side-by-side grid; log-scale colour map when global ``logScale`` on with raw-loss tooltips (§G.5.2 / §G.7)
 - [x] Project exact-solver solutions (BPC optimum) as a marker on the landscape: `export_loss_landscape.py` bundles `bpc_theta1`/`bpc_theta2`/`bpc_loss`; `load_npz_vectors` + `resolveBpcMarker` + amber octahedron in `LossLandscape3D` + ECharts `markPoint` on contour (§G.5.2)
 - [x] Identify sharp vs flat minima; annotate with generalization notes (Gamma-3 vs Empirical): `analyzeLossMinima` Laplacian sharpness + cyan global-min sphere marker (§G.5.2 partial)
 
@@ -1110,7 +1110,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Bookmarkable city/scale brush: `useHashSync` serializes global ``brushedCity`` as ``c`` query param; restored on load and browser back/forward (§G.7)
-- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary (incl. per-day trajectory), Benchmark Analysis, Algorithm Comparison, City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker, Experiment Tracker (incl. ZenML step durations), Simulation Monitor daily KPI charts, Data Generation demand histogram, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
+- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary (incl. per-day trajectory + policy radar), Benchmark Analysis, Algorithm Comparison (radar + metric bars), City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker (incl. parallel coordinates objective axis), Experiment Tracker (ZenML step durations + ML loss contour), Simulation Monitor daily KPI charts, Data Generation demand histogram, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
 - [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
@@ -1344,7 +1344,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
   - Parallel coordinates plot (`echarts` `parallel` series) across hyperparameter dimensions
   - Optimization history scatter plot (trial number vs. objective value) with best-so-far line
   - Parameter importance bar chart (FANOVA via `optuna.importance.get_param_importances`)
-- [x] **HPO charts follow global ``logScale``**: optimisation history + cross-study best-so-far lines use log objective axis when on; ``GlobalFilterBar`` on HPO Tracker (§G.18 / §G.7)
+- [x] **HPO charts follow global ``logScale``**: optimisation history + cross-study best-so-far lines + parallel-coordinates objective axis use log objective when on; ``GlobalFilterBar`` on HPO Tracker (§G.18 / §G.7)
 - [x] **MLflow metric comparison follows global ``logScale``**: multi-run overlay chart log y-axis on loss/objective metrics when on; ``GlobalFilterBar`` on Experiment Tracker (§G.18 / §G.7)
 - [x] **Best-trial highlight**: best value KPI card; "Copy best params" button writes trial `params` as Hydra override lines to clipboard
 - [x] **Cross-study comparison**: "Compare with" study dropdown in HPOTracker; overlaid best-so-far optimisation history (ECharts); side-by-side best-value KPI cards for both studies

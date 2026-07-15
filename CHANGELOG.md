@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-sixth pass (§G.1 / §G.5 / §G.7 / §G.18)
+
+Eighty-sixth pass extends global log-scale to policy radar charts, HPO parallel
+coordinates, and ML loss contour heatmaps via shared ``radarAxisValue`` helper.
+
+**React frontend**
+- `chartLogScale.ts` — ``radarAxisValue()`` for radar / parallel-axis metric transforms
+- `SimulationSummary` — ``PolicyRadarChart`` log-normalised axes when global ``logScale`` on
+- `AlgorithmComparison` — radar chart log-normalised metric axes + subtitle
+- `HPOTracker` — parallel-coordinates objective axis log transform + subtitle
+- `MLIntrospectionPanel` — loss contour log colour map; raw-loss tooltips;
+  ``ExperimentTracker`` passes global toggle
+
+**ROADMAP**
+- §G.1 Policy radar log-normalised axes checked (partial marker removed)
+- §G.5.2 ML loss contour log-scale colour map checked
+- §G.7 Global log-scale propagation includes radar, HPO parallel, loss contour
+- §G.18 HPO parallel-coordinates objective log-scale checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-fifth pass (§G.1 / §G.7 / §G.11 / §G.16 / §G.18)
 
 Eighty-fifth pass extends global log-scale to Simulation Summary per-day

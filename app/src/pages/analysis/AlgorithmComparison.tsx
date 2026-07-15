@@ -15,6 +15,7 @@ import { useSimStore, filterEntries } from "../../store/sim";
 import { formatPipelineTimingBadge, runSimulationArrowPipeline } from "../../utils/arrowPipeline";
 import { barOpacity } from "../../utils/chartHighlight";
 import { exportChartPng } from "../../utils/chartExport";
+import { radarAxisValue } from "../../utils/chartLogScale";
 import { symlog } from "../../utils/symlog";
 
 const ALGORITHM_SIM_TABLE = "algorithm_sim";
@@ -75,8 +76,9 @@ export function AlgorithmComparison() {
       }
     }
 
+    const displayValue = (key: string, raw: number) => radarAxisValue(raw, key, logScale);
     const maxes = METRICS.map(({ key }) =>
-      Math.max(...policies.map((p) => metricMeans[p][key] ?? 0), 1)
+      Math.max(...policies.map((p) => displayValue(key, metricMeans[p][key] ?? 0)), 1)
     );
 
     return {
@@ -93,7 +95,7 @@ export function AlgorithmComparison() {
           type: "radar",
           data: policies.map((p, i) => ({
             name: p,
-            value: METRICS.map(({ key }) => metricMeans[p][key] ?? 0),
+            value: METRICS.map(({ key }) => displayValue(key, metricMeans[p][key] ?? 0)),
             lineStyle: {
               color: COLORS[i % COLORS.length],
               opacity: barOpacity(p, brushedPolicies),
@@ -104,7 +106,7 @@ export function AlgorithmComparison() {
       ],
       tooltip: {},
     };
-  }, [filtered, policies, brushedPolicies]);
+  }, [filtered, policies, brushedPolicies, logScale]);
 
   const openOnMap = useCallback(() => {
     setPendingMapCompare({
@@ -159,7 +161,9 @@ export function AlgorithmComparison() {
 
       <div className="card">
         <div className="flex items-center justify-between mb-3">
-          <p className="text-xs text-canvas-muted">Radar — normalised average metrics per policy</p>
+          <p className="text-xs text-canvas-muted">
+            Radar — {logScale ? "log-normalised" : "normalised"} average metrics per policy
+          </p>
           <button
             onClick={() => exportChartPng(radarRef, "algorithm-radar.png")}
             className="btn-ghost text-xs flex items-center gap-1"

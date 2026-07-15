@@ -135,7 +135,7 @@ function buildImportanceOption(importances: Record<string, number>) {
   };
 }
 
-function buildParallelOption(study: OptunaStudyData) {
+function buildParallelOption(study: OptunaStudyData, logScale = false) {
   const completed = study.trials.filter((t) => t.state === "COMPLETE" && t.value != null);
   if (completed.length === 0) return null;
 
@@ -143,13 +143,15 @@ function buildParallelOption(study: OptunaStudyData) {
     ...new Set(completed.flatMap((t) => Object.keys(t.params))),
   ].slice(0, 8);
 
+  const objectiveLabel = logScale ? "objective (log)" : "objective";
   const schema = [
-    { dim: 0, name: "objective", type: "value" },
+    { dim: 0, name: objectiveLabel, type: "value" },
     ...paramKeys.map((k, i) => ({ dim: i + 1, name: k, type: "value" as const })),
   ];
 
+  const displayObjective = (v: number) => (logScale ? Math.max(v, 1e-8) : v);
   const data = completed.map((t) => [
-    t.value as number,
+    displayObjective(t.value as number),
     ...paramKeys.map((k) => {
       const v = t.params[k];
       return typeof v === "number" ? v : 0;
@@ -270,8 +272,8 @@ export function HPOTracker() {
   }, [studyData, compareStudyData, logScale]);
 
   const parallelOption = useMemo(
-    () => (studyData ? buildParallelOption(studyData) : null),
-    [studyData]
+    () => (studyData ? buildParallelOption(studyData, logScale) : null),
+    [studyData, logScale]
   );
 
   const copyBestParams = useCallback(async () => {
@@ -493,6 +495,11 @@ export function HPOTracker() {
               <Download size={11} className="text-canvas-muted" />
             </button>
           </div>
+          <p className="text-[10px] text-canvas-muted mb-1">
+            {logScale
+              ? "Log-scale objective axis — hyperparameter polylines"
+              : "Linear objective — hyperparameter polylines"}
+          </p>
           <ReactECharts ref={parallelChartRef} option={parallelOption} style={{ height: 320 }} />
         </div>
       )}
