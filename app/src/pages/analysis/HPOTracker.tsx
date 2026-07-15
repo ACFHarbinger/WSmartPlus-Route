@@ -7,12 +7,18 @@ import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
-import { Copy, Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
+import { Copy, Download, ExternalLink, FolderOpen, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
+import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
+import { useProcessStore } from "../../store/process";
+import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
+import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
+import { findActiveHpoProcessId } from "../../utils/trainingProcess";
 import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary } from "../../types";
 
 const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";
@@ -179,8 +185,9 @@ function buildParallelOption(study: OptunaStudyData, logScale = false) {
 }
 
 export function HPOTracker() {
-  const { projectRoot, pythonPath } = useAppStore();
+  const { projectRoot, pythonPath, effectiveTheme, setMode } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
+  const processes = useProcessStore((s) => s.processes);
   const [storageUrl, setStorageUrl] = useState(DEFAULT_STORAGE);
   const [studies, setStudies] = useState<OptunaStudySummary[]>([]);
   const [selectedStudy, setSelectedStudy] = useState<string | null>(null);
@@ -194,6 +201,25 @@ export function HPOTracker() {
   const importanceChartRef = useRef<ReactECharts>(null);
   const crossStudyChartRef = useRef<ReactECharts>(null);
   const parallelChartRef = useRef<ReactECharts>(null);
+
+  const activeHpoId = useMemo(() => findActiveHpoProcessId(processes), [processes]);
+  const activeHpoProc = activeHpoId ? processes[activeHpoId] : null;
+
+  const liveHealthEntries = useMemo(
+    () =>
+      activeHpoProc
+        ? collectTrainingHealthFromLogLines(activeHpoProc.logLines)
+        : [],
+    [activeHpoProc]
+  );
+
+  const liveAttentionEntries = useMemo(
+    () =>
+      activeHpoProc
+        ? collectAttentionVizFromLogLines(activeHpoProc.logLines)
+        : [],
+    [activeHpoProc]
+  );
 
   const refreshStudies = useCallback(async () => {
     if (!projectRoot) return;
@@ -345,6 +371,30 @@ export function HPOTracker() {
   return (
     <div className="space-y-4">
       <GlobalFilterBar showLogScale />
+
+      {activeHpoId && activeHpoProc && (
+        <div className="card border-accent-success/30 space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
+            <p className="text-sm text-accent-success font-mono">Live HPO</p>
+            <span className="text-xs text-canvas-muted font-mono truncate flex-1">
+              {activeHpoId}
+            </span>
+            <button
+              onClick={() => setMode("process_monitor")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Process Monitor →
+            </button>
+          </div>
+          <TrainingHealthPanel entries={liveHealthEntries} />
+          <RuntimeAttentionPanel
+            entries={liveAttentionEntries}
+            theme={effectiveTheme}
+            logScale={logScale}
+          />
+        </div>
+      )}
 
       {/* Storage bar */}
       <div className="card space-y-3">

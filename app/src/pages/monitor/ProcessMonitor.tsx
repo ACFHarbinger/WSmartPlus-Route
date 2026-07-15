@@ -27,6 +27,7 @@ import {
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
+import { isTrainOrHpoProcess } from "../../utils/trainingProcess";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -288,11 +289,7 @@ function isTestSimProcess(command: string): boolean {
 }
 
 function isTrainProcess(command: string, id: string): boolean {
-  return (
-    id.startsWith("train_") ||
-    id.startsWith("hpo_") ||
-    /\bmain\.py\s+(train|hpo)\b/.test(command)
-  );
+  return isTrainOrHpoProcess(id, command);
 }
 
 export function ProcessMonitor() {

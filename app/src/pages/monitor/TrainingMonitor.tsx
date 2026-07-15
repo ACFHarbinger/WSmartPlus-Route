@@ -27,6 +27,10 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { parseAttentionVizLine } from "../../utils/attentionViz";
 import { parseTrainingHealthLine } from "../../utils/trainingHealth";
+import {
+  findActiveLiveTrainProcessId,
+  liveTrainProcessLabel,
+} from "../../utils/trainingProcess";
 import type {
   AttentionVizEntry,
   DirEntry,
@@ -489,15 +493,15 @@ export function TrainingMonitor() {
 
   const logsPath = projectRoot ? `${projectRoot}/logs` : "";
 
-  // ── Live training mode: watch for an active train_* process
+  // ── Live training mode: watch for an active train_* or hpo_* process
   const processes = useProcessStore((s) => s.processes);
   const activeTrainId = useMemo(
-    () =>
-      Object.keys(processes).find(
-        (id) => id.startsWith("train_") && processes[id].status === "running"
-      ) ?? null,
+    () => findActiveLiveTrainProcessId(processes),
     [processes]
   );
+  const liveProcessLabel = activeTrainId
+    ? liveTrainProcessLabel(activeTrainId)
+    : "Live Training";
 
   // Subscribe to stdout of the active training process and accumulate live rows
   useEffect(() => {
@@ -661,14 +665,14 @@ export function TrainingMonitor() {
     const result: { name: string; metrics: TrainingMetricsRow[] }[] = [];
     // Live entry first
     if (selected.includes(LIVE_KEY) && (metricsMap[LIVE_KEY]?.length ?? 0) > 0) {
-      result.push({ name: "Live Training", metrics: metricsMap[LIVE_KEY] });
+      result.push({ name: liveProcessLabel, metrics: metricsMap[LIVE_KEY] });
     }
     for (const r of selectedRunObjects) {
       const metrics = metricsMap[r.name] ?? [];
       if (metrics.length > 0) result.push({ name: r.name, metrics });
     }
     return result;
-  }, [selected, selectedRunObjects, metricsMap]);
+  }, [selected, selectedRunObjects, metricsMap, liveProcessLabel]);
 
   const handleLoadCheckpoint = useCallback(
     (checkpointPath: string) => {
@@ -726,7 +730,7 @@ export function TrainingMonitor() {
               className="accent-accent-primary"
             />
             <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
-            <span className="text-sm text-accent-success font-mono flex-1">Live Training</span>
+            <span className="text-sm text-accent-success font-mono flex-1">{liveProcessLabel}</span>
             <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{activeTrainId}</span>
             <span className="text-xs text-accent-success">
               {metricsMap[LIVE_KEY]?.length ?? 0} updates
@@ -796,7 +800,7 @@ export function TrainingMonitor() {
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <span className="w-2.5 h-2.5 rounded-full shrink-0 bg-accent-success animate-pulse" />
-            <p className="text-xs font-mono text-accent-success">Live Training</p>
+            <p className="text-xs font-mono text-accent-success">{liveProcessLabel}</p>
             <span className="text-xs text-canvas-muted">{metricsMap[LIVE_KEY].length} updates</span>
           </div>
           <GradNormSparkline metrics={metricsMap[LIVE_KEY]} logScale={logScale} />
