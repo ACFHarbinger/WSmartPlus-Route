@@ -25,6 +25,7 @@ import { GradNormSparkline, LrSparkline } from "../../components/monitor/Trainin
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
+import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
@@ -397,6 +398,7 @@ export function TrainingMonitor() {
     [recentTrainProc]
   );
   const recentTrainLogLines = recentTrainProc?.logLines ?? [];
+  const processRunLabel = useProcessRunLabelBrush(recentTrainId, recentTrainLogLines);
   const liveRunLabel = useMemo(() => {
     if (activeTrainId) {
       return trainHpoLivePanelTitle({
@@ -695,7 +697,10 @@ export function TrainingMonitor() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar showLogScale />
+      <GlobalFilterBar
+        showLogScale
+        runLabels={processRunLabel ? [processRunLabel] : []}
+      />
 
       {/* Controls */}
       <div className="flex items-center gap-3">
@@ -733,6 +738,8 @@ export function TrainingMonitor() {
               processId: recentTrainId,
               command: recentTrainProc.command,
             }),
+            runLabel: processRunLabel,
+            showLiveSuffix: activeTrainRunning,
             metricCount: effectiveLiveMetrics.length,
             healthCount: effectiveLiveHealth.length,
             attentionCount: effectiveLiveAttention.length,

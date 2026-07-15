@@ -40,6 +40,7 @@ import {
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
+import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import {
   findRecentHpoProcessId,
@@ -320,6 +321,7 @@ export function TrainingHub() {
   }
 
   const liveLogLines = displayProc?.logLines ?? [];
+  const liveRunLabel = useProcessRunLabelBrush(displayProcessId, liveLogLines);
   const liveMetrics = useMemo(
     () => collectTrainingMetricsFromLogLines(liveLogLines),
     [liveLogLines]
@@ -550,11 +552,19 @@ export function TrainingHub() {
       </div>
 
       {/* Live progress panel */}
+      {displayProcessId && (
+        <GlobalFilterBar
+          showLogScale
+          runLabels={liveRunLabel ? [liveRunLabel] : []}
+        />
+      )}
+
       {displayProcessId && mode === "eval" && displayProc && (
         <LauncherLivePanel
           header={{
             status: isDone ? runStatus ?? "running" : "running",
             title: evalLiveTitle,
+            runLabel: liveRunLabel,
             navMesh: {
               kind: "eval",
               hideSelf: true,
@@ -592,6 +602,8 @@ export function TrainingHub() {
           header={{
             status: isDone ? runStatus : "running",
             title: trainHpoLiveTitle,
+            runLabel: liveRunLabel,
+            showLiveSuffix: !isDone,
             metricCount: liveMetrics.length,
             healthCount: liveHealth.length,
             attentionCount: liveAttention.length,

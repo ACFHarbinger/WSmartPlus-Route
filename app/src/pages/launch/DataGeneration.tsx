@@ -26,6 +26,7 @@ import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useDataGenStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { dataGenLivePanelTitle, findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import type { DatasetPreviewStats } from "../../types";
@@ -228,6 +229,7 @@ export function DataGeneration() {
   }, [dataGenNonce, launch]);
 
   const liveLogLines = displayProc?.logLines ?? [];
+  const liveRunLabel = useProcessRunLabelBrush(displayProcessId, liveLogLines);
   const outputRunPath = useMemo(
     () => outputRunPathFromLogLines(liveLogLines),
     [liveLogLines]
@@ -235,7 +237,10 @@ export function DataGeneration() {
 
   return (
     <div className="space-y-4 max-w-2xl">
-      <GlobalFilterBar showLogScale />
+      <GlobalFilterBar
+        showLogScale
+        runLabels={liveRunLabel ? [liveRunLabel] : []}
+      />
 
       {/* Data source */}
       <div className="card space-y-3">
@@ -539,6 +544,7 @@ export function DataGeneration() {
                 isRunning: !isDone,
                 status: runStatus ?? undefined,
               }),
+              runLabel: liveRunLabel,
               navMesh: {
                 kind: "data_gen",
                 hideSelf: true,

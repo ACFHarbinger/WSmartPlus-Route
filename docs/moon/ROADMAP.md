@@ -1018,6 +1018,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — eval + data-gen + train/HPO embedded sections pass ``runLabel`` + live suffix; process row ring highlight + global ``run_label`` brush sync for all workflow kinds (§G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 - [x] §G.15 Process Monitor embedded run-label + live suffix parity across sim, data-gen, eval, and train/HPO workflow sections (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-second pass)**
+
+- [x] ``useProcessRunLabelBrush`` — shared hook deriving ``run_label`` from process stdout and syncing global brush (§G.9–§G.18 / §D.7)
+- [x] ``LauncherLivePanelHeader`` — ``runLabel`` + ``showLiveSuffix`` on card variant headers (§G.9 / §G.11 / §G.12 / §G.10 / §D.7)
+- [x] ``TrainHpoLivePanelHeader`` — ``runLabel`` + ``showLiveSuffix`` on split and inline card layouts (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- [x] Simulation Launcher + Data Generation + Evaluation Runner + Training Hub — card live panel headers pass ``runLabel``; ``GlobalFilterBar`` ``runLabels`` when process active (§G.9 / §G.10 / §G.11 / §G.12 / §D.7)
+- [x] Training Monitor + HPO Tracker + Experiment Tracker — ``TrainHpoLivePanel`` card headers pass ``runLabel`` + ``showLiveSuffix``; ``GlobalFilterBar`` ``runLabels`` sync (§G.15 / §G.17 / §G.18 / §D.7)
+- [x] §G.9 / §G.10 / §G.11 / §G.12 / §G.15 / §G.17 / §G.18 launcher + monitor workflow card header run-label + live suffix parity across all eight pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1697,6 +1706,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessIdFooter`` shared process-id footer row on Simulation Launcher live panel (hundred-fifty-eighth pass; §G.9 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on Simulation Launcher live panel via ``LauncherLivePanel`` (hundred-sixty-fourth pass; §G.9 / §D.7)
 - [x] ``simLivePanelTitle`` shared sim live panel title helper; Simulation Launcher imports shared title (hundred-sixty-ninth pass; §G.9 / §D.7)
+- [x] Simulation Launcher card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.9 / §D.7)
 
 ---
 
@@ -1735,6 +1745,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Training Hub eval mode — single-checkpoint progress bar via ``EvalCheckpointLiveCard`` only; ``LauncherNavMesh`` ``Training Hub →`` + ``hideHub`` parity (hundred-sixty-seventh pass; §G.10 / §G.12 / §D.7)
 - [x] ``evalLivePanelTitle`` shared eval live panel title helper; Training Hub eval mode imports shared title (hundred-sixty-eighth pass; §G.10 / §D.7)
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Hub train/HPO modes import shared title (hundred-seventieth pass; §G.10 / §D.7)
+- [x] Training Hub card live panel headers pass ``runLabel`` + · live suffix for eval and train/HPO modes (hundred-seventy-second pass; §G.10 / §D.7)
 
 ---
 
@@ -1761,6 +1772,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessIdFooter`` ``footer`` process-id row on Data Generation live panel (hundred-fifty-eighth pass; §G.11 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on Data Generation live panel via ``LauncherLivePanel`` (hundred-sixty-fourth pass; §G.11 / §D.7)
 - [x] ``dataGenLivePanelTitle`` shared data-gen live panel title helper; Data Generation imports shared title (hundred-sixty-ninth pass; §G.11 / §D.7)
+- [x] Data Generation card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.11 / §D.7)
 
 ---
 
@@ -1794,6 +1806,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``EvalCheckpointLiveCard`` ``showLogTail={false}`` + ``LauncherLivePanel`` shell ``logLines`` for single-checkpoint eval (hundred-sixty-fifth pass; §G.12 / §D.7)
 - [x] ``LauncherNavMesh`` ``Training Hub →`` shortcut on eval workflows (hundred-sixty-seventh pass; §G.12 / §D.7)
 - [x] ``evalLivePanelTitle`` shared eval live panel title; Evaluation Runner imports shared title (hundred-sixty-eighth pass; §G.12 / §D.7)
+- [x] Evaluation Runner card live panel header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.12 / §D.7)
 
 ---
 
@@ -1951,6 +1964,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell with ``overlaySelect`` + ``showHealthAttention={false}`` options (hundred-fifty-sixth pass; §G.17 / §A.2 / §A.4 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on live/recent train panel via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.17 / §D.7)
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; Training Monitor imports shared title (hundred-seventieth pass; §G.17 / §D.7)
+- [x] Training Monitor ``TrainHpoLivePanel`` card header passes ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.17 / §D.7)
 
 ---
 
@@ -1989,6 +2003,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] ``TrainHpoLivePanel`` shared live/post-run panel shell on HPO Tracker + Experiment Tracker (hundred-fifty-sixth pass; §G.18 / §G.17 / §D.7)
 - [x] ``ProcessLogTail`` shared stdout tail display on HPO Tracker + Experiment Tracker live panels via ``TrainHpoLivePanel`` (hundred-sixty-third pass; §G.18 / §D.7)
 - [x] ``trainHpoLivePanelTitle`` shared train/HPO live panel title helper; HPO Tracker + Experiment Tracker import shared title (hundred-seventieth pass; §G.18 / §D.7)
+- [x] HPO Tracker + Experiment Tracker ``TrainHpoLivePanel`` card headers pass ``runLabel`` + · live suffix via ``useProcessRunLabelBrush`` (hundred-seventy-second pass; §G.18 / §D.7)
 
 ---
 

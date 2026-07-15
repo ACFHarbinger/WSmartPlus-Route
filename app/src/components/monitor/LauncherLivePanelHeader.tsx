@@ -63,9 +63,17 @@ export function LauncherLivePanelHeader({
 
   return (
     <div className={`flex items-center justify-between gap-2 flex-wrap ${className}`}>
-      <div className="flex items-center gap-2 min-w-0">
+      <div className="flex items-center gap-2 min-w-0 flex-wrap">
         <StatusIcon status={status} size={14} />
-        <h2 className="text-sm font-semibold text-gray-200">{title}</h2>
+        <h2 className="text-sm font-semibold text-gray-200">
+          {title}
+          {runLabel && (
+            <span className="ml-2 text-xs font-normal text-accent-secondary">· {runLabel}</span>
+          )}
+          {showLiveSuffix && status === "running" && (
+            <span className="ml-2 text-xs font-normal text-accent-success">· live</span>
+          )}
+        </h2>
       </div>
       <div className="flex items-center gap-2 flex-wrap justify-end">
         {navTrailing}
