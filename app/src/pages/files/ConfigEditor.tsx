@@ -10,7 +10,7 @@
  * "Copy overrides" serialises only the changed keys as Hydra override strings
  * for pasting into the Simulation Launcher or Training Hub.
  */
-import { lazy, Suspense, useCallback, useRef, useState } from "react";
+import { lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
@@ -193,6 +193,17 @@ export function ConfigEditor() {
   }, [content]);
 
   const isDirty = content !== savedContentRef.current && filePath !== null;
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      if ((e.ctrlKey || e.metaKey) && e.key === "s") {
+        e.preventDefault();
+        if (isDirty) void saveFile();
+      }
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isDirty, saveFile]);
 
   const rows = parseYamlFlat(content);
   const diffRows = parseYamlFlat(diffContent);

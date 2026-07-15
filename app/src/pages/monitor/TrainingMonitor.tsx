@@ -18,8 +18,10 @@ import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, Download, FolderOpen, Radio, RefreshCw } from "lucide-react";
+import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { exportChartPng } from "../../utils/chartExport";
 import { useAppStore } from "../../store/app";
+import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import type { DirEntry, StdoutLine, TrainingRun, TrainingMetricsRow } from "../../types";
 
@@ -103,8 +105,10 @@ function formatBytes(n: number): string {
 // ── Multi-run overlay chart (train_loss + reward per run on shared axes)
 function MultiRunChart({
   runsMetrics,
+  logScale,
 }: {
   runsMetrics: { name: string; metrics: TrainingMetricsRow[] }[];
+  logScale: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   if (runsMetrics.length === 0) return null;
@@ -115,8 +119,10 @@ function MultiRunChart({
   runsMetrics.forEach(({ name, metrics }, i) => {
     const color = RUN_COLORS[i % RUN_COLORS.length];
     const epochs = metrics.map((r) => r.epoch ?? r.step ?? 0);
-    const trainLoss = metrics.map((r, j) => [epochs[j], r.train_loss ?? null]);
-    const valLoss = metrics.map((r, j) => [epochs[j], r.val_loss ?? null]);
+    const scaleY = (y: number | null | undefined) =>
+      y == null ? null : logScale ? Math.max(y, 1e-8) : y;
+    const trainLoss = metrics.map((r, j) => [epochs[j], scaleY(r.train_loss)]);
+    const valLoss = metrics.map((r, j) => [epochs[j], scaleY(r.val_loss)]);
     const reward = metrics.map((r, j) => [epochs[j], r.reward ?? null]);
 
     const hasReward = metrics.some((r) => r.reward != null);
@@ -166,7 +172,9 @@ function MultiRunChart({
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs text-canvas-muted">Multi-run overlay</p>
+        <p className="text-xs text-canvas-muted">
+          {logScale ? "Multi-run overlay (log-scale loss)" : "Multi-run overlay"}
+        </p>
         <button
           onClick={() => exportChartPng({ current: chartRef.current }, "training-overlay.png")}
           className="btn-ghost text-xs flex items-center gap-1"
@@ -193,10 +201,12 @@ function MultiRunChart({
           },
           yAxis: [
             {
-              type: "value",
-              name: "Loss",
+              type: (logScale ? "log" : "value") as "log" | "value",
+              logBase: 10,
+              name: logScale ? "Loss (log)" : "Loss",
               nameTextStyle: { color: "#9090b0" },
               axisLabel: { color: "#9090b0", fontSize: 10 },
+              minorSplitLine: { show: false },
             },
             {
               type: "value",
@@ -221,11 +231,13 @@ function MetricSparkline({
   data,
   color,
   exportName,
+  logScale = false,
 }: {
   label: string;
   data: [number, number][];
   color: string;
   exportName?: string;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   if (data.length === 0) return null;
@@ -249,10 +261,15 @@ function MetricSparkline({
           backgroundColor: "transparent",
           grid: { left: 40, right: 10, top: 8, bottom: 28 },
           xAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
-          yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
+          yAxis: {
+            type: (logScale ? "log" : "value") as "log" | "value",
+            logBase: 10,
+            axisLabel: { color: "#9090b0", fontSize: 9 },
+            minorSplitLine: { show: false },
+          },
           series: [{
             type: "line",
-            data,
+            data: logScale ? data.map(([x, y]) => [x, Math.max(y, 1e-8)]) : data,
             smooth: false,
             lineStyle: { color, width: 1.5 },
             areaStyle: { color: `${color}1a` },
@@ -266,18 +283,46 @@ function MetricSparkline({
   );
 }
 
-function GradNormSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
+function GradNormSparkline({
+  metrics,
+  logScale = false,
+}: {
+  metrics: TrainingMetricsRow[];
+  logScale?: boolean;
+}) {
   const data = metrics
     .filter((r) => r.grad_norm != null)
     .map((r): [number, number] => [r.epoch ?? r.step ?? 0, r.grad_norm!]);
-  return <MetricSparkline label="Gradient Norm" data={data} color="#f87171" exportName="training-grad-norm" />;
+  return (
+    <MetricSparkline
+      label={logScale ? "Gradient Norm (log)" : "Gradient Norm"}
+      data={data}
+      color="#f87171"
+      exportName="training-grad-norm"
+      logScale={logScale}
+    />
+  );
 }
 
-function LrSparkline({ metrics }: { metrics: TrainingMetricsRow[] }) {
+function LrSparkline({
+  metrics,
+  logScale = false,
+}: {
+  metrics: TrainingMetricsRow[];
+  logScale?: boolean;
+}) {
   const data = metrics
     .filter((r) => r.lr != null)
     .map((r): [number, number] => [r.step ?? r.epoch ?? 0, r.lr!]);
-  return <MetricSparkline label="Learning Rate" data={data} color="#fbbf24" exportName="training-lr" />;
+  return (
+    <MetricSparkline
+      label={logScale ? "Learning Rate (log)" : "Learning Rate"}
+      data={data}
+      color="#fbbf24"
+      exportName="training-lr"
+      logScale={logScale}
+    />
+  );
 }
 
 // ── Hyperparameter panel (reads hparams.yaml, renders flat key-value table)
@@ -400,11 +445,13 @@ function RunPanel({
   metrics,
   color,
   onLoadCheckpoint,
+  logScale = false,
 }: {
   run: TrainingRun;
   metrics: TrainingMetricsRow[];
   color: string;
   onLoadCheckpoint: (path: string) => void;
+  logScale?: boolean;
 }) {
   return (
     <div className="space-y-3">
@@ -413,8 +460,8 @@ function RunPanel({
         <p className="text-xs font-mono text-gray-300">{run.name}</p>
         <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
       </div>
-      <GradNormSparkline metrics={metrics} />
-      <LrSparkline metrics={metrics} />
+      <GradNormSparkline metrics={metrics} logScale={logScale} />
+      <LrSparkline metrics={metrics} logScale={logScale} />
       {run.has_hparams && <HparamsPanel runPath={run.path} />}
       <CheckpointBrowser runPath={run.path} onLoadInEvalRunner={onLoadCheckpoint} />
     </div>
@@ -424,6 +471,7 @@ function RunPanel({
 // ── Main page
 export function TrainingMonitor() {
   const { projectRoot, setMode, setPendingCheckpoint } = useAppStore();
+  const logScale = useGlobalFiltersStore((s) => s.logScale);
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, TrainingMetricsRow[]>>({});
@@ -545,6 +593,8 @@ export function TrainingMonitor() {
 
   return (
     <div className="space-y-4">
+      <GlobalFilterBar showLogScale />
+
       {/* Controls */}
       <div className="flex items-center gap-3">
         <button
@@ -629,7 +679,7 @@ export function TrainingMonitor() {
       )}
 
       {/* Multi-run overlay chart */}
-      {runsMetrics.length > 0 && <MultiRunChart runsMetrics={runsMetrics} />}
+      {runsMetrics.length > 0 && <MultiRunChart runsMetrics={runsMetrics} logScale={logScale} />}
 
       {/* Live run detail panel */}
       {selected.includes(LIVE_KEY) && (metricsMap[LIVE_KEY]?.length ?? 0) > 0 && (
@@ -639,8 +689,8 @@ export function TrainingMonitor() {
             <p className="text-xs font-mono text-accent-success">Live Training</p>
             <span className="text-xs text-canvas-muted">{metricsMap[LIVE_KEY].length} updates</span>
           </div>
-          <GradNormSparkline metrics={metricsMap[LIVE_KEY]} />
-          <LrSparkline metrics={metricsMap[LIVE_KEY]} />
+          <GradNormSparkline metrics={metricsMap[LIVE_KEY]} logScale={logScale} />
+          <LrSparkline metrics={metricsMap[LIVE_KEY]} logScale={logScale} />
         </div>
       )}
 
@@ -662,6 +712,7 @@ export function TrainingMonitor() {
             metrics={metrics}
             color={RUN_COLORS[(i + liveOffset) % RUN_COLORS.length]}
             onLoadCheckpoint={handleLoadCheckpoint}
+            logScale={logScale}
           />
         );
       })}

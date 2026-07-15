@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-third pass (§G.7 / §G.10 / §G.17 / §G.18 / §D.7)
+
+Eighty-third pass extends global log-scale to training and HPO charts and adds
+``Ctrl+S`` save in the Config Editor.
+
+**React frontend**
+- `TrainingMonitor` — ``MultiRunChart`` log loss axis; grad-norm/LR sparklines log
+  y-axis when global ``logScale`` on; ``GlobalFilterBar`` above run list
+- `TrainingHub` — ``LiveChart`` + ``MiniSparkline`` follow global ``logScale``;
+  ``GlobalFilterBar`` in live progress panel; linear vs log subtitle
+- `HPOTracker` — optimisation history scatter + best-so-far + cross-study overlay
+  use log objective axis when ``logScale`` on; ``GlobalFilterBar`` + subtitle
+- `BenchmarkAnalysis` — eval checkpoint panel subtitle reflects linear vs log mode
+- `ConfigEditor` — ``Ctrl+S`` / ``Cmd+S`` saves when dirty; documented in shortcuts help
+
+**ROADMAP**
+- §G.7 Global log-scale propagation includes Training Monitor, Training Hub, HPO Tracker
+- §G.10 / §G.17 / §G.18 training + HPO log-scale items checked
+- §G.13 ``Ctrl+S`` config save checked; §D.7 keyboard shortcuts marked complete
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-second pass (§G.7 / §G.12)
 
 Eighty-second pass extends global log-scale to Evaluation Runner inline checkpoint
