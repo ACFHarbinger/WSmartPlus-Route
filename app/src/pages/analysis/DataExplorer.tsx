@@ -16,7 +16,7 @@ import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
 import {
   formatPipelineTimingBadge,
@@ -24,7 +24,6 @@ import {
   runCsvArrowPipeline,
 } from "../../utils/arrowPipeline";
 import { groupRunLabelsByCity, resolveBrushedRunLabels } from "../../utils/cityComparison";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 import { useDuckDbStore } from "../../store/duckdb";
 
 interface CsvRow {
@@ -46,7 +45,8 @@ function distinctColumnValues(rows: CsvRow[], col: string): string[] {
 }
 
 export function DataExplorer() {
-  const { projectRoot, pendingCsvPath, setPendingCsvPath, effectiveTheme: theme } = useAppStore();
+  const { pendingCsvPath, setPendingCsvPath, effectiveTheme: theme } = useAppStore();
+  const { projectRoot, handoff } = useRecentHandoff();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -56,7 +56,6 @@ export function DataExplorer() {
     setRunLabel,
     setBrushedCity,
   } = useGlobalFiltersStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const { ready: duckdbReady, lastPipeline, setLastPipeline, setLoading, loading } =
     useDuckDbStore();
   const [file, setFile] = useState<CsvFile | null>(null);
@@ -75,7 +74,7 @@ export function DataExplorer() {
       setSortCol(null);
       setSortDir("asc");
       setFilterText("");
-      pushRecent(makeRecentEntry(path, "csv", projectRoot));
+      handoff(path, "csv", { navigate: false });
 
       if (duckdbReady) {
         setLoading(true);
@@ -89,7 +88,7 @@ export function DataExplorer() {
         }
       }
     },
-    [pushRecent, duckdbReady, projectRoot, setLastPipeline, setLoading]
+    [handoff, duckdbReady, projectRoot, setLastPipeline, setLoading]
   );
 
   const openCsv = useCallback(async () => {

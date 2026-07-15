@@ -13,7 +13,7 @@ import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
@@ -38,8 +38,6 @@ import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTele
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import type { DayLogEntry } from "../../types";
-import { makeRecentEntry } from "../../utils/recentHandoff";
-
 const CITY_SIM_TABLE = "city_sim";
 
 interface RunFile extends CityRunSlice {}
@@ -49,8 +47,8 @@ function mean(arr: number[]) {
 }
 
 export function CityComparison() {
-  const { projectRoot, effectiveTheme: theme } = useAppStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+  const { effectiveTheme: theme } = useAppStore();
+  const { projectRoot, handoff } = useRecentHandoff();
   const { policy: filterPolicy, sampleId: filterSample, logScale } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (filterPolicy ? [filterPolicy] : null), [filterPolicy]);
   const {
@@ -111,12 +109,12 @@ export function CityComparison() {
     try {
       const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
       const label = portfolioRunLabel(path, undefined, projectRoot);
-      pushRecent(makeRecentEntry(path, "log", projectRoot, label));
+      handoff(path, "log", { storedLabel: label, navigate: false });
       setRuns((prev) => [...prev.filter((r) => r.path !== path), { path, label, entries }]);
     } catch (err) {
       toast.error("Failed to load log", { description: String(err) });
     }
-  }, [projectRoot, pushRecent]);
+  }, [projectRoot, handoff]);
 
   const loadOutputPortfolio = useCallback(async () => {
     if (!projectRoot) return;
@@ -142,7 +140,7 @@ export function CityComparison() {
         entries: r.entries,
       }));
       for (const r of normalized) {
-        pushRecent(makeRecentEntry(r.path, "log", projectRoot, r.label));
+        handoff(r.path, "log", { storedLabel: r.label, navigate: false });
       }
       setRuns(normalized);
       toast.success(`Loaded ${loaded.length} simulation logs`);
@@ -151,7 +149,7 @@ export function CityComparison() {
     } finally {
       setPortfolioLoading(false);
     }
-  }, [projectRoot, pushRecent]);
+  }, [projectRoot, handoff]);
 
   const { pendingBenchmarkLogs, setPendingBenchmarkLogs } = useAppStore();
 
@@ -172,7 +170,7 @@ export function CityComparison() {
         try {
           const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
           const label = portfolioRunLabel(ref.path, ref.label, projectRoot);
-          pushRecent(makeRecentEntry(ref.path, "log", projectRoot, label));
+          handoff(ref.path, "log", { storedLabel: label, navigate: false });
           loaded.push({
             path: ref.path,
             label,
@@ -185,7 +183,7 @@ export function CityComparison() {
       if (loaded.length) setRuns(loaded);
       setPendingBenchmarkLogs(null);
     })();
-  }, [pendingBenchmarkLogs, projectRoot, pushRecent, setPendingBenchmarkLogs]);
+  }, [pendingBenchmarkLogs, projectRoot, handoff, setPendingBenchmarkLogs]);
 
   const onChartClick = useCallback(
     (params: { name?: string }) => {

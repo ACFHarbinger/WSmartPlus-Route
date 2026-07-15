@@ -49,7 +49,7 @@ import {
 } from "../../utils/outputRunPath";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import { makeRecentEntry } from "../../utils/recentHandoff";
+
 import {
   findActiveLiveTrainProcessId,
   findRecentTrainOrHpoProcessId,
@@ -376,7 +376,7 @@ export function TrainingMonitor() {
     pendingTrainingRunPath,
     setPendingTrainingRunPath,
   } = useAppStore();
-  const { projectRoot, pushRecent, handoff } = useRecentHandoff();
+  const { projectRoot, handoff } = useRecentHandoff();
   const { logScale, runLabel: activeRunLabel } = useGlobalFiltersStore();
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
@@ -601,7 +601,7 @@ export function TrainingMonitor() {
     if (!pendingTrainingRunPath) return;
     const run = runs.find((r) => r.path === pendingTrainingRunPath);
     if (run) {
-      pushRecent(makeRecentEntry(run.path, "training", projectRoot, run.name));
+      handoff(run.path, "training", { storedLabel: run.name, navigate: false });
       setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
       void loadMetrics(run);
       void loadHealth(run);
@@ -622,15 +622,14 @@ export function TrainingMonitor() {
     loadHealth,
     loadAttention,
     setPendingTrainingRunPath,
-    pushRecent,
-    projectRoot,
+    handoff,
   ]);
 
   useEffect(() => {
     if (!recentTrainCompleted || !recentTrainingRunPath) return;
     const run = runs.find((r) => r.path === recentTrainingRunPath);
     if (run) {
-      pushRecent(makeRecentEntry(run.path, "training", projectRoot, run.name));
+      handoff(run.path, "training", { storedLabel: run.name, navigate: false });
       setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
       void loadMetrics(run);
       void loadHealth(run);
@@ -650,8 +649,7 @@ export function TrainingMonitor() {
     loadMetrics,
     loadHealth,
     loadAttention,
-    pushRecent,
-    projectRoot,
+    handoff,
   ]);
 
   const toggleRun = useCallback(
@@ -661,13 +659,13 @@ export function TrainingMonitor() {
         return [...s, run.name];
       });
       if (!selected.includes(run.name)) {
-        pushRecent(makeRecentEntry(run.path, "training", projectRoot, run.name));
+        handoff(run.path, "training", { storedLabel: run.name, navigate: false });
       }
       loadMetrics(run);
       loadHealth(run);
       loadAttention(run);
     },
-    [selected, pushRecent, projectRoot, loadMetrics, loadHealth, loadAttention]
+    [selected, handoff, loadMetrics, loadHealth, loadAttention]
   );
 
   const selectedRunObjects = useMemo(

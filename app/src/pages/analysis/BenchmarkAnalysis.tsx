@@ -14,7 +14,7 @@ import { FolderOpen, X, Download } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
@@ -49,7 +49,6 @@ import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";
@@ -224,10 +223,9 @@ export function BenchmarkAnalysis() {
   const {
     pendingEvalResults, setPendingEvalResults,
     pendingBenchmarkLogs, setPendingBenchmarkLogs,
-    projectRoot,
     effectiveTheme: theme,
   } = useAppStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+  const { projectRoot, handoff } = useRecentHandoff();
   const {
     ready: duckdbReady,
     loading: duckdbLoading,
@@ -292,7 +290,7 @@ export function BenchmarkAnalysis() {
       for (const ref of pendingBenchmarkLogs) {
         const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
         const label = portfolioRunLabel(ref.path, ref.label, projectRoot);
-        pushRecent(makeRecentEntry(ref.path, "log", projectRoot, label));
+        handoff(ref.path, "log", { storedLabel: label, navigate: false });
         loaded.push({
           path: ref.path,
           label,
@@ -303,7 +301,7 @@ export function BenchmarkAnalysis() {
       setPendingBenchmarkLogs(null);
     };
     load().catch(console.error);
-  }, [pendingBenchmarkLogs, projectRoot, pushRecent, setPendingBenchmarkLogs]);
+  }, [pendingBenchmarkLogs, projectRoot, handoff, setPendingBenchmarkLogs]);
 
   const addRun = useCallback(async () => {
     const path = (await open({
@@ -312,9 +310,9 @@ export function BenchmarkAnalysis() {
     if (!path) return;
     const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     const label = portfolioRunLabel(path, undefined, projectRoot);
-    pushRecent(makeRecentEntry(path, "log", projectRoot, label));
+    handoff(path, "log", { storedLabel: label, navigate: false });
     setRuns((r) => [...r, { path, label, entries }]);
-  }, [projectRoot, pushRecent]);
+  }, [projectRoot, handoff]);
 
   const removeRun = (path: string) => setRuns((r) => r.filter((x) => x.path !== path));
 
@@ -345,7 +343,7 @@ export function BenchmarkAnalysis() {
         label: portfolioRunLabel(r.path, r.label, projectRoot),
       }));
       for (const r of normalized) {
-        pushRecent(makeRecentEntry(r.path, "log", projectRoot, r.label));
+        handoff(r.path, "log", { storedLabel: r.label, navigate: false });
       }
       setRuns(normalized);
       toast.success(`Loaded ${loaded.length} simulation log(s) from output portfolio`, {
@@ -356,7 +354,7 @@ export function BenchmarkAnalysis() {
     } finally {
       setPortfolioLoading(false);
     }
-  }, [projectRoot, pushRecent]);
+  }, [projectRoot, handoff]);
 
   const exportComparisonCsv = useCallback(() => {
     const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];

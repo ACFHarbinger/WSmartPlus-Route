@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirteenth pass (§G.1 + §G.6 + §G.7 + §G.9–§G.17 + §D.7)
+
+Two-hundred-and-thirteenth pass closes the post-run Simulation Monitor (Digital Twin)
+log-handoff gap left after pass 212 wired Summary navigation only. ``applyRecentHandoff``
+/ ``handoff`` accept an optional ``mode`` override so the same ``pendingLogPath`` can open
+in Summary or Monitor. ``LauncherNavMesh`` **Simulation Monitor →** pushes recents and
+sets ``pendingLogPath`` when ``simLogPath`` is present. Command Palette log open uses the
+shared handoff (Summary on successful load, Monitor fallback). Remaining local-open and
+portfolio multi-select call sites use ``handoff(…, { navigate: false })`` instead of
+inline ``pushRecent(makeRecentEntry(…))``.
+
+**React frontend**
+- ``applyRecentHandoff`` / ``useRecentHandoff.handoff`` — optional ``mode`` override (§G.7 / §G.16 / §D.7)
+- ``LauncherNavMesh`` — post-run **Simulation Monitor →** log handoff (§G.9 / §G.16 / §D.7)
+- Command Palette — log open via shared handoff + mode fallback (§G.7 / §G.1 / §G.16 / §D.7)
+- Local-open migration to ``handoff(navigate: false)`` across launchers, monitors, analytics, Output Browser, global drop (§G.1 / §G.6 / §G.10–§G.17 / §D.7)
+
+**ROADMAP**
+- §G.16 / §G.9 post-run Simulation Monitor log handoff checked
+- §G.7 / §D.7 handoff mode override + studio-wide ``navigate: false`` recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twelfth pass (§G.1 + §G.7 + §G.8 + §G.9 + §G.14 + §G.15 + §G.17 + §D.7)
 
 Two-hundred-and-twelfth pass closes the post-run Simulation Summary log-handoff gap

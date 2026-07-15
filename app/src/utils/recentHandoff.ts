@@ -87,6 +87,12 @@ export interface ApplyRecentHandoffArgs {
    * Useful when the caller already has local open logic (file pickers, etc.).
    */
   navigate?: boolean;
+  /**
+   * Override the default destination mode for this kind (e.g. open a log in
+   * Simulation Monitor instead of Simulation Summary). Pending-path key is
+   * unchanged so both Summary and Monitor still consume ``pendingLogPath``.
+   */
+  mode?: AppMode;
 }
 
 /**
@@ -103,14 +109,15 @@ export function applyRecentHandoff(args: ApplyRecentHandoffArgs): RecentHandoffS
     setMode,
     pendingSetters,
     navigate = true,
+    mode,
   } = args;
   pushRecent(makeRecentEntry(path, kind, projectRoot, storedLabel));
   const spec = recentHandoffSpec(kind);
   if (navigate) {
     pendingSetters[spec.pendingKey](path);
-    setMode(spec.mode);
+    setMode(mode ?? spec.mode);
   }
-  return spec;
+  return { ...spec, mode: mode ?? spec.mode };
 }
 
 /**

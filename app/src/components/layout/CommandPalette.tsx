@@ -10,7 +10,6 @@ import { nextThemePreference } from "../../utils/theme";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 
 function matchQuery(query: string, label: string, keywords?: string): boolean {
   const q = query.trim().toLowerCase();
@@ -33,8 +32,8 @@ function isKnownRecentKind(kind: string): kind is RecentFileKind {
 }
 
 export function CommandPalette() {
-  const { theme, setTheme, setPendingLogPath } = useAppStore();
-  const { projectRoot, setMode, pushRecent, handoff } = useRecentHandoff();
+  const { theme, setTheme } = useAppStore();
+  const { projectRoot, setMode, handoff } = useRecentHandoff();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
     useLayoutStore();
   const recentFiles = useRecentFilesStore((s) => s.files);
@@ -91,14 +90,11 @@ export function CommandPalette() {
 
       // Logs: prefer Simulation Summary; fall back to Digital Twin if load fails.
       if (kind === "log") {
-        pushRecent(makeRecentEntry(file.path, kind, projectRoot, file.label));
         try {
           await invoke<DayLogEntry[]>("load_simulation_log", { path: file.path });
-          setPendingLogPath(file.path);
-          setMode("simulation_summary");
+          handoff(file.path, kind, { storedLabel: file.label });
         } catch {
-          setPendingLogPath(file.path);
-          setMode("simulation");
+          handoff(file.path, kind, { storedLabel: file.label, mode: "simulation" });
         }
         closePalette();
         return;
@@ -107,7 +103,7 @@ export function CommandPalette() {
       handoff(file.path, kind, { storedLabel: file.label });
       closePalette();
     },
-    [projectRoot, pushRecent, setMode, setPendingLogPath, handoff, closePalette]
+    [setMode, handoff, closePalette]
   );
 
   const runCommand = useCallback(

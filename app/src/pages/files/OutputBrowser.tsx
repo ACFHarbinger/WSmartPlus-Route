@@ -48,7 +48,6 @@ import {
   parentRunBrushLabelFromCheckpointPath,
 } from "../../utils/checkpoints";
 import { portfolioRunLabel } from "../../utils/arrowPipeline";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 
 function formatBytes(b: number) {
@@ -121,7 +120,7 @@ export function OutputBrowser() {
     pendingRunPath,
     setPendingRunPath,
   } = useAppStore();
-  const { projectRoot, setMode, pushRecent, handoff } = useRecentHandoff();
+  const { projectRoot, setMode, handoff } = useRecentHandoff();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -186,7 +185,7 @@ export function OutputBrowser() {
   }, [outputPath, refresh]);
 
   const selectRun = useCallback(async (run: OutputDir) => {
-    pushRecent(makeRecentEntry(run.path, "run", projectRoot, run.name));
+    handoff(run.path, "run", { storedLabel: run.name, navigate: false });
     setSelectedRun(run);
     setFileContent(null);
     setCsvRows(null);
@@ -281,7 +280,7 @@ export function OutputBrowser() {
     } catch (err) {
       toast.error("Failed to list run directory", { description: String(err) });
     }
-  }, [pushRecent, projectRoot]);
+  }, [handoff]);
 
   useEffect(() => {
     if (!pendingRunPath) return;
@@ -330,7 +329,7 @@ export function OutputBrowser() {
       // Push recent via shared path→kind classifier when applicable (§G.7 / §G.14 / §D.7).
       const recentKind = recentKindFromPath(entry.path);
       if (recentKind) {
-        pushRecent(makeRecentEntry(entry.path, recentKind, projectRoot));
+        handoff(entry.path, recentKind, { navigate: false });
       }
 
       if (isCheckpointEntry(entry)) {
@@ -357,7 +356,7 @@ export function OutputBrowser() {
     } finally {
       setFileLoading(false);
     }
-  }, [toggleDir, pushRecent, projectRoot]);
+  }, [toggleDir, handoff]);
 
   const openInSimSummary = useCallback(
     (path: string) => {
@@ -405,7 +404,7 @@ export function OutputBrowser() {
       if (jsonl && run) {
         const label = portfolioRunLabel(jsonl, run.name, projectRoot);
         refs.push({ path: jsonl, label });
-        pushRecent(makeRecentEntry(jsonl, "log", projectRoot, run.name));
+        handoff(jsonl, "log", { storedLabel: run.name, navigate: false });
       }
     }
     if (refs.length < 2) {
@@ -415,7 +414,7 @@ export function OutputBrowser() {
     setPendingBenchmarkLogs(refs);
     setMode("benchmark");
     toast.success(`Comparing ${refs.length} runs in Benchmark Analysis`);
-  }, [compareSelection, runs, projectRoot, pushRecent, setPendingBenchmarkLogs, setMode]);
+  }, [compareSelection, runs, projectRoot, handoff, setPendingBenchmarkLogs, setMode]);
 
   const exportRunAsBundle = useCallback(async () => {
     if (!selectedRun) return;
@@ -486,7 +485,7 @@ export function OutputBrowser() {
         created_at: "",
         size_bytes: 0,
       };
-      pushRecent(makeRecentEntry(path, "run", projectRoot, name));
+      handoff(path, "run", { storedLabel: name, navigate: false });
       setSelectedRun(fakeRun);
       setEntries(e);
       setFileContent(null);
@@ -498,7 +497,7 @@ export function OutputBrowser() {
     } catch (err) {
       toast.error("Failed to open directory", { description: String(err) });
     }
-  }, [pushRecent, projectRoot]);
+  }, [handoff]);
 
   function renderEntries(list: DirEntry[], depth = 0): React.ReactNode {
     return list.map((e) => (

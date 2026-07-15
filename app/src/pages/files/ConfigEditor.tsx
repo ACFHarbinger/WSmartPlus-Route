@@ -19,9 +19,8 @@ import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 
 const YamlEditor = lazy(() => import("../../components/editors/YamlEditor"));
 
@@ -80,11 +79,11 @@ const LAUNCHER_TARGETS: Array<{ value: LauncherTarget; label: string; mode: "sim
 ];
 
 export function ConfigEditor() {
-  const { projectRoot, pythonPath, setMode, pendingConfigPath, setPendingConfigPath } = useAppStore();
+  const { pythonPath, setMode, pendingConfigPath, setPendingConfigPath } = useAppStore();
+  const { projectRoot, handoff } = useRecentHandoff();
   const simPatch = useSimLauncherStore((s) => s.patch);
   const trainPatch = useTrainHubStore((s) => s.patch);
   const dataPatch = useDataGenStore((s) => s.patch);
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const [content, setContent] = useState("");
   const [filePath, setFilePath] = useState<string | null>(null);
   const [diffContent, setDiffContent] = useState("");
@@ -109,11 +108,11 @@ export function ConfigEditor() {
           setContent(text);
           setFilePath(path);
           savedContentRef.current = text;
-          pushRecent(makeRecentEntry(path, "config", projectRoot));
+          handoff(path, "config", { navigate: false });
         } else {
           setDiffContent(text);
           setDiffPath(path);
-          pushRecent(makeRecentEntry(path, "config", projectRoot));
+          handoff(path, "config", { navigate: false });
         }
       } catch (err) {
         toast.error("Failed to read file", { description: String(err) });
@@ -121,7 +120,7 @@ export function ConfigEditor() {
         setLoading(false);
       }
     },
-    [projectRoot, pushRecent]
+    [handoff]
   );
 
   // Consume pendingConfigPath set by Output Browser / Command Palette
