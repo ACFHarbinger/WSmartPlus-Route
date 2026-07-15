@@ -20,12 +20,21 @@ import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
+import { parseAttentionVizLine } from "../../utils/attentionViz";
 import { parseTrainingHealthLine } from "../../utils/trainingHealth";
-import type { DirEntry, StdoutLine, TrainingHealthEntry, TrainingRun, TrainingMetricsRow } from "../../types";
+import type {
+  AttentionVizEntry,
+  DirEntry,
+  StdoutLine,
+  TrainingHealthEntry,
+  TrainingRun,
+  TrainingMetricsRow,
+} from "../../types";
 
 // Signal keys that identify a line as a training metric (covers Lightning column variants)
 const METRIC_SIGNAL_KEYS = [
@@ -37,6 +46,7 @@ const METRIC_SIGNAL_KEYS = [
 // Virtual key used for the live-process entry in metricsMap
 const LIVE_KEY = "__live__";
 const LIVE_HEALTH_KEY = "__live_health__";
+const LIVE_ATTENTION_KEY = "__live_attention__";
 
 /**
  * Parse a stdout line as a training metric row.
@@ -468,12 +478,13 @@ function RunPanel({
 
 // ── Main page
 export function TrainingMonitor() {
-  const { projectRoot, setMode, setPendingCheckpoint } = useAppStore();
+  const { projectRoot, setMode, setPendingCheckpoint, effectiveTheme } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, TrainingMetricsRow[]>>({});
   const [healthMap, setHealthMap] = useState<Record<string, TrainingHealthEntry[]>>({});
+  const [attentionMap, setAttentionMap] = useState<Record<string, AttentionVizEntry[]>>({});
   const [loading, setLoading] = useState(false);
 
   const logsPath = projectRoot ? `${projectRoot}/logs` : "";
@@ -503,10 +514,17 @@ export function TrainingMonitor() {
         delete next[LIVE_HEALTH_KEY];
         return next;
       });
+      setAttentionMap((a) => {
+        if (!a[LIVE_ATTENTION_KEY]) return a;
+        const next = { ...a };
+        delete next[LIVE_ATTENTION_KEY];
+        return next;
+      });
       return;
     }
     setMetricsMap((m) => ({ ...m, [LIVE_KEY]: [] }));
     setHealthMap((h) => ({ ...h, [LIVE_HEALTH_KEY]: [] }));
+    setAttentionMap((a) => ({ ...a, [LIVE_ATTENTION_KEY]: [] }));
     let unlisten: (() => void) | null = null;
     listen<StdoutLine>("process:stdout", (event) => {
       const { id, line } = event.payload;
@@ -518,6 +536,13 @@ export function TrainingMonitor() {
         setHealthMap((h) => ({
           ...h,
           [LIVE_HEALTH_KEY]: [...(h[LIVE_HEALTH_KEY] ?? []), alert],
+        }));
+      }
+      const attention = parseAttentionVizLine(line);
+      if (attention) {
+        setAttentionMap((a) => ({
+          ...a,
+          [LIVE_ATTENTION_KEY]: [...(a[LIVE_ATTENTION_KEY] ?? []), attention],
         }));
       }
     }).then((fn) => { unlisten = fn; });
@@ -575,6 +600,22 @@ export function TrainingMonitor() {
     [healthMap]
   );
 
+  const loadAttention = useCallback(
+    async (run: TrainingRun) => {
+      if (attentionMap[run.name]) return;
+      const attentionPath = `${run.path}/attention_viz.jsonl`;
+      try {
+        const entries = await invoke<AttentionVizEntry[]>("load_attention_viz_log", {
+          path: attentionPath,
+        });
+        setAttentionMap((a) => ({ ...a, [run.name]: entries }));
+      } catch {
+        setAttentionMap((a) => ({ ...a, [run.name]: [] }));
+      }
+    },
+    [attentionMap]
+  );
+
   const toggleRun = useCallback(
     (run: TrainingRun) => {
       setSelected((s) =>
@@ -582,8 +623,9 @@ export function TrainingMonitor() {
       );
       loadMetrics(run);
       loadHealth(run);
+      loadAttention(run);
     },
-    [loadMetrics, loadHealth]
+    [loadMetrics, loadHealth, loadAttention]
   );
 
   const selectedRunObjects = useMemo(
@@ -602,6 +644,18 @@ export function TrainingMonitor() {
     }
     return merged;
   }, [activeTrainId, healthMap, selectedRunObjects]);
+
+  const displayedAttention = useMemo(() => {
+    const merged: AttentionVizEntry[] = [];
+    if (activeTrainId && (attentionMap[LIVE_ATTENTION_KEY]?.length ?? 0) > 0) {
+      merged.push(...attentionMap[LIVE_ATTENTION_KEY]!);
+    }
+    for (const run of selectedRunObjects) {
+      const entries = attentionMap[run.name];
+      if (entries?.length) merged.push(...entries);
+    }
+    return merged;
+  }, [activeTrainId, attentionMap, selectedRunObjects]);
 
   const runsMetrics = useMemo(() => {
     const result: { name: string; metrics: TrainingMetricsRow[] }[] = [];
@@ -723,6 +777,15 @@ export function TrainingMonitor() {
       {/* Training health alerts (§A.4) */}
       {(displayedHealth.length > 0 || activeTrainId) && (
         <TrainingHealthPanel entries={displayedHealth} />
+      )}
+
+      {/* Runtime attention ring-buffer (§A.2 Option A) */}
+      {(displayedAttention.length > 0 || activeTrainId) && (
+        <RuntimeAttentionPanel
+          entries={displayedAttention}
+          theme={effectiveTheme}
+          logScale={logScale}
+        />
       )}
 
       {/* Multi-run overlay chart */}

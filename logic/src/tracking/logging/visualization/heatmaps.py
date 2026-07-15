@@ -19,7 +19,9 @@ import seaborn as sns
 import torch
 from torch import nn
 
+from logic.src.tracking.attention_buffer import ensure_attention_buffer
 from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
+from logic.src.tracking.logging.modules.attention_emit import maybe_emit_attention_viz
 from logic.src.tracking.logging.pylogger import get_pylogger
 from logic.src.utils.functions import move_to
 
@@ -137,6 +139,10 @@ def capture_runtime_attention(
     if device is not None:
         batch = move_to(batch, device)
 
+    buffer = ensure_attention_buffer(model, head_idx=head_idx)
+    if buffer is not None:
+        buffer.reset()
+
     hook_data = add_attention_hooks(encoder)
     matrices: List[Tuple[int, np.ndarray]] = []
 
@@ -158,10 +164,13 @@ def capture_runtime_attention(
                 else:
                     encoder(batch)
 
-        for layer_idx, weights in enumerate(hook_data.get("weights", [])):
-            mat = extract_attention_matrix(weights, head_idx=head_idx)
-            if mat is not None and mat.shape[0] >= 2:
-                matrices.append((layer_idx, mat))
+        if buffer is not None and len(buffer) > 0:
+            matrices = buffer.as_layer_matrices(head_idx=head_idx)
+        else:
+            for layer_idx, weights in enumerate(hook_data.get("weights", [])):
+                mat = extract_attention_matrix(weights, head_idx=head_idx)
+                if mat is not None and mat.shape[0] >= 2:
+                    matrices.append((layer_idx, mat))
     except Exception:
         logger.debug("Failed to capture runtime attention", exc_info=True)
     finally:
@@ -245,6 +254,8 @@ def maybe_log_eval_attention_heatmaps(
     output_subdir: str = "eval_attention",
     step: int = 0,
     tb_writer: Any = None,
+    phase: str = "eval",
+    epoch: int = 0,
 ) -> List[str]:
     """Capture and log attention heatmaps when tracking flags are enabled.
 
@@ -309,5 +320,14 @@ def maybe_log_eval_attention_heatmaps(
         if run is not None:
             with contextlib.suppress(Exception):
                 run.log_artifact(output_dir, artifact_type="attention_heatmap")
+
+    with contextlib.suppress(Exception):
+        maybe_emit_attention_viz(
+            model,
+            cfg,
+            phase=phase,
+            epoch=epoch,
+            step=step,
+        )
 
     return written

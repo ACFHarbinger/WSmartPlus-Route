@@ -52,6 +52,25 @@ pub struct TrainingHealthEntry {
     pub details: serde_json::Value,
 }
 
+/// Runtime encoder attention snapshot from ``AttentionRingBuffer`` (§A.2 Option A).
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AttentionSnapshot {
+    pub layer: i32,
+    pub head: i32,
+    pub decode_step: i32,
+    pub n_nodes: i32,
+    pub matrix: Vec<Vec<f64>>,
+}
+
+/// Attention ring-buffer payload emitted during eval/validation (§A.2 Option A).
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct AttentionVizEntry {
+    pub phase: String,
+    pub epoch: i32,
+    pub step: i32,
+    pub snapshots: Vec<AttentionSnapshot>,
+}
+
 pub fn parse_training_health_line(line: &str) -> Option<TrainingHealthEntry> {
     let line = line.trim();
     if !line.starts_with("TRAINING_HEALTH_START:") {
@@ -60,6 +79,19 @@ pub fn parse_training_health_line(line: &str) -> Option<TrainingHealthEntry> {
     let json_part = &line["TRAINING_HEALTH_START:".len()..];
     let entry: TrainingHealthEntry = serde_json::from_str(json_part).ok()?;
     if entry.code.is_empty() || entry.severity.is_empty() {
+        return None;
+    }
+    Some(entry)
+}
+
+pub fn parse_attention_viz_line(line: &str) -> Option<AttentionVizEntry> {
+    let line = line.trim();
+    if !line.starts_with("ATTENTION_VIZ_START:") {
+        return None;
+    }
+    let json_part = &line["ATTENTION_VIZ_START:".len()..];
+    let entry: AttentionVizEntry = serde_json::from_str(json_part).ok()?;
+    if entry.phase.is_empty() || entry.snapshots.is_empty() {
         return None;
     }
     Some(entry)
@@ -101,6 +133,16 @@ pub fn load_training_health_log(path: String) -> Result<Vec<TrainingHealthEntry>
     let entries: Vec<TrainingHealthEntry> = content
         .lines()
         .filter_map(parse_training_health_line)
+        .collect();
+    Ok(entries)
+}
+
+#[tauri::command]
+pub fn load_attention_viz_log(path: String) -> Result<Vec<AttentionVizEntry>, String> {
+    let content = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let entries: Vec<AttentionVizEntry> = content
+        .lines()
+        .filter_map(parse_attention_viz_line)
         .collect();
     Ok(entries)
 }
@@ -770,6 +812,23 @@ mod tests {
     fn parse_training_health_line_ignores_policy_viz() {
         let line = r#"POLICY_VIZ_START:ALNS,0,1,alns,{"iteration":[0]}"#;
         assert!(parse_training_health_line(line).is_none());
+    }
+
+    #[test]
+    fn parse_attention_viz_line_valid() {
+        let line = r#"ATTENTION_VIZ_START:{"phase":"val","epoch":1,"step":10,"snapshots":[{"layer":0,"head":0,"decode_step":0,"n_nodes":3,"matrix":[[1.0,0.0,0.0],[0.0,1.0,0.0],[0.0,0.0,1.0]]}]}"#;
+        let entry = parse_attention_viz_line(line).expect("parse");
+        assert_eq!(entry.phase, "val");
+        assert_eq!(entry.epoch, 1);
+        assert_eq!(entry.step, 10);
+        assert_eq!(entry.snapshots.len(), 1);
+        assert_eq!(entry.snapshots[0].n_nodes, 3);
+    }
+
+    #[test]
+    fn parse_attention_viz_line_ignores_training_health() {
+        let line = r#"TRAINING_HEALTH_START:{"code":"grad_norm_explosion","severity":"critical","epoch":0,"step":0,"message":"x","details":{}}"#;
+        assert!(parse_attention_viz_line(line).is_none());
     }
 
     #[test]

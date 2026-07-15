@@ -81,4 +81,6 @@ class AttentionHeatmapCallback(Callback):
             output_subdir="val_attention",
             step=trainer.global_step,
             tb_writer=self._tb_writer(trainer),
+            phase="val",
+            epoch=trainer.current_epoch,
         )
