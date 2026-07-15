@@ -103,6 +103,17 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Effort × Impact**: Low–Medium effort / High impact
 
+**Delivered (§A.4 Option A — hundred-eleventh pass)**
+
+- [x] ``TrainingHealthCallback`` — Lightning callback detecting gradient norm explosion (>100), reward stagnation (>50 epochs), and entropy collapse (<0.01); loguru warnings + alert cooldown
+- [x] ``training_health_emit.py`` — ``TRAINING_HEALTH_START:`` stdout + ``training_health.jsonl`` under Lightning ``log_dir``
+- [x] ``WSTrainer`` — auto-registers ``TrainingHealthCallback`` alongside checkpoint and tracking callbacks
+- [x] Rust ``parse_training_health_line`` + ``load_training_health_log`` command
+- [x] Studio ``TrainingHealthPanel`` — severity-coded alert list on Training Monitor; live stdout ingest + historical ``training_health.jsonl`` load
+- [x] Unit tests in ``logic/test/unit/pipeline/callbacks/test_training_health.py``
+
+**Status**: §A.4 Option A complete — Options B/C (PyHessian, loss landscape PNG) and Option D (HPO prune metrics) deferred.
+
 ---
 
 ### §A.5 — HPO Analytics: Cross-Trial Visualizer
@@ -155,7 +166,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | ---------------------------------------- | --------- | ------ | --------------- |
 | §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0 ✅            |
 | §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0 ✅            |
-| §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1              |
+| §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1 ✅            |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1              |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1              |
 | §A.1 Option A (ECharts route viz)        | Medium    | High   | P2              |
@@ -1437,7 +1448,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

@@ -31,6 +31,7 @@ from pytorch_lightning.loggers import Logger, WandbLogger
 from logic.src.pipeline.callbacks import (
     ModelSummaryCallback,
     TrainingDisplayCallback,
+    TrainingHealthCallback,
 )
 from logic.src.tracking.integrations.lightning import TrackingCallback
 
@@ -239,6 +240,10 @@ class WSTrainer(pl.Trainer):
         # Add tracking callback (no-op when no active run is registered)
         if TrackingCallback not in callback_types:
             callbacks.append(TrackingCallback(tracking_cfg=getattr(self, "_tracking_cfg", None)))
+
+        # Training health guardrails (§A.4) — Studio Training Monitor ingest
+        if TrainingHealthCallback not in callback_types:
+            callbacks.append(TrainingHealthCallback())
 
         return callbacks
 

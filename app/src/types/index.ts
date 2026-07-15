@@ -66,6 +66,17 @@ export interface TrainingMetricsRow {
   [key: string]: number | undefined;
 }
 
+// ── Training health (TrainingHealthCallback → Studio §A.4) ───────────────────
+
+export interface TrainingHealthEntry {
+  code: string;
+  severity: "warning" | "critical" | string;
+  epoch: number;
+  step: number;
+  message: string;
+  details: Record<string, unknown>;
+}
+
 // ── Process management ───────────────────────────────────────────────────────
 
 export type ProcessStatus = "running" | "completed" | "cancelled" | "failed";
