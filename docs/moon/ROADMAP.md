@@ -1057,6 +1057,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] SQL result row + pivot run_label cross-filter: click policy or ``run_label`` cell → `useGlobalFiltersStore` → `brushSqlSync` + row dimming (§G.6)
 - [x] Portfolio global run_label filter bar: `usePortfolioRunBrush` + `GlobalFilterBar` run selector on Simulation Summary, Benchmark Analysis, and City Comparison when ≥2 runs loaded (§G.6)
 - [x] Portfolio global city/scale filter bar: `brushedCity` in `useGlobalFiltersStore` + `GlobalFilterBar` city selector on Summary/Benchmark/City when ≥2 city groups loaded (§G.6)
+- [x] OLAP Explorer global city/scale brush SQL sync: `groupRunLabelsByCity()` + `GlobalFilterBar` city selector on portfolio tables; `resolveBrushedRunLabels()` expands city brush to ``run_label`` IN clause via `SqlQueryPanel` ``portfolioRunLabels`` (§G.6)
 - [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
 - [x] Result grid with sortable columns, row filter search, and filtered CSV export: `SqlQueryPanel` sortable result table + search box + export respects filter (§G.6)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter suggestion below results (§G.6 partial)

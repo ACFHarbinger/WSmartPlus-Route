@@ -7,6 +7,7 @@ import { ChevronDown, ChevronUp, Download, Play } from "lucide-react";
 import { toast } from "sonner";
 import { PivotTablePanel } from "./PivotTablePanel";
 import { useGlobalFiltersStore } from "../../store/filters";
+import { resolveBrushedRunLabels } from "../../utils/cityComparison";
 import { queryDuckDb } from "../../utils/duckdbClient";
 import {
   brushedPortfolioSql,
@@ -37,6 +38,8 @@ interface Props {
   portfolioMode?: boolean;
   /** Include Algorithm Comparison policy-analysis templates (§G.6). */
   algorithmMode?: boolean;
+  /** All portfolio ``run_label`` values — enables city brush SQL expansion (§G.6). */
+  portfolioRunLabels?: string[];
 }
 
 export function SqlQueryPanel({
@@ -51,11 +54,14 @@ export function SqlQueryPanel({
   defaultOpen = false,
   portfolioMode = false,
   algorithmMode = false,
+  portfolioRunLabels = [],
 }: Props) {
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
+  const brushedCity = useGlobalFiltersStore((s) => s.brushedCity);
   const setPolicy = useGlobalFiltersStore((s) => s.setPolicy);
   const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
+  const setBrushedCity = useGlobalFiltersStore((s) => s.setBrushedCity);
   const [open, setOpen] = useState(defaultOpen);
   const [sql, setSql] = useState(`SELECT * FROM "${tableName}" LIMIT 100`);
   const [running, setRunning] = useState(false);
@@ -183,6 +189,7 @@ export function SqlQueryPanel({
       return;
     }
     if (/^run_label$/i.test(col)) {
+      setBrushedCity(null);
       setRunLabel(value);
       toast.success("Cross-filter applied", { description: `Run: ${value}` });
     }
@@ -211,9 +218,15 @@ export function SqlQueryPanel({
 
   const highlightRunLabels = useMemo(() => {
     if (highlightRunLabelsProp?.length) return highlightRunLabelsProp;
+    const expanded = resolveBrushedRunLabels(
+      portfolioRunLabels,
+      activeRunLabel,
+      brushedCity
+    );
+    if (expanded?.length) return expanded;
     if (activeRunLabel) return [activeRunLabel];
     return null;
-  }, [highlightRunLabelsProp, activeRunLabel]);
+  }, [highlightRunLabelsProp, portfolioRunLabels, activeRunLabel, brushedCity]);
 
   const rowMatchesHighlight = useCallback(
     (row: Record<string, unknown>) => {

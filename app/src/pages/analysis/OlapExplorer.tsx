@@ -3,7 +3,7 @@
  *
  * Full-page DuckDB-Wasm SQL editor with table picker for all ingested datasets.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -17,6 +17,7 @@ import {
   runCsvArrowPipeline,
   runSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
+import { groupRunLabelsByCity } from "../../utils/cityComparison";
 import {
   duckDbRowCount,
   listDuckDbDistinctValues,
@@ -36,7 +37,6 @@ const PORTFOLIO_TABLES = new Set([
 export function OlapExplorer() {
   const { theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
-  const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
   const {
     ready: duckdbReady,
     loading,
@@ -123,13 +123,19 @@ export function OlapExplorer() {
     }
   }, [refreshTables, setLastPipeline, setLoading]);
 
-  const highlightPolicies = activePolicy ? [activePolicy] : null;
-  const highlightRunLabels = activeRunLabel ? [activeRunLabel] : null;
   const portfolioMode = PORTFOLIO_TABLES.has(selectedTable);
+  const cityGroups = useMemo(
+    () => (portfolioMode ? groupRunLabelsByCity(runLabels) : []),
+    [portfolioMode, runLabels]
+  );
+  const highlightPolicies = activePolicy ? [activePolicy] : null;
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar runLabels={portfolioMode ? runLabels : []} />
+      <GlobalFilterBar
+        runLabels={portfolioMode ? runLabels : []}
+        cities={portfolioMode && cityGroups.length > 1 ? cityGroups.map(([city]) => city) : []}
+      />
 
       <div className="flex items-center gap-3 flex-wrap">
         <button
@@ -185,11 +191,11 @@ export function OlapExplorer() {
           tableName={selectedTable}
           theme={theme}
           highlightPolicies={highlightPolicies}
-          highlightRunLabels={highlightRunLabels}
           brushSqlSync
           autoRunOnBrushSync
           portfolioMode={portfolioMode}
           algorithmMode={selectedTable === "algorithm_sim"}
+          portfolioRunLabels={portfolioMode ? runLabels : []}
           defaultOpen
         />
       )}

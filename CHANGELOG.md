@@ -11,6 +11,25 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — sixty-eighth pass (§G.6)
+
+Sixty-eighth pass wires OLAP Explorer city brushing into DuckDB SQL sync and
+centralizes portfolio ``run_label`` expansion for city groups.
+
+**React frontend**
+- `cityComparison.ts` — `groupRunLabelsByCity()` + `resolveBrushedRunLabels()` for
+  DuckDB ``run_label`` city grouping
+- `usePortfolioRunBrush` — delegates run-label expansion to `resolveBrushedRunLabels()`
+- `SqlQueryPanel` — `portfolioRunLabels` prop; city brush expands to ``run_label`` IN
+  clause; SQL row ``run_label`` cross-filter clears ``brushedCity``
+- `OlapExplorer` — city/scale dropdown on portfolio tables; SQL panel receives
+  ``portfolioRunLabels`` for city brush sync
+
+**ROADMAP**
+- §G.6 OLAP Explorer global city/scale brush SQL sync checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-seventh pass (§G.6 / §G.7)
 
 Sixty-seventh pass promotes portfolio city brushing to global filter state with

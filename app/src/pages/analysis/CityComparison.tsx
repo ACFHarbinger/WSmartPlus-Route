@@ -73,7 +73,7 @@ export function CityComparison() {
     brushedCity,
     brushedRunLabels,
     handleCityClick,
-  } = usePortfolioRunBrush(filteredRuns, cityGroups);
+  } = usePortfolioRunBrush(filteredRuns);
   const series = useMemo(() => buildCityComparisonSeries(cityGroups), [cityGroups]);
   const chartOption = useMemo(() => cityComparisonChartOption(series), [series]);
 
