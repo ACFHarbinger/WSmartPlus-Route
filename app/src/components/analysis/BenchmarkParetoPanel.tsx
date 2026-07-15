@@ -4,6 +4,9 @@
 import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
+import { exportChartPng } from "../../utils/chartExport";
 import { chartMetricDisplay, chartMetricUsesSymlog } from "../../utils/chartLogScale";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
@@ -17,6 +20,10 @@ import type { ParetoPoint } from "../../utils/paretoPortfolio";
 
 function fmt(n: number, d = 1) {
   return isFinite(n) ? n.toFixed(d) : "—";
+}
+
+function slugLabel(label: string) {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "pareto";
 }
 
 export function BenchmarkParetoPanel({
@@ -117,8 +124,27 @@ export function BenchmarkParetoPanel({
     );
   }
 
+  const exportStem = `pareto-${slugLabel(label)}`;
+
   return (
-    <div className="card">
+    <div className="card space-y-1">
+      <div className="flex items-center justify-end">
+        <button
+          type="button"
+          onClick={() => {
+            if (exportChartPng({ current: chartRef.current }, `${exportStem}.png`)) {
+              toast.success("Chart exported", { description: `${exportStem}.png` });
+            } else {
+              toast.error("Export failed", { description: "Chart is not ready" });
+            }
+          }}
+          className="btn-ghost text-xs flex items-center gap-1"
+          title="Export Pareto panel as PNG"
+        >
+          <Download size={11} />
+          PNG
+        </button>
+      </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
     </div>
   );

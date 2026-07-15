@@ -1,8 +1,12 @@
 /**
  * Per-distribution policy heatmap facet for multi-run portfolios (§G.1.3).
  */
-import { useMemo } from "react";
+import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
+import { exportChartPng } from "../../utils/chartExport";
 import type { DayLogEntry } from "../../types";
 import {
   activeHeatmapMetrics,
@@ -25,6 +29,10 @@ function fmt(n: number, d = 1) {
   return isFinite(n) ? n.toFixed(d) : "—";
 }
 
+function slugLabel(label: string) {
+  return label.toLowerCase().replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "") || "distribution";
+}
+
 export function BenchmarkDistributionHeatmap({
   distributionLabel,
   runs,
@@ -36,6 +44,7 @@ export function BenchmarkDistributionHeatmap({
   heatmapMode: HeatmapMode;
   logScale?: boolean;
 }) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const policies = useMemo(
     () => [...new Set(runs.flatMap((r) => r.entries.map((e) => e.policy)))],
     [runs]
@@ -86,10 +95,33 @@ export function BenchmarkDistributionHeatmap({
     };
   }, [policies, runs, metrics, logScale]);
 
+  const exportStem = `heatmap-distribution-${slugLabel(distributionLabel)}`;
+
   return (
     <div className="card space-y-1">
-      <p className="text-[10px] text-canvas-muted font-mono">{distributionLabel}</p>
-      <ReactECharts option={option} style={{ height: Math.max(100, metrics.length * 36 + 40) }} />
+      <div className="flex items-center justify-between gap-1">
+        <p className="text-[10px] text-canvas-muted font-mono">{distributionLabel}</p>
+        <button
+          type="button"
+          onClick={() => {
+            if (exportChartPng({ current: chartRef.current }, `${exportStem}.png`)) {
+              toast.success("Chart exported", { description: `${exportStem}.png` });
+            } else {
+              toast.error("Export failed", { description: "Chart is not ready" });
+            }
+          }}
+          className="btn-ghost text-[10px] flex items-center gap-0.5 shrink-0"
+          title="Export distribution heatmap as PNG"
+        >
+          <Download size={10} />
+          PNG
+        </button>
+      </div>
+      <ReactECharts
+        ref={chartRef}
+        option={option}
+        style={{ height: Math.max(100, metrics.length * 36 + 40) }}
+      />
     </div>
   );
 }

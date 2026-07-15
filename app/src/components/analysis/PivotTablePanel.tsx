@@ -1,8 +1,12 @@
 /**
  * Lightweight pivot table for SQL/CSV grids (§G.6).
  */
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
+import type EChartsReact from "echarts-for-react";
+import { Download } from "lucide-react";
+import { toast } from "sonner";
+import { exportChartPng } from "../../utils/chartExport";
 import {
   buildPivot,
   pivotHeatmapOption,
@@ -83,6 +87,7 @@ export function PivotTablePanel({
   highlightRunLabels,
   highlightCityScaleLabels,
 }: Props) {
+  const chartRef = useRef<EChartsReact | null>(null);
   const [rowKey, setRowKey] = useState(columns[0] ?? "");
   const [colKey, setColKey] = useState<string>("");
   const [valueKey, setValueKey] = useState(columns.find((c) => c !== rowKey) ?? "");
@@ -161,7 +166,26 @@ export function PivotTablePanel({
 
   return (
     <div className="space-y-2">
-      <p className="text-xs font-semibold text-gray-300">Pivot Table (§G.6)</p>
+      <div className="flex items-center justify-between gap-2">
+        <p className="text-xs font-semibold text-gray-300">Pivot Table (§G.6)</p>
+        {chartOption && (
+          <button
+            type="button"
+            onClick={() => {
+              if (exportChartPng({ current: chartRef.current }, "pivot-heatmap.png")) {
+                toast.success("Chart exported", { description: "pivot-heatmap.png" });
+              } else {
+                toast.error("Export failed", { description: "Chart is not ready" });
+              }
+            }}
+            className="btn-ghost text-xs flex items-center gap-1 shrink-0"
+            title="Export pivot heatmap as PNG"
+          >
+            <Download size={11} />
+            PNG
+          </button>
+        )}
+      </div>
 
       <div className="flex flex-wrap gap-1.5">
         {columns.map((c) => (
@@ -214,6 +238,7 @@ export function PivotTablePanel({
 
       {chartOption && (
         <ReactECharts
+          ref={chartRef}
           option={chartOption}
           style={{ height: Math.max(160, (pivot?.rowLabels.length ?? 0) * 22 + 80) }}
           onEvents={

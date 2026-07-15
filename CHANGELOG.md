@@ -11,6 +11,36 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-second pass (§G.1 / §G.4 / §G.6 / §G.7 / §G.16)
+
+Hundred-second pass extends the §G.7 export surface to portfolio analytics
+facets (Pareto panels, parallel coordinates, distribution/graph heatmaps, pivot
+heatmaps), adds topology ECharts SVG export, and unifies deck.gl PNG export
+toast feedback. Marks §G.16 complete in the ROADMAP.
+
+**React frontend**
+- `BenchmarkParetoPanel` — per-facet PNG export with toast feedback
+- `BenchmarkPortfolioParallel` — portfolio parallel-coordinates PNG export
+- `BenchmarkDistributionHeatmap` / `BenchmarkGraphHeatmap` — facet heatmap PNG
+  export
+- `PivotTablePanel` — pivot heatmap PNG export
+- `GraphTopologyPanel` — ECharts SVG export alongside PNG/WebGL export
+- `DeckRouteMap` — Mercator vs OrbitView PNG filenames + toast feedback
+- `SimulationMonitor` — stale deck.gl deferred comment removed
+
+**ROADMAP**
+- §G.1.2 BenchmarkParetoPanel per-facet PNG export checked
+- §G.1.3 distribution/graph facet heatmap PNG export checked
+- §G.1.4 BenchmarkPortfolioParallel PNG export checked
+- §G.4 ECharts topology SVG export checked
+- §G.6 PivotTablePanel heatmap PNG export checked
+- §G.7 Global export lists include portfolio facets + pivot heatmap + topology
+  SVG + deck.gl toast feedback
+- §G.16 deck.gl PNG toast + Phase 16 status marked complete
+- §G.8 Phase 8 status marked complete (signed releases deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-first pass (§G.4 / §G.5 / §G.7)
 
 Hundred-first pass adds WebGL/3D canvas PNG export for loss terrain, attention

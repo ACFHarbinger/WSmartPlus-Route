@@ -108,7 +108,7 @@ function resolvePositions(
   return map;
 }
 
-// ── ECharts route map preview (§G.16 partial — deck.gl tile basemap deferred)
+// ── ECharts route map preview (§G.16 — Cartesian fallback when deck.gl unavailable)
 function RouteMapChart({ data }: { data: SimDayData }) {
   const chartRef = useRef<ReactECharts>(null);
   const { all_bin_coords, tour_indices, bin_state_c, mandatory } = data;
