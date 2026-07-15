@@ -13,6 +13,7 @@ import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { toast } from "sonner";
+import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
@@ -209,6 +210,10 @@ export function HPOTracker() {
   const recentHpoProc = recentHpoId ? processes[recentHpoId] : null;
   const recentHpoRunning = recentHpoProc?.status === "running";
   const recentHpoDone = recentHpoProc != null && recentHpoProc.status !== "running";
+  const processRunLabel = useProcessRunLabelBrush(
+    recentHpoId,
+    recentHpoProc?.logLines
+  );
 
   const outputRunPath = useMemo(
     () => (recentHpoProc ? outputRunPathFromLogLines(recentHpoProc.logLines) : null),
@@ -393,7 +398,10 @@ export function HPOTracker() {
 
   return (
     <div className="space-y-4">
-      <GlobalFilterBar showLogScale />
+      <GlobalFilterBar
+        showLogScale
+        runLabels={processRunLabel ? [processRunLabel] : []}
+      />
 
       {recentHpoId && recentHpoProc && (
         <TrainHpoLivePanel
@@ -407,6 +415,8 @@ export function HPOTracker() {
               command: recentHpoProc.command,
               kind: "hpo",
             }),
+            runLabel: processRunLabel,
+            showLiveSuffix: recentHpoRunning,
             metricCount: liveMetrics.length,
             healthCount: liveHealthEntries.length,
             attentionCount: liveAttentionEntries.length,

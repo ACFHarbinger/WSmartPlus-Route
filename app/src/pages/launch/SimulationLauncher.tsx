@@ -27,7 +27,7 @@ import {
   collectPolicyVizFromLogLines,
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
-import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
+import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { collectLatestDayLogsByPolicy } from "../../utils/dayLog";
 import { findRecentLauncherProcessId, simLivePanelTitle } from "../../utils/launcherProcess";
@@ -129,7 +129,6 @@ export function SimulationLauncher() {
     runLabel: activeRunLabel,
     logScale,
     setPolicy,
-    setRunLabel,
   } = useGlobalFiltersStore();
   const { spawn, launching } = useSpawnProcess();
 
@@ -281,24 +280,13 @@ export function SimulationLauncher() {
     [policyVizEntries]
   );
   const selectedPolicy = activePolicy ?? vizPolicies[0] ?? null;
-  const liveRunLabel = useMemo(
-    () =>
-      displayProcessId
-        ? runLabelFromLogLines(liveLogLines, displayProcessId)
-        : null,
-    [liveLogLines, displayProcessId]
-  );
+  const liveRunLabel = useProcessRunLabelBrush(displayProcessId, liveLogLines);
   const outputRunPath = useMemo(
     () => outputRunPathFromLogLines(liveLogLines),
     [liveLogLines]
   );
   const policyVizLive = liveProcStatus === "running";
   const [telemetryTrendsKey, setTelemetryTrendsKey] = useState(0);
-
-  useEffect(() => {
-    if (!displayProcessId || !liveRunLabel) return;
-    setRunLabel(liveRunLabel);
-  }, [displayProcessId, liveRunLabel, setRunLabel]);
 
   useEffect(() => {
     if (policyVizEntries.length > 0) {
@@ -479,6 +467,7 @@ export function SimulationLauncher() {
               isRunning: !isDone,
               status: simStatus ?? undefined,
             }),
+            runLabel: liveRunLabel,
             navMesh: {
               kind: "sim",
               hideSelf: true,

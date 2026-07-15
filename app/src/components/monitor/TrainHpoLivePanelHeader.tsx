@@ -60,6 +60,7 @@ function StatusIcon({
 function InlineTitleRow({
   status,
   title,
+  titleSuffix,
   processId,
   badges,
   runningIcon,
@@ -67,6 +68,7 @@ function InlineTitleRow({
 }: {
   status: TrainHpoLiveStatus;
   title: ReactNode;
+  titleSuffix: ReactNode;
   processId?: string;
   badges: ReactNode;
   runningIcon: "radio" | "activity";
@@ -75,7 +77,10 @@ function InlineTitleRow({
   return (
     <>
       <StatusIcon status={status} runningIcon={runningIcon} size={iconSize} />
-      <p className="text-sm text-accent-success font-mono">{title}</p>
+      <p className="text-sm text-accent-success font-mono">
+        {title}
+        {titleSuffix}
+      </p>
       {processId && (
         <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">
           {processId}
@@ -112,12 +117,26 @@ export function TrainHpoLivePanelHeader({
   );
   const nav = <TrainHpoNavMesh {...navMesh} />;
 
+  const titleSuffix = (
+    <>
+      {runLabel && (
+        <span className="ml-2 text-xs font-normal text-accent-secondary">· {runLabel}</span>
+      )}
+      {showLiveSuffix && status === "running" && (
+        <span className="ml-2 text-xs font-normal text-accent-success">· live</span>
+      )}
+    </>
+  );
+
   if (layout === "split") {
     return (
       <div className={`flex items-center justify-between ${className}`}>
-        <div className="flex items-center gap-2">
+        <div className="flex items-center gap-2 flex-wrap min-w-0">
           <StatusIcon status={status} runningIcon={runningIcon} size={iconSize} />
-          <h2 className="text-sm font-semibold text-gray-200">{title}</h2>
+          <h2 className="text-sm font-semibold text-gray-200">
+            {title}
+            {titleSuffix}
+          </h2>
           {badges}
         </div>
         {nav}
@@ -147,6 +166,7 @@ export function TrainHpoLivePanelHeader({
     <InlineTitleRow
       status={status}
       title={title}
+      titleSuffix={titleSuffix}
       processId={processId}
       badges={badges}
       runningIcon={runningIcon}

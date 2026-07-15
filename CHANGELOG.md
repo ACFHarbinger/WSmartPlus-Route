@@ -11,6 +11,37 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-second pass (§G.9 + §G.10 + §G.11 + §G.12 + §G.15 + §G.17 + §G.18 + §D.7)
+
+Hundred-seventy-second pass closes the launcher and monitor card-header run-label gap left
+after the hundred-seventy-first pass (which unified Process Monitor embedded run-label
+suffixes). All workflow live panels now show accent-secondary run labels and · live suffixes
+in card headers, with shared global ``run_label`` brush sync via ``useProcessRunLabelBrush``.
+
+**React frontend**
+- ``useProcessRunLabelBrush`` — shared hook deriving ``run_label`` from process stdout and
+  syncing the global brush (§G.9–§G.18 / §D.7)
+- ``LauncherLivePanelHeader`` — ``runLabel`` + ``showLiveSuffix`` on card variant headers
+  (§G.9 / §G.11 / §G.12 / §G.10 / §D.7)
+- ``TrainHpoLivePanelHeader`` — ``runLabel`` + ``showLiveSuffix`` on split and inline card
+  layouts (§G.10 / §G.15 / §G.17 / §G.18 / §D.7)
+- Simulation Launcher + Data Generation + Evaluation Runner + Training Hub — pass ``runLabel``
+  to live panel headers; ``GlobalFilterBar`` ``runLabels`` when a process is active
+  (§G.9 / §G.10 / §G.11 / §G.12 / §D.7)
+- Training Monitor + HPO Tracker + Experiment Tracker — pass ``runLabel`` + ``showLiveSuffix``
+  to ``TrainHpoLivePanel`` card headers; ``GlobalFilterBar`` ``runLabels`` sync
+  (§G.15 / §G.17 / §G.18 / §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher card header run-label parity checked
+- §G.10 Training Hub card header run-label parity checked
+- §G.11 Data Generation card header run-label parity checked
+- §G.12 Evaluation Runner card header run-label parity checked
+- §G.15 / §G.17 / §G.18 train/HPO monitor card header run-label parity checked
+- §D.7 launcher + monitor workflow card header run-label + live suffix parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-first pass (§G.9 + §G.11 + §G.12 + §G.15 + §D.7)
 
 Hundred-seventy-first pass closes the Process Monitor embedded run-label and live-suffix

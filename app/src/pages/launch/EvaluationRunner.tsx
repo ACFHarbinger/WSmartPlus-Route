@@ -43,6 +43,7 @@ import {
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
+import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentEvalProcessIds } from "../../utils/launcherProcess";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 
@@ -66,10 +67,12 @@ const EVAL_COLORS = ["#6366f1", "#34d399", "#fbbf24", "#f87171", "#818cf8", "#a3
 function ResultsGrid({
   results,
   logScale,
+  runLabels,
   onOpenAnalytics,
 }: {
   results: EvalResult[];
   logScale: boolean;
+  runLabels?: string[];
   onOpenAnalytics: () => void;
 }) {
   const chartRefs = useRef<Record<string, EChartsReact | null>>({});
@@ -129,7 +132,7 @@ function ResultsGrid({
 
   return (
     <div className="space-y-3">
-      <GlobalFilterBar showLogScale />
+      <GlobalFilterBar showLogScale runLabels={runLabels} />
 
       <div className="card space-y-3">
       <div className="flex items-center justify-between">
@@ -335,6 +338,12 @@ export function EvaluationRunner() {
     const lines = displayProcessIds.flatMap((id) => processes[id]?.logLines ?? []);
     return outputRunPathFromLogLines(lines);
   }, [displayProcessIds, processes]);
+
+  const primaryEvalProcessId = displayProcessIds[0] ?? null;
+  const primaryEvalLogLines = primaryEvalProcessId
+    ? processes[primaryEvalProcessId]?.logLines
+    : undefined;
+  const liveRunLabel = useProcessRunLabelBrush(primaryEvalProcessId, primaryEvalLogLines);
 
   const singleCheckpointEval = displayProcessIds.length === 1;
   const singleEvalProc = singleCheckpointEval ? processes[displayProcessIds[0]] : undefined;
@@ -579,7 +588,12 @@ export function EvaluationRunner() {
 
       {/* Results grid */}
       {results.length > 0 && (
-        <ResultsGrid results={results} logScale={logScale} onOpenAnalytics={openInAnalytics} />
+        <ResultsGrid
+          results={results}
+          logScale={logScale}
+          runLabels={liveRunLabel ? [liveRunLabel] : []}
+          onOpenAnalytics={openInAnalytics}
+        />
       )}
 
       {/* Launch */}
@@ -618,6 +632,7 @@ export function EvaluationRunner() {
               runningCount: liveRunSummary.running,
               completedCount: liveRunSummary.completed,
             }),
+            runLabel: liveRunLabel,
             navMesh: {
               kind: "eval",
               hideSelf: true,
