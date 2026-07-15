@@ -15,6 +15,42 @@ import {
   type RecentPendingSetters,
 } from "../utils/recentHandoff";
 
+/** Pending-path setters from the current app store snapshot (toast / event handlers). */
+export function recentPendingSettersFromStore(): RecentPendingSetters {
+  const s = useAppStore.getState();
+  return {
+    pendingLogPath: s.setPendingLogPath,
+    pendingRunPath: s.setPendingRunPath,
+    pendingCsvPath: s.setPendingCsvPath,
+    pendingTrainingRunPath: s.setPendingTrainingRunPath,
+    pendingCheckpoint: s.setPendingCheckpoint,
+    pendingConfigPath: s.setPendingConfigPath,
+  };
+}
+
+/**
+ * Apply a recent-file handoff outside React (process completion toasts, etc.).
+ * Mirrors ``useRecentHandoff().handoff`` using live store state.
+ */
+export function applyStoreRecentHandoff(
+  path: string,
+  kind: RecentFileKind,
+  opts?: Pick<ApplyRecentHandoffArgs, "storedLabel" | "navigate" | "mode">
+): RecentHandoffSpec {
+  const app = useAppStore.getState();
+  return applyRecentHandoff({
+    path,
+    kind,
+    projectRoot: app.projectRoot,
+    pushRecent: useRecentFilesStore.getState().pushRecent,
+    setMode: app.setMode,
+    pendingSetters: recentPendingSettersFromStore(),
+    storedLabel: opts?.storedLabel,
+    navigate: opts?.navigate,
+    mode: opts?.mode,
+  });
+}
+
 /** Stable map of pending-path setters for ``applyRecentHandoff``. */
 export function useRecentPendingSetters(): RecentPendingSetters {
   const setPendingLogPath = useAppStore((s) => s.setPendingLogPath);

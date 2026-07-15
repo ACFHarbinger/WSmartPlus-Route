@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-second pass (§G.1 + §G.9 + §G.14 + §G.15 + §G.16 + §G.17 + §D.7 + §D.8)
+
+Two-hundred-and-twenty-second pass continues log-handoff surface parity after pass 221
+put dual handoffs on Process Monitor rows and Command Palette recents. Live-panel
+``ProcessIdFooter`` path chips now expose the same Summary / Monitor icons when the
+stdout-derived path is a ``.jsonl``, covering Simulation Launcher and Process Monitor
+sim panels without relying on the nav mesh alone. Process terminal toasts gain action
+buttons that open the matching artefact (Summary + Monitor for logs, Training for
+train/HPO runs, Output Browser for run roots) via a new store-based handoff helper.
+
+**React frontend**
+- ``applyStoreRecentHandoff`` / ``recentPendingSettersFromStore`` for non-React handoffs (§G.7 / §D.7 / §D.8)
+- ``ProcessIdFooter`` — ``LogHandoffButtons`` when ``logPath`` is ``.jsonl`` (§G.9 / §G.15 / §G.1 / §G.16 / §D.7)
+- Process completion / failure / cancel toasts — Summary / Monitor / Training / Output actions (§D.8 / §G.1 / §G.14 / §G.16 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.9 / §G.15 live-panel footer log-handoff surface parity checked
+- §D.8 toast handoff actions + Option A+B status documented
+- §D.7 process-footer + toast log-handoff coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-first pass (§G.1 + §G.7 + §G.15 + §G.16 + §D.7)
 
 Two-hundred-and-twenty-first pass continues log-handoff surface parity after pass 220
