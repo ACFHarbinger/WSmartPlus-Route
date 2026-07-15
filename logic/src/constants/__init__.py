@@ -2,7 +2,6 @@
 Configuration constants and global mappings.
 
 Attributes:
-    dashboard: Dashboard configuration constants
     data: Data configuration constants
     hpo: Hyperparameter optimization configuration constants
     models: Model configuration constants
@@ -24,7 +23,6 @@ Example:
 from __future__ import annotations
 
 # Re-exporting from split modules
-from .dashboard import *  # noqa: F403
 from .data import *  # noqa: F403
 from .hpo import *  # noqa: F403
 from .models import *  # noqa: F403

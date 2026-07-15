@@ -8,7 +8,7 @@ files, and ``__init__.py`` / ``factory.py`` import cleanup.
 
 Also handles:
 - Optional-feature removal via ``--drop-features`` (META_LEARNING, HPO, EVAL,
-  SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB).
+  SECURITY, CALLBACKS, ENUMS, DATA_WEB).
 - Model-specific subnet pruning: decoders/, encoders/, and factories/ within
   ``logic/src/models/subnets/`` are trimmed to only the subdirectories required
   by the kept model set (driven by ``subnet_deps`` in the config).
@@ -948,7 +948,7 @@ def _build_parser() -> argparse.ArgumentParser:
         dest="drop_features",
         help=(
             "Optional pipeline features to REMOVE (e.g. META_LEARNING HPO SECURITY). "
-            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, "
+            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, "
             "DATA_WEB, TRACKING, CLI. Omitting this flag keeps all features."
         ),
     )

@@ -423,7 +423,7 @@ def _build_parser() -> argparse.ArgumentParser:
         help=(
             "Comma/space-separated optional features to REMOVE "
             "(e.g. 'META_LEARNING,HPO,SECURITY,TRACKING'). "
-            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, UI_LOGIC, DATA_WEB, TRACKING, CLI."
+            "Available: META_LEARNING, HPO, EVAL, SECURITY, CALLBACKS, ENUMS, DATA_WEB, TRACKING, CLI."
         ),
     )
     p.add_argument(

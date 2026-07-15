@@ -595,7 +595,7 @@ def main():
     # 3. Recursively process all Python files in logic/
     logic_dir = root / "logic"
     for p in logic_dir.glob("**/*.py"):
-        if "remove_tracking.py" in p.name or "remove_tracking_and_ui.py" in p.name or "remove_ui.py" in p.name:
+        if "remove_tracking.py" in p.name:
             continue
 
         remove_viz_mixin_from_file(p)
