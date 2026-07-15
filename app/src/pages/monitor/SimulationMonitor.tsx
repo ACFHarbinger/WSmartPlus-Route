@@ -19,7 +19,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { ChevronLeft, ChevronRight, Download, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
+import { ChevronLeft, ChevronRight, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
@@ -28,7 +28,6 @@ import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
 import { hexToRgb } from "../../utils/colors";
 import {
   enrichEntriesWithGraphCoords,
@@ -209,21 +208,7 @@ function RouteMapChart({ data }: { data: SimDayData }) {
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
         <p className="text-xs text-canvas-muted">Route Map Preview</p>
-        <div className="flex items-center gap-1">
-          <button
-            className="btn-ghost text-xs flex items-center gap-1"
-            onClick={() => exportChartPngWithToast(chartRef, "route-map.png")}
-          >
-            <Download size={12} />
-            PNG
-          </button>
-          <button
-            className="btn-ghost text-xs flex items-center gap-1"
-            onClick={() => exportChartSvgWithToast(chartRef, "route-map.svg")}
-          >
-            SVG
-          </button>
-        </div>
+        <ChartExportButtons chartRef={chartRef} filenameStem="route-map" />
       </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 280 }} />
     </div>

@@ -18,11 +18,8 @@ import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
 import { buildAttentionGraphOption } from "../../utils/attentionGraph";
-import {
-  exportChartPngWithToast,
-  exportChartSvgWithToast,
-  exportContainerCanvasPngWithToast,
-} from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
+import { exportContainerCanvasPngWithToast } from "../../utils/chartExport";
 import {
   distributionDisplayName,
   inferDistributionLabel,
@@ -956,24 +953,10 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
       {tab === "attention" && attentionView === "graph" && attentionGraphOption && (
         <div className="space-y-2">
           <div className="flex justify-end gap-2">
-            <button
-              className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() =>
-                exportChartPngWithToast(graphChartRef, `attention-graph-${selectedKey}.png`)
-              }
-            >
-              <Download size={12} />
-              PNG
-            </button>
-            <button
-              className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() =>
-                exportChartSvgWithToast(graphChartRef, `attention-graph-${selectedKey}.svg`)
-              }
-            >
-              <Download size={12} />
-              SVG
-            </button>
+            <ChartExportButtons
+              chartRef={graphChartRef}
+              filenameStem={`attention-graph-${selectedKey}`}
+            />
           </div>
           <ReactECharts ref={graphChartRef} option={attentionGraphOption} style={{ height: 400 }} notMerge />
           <p className="text-[10px] text-canvas-muted">
@@ -1031,51 +1014,19 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
       {tab === "attention" && attentionView === "heatmap" && heatmapOption && (
         <div className="space-y-2">
           <div className="flex justify-end gap-2 flex-wrap">
-            <button
-              className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportChartPngWithToast(chartRef, `attention-${selectedKey}.png`)}
-            >
-              <Download size={12} />
-              {compareMode === "side-by-side" || compareMode === "distribution" ? "Primary PNG" : "PNG"}
-            </button>
-            <button
-              className="btn-ghost text-xs flex items-center gap-1"
-              onClick={() => exportChartSvgWithToast(chartRef, `attention-${selectedKey}.svg`)}
-            >
-              <Download size={12} />
-              {compareMode === "side-by-side" || compareMode === "distribution" ? "Primary SVG" : "SVG"}
-            </button>
+            <ChartExportButtons
+              chartRef={chartRef}
+              filenameStem={`attention-${selectedKey}`}
+            />
             {(compareMode === "side-by-side" || compareMode === "distribution") && compareHeatmapOption && (
-              <>
-                <button
-                  className="btn-ghost text-xs flex items-center gap-1"
-                  onClick={() =>
-                    exportChartPngWithToast(
-                      compareChartRef,
-                      compareMode === "distribution"
-                        ? `attention-compare-${distCompareLabel}.png`
-                        : `attention-compare-step-${compareStep}.png`
-                    )
-                  }
-                >
-                  <Download size={12} />
-                  Compare PNG
-                </button>
-                <button
-                  className="btn-ghost text-xs flex items-center gap-1"
-                  onClick={() =>
-                    exportChartSvgWithToast(
-                      compareChartRef,
-                      compareMode === "distribution"
-                        ? `attention-compare-${distCompareLabel}.svg`
-                        : `attention-compare-step-${compareStep}.svg`
-                    )
-                  }
-                >
-                  <Download size={12} />
-                  Compare SVG
-                </button>
-              </>
+              <ChartExportButtons
+                chartRef={compareChartRef}
+                filenameStem={
+                  compareMode === "distribution"
+                    ? `attention-compare-${distCompareLabel}`
+                    : `attention-compare-step-${compareStep}`
+                }
+              />
             )}
           </div>
           <div
@@ -1160,20 +1111,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                 </div>
                 <div className="space-y-2">
                   <div className="flex justify-end gap-2">
-                    <button
-                      className="btn-ghost text-xs flex items-center gap-1"
-                      onClick={() => exportChartPngWithToast(lossChartRef, "loss-landscape.png")}
-                    >
-                      <Download size={12} />
-                      PNG
-                    </button>
-                    <button
-                      className="btn-ghost text-xs flex items-center gap-1"
-                      onClick={() => exportChartSvgWithToast(lossChartRef, "loss-landscape.svg")}
-                    >
-                      <Download size={12} />
-                      SVG
-                    </button>
+                    <ChartExportButtons chartRef={lossChartRef} filenameStem="loss-landscape" />
                   </div>
                   {lossOption && (
                     <ReactECharts ref={lossChartRef} option={lossOption} style={{ height: 248 }} notMerge />

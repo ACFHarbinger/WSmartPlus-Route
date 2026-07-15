@@ -4,8 +4,7 @@
 import { useCallback, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Download } from "lucide-react";
-import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
 import {
   buildPivot,
   pivotHeatmapOption,
@@ -168,30 +167,12 @@ export function PivotTablePanel({
       <div className="flex items-center justify-between gap-2">
         <p className="text-xs font-semibold text-gray-300">Pivot Table (§G.6)</p>
         {chartOption && (
-          <div className="flex items-center gap-1 shrink-0">
-            <button
-              type="button"
-              onClick={() =>
-                exportChartPngWithToast({ current: chartRef.current }, "pivot-heatmap.png")
-              }
-              className="btn-ghost text-xs flex items-center gap-1"
-              title="Export pivot heatmap as PNG"
-            >
-              <Download size={11} />
-              PNG
-            </button>
-            <button
-              type="button"
-              onClick={() =>
-                exportChartSvgWithToast({ current: chartRef.current }, "pivot-heatmap.svg")
-              }
-              className="btn-ghost text-xs flex items-center gap-1"
-              title="Export pivot heatmap as SVG"
-            >
-              <Download size={11} />
-              SVG
-            </button>
-          </div>
+          <ChartExportButtons
+            chartRef={{ current: chartRef.current }}
+            filenameStem="pivot-heatmap"
+            size={11}
+            className="shrink-0"
+          />
         )}
       </div>
 

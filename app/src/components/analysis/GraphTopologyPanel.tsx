@@ -5,11 +5,8 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { ChevronDown, ChevronUp, Download, RefreshCw } from "lucide-react";
-import {
-  exportChartPngWithToast,
-  exportChartSvgWithToast,
-  exportContainerCanvasPngWithToast,
-} from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
+import { exportContainerCanvasPngWithToast } from "../../utils/chartExport";
 import { toast } from "sonner";
 import type { DayLogEntry, SimDayData } from "../../types";
 import {
@@ -368,48 +365,31 @@ export function GraphTopologyPanel({
                 >
                   Re-run layout
                 </button>
-                {graphPayload && (
-                  <>
-                    <button
-                      type="button"
-                      onClick={() => {
-                        if (topologyView === "echarts" && chartOption) {
-                          exportChartPngWithToast(
-                            { current: chartRef.current },
-                            "topology-graph.png"
-                          );
-                          return;
-                        }
-                        const container =
-                          topologyView === "sigma"
-                            ? sigmaContainerRef.current
-                            : cosmographContainerRef.current;
-                        const stem =
-                          topologyView === "sigma"
-                            ? "topology-sigma.png"
-                            : "topology-cosmograph.png";
-                        exportContainerCanvasPngWithToast(container, stem);
-                      }}
-                      className="btn-ghost text-xs flex items-center gap-1"
-                    >
-                      <Download size={12} />
-                      PNG
-                    </button>
-                    {topologyView === "echarts" && chartOption && (
-                      <button
-                        type="button"
-                        onClick={() =>
-                          exportChartSvgWithToast(
-                            { current: chartRef.current },
-                            "topology-graph.svg"
-                          )
-                        }
-                        className="btn-ghost text-xs flex items-center gap-1"
-                      >
-                        SVG
-                      </button>
-                    )}
-                  </>
+                {graphPayload && topologyView === "echarts" && chartOption && (
+                  <ChartExportButtons
+                    chartRef={{ current: chartRef.current }}
+                    filenameStem="topology-graph"
+                  />
+                )}
+                {graphPayload && topologyView !== "echarts" && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      const container =
+                        topologyView === "sigma"
+                          ? sigmaContainerRef.current
+                          : cosmographContainerRef.current;
+                      const stem =
+                        topologyView === "sigma"
+                          ? "topology-sigma.png"
+                          : "topology-cosmograph.png";
+                      exportContainerCanvasPngWithToast(container, stem);
+                    }}
+                    className="btn-ghost text-xs flex items-center gap-1"
+                  >
+                    <Download size={12} />
+                    PNG
+                  </button>
                 )}
                 <span className="text-canvas-muted">
                   {tourCount} on tour · {graphPayload?.edges.length ?? 0} edges

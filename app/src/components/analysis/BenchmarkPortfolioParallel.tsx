@@ -4,8 +4,7 @@
 import { useMemo, useRef } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Download } from "lucide-react";
-import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
+import { ChartExportButtons } from "../common/ChartExportButtons";
 import { parallelAxisValue } from "../../utils/chartLogScale";
 import {
   cityScaleLabel,
@@ -133,30 +132,12 @@ export function BenchmarkPortfolioParallel({
           Portfolio Parallel Coordinates (§G.1.4)
           {logScale ? " · log-normalised axes" : ""}
         </p>
-        <div className="flex items-center gap-1 shrink-0">
-          <button
-            type="button"
-            onClick={() =>
-              exportChartPngWithToast({ current: chartRef.current }, "portfolio-parallel.png")
-            }
-            className="btn-ghost text-xs flex items-center gap-1"
-            title="Export portfolio parallel coordinates as PNG"
-          >
-            <Download size={11} />
-            PNG
-          </button>
-          <button
-            type="button"
-            onClick={() =>
-              exportChartSvgWithToast({ current: chartRef.current }, "portfolio-parallel.svg")
-            }
-            className="btn-ghost text-xs flex items-center gap-1"
-            title="Export portfolio parallel coordinates as SVG"
-          >
-            <Download size={11} />
-            SVG
-          </button>
-        </div>
+        <ChartExportButtons
+          chartRef={{ current: chartRef.current }}
+          filenameStem="portfolio-parallel"
+          size={11}
+          className="shrink-0"
+        />
       </div>
       <p className="text-[10px] text-canvas-muted">
         {runs.length} simulation log(s) — one polyline per loaded run · coloured by mandatory-selection
