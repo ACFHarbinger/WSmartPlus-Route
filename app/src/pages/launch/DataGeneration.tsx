@@ -576,6 +576,7 @@ export function DataGeneration() {
               }),
               runLabel: liveRunLabel,
               logPath: liveLogPath,
+              projectRoot,
               navMesh: {
                 kind: "data_gen",
                 hideSelf: true,
@@ -589,7 +590,13 @@ export function DataGeneration() {
                 ? { processId: displayProcessId }
                 : undefined
             }
-            footer={<ProcessIdFooter processId={displayProcessId} logPath={liveLogPath} />}
+            footer={
+              <ProcessIdFooter
+                processId={displayProcessId}
+                logPath={liveLogPath}
+                projectRoot={projectRoot}
+              />
+            }
             logLines={liveLogLines}
             logTailWaiting={!isDone}
           />

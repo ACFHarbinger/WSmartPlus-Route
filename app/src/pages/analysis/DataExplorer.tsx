@@ -78,7 +78,7 @@ export function DataExplorer() {
     if (duckdbReady) {
       setLoading(true);
       try {
-        const timing = await runCsvArrowPipeline(path, "explorer_csv");
+        const timing = await runCsvArrowPipeline(path, "explorer_csv", projectRoot);
         setLastPipeline(timing);
       } catch (err) {
         console.warn("DuckDB ingest failed:", err);
@@ -86,7 +86,7 @@ export function DataExplorer() {
         setLoading(false);
       }
     }
-  }, [pushRecent, duckdbReady, setLastPipeline, setLoading]);
+  }, [pushRecent, duckdbReady, projectRoot, setLastPipeline, setLoading]);
 
   const policyCol = useMemo(
     () => (file ? headerCol(file.headers, /^policy$/i) : undefined),

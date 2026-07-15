@@ -1244,6 +1244,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``ProcessIdFooter`` + ``LauncherLivePanelHeader`` + ``TrainHpoLivePanelHeader`` — optional ``projectRoot`` prop + store fallback on live-panel log-path suffix chips (§G.9–§G.18 / §D.7)
 - [x] §G.7 / §G.9–§G.18 derived run-label + live-panel relative-path path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-ninety-seventh pass)**
+
+- [x] ``runLabelFromSourcePath`` — resolve paths against ``projectRoot`` before ``run_label`` derivation (§G.0 / §G.6 / §G.7 / §D.7)
+- [x] ``annotateTableWithRunLabelIfMissing`` + ``runCsvArrowPipeline`` / ``runSimulationArrowPipeline`` — optional ``projectRoot`` resolves ingest source paths before DuckDB ``run_label`` annotation (§G.0 / §G.6 / §D.7)
+- [x] OLAP Explorer + Data Explorer + Algorithm Comparison + Simulation Monitor + Settings — Arrow pipeline callers pass ``projectRoot`` for single-log DuckDB ingest (§G.0 / §G.6 / §G.16 / §G.19 / §D.7)
+- [x] Simulation Summary — portfolio DuckDB log labels derived via ``runLabelFromSourcePath`` for brush/SQL parity (§G.1 / §G.6 / §D.7)
+- [x] ``PolicyTelemetryTrendsPanel`` — telemetry ``db_path`` ``PathRunLabelChip`` passes ``projectRoot`` (§A.3 / §G.7 / §D.7)
+- [x] Launcher + train/HPO live panels — explicit ``projectRoot`` on ``LauncherLivePanelHeader`` / ``TrainHpoLivePanelHeader`` + ``ProcessIdFooter`` across Simulation Launcher, Data Generation, Evaluation Runner, Training Hub, Process Monitor, Training Monitor, HPO Tracker, and Experiment Tracker (§G.9–§G.18 / §D.7)
+- [x] §G.0 / §G.6 DuckDB ingest + §G.9–§G.18 live-panel explicit ``projectRoot`` path-chip run-label brush parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1822,6 +1832,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``useLogPathRunLabelBrush`` + ``LoadedRunRow`` — ``projectRoot``-resolved portfolio/open-file brush sync + ring-highlight parity (hundred-ninety-fifth pass; §G.1 / §G.6 / §G.14–§G.17 / §D.7)
 - [x] Simulation Summary + Data Explorer + OLAP Explorer + Algorithm Comparison + Simulation Monitor + Process Monitor — open-file/process-row path-chip ``projectRoot`` parity (hundred-ninety-fifth pass; §G.1 / §G.6 / §G.15 / §G.16 / §D.7)
 - [x] Derived run-label utilities + live-panel headers — ``runLabelFromLogLines`` / ``useProcessRunLabelBrush`` / ``runLabelMapFrom*`` ``projectRoot`` resolution; Command Palette + Process Monitor row ring-highlight + live-panel footer/header path-chip parity (hundred-ninety-sixth pass; §G.7 / §G.9–§G.18 / §D.7)
+- [x] DuckDB Arrow ingest + explicit live-panel ``projectRoot`` — ``runLabelFromSourcePath`` + pipeline ``projectRoot`` annotation; Simulation Summary portfolio labels; Policy Telemetry db_path chip; launcher/train/HPO page header/footer parity (hundred-ninety-seventh pass; §G.0 / §G.6 / §G.9–§G.18 / §A.3 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

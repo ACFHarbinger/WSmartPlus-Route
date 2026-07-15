@@ -20,6 +20,15 @@ export function runLabelFromPath(path: string): string {
   return stem || base;
 }
 
+/** Resolve ``path`` against ``projectRoot`` then derive ``run_label`` (§G.0 / §G.6 / §G.7 / §D.7). */
+export function runLabelFromSourcePath(
+  path: string,
+  projectRoot?: string | null
+): string {
+  const resolved = resolveLocalProjectPath(path, projectRoot) ?? path;
+  return runLabelFromPath(resolved);
+}
+
 /** Scan process stdout for the first ``.jsonl`` path (newest line wins). */
 export function extractJsonlPathFromLogLines(lines: string[]): string | null {
   for (let i = lines.length - 1; i >= 0; i--) {

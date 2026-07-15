@@ -29,6 +29,7 @@ import {
   listDuckDbTables,
 } from "../../utils/duckdbClient";
 import {
+  runLabelFromSourcePath,
   runLabelMapFromSingleTableLabels,
   runLabelMapFromTablePaths,
   tableRunLabelBrushActive,
@@ -170,12 +171,12 @@ export function OlapExplorer() {
         ?.replace(/\.(csv|jsonl)$/i, "") ?? "data";
     const tableName = `${CUSTOM_TABLE_PREFIX}${base.replace(/[^a-zA-Z0-9_]/g, "_")}`;
     const isJsonl = path.toLowerCase().endsWith(".jsonl");
-    const runLabel = path.split(/[/\\]/).pop() ?? base;
+    const runLabel = runLabelFromSourcePath(path, projectRoot);
     setLoading(true);
     try {
       const timing = isJsonl
         ? await runPortfolioSimulationArrowPipeline([{ path, label: runLabel }], tableName)
-        : await runCsvArrowPipeline(path, tableName);
+        : await runCsvArrowPipeline(path, tableName, projectRoot);
       setLastPipeline(timing);
       setSelectedTable(tableName);
       setIngestedTablePaths((prev) => ({ ...prev, [tableName]: path }));
@@ -189,7 +190,7 @@ export function OlapExplorer() {
     } finally {
       setLoading(false);
     }
-  }, [refreshTables, setLastPipeline, setLoading]);
+  }, [projectRoot, refreshTables, setLastPipeline, setLoading]);
 
   const filterBarRunLabels = useMemo(() => {
     if (portfolioMode && runLabels.length > 0) return runLabels;

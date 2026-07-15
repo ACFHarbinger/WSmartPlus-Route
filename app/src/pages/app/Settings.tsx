@@ -419,8 +419,8 @@ export function Settings() {
             setLoading(true);
             try {
               const timing = path.toLowerCase().endsWith(".jsonl")
-                ? await runSimulationArrowPipeline(path, "bench_sim")
-                : await runCsvArrowPipeline(path, "bench_csv");
+                ? await runSimulationArrowPipeline(path, "bench_sim", draftRoot.trim() || null)
+                : await runCsvArrowPipeline(path, "bench_csv", draftRoot.trim() || null);
               setLastPipeline(timing);
               toast.success("Arrow pipeline complete", {
                 description: `${timing.totalMs} ms (${timing.rowCount} rows)`,
