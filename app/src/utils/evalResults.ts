@@ -22,6 +22,13 @@ export interface EvalResult {
   [key: string]: number | string | undefined;
 }
 
+/** Extract checkpoint load path from a Hydra eval command line, if present. */
+export function checkpointPathFromEvalCommand(command: string): string | null {
+  const match = command.match(/eval\.policy\.model\.load_path=([^\s]+)/);
+  if (!match) return null;
+  return match[1].replace(/^['"]|['"]$/g, "");
+}
+
 /** Derive a human-readable checkpoint label from process id or Hydra command. */
 export function checkpointLabelFromEvalProcess(id: string, command: string): string {
   if (id.startsWith("eval_")) {

@@ -13,6 +13,8 @@ const SHORTCUTS: Array<{ keys: string; action: string }> = [
   { keys: "L", action: "Simulation launcher" },
   { keys: "D", action: "Data generation wizard" },
   { keys: "V", action: "Evaluation runner" },
+  { keys: "B", action: "Benchmark analysis" },
+  { keys: "O", action: "Output browser" },
   { keys: "Ctrl+R", action: "Launch on active launcher page" },
   { keys: "Ctrl+S", action: "Save config file (Config Editor, when dirty)" },
   { keys: "Ctrl+.", action: "Cancel first running process" },

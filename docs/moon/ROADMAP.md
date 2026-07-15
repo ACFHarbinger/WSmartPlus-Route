@@ -807,6 +807,11 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``launcherProcess.ts`` — shared ``isSimProcess`` / ``isGenDataProcess`` / ``isEvalProcess`` helpers for Process Monitor launcher workflow panels
 - [x] Keyboard shortcuts ``L`` → Simulation Launcher, ``D`` → Data Generation, ``V`` → Evaluation Runner; help overlay updated (§D.7)
 
+**Delivered (§D.7 — hundred-forty-first pass)**
+
+- [x] ``LauncherNavMesh`` ``Output Browser →`` + ``Load in Eval Runner →`` on completed eval processes (§G.12 / §G.14 / §G.15)
+- [x] Keyboard shortcuts ``B`` → Benchmark Analysis, ``O`` → Output Browser; help overlay updated (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -831,7 +836,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 | ------------------------------------------- | -------- | ------ | --------------------------------- |
 | §D.3 Option A+B (theme toggle + persist)    | Very Low | Medium | P0 `[Quick Win]` ✅              |
 | §D.3 Option C (system theme following)      | Very Low | Medium | P0 `[Quick Win]` ✅              |
-| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅ (incl. T/H/E train + L/D/V launcher workflow) |
+| §D.7 Option A (keyboard shortcuts)          | Very Low | Medium | P0 `[Quick Win]` ✅ (incl. T/H/E/B/O train + L/D/V launcher workflow) |
 | §D.4 Option B (Tauri Store persistence)     | Low      | High   | P0 ✅ (Zustand persist)           |
 | §D.8 Option A+B (toast + OS notification)   | Low      | High   | P1 ✅ (toast + OS notification done) |
 | §D.5 Option A+C (cancel + progress modal)   | Medium   | High   | P1 ✅ (cancel + progress bars)    |
@@ -1540,6 +1545,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Live progress + ETA (hundred-thirty-eighth pass): per-checkpoint ``LiveTrainProgressBar`` in live progress panel during ``eval`` runs; multi-checkpoint aggregate status + stdout tail (§D.2 / §G.12)
 - [x] ``LauncherNavMesh`` + ``Benchmark Analysis →`` post-run shortcut in live eval panel (hundred-thirty-ninth pass; §D.7)
 - [x] ``evalResults.ts`` shared stdout JSON parsing + ``toEvalAnalyticsRows`` helpers (hundred-fortieth pass; §G.12 / §G.15)
+- [x] Live progress per-checkpoint KPI row + ``LauncherNavMesh`` ``Output Browser →`` post-run shortcut (hundred-forty-first pass; §G.12 / §G.14 / §D.7)
+- [x] ``checkpointPathFromEvalCommand`` + ``Load in Eval Runner →`` from completed eval processes (hundred-forty-first pass; §G.12 / §G.15)
 
 ---
 
@@ -1606,6 +1613,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Eval results panel (hundred-fortieth pass): selected ``eval`` processes parse structured JSON from stdout; KPI row (cost / gap / time / policy) + ``Open in Analytics →`` via ``pendingEvalResults`` (§G.12 / §G.15 / §D.7)
 - [x] ``LauncherNavMesh`` ``Benchmark Analysis →`` on completed eval processes when metrics are present (hundred-fortieth pass; §D.7 / §G.12)
 - [x] ``TrainHpoNavMesh`` ``Output Browser →`` on completed ``train_`` / ``hpo_`` processes (hundred-fortieth pass; §G.10 / §D.7)
+- [x] ``LauncherNavMesh`` ``Output Browser →`` + ``Load in Eval Runner →`` on completed eval processes (hundred-forty-first pass; §G.12 / §G.14 / §D.7)
 
 ---
 

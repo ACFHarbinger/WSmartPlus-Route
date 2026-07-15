@@ -324,6 +324,18 @@ export default function App() {
         setMode("eval_runner");
         return;
       }
+      // B → Benchmark analysis (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "b") {
+        e.preventDefault();
+        setMode("benchmark");
+        return;
+      }
+      // O → Output browser (§D.7)
+      if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "o") {
+        e.preventDefault();
+        setMode("output_browser");
+        return;
+      }
       // P → Process monitor (§G.7 / §D.7)
       if (!e.ctrlKey && !e.metaKey && !e.altKey && !e.shiftKey && e.key === "p") {
         e.preventDefault();
