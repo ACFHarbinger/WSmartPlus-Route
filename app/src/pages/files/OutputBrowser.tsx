@@ -345,16 +345,28 @@ export function OutputBrowser() {
         );
         setCsvHeaders(csvFile.headers);
         setCsvRows(csvFile.rows);
+        pushRecent({
+          path: entry.path,
+          label: portfolioRunLabel(entry.path, undefined, projectRoot),
+          kind: "csv",
+        });
       } else if (TEXT_EXTENSIONS.has(entry.extension)) {
         const text = await invoke<string>("read_text_file", { path: entry.path });
         setFileContent(text);
+        if (LOG_EXTENSIONS.has(entry.extension)) {
+          pushRecent({
+            path: entry.path,
+            label: portfolioRunLabel(entry.path, undefined, projectRoot),
+            kind: "log",
+          });
+        }
       }
     } catch (err) {
       toast.error("Failed to open file", { description: String(err) });
     } finally {
       setFileLoading(false);
     }
-  }, [toggleDir]);
+  }, [toggleDir, pushRecent, projectRoot]);
 
   const openInSimSummary = useCallback(
     (path: string) => {

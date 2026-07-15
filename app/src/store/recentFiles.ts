@@ -1,5 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
+import { portfolioRunLabel } from "../utils/arrowPipeline";
 
 export type RecentFileKind = "log" | "run" | "csv";
 
@@ -13,6 +14,7 @@ export interface RecentFile {
 interface RecentFilesState {
   files: RecentFile[];
   pushRecent: (file: Omit<RecentFile, "openedAt">) => void;
+  refreshRecentLabels: (projectRoot?: string | null) => void;
   removeRecent: (path: string) => void;
   clearRecent: () => void;
 }
@@ -31,6 +33,16 @@ export const useRecentFilesStore = create<RecentFilesState>()(
             ...s.files.filter((f) => f.path !== file.path),
           ].slice(0, MAX_RECENT);
           return { files: next };
+        }),
+      refreshRecentLabels: (projectRoot) =>
+        set((s) => {
+          if (s.files.length === 0) return s;
+          const files = s.files.map((f) => ({
+            ...f,
+            label: portfolioRunLabel(f.path, f.label, projectRoot),
+          }));
+          const changed = files.some((f, i) => f.label !== s.files[i]!.label);
+          return changed ? { files } : s;
         }),
       removeRecent: (path) =>
         set((s) => ({ files: s.files.filter((f) => f.path !== path) })),

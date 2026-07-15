@@ -1304,6 +1304,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Command Palette — refresh recent log/run/csv labels via ``portfolioRunLabel`` on open for ``projectRoot`` brush parity (§G.7 / §D.7)
 - [x] §G.1 / §G.1.6 / §G.8 / §G.14 portfolio load + bundle/drop handoff recent-file ``portfolioRunLabel`` parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-fifth pass)**
+
+- [x] ``refreshRecentLabels`` — re-derive persisted recent log/run/csv labels via ``portfolioRunLabel`` when Command Palette opens or ``projectRoot`` changes (§G.7 / §D.7)
+- [x] Command Palette — ``refreshRecentLabels`` on palette open; ``pendingCsvPath`` handoff for recent CSV entries (§G.7 / §G.6 / §D.7)
+- [x] Data Explorer — consume ``pendingCsvPath`` on mount for Command Palette CSV recent-file parity (§G.6 / §D.7)
+- [x] Output Browser — ``pushRecent`` via ``portfolioRunLabel`` on inline ``.jsonl`` / ``.csv`` file open in run tree viewer (§G.14 / §G.8 / §D.7)
+- [x] §G.7 / §G.14 recent-file label refresh + inline file-open ``portfolioRunLabel`` parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1897,6 +1905,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Global file drop + wsroute import recent-file push — ``useGlobalFileDrop`` + ``useWsrouteImport`` ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-fourth pass; §G.8 / §G.14 / §D.7)
 - [x] Portfolio load recent-file push — ``loadOutputPortfolio`` on Benchmark Analysis, City Comparison, and Simulation Summary (two-hundred-and-fourth pass; §G.1 / §G.1.6 / §D.7)
 - [x] Command Palette recent-file label refresh — ``portfolioRunLabel`` on log/run/csv open (two-hundred-and-fourth pass; §G.7 / §D.7)
+- [x] ``refreshRecentLabels`` store action — persisted recent-file labels re-derived on palette open + ``projectRoot`` change (two-hundred-and-fifth pass; §G.7 / §D.7)
+- [x] Command Palette CSV handoff — ``pendingCsvPath`` + Data Explorer consume for recent CSV open parity (two-hundred-and-fifth pass; §G.6 / §G.7 / §D.7)
+- [x] Output Browser inline file open recent-file push — ``.jsonl`` / ``.csv`` tree viewer ``pushRecent`` via ``portfolioRunLabel`` (two-hundred-and-fifth pass; §G.14 / §G.8 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)

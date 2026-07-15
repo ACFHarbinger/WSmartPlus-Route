@@ -19,12 +19,20 @@ function matchQuery(query: string, label: string, keywords?: string): boolean {
 }
 
 export function CommandPalette() {
-  const { projectRoot, setMode, theme, setTheme, setPendingLogPath, setPendingRunPath } =
-    useAppStore();
+  const {
+    projectRoot,
+    setMode,
+    theme,
+    setTheme,
+    setPendingLogPath,
+    setPendingRunPath,
+    setPendingCsvPath,
+  } = useAppStore();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
     useLayoutStore();
   const recentFiles = useRecentFilesStore((s) => s.files);
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+  const refreshRecentLabels = useRecentFilesStore((s) => s.refreshRecentLabels);
   const importWsroute = useWsrouteImport();
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
@@ -85,11 +93,12 @@ export function CommandPalette() {
 
   useEffect(() => {
     if (commandPaletteOpen) {
+      refreshRecentLabels(projectRoot);
       setQuery("");
       setActiveIndex(0);
       requestAnimationFrame(() => inputRef.current?.focus());
     }
-  }, [commandPaletteOpen]);
+  }, [commandPaletteOpen, projectRoot, refreshRecentLabels]);
 
   useEffect(() => {
     setActiveIndex((i) => (filtered.length ? Math.min(i, filtered.length - 1) : 0));
@@ -161,6 +170,7 @@ export function CommandPalette() {
                           label: portfolioRunLabel(file.path, file.label, projectRoot),
                           kind: "csv",
                         });
+                        setPendingCsvPath(file.path);
                         setMode("data_explorer");
                         setCommandPaletteOpen(false);
                       } else {
