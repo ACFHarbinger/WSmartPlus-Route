@@ -44,7 +44,7 @@ import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
 import {
   findRecentHpoProcessId,
   findRecentTrainProcessId,
-  liveTrainProcessLabel,
+  trainHpoLivePanelTitle,
 } from "../../utils/trainingProcess";
 import type { ProcessEntry, TrainingMetricsRow } from "../../types";
 
@@ -345,10 +345,13 @@ export function TrainingHub() {
   const latestMetric = liveMetrics[liveMetrics.length - 1];
   const showTrainingAnalytics =
     displayProcessId != null && (mode === "train" || mode === "hpo");
-  const liveProgressLabel =
-    displayProcessId && showTrainingAnalytics
-      ? liveTrainProcessLabel(displayProcessId)
-      : "Live Progress";
+  const trainHpoLiveTitle = trainHpoLivePanelTitle({
+    isRunning: !isDone,
+    status: runStatus ?? undefined,
+    processId: displayProcessId ?? undefined,
+    command: displayProc?.command,
+    kind: mode === "hpo" ? "hpo" : mode === "train" ? "train" : undefined,
+  });
 
   const evalCheckpointName = useMemo(() => {
     if (!displayProcessId || !displayProc) return checkpointPath.split(/[/\\]/).pop() ?? "checkpoint";
@@ -588,11 +591,7 @@ export function TrainingHub() {
         <TrainHpoLivePanel
           header={{
             status: isDone ? runStatus : "running",
-            title: isDone
-              ? runStatus === "completed"
-                ? "Run Complete"
-                : `Run ${runStatus}`
-              : liveProgressLabel,
+            title: trainHpoLiveTitle,
             metricCount: liveMetrics.length,
             healthCount: liveHealth.length,
             attentionCount: liveAttention.length,

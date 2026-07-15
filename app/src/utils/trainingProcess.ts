@@ -95,5 +95,42 @@ export function findRecentTrainProcessId(
 }
 
 export function liveTrainProcessLabel(id: string): string {
-  return id.startsWith("hpo_") ? "Live HPO" : "Live Training";
+  return trainHpoLivePanelTitle({ isRunning: true, processId: id });
+}
+
+/** Shared live/post-run train/HPO panel title for Training Hub, monitors, and trackers (§G.10 / §G.15 / §G.17 / §G.18 / §D.7). */
+export function trainHpoLivePanelTitle({
+  isRunning,
+  status,
+  processId,
+  command,
+  kind,
+}: {
+  isRunning: boolean;
+  status?: string;
+  processId?: string;
+  command?: string;
+  /** Explicit override when process id is not yet known (e.g. Training Hub mode selector). */
+  kind?: "train" | "hpo";
+}): string {
+  const resolvedKind =
+    kind ??
+    (processId
+      ? isHpoProcess(processId, command ?? "")
+        ? "hpo"
+        : "train"
+      : "train");
+
+  if (isRunning) {
+    return resolvedKind === "hpo" ? "Live HPO" : "Live Training";
+  }
+
+  const finalStatus = status ?? "completed";
+  if (finalStatus === "completed") {
+    return resolvedKind === "hpo" ? "HPO Complete" : "Training Complete";
+  }
+
+  return resolvedKind === "hpo"
+    ? `HPO ${finalStatus}`
+    : `Training ${finalStatus}`;
 }

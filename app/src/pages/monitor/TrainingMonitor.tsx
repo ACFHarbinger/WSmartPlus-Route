@@ -45,7 +45,7 @@ import {
   findActiveLiveTrainProcessId,
   findRecentTrainOrHpoProcessId,
   isHpoProcess,
-  liveTrainProcessLabel,
+  trainHpoLivePanelTitle,
 } from "../../utils/trainingProcess";
 import type {
   AttentionVizEntry,
@@ -372,9 +372,6 @@ export function TrainingMonitor() {
     () => findActiveLiveTrainProcessId(processes),
     [processes]
   );
-  const liveProcessLabel = activeTrainId
-    ? liveTrainProcessLabel(activeTrainId)
-    : "Live Training";
   const activeIsHpo = activeTrainId
     ? isHpoProcess(activeTrainId, processes[activeTrainId]?.command ?? "")
     : false;
@@ -400,6 +397,31 @@ export function TrainingMonitor() {
     [recentTrainProc]
   );
   const recentTrainLogLines = recentTrainProc?.logLines ?? [];
+  const liveRunLabel = useMemo(() => {
+    if (activeTrainId) {
+      return trainHpoLivePanelTitle({
+        isRunning: activeTrainRunning,
+        status: processes[activeTrainId]?.status,
+        processId: activeTrainId,
+        command: processes[activeTrainId]?.command,
+      });
+    }
+    if (recentTrainId && recentTrainProc) {
+      return trainHpoLivePanelTitle({
+        isRunning: false,
+        status: recentTrainProc.status,
+        processId: recentTrainId,
+        command: recentTrainProc.command,
+      });
+    }
+    return "Live Training";
+  }, [
+    activeTrainId,
+    activeTrainRunning,
+    processes,
+    recentTrainId,
+    recentTrainProc,
+  ]);
 
   const effectiveLiveMetrics = useMemo(() => {
     if (activeTrainId) return metricsMap[LIVE_KEY] ?? [];
@@ -645,14 +667,14 @@ export function TrainingMonitor() {
     const result: { name: string; metrics: TrainingMetricsRow[] }[] = [];
     // Live entry first
     if (selected.includes(LIVE_KEY) && effectiveLiveMetrics.length > 0) {
-      result.push({ name: liveProcessLabel, metrics: effectiveLiveMetrics });
+      result.push({ name: liveRunLabel, metrics: effectiveLiveMetrics });
     }
     for (const r of selectedRunObjects) {
       const metrics = metricsMap[r.name] ?? [];
       if (metrics.length > 0) result.push({ name: r.name, metrics });
     }
     return result;
-  }, [selected, selectedRunObjects, effectiveLiveMetrics, liveProcessLabel]);
+  }, [selected, selectedRunObjects, effectiveLiveMetrics, liveRunLabel]);
 
   const handleLoadCheckpoint = useCallback(
     (checkpointPath: string) => {
@@ -705,11 +727,12 @@ export function TrainingMonitor() {
               : recentTrainCompleted
                 ? "completed"
                 : recentTrainProc.status,
-            title: activeTrainRunning
-              ? liveProcessLabel
-              : recentTrainCompleted
-                ? `${liveTrainProcessLabel(recentTrainId).replace("Live ", "")} Complete`
-                : `${liveTrainProcessLabel(recentTrainId)} — ${recentTrainProc.status}`,
+            title: trainHpoLivePanelTitle({
+              isRunning: activeTrainRunning,
+              status: recentTrainProc.status,
+              processId: recentTrainId,
+              command: recentTrainProc.command,
+            }),
             metricCount: effectiveLiveMetrics.length,
             healthCount: effectiveLiveHealth.length,
             attentionCount: effectiveLiveAttention.length,
