@@ -5,7 +5,7 @@
 > **Status**: Living Document — updated each sprint  
 > **Scope**: Logic layer (`logic/src/`), GUI layer (migrating from `gui/src/` PySide6 → Tauri), CI/CD, documentation
 
-This document captures medium-to-long-horizon improvements for the WSmart+ Route framework across seven dimensions: Analytics & Interpretability, Architecture, Documentation, GUI/UX, New Features, Performance, and the WSmart-Route Studio Tauri application. Each item follows a **Pain → Options → Recommendation** structure with effort/impact tags.
+This document captures medium-to-long-horizon improvements for the WSmart+ Route framework across eight dimensions: Analytics & Interpretability, Architecture, Documentation, GUI/UX, New Features, Performance, the WSmart-Route Studio Tauri application, and the Analysis & Presentation Studio migration. Each item follows a **Pain → Options → Recommendation** structure with effort/impact tags.
 
 Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]` depends on another item
 
@@ -22,6 +22,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | [§E — New Features](#e--new-features)                                | Multi-problem benchmarking, REST API, LLM integration, export formats  |
 | [§F — Performance](#f--performance)                                  | Batched inference, GPU memory, test suite speed, simulation throughput |
 | [§G — WSmart-Route Studio](#g--wsmart-route-studio)                  | Tauri 2.0 app: analytics, geospatial, ML introspection, launcher UIs  |
+| [§H — Analysis & Presentation Studio](#h--analysis--presentation-studio) | Migration of `logic/gen/` report + deck generation into the Studio |
 
 ---
 
@@ -2856,6 +2857,193 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 
 ---
 
+## H — Analysis & Presentation Studio
+
+> Migration of the `logic/gen/` generation pipeline — `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their JSON/Jinja/mplstyle assets — into WSmart-Route Studio as a first-class **document authoring subsystem**. This is explicitly **not a 1:1 port**: the Python scripts are a batch pipeline with hardcoded geometry, colours, fontsizes and content baked into code; the Studio replaces them with a declarative, fully data-driven document model, native TS/Rust rendering, live editable previews, and a far richer feature set for building analysis reports and presentation decks.
+
+**Design decisions** (agreed 2026-07):
+
+1. **Full TS/Rust native rendering** — ECharts renders every chart for both preview and export (PNG/SVG from the same component instance); Rust owns OOXML generation (PPTX/DOCX/XLSX). No Python in the loop: preview ≡ output by construction. `matplotlib`, `plotly`, `python-pptx`, `docxtpl`, `openpyxl` and `pandoc` are all retired for this pipeline.
+2. **All output formats, plus new ones** — markdown report + figures, PPTX deck, speaker-script DOCX, XLSX results workbook (parity), **plus** PDF export and a self-contained interactive HTML report/deck (replacing the standalone Plotly HTML files).
+3. **Hybrid document model: declarative schema + per-element override patch layer** — a versioned document spec (typed element trees, layout constraints, data bindings) drives default layout and regeneration; user edits (nudged logo, resized figure, changed legend fontsize) are stored as a patch layer *on top of* the schema so they survive data refreshes and regeneration.
+4. **Full preview/editing UX suite** — per-element inspector panel, direct canvas manipulation, global theme/style editor, and a diff-&-regenerate workflow.
+
+**Additional technology** (extends the §G stack)
+
+| Concern | Technology |
+| --- | --- |
+| Chart rendering + export | Apache ECharts (canvas/SVG renderers; `getDataURL`/SVG string export) |
+| PPTX/DOCX/XLSX writing (Rust) | OOXML zip assembly via `zip` + `quick-xml` (or `rust_xlsxwriter` for XLSX) |
+| Equation preview | KaTeX (in-app live rendering of LaTeX) |
+| Equation export | LaTeX → MathML (WASM/Rust converter) → MathML-to-OMML XSLT / native Rust transform |
+| PDF export | Tauri print-to-PDF via WebView, or headless render of the HTML deck |
+| Document spec | Versioned JSON schema (`document.schema.json`), validated in Rust + TS (serde / zod) |
+| Diagram editing | SVG-based node/connector canvas (custom React, reusing Zustand state) |
+
+---
+
+### §H.0 — Phase 0: Document Spec & Theme Foundation
+
+**Goal**: Define the data model everything else consumes — no element, colour, fontsize, coordinate or label may be hardcoded in rendering code.
+
+- [ ] **Document schema**: versioned JSON schema for `report` and `deck` documents — a tree of typed elements (`section`, `slide`, `chart`, `table`, `equation`, `diagram`, `image`, `text`, `caption`, `legend-box`), each with a stable ID, data binding, style ref and layout constraints (grid/flex-like: rows, columns, weights, anchors) instead of absolute EMU/inch coordinates
+- [ ] **Override patch layer**: per-element patch records (`{elementId, path, value}`) stored separately from the base spec; applied at render time; survive regeneration; invalidated-with-warning when the target element disappears
+- [ ] **Theme system**: replaces `themes.json` + `*.mplstyle` + the `FS_*` fontsize-scale machinery — named themes (dark/light/custom) defining palettes (city/dist/strategy/improver/constructor/scenario/metric colour maps from `simulation_metadata.json` and `dataset_analysis_config.json`), per-element-class font scales (axis, label, legend, title), grid/marker/hatch cycles; editable and persistable as user themes
+- [ ] **Content model**: all deck text (titles, agenda, bullets, captions, speaker notes, acknowledgements, author/affiliation metadata) lives in the document spec — migrate `presentation_content.json` into it; no text literals in builder code
+- [ ] **Serde + zod validation**: same schema validated on both sides of the IPC boundary; schema-migration hook for version bumps
+- [ ] **Rust commands**: `load_document`, `save_document`, `apply_patch`, `list_themes`, `save_theme`
+- [ ] Automatic Figure/Table/Equation numbering as a render-time pass over the element tree (ports `apply_figure_table_numbers`)
+
+---
+
+### §H.1 — Phase 1: Data Ingestion & Statistics Engine
+
+**Goal**: Port every data-side capability of the Python scripts to Rust/DuckDB, reusing the §G.0 Arrow IPC pipeline.
+
+- [ ] **Raw output-tree parser** (ports `parse_output_dir` / `_parse_filename` / `_parse_area_dir`): walk `assets/output/<horizon>days/`, decode filename-encoded policy metadata (strategy prefixes, CF/SL variants, constructor tokens, acceptance, improver) using the parsing metadata currently in `simulation_metadata.json` — kept as data, editable in the app, so new strategies/constructors need no code change
+- [ ] **Summary dataset builder**: emit Arrow IPC / Parquet instead of CSV; ingest into DuckDB-Wasm for filtering, aggregation and pivots (subsumes `aggregate`, `filter_data`, `detect_scenarios`, variant labelling)
+- [ ] **NPZ/TD statistics** (ports `gen_dataset_analysis` data layer): Rust NPZ reader (`ndarray-npy`, shared with §G.5.1) computing extended stats — median, variance, quartiles, IQR, fences, binned mode, skewness — plus KDE and histogram binning for distribution-shape charts
+- [ ] **Pareto engine**: non-dominated front computation (ports `pareto_indices`) as a reusable Rust function exposed to chart specs
+- [ ] **Scenario/policy auto-detection with config narrowing**: everything auto-detected from data; the document spec can narrow scenarios, strategies, constructors, improvers, acceptance criteria (ports the CLI filter flags into interactive filter UI)
+- [ ] **Coordinate loading + repair** (ports `_load_bin_coords`, `_fix_stripped_decimal`): city coordinate sources declared in config, stripped-decimal recovery preserved
+- [ ] **Multi-horizon support**: horizon sets (30d/90d/…) as first-class dimension; cross-horizon comparison datasets derived automatically
+
+---
+
+### §H.2 — Phase 2: Chart Library Parity & Beyond
+
+**Goal**: Reimplement every figure type as a parameterised ECharts component driven by a chart spec (type + data binding + style ref), used identically for in-app preview and export.
+
+- [ ] Pareto scatter with step-line fronts, per-scenario front colours, filled/open improver markers, linear/symlog x-scale toggle, all-points vs front-only mode (ports `gen_pareto_scatter` + the interactive Plotly variant with its button toggles — now just component state)
+- [ ] KPI bar charts with min/max error bars, strategy colours, improver hatch/opacity pairing, symlog variants; combined multi-panel KPI figure (ports `gen_kpi_bar`, `gen_kpi_combined`, `_kpi_panel`)
+- [ ] Violin/box/histogram+KDE distribution charts (ports `gen_km_violin`, `gen_npz_violin`, `gen_npz_box`, `gen_npz_hist_kde`)
+- [ ] Policy×scenario and scenario×constructor heatmaps with symlog colour normalisation, metric toggle, optional shared side-legend mode (ports both heatmap generators + Plotly heatmap)
+- [ ] Strategy/improver bubble charts with collision-avoiding annotation placement (ports `_annotate_no_overlap` as a label-layout utility)
+- [ ] Constructor ranking (average-rank bars) and cross-horizon comparison charts (ports `gen_constructor_ranking`, `gen_horizon_comparison`)
+- [ ] Radar charts (curated subset + all-constructors) with normalised axes (ports `_render_radar`)
+- [ ] Dataset-analysis line/scatter families: size-scaling lines with reference-city diamond markers, horizon comparison, city comparison, TD/NPZ alignment, extended-stats grid (ports the `_plot_line_plus_ref` family)
+- [ ] Bin-location maps: replace OSMnx street basemaps with the existing deck.gl/MapLibre stack (§G.3) — all-bins and selected-bins per scenario, exportable as PNG
+- [ ] Hierarchical results table as a native renderable element (merged row/column header spans, global best-cell highlighting, partition/split by any hierarchy level, corner note, target-size stretching — ports `render_hier_table_image` + `compute_global_best` but as a DOM/SVG table, not a raster)
+- [ ] **Beyond parity**: every chart gets the §G.1 interactivity for free (tooltips, brushing, cross-filtering, log toggles) in preview; export snapshots any configured state
+
+---
+
+### §H.3 — Phase 3: Diagram Template Engine
+
+**Goal**: Replace the hand-placed native-shape slides and matplotlib-drawn conceptual diagrams with data-driven, editable diagram templates.
+
+- [ ] Diagram template types: `pipeline` (chevron stages), `column-grid` (policy grid / algo taxonomy), `tree` (DoE tree, B&B tree), `flow` (framework objective: sources → simulator → benchmark), `scene` (bin/truck simulator illustration), `annotated-plot` (LS operators, explore/exploit landscape, trajectory, population, knapsack, QA route illustration)
+- [ ] Each diagram is spec data (nodes, labels, colours-by-role, connectors) + a layout algorithm — the current hardcoded EMU coordinates and stage/taxonomy text become editable content
+- [ ] SVG diagram renderer with selectable/movable nodes and re-routable connectors; manual positions recorded in the override patch layer
+- [ ] Seeded procedural illustrations (QA route map with routes/unvisited nodes) as parameterised generators (node count, seed, route count editable)
+- [ ] Export path: SVG → PNG rasterisation for PPTX embedding; native SVG in HTML outputs
+
+---
+
+### §H.4 — Phase 4: Equation Pipeline
+
+**Goal**: Native editable equations without pandoc.
+
+- [ ] Equations stored as LaTeX strings in the document spec, with per-equation size/colour/alignment style refs
+- [ ] Live KaTeX rendering in preview (WYSIWYG in the slide/report canvas)
+- [ ] Export: LaTeX → MathML → OMML transform in Rust (or WASM) producing the same `mc:AlternateContent`/`a14:m` embedding with plain-text fallback that `_latex_to_omath`/`_apply_equation_to_paragraph` produce today — native editable equations in PowerPoint
+- [ ] Plain-text fallback generator (ports `_plain_fallback` symbol table, kept as data)
+- [ ] Equation numbering integrated with the Phase 0 numbering pass
+
+---
+
+### §H.5 — Phase 5: Report Builder
+
+**Goal**: Replace the Jinja-templated markdown reports with a composable report document.
+
+- [ ] Report composer view: section tree (auto-numbered TOC), narrative text blocks with analysis placeholders, chart elements, tables (Pareto-front membership, KPI min/max/mean, best-per-strategy, NPZ/TD/extended stats, full results matrix)
+- [ ] Dataset-analysis report template and simulation-analysis report template shipped as built-in document specs (reproducing today's report structures as starting points, fully editable)
+- [ ] Multi-horizon report assembly: per-horizon sections ordered small→large + conditional cross-horizon comparison section (ports the orchestration in `gen_simulation_analysis.main`)
+- [ ] Markdown export (GFM tables, `<figure>` full-width images, Figure/Table numbering — ports `finalize_markdown`)
+- [ ] Interactive HTML export: single self-contained file with embedded ECharts (replaces the Plotly HTML + injected JS snippets)
+- [ ] PDF export of the report
+
+---
+
+### §H.6 — Phase 6: Presentation Builder & Exporters
+
+**Goal**: Replace `gen_presentation.py` with a deck composer plus native Rust exporters.
+
+- [ ] Slide composer: slide list with layout templates (`cover`, `agenda-cards`, `equation+figure`, `diagram`, `figure` with side/bottom legend, `results-table`, `dark-statement` for acknowledgements/Q&A) — all layout parameters (logo slots, band positions, column splits) schema-driven with theme defaults, never hardcoded
+- [ ] Built-in "WSmart-Route results deck" template reproducing the current 21-slide structure as an editable starting document
+- [ ] **Rust PPTX exporter**: OOXML assembly — shapes, text frames, pictures, connectors, native tables, embedded OMML equations (Phase 4), correct 16:9 geometry from the layout engine's resolved boxes
+- [ ] **Rust DOCX exporter** for the speaker script (per-slide notes composed from element captions/notes fields — ports `gen_speaker_script` without docxtpl)
+- [ ] **Rust XLSX exporter** for the results matrix (merged headers, alternating fills, best-cell highlight fills — ports `export_results_excel`)
+- [ ] **PDF export** of the deck (WebView print pipeline or headless HTML render)
+- [ ] **HTML deck export**: self-contained slideshow (keyboard navigation, embedded interactive charts)
+- [ ] Results-table slide options: horizon selection (single/all), split-by-level partitioning, CLS-only filtering — all interactive settings on the element, not CLI flags
+
+---
+
+### §H.7 — Phase 7: Live Preview & Editing UX
+
+**Goal**: The core reason for the migration — see and adjust the exact output before producing files, replacing the regenerate-and-inspect loop and the `--fontsize-*` CLI flags.
+
+- [ ] **Preview canvas**: paginated slide preview / scrolling report preview rendered from the resolved spec (base + patches) at true output aspect; zoom and fit controls
+- [ ] **Inspector panel**: click any element (chart, axis, legend, logo, diagram node, caption, table) → typed controls for its style/layout properties — fontsize per element class, colours, alignment, scale toggles (linear/symlog), legend position, marker sizes; edits write to the patch layer and re-render instantly
+- [ ] **Direct manipulation**: drag/resize elements on the canvas, drag diagram nodes and connector endpoints, snap guides + alignment/distribution tools (e.g. realign the cover-slide logos by eye); positions recorded as patches
+- [ ] **Global theme editor**: edit palettes and per-class font scales once, watch every chart/slide update live (supersedes `set_chart_fontsize` and the mplstyle files); switch dark/light per document
+- [ ] **Diff & regenerate**: when underlying data changes (new simulation run, refreshed CSV), show per-element old/new preview diff; accept/reject regeneration per element; manual patches preserved where the element survives, flagged where it doesn't
+- [ ] **Export panel**: one-click multi-format export (PPTX + DOCX + XLSX + PDF + HTML + markdown) with per-format options; export uses the identical resolved spec as the preview
+- [ ] Undo/redo across spec + patch edits (Zustand middleware); document autosave
+
+---
+
+### §H.8 — Phase 8: Beyond Parity
+
+**Goal**: Capabilities the batch scripts could never offer.
+
+- [ ] Template gallery: save any document as a reusable template; parameterise by dataset/run so a new conference deck is "pick template + pick runs"
+- [ ] Chart spec designer: build new chart types from the data model (dimension/measure wells over DuckDB, ports naturally onto §G.6 OLAP work) and drop them into documents
+- [ ] Live data binding: documents reference runs/output dirs, not frozen CSVs — a document can be re-resolved against a newer run with the Phase 7 diff workflow
+- [ ] Deck/report version history with named snapshots; diff between snapshots
+- [ ] Batch export CLI (headless Tauri command or thin Rust binary) for CI regeneration of reports when new benchmark data lands (pairs with §B.2)
+- [ ] Collaborative review annotations (comments pinned to elements) for co-author feedback before export
+
+---
+
+### §H — Dependency Map
+
+```
+Phase 0 (spec + themes)      →  all phases
+Phase 1 (data engine)        →  Phase 2, Phase 5, Phase 6
+Phase 2 (chart library)      →  Phase 5, Phase 6, Phase 7
+Phase 3 (diagrams)           →  Phase 6, Phase 7
+Phase 4 (equations)          →  Phase 6
+Phase 5 (report builder)     →  Phase 7
+Phase 6 (deck builder)       →  Phase 7
+Phase 7 (preview/editing)    →  Phase 8
+§G.0 (Arrow/DuckDB)          →  Phase 1
+§G.1 (ECharts panels)        →  Phase 2 (shared components)
+§G.3 (deck.gl maps)          →  Phase 2 (bin-location maps)
+§G.6 (OLAP explorer)         →  Phase 8 (chart spec designer)
+```
+
+Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phases 1+2+5; `gen_simulation_analysis.py` after Phases 1+2+5; `gen_presentation.py` after Phases 3+4+6. Keep them frozen (bugfix-only) until their replacement phase ships end-to-end exports verified against reference outputs.
+
+---
+
+### Effort × Impact Matrix — Analysis & Presentation Studio
+
+| Phase | Description | Effort | Impact | Priority |
+| --- | --- | --- | --- | --- |
+| §H.0 | Document Spec & Themes | Medium | Very High | P0 |
+| §H.1 | Data Ingestion & Stats Engine | Medium | Very High | P0 `[Blocked]` §G.0 |
+| §H.2 | Chart Library Parity | High | Very High | P1 `[Blocked]` §H.0, §H.1 |
+| §H.4 | Equation Pipeline | Medium | High | P1 `[Blocked]` §H.0 |
+| §H.6 | Presentation Builder & Exporters | High | Very High | P1 `[Blocked]` §H.2, §H.3, §H.4 |
+| §H.3 | Diagram Template Engine | Medium | High | P2 `[Blocked]` §H.0 |
+| §H.5 | Report Builder | Medium | High | P2 `[Blocked]` §H.1, §H.2 |
+| §H.7 | Live Preview & Editing UX | High | Very High | P1 `[Blocked]` §H.2 |
+| §H.8 | Beyond Parity | High | Medium | P3 `[Blocked]` §H.7 |
+
+---
+
 ## Cross-Cutting Themes
 
 Several items across sections are tightly coupled and should be sequenced together:
@@ -2871,6 +3059,7 @@ Several items across sections are tightly coupled and should be sequenced togeth
 | **Config System**              | §B.3, §B.6, §D.6, §G.13        | Plugin registry + Hydra `_target_` + Studio config editor all depend on a clean config schema |
 | **Process Streaming**          | §G.9, §G.10, §G.11, §G.12, §G.15, §G.16 | All launchers share the same Rust→React stdout streaming infrastructure from §G.15 |
 | **Streamlit Parity**           | §G.16, §G.17, §G.18            | These three phases are a 1:1 port of the three most-used Streamlit modes; complete before removing Streamlit dependency |
+| **Document Authoring**         | §H.0–§H.8, §G.0, §G.1, §G.3, §G.6 | The Analysis & Presentation Studio reuses the Arrow/DuckDB pipeline, ECharts components, deck.gl maps and OLAP explorer; chart components should be built once and shared between dashboards (§G.1) and documents (§H.2) |
 
 ---
 
