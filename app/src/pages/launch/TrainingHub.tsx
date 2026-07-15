@@ -29,7 +29,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
@@ -45,7 +45,6 @@ import {
 } from "../../utils/evalResults";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 import {
   findRecentHpoProcessId,
   findRecentTrainProcessId,
@@ -175,10 +174,10 @@ function LiveChart({
 }
 
 export function TrainingHub() {
-  const { projectRoot, effectiveTheme, setMode, setPendingEvalResults } = useAppStore();
+  const { effectiveTheme, setMode, setPendingEvalResults } = useAppStore();
+  const { projectRoot, handoff } = useRecentHandoff();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   // Persisted form state (§D.4 session persistence)
   const {
@@ -224,7 +223,7 @@ export function TrainingHub() {
       filters: [{ name: "Checkpoint", extensions: ["pt", "ckpt", "pth"] }],
     })) as string | null;
     if (!path) return;
-    pushRecent(makeRecentEntry(path, "checkpoint", projectRoot));
+    handoff(path, "checkpoint", { navigate: false });
     setCheckpointPath(path);
   };
 
@@ -235,7 +234,7 @@ export function TrainingHub() {
     if (!path) return;
     // CSV datasets are reopenable in Data Explorer via Command Palette recents (§G.6 / §G.10).
     if (/\.csv$/i.test(path)) {
-      pushRecent(makeRecentEntry(path, "csv", projectRoot));
+      handoff(path, "csv", { navigate: false });
     }
     setEvalDataset(path);
   };

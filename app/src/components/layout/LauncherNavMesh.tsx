@@ -68,7 +68,14 @@ export function LauncherNavMesh({
       {kind === "sim" && (
         <>
           <button
-            onClick={() => setMode("simulation")}
+            onClick={() => {
+              // Post-run: hand off ``.jsonl`` so Digital Twin auto-loads (§G.16 / §G.9).
+              if (simLogPath) {
+                handoff(simLogPath, "log", { mode: "simulation" });
+              } else {
+                setMode("simulation");
+              }
+            }}
             className="btn-ghost text-xs text-canvas-muted"
           >
             Simulation Monitor →

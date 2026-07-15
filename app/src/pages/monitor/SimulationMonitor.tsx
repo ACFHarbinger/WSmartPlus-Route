@@ -24,7 +24,7 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { KpiCard } from "../../components/ui/KpiCard";
 import { useSimWatcher } from "../../hooks/useSimWatcher";
 import { useAppStore } from "../../store/app";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
@@ -57,7 +57,6 @@ import {
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import { filterFailureEntries } from "../../utils/simFailure";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import type { DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
 
@@ -380,10 +379,9 @@ export function SimulationMonitor() {
     setPendingLogPath,
     pendingMapCompare,
     setPendingMapCompare,
-    projectRoot,
     effectiveTheme: theme,
   } = useAppStore();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+  const { projectRoot, handoff } = useRecentHandoff();
   const {
     ready: duckdbReady,
     loading: duckdbLoading,
@@ -415,7 +413,7 @@ export function SimulationMonitor() {
       loadFailureEntries(failureHistorical);
       setActiveLogPath(path);
       if (watch) setWatchPath(path);
-      pushRecent(makeRecentEntry(path, "log", projectRoot));
+      handoff(path, "log", { navigate: false });
 
       if (duckdbReady) {
         setDuckdbLoading(true);
@@ -425,7 +423,7 @@ export function SimulationMonitor() {
           .finally(() => setDuckdbLoading(false));
       }
     },
-    [reset, loadEntries, loadPolicyVizEntries, loadFailureEntries, setWatchPath, pushRecent, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]
+    [reset, loadEntries, loadPolicyVizEntries, loadFailureEntries, setWatchPath, handoff, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]
   );
 
   const openLog = useCallback(async () => {

@@ -52,11 +52,12 @@ export interface UseRecentHandoffResult {
   /**
    * Push a recent entry and navigate via pending-path handoff.
    * Pass ``navigate: false`` to only update recents (local file pickers).
+   * Pass ``mode`` to override the default destination (e.g. log → Monitor).
    */
   handoff: (
     path: string,
     kind: RecentFileKind,
-    opts?: Pick<ApplyRecentHandoffArgs, "storedLabel" | "navigate">
+    opts?: Pick<ApplyRecentHandoffArgs, "storedLabel" | "navigate" | "mode">
   ) => RecentHandoffSpec;
 }
 
@@ -71,7 +72,7 @@ export function useRecentHandoff(): UseRecentHandoffResult {
     (
       path: string,
       kind: RecentFileKind,
-      opts?: Pick<ApplyRecentHandoffArgs, "storedLabel" | "navigate">
+      opts?: Pick<ApplyRecentHandoffArgs, "storedLabel" | "navigate" | "mode">
     ): RecentHandoffSpec =>
       applyRecentHandoff({
         path,
@@ -82,6 +83,7 @@ export function useRecentHandoff(): UseRecentHandoffResult {
         pendingSetters,
         storedLabel: opts?.storedLabel,
         navigate: opts?.navigate,
+        mode: opts?.mode,
       }),
     [projectRoot, pushRecent, setMode, pendingSetters]
   );

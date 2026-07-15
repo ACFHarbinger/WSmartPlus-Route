@@ -1376,6 +1376,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Nav meshes, Command Palette, global drop, wsroute import, Output Browser, Training Monitor checkpoint load migrate to ``useRecentHandoff`` (§G.7–§G.15 / §G.17 / §D.7)
 - [x] §G.9 / §G.1 post-run Simulation Summary log handoff + shared hook parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-thirteenth pass)**
+
+- [x] ``applyRecentHandoff`` / ``handoff`` optional ``mode`` override — open logs in Simulation Monitor (Digital Twin) without changing ``pendingLogPath`` (§G.7 / §G.16 / §D.7)
+- [x] ``LauncherNavMesh`` **Simulation Monitor →** hands off ``simLogPath`` with ``mode: "simulation"`` (§G.9 / §G.16 / §D.7)
+- [x] Command Palette log open — shared handoff; Summary on successful load, Monitor fallback via mode override (§G.7 / §G.1 / §G.16 / §D.7)
+- [x] Local open / multi-select call sites migrate to ``handoff(…, { navigate: false })`` (launchers, monitors, analytics, Output Browser, global drop) (§G.1 / §G.6 / §G.10–§G.17 / §D.7)
+- [x] §G.16 / §G.9 post-run Simulation Monitor log handoff + studio-wide ``navigate: false`` recent-file parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions

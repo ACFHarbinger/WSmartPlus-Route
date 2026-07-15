@@ -14,7 +14,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
@@ -82,7 +82,6 @@ import {
 } from "../../utils/outputRunLogs";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
@@ -1834,7 +1833,8 @@ function MetricBarChart({
 interface ComparisonRun extends PortfolioRunSlice {}
 
 export function SimulationSummary() {
-  const { pendingLogPath, setPendingLogPath, projectRoot, effectiveTheme: theme } = useAppStore();
+  const { pendingLogPath, setPendingLogPath, effectiveTheme: theme } = useAppStore();
+  const { projectRoot, handoff } = useRecentHandoff();
   const {
     ready: duckdbReady,
     loading: duckdbLoading,
@@ -1859,14 +1859,12 @@ export function SimulationSummary() {
   const [showRouteDiff, setShowRouteDiff] = useState(false);
   const cityCompareChartRef = useRef<EChartsReact | null>(null);
 
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
-
   const loadLog = useCallback(async (path: string) => {
     const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     setEntries(loaded);
     setLogPath(path);
-    pushRecent(makeRecentEntry(path, "log", projectRoot));
-  }, [pushRecent, projectRoot]);
+    handoff(path, "log", { navigate: false });
+  }, [handoff]);
 
   const allDuckDbLogs = useMemo(() => {
     const logs: { path: string; label: string }[] = [];
@@ -1920,7 +1918,7 @@ export function SimulationSummary() {
     try {
       const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
       const label = portfolioRunLabel(path, undefined, projectRoot);
-      pushRecent(makeRecentEntry(path, "log", projectRoot, label));
+      handoff(path, "log", { storedLabel: label, navigate: false });
       setComparisonRuns((prev) => [
         ...prev.filter((r) => r.path !== path),
         { path, label, entries: loaded },
@@ -1928,7 +1926,7 @@ export function SimulationSummary() {
     } catch (err) {
       toast.error("Failed to load comparison log", { description: String(err) });
     }
-  }, [projectRoot, pushRecent]);
+  }, [projectRoot, handoff]);
 
   const loadOutputPortfolio = useCallback(async () => {
     if (!projectRoot) {
@@ -1955,7 +1953,7 @@ export function SimulationSummary() {
       if (loaded.length > 0) {
         const [primary, ...rest] = loaded;
         for (const r of loaded) {
-          pushRecent(makeRecentEntry(r.path, "log", projectRoot, r.label));
+          handoff(r.path, "log", { storedLabel: r.label, navigate: false });
         }
         if (!logPath) {
           await loadLog(primary.path);
@@ -1984,7 +1982,7 @@ export function SimulationSummary() {
     } finally {
       setPortfolioLoading(false);
     }
-  }, [projectRoot, logPath, loadLog, pushRecent]);
+  }, [projectRoot, logPath, loadLog, handoff]);
 
   const removeComparisonRun = useCallback((path: string) => {
     setComparisonRuns((prev) => prev.filter((r) => r.path !== path));

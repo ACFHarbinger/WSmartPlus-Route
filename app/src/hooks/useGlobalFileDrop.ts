@@ -4,11 +4,7 @@ import { toast } from "sonner";
 import { useLayoutStore } from "../store/layout";
 import { recentKindFromPath, type RecentFileKind } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
-import {
-  highestPriorityKind,
-  makeRecentEntry,
-  recentHandoffSpec,
-} from "../utils/recentHandoff";
+import { highestPriorityKind, recentHandoffSpec } from "../utils/recentHandoff";
 import { useFileDrop } from "./useFileDrop";
 import { useRecentHandoff } from "./useRecentHandoff";
 
@@ -22,7 +18,7 @@ function findPath(paths: string[], re: RegExp): string | undefined {
  * bundles through shared ``recentKindFromPath`` + ``useRecentHandoff`` handoffs.
  */
 export function useGlobalFileDrop() {
-  const { projectRoot, setMode, pushRecent, pendingSetters, handoff } = useRecentHandoff();
+  const { projectRoot, setMode, handoff } = useRecentHandoff();
   const setFileDropDragging = useLayoutStore((s) => s.setFileDropDragging);
 
   const handoffKind = useCallback(
@@ -82,27 +78,26 @@ export function useGlobalFileDrop() {
         return;
       }
 
-      // Push every classified path for Command Palette recents parity.
-      for (const { path, kind } of classified) {
-        pushRecent(makeRecentEntry(path, kind, projectRoot));
-      }
-
       const primaryKind = highestPriorityKind(classified.map((c) => c.kind));
       const primary = primaryKind
         ? classified.find((c) => c.kind === primaryKind)
         : undefined;
       if (!primary) return;
 
+      // Push every path to recents; only primary navigates via pending-path handoff.
+      for (const { path, kind } of classified) {
+        const isPrimary = path === primary.path && kind === primary.kind;
+        handoff(path, kind, { navigate: isPrimary });
+      }
+
       const spec = recentHandoffSpec(primary.kind);
-      pendingSetters[spec.pendingKey](primary.path);
-      setMode(spec.mode);
       const extra =
         classified.length > 1 ? ` (+${classified.length - 1} more in Recent)` : "";
       toast.success(`${spec.successLabel}${extra}`, {
         description: primary.path.split(/[/\\]/).pop(),
       });
     },
-    [projectRoot, pushRecent, setMode, handoffKind, pendingSetters]
+    [projectRoot, setMode, handoffKind, handoff]
   );
 
   return useFileDrop(handleDrop, true, setFileDropDragging);

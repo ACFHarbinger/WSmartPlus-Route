@@ -14,8 +14,9 @@ import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useDuckDbStore } from "../../store/duckdb";
-import { useRecentFilesStore } from "../../store/recentFiles";
+
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
   formatPipelineTimingBadge,
@@ -24,7 +25,6 @@ import {
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 import { groupRunLabelsByCity } from "../../utils/cityComparison";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 import {
   duckDbHasColumn,
   duckDbRowCount,
@@ -40,7 +40,8 @@ import {
 const CUSTOM_TABLE_PREFIX = "olap_";
 
 export function OlapExplorer() {
-  const { projectRoot, effectiveTheme: theme } = useAppStore();
+  const { effectiveTheme: theme } = useAppStore();
+  const { projectRoot, handoff } = useRecentHandoff();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
   const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
@@ -62,7 +63,6 @@ export function OlapExplorer() {
   const [portfolioMode, setPortfolioMode] = useState(false);
   const [ingestedTablePaths, setIngestedTablePaths] = useState<Record<string, string>>({});
   const [tableRunLabelsByName, setTableRunLabelsByName] = useState<Record<string, string[]>>({});
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const selectedIngestPath = ingestedTablePaths[selectedTable] ?? null;
   const selectedTableRunLabels = tableRunLabelsByName[selectedTable] ?? [];
@@ -182,7 +182,7 @@ export function OlapExplorer() {
     const tableName = `${CUSTOM_TABLE_PREFIX}${base.replace(/[^a-zA-Z0-9_]/g, "_")}`;
     const isJsonl = path.toLowerCase().endsWith(".jsonl");
     const runLabel = portfolioRunLabel(path, undefined, projectRoot);
-    pushRecent(makeRecentEntry(path, isJsonl ? "log" : "csv", projectRoot, runLabel));
+    handoff(path, isJsonl ? "log" : "csv", { storedLabel: runLabel, navigate: false });
     setLoading(true);
     try {
       const timing = isJsonl
@@ -205,7 +205,7 @@ export function OlapExplorer() {
     } finally {
       setLoading(false);
     }
-  }, [projectRoot, refreshTables, setLastPipeline, setLoading, pushRecent]);
+  }, [projectRoot, refreshTables, setLastPipeline, setLoading, handoff]);
 
   const filterBarRunLabels = useMemo(() => {
     if (portfolioMode && runLabels.length > 0) return runLabels;

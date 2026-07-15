@@ -35,7 +35,7 @@ import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useProcessStore } from "../../store/process";
-import { useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import type { ProcessStatus } from "../../types";
 import {
@@ -50,7 +50,6 @@ import {
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentEvalProcessIds } from "../../utils/launcherProcess";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
-import { makeRecentEntry } from "../../utils/recentHandoff";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;
@@ -283,11 +282,11 @@ function CheckpointRow({
 }
 
 export function EvaluationRunner() {
-  const { projectRoot, pendingCheckpoint, setPendingCheckpoint, setMode, setPendingEvalResults } =
+  const { pendingCheckpoint, setPendingCheckpoint, setMode, setPendingEvalResults } =
     useAppStore();
+  const { projectRoot, handoff } = useRecentHandoff();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
-  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   // Checkpoint list — pre-populated from Training Monitor "Load in Eval Runner" action
   const [checkpoints, setCheckpoints] = useState<CheckpointEntry[]>([
@@ -297,11 +296,11 @@ export function EvaluationRunner() {
   // Consume pendingCheckpoint set by TrainingMonitor checkpoint browser
   useEffect(() => {
     if (pendingCheckpoint) {
-      pushRecent(makeRecentEntry(pendingCheckpoint, "checkpoint", projectRoot));
+      handoff(pendingCheckpoint, "checkpoint", { navigate: false });
       setCheckpoints([{ id: "ckpt_pending", path: pendingCheckpoint }]);
       setPendingCheckpoint(null);
     }
-  }, [pendingCheckpoint, projectRoot, pushRecent, setPendingCheckpoint]);
+  }, [pendingCheckpoint, handoff, setPendingCheckpoint]);
 
   // Eval params
   const [problem, setProblem] = useState("vrpp");
@@ -412,7 +411,7 @@ export function EvaluationRunner() {
       filters: [{ name: "Checkpoint", extensions: ["pt", "ckpt", "pth"] }],
     })) as string | null;
     if (!path) return;
-    pushRecent(makeRecentEntry(path, "checkpoint", projectRoot));
+    handoff(path, "checkpoint", { navigate: false });
     updateCheckpoint(id, path);
   };
 
@@ -423,7 +422,7 @@ export function EvaluationRunner() {
     if (!path) return;
     // CSV datasets are reopenable in Data Explorer via Command Palette recents (§G.6 / §G.12).
     if (/\.csv$/i.test(path)) {
-      pushRecent(makeRecentEntry(path, "csv", projectRoot));
+      handoff(path, "csv", { navigate: false });
     }
     setDatasetPath(path);
   };
