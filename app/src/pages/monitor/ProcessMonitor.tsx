@@ -39,8 +39,7 @@ import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 import { LauncherNavMesh } from "../../components/layout/LauncherNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
-import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
+import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
 import {
   isSimProcess,
   launcherKindFromProcess,
@@ -587,26 +586,26 @@ export function ProcessMonitor() {
 
       {selectedIsTrain && selectedProc && (
         <div className="space-y-3 pt-2 border-t border-canvas-border">
-          <div className="flex items-center gap-2 flex-wrap">
-            <p className="text-xs text-canvas-muted flex-1 min-w-0">
-              Training analytics for{" "}
-              <span className="font-mono text-gray-300">{selectedProc.id}</span>
-              {selectedProc.status === "running" && (
-                <span className="ml-2 text-accent-success">· live</span>
-              )}
-            </p>
-            <TrainHpoNavMesh
-              showHpoLinks={isHpoProcess(selectedProc.id, selectedProc.command)}
-              showOutputBrowser={selectedProc.status === "completed"}
-              outputRunPath={trainOutputRunPath}
-              trainingRunPath={trainRunPath}
-            />
-            <TrainHpoRehydrationBadges
-              metricCount={trainingMetrics.length}
-              healthCount={trainingHealthEntries.length}
-              attentionCount={attentionEntries.length}
-            />
-          </div>
+          <TrainHpoLivePanelHeader
+            status={selectedProc.status}
+            title={
+              <>
+                Training analytics for{" "}
+                <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              </>
+            }
+            metricCount={trainingMetrics.length}
+            healthCount={trainingHealthEntries.length}
+            attentionCount={attentionEntries.length}
+            titleTone="muted"
+            showLiveSuffix
+            navMesh={{
+              showHpoLinks: isHpoProcess(selectedProc.id, selectedProc.command),
+              showOutputBrowser: selectedProc.status === "completed",
+              outputRunPath: trainOutputRunPath,
+              trainingRunPath: trainRunPath,
+            }}
+          />
 
           {selectedProc.status === "running" && (
             <LiveTrainProgressBar

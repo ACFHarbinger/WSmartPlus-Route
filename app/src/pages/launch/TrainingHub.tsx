@@ -13,12 +13,11 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle } from "lucide-react";
+import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { TrainHpoAnalyticsStrip } from "../../components/monitor/TrainHpoAnalyticsStrip";
-import { TrainHpoRehydrationBadges } from "../../components/monitor/TrainHpoRehydrationBadges";
+import { TrainHpoLivePanelHeader } from "../../components/monitor/TrainHpoLivePanelHeader";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
@@ -517,35 +516,30 @@ export function TrainingHub() {
       {/* Live progress panel */}
       {displayProcessId && (
         <div className="card space-y-3">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-2">
-              {isDone ? (
-                runStatus === "completed"
-                  ? <CheckCircle size={14} className="text-accent-success" />
-                  : <XCircle size={14} className="text-accent-danger" />
-              ) : (
-                <Activity size={14} className="text-accent-primary animate-pulse" />
-              )}
-              <h2 className="text-sm font-semibold text-gray-200">
-                {isDone
-                  ? runStatus === "completed" ? "Run Complete" : `Run ${runStatus}`
-                  : liveProgressLabel}
-              </h2>
-              <TrainHpoRehydrationBadges
-                metricCount={liveMetrics.length}
-                healthCount={liveHealth.length}
-                attentionCount={liveAttention.length}
-              />
-            </div>
-            <TrainHpoNavMesh
-              hideHub
-              showTrainLinks={showTrainingAnalytics}
-              showHpoLinks={mode === "hpo"}
-              showOutputBrowser={isDone && runStatus === "completed"}
-              outputRunPath={outputRunPath}
-              trainingRunPath={trainingRunPath}
-            />
-          </div>
+          <TrainHpoLivePanelHeader
+            status={isDone ? runStatus : "running"}
+            title={
+              isDone
+                ? runStatus === "completed"
+                  ? "Run Complete"
+                  : `Run ${runStatus}`
+                : liveProgressLabel
+            }
+            metricCount={liveMetrics.length}
+            healthCount={liveHealth.length}
+            attentionCount={liveAttention.length}
+            layout="split"
+            runningIcon="activity"
+            titleTone="heading"
+            navMesh={{
+              hideHub: true,
+              showTrainLinks: showTrainingAnalytics,
+              showHpoLinks: mode === "hpo",
+              showOutputBrowser: isDone && runStatus === "completed",
+              outputRunPath,
+              trainingRunPath,
+            }}
+          />
 
           {!isDone && displayProcessId && (
             <LiveTrainProgressBar

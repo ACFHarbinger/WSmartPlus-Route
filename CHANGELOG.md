@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-fourth pass (§G.10 + §G.15 + §G.17 + §G.18 + §A.2 + §A.4 + §D.7)
+
+Hundred-fifty-fourth pass closes the live panel header parity gap left after the
+hundred-fifty-third pass (which deduplicated ``TrainHpoRehydrationBadges`` across
+train/HPO workflow pages). Training Hub, HPO Tracker, Experiment Tracker, and
+Process Monitor now share ``TrainHpoLivePanelHeader`` so status icons, titles,
+rehydration badges, and ``TrainHpoNavMesh`` shortcuts render consistently.
+
+**React frontend**
+- ``TrainHpoLivePanelHeader`` — shared status icon + title + optional process id +
+  rehydration badges + nav mesh row for train/HPO live panels (§G.10 / §G.15 /
+  §G.17 / §G.18 / §A.2 / §A.4 / §D.7)
+- Training Hub — ``split`` layout + ``activity`` running icon via shared header (§G.10 / §D.7)
+- HPO Tracker + Experiment Tracker — deduplicated inline live HPO header blocks (§G.18 / §G.17 / §D.7)
+- Process Monitor — ``muted`` analytics subtitle header + badges-before-nav ordering parity (§G.15 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub ``TrainHpoLivePanelHeader`` split layout checked
+- §G.15 Process Monitor muted analytics header parity checked
+- §G.17 HPO Tracker shared live header deduplication checked
+- §G.18 Experiment Tracker shared live header deduplication checked
+- §A.2 / §A.4 live panel header + nav mesh parity checked
+- §D.7 train/HPO workflow header row parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-fifty-third pass (§G.10 + §G.15 + §G.17 + §G.18 + §A.2 + §A.4 + §D.7)
 
 Hundred-fifty-third pass closes the header badge parity gap left after the
