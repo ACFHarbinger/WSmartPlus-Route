@@ -17,6 +17,7 @@ Example:
     >>> callbacks = [TrainingDisplayCallback(metric_keys="train/reward"), SpeedMonitor()]
 """
 
+from .pytorch.attention_heatmaps import AttentionHeatmapCallback
 from .pytorch.model_summary import ModelSummaryCallback
 from .pytorch.reptile import ReptileCallback
 from .pytorch.speed_monitor import SpeedMonitor
@@ -26,6 +27,7 @@ from .simulation.policy_summary import PolicySummaryCallback
 from .simulation.simulation_display import SimulationDisplayCallback
 
 __all__ = [
+    "AttentionHeatmapCallback",
     "TrainingDisplayCallback",
     "TrainingHealthCallback",
     "ReptileCallback",
