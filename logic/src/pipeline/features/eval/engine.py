@@ -60,6 +60,7 @@ from logic.src.configs import Config
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.loader import save_dataset
+from logic.src.utils.functions import move_to
 from logic.src.utils.model.loader import load_model
 
 mp = torch.multiprocessing.get_context("spawn")
@@ -247,6 +248,14 @@ def _eval_dataset(
         softmax_temperature=softmax_temp,
         **eval_kwargs,
     )
+
+    with contextlib.suppress(Exception):
+        from logic.src.tracking.logging.visualization.heatmaps import (
+            maybe_log_eval_attention_heatmaps,
+        )
+
+        first_batch = move_to(next(iter(dataloader)), device)
+        maybe_log_eval_attention_heatmaps(model, first_batch, cfg, output_subdir="eval_attention")
 
     costs_best = eval_results["rewards"]
     sequences_best = eval_results["sequences"].cpu().numpy()

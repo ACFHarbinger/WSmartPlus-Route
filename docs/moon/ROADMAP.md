@@ -60,6 +60,16 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 
 **Effort × Impact**: Low effort (Option C) → Medium effort (Option A) / High impact
 
+**Delivered (§A.2 Option C — hundred-thirteenth pass)**
+
+- [x] ``logic/src/tracking/logging/visualization/heatmaps.py`` — runtime attention capture via ``add_attention_hooks``, PNG rendering, WandB ``wandb.Image`` + TensorBoard ``add_image`` logging
+- [x] ``AttentionHeatmapCallback`` — validation-epoch hook; respects ``tracking.log_attention``, ``tracking.log_attention_heatmaps``, and ``viz_every_n_epochs``
+- [x] ``WSTrainer`` — auto-registers callback when tracking flags enabled
+- [x] Eval engine — ``maybe_log_eval_attention_heatmaps()`` after ``evaluate_policy`` when ``tracking.log_attention*`` set
+- [x] Unit tests in ``logic/test/unit/tracking/test_attention_heatmaps.py``
+
+**Status**: §A.2 Option C complete — Option A (Studio ML introspection ring-buffer) and Option B (BertViz) deferred.
+
 ---
 
 ### §A.3 — Policy Telemetry Dashboard (Extension of `PolicyVizMixin`)
@@ -178,7 +188,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | §A.3 Option A (PolicyVizMixin → Studio)  | Very Low  | High   | P0 ✅            |
 | §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0 ✅            |
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1 ✅            |
-| §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1              |
+| §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1 ✅            |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1 ✅            |
 | §A.1 Option A (ECharts route viz)        | Medium    | High   | P2              |
 | §A.1 Option E (deck.gl PathLayer)        | High      | High   | P2              |

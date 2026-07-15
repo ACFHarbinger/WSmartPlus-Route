@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirteenth pass (§A.2)
+
+Hundred-thirteenth pass adds WandB / TensorBoard attention heatmap logging during
+evaluation and validation, completing ROADMAP §A.2 Option C.
+
+**Python logic**
+- ``logic/src/tracking/logging/visualization/heatmaps.py`` — runtime attention
+  capture via ``add_attention_hooks``, PNG rendering, WandB ``wandb.Image`` and
+  TensorBoard image logging
+- ``AttentionHeatmapCallback`` — Lightning validation hook; respects
+  ``tracking.log_attention``, ``tracking.log_attention_heatmaps``, and
+  ``viz_every_n_epochs``
+- ``WSTrainer`` — auto-registers ``AttentionHeatmapCallback`` when tracking flags enabled
+- Eval engine — ``maybe_log_eval_attention_heatmaps()`` after ``evaluate_policy``
+- Unit tests in ``logic/test/unit/tracking/test_attention_heatmaps.py``
+
+**ROADMAP**
+- §A.2 Option C WandB attention heatmaps checked (Options A/B deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twelfth pass (§A.6)
 
 Hundred-twelfth pass adds ``FailureAnalyzer`` post-day root-cause diagnostics and wires

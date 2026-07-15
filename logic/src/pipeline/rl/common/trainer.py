@@ -29,6 +29,7 @@ from pytorch_lightning.callbacks import (
 from pytorch_lightning.loggers import Logger, WandbLogger
 
 from logic.src.pipeline.callbacks import (
+    AttentionHeatmapCallback,
     ModelSummaryCallback,
     TrainingDisplayCallback,
     TrainingHealthCallback,
@@ -244,6 +245,18 @@ class WSTrainer(pl.Trainer):
         # Training health guardrails (§A.4) — Studio Training Monitor ingest
         if TrainingHealthCallback not in callback_types:
             callbacks.append(TrainingHealthCallback())
+
+        # Attention heatmaps to WandB / TensorBoard (§A.2 Option C)
+        tracking_cfg = getattr(self, "_tracking_cfg", None)
+        if (
+            AttentionHeatmapCallback not in callback_types
+            and tracking_cfg is not None
+            and (
+                getattr(tracking_cfg, "log_attention", False)
+                or getattr(tracking_cfg, "log_attention_heatmaps", False)
+            )
+        ):
+            callbacks.append(AttentionHeatmapCallback(tracking_cfg=tracking_cfg))
 
         return callbacks
 
