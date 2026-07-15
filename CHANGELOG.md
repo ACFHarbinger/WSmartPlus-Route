@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-ninth pass (§G.10 + §G.17 + §D.7)
+
+Hundred-forty-ninth pass closes the launcher sparkline gap left after the
+hundred-forty-eighth pass (which rehydrated sparklines on Process Monitor,
+HPO Tracker, and Experiment Tracker). Training Hub and Training Monitor now
+use the shared ``TrainingMetricSparklines`` component for post-run grad-norm
+and learning-rate charts.
+
+**React frontend**
+- Training Hub — ``GradNormSparkline`` + ``LrSparkline`` + ``TrainingMetricSnapshot``
+  replace local ``MiniSparkline``; post-run rehydration banner when train/HPO
+  completes (§G.10 / §G.17 / §D.7)
+- Training Monitor — deduplicated local sparkline implementations; imports shared
+  ``TrainingMetricSparklines``; ``TrainingMetricSnapshot`` on live/recent panel;
+  post-run banner mentions sparkline persistence (§G.17 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub post-run sparkline rehydration checked
+- §G.17 Training Monitor shared sparkline deduplication checked
+- §D.7 launcher + monitor post-run sparkline parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-eighth pass (§G.15 + §G.17 + §G.18 + §D.7)
 
 Hundred-forty-eighth pass closes the post-run sparkline gap left after the

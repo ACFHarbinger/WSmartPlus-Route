@@ -21,6 +21,11 @@ import { Activity, CheckCircle, ChevronDown, ChevronRight, FolderOpen, Radio, Re
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import {
+  GradNormSparkline,
+  LrSparkline,
+  TrainingMetricSnapshot,
+} from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
@@ -198,104 +203,6 @@ function MultiRunChart({
   );
 }
 
-// ── Shared sparkline — small ECharts for a single scalar column
-function MetricSparkline({
-  label,
-  data,
-  color,
-  exportName,
-  logScale = false,
-}: {
-  label: string;
-  data: [number, number][];
-  color: string;
-  exportName?: string;
-  logScale?: boolean;
-}) {
-  const chartRef = useRef<EChartsReact | null>(null);
-  if (data.length === 0) return null;
-  return (
-    <div className="card">
-      <div className="flex items-center justify-between mb-1">
-        <p className="text-xs text-canvas-muted">{label}</p>
-        {exportName && (
-          <ChartExportButtons
-            chartRef={{ current: chartRef.current }}
-            filenameStem={exportName}
-            size={10}
-          />
-        )}
-      </div>
-      <ReactECharts
-        ref={chartRef}
-        option={{
-          backgroundColor: "transparent",
-          grid: { left: 40, right: 10, top: 8, bottom: 28 },
-          xAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
-          yAxis: {
-            type: (logScale ? "log" : "value") as "log" | "value",
-            logBase: 10,
-            axisLabel: { color: "#9090b0", fontSize: 9 },
-            minorSplitLine: { show: false },
-          },
-          series: [{
-            type: "line",
-            data: logScale ? data.map(([x, y]) => [x, Math.max(y, 1e-8)]) : data,
-            smooth: false,
-            lineStyle: { color, width: 1.5 },
-            areaStyle: { color: `${color}1a` },
-            symbol: "none",
-          }],
-          tooltip: { trigger: "axis" },
-        }}
-        style={{ height: 80 }}
-      />
-    </div>
-  );
-}
-
-function GradNormSparkline({
-  metrics,
-  logScale = false,
-}: {
-  metrics: TrainingMetricsRow[];
-  logScale?: boolean;
-}) {
-  const data = metrics
-    .filter((r) => r.grad_norm != null)
-    .map((r): [number, number] => [r.epoch ?? r.step ?? 0, r.grad_norm!]);
-  return (
-    <MetricSparkline
-      label={logScale ? "Gradient Norm (log)" : "Gradient Norm"}
-      data={data}
-      color="#f87171"
-      exportName="training-grad-norm"
-      logScale={logScale}
-    />
-  );
-}
-
-function LrSparkline({
-  metrics,
-  logScale = false,
-}: {
-  metrics: TrainingMetricsRow[];
-  logScale?: boolean;
-}) {
-  const data = metrics
-    .filter((r) => r.lr != null)
-    .map((r): [number, number] => [r.step ?? r.epoch ?? 0, r.lr!]);
-  return (
-    <MetricSparkline
-      label={logScale ? "Learning Rate (log)" : "Learning Rate"}
-      data={data}
-      color="#fbbf24"
-      exportName="training-lr"
-      logScale={logScale}
-    />
-  );
-}
-
 // ── Hyperparameter panel (reads hparams.yaml, renders flat key-value table)
 function HparamsPanel({ runPath }: { runPath: string }) {
   const [pairs, setPairs] = useState<{ key: string; value: string }[] | null>(null);
@@ -427,8 +334,16 @@ function RunPanel({
         <p className="text-xs font-mono text-gray-300">{run.name}</p>
         <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
       </div>
-      <GradNormSparkline metrics={metrics} logScale={logScale} />
-      <LrSparkline metrics={metrics} logScale={logScale} />
+      <GradNormSparkline
+        metrics={metrics}
+        logScale={logScale}
+        exportName="training-monitor-grad-norm"
+      />
+      <LrSparkline
+        metrics={metrics}
+        logScale={logScale}
+        exportName="training-monitor-lr"
+      />
       {run.has_hparams && <HparamsPanel runPath={run.path} />}
       <CheckpointBrowser runPath={run.path} onLoadInEvalRunner={onLoadCheckpoint} />
     </div>
@@ -847,39 +762,12 @@ export function TrainingMonitor() {
               fallbackValue={latestLiveMetric?.epoch}
             />
           )}
-          {latestLiveMetric && (
-            <div className="flex flex-wrap gap-4 text-xs">
-              {latestLiveMetric.epoch != null && (
-                <div>
-                  <span className="text-canvas-muted">Epoch </span>
-                  <span className="font-mono text-gray-200">{latestLiveMetric.epoch}</span>
-                </div>
-              )}
-              {latestLiveMetric.train_loss != null && (
-                <div>
-                  <span className="text-canvas-muted">Train loss </span>
-                  <span className="font-mono text-gray-200">{latestLiveMetric.train_loss.toFixed(4)}</span>
-                </div>
-              )}
-              {latestLiveMetric.val_loss != null && (
-                <div>
-                  <span className="text-canvas-muted">Val loss </span>
-                  <span className="font-mono text-gray-200">{latestLiveMetric.val_loss.toFixed(4)}</span>
-                </div>
-              )}
-              {latestLiveMetric.reward != null && (
-                <div>
-                  <span className="text-canvas-muted">Reward </span>
-                  <span className="font-mono text-accent-success">{latestLiveMetric.reward.toFixed(4)}</span>
-                </div>
-              )}
-            </div>
-          )}
+          {latestLiveMetric && <TrainingMetricSnapshot metric={latestLiveMetric} />}
           {recentTrainDone && (
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
               {effectiveLiveMetrics.length > 0
-                ? "Post-run metrics rehydrated from process store — overlay chart stays available after navigation"
+                ? "Post-run metrics rehydrated from process store — sparklines persist after navigation"
                 : "Post-run shortcuts — open Output Browser or refresh metrics from the completed run"}
             </div>
           )}
@@ -954,8 +842,16 @@ export function TrainingMonitor() {
             <p className="text-xs font-mono text-accent-success">{liveProcessLabel}</p>
             <span className="text-xs text-canvas-muted">{effectiveLiveMetrics.length} updates</span>
           </div>
-          <GradNormSparkline metrics={effectiveLiveMetrics} logScale={logScale} />
-          <LrSparkline metrics={effectiveLiveMetrics} logScale={logScale} />
+          <GradNormSparkline
+            metrics={effectiveLiveMetrics}
+            logScale={logScale}
+            exportName="training-monitor-live-grad-norm"
+          />
+          <LrSparkline
+            metrics={effectiveLiveMetrics}
+            logScale={logScale}
+            exportName="training-monitor-live-lr"
+          />
         </div>
       )}
 

@@ -17,6 +17,11 @@ import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCirc
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import {
+  GradNormSparkline,
+  LrSparkline,
+  TrainingMetricSnapshot,
+} from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
@@ -157,74 +162,6 @@ function LiveChart({
         />
       </div>
       <ReactECharts ref={chartRef} option={option} style={{ height: 200 }} />
-    </div>
-  );
-}
-
-// Compact single-metric sparkline for grad_norm / entropy
-function MiniSparkline({
-  metrics,
-  metricKey,
-  label,
-  color,
-  exportName,
-  logScale = false,
-}: {
-  metrics: TrainingMetricsRow[];
-  metricKey: keyof TrainingMetricsRow;
-  label: string;
-  color: string;
-  exportName?: string;
-  logScale?: boolean;
-}) {
-  const chartRef = useRef<EChartsReact | null>(null);
-  const data = metrics.map((m) => m[metricKey] ?? null);
-  if (data.every((v) => v === null)) return null;
-  return (
-    <div>
-      <div className="flex items-center justify-between mb-1">
-        <p className="text-xs text-canvas-muted">{label}</p>
-        {exportName && (
-          <ChartExportButtons
-            chartRef={{ current: chartRef.current }}
-            filenameStem={exportName}
-            size={10}
-          />
-        )}
-      </div>
-      <ReactECharts
-        ref={chartRef}
-        option={{
-          backgroundColor: "transparent",
-          grid: { left: 40, right: 10, top: 5, bottom: 20 },
-          xAxis: {
-            type: "category",
-            data: metrics.map((_, i) => i + 1),
-            axisLabel: { show: false },
-            axisTick: { show: false },
-            axisLine: { lineStyle: { color: "#3a3a4a" } },
-          },
-          yAxis: {
-            type: (logScale ? "log" : "value") as "log" | "value",
-            logBase: 10,
-            axisLabel: { color: "#9090b0", fontSize: 9 },
-            splitLine: { lineStyle: { color: "#2a2a3a" } },
-            minorSplitLine: { show: false },
-          },
-          series: [{
-            type: "line",
-            smooth: true,
-            symbol: "none",
-            data: logScale
-              ? data.map((v) => (v == null ? null : Math.max(v as number, 1e-8)))
-              : data,
-            lineStyle: { color, width: 1.5 },
-            areaStyle: { color: `${color}22` },
-          }],
-          tooltip: { trigger: "axis", axisPointer: { type: "line" } },
-        }}
-        style={{ height: 70 }}
-      />
     </div>
   );
 }
@@ -621,41 +558,16 @@ export function TrainingHub() {
             />
           )}
 
-          {/* Latest metric snapshot */}
-          {latestMetric && (
-            <div className="flex flex-wrap gap-4 text-xs">
-              {latestMetric.epoch != null && (
-                <div>
-                  <span className="text-canvas-muted">Epoch </span>
-                  <span className="font-mono text-gray-200">{latestMetric.epoch}</span>
-                </div>
-              )}
-              {latestMetric.train_loss != null && (
-                <div>
-                  <span className="text-canvas-muted">Train loss </span>
-                  <span className="font-mono text-gray-200">{latestMetric.train_loss.toFixed(4)}</span>
-                </div>
-              )}
-              {latestMetric.val_loss != null && (
-                <div>
-                  <span className="text-canvas-muted">Val loss </span>
-                  <span className="font-mono text-gray-200">{latestMetric.val_loss.toFixed(4)}</span>
-                </div>
-              )}
-              {latestMetric.reward != null && (
-                <div>
-                  <span className="text-canvas-muted">Reward </span>
-                  <span className="font-mono text-accent-success">{latestMetric.reward.toFixed(4)}</span>
-                </div>
-              )}
-              {latestMetric.grad_norm != null && (
-                <div>
-                  <span className="text-canvas-muted">‖∇‖ </span>
-                  <span className="font-mono text-gray-200">{latestMetric.grad_norm.toFixed(3)}</span>
-                </div>
-              )}
+          {isDone && showTrainingAnalytics && (
+            <div className="flex items-center gap-2 text-xs text-canvas-muted">
+              <Activity size={12} />
+              {liveMetrics.length > 0
+                ? "Post-run metrics rehydrated from process store — sparklines persist after navigation"
+                : "Post-run shortcuts — open Training Monitor or Output Browser for this run"}
             </div>
           )}
+
+          {latestMetric && <TrainingMetricSnapshot metric={latestMetric} />}
 
           {liveMetrics.length >= 2 && <GlobalFilterBar showLogScale />}
 
@@ -671,24 +583,17 @@ export function TrainingHub() {
             </p>
           )}
 
-          {/* Auxiliary sparklines: grad_norm and entropy */}
           {liveMetrics.length >= 2 && (
-            <div className="grid grid-cols-2 gap-4">
-              <MiniSparkline
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <GradNormSparkline
                 metrics={liveMetrics}
-                metricKey="grad_norm"
-                label={logScale ? "Gradient Norm ‖∇‖ (log)" : "Gradient Norm ‖∇‖"}
-                color="#f87171"
-                exportName="hub-grad-norm"
                 logScale={logScale}
+                exportName="training-hub-grad-norm"
               />
-              <MiniSparkline
+              <LrSparkline
                 metrics={liveMetrics}
-                metricKey="entropy"
-                label={logScale ? "Policy Entropy (log)" : "Policy Entropy"}
-                color="#a78bfa"
-                exportName="hub-entropy"
                 logScale={logScale}
+                exportName="training-hub-lr"
               />
             </div>
           )}
