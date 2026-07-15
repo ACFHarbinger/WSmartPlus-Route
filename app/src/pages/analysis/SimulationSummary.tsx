@@ -1322,6 +1322,7 @@ function EfficiencyRankingChart({
   stats,
   policies,
   showErrorBars = false,
+  logScale = false,
   brushed,
   onPolicyClick,
   policyMeta,
@@ -1329,6 +1330,7 @@ function EfficiencyRankingChart({
   stats: Record<string, PolicyStats>;
   policies: string[];
   showErrorBars?: boolean;
+  logScale?: boolean;
   brushed?: string[] | null;
   onPolicyClick?: (policy: string) => void;
   policyMeta?: Record<string, PolicyMeta>;
@@ -1352,10 +1354,12 @@ function EfficiencyRankingChart({
       backgroundColor: "transparent",
       grid: { left: 110, right: 24, top: 12, bottom: 12 },
       xAxis: {
-        type: "value" as const,
+        type: (logScale ? "log" : "value") as "log" | "value",
+        logBase: 10,
         name: "kg/km",
         nameTextStyle: { color: "#9090b0", fontSize: 9 },
         axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
       },
       yAxis: {
         type: "category" as const,
@@ -1377,7 +1381,7 @@ function EfficiencyRankingChart({
         {
           type: "bar" as const,
           data: ranked.map((r) => ({
-            value: r.mean,
+            value: logScale ? Math.max(r.mean, 0.001) : r.mean,
             name: r.policy,
             itemStyle: {
               color: strategyColor(r.policy, policyMeta),
@@ -1385,7 +1389,7 @@ function EfficiencyRankingChart({
             },
           })),
         },
-        ...(showErrorBars
+        ...(showErrorBars && !logScale
           ? [
               {
                 type: "custom" as const,
@@ -1430,7 +1434,7 @@ function EfficiencyRankingChart({
           : []),
       ],
     }),
-    [ranked, showErrorBars, brushed, policyMeta, stats]
+    [ranked, showErrorBars, logScale, brushed, policyMeta, stats]
   );
 
   return (
@@ -2382,6 +2386,7 @@ export function SimulationSummary() {
             <PortfolioEfficiencyRanking
               runs={allRuns}
               showErrorBars={showErrorBars}
+              logScale={logScale}
               brushed={effectiveBrushed}
               onConfigClick={handlePortfolioConfigClick}
             />
@@ -2393,6 +2398,7 @@ export function SimulationSummary() {
                 stats={stats}
                 policies={policies}
                 showErrorBars={showErrorBars}
+                logScale={logScale}
                 brushed={effectiveBrushed}
                 onPolicyClick={handlePolicyClick}
                 policyMeta={policyMeta}

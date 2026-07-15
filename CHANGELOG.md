@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventy-eighth pass (§G.7)
+
+Seventy-eighth pass completes full startup prefetch for every lazy route and heavy
+vendor chunk, and extends global log-scale to efficiency ranking charts.
+
+**React frontend**
+- `App.tsx` — startup prefetch warms all 18 lazy routes plus duckdb-wasm, sigma,
+  and @react-three/fiber vendor chunks
+- `EfficiencyRankingChart` / `PortfolioEfficiencyRanking` — log x-axis when global
+  ``logScale`` on; error-bar whiskers suppressed on log scale
+- `SimulationSummary` — passes global ``logScale`` to efficiency ranking panels
+
+**ROADMAP**
+- §G.7 Startup route prefetch (all routes) checked
+- §G.7 Startup vendor prefetch (duckdb + sigma + r3f) checked
+- §G.7 performance partial markers removed from lazy-load / manualChunks / timing items
+- §G.1.5 Efficiency ranking global log-scale checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — seventy-seventh pass (§G.7)
 
 Seventy-seventh pass extends global log-scale propagation to City Comparison charts and

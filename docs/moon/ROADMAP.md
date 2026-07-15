@@ -937,6 +937,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Rank by mean kg/km across all configurations: Simulation Summary efficiency ranking + `PortfolioEfficiencyRanking` + BenchmarkAnalysis `kg/km` metric column (§G.1.5)
 - [x] Error bars showing std deviation: Simulation Summary bar-chart whiskers toggle (§G.1 partial)
 - [x] Error bars on efficiency ranking chart: horizontal kg/km whiskers toggle via `showErrorBars` (§G.1 partial)
+- [x] Efficiency ranking charts follow global ``logScale``: ``EfficiencyRankingChart`` + ``PortfolioEfficiencyRanking`` log x-axis; whiskers hidden when log on (§G.1.5 / §G.7)
 
 #### 1.6 Secondary Log-Scale Views
 - [x] Auto-generate log-scale version below each chart that benefits from it (overflow counts, profit ranges): duplicate profit · km · kg · symlog-overflows row when global log toggle off (§G.1)
@@ -1109,15 +1110,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)
 - [x] Keyboard shortcuts help overlay: `KeyboardShortcutsHelp` modal + TopBar button; `Escape` dismisses
-- [x] Lazy-loaded page components: all 17 views behind `React.lazy` + `Suspense` in `App.tsx` (§G.7 performance partial)
+- [x] Lazy-loaded page components: all 17 views behind `React.lazy` + `Suspense` in `App.tsx` (§G.7)
 - [x] Command palette: `CommandPalette` fuzzy-search overlay for all views + actions; `Ctrl+K` / TopBar search button; arrow keys + Enter navigation
-- [x] Vite `manualChunks`: echarts, maplibre, deck.gl, monaco split into separate vendor bundles (§G.7 performance partial)
+- [x] Vite `manualChunks`: echarts, maplibre, deck.gl, monaco, duckdb, r3f, sigma split into separate vendor bundles (§G.7)
 - [x] Sidebar page prefetch: `prefetchPage()` warms lazy route chunks on nav item hover
 - [x] Command palette bundle import: "Import .wsroute Bundle" action via `useWsrouteImport` hook
 - [x] Recent files quick open: `useRecentFilesStore` persisted list; command palette Recent section; tracked from Simulation Monitor, Summary, Output Browser, Data Explorer
-- [x] Startup route prefetch: `App.tsx` warms simulation, summary, benchmark, city comparison, algorithm comparison, OLAP explorer, process monitor, output browser chunks on mount (§G.7 performance partial)
-- [x] Startup vendor prefetch: maplibre-gl + @deck.gl/react + @monaco-editor/react warmed alongside echarts and DeckRouteMap chunk (§G.7 performance partial)
-- [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7 performance partial)
+- [x] Startup route prefetch: `App.tsx` warms all 18 lazy route chunks (monitor, analytics, launch, files, settings) on mount (§G.7)
+- [x] Startup vendor prefetch: echarts, maplibre-gl, @deck.gl/react, @monaco-editor/react, @duckdb/duckdb-wasm, sigma, @react-three/fiber + DeckRouteMap warmed on mount (§G.7)
+- [x] Startup timing probe: `useStartupTiming` reports module-load → first React mount + route prefetch complete in Settings About (§G.7)
 - [x] React toast notifications + Tauri OS notifications for background job completion when window is not focused (§D.8)
 - [x] Responsive layout (partial): `Layout` max-width `1920px` container, `sm:` padding breakpoints, `lg:` grid columns; collapsible sidebar with mobile overlay backdrop (`useLayoutStore`)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
