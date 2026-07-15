@@ -1995,7 +1995,7 @@ export function SimulationSummary() {
     brushedRunLabels,
     handleCityClick,
     handleRunLabelClick,
-  } = usePortfolioRunBrush(allRuns, cityGroups);
+  } = usePortfolioRunBrush(allRuns);
 
   const cityComparisonOption = useMemo(
     () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),

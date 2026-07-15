@@ -325,7 +325,7 @@ export function BenchmarkAnalysis() {
   const cityGroups = useMemo(() => groupRunsByCity(filteredRuns), [filteredRuns]);
 
   const { runLabels: portfolioRunLabels, brushedRunLabels, handleCityClick } =
-    usePortfolioRunBrush(filteredRuns, cityGroups);
+    usePortfolioRunBrush(filteredRuns);
 
   const cityComparisonOption = useMemo(
     () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups)),

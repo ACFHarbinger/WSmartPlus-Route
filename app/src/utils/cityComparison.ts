@@ -27,6 +27,30 @@ export function groupRunsByCity(runs: CityRunSlice[]): Array<[string, CityRunSli
   return [...map.entries()];
 }
 
+/** Group DuckDB ``run_label`` values by city/scale (parses label as a log path). */
+export function groupRunLabelsByCity(labels: string[]): Array<[string, string[]]> {
+  const map = new Map<string, string[]>();
+  for (const label of labels) {
+    const city = cityScaleLabel(parseLogPath(label));
+    const list = map.get(city) ?? [];
+    list.push(label);
+    map.set(city, list);
+  }
+  return [...map.entries()];
+}
+
+/** Expand global city brush to ``run_label`` list for SQL sync (§G.6). */
+export function resolveBrushedRunLabels(
+  runLabels: string[],
+  runLabel: string | null,
+  brushedCity: string | null
+): string[] | null {
+  if (runLabel) return [runLabel];
+  if (!brushedCity || !runLabels.length) return null;
+  const group = groupRunLabelsByCity(runLabels).find(([city]) => city === brushedCity);
+  return group?.[1] ?? null;
+}
+
 export interface CityComparisonSeries {
   labels: string[];
   profit: number[];
