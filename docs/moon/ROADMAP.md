@@ -1063,8 +1063,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Portfolio single-log ``run_label`` + ``city_scale`` columns: `runPortfolioSimulationArrowPipeline()` always annotates logs (including one-run Summary/Benchmark/City/OLAP ingests) (§G.6)
 - [x] SQL result row ``city_scale`` cross-filter: click ``city_scale`` cell → global ``brushedCity``; row dimming + active highlight (§G.6)
 - [x] Pivot table ``city_scale`` cross-filter: `PivotTablePanel` row highlight + click sets global ``brushedCity`` (§G.6)
-- [x] City×policy matrix SQL template: `portfolioSqlTemplates()` grouped ``city_scale`` × ``policy`` kg/km matrix (§G.6 partial)
-- [x] Auto-chart portfolio GROUP BY detection: `queryAutoChart.ts` prefers ``city_scale`` / ``run_label`` / ``policy`` dimensions + KPI metrics (§G.6 partial)
+- [x] City×policy matrix SQL template: `portfolioSqlTemplates()` grouped ``city_scale`` × ``policy`` kg/km matrix (§G.6)
+- [x] Auto-chart portfolio GROUP BY detection: `queryAutoChart.ts` prefers ``city_scale`` / ``run_label`` / ``policy`` dimensions + KPI metrics (§G.6)
 - [x] Data Explorer global filter bar + SQL brush sync when CSV has ``policy`` column (§G.6)
 - [x] Data Explorer CSV-derived policy / ``run_label`` / city filter bar + row cross-filter dimming (§G.6)
 - [x] OLAP dynamic portfolio mode: `duckDbHasColumn()` detects ``run_label`` on any ingested table (§G.6)
@@ -1078,7 +1078,10 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Auto-chart PNG export: ``exportChartPng()`` on ``SqlQueryPanel`` auto-chart (§G.6)
 - [x] Auto-chart type override: ``suggestChartAlternatives()`` chips switch bar / grouped-bar / heatmap (§G.6)
 - [x] Run×policy matrix SQL template: ``portfolio-run-policy-matrix`` in ``portfolioSqlTemplates()`` (§G.6)
-- [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6 partial)
+- [x] Pareto efficiency frontier SQL template: ``pareto-frontier`` + ``portfolio-pareto-frontier`` in ``duckdbTemplates.ts`` (§G.6)
+- [x] Auto-chart scatter cross-filter: labeled profit vs overflows scatter click → global policy / ``run_label`` / ``city_scale`` brush (§G.6)
+- [x] Auto-chart SVG export: ``exportChartSvg()`` on ``SqlQueryPanel`` auto-chart (§G.6)
+- [x] Pre-built query templates: robustness profile, variance analysis, Pareto efficiency frontier: `duckdbTemplates.ts` template chips (§G.6)
 - [x] Result grid with sortable columns, row filter search, and filtered CSV export: `SqlQueryPanel` sortable result table + search box + export respects filter (§G.6)
 - [x] Auto-chart: map query result columns to ECharts chart type suggestions: `queryAutoChart.ts` + `SqlQueryPanel` bar/line/scatter/heatmap suggestion below results (§G.6)
 - [x] Pivot table UI: drag dimensions/measures onto row/column/value wells: `PivotTablePanel` draggable column chips + HTML5 drop wells for row/column/value + agg selector + heatmap on `SqlQueryPanel` (§G.6)
@@ -1112,9 +1115,9 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Settings Arrow benchmark uses shared `formatPipelineTimingBadge()` for last-ingest summary (§G.0 / §G.7)
 - [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts; deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
-- [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6 partial)
-- [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6 partial)
-- [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6 partial)
+- [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6)
+- [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6)
+- [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6)
 
 ---
 
