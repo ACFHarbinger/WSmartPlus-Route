@@ -59,3 +59,13 @@ export function sortByEpochStep(entries: TrainingHealthEntry[]): TrainingHealthE
     return a.step - b.step;
   });
 }
+
+/** Parse all ``TRAINING_HEALTH_START:`` markers from process stdout (§A.4). */
+export function collectTrainingHealthFromLogLines(lines: string[]): TrainingHealthEntry[] {
+  const entries: TrainingHealthEntry[] = [];
+  for (const line of lines) {
+    const parsed = parseTrainingHealthLine(line);
+    if (parsed) entries.push(parsed);
+  }
+  return entries;
+}

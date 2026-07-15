@@ -6,6 +6,7 @@
  * Cancel button sends SIGTERM via Rust's `cancel_process` command.
  *
  * §A.3 Option C: ``test_sim`` processes surface live + cross-run policy telemetry panels.
+ * §A.4 + §A.2: ``train`` / ``hpo`` processes surface training health + runtime attention panels.
  */
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { invoke } from "@tauri-apps/api/core";
@@ -13,6 +14,8 @@ import { Square, ChevronDown, ChevronUp, Terminal, ArrowDown, Trash2 } from "luc
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
+import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
+import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
@@ -21,7 +24,9 @@ import {
   collectPolicyVizFromLogLines,
   uniquePolicyVizPolicies,
 } from "../../utils/policyTelemetry";
+import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
+import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -282,6 +287,14 @@ function isTestSimProcess(command: string): boolean {
   return /\btest_sim\b/.test(command);
 }
 
+function isTrainProcess(command: string, id: string): boolean {
+  return (
+    id.startsWith("train_") ||
+    id.startsWith("hpo_") ||
+    /\bmain\.py\s+(train|hpo)\b/.test(command)
+  );
+}
+
 export function ProcessMonitor() {
   const processes = useProcessStore((s) => s.processes);
   const clearCompleted = useProcessStore((s) => s.clearCompleted);
@@ -311,6 +324,9 @@ export function ProcessMonitor() {
 
   const selectedProc = selectedId ? processes[selectedId] : null;
   const selectedIsSim = selectedProc ? isTestSimProcess(selectedProc.command) : false;
+  const selectedIsTrain = selectedProc
+    ? isTrainProcess(selectedProc.command, selectedProc.id)
+    : false;
 
   const policyVizEntries = useMemo(
     () => (selectedProc ? collectPolicyVizFromLogLines(selectedProc.logLines) : []),
@@ -351,6 +367,16 @@ export function ProcessMonitor() {
   }, [policyVizEntries.length, selectedProc?.logLines.length]);
 
   const policyVizLive = selectedProc?.status === "running";
+
+  const trainingHealthEntries = useMemo(
+    () => (selectedProc ? collectTrainingHealthFromLogLines(selectedProc.logLines) : []),
+    [selectedProc]
+  );
+
+  const attentionEntries = useMemo(
+    () => (selectedProc ? collectAttentionVizFromLogLines(selectedProc.logLines) : []),
+    [selectedProc]
+  );
 
   if (ids.length === 0) {
     return (
@@ -442,6 +468,24 @@ export function ProcessMonitor() {
             refreshKey={telemetryTrendsKey}
             initialPolicy={selectedPolicy}
             initialRunLabel={processRunLabel}
+          />
+        </div>
+      )}
+
+      {selectedIsTrain && selectedProc && (
+        <div className="space-y-3 pt-2 border-t border-canvas-border">
+          <p className="text-xs text-canvas-muted">
+            Training analytics for{" "}
+            <span className="font-mono text-gray-300">{selectedProc.id}</span>
+            {selectedProc.status === "running" && (
+              <span className="ml-2 text-accent-success">· live</span>
+            )}
+          </p>
+          <TrainingHealthPanel entries={trainingHealthEntries} />
+          <RuntimeAttentionPanel
+            entries={attentionEntries}
+            theme={theme}
+            logScale={logScale}
           />
         </div>
       )}
