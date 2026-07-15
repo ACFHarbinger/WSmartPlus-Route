@@ -3,13 +3,14 @@
  *
  * Full-page DuckDB-Wasm SQL editor with table picker for all ingested datasets.
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -25,6 +26,7 @@ import {
   listDuckDbDistinctValues,
   listDuckDbTables,
 } from "../../utils/duckdbClient";
+import { runLabelMapFromTablePaths } from "../../utils/policyTelemetryTrends";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
 
@@ -32,6 +34,7 @@ export function OlapExplorer() {
   const { effectiveTheme: theme } = useAppStore();
   const activePolicy = useGlobalFiltersStore((s) => s.policy);
   const activeRunLabel = useGlobalFiltersStore((s) => s.runLabel);
+  const setRunLabel = useGlobalFiltersStore((s) => s.setRunLabel);
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const {
     ready: duckdbReady,
@@ -48,6 +51,22 @@ export function OlapExplorer() {
   const [policies, setPolicies] = useState<string[]>([]);
   const [cities, setCities] = useState<string[]>([]);
   const [portfolioMode, setPortfolioMode] = useState(false);
+  const [ingestedTablePaths, setIngestedTablePaths] = useState<Record<string, string>>({});
+
+  const selectedIngestPath = ingestedTablePaths[selectedTable] ?? null;
+  const derivedRunLabel = useLogPathRunLabelBrush(selectedIngestPath);
+
+  const tableBrushByName = useMemo(
+    () => runLabelMapFromTablePaths(ingestedTablePaths),
+    [ingestedTablePaths]
+  );
+
+  const handleRunLabelClick = useCallback(
+    (label: string) => {
+      setRunLabel(activeRunLabel === label ? null : label);
+    },
+    [activeRunLabel, setRunLabel]
+  );
 
   const refreshTables = useCallback(async () => {
     if (!duckdbReady) return;
@@ -137,6 +156,7 @@ export function OlapExplorer() {
         : await runCsvArrowPipeline(path, tableName);
       setLastPipeline(timing);
       setSelectedTable(tableName);
+      setIngestedTablePaths((prev) => ({ ...prev, [tableName]: path }));
       await refreshTables();
       const sidecarNote = timing.usedSidecar ? " (Arrow sidecar)" : "";
       toast.success(isJsonl ? "JSONL ingested" : "CSV ingested", {
@@ -149,13 +169,19 @@ export function OlapExplorer() {
     }
   }, [refreshTables, setLastPipeline, setLoading]);
 
+  const filterBarRunLabels = useMemo(() => {
+    if (portfolioMode && runLabels.length > 0) return runLabels;
+    if (derivedRunLabel) return [derivedRunLabel];
+    return [];
+  }, [portfolioMode, runLabels, derivedRunLabel]);
+
   const highlightPolicies = activePolicy ? [activePolicy] : null;
 
   return (
     <div className="space-y-4">
       <GlobalFilterBar
         policies={policies}
-        runLabels={portfolioMode ? runLabels : []}
+        runLabels={filterBarRunLabels}
         cities={cities}
         showLogScale
       />
@@ -189,22 +215,30 @@ export function OlapExplorer() {
         <div className="card">
           <p className="text-xs font-semibold text-gray-300 mb-2">Ingested tables</p>
           <div className="flex flex-wrap gap-2">
-            {tables.map((name) => (
-              <button
-                key={name}
-                onClick={() => setSelectedTable(name)}
-                className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
-                  selectedTable === name
-                    ? "border-accent-primary bg-accent-primary/15 text-accent-secondary"
-                    : "border-canvas-border text-canvas-muted hover:text-gray-200"
-                }`}
-              >
-                {name}
-                <span className="ml-1.5 text-canvas-muted font-mono">
-                  ({rowCounts[name] ?? "…"})
-                </span>
-              </button>
-            ))}
+            {tables.map((name) => {
+              const runBrushActive =
+                Boolean(activeRunLabel) && tableBrushByName[name] === activeRunLabel;
+              const tableRunLabel = tableBrushByName[name];
+              return (
+                <button
+                  key={name}
+                  onClick={() => {
+                    setSelectedTable(name);
+                    if (tableRunLabel) handleRunLabelClick(tableRunLabel);
+                  }}
+                  className={`text-xs px-3 py-1.5 rounded-lg border transition-colors ${
+                    selectedTable === name
+                      ? "border-accent-primary bg-accent-primary/15 text-accent-secondary"
+                      : "border-canvas-border text-canvas-muted hover:text-gray-200"
+                  } ${runBrushActive ? "ring-1 ring-accent-secondary/40" : ""}`}
+                >
+                  {name}
+                  <span className="ml-1.5 text-canvas-muted font-mono">
+                    ({rowCounts[name] ?? "…"})
+                  </span>
+                </button>
+              );
+            })}
           </div>
         </div>
       )}
@@ -215,7 +249,7 @@ export function OlapExplorer() {
           logScale={logScale}
           initialPolicy={activePolicy}
           initialRunLabel={
-            activeRunLabel ?? (runLabels.length === 1 ? runLabels[0]! : null)
+            activeRunLabel ?? derivedRunLabel ?? (runLabels.length === 1 ? runLabels[0]! : null)
           }
         />
       )}

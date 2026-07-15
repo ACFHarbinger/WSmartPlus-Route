@@ -1056,6 +1056,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Data Explorer — ``useLogPathRunLabelBrush`` on open CSV path; path-derived ``runLabels`` + trends ``initialRunLabel`` fallback when CSV lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
 - [x] §G.1 / §G.6 portfolio + analytics page run-label brush + ring-highlight parity across Summary / Benchmark / City / Algorithm / Data Explorer (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-seventh pass)**
+
+- [x] ``runLabelMapFromTablePaths`` — shared helper deriving per-table ``run_label`` from ingest source paths (§G.6 / §D.7)
+- [x] OLAP Explorer — ``useLogPathRunLabelBrush`` on selected custom-table ingest path; global brush sync on table select (§G.6 / §G.16 / §D.7)
+- [x] OLAP Explorer — ingested-table picker ring highlight + click-to-brush parity with Output Browser run list (§G.6 / §G.14 / §D.7)
+- [x] OLAP Explorer — path-derived ``GlobalFilterBar`` ``runLabels`` + trends ``initialRunLabel`` fallback when table lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
+- [x] §G.6 OLAP Explorer file-based run-label brush + ring-highlight parity across all analysis views (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1603,6 +1611,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Benchmark Analysis + City Comparison loaded-run list ring highlight + click-to-brush via ``runLabelMapFromPaths`` + ``handleRunLabelClick``; single-run ``GlobalFilterBar`` ``runLabels`` (hundred-seventy-sixth pass; §G.1 / §G.6 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
+- [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
 - [x] Benchmark Analysis city chart run_label brush: city comparison chart click → `highlightRunLabels` + `brushSqlSync` on `benchmark_sim` (§G.6)
 - [x] OLAP Explorer global policy brush SQL sync: `GlobalFilterBar` policy → `brushSqlSync` + `autoRunOnBrushSync`; portfolio/algorithm template modes per ingested table (§G.6)
 - [x] OLAP Explorer global run_label brush SQL sync: `GlobalFilterBar` run selector + `highlightRunLabels` on portfolio tables; distinct ``run_label`` values from DuckDB (§G.6)

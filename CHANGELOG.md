@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-seventh pass (§G.6 + §G.14 + §G.16 + §D.7)
+
+Hundred-seventy-seventh pass closes the OLAP Explorer run-label brush hook gap left
+after the hundred-seventy-sixth pass (which unified portfolio analytics run-label brush
+parity on Benchmark, City, Algorithm Comparison, and Data Explorer). OLAP Explorer now
+syncs the global brush from ingest source paths and shares Output Browser table/run-list
+ring-highlight + click-to-brush parity on the ingested-table picker.
+
+**React frontend**
+- ``runLabelMapFromTablePaths`` — shared helper deriving per-table ``run_label`` from
+  ingest source paths (§G.6 / §D.7)
+- OLAP Explorer — ``useLogPathRunLabelBrush`` on selected custom-table ingest path;
+  global brush sync on table select (§G.6 / §G.16 / §D.7)
+- OLAP Explorer — ingested-table picker ring highlight + click-to-brush via
+  ``runLabelMapFromTablePaths`` (§G.6 / §G.14 / §D.7)
+- OLAP Explorer — path-derived ``GlobalFilterBar`` ``runLabels`` + trends
+  ``initialRunLabel`` fallback when table lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.6 OLAP Explorer ingest-path run-label brush + table-picker ring-highlight parity checked
+- §G.14 OLAP Explorer table-picker click-to-brush parity with Output Browser run list checked
+- §G.16 OLAP Explorer path-derived run-label brush hook parity with Data Explorer checked
+- §D.7 file-based run-label brush parity across all analysis views including OLAP Explorer checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventy-sixth pass (§G.1 + §G.6 + §G.16 + §D.7)
 
 Hundred-seventy-sixth pass closes the portfolio analytics run-label brush hook gap left
