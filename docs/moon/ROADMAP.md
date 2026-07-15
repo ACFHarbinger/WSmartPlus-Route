@@ -1022,6 +1022,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Timeline slider synced with route animation to show pheromone evolution over iterations: pheromone day slider syncs with Simulation Monitor day scrubber + playback; "By tour step" mode steps τ per consecutive tour edge via `accumulateTourPheromoneByStep` (§G.4)
 - [x] Topology pheromone trails follow global ``logScale``: ``pheromoneWeightDisplay()`` + ``normalizePheromone()`` / ``pheromoneIntensity()`` log-transform τ before edge opacity/width on ECharts, Sigma.js, and Cosmograph views; ``GraphTopologyPanel`` receives ``logScale`` from Simulation Monitor (§G.4 / §G.7)
 - [x] ECharts topology PNG export: ``exportChartPng()`` on ``GraphTopologyPanel`` when View = ECharts (§G.4 / §G.7)
+- [x] Sigma.js / Cosmograph WebGL PNG export: ``exportContainerCanvasPng()`` on ``GraphTopologyPanel`` when View = Sigma.js or Cosmograph; toast feedback (§G.4 / §G.7)
 
 **Status**: §G.4 complete — all checklist items delivered.
 
@@ -1061,6 +1062,8 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Attention weight heatmaps follow global ``logScale``: ``MLIntrospectionPanel`` log-transforms raw Q/K/V weight cells when on; overlay/distribution Δ diff panels stay linear; tooltips show raw weights (§G.5.3 / §G.7)
 - [x] Attention bipartite graph overlays follow global ``logScale``: ``buildAttentionGraphOption`` + ``AttentionSigmaView`` log-transform edge opacity/width via ``attentionWeightDisplay``; tooltips and edge weight attributes retain raw attention values (§G.5.3 / §G.7)
 - [x] ML introspection ECharts PNG/SVG export: ``exportChartPng()`` / ``exportChartSvg()`` on ``MLIntrospectionPanel`` attention heatmap (primary + compare panels), attention bipartite graph, and loss contour map (§G.5 / §G.7)
+- [x] Loss landscape 3D terrain PNG export: ``exportContainerCanvasPng()`` on ``LossLandscape3D`` R3F canvas (surface mesh + InstancedMesh voxels) via ``MLIntrospectionPanel`` Loss tab (§G.5.2 / §G.7)
+- [x] Attention Sigma.js WebGL PNG export: ``exportContainerCanvasPng()`` on ``AttentionSigmaView`` canvas via ``MLIntrospectionPanel`` Attention tab (§G.5.3 / §G.7)
 
 **Status**: §G.5 complete — all checklist items delivered.
 
@@ -1156,7 +1159,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] EvaluationRunner responsive inline chart grid: `sm:grid-cols-2 lg:grid-cols-3` (§G.12 / §G.7)
 - [x] Performance budget probe: Settings About shows prefetch timing vs 2s target with pass/fail badge; "Run Chart Render Benchmark" measures representative ECharts first-paint vs 500 ms budget (§G.7)
 - [x] Settings Arrow benchmark uses shared `formatPipelineTimingBadge()` for last-ingest summary (§G.0 / §G.7)
-- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts, GraphTopologyPanel (ECharts view), MLIntrospectionPanel (attention heatmap primary + compare, attention graph, loss contour); deck.gl tile map PNG via `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map and MLIntrospectionPanel attention/loss charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
+- [x] Export: ECharts PNG export via `exportChartPng()` on SimulationMonitor, SimulationSummary (trajectory + radar + heatmap + Pareto + efficiency ranking + bar charts), AlgorithmComparison (radar + bar charts), BenchmarkAnalysis (sim + eval charts incl. kg/km), TrainingMonitor (overlay + sparklines), TrainingHub (live chart + sparklines), DataGeneration (demand histogram), ExperimentTracker, HPOTracker charts, GraphTopologyPanel (ECharts view), MLIntrospectionPanel (attention heatmap primary + compare, attention graph, loss contour); WebGL/canvas PNG via `exportContainerCanvasPng()` on GraphTopologyPanel (Sigma.js + Cosmograph views), MLIntrospectionPanel (LossLandscape3D terrain + AttentionSigmaView), and `exportCanvasPng()` on `DeckRouteMap`; ECharts SVG via `exportChartSvg()` on SimulationMonitor route map and MLIntrospectionPanel attention/loss charts; table CSV via `downloadCsv()` on MLflow runs, ZenML runs, Simulation Summary ranking, Data Explorer; Parquet via `export_csv_to_parquet` / `export_table_parquet` on Data Explorer, Output Browser CSV viewer, Simulation Summary ranking
 - [x] Data Explorer: sortable column headers (click header to toggle asc/desc numeric/text sort; §G.6)
 - [x] Data Explorer: row filter search box matching any column with filtered/total row count (§G.6)
 - [x] Data Explorer: CSV export respects active filter and sort order (exports visible subset; §G.6)

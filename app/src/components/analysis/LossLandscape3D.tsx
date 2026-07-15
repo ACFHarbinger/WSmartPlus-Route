@@ -1,7 +1,7 @@
 /**
  * React Three Fiber 3D loss topography (§G.5.2).
  */
-import { useEffect, useMemo, useRef } from "react";
+import { forwardRef, useEffect, useMemo, useRef } from "react";
 import { Canvas } from "@react-three/fiber";
 import { OrbitControls } from "@react-three/drei";
 import * as THREE from "three";
@@ -190,14 +190,17 @@ interface LossLandscape3DProps {
   logScale?: boolean;
 }
 
-export function LossLandscape3D({
-  values,
-  markers = [],
-  view = "surface",
-  height = 280,
-  className,
-  logScale = false,
-}: LossLandscape3DProps) {
+export const LossLandscape3D = forwardRef<HTMLDivElement, LossLandscape3DProps>(function LossLandscape3D(
+  {
+    values,
+    markers = [],
+    view = "surface",
+    height = 280,
+    className,
+    logScale = false,
+  },
+  ref
+) {
   const displayValues = useMemo(
     () => (logScale ? transformMatrixLogScale(values, "loss", true) : values),
     [values, logScale]
@@ -207,6 +210,7 @@ export function LossLandscape3D({
   if (!values.length || !values[0]?.length) {
     return (
       <div
+        ref={ref}
         className={`flex items-center justify-center rounded-lg bg-canvas-elevated text-xs text-canvas-muted ${className ?? ""}`}
         style={{ height }}
       >
@@ -216,7 +220,11 @@ export function LossLandscape3D({
   }
 
   return (
-    <div className={`rounded-lg overflow-hidden bg-[#0a0e1a] border border-canvas-border ${className ?? ""}`} style={{ height }}>
+    <div
+      ref={ref}
+      className={`rounded-lg overflow-hidden bg-[#0a0e1a] border border-canvas-border ${className ?? ""}`}
+      style={{ height }}
+    >
       <Canvas camera={{ position: [4, 4, 4], fov: 45 }} gl={{ antialias: true }}>
         <ambientLight intensity={0.55} />
         <directionalLight position={[5, 8, 3]} intensity={0.85} />
@@ -257,4 +265,4 @@ export function LossLandscape3D({
       )}
     </div>
   );
-}
+});

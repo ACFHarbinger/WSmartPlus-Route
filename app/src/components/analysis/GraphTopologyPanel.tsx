@@ -5,7 +5,7 @@ import { lazy, Suspense, useCallback, useEffect, useMemo, useRef, useState } fro
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { ChevronDown, ChevronUp, Download, RefreshCw } from "lucide-react";
-import { exportChartPng } from "../../utils/chartExport";
+import { exportChartPng, exportContainerCanvasPng } from "../../utils/chartExport";
 import { toast } from "sonner";
 import type { DayLogEntry, SimDayData } from "../../types";
 import {
@@ -59,6 +59,8 @@ export function GraphTopologyPanel({
   logScale = false,
 }: Props) {
   const chartRef = useRef<EChartsReact | null>(null);
+  const sigmaContainerRef = useRef<HTMLDivElement>(null);
+  const cosmographContainerRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [matrix, setMatrix] = useState<DistanceMatrixData | null>(null);
@@ -362,12 +364,30 @@ export function GraphTopologyPanel({
                 >
                   Re-run layout
                 </button>
-                {topologyView === "echarts" && chartOption && (
+                {graphPayload && (
                   <button
                     type="button"
-                    onClick={() =>
-                      exportChartPng({ current: chartRef.current }, "topology-graph.png")
-                    }
+                    onClick={() => {
+                      if (topologyView === "echarts" && chartOption) {
+                        if (exportChartPng({ current: chartRef.current }, "topology-graph.png")) {
+                          toast.success("Chart exported", { description: "topology-graph.png" });
+                        } else {
+                          toast.error("Export failed", { description: "Chart is not ready" });
+                        }
+                        return;
+                      }
+                      const container =
+                        topologyView === "sigma"
+                          ? sigmaContainerRef.current
+                          : cosmographContainerRef.current;
+                      const stem =
+                        topologyView === "sigma" ? "topology-sigma.png" : "topology-cosmograph.png";
+                      if (exportContainerCanvasPng(container, stem)) {
+                        toast.success("Chart exported", { description: stem });
+                      } else {
+                        toast.error("Export failed", { description: "Canvas is not ready" });
+                      }
+                    }}
                     className="btn-ghost text-xs flex items-center gap-1"
                   >
                     <Download size={12} />
@@ -515,47 +535,51 @@ export function GraphTopologyPanel({
               </div>
 
               {graphPayload && topologyView === "sigma" && (
-                <Suspense
-                  fallback={
-                    <div className="h-[360px] flex items-center justify-center text-xs text-canvas-muted">
-                      Loading Sigma.js…
-                    </div>
-                  }
-                >
-                  <TopologySigmaView
-                    nodeMeta={graphPayload.nodeMeta}
-                    edges={graphPayload.edges}
-                    positions={graphPayload.positions}
-                    layoutMode={resolvedLayout}
-                    fillRange={fillRange}
-                    pheromoneWeights={pheromoneWeights}
-                    showPheromone={showPheromone}
-                    logScale={logScale}
-                    theme={theme}
-                    onNodeClick={brushNodeFill}
-                  />
-                </Suspense>
+                <div ref={sigmaContainerRef}>
+                  <Suspense
+                    fallback={
+                      <div className="h-[360px] flex items-center justify-center text-xs text-canvas-muted">
+                        Loading Sigma.js…
+                      </div>
+                    }
+                  >
+                    <TopologySigmaView
+                      nodeMeta={graphPayload.nodeMeta}
+                      edges={graphPayload.edges}
+                      positions={graphPayload.positions}
+                      layoutMode={resolvedLayout}
+                      fillRange={fillRange}
+                      pheromoneWeights={pheromoneWeights}
+                      showPheromone={showPheromone}
+                      logScale={logScale}
+                      theme={theme}
+                      onNodeClick={brushNodeFill}
+                    />
+                  </Suspense>
+                </div>
               )}
               {graphPayload && topologyView === "cosmograph" && (
-                <Suspense
-                  fallback={
-                    <div className="h-[360px] flex items-center justify-center text-xs text-canvas-muted">
-                      Loading Cosmograph view…
-                    </div>
-                  }
-                >
-                  <TopologyCosmographView
-                    nodeMeta={graphPayload.nodeMeta}
-                    edges={graphPayload.edges}
-                    positions={graphPayload.positions}
-                    fillRange={fillRange}
-                    pheromoneWeights={pheromoneWeights}
-                    showPheromone={showPheromone}
-                    logScale={logScale}
-                    theme={theme}
-                    onNodeClick={brushNodeFill}
-                  />
-                </Suspense>
+                <div ref={cosmographContainerRef}>
+                  <Suspense
+                    fallback={
+                      <div className="h-[360px] flex items-center justify-center text-xs text-canvas-muted">
+                        Loading Cosmograph view…
+                      </div>
+                    }
+                  >
+                    <TopologyCosmographView
+                      nodeMeta={graphPayload.nodeMeta}
+                      edges={graphPayload.edges}
+                      positions={graphPayload.positions}
+                      fillRange={fillRange}
+                      pheromoneWeights={pheromoneWeights}
+                      showPheromone={showPheromone}
+                      logScale={logScale}
+                      theme={theme}
+                      onNodeClick={brushNodeFill}
+                    />
+                  </Suspense>
+                </div>
               )}
               {chartOption && topologyView === "echarts" && (
                 <ReactECharts

@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-first pass (§G.4 / §G.5 / §G.7)
+
+Hundred-first pass adds WebGL/3D canvas PNG export for loss terrain, attention
+Sigma.js, and graph topology Sigma/Cosmograph views, extending the §G.7 export
+surface beyond ECharts panels.
+
+**React frontend**
+- `chartExport.ts` — ``exportContainerCanvasPng()`` finds the first canvas inside
+  a container (Sigma.js, R3F, deck.gl)
+- `LossLandscape3D` — ``forwardRef`` on terrain wrapper for canvas capture
+- `MLIntrospectionPanel` — 3D terrain PNG on Loss tab; Sigma.js PNG on
+  Attention tab; toast feedback
+- `GraphTopologyPanel` — unified PNG export for ECharts, Sigma.js, and
+  Cosmograph views with toast feedback
+
+**ROADMAP**
+- §G.4 Sigma.js / Cosmograph WebGL PNG export checked
+- §G.5 Loss landscape 3D terrain + Attention Sigma.js PNG export checked
+- §G.7 Global export lists include WebGL/canvas PNG via
+  ``exportContainerCanvasPng()``
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundredth pass (§G.5 / §G.7)
 
 Hundredth pass adds PNG/SVG export on ML introspection ECharts panels (including
