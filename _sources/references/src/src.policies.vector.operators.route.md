@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.vector.operators.route.three_opt
 src.policies.vector.operators.route.swap_star
 src.policies.vector.operators.route.two_opt
-src.policies.vector.operators.route.three_opt
-src.policies.vector.operators.route.lkh
 src.policies.vector.operators.route.two_opt_star
+src.policies.vector.operators.route.lkh
 ```
 
 ## Package Contents

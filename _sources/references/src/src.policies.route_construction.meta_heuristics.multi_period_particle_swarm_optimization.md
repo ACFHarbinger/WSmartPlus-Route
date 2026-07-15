@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso
 src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.params
+src.policies.route_construction.meta_heuristics.multi_period_particle_swarm_optimization.policy_mp_pso
 ```
 
 ## Package Contents

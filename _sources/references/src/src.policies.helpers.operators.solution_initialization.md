@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.solution_initialization.savings_si
 src.policies.helpers.operators.solution_initialization.greedy_si
-src.policies.helpers.operators.solution_initialization.grasp_si
 src.policies.helpers.operators.solution_initialization.nearest_neighbor_si
+src.policies.helpers.operators.solution_initialization.savings_si
 src.policies.helpers.operators.solution_initialization.regret_si
+src.policies.helpers.operators.solution_initialization.grasp_si
 ```
 
 ## Package Contents

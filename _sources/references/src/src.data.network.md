@@ -23,12 +23,12 @@ src.data.network.base
 :maxdepth: 1
 
 src.data.network.geodesic
-src.data.network.file
-src.data.network.osm
-src.data.network.geopandas
 src.data.network.haversine
 src.data.network.euclidean
+src.data.network.file
 src.data.network.google
+src.data.network.geopandas
+src.data.network.osm
 ```
 
 ## Package Contents

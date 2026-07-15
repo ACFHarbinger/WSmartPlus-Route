@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.utils.policy.neighborhood
+src.utils.policy.seed_hurdle
 src.utils.policy.routes
 src.utils.policy.wrappers
-src.utils.policy.seed_hurdle
 src.utils.policy.llh_pool
 ```

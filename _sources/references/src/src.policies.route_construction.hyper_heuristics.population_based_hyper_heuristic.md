@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.hyper_heuristics.population_based_hyper_heuristic.policy_phh
 src.policies.route_construction.hyper_heuristics.population_based_hyper_heuristic.params
+src.policies.route_construction.hyper_heuristics.population_based_hyper_heuristic.policy_phh
 ```
 
 ## Package Contents

@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.simulated_annealing.policy_sa
-src.policies.route_construction.meta_heuristics.simulated_annealing.solver
 src.policies.route_construction.meta_heuristics.simulated_annealing.params
+src.policies.route_construction.meta_heuristics.simulated_annealing.solver
 ```
 
 ## Package Contents

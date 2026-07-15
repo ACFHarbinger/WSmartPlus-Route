@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 3
 
+src.data.network
+src.data.processor
 src.data.distributions
 src.data.datasets
-src.data.network
 src.data.generators
-src.data.processor
 ```
 
 ## Package Contents

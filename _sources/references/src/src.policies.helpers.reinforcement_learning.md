@@ -24,8 +24,8 @@ src.policies.helpers.reinforcement_learning.agents
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.reinforcement_learning.alns_perturbation_context
 src.policies.helpers.reinforcement_learning.evolution_cmab
-src.policies.helpers.reinforcement_learning.ks_aco_qlearning
+src.policies.helpers.reinforcement_learning.alns_perturbation_context
 src.policies.helpers.reinforcement_learning.alns_sarsa
+src.policies.helpers.reinforcement_learning.ks_aco_qlearning
 ```

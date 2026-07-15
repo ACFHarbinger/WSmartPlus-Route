@@ -14,10 +14,10 @@
 :maxdepth: 1
 
 src.models.subnets.embeddings.state.swcvrp
-src.models.subnets.embeddings.state.cvrpp
-src.models.subnets.embeddings.state.vrpp
 src.models.subnets.embeddings.state.env
+src.models.subnets.embeddings.state.cvrpp
 src.models.subnets.embeddings.state.wcvrp
+src.models.subnets.embeddings.state.vrpp
 ```
 
 ## Package Contents

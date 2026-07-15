@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.tracking.database.sql_loader
-src.tracking.database.cmd_stats
 src.tracking.database.commands
 src.tracking.database.shared
+src.tracking.database.cmd_stats
 src.tracking.database.__main__
 ```
 

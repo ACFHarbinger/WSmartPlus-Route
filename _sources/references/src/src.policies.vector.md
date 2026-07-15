@@ -14,9 +14,9 @@
 :maxdepth: 3
 
 src.policies.vector.selection
-src.policies.vector.shared
 src.policies.vector.hgs_core
 src.policies.vector.operators
+src.policies.vector.shared
 ```
 
 ## Submodules
@@ -25,16 +25,16 @@ src.policies.vector.operators
 :titlesonly:
 :maxdepth: 1
 
-src.policies.vector.ant_colony_system
-src.policies.vector.hgs
-src.policies.vector.iterated_local_search
-src.policies.vector.alns
-src.policies.vector.adaptive_large_neighborhood_search
 src.policies.vector.hgs_alns
-src.policies.vector.random_local_search
-src.policies.vector.hybrid_volleyball_premier_league
+src.policies.vector.alns
 src.policies.vector.local_search
 src.policies.vector.hybrid_genetic_search
+src.policies.vector.adaptive_large_neighborhood_search
+src.policies.vector.iterated_local_search
+src.policies.vector.ant_colony_system
+src.policies.vector.hybrid_volleyball_premier_league
+src.policies.vector.random_local_search
+src.policies.vector.hgs
 ```
 
 ## Package Contents

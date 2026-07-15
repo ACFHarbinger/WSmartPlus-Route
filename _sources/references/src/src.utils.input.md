@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
+src.utils.input.value_processing
 src.utils.input.preview
 src.utils.input.splitting
-src.utils.input.dict_processing
-src.utils.input.file_processing
 src.utils.input.statistics
-src.utils.input.files
 src.utils.input.locking
-src.utils.input.value_processing
+src.utils.input.file_processing
+src.utils.input.files
+src.utils.input.dict_processing
 ```
 
 ## Package Contents

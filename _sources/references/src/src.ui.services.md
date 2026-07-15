@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.ui.services.benchmark_loader
-src.ui.services.tracking_service
 src.ui.services.simulation_analytics
 src.ui.services.data_loader
+src.ui.services.tracking_service
 src.ui.services.log_parser
 ```

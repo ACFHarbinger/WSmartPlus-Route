@@ -15,8 +15,8 @@
 
 src.policies.helpers.operators.sequence_merging.markov_chain_sequence
 src.policies.helpers.operators.sequence_merging.sequence_recombination
-src.policies.helpers.operators.sequence_merging.aco_sequence
 src.policies.helpers.operators.sequence_merging.sequential_selection
+src.policies.helpers.operators.sequence_merging.aco_sequence
 ```
 
 ## Package Contents

@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver
 src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params
 src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.policy_sca
+src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver
 ```

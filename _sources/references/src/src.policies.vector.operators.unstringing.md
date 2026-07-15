@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.vector.operators.unstringing.type_ii
-src.policies.vector.operators.unstringing.type_i
 src.policies.vector.operators.unstringing.type_iv
+src.policies.vector.operators.unstringing.type_i
 src.policies.vector.operators.unstringing.type_iii
 ```
 

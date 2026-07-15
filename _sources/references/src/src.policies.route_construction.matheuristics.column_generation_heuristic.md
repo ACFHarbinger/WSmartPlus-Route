@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh
 src.policies.route_construction.matheuristics.column_generation_heuristic.params
+src.policies.route_construction.matheuristics.column_generation_heuristic.policy_cgh
 ```
 
 ## Package Contents

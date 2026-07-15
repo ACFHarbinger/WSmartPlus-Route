@@ -22,12 +22,12 @@ src.tracking.logging.modules
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.logging.log_utils
 src.tracking.logging.logger_writer
 src.tracking.logging.pylogger
-src.tracking.logging.structured_logging
-src.tracking.logging.json_formatter
 src.tracking.logging.logstash_handler
+src.tracking.logging.structured_logging
+src.tracking.logging.log_utils
+src.tracking.logging.json_formatter
 ```
 
 ## Package Contents

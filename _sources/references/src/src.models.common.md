@@ -15,9 +15,9 @@
 
 src.models.common.autoregressive
 src.models.common.improvement
-src.models.common.non_autoregressive
-src.models.common.critic_network
 src.models.common.transductive
+src.models.common.critic_network
+src.models.common.non_autoregressive
 ```
 
 ## Submodules

@@ -14,9 +14,9 @@
 :maxdepth: 3
 
 src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem
-src.policies.route_construction.other_algorithms.travelling_salesman_problem
 src.policies.route_construction.other_algorithms.sequential_route_constructor
 src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator
+src.policies.route_construction.other_algorithms.travelling_salesman_problem
 ```
 
 ## Package Contents

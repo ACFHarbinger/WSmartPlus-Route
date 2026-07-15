@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.genius.solver
 src.policies.route_construction.meta_heuristics.genius.params
 src.policies.route_construction.meta_heuristics.genius.policy_genius
+src.policies.route_construction.meta_heuristics.genius.solver
 ```
 
 ## Package Contents

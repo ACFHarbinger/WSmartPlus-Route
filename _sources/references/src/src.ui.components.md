@@ -23,12 +23,12 @@ src.ui.components.maps
 :maxdepth: 1
 
 src.ui.components.charts
-src.ui.components.attention_viz
-src.ui.components.sidebar
-src.ui.components.policy_viz
-src.ui.components.alns_charts
-src.ui.components.benchmark_charts
 src.ui.components.explorer_charts
+src.ui.components.attention_viz
+src.ui.components.benchmark_charts
+src.ui.components.policy_viz
+src.ui.components.sidebar
+src.ui.components.alns_charts
 ```
 
 ## Package Contents

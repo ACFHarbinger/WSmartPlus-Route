@@ -13,15 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.vector.selection.manager
+src.policies.vector.selection.base
 src.policies.vector.selection.factory
-src.policies.vector.selection.last_minute
+src.policies.vector.selection.combined
 src.policies.vector.selection.service_level
 src.policies.vector.selection.lookahead
+src.policies.vector.selection.manager
 src.policies.vector.selection.revenue
 src.policies.vector.selection.regular
-src.policies.vector.selection.base
-src.policies.vector.selection.combined
+src.policies.vector.selection.last_minute
 ```
 
 ## Package Contents

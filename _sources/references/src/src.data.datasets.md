@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.data.datasets.web
 src.data.datasets.pytorch
+src.data.datasets.web
 src.data.datasets.simulation
 ```
 

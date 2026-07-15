@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.vector.operators.destroy.string_removal
-src.policies.vector.operators.destroy.shaw_removal
 src.policies.vector.operators.destroy.worst_removal
-src.policies.vector.operators.destroy.random_removal
+src.policies.vector.operators.destroy.shaw_removal
+src.policies.vector.operators.destroy.string_removal
 src.policies.vector.operators.destroy.cluster_removal
+src.policies.vector.operators.destroy.random_removal
 ```

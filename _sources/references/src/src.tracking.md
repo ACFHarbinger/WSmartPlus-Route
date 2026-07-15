@@ -14,13 +14,13 @@
 :maxdepth: 3
 
 src.tracking.core
-src.tracking.logging
-src.tracking.integrations
-src.tracking.profiling
-src.tracking.validation
-src.tracking.helpers
-src.tracking.hooks
 src.tracking.database
+src.tracking.helpers
+src.tracking.validation
+src.tracking.profiling
+src.tracking.integrations
+src.tracking.logging
+src.tracking.hooks
 ```
 
 ## Submodules

@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 3
 
-src.configs.policies
 src.configs.models
-src.configs.envs
 src.configs.rl
+src.configs.policies
+src.configs.envs
 src.configs.tasks
 ```
 

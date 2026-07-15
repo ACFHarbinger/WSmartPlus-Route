@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver
 src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.params
 src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.policy_ma_im
+src.policies.route_construction.meta_heuristics.memetic_algorithm_island_model.solver
 ```
 
 ## Package Contents

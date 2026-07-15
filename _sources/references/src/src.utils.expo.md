@@ -13,16 +13,16 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.expo.heatmaps
-src.utils.expo.helpers
-src.utils.expo.charts
-src.utils.expo.routes
 src.utils.expo.landscape
-src.utils.expo.embeddings
-src.utils.expo.log_visualization
-src.utils.expo.charts3d
-src.utils.expo.interactive
+src.utils.expo.charts
+src.utils.expo.heatmaps
+src.utils.expo.routes
 src.utils.expo.attention
+src.utils.expo.helpers
+src.utils.expo.log_visualization
+src.utils.expo.interactive
+src.utils.expo.embeddings
+src.utils.expo.charts3d
 ```
 
 ## Package Contents

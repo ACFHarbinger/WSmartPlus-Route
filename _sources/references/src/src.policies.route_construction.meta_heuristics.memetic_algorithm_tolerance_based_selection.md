@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver
 src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.params
+src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.solver
 src.policies.route_construction.meta_heuristics.memetic_algorithm_tolerance_based_selection.policy_ma_ts
 ```
 
