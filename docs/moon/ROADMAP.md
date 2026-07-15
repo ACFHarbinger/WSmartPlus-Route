@@ -1384,6 +1384,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Local open / multi-select call sites migrate to ``handoff(…, { navigate: false })`` (launchers, monitors, analytics, Output Browser, global drop) (§G.1 / §G.6 / §G.10–§G.17 / §D.7)
 - [x] §G.16 / §G.9 post-run Simulation Monitor log handoff + studio-wide ``navigate: false`` recent-file parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-fourteenth pass)**
+
+- [x] Output Browser — **Open in Simulation Monitor →** for ``.jsonl`` via ``handoff(…, { mode: "simulation" })`` (§G.14 / §G.16 / §D.7)
+- [x] Simulation Summary — **Simulation Monitor →** hands off the open log into Digital Twin (§G.1 / §G.16 / §D.7)
+- [x] Algorithm Comparison — **Compare on Map** hands off ``watchPath`` with mode override so Digital Twin reloads + recents stay in sync (§G.16 / §D.7)
+- [x] §G.14 / §G.1 / §G.16 analytics + Output Browser Simulation Monitor log-handoff mode-override parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions

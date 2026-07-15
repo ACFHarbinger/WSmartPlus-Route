@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fourteenth pass (§G.1 + §G.14 + §G.16 + §D.7)
+
+Two-hundred-and-fourteenth pass closes the analytics/file-browser Simulation Monitor
+log-handoff gap left after pass 213 introduced the ``mode`` override on nav meshes and
+the Command Palette. Output Browser gains **Open in Simulation Monitor →** next to
+Summary for ``.jsonl`` files. Simulation Summary exposes **Simulation Monitor →** for
+the open log. Algorithm Comparison **Compare on Map** hands off ``watchPath`` with
+``mode: "simulation"`` so the Digital Twin reloads the log and recent-file labels stay
+aligned with brush/SQL.
+
+**React frontend**
+- Output Browser — **Open in Simulation Monitor →** log handoff mode override (§G.14 / §G.16 / §D.7)
+- Simulation Summary — **Simulation Monitor →** open-log Digital Twin handoff (§G.1 / §G.16 / §D.7)
+- Algorithm Comparison — **Compare on Map** ``watchPath`` handoff + map-compare intent (§G.16 / §D.7)
+
+**ROADMAP**
+- §G.14 / §G.1 / §G.16 analytics + Output Browser Simulation Monitor log-handoff parity checked
+- §D.7 mode-override surface coverage beyond launcher nav mesh checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirteenth pass (§G.1 + §G.6 + §G.7 + §G.9–§G.17 + §D.7)
 
 Two-hundred-and-thirteenth pass closes the post-run Simulation Monitor (Digital Twin)
