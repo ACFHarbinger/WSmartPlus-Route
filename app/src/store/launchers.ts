@@ -96,6 +96,97 @@ export const useTrainHubStore = create<TrainHubState>()(
   )
 );
 
+// ── System Tools (file_system + test_suite CLI parity with the retired PySide6 GUI)
+
+export type SystemToolsTab = "update" | "delete" | "crypto" | "tests";
+
+interface SystemToolsState {
+  tab: SystemToolsTab;
+  // file_system update
+  targetEntry: string;
+  outputKey: string;
+  filenamePattern: string;
+  updateOperation: string;
+  updateValue: number;
+  inputKeys: string;
+  statsFunction: string;
+  outputFilename: string;
+  updatePreview: boolean;
+  // file_system delete (checked = delete that directory)
+  delWandb: boolean;
+  delLog: boolean;
+  delOutput: boolean;
+  delData: boolean;
+  delEval: boolean;
+  delTest: boolean;
+  delTestCheckpoint: boolean;
+  delCache: boolean;
+  deletePreview: boolean;
+  // file_system cryptography
+  envFile: string;
+  symkeyName: string;
+  cryptoInputPath: string;
+  cryptoOutputPath: string;
+  saltSize: number;
+  keyLength: number;
+  hashIterations: number;
+  // test_suite
+  testModules: string[];
+  testKeyword: string;
+  testMarkers: string;
+  testVerbose: boolean;
+  testCoverage: boolean;
+  testParallel: boolean;
+  testFailedFirst: boolean;
+  testMaxfail: number;
+  testDir: string;
+  patch: (updates: Partial<Omit<SystemToolsState, "patch">>) => void;
+}
+
+export const useSystemToolsStore = create<SystemToolsState>()(
+  persist(
+    (set) => ({
+      tab: "update" as SystemToolsTab,
+      targetEntry: "",
+      outputKey: "",
+      filenamePattern: "",
+      updateOperation: "",
+      updateValue: 0,
+      inputKeys: "",
+      statsFunction: "",
+      outputFilename: "",
+      updatePreview: true,
+      delWandb: false,
+      delLog: false,
+      delOutput: false,
+      delData: false,
+      delEval: false,
+      delTest: false,
+      delTestCheckpoint: false,
+      delCache: false,
+      deletePreview: true,
+      envFile: "vars.env",
+      symkeyName: "",
+      cryptoInputPath: "",
+      cryptoOutputPath: "",
+      saltSize: 16,
+      keyLength: 32,
+      hashIterations: 100000,
+      testModules: [],
+      testKeyword: "",
+      testMarkers: "",
+      testVerbose: false,
+      testCoverage: false,
+      testParallel: false,
+      testFailedFirst: false,
+      testMaxfail: 0,
+      testDir: "tests",
+      patch: (updates) => set(updates as Partial<SystemToolsState>),
+    }),
+    { name: "wsroute-system-tools" }
+  )
+);
+
 // ── Data Generation Wizard (§G.11)
 
 interface DataGenState {

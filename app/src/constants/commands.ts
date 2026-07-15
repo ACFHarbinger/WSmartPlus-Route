@@ -30,6 +30,7 @@ export const PALETTE_COMMANDS: PaletteCommand[] = [
   { id: "eval_runner", label: "Evaluation Runner", section: "Launch", mode: "eval_runner", keywords: "checkpoint eval" },
   { id: "output_browser", label: "Output Browser", section: "Files", mode: "output_browser", keywords: "artefacts wsroute" },
   { id: "config_editor", label: "Config Editor", section: "Files", mode: "config_editor", keywords: "yaml hydra" },
+  { id: "system_tools", label: "System Tools", section: "Files", mode: "system_tools", keywords: "file system delete update cryptography test suite pytest" },
   { id: "settings", label: "Settings", section: "App", mode: "settings", keywords: "project root theme" },
   { id: "toggle_theme", label: "Cycle Theme (Dark / Light / System)", section: "Actions", action: "toggle_theme", keywords: "appearance system monitor" },
   { id: "shortcuts_help", label: "Keyboard Shortcuts Help", section: "Actions", action: "shortcuts_help", keywords: "hotkeys" },
