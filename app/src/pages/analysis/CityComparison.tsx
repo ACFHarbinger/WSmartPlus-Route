@@ -57,6 +57,7 @@ export function CityComparison() {
   const chartRef = useRef<EChartsReact | null>(null);
   const [runs, setRuns] = useState<RunFile[]>([]);
   const [portfolioLoading, setPortfolioLoading] = useState(false);
+  const [showErrorBars, setShowErrorBars] = useState(false);
 
   const filteredRuns = useMemo(
     () =>
@@ -76,8 +77,8 @@ export function CityComparison() {
   } = usePortfolioRunBrush(filteredRuns);
   const series = useMemo(() => buildCityComparisonSeries(cityGroups), [cityGroups]);
   const chartOption = useMemo(
-    () => cityComparisonChartOption(series, { logScale }),
-    [series, logScale]
+    () => cityComparisonChartOption(series, { logScale, showErrorBars }),
+    [series, logScale, showErrorBars]
   );
 
   const addRun = useCallback(async () => {
@@ -218,6 +219,14 @@ export function CityComparison() {
             <> · {formatPipelineTimingBadge(lastPipeline)}</>
           )}
         </span>
+        {cityGroups.length >= 1 && (
+          <button
+            onClick={() => setShowErrorBars((v) => !v)}
+            className={`btn-ghost text-xs ${showErrorBars ? "text-accent-secondary" : ""}`}
+          >
+            {showErrorBars ? "Error bars (on)" : "Error bars (off)"}
+          </button>
+        )}
       </div>
 
       {runs.length > 0 && (
@@ -252,8 +261,8 @@ export function CityComparison() {
               <p className="text-xs font-semibold text-gray-300">City Comparison (§G.1.6)</p>
               <p className="text-[10px] text-canvas-muted">
                 {logScale
-                  ? "Log-scale bars — profit · symlog-overflows · kg/km by graph scale"
-                  : "Linear bars — profit · overflows · kg/km by graph scale"}
+                  ? `Log-scale bars — profit · symlog-overflows · kg/km by graph scale${showErrorBars ? " · error bars on" : ""}`
+                  : `Linear bars — profit · overflows · kg/km by graph scale${showErrorBars ? " · error bars on" : ""}`}
               </p>
             </div>
             <button

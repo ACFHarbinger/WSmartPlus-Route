@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — ninety-fifth pass (§G.1 / §G.1.6 / §G.7)
+
+Ninety-fifth pass extends log-scale error-bar whiskers to city comparison
+grouped bars and Benchmark Analysis multi-run metric bar charts.
+
+**React frontend**
+- `chartLogScale.ts` — ``groupedBarWhiskerX()`` helper for grouped-category
+  bar whisker horizontal offsets
+- `cityComparison.ts` — ``buildCityComparisonSeries`` computes per-city std;
+  ``cityComparisonChartOption`` accepts ``showErrorBars``; profit ·
+  symlog-overflows · kg/km whiskers via ``errorBarBounds`` when global
+  ``logScale`` on; tooltips show mean ± std
+- `BenchmarkAnalysis` — shared ``showErrorBars`` toggle now drives multi-run
+  run×policy metric bar whiskers + city comparison chart whiskers
+- `CityComparison` — ``showErrorBars`` toggle on dedicated city comparison page
+- `SimulationSummary` — portfolio city comparison chart inherits global
+  ``showErrorBars`` toggle
+
+**ROADMAP**
+- §G.1 BenchmarkAnalysis multi-run metric-bar error-bar whiskers log-scale checked
+- §G.1.6 City Comparison error-bar whiskers log-scale checked
+- §G.7 Global log-scale propagation includes city-comparison + benchmark metric-bar whiskers
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — ninety-fourth pass (§G.1 / §G.7)
 
 Ninety-fourth pass extends log-scale error-bar whiskers and the shared

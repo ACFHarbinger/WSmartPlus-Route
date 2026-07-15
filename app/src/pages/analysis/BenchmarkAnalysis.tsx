@@ -18,7 +18,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
 import { barOpacity } from "../../utils/chartHighlight";
-import { errorBarBounds } from "../../utils/chartLogScale";
+import { errorBarBounds, groupedBarWhiskerX } from "../../utils/chartLogScale";
 import { exportChartPng } from "../../utils/chartExport";
 import { symlog } from "../../utils/symlog";
 import { PARETO_PANELS } from "../../utils/paretoPanels";
@@ -356,8 +356,12 @@ export function BenchmarkAnalysis() {
     usePortfolioRunBrush(filteredRuns);
 
   const cityComparisonOption = useMemo(
-    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups), { logScale }),
-    [cityGroups, logScale]
+    () =>
+      cityComparisonChartOption(buildCityComparisonSeries(cityGroups), {
+        logScale,
+        showErrorBars,
+      }),
+    [cityGroups, logScale, showErrorBars]
   );
 
   const onCityChartClick = useCallback(
@@ -473,21 +477,93 @@ export function BenchmarkAnalysis() {
     const runLabels = filteredRuns.map((r) => r.label);
     const policies = [...new Set(filteredRuns.flatMap((r) => r.entries.map((e) => e.policy)))];
 
-    const series = policies.map((p, i) => ({
-      name: p,
-      type: "bar",
-      data: filteredRuns.map((r) => {
+    const statsGrid = policies.map((p) =>
+      filteredRuns.map((r) => {
         const vals = r.entries
           .filter((e) => e.policy === p)
           .map((e) => (e.data as Record<string, number>)[metricKey] ?? null)
           .filter((v): v is number => v !== null);
-        return mean(vals);
+        return { mean: mean(vals), std: std(vals) };
+      })
+    );
+
+    const barSeries = policies.map((p, i) => ({
+      name: p,
+      type: "bar" as const,
+      data: statsGrid[i].map((s) => {
+        if (!logScale) return s.mean;
+        return symlogOverflows ? symlog(s.mean) : Math.max(s.mean, 0.001);
       }),
       itemStyle: {
         color: COLORS[i % COLORS.length],
         opacity: barOpacity(p, brushedPolicies),
       },
     }));
+
+    const errorBarPoints = policies.flatMap((_, polIdx) =>
+      filteredRuns.map((_, runIdx) => ({
+        runIdx,
+        polIdx,
+        ...statsGrid[polIdx][runIdx],
+      }))
+    );
+
+    const errorBarSeries = showErrorBars
+      ? [
+          {
+            type: "custom" as const,
+            renderItem: (
+              params: { dataIndex: number },
+              api: {
+                coord: (v: [number, number]) => [number, number];
+                size: (v: [number, number]) => [number, number];
+                style: (s: object) => object;
+              }
+            ) => {
+              const point = errorBarPoints[params.dataIndex];
+              const bounds = errorBarBounds(
+                point.mean,
+                point.std,
+                metricKey,
+                logScale,
+                symlogOverflows
+              );
+              const x = groupedBarWhiskerX(
+                api,
+                point.runIdx,
+                point.polIdx,
+                policies.length,
+                bounds.center
+              );
+              const yTop = api.coord([point.runIdx, bounds.high])[1];
+              const yBot = api.coord([point.runIdx, bounds.low])[1];
+              const cap = 4;
+              return {
+                type: "group",
+                children: [
+                  {
+                    type: "line",
+                    shape: { x1: x, y1: yTop, x2: x, y2: yBot },
+                    style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                  },
+                  {
+                    type: "line",
+                    shape: { x1: x - cap, y1: yTop, x2: x + cap, y2: yTop },
+                    style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                  },
+                  {
+                    type: "line",
+                    shape: { x1: x - cap, y1: yBot, x2: x + cap, y2: yBot },
+                    style: api.style({ stroke: "#9090b0", lineWidth: 1.5 }),
+                  },
+                ],
+              };
+            },
+            data: errorBarPoints.map((_, i) => i),
+            z: 10,
+          },
+        ]
+      : [];
 
     return {
       backgroundColor: "transparent",
@@ -506,14 +582,24 @@ export function BenchmarkAnalysis() {
         axisLabel: { color: "#9090b0", fontSize: 10 },
         minorSplitLine: { show: false },
       },
-      series: series.map((s) => ({
-        ...s,
-        data: (s.data as number[]).map((v) => {
-          if (!logScale) return v;
-          return symlogOverflows ? symlog(v) : Math.max(v, 0.001);
-        }),
-      })),
-      tooltip: { trigger: "axis" },
+      series: [...barSeries, ...errorBarSeries],
+      tooltip: {
+        trigger: "axis",
+        formatter: (params: unknown[]) => {
+          const items = params as Array<{ seriesName: string; dataIndex: number }>;
+          const run = runLabels[items[0]?.dataIndex ?? 0];
+          const lines = items
+            .filter((p) => p.seriesName)
+            .map((p) => {
+              const polIdx = policies.indexOf(p.seriesName);
+              const s = statsGrid[polIdx]?.[p.dataIndex];
+              return s
+                ? `${p.seriesName}: ${fmt(s.mean)} ± ${fmt(s.std)}`
+                : `${p.seriesName}: —`;
+            });
+          return `${run}<br/>${lines.join("<br/>")}`;
+        },
+      },
     };
   };
 
@@ -561,7 +647,7 @@ export function BenchmarkAnalysis() {
             Export CSV
           </button>
         )}
-        {efficiencyRanking.length > 0 && (
+        {filteredRuns.length > 0 && (
           <button
             onClick={() => setShowErrorBars((v) => !v)}
             className={`btn-ghost text-xs ${showErrorBars ? "text-accent-secondary" : ""}`}
@@ -664,8 +750,8 @@ export function BenchmarkAnalysis() {
           <p className="text-xs font-semibold text-gray-300">City Comparison (§G.1.6)</p>
           <p className="text-[10px] text-canvas-muted">
             {logScale
-              ? "Log-scale bars — profit · symlog-overflows · kg/km by graph scale"
-              : "Linear bars — profit · overflows · kg/km by graph scale"}
+              ? `Log-scale bars — profit · symlog-overflows · kg/km by graph scale${showErrorBars ? " · error bars on" : ""}`
+              : `Linear bars — profit · overflows · kg/km by graph scale${showErrorBars ? " · error bars on" : ""}`}
           </p>
           <ReactECharts
             ref={(el) => {

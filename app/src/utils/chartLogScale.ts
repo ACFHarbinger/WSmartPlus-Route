@@ -102,6 +102,22 @@ export function invertParallelAxisValue(
   return value;
 }
 
+/** Horizontal offset for whiskers on grouped/category bar charts. */
+export function groupedBarWhiskerX(
+  api: {
+    coord: (v: [number, number]) => [number, number];
+    size: (v: [number, number]) => [number, number];
+  },
+  categoryIndex: number,
+  seriesIndex: number,
+  seriesCount: number,
+  centerValue: number
+): number {
+  const bandWidth = api.size([1, 0])[0];
+  const offset = (seriesIndex - (seriesCount - 1) / 2) * (bandWidth / seriesCount);
+  return api.coord([categoryIndex, centerValue])[0] + offset;
+}
+
 /** Display-space mean ± std whisker endpoints for error bars (§G.1 / §G.7). */
 export function errorBarBounds(
   mean: number,

@@ -2089,8 +2089,12 @@ export function SimulationSummary() {
   } = usePortfolioRunBrush(allRuns);
 
   const cityComparisonOption = useMemo(
-    () => cityComparisonChartOption(buildCityComparisonSeries(cityGroups), { logScale }),
-    [cityGroups, logScale]
+    () =>
+      cityComparisonChartOption(buildCityComparisonSeries(cityGroups), {
+        logScale,
+        showErrorBars,
+      }),
+    [cityGroups, logScale, showErrorBars]
   );
 
   const handlePortfolioConfigClick = useCallback(
@@ -2415,7 +2419,11 @@ export function SimulationSummary() {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-xs font-semibold text-gray-300">City Comparison (§G.1.6)</p>
-                  <p className="text-[10px] text-canvas-muted">Log scale only — preserves extreme values</p>
+                  <p className="text-[10px] text-canvas-muted">
+                    {logScale
+                      ? `Log-scale bars — profit · symlog-overflows · kg/km${showErrorBars ? " · error bars on" : ""}`
+                      : `Linear bars — profit · overflows · kg/km${showErrorBars ? " · error bars on" : ""}`}
+                  </p>
                 </div>
                 <button
                   onClick={() =>
