@@ -19,6 +19,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
+import { PathHandoffButtons } from "../../components/common/PathHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
@@ -274,11 +275,9 @@ function HparamsPanel({ runPath }: { runPath: string }) {
 function CheckpointBrowser({
   runPath,
   projectRoot,
-  onLoadInEvalRunner,
 }: {
   runPath: string;
   projectRoot: string | null;
-  onLoadInEvalRunner: (path: string) => void;
 }) {
   const [checkpoints, setCheckpoints] = useState<DirEntry[] | null>(null);
 
@@ -308,17 +307,17 @@ function CheckpointBrowser({
               label={ckpt.name}
               brushLabel={parentRunBrushLabelFromCheckpointPath(ckpt.path, projectRoot)}
               className="flex-1 min-w-0 max-w-none"
+              trailing={
+                <PathHandoffButtons
+                  path={ckpt.path}
+                  kind="checkpoint"
+                  iconSize={11}
+                />
+              }
             />
             <span className="text-xs text-canvas-muted shrink-0">
               {formatBytes(ckpt.size_bytes)}
             </span>
-            <button
-              onClick={() => onLoadInEvalRunner(ckpt.path)}
-              className="btn-ghost text-xs shrink-0"
-              title="Open this checkpoint in the Evaluation Runner"
-            >
-              Load in Eval Runner →
-            </button>
           </div>
         ))}
       </div>
@@ -332,21 +331,25 @@ function RunPanel({
   metrics,
   color,
   projectRoot,
-  onLoadCheckpoint,
   logScale = false,
 }: {
   run: TrainingRun;
   metrics: TrainingMetricsRow[];
   color: string;
   projectRoot: string | null;
-  onLoadCheckpoint: (path: string) => void;
   logScale?: boolean;
 }) {
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2">
         <span className="w-2.5 h-2.5 rounded-full shrink-0" style={{ backgroundColor: color }} />
-        <PathRunLabelChip path={run.path} projectRoot={projectRoot} />
+        <PathRunLabelChip
+          path={run.path}
+          projectRoot={projectRoot}
+          trailing={
+            <PathHandoffButtons path={run.path} kind="training" iconSize={11} />
+          }
+        />
         <span className="text-xs text-canvas-muted">{metrics.length} epochs</span>
       </div>
       <GradNormSparkline
@@ -360,11 +363,7 @@ function RunPanel({
         exportName="training-monitor-lr"
       />
       {run.has_hparams && <HparamsPanel runPath={run.path} />}
-      <CheckpointBrowser
-        runPath={run.path}
-        projectRoot={projectRoot}
-        onLoadInEvalRunner={onLoadCheckpoint}
-      />
+      <CheckpointBrowser runPath={run.path} projectRoot={projectRoot} />
     </div>
   );
 }
@@ -718,13 +717,6 @@ export function TrainingMonitor() {
     return result;
   }, [selected, selectedRunObjects, effectiveLiveMetrics, liveRunLabel]);
 
-  const handleLoadCheckpoint = useCallback(
-    (checkpointPath: string) => {
-      handoff(checkpointPath, "checkpoint");
-    },
-    [handoff]
-  );
-
   if (!projectRoot) {
     return (
       <div className="flex flex-col items-center justify-center h-64 text-canvas-muted gap-2">
@@ -924,7 +916,6 @@ export function TrainingMonitor() {
             metrics={metrics}
             color={RUN_COLORS[(i + liveOffset) % RUN_COLORS.length]}
             projectRoot={projectRoot}
-            onLoadCheckpoint={handleLoadCheckpoint}
             logScale={logScale}
           />
         );

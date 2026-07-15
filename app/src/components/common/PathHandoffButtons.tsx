@@ -2,8 +2,11 @@
  * Path-aware handoff controls for recent-file kinds (§G.7 / §G.14 / §G.15 / §G.17 / §D.7).
  *
  * Simulation ``.jsonl`` logs keep dual Summary / Monitor icons via ``LogHandoffButtons``.
- * Other kinds expose a single icon that hands off into the default destination
- * (Training Monitor, Output Browser, Data Explorer, Eval Runner, Config Editor).
+ * Other kinds expose a single icon (or labeled button) that hands off into the default
+ * destination (Training Monitor, Output Browser, Data Explorer, Eval Runner, Config Editor).
+ *
+ * When ``path`` is empty but ``kind`` is set, buttons still navigate to the destination
+ * mode (nav-mesh parity without a completed artefact yet — mirrors ``LogHandoffButtons``).
  */
 import type { MouseEvent, ReactNode } from "react";
 import {
@@ -18,16 +21,21 @@ import {
   recentKindFromPath,
   type RecentFileKind,
 } from "../../store/recentFiles";
+import { recentHandoffSpec } from "../../utils/recentHandoff";
 import {
   isSimulationLogPath,
   LogHandoffButtons,
 } from "./LogHandoffButtons";
 
 interface Props {
-  path: string;
   /**
-   * Explicit kind when known (Command Palette recents, toast handlers).
-   * When omitted, ``recentKindFromPath`` classifies the path.
+   * Filesystem path to hand off. When omitted/empty, clicks only switch mode
+   * (requires ``kind`` so the destination is known).
+   */
+  path?: string | null;
+  /**
+   * Explicit kind when known (Command Palette recents, toast handlers, nav mesh).
+   * When omitted, ``recentKindFromPath`` classifies a non-empty ``path``.
    */
   kind?: RecentFileKind | null;
   /** Optional stored recent-file label (portfolio / run name). */
@@ -46,34 +54,45 @@ interface Props {
 
 const KIND_META: Record<
   Exclude<RecentFileKind, "log">,
-  { title: string; label: string; accent: string; icon: (size: number) => ReactNode }
+  {
+    titleWithPath: string;
+    titleModeOnly: string;
+    label: string;
+    accent: string;
+    icon: (size: number) => ReactNode;
+  }
 > = {
   training: {
-    title: "Open in Training Monitor",
+    titleWithPath: "Open in Training Monitor",
+    titleModeOnly: "Open Training Monitor",
     label: "Training Monitor →",
     accent: "text-accent-primary",
     icon: (size) => <Activity size={size} />,
   },
   run: {
-    title: "Open in Output Browser",
+    titleWithPath: "Open in Output Browser",
+    titleModeOnly: "Open Output Browser",
     label: "Output Browser →",
     accent: "text-accent-success",
     icon: (size) => <FolderOpen size={size} />,
   },
   csv: {
-    title: "Open in Data Explorer",
+    titleWithPath: "Open in Data Explorer",
+    titleModeOnly: "Open Data Explorer",
     label: "Data Explorer →",
     accent: "text-accent-primary",
     icon: (size) => <Database size={size} />,
   },
   checkpoint: {
-    title: "Load in Eval Runner",
+    titleWithPath: "Load in Eval Runner",
+    titleModeOnly: "Open Evaluation Runner",
     label: "Eval Runner →",
     accent: "text-accent-secondary",
     icon: (size) => <ClipboardList size={size} />,
   },
   config: {
-    title: "Open in Config Editor",
+    titleWithPath: "Open in Config Editor",
+    titleModeOnly: "Open Config Editor",
     label: "Config Editor →",
     accent: "text-canvas-muted",
     icon: (size) => <FileText size={size} />,
@@ -81,8 +100,8 @@ const KIND_META: Record<
 };
 
 /**
- * Icon (or labeled) handoff control for a filesystem path.
- * Returns ``null`` when the path cannot be classified into a handoff kind.
+ * Icon (or labeled) handoff control for a filesystem path / known kind.
+ * Returns ``null`` when neither path nor kind can resolve a destination.
  */
 export function PathHandoffButtons({
   path,
@@ -93,14 +112,15 @@ export function PathHandoffButtons({
   labeled = false,
   onAfterOpen,
 }: Props) {
-  const { handoff } = useRecentHandoff();
-  const resolvedKind = kind ?? recentKindFromPath(path);
+  const { handoff, setMode } = useRecentHandoff();
+  const trimmed = path?.trim() ? path.trim() : null;
+  const resolvedKind = kind ?? (trimmed ? recentKindFromPath(trimmed) : null);
   if (!resolvedKind) return null;
 
-  if (resolvedKind === "log" || isSimulationLogPath(path)) {
+  if (resolvedKind === "log" || (trimmed != null && isSimulationLogPath(trimmed))) {
     return (
       <LogHandoffButtons
-        path={path}
+        path={trimmed}
         storedLabel={storedLabel}
         className={className}
         iconSize={iconSize}
@@ -111,9 +131,14 @@ export function PathHandoffButtons({
   }
 
   const meta = KIND_META[resolvedKind];
+  const title = trimmed ? meta.titleWithPath : meta.titleModeOnly;
   const open = (e: MouseEvent) => {
     e.stopPropagation();
-    handoff(path, resolvedKind, { storedLabel });
+    if (trimmed) {
+      handoff(trimmed, resolvedKind, { storedLabel });
+    } else {
+      setMode(recentHandoffSpec(resolvedKind).mode);
+    }
     onAfterOpen?.();
   };
 
@@ -122,7 +147,7 @@ export function PathHandoffButtons({
       <span className={`flex items-center gap-1.5 shrink-0 ${className}`}>
         <button
           type="button"
-          title={meta.title}
+          title={title}
           onClick={open}
           className={`btn-ghost text-xs flex items-center gap-1.5 ${meta.accent}`}
         >
@@ -137,7 +162,7 @@ export function PathHandoffButtons({
     <span className={`flex items-center gap-0.5 shrink-0 ${className}`}>
       <button
         type="button"
-        title={meta.title}
+        title={title}
         onClick={open}
         className={`btn-ghost p-0.5 ${meta.accent}`}
       >

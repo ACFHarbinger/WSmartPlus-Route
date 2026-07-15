@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-fourth pass (§G.7 + §G.9 + §G.10 + §G.12 + §G.14 + §G.15 + §G.17 + §D.7)
+
+Two-hundred-and-twenty-fourth pass continues path-handoff surface parity after
+pass 223 introduced ``PathHandoffButtons`` on process rows, footers, and the
+Command Palette. The control now supports empty-path mode-only navigation
+(kind required) so launcher and train/HPO nav meshes can share the same labeled
+buttons used for post-run deep-links. Output Browser file viewer / checkpoint
+sidebar and Training Monitor run panels migrate off ad-hoc Open-in buttons onto
+the shared control.
+
+**React frontend**
+- ``PathHandoffButtons`` optional empty ``path`` + explicit ``kind`` — mode-only navigation (§G.7 / §D.7)
+- ``LauncherNavMesh`` — Output / checkpoint / Training / Data Explorer via labeled ``PathHandoffButtons`` (§G.9 / §G.11 / §G.12 / §D.7)
+- ``TrainHpoNavMesh`` — Output Browser + Training Monitor via labeled ``PathHandoffButtons`` (§G.10 / §G.15 / §G.17 / §D.7)
+- Output Browser — run-header path-kind handoffs; file-viewer CSV / config / checkpoint / log labeled controls; checkpoint sidebar icons (§G.14 / §G.12 / §D.7)
+- Training Monitor — run-panel training path + checkpoint browser icon handoffs (§G.17 / §G.12 / §D.7)
+
+**ROADMAP**
+- §G.14 / §G.9 / §G.10 / §G.17 path-handoff surface parity checked
+- §D.7 empty-path path-handoff + Output Browser / nav-mesh / Training Monitor coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-third pass (§G.7 + §G.9 + §G.10 + §G.14 + §G.15 + §G.17 + §D.7 + §D.8)
 
 Two-hundred-and-twenty-third pass extends path-handoff surface parity beyond
