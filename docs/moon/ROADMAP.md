@@ -849,6 +849,12 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Process Monitor — train/HPO metrics rehydrate from ``useProcessStore``; grad-norm + LR sparklines persist after completion (§G.15 / §D.7)
 - [x] HPO Tracker + Experiment Tracker — post-run grad-norm + LR sparklines from persisted HPO stdout (§G.18 / §G.17 / §D.7)
 
+**Delivered (§D.7 — hundred-forty-ninth pass)**
+
+- [x] Training Hub — post-run grad-norm + LR sparklines from persisted train/HPO stdout via ``TrainingMetricSparklines``; ``TrainingMetricSnapshot`` + rehydration banner (§G.10 / §D.7)
+- [x] Training Monitor — deduplicated local sparklines; imports shared ``GradNormSparkline`` + ``LrSparkline`` + ``TrainingMetricSnapshot`` (§G.17 / §D.7)
+- [x] §G.10 / §G.17 launcher + monitor post-run sparkline parity across all train/HPO workflow pages (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1549,6 +1555,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``TrainHpoNavMesh`` shared navigation + ``LiveTrainProgressBar`` epoch progress/ETA during live train/HPO (hundred-thirty-fifth pass; §D.2)
 - [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on Training Hub live panel (hundred-forty-fourth pass; §G.14 / §G.17 / §D.7)
 - [x] Post-run panel persistence via ``findRecentHubProcessId`` (train/HPO/eval) when navigation clears local state (hundred-forty-sixth pass; §G.10 / §D.7)
+- [x] Post-run grad-norm + LR sparklines via ``TrainingMetricSparklines``; ``TrainingMetricSnapshot`` + rehydration banner when train/HPO completes (hundred-forty-ninth pass; §G.17 / §D.7)
 
 ---
 
@@ -1719,6 +1726,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Post-run ``outputRunPath`` + ``trainingRunPath`` deep-links on live/recent train panel; auto-select completed run from stdout ``trainingRunPath`` (hundred-forty-fifth pass; §G.10 / §G.14 / §D.7)
 - [x] Post-run metrics/health/attention rehydration from ``useProcessStore`` when live streaming state clears; multi-run overlay chart persists via ``effectiveLiveMetrics`` (hundred-forty-seventh pass; §G.17 / §D.7)
 - [x] ``TrainingMetricSparklines`` shared grad-norm + LR sparklines used across Process Monitor and analytics pages (hundred-forty-eighth pass; §G.15 / §G.18 / §D.7)
+- [x] Training Monitor deduplicated to shared ``TrainingMetricSparklines`` + ``TrainingMetricSnapshot``; post-run sparkline rehydration banner parity (hundred-forty-ninth pass; §G.10 / §D.7)
 
 ---
 
