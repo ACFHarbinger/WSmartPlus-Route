@@ -18,6 +18,7 @@ import logic.src.constants as udef
 from logic.src.utils.infrastructure.setup_sims import deep_sanitize
 
 POLICY_VIZ_MARKER = "POLICY_VIZ_START:"
+STREAM_INTERVAL_SEC = 0.5  # 2 Hz refresh for §A.3 Option B
 
 
 def detect_policy_viz_type(viz_data: Dict[str, List[Any]]) -> str:
@@ -62,6 +63,67 @@ def _collect_viz_sources(source: Any) -> List[Any]:
     for attr in ("engine", "solver", "policy", "_solver", "_engine", "improver"):
         add(getattr(source, attr, None))
     return candidates
+
+
+class PolicyVizStreamSession:
+    """Emit growing ring-buffer snapshots at 2 Hz during solver execution (§A.3 Option B).
+
+    Wraps route construction / improvement so the Studio receives live telemetry via
+    ``process:stdout`` and ``sim:policy_viz_update`` without waiting for solver completion.
+    """
+
+    def __init__(
+        self,
+        source: Any,
+        policy: str,
+        sample_idx: int,
+        day: int,
+        log_path: Optional[str],
+        lock: Optional[threading.Lock] = None,
+        interval_sec: float = STREAM_INTERVAL_SEC,
+    ) -> None:
+        self._source = source
+        self._policy = policy
+        self._sample_idx = sample_idx
+        self._day = day
+        self._log_path = log_path
+        self._lock = lock
+        self._interval_sec = interval_sec
+        self._stop = threading.Event()
+        self._thread: Optional[threading.Thread] = None
+
+    def __enter__(self) -> "PolicyVizStreamSession":
+        self._thread = threading.Thread(
+            target=self._emit_loop,
+            name="policy-viz-stream",
+            daemon=True,
+        )
+        self._thread.start()
+        return self
+
+    def __exit__(self, exc_type: Any, exc_val: Any, exc_tb: Any) -> None:
+        self._stop.set()
+        if self._thread is not None:
+            self._thread.join(timeout=2.0)
+        maybe_emit_policy_viz(
+            self._source,
+            self._policy,
+            self._sample_idx,
+            self._day,
+            self._log_path,
+            self._lock,
+        )
+
+    def _emit_loop(self) -> None:
+        while not self._stop.wait(self._interval_sec):
+            maybe_emit_policy_viz(
+                self._source,
+                self._policy,
+                self._sample_idx,
+                self._day,
+                self._log_path,
+                self._lock,
+            )
 
 
 def maybe_emit_policy_viz(

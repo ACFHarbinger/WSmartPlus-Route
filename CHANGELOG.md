@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-nineteenth pass (§A.3 Option B)
+
+Hundred-nineteenth pass adds 2 Hz live policy telemetry streaming during simulation
+solver runs, completing ROADMAP §A.3 Option B.
+
+**Python logic**
+- ``PolicyVizStreamSession`` — daemon thread emits growing ``PolicyVizMixin`` ring-buffer
+  snapshots every 0.5 s during route construction / improvement
+- ``route_construction`` / ``route_improvement`` actions wrap solver execution in stream sessions
+- Unit tests in ``logic/test/unit/tracking/test_policy_viz_emit.py``
+
+**React frontend**
+- Sim store — ``addPolicyVizEntry`` upserts by policy/sample/day/type (replaces stale snapshots)
+- ``policyVizDataLen`` helper — picks newest streaming snapshot by metric series length
+- ``PolicyTelemetryPanel`` — 2 Hz throttled ECharts refresh + **Live · 2 Hz** badge
+- Simulation Monitor — live mode when file-watcher active or ``test_sim`` process running
+
+**ROADMAP**
+- §A.3 Option B 2 Hz live telemetry stream checked (Option C SQLite deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighteenth pass (§A.4 Option D)
 
 Hundred-eighteenth pass adds HPO health metrics for early trial pruning, completing

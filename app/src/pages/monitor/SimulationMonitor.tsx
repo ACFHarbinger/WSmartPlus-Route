@@ -26,6 +26,7 @@ import { useSimWatcher } from "../../hooks/useSimWatcher";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
+import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { hexToRgb } from "../../utils/colors";
@@ -313,6 +314,12 @@ export function SimulationMonitor() {
     setWatchPath,
     reset,
   } = useSimStore();
+  const runningSimProcess = useProcessStore((s) =>
+    Object.values(s.processes).find(
+      (p) => p.status === "running" && p.command.includes("test_sim")
+    )
+  );
+  const policyVizLive = isWatching || !!runningSimProcess;
 
   const {
     policy: selectedPolicy,
@@ -998,6 +1005,7 @@ export function SimulationMonitor() {
             day={displayDay}
             theme={theme}
             logScale={logScale}
+            live={policyVizLive}
           />
 
           <GraphTopologyPanel

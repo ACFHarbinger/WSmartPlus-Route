@@ -2,8 +2,11 @@
 
 import json
 
+import time
+
 from logic.src.tracking.logging.modules.policy_viz_emit import (
     POLICY_VIZ_MARKER,
+    PolicyVizStreamSession,
     detect_policy_viz_type,
     maybe_emit_policy_viz,
     send_policy_viz_to_gui,
@@ -50,3 +53,20 @@ def test_maybe_emit_policy_viz_from_mixin(capsys, tmp_path):
 def test_send_policy_viz_to_gui_skips_empty(capsys):
     send_policy_viz_to_gui({}, "P", 0, 1, None)
     assert capsys.readouterr().out == ""
+
+
+def test_policy_viz_stream_session_emits_during_run(capsys, tmp_path):
+    policy = _DummyPolicy()
+    log_path = str(tmp_path / "sim.jsonl")
+
+    def slow_run() -> None:
+        for i in range(4):
+            policy._viz_record(iteration=i, best_cost=100.0 - i)
+            time.sleep(0.15)
+
+    with PolicyVizStreamSession(policy, "Stream ALNS", 0, 1, log_path):
+        slow_run()
+
+    captured = capsys.readouterr()
+    assert captured.out.count(POLICY_VIZ_MARKER) >= 2
+    assert (tmp_path / "sim.jsonl").exists()

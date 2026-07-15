@@ -240,6 +240,12 @@ export function policyVizChartOptions(
   }
 }
 
+/** Longest metric series length — used to pick the newest streaming snapshot. */
+export function policyVizDataLen(data: PolicyVizEntry["data"]): number {
+  if (!data || typeof data !== "object") return 0;
+  return Math.max(0, ...Object.values(data).map((v) => (Array.isArray(v) ? v.length : 0)));
+}
+
 export function filterPolicyVizEntries(
   entries: PolicyVizEntry[],
   policy: string | null,

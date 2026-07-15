@@ -4,7 +4,7 @@
  * Renders ECharts panels from ``PolicyVizMixin`` data streamed via
  * ``POLICY_VIZ_START:`` log markers.
  */
-import { useMemo, useRef } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Activity } from "lucide-react";
@@ -16,6 +16,8 @@ import {
 } from "../../utils/policyTelemetry";
 import type { PolicyVizEntry } from "../../types";
 
+const LIVE_REFRESH_MS = 500; // 2 Hz chart refresh (§A.3 Option B)
+
 interface Props {
   entries: PolicyVizEntry[];
   policy: string | null;
@@ -23,6 +25,8 @@ interface Props {
   day: number | null;
   theme: "dark" | "light";
   logScale?: boolean;
+  /** When true, throttle chart updates to 2 Hz and show a live badge. */
+  live?: boolean;
 }
 
 export function PolicyTelemetryPanel({
@@ -32,8 +36,10 @@ export function PolicyTelemetryPanel({
   day,
   theme,
   logScale = false,
+  live = false,
 }: Props) {
   const chartRefs = useRef<Array<EChartsReact | null>>([]);
+  const [renderTick, setRenderTick] = useState(0);
 
   const active = useMemo(
     () => filterPolicyVizEntries(entries, policy, sampleId, day),
@@ -41,9 +47,17 @@ export function PolicyTelemetryPanel({
   );
 
   const latest = active.length ? active[active.length - 1]! : null;
+
+  useEffect(() => {
+    if (!live || !latest) return;
+    const id = window.setInterval(() => setRenderTick((t) => t + 1), LIVE_REFRESH_MS);
+    return () => window.clearInterval(id);
+  }, [live, latest?.policy, latest?.day, latest?.sample_id]);
+
   const charts = useMemo(
     () => (latest ? policyVizChartOptions(latest, theme, logScale) : []),
-    [latest, theme, logScale]
+    // renderTick forces 2 Hz refresh while live even if entry reference is stable
+    [latest, theme, logScale, live ? renderTick : 0]
   );
 
   if (!latest || charts.length === 0) {
@@ -71,6 +85,12 @@ export function PolicyTelemetryPanel({
           <p className="flex items-center gap-2 text-sm font-semibold text-gray-200">
             <Activity size={14} className="text-accent-primary" />
             Policy Telemetry
+            {live && (
+              <span className="inline-flex items-center gap-1 rounded-full bg-accent-success/15 px-2 py-0.5 text-[10px] font-medium text-accent-success">
+                <span className="h-1.5 w-1.5 animate-pulse rounded-full bg-accent-success" />
+                Live · 2 Hz
+              </span>
+            )}
             <span className="text-xs font-normal text-canvas-muted">
               {policyVizTypeLabel(latest.policy_type)} · day {latest.day} · {iterCount} steps ·{" "}
               {metricCount} metrics

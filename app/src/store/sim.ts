@@ -1,4 +1,5 @@
 import { create } from "zustand";
+import { policyVizDataLen } from "../utils/policyTelemetry";
 import type { DayLogEntry, PolicyVizEntry, SimFailureEntry } from "../types";
 
 interface SimState {
@@ -52,14 +53,23 @@ export const useSimStore = create<SimState>((set) => ({
 
   addPolicyVizEntry: (entry) =>
     set((s) => {
-      const exists = s.policyVizEntries.some(
+      const idx = s.policyVizEntries.findIndex(
         (e) =>
           e.policy === entry.policy &&
           e.sample_id === entry.sample_id &&
           e.day === entry.day &&
           e.policy_type === entry.policy_type
       );
-      return exists ? s : { policyVizEntries: [...s.policyVizEntries, entry] };
+      if (idx === -1) {
+        return { policyVizEntries: [...s.policyVizEntries, entry] };
+      }
+      const existing = s.policyVizEntries[idx]!;
+      if (policyVizDataLen(entry.data) < policyVizDataLen(existing.data)) {
+        return s;
+      }
+      const next = [...s.policyVizEntries];
+      next[idx] = entry;
+      return { policyVizEntries: next };
     }),
 
   loadEntries: (entries) => set({ entries }),
