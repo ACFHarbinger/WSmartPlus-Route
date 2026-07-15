@@ -57,6 +57,7 @@ import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphH
 import { BenchmarkDistributionHeatmap } from "../../components/analysis/BenchmarkDistributionHeatmap";
 import { BenchmarkPortfolioHeatmap } from "../../components/analysis/BenchmarkPortfolioHeatmap";
 import { BenchmarkPortfolioParallel } from "../../components/analysis/BenchmarkPortfolioParallel";
+import { StrategyLegend } from "../../components/analysis/StrategyLegend";
 import {
   buildNormalizedHeatmapCells,
   type HeatmapMode,
@@ -1030,6 +1031,9 @@ function PolicyParallelChart({
           <p className="text-xs font-semibold text-gray-300">
             Policy Parallel Coordinates{logScale ? " · log-normalised axes" : ""}
           </p>
+          <p className="text-[10px] text-canvas-muted">
+            One polyline per policy · coloured by mandatory-selection strategy
+          </p>
           {(onAxisBrush || onOverflowCorridorBrush) && (
             <p className="text-[10px] text-canvas-muted">
               Drag on any axis to brush · overflows axis syncs corridor slider · toolbox clear resets
@@ -1044,6 +1048,7 @@ function PolicyParallelChart({
           PNG
         </button>
       </div>
+      <StrategyLegend />
       <ReactECharts
         ref={chartRef}
         option={option}

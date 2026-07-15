@@ -961,12 +961,15 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 **Goal**: Enable macro → micro navigation from algorithm family level down to individual config variants.
 
 - [x] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor: `PolicyHierarchyPanel` + `policyHierarchy.ts` on Simulation Summary; `buildPortfolioHierarchy()` multi-root sunburst when ≥2 logs loaded (§G.2)
-- [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient (§G.2 partial)
+- [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient; middle strategy ring adds `selectionStrategyColor()` border stroke (§G.2)
 - [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter; `SqlQueryPanel` `brushSqlSync` + `autoRunOnBrushSync` executes `brushedPoliciesSql` (§G.2)
 - [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): `PolicyHierarchyPanel` `universalTransition` morphs sunburst/treemap → drill-down profit bars on segment click; log-scale profit x-axis when global ``logScale`` on (§G.2 / §G.7)
 - [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down; log-scale profit x-axis whiskers via ``errorBarBounds`` when global ``logScale`` on (§G.2 / §G.7)
 - [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` with root **All** reset (§G.2)
 - [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary; kg/km vs overflows colour mode selector on `PolicyHierarchyPanel` (§G.2)
+- [x] Shared strategy colour legend: `SELECTION_STRATEGY_LEGEND` + `StrategyLegend` chips on `PolicyParallelChart` and `BenchmarkPortfolioParallel` (§G.1.4 / §G.2)
+
+**Status**: §G.2 complete — all checklist items delivered.
 
 ---
 

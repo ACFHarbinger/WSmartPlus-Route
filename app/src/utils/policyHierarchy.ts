@@ -2,7 +2,7 @@
  * Build hierarchical policy trees for §G.2 sunburst / treemap charts.
  */
 
-import { cityScaleLabel, parseLogPath } from "./simMetadata";
+import { cityScaleLabel, parseLogPath, selectionStrategyColor } from "./simMetadata";
 import type { LogPathMeta, PolicyMeta } from "./simMetadata";
 
 export { cityScaleLabel };
@@ -18,7 +18,7 @@ export interface PolicyAgg {
 export interface HierarchyNode {
   name: string;
   value: number;
-  itemStyle?: { color?: string };
+  itemStyle?: { color?: string; borderColor?: string; borderWidth?: number };
   children?: HierarchyNode[];
   /** Leaf policy names under this node (for cross-filter). */
   policies: string[];
@@ -105,6 +105,11 @@ export function buildPolicyHierarchy(
     strategyChildren.push({
       name: strat,
       value: Math.max(profitSum(stratPolicies), 0.01),
+      itemStyle: {
+        color: segmentColor(stratPolicies),
+        borderColor: selectionStrategyColor(strat),
+        borderWidth: 2,
+      },
       children: ctorChildren,
       policies: stratPolicies,
     });
