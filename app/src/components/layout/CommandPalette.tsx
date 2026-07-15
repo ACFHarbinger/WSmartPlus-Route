@@ -7,10 +7,7 @@ import { useAppStore } from "../../store/app";
 import { useRecentHandoff } from "../../hooks/useRecentHandoff";
 import { useLayoutStore } from "../../store/layout";
 import { nextThemePreference } from "../../utils/theme";
-import {
-  isSimulationLogPath,
-  LogHandoffButtons,
-} from "../common/LogHandoffButtons";
+import { PathHandoffButtons } from "../common/PathHandoffButtons";
 import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
@@ -220,14 +217,13 @@ export function CommandPalette() {
                           projectRoot={projectRoot}
                           className="flex-1 min-w-0"
                           trailing={
-                            file.kind === "log" && isSimulationLogPath(file.path) ? (
-                              <LogHandoffButtons
-                                path={file.path}
-                                storedLabel={file.label}
-                                iconSize={11}
-                                onAfterOpen={closePalette}
-                              />
-                            ) : undefined
+                            <PathHandoffButtons
+                              path={file.path}
+                              kind={file.kind}
+                              storedLabel={file.label}
+                              iconSize={11}
+                              onAfterOpen={closePalette}
+                            />
                           }
                         />
                       ) : (

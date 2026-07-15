@@ -68,6 +68,24 @@ function processToastHandoffOptions(id: string): {
 
   if (isTrainOrHpoProcess(id, proc.command)) {
     const trainPath = trainingRunPathFromLogLines(lines);
+    const runPath = outputRunPathFromLogLines(lines);
+    if (trainPath && runPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Training",
+          onClick: () => {
+            applyStoreRecentHandoff(trainPath, "training");
+          },
+        },
+        cancel: {
+          label: "Output",
+          onClick: () => {
+            applyStoreRecentHandoff(runPath, "run");
+          },
+        },
+      };
+    }
     if (trainPath) {
       return {
         duration: 8000,
@@ -79,6 +97,18 @@ function processToastHandoffOptions(id: string): {
         },
       };
     }
+    if (runPath) {
+      return {
+        duration: 8000,
+        action: {
+          label: "Output",
+          onClick: () => {
+            applyStoreRecentHandoff(runPath, "run");
+          },
+        },
+      };
+    }
+    return {};
   }
 
   const runPath = outputRunPathFromLogLines(lines);
