@@ -1048,6 +1048,14 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary — comparison-run list ring highlight via ``runLabelMapFromPaths`` (§G.1 / §G.6 / §D.7)
 - [x] §G.1 / §G.14 / §G.16 file-based run-label brush + ring-highlight parity across Simulation Summary, Simulation Monitor, and Output Browser (§D.7)
 
+**Delivered (§D.7 — hundred-seventy-sixth pass)**
+
+- [x] Benchmark Analysis + City Comparison — ``runLabelMapFromPaths`` + ``handleRunLabelClick`` on loaded-run lists; ring highlight when global brush matches (§G.1 / §G.6 / §D.7)
+- [x] Benchmark Analysis + City Comparison — ``GlobalFilterBar`` ``runLabels`` in single-run portfolio mode (§G.1 / §G.6 / §D.7)
+- [x] Algorithm Comparison — ``useLogPathRunLabelBrush`` on Simulation Monitor watch path; ``GlobalFilterBar`` ``runLabels`` when log active (§G.1 / §G.16 / §D.7)
+- [x] Data Explorer — ``useLogPathRunLabelBrush`` on open CSV path; path-derived ``runLabels`` + trends ``initialRunLabel`` fallback when CSV lacks ``run_label`` column (§G.6 / §G.16 / §D.7)
+- [x] §G.1 / §G.6 portfolio + analytics page run-label brush + ring-highlight parity across Summary / Benchmark / City / Algorithm / Data Explorer (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1592,6 +1600,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] City Comparison brush SQL sync: city chart / summary table click → `run_label` filter → `brushSqlSync` + `autoRunOnBrushSync` on `city_sim`; `brushedPortfolioSql()` unifies policy + run_label brushes (§G.6)
 - [x] Simulation Summary portfolio run_label brush SQL sync: comparison-run click, city chart click, portfolio efficiency ranking click → `highlightRunLabels` + `brushSqlSync` on `summary_sim` (§G.6)
 - [x] Simulation Summary ``useLogPathRunLabelBrush`` on primary log open; ``GlobalFilterBar`` ``runLabels`` in single-log mode; comparison-run ring highlight via ``runLabelMapFromPaths`` (hundred-seventy-fifth pass; §G.1 / §G.16 / §D.7)
+- [x] Benchmark Analysis + City Comparison loaded-run list ring highlight + click-to-brush via ``runLabelMapFromPaths`` + ``handleRunLabelClick``; single-run ``GlobalFilterBar`` ``runLabels`` (hundred-seventy-sixth pass; §G.1 / §G.6 / §D.7)
+- [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
+- [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] Benchmark Analysis city chart run_label brush: city comparison chart click → `highlightRunLabels` + `brushSqlSync` on `benchmark_sim` (§G.6)
 - [x] OLAP Explorer global policy brush SQL sync: `GlobalFilterBar` policy → `brushSqlSync` + `autoRunOnBrushSync`; portfolio/algorithm template modes per ingested table (§G.6)
 - [x] OLAP Explorer global run_label brush SQL sync: `GlobalFilterBar` run selector + `highlightRunLabels` on portfolio tables; distinct ``run_label`` values from DuckDB (§G.6)
