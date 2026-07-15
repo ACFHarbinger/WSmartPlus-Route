@@ -2,6 +2,8 @@
  * Cross-page sim / data-gen / eval launcher shortcuts (§D.7 / §G.9 / §G.11 / §G.12).
  */
 import { useAppStore } from "../../store/app";
+import { useRecentFilesStore } from "../../store/recentFiles";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 import type { LauncherKind } from "../../utils/launcherProcess";
 
 export interface LauncherNavMeshProps {
@@ -46,7 +48,8 @@ export function LauncherNavMesh({
   outputRunPath = null,
   className = "",
 }: LauncherNavMeshProps) {
-  const { setMode, setPendingCheckpoint, setPendingRunPath } = useAppStore();
+  const { projectRoot, setMode, setPendingCheckpoint, setPendingRunPath } = useAppStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -128,7 +131,14 @@ export function LauncherNavMesh({
       {showOutputBrowser && (
         <button
           onClick={() => {
-            if (outputRunPath) setPendingRunPath(outputRunPath);
+            if (outputRunPath) {
+              pushRecent({
+                path: outputRunPath,
+                label: portfolioRunLabel(outputRunPath, undefined, projectRoot),
+                kind: "run",
+              });
+              setPendingRunPath(outputRunPath);
+            }
             setMode("output_browser");
           }}
           className="btn-ghost text-xs text-accent-success"

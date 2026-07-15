@@ -2,6 +2,8 @@
  * Cross-page train/HPO workflow shortcuts (§A.2 / §A.4 / §G.10 / §G.15 / §G.17 / §G.18).
  */
 import { useAppStore } from "../../store/app";
+import { useRecentFilesStore } from "../../store/recentFiles";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 
 export interface TrainHpoNavMeshProps {
   /** Hide Training Hub shortcut (on the hub page itself). */
@@ -28,14 +30,22 @@ export function TrainHpoNavMesh({
   showTrainLinks = true,
   className = "",
 }: TrainHpoNavMeshProps) {
-  const { setMode, setPendingRunPath, setPendingTrainingRunPath } = useAppStore();
+  const { projectRoot, setMode, setPendingRunPath, setPendingTrainingRunPath } = useAppStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
       {showOutputBrowser && (
         <button
           onClick={() => {
-            if (outputRunPath) setPendingRunPath(outputRunPath);
+            if (outputRunPath) {
+              pushRecent({
+                path: outputRunPath,
+                label: portfolioRunLabel(outputRunPath, undefined, projectRoot),
+                kind: "run",
+              });
+              setPendingRunPath(outputRunPath);
+            }
             setMode("output_browser");
           }}
           className="btn-ghost text-xs text-accent-success"
@@ -55,7 +65,14 @@ export function TrainHpoNavMesh({
           )}
           <button
             onClick={() => {
-              if (trainingRunPath) setPendingTrainingRunPath(trainingRunPath);
+              if (trainingRunPath) {
+                pushRecent({
+                  path: trainingRunPath,
+                  label: portfolioRunLabel(trainingRunPath, undefined, projectRoot),
+                  kind: "training",
+                });
+                setPendingTrainingRunPath(trainingRunPath);
+              }
               setMode("training");
             }}
             className="btn-ghost text-xs text-canvas-muted"

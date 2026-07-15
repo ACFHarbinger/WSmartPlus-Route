@@ -42,12 +42,12 @@ import {
   normalizeTrainingMetricRow,
   parseTrainingMetricLine,
 } from "../../utils/trainingMetrics";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 import {
   brushLogPathFromProcessLines,
   outputRunPathFromLogLines,
-  resolveLocalProjectPath,
 } from "../../utils/outputRunPath";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import {
   findActiveLiveTrainProcessId,
@@ -379,6 +379,7 @@ export function TrainingMonitor() {
     setPendingTrainingRunPath,
   } = useAppStore();
   const { logScale, runLabel: activeRunLabel } = useGlobalFiltersStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, TrainingMetricsRow[]>>({});
@@ -602,6 +603,11 @@ export function TrainingMonitor() {
     if (!pendingTrainingRunPath) return;
     const run = runs.find((r) => r.path === pendingTrainingRunPath);
     if (run) {
+      pushRecent({
+        path: run.path,
+        label: portfolioRunLabel(run.path, run.name, projectRoot),
+        kind: "training",
+      });
       setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
       void loadMetrics(run);
       void loadHealth(run);
@@ -622,12 +628,19 @@ export function TrainingMonitor() {
     loadHealth,
     loadAttention,
     setPendingTrainingRunPath,
+    pushRecent,
+    projectRoot,
   ]);
 
   useEffect(() => {
     if (!recentTrainCompleted || !recentTrainingRunPath) return;
     const run = runs.find((r) => r.path === recentTrainingRunPath);
     if (run) {
+      pushRecent({
+        path: run.path,
+        label: portfolioRunLabel(run.path, run.name, projectRoot),
+        kind: "training",
+      });
       setSelected((s) => (s.includes(run.name) ? s : [...s, run.name]));
       void loadMetrics(run);
       void loadHealth(run);
@@ -647,18 +660,28 @@ export function TrainingMonitor() {
     loadMetrics,
     loadHealth,
     loadAttention,
+    pushRecent,
+    projectRoot,
   ]);
 
   const toggleRun = useCallback(
     (run: TrainingRun) => {
-      setSelected((s) =>
-        s.includes(run.name) ? s.filter((r) => r !== run.name) : [...s, run.name]
-      );
+      setSelected((s) => {
+        if (s.includes(run.name)) return s.filter((r) => r !== run.name);
+        return [...s, run.name];
+      });
+      if (!selected.includes(run.name)) {
+        pushRecent({
+          path: run.path,
+          label: portfolioRunLabel(run.path, run.name, projectRoot),
+          kind: "training",
+        });
+      }
       loadMetrics(run);
       loadHealth(run);
       loadAttention(run);
     },
-    [loadMetrics, loadHealth, loadAttention]
+    [selected, pushRecent, projectRoot, loadMetrics, loadHealth, loadAttention]
   );
 
   const selectedRunObjects = useMemo(
@@ -669,7 +692,7 @@ export function TrainingMonitor() {
   const filterRunLabels = useMemo(() => {
     if (processRunLabel) return [processRunLabel];
     const labels = selectedRunObjects.map((r) =>
-      runLabelFromPath(resolveLocalProjectPath(r.path, projectRoot) ?? r.path)
+      portfolioRunLabel(r.path, r.name, projectRoot)
     );
     return labels.length > 0 ? labels : [];
   }, [processRunLabel, projectRoot, selectedRunObjects]);

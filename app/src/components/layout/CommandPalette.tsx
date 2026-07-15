@@ -27,6 +27,7 @@ export function CommandPalette() {
     setPendingLogPath,
     setPendingRunPath,
     setPendingCsvPath,
+    setPendingTrainingRunPath,
   } = useAppStore();
   const { commandPaletteOpen, setCommandPaletteOpen, setShortcutsOpen, setGuidedTourOpen, setGuidedTourStep } =
     useLayoutStore();
@@ -173,6 +174,15 @@ export function CommandPalette() {
                         setPendingCsvPath(file.path);
                         setMode("data_explorer");
                         setCommandPaletteOpen(false);
+                      } else if (file.kind === "training") {
+                        pushRecent({
+                          path: file.path,
+                          label: portfolioRunLabel(file.path, file.label, projectRoot),
+                          kind: "training",
+                        });
+                        setPendingTrainingRunPath(file.path);
+                        setMode("training");
+                        setCommandPaletteOpen(false);
                       } else {
                         setMode("data_explorer");
                         setCommandPaletteOpen(false);
@@ -180,7 +190,10 @@ export function CommandPalette() {
                     }}
                     className="w-full flex items-center justify-between gap-2 px-3 py-2 text-left text-sm text-gray-300 hover:bg-canvas-hover"
                   >
-                    {file.kind === "log" || file.kind === "run" || file.kind === "csv" ? (
+                    {file.kind === "log" ||
+                    file.kind === "run" ||
+                    file.kind === "csv" ||
+                    file.kind === "training" ? (
                       <PathRunLabelChip
                         path={file.path}
                         projectRoot={projectRoot}
