@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-eighteenth pass (§G.1 + §G.14 + §G.16 + §D.7)
+
+Two-hundred-and-eighteenth pass completes the shared log-handoff control migration
+left after pass 217 introduced ``LogHandoffButtons``. A ``targets`` prop supports
+Summary-only / Monitor-only toolbars so pages that already host one view avoid a
+redundant sibling button. Simulation Monitor, Algorithm Comparison, Simulation
+Summary, and Output Browser JSONL viewer now use the shared control.
+
+**React frontend**
+- ``LogHandoffButtons`` ``targets`` — single-direction toolbars (§G.1 / §G.16 / §D.7)
+- Simulation Monitor / Algorithm Comparison — Summary via shared control (§G.16 / §G.1 / §D.7)
+- Simulation Summary — Monitor via shared control (§G.1 / §G.16 / §D.7)
+- Output Browser — JSONL dual handoffs via shared labeled control (§G.14 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.14 / §G.16 studio-wide ``LogHandoffButtons`` toolbar migration checked
+- §D.7 single-direction handoff target coverage checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-seventeenth pass (§G.1 + §G.6 + §G.16 + §D.7)
 
 Two-hundred-and-seventeenth pass extracts shared log-handoff controls after passes

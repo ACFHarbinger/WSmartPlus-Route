@@ -5,9 +5,10 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
-import { BarChart2, Map } from "lucide-react";
+import { Map } from "lucide-react";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { LogHandoffButtons } from "../../components/common/LogHandoffButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
@@ -190,14 +191,12 @@ export function AlgorithmComparison() {
           />
         )}
         {watchPath && (
-          <button
-            onClick={() => handoff(watchPath, "log")}
-            className="btn-ghost text-xs flex items-center gap-1.5 text-accent-primary"
-            title="Open this log in Simulation Summary"
-          >
-            <BarChart2 size={12} />
-            Simulation Summary →
-          </button>
+          <LogHandoffButtons
+            path={watchPath}
+            targets={["summary"]}
+            labeled
+            iconSize={12}
+          />
         )}
         <button onClick={openOnMap} className="btn-ghost text-xs flex items-center gap-1.5">
           <Map size={12} />

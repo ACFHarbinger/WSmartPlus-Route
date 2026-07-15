@@ -1412,6 +1412,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] OLAP Explorer — labeled Summary / Monitor handoffs when the selected ingest path is ``.jsonl`` (§G.6 / §G.1 / §G.16 / §D.7)
 - [x] §G.6 / §G.1 / §G.16 shared log-handoff control + OLAP JSONL ingest path parity checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-eighteenth pass)**
+
+- [x] ``LogHandoffButtons`` ``targets`` prop — single-direction Summary-only or Monitor-only toolbars (§G.1 / §G.16 / §D.7)
+- [x] Simulation Monitor — **Simulation Summary →** via shared control (§G.16 / §D.7)
+- [x] Algorithm Comparison — **Simulation Summary →** via shared control (§G.1 / §D.7)
+- [x] Simulation Summary — **Simulation Monitor →** via shared control (§G.1 / §G.16 / §D.7)
+- [x] Output Browser — JSONL viewer dual handoffs via shared labeled control (§G.14 / §D.7)
+- [x] §G.1 / §G.14 / §G.16 studio-wide ``LogHandoffButtons`` toolbar migration checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
