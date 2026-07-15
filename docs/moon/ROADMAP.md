@@ -78,7 +78,17 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Eval engine — ``maybe_log_eval_attention_heatmaps()`` after ``evaluate_policy`` when ``tracking.log_attention*`` set
 - [x] Unit tests in ``logic/test/unit/tracking/test_attention_heatmaps.py``
 
-**Status**: §A.2 Option C complete — Option A (Studio ML introspection ring-buffer) and Option B (BertViz) deferred.
+**Delivered (§A.2 Option A — hundred-seventeenth pass)**
+
+- [x] ``AttentionRingBuffer`` — fixed-capacity ring-buffer for encoder attention snapshots (layer, head, decode step, normalised matrix)
+- [x] ``install_attention_ring_buffer`` / ``ensure_attention_buffer`` — persistent forward hooks on encoder MHA layers
+- [x] ``attention_emit.py`` — ``ATTENTION_VIZ_START:`` stdout + ``attention_viz.jsonl`` append when ``tracking.log_attention`` enabled
+- [x] ``maybe_log_eval_attention_heatmaps`` — integrates ring-buffer capture + Studio emission after eval/validation
+- [x] Rust ``parse_attention_viz_line`` + ``load_attention_viz_log`` command
+- [x] Studio ``RuntimeAttentionPanel`` — ECharts heatmap with snapshot/layer/head selectors on Training Monitor + ML Introspection Attention tab
+- [x] Unit tests in ``logic/test/unit/tracking/test_attention_buffer.py``
+
+**Status**: §A.2 Options A+C complete — Option B (BertViz) deferred.
 
 ---
 
@@ -214,6 +224,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | §A.5 Option A (Optuna plots)             | Very Low  | Medium | P0 ✅            |
 | §A.4 Option A (TrainingHealthCallback)   | Low       | High   | P1 ✅            |
 | §A.2 Option C (WandB attention heatmaps) | Low       | High   | P1 ✅            |
+| §A.2 Option A (Studio attention ring-buffer) | Medium | High | P1 ✅            |
 | §A.6 Option A (FailureAnalyzer)          | Medium    | High   | P1 ✅            |
 | §A.6 Option C (route-diff overlay)       | Medium    | High   | P2 ✅            |
 | §A.1 Option A (ECharts route viz)        | Medium    | High   | P2 ✅            |
@@ -1495,7 +1506,7 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 
 ### §G — Studio Complete ✅
 
-All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
+All twenty phases (§G.0–§G.19) are delivered. WSmart-Route Studio is the primary desktop interface for launching simulations and training runs, browsing results, and performing post-hoc analytics. Post-§G analytics bridges continue under §A (e.g. §A.3 Policy Telemetry in hundred-ninth pass; §A.5 Optuna Plotly export in hundred-tenth pass; §A.4 Training Health in hundred-eleventh pass; §A.6 Failure Analysis in hundred-twelfth pass; §A.2 WandB attention heatmaps in hundred-thirteenth pass; §A.1 Route Solution visualizer in hundred-fourteenth pass; §A.6 route-diff failure overlay in hundred-fifteenth pass; §A.6 ECharts route-diff parity in hundred-sixteenth pass; §A.2 Studio attention ring-buffer in hundred-seventeenth pass). Remaining release-engineering items (code-signing keys, hosted signed update CDN) are deferred per §G.8.
 
 | Area | Status |
 | --- | --- |

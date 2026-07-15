@@ -40,6 +40,7 @@ pub fn run() {
             data::load_policy_viz_log,
             data::load_sim_failure_log,
             data::load_training_health_log,
+            data::load_attention_viz_log,
             data::load_csv_file,
             data::list_output_dirs,
             data::list_training_runs,

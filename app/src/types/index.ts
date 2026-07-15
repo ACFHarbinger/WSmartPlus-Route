@@ -109,6 +109,23 @@ export interface TrainingMetricsRow {
   [key: string]: number | undefined;
 }
 
+// ── Runtime attention (AttentionRingBuffer → Studio §A.2 Option A) ───────────
+
+export interface AttentionSnapshot {
+  layer: number;
+  head: number;
+  decode_step: number;
+  n_nodes: number;
+  matrix: number[][];
+}
+
+export interface AttentionVizEntry {
+  phase: string;
+  epoch: number;
+  step: number;
+  snapshots: AttentionSnapshot[];
+}
+
 // ── Training health (TrainingHealthCallback → Studio §A.4) ───────────────────
 
 export interface TrainingHealthEntry {

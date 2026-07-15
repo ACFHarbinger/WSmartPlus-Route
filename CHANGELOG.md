@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-seventeenth pass (§A.2 Option A)
+
+Hundred-seventeenth pass wires runtime encoder attention ring-buffer capture into Studio
+ML introspection, completing ROADMAP §A.2 Option A.
+
+**Python logic**
+- ``AttentionRingBuffer`` — fixed-capacity ring-buffer for layer/head/decode-step attention snapshots
+- ``install_attention_ring_buffer`` / ``ensure_attention_buffer`` — persistent encoder forward hooks
+- ``attention_emit.py`` — ``ATTENTION_VIZ_START:`` marker to stdout + ``attention_viz.jsonl`` append
+- ``maybe_log_eval_attention_heatmaps`` — integrates ring-buffer capture + Studio emission
+- Unit tests in ``logic/test/unit/tracking/test_attention_buffer.py``
+
+**Rust backend**
+- ``parse_attention_viz_line`` + ``load_attention_viz_log`` command
+
+**React frontend**
+- ``RuntimeAttentionPanel`` — ECharts heatmap with snapshot/layer/head selectors
+- ``attentionViz.ts`` — marker parse + heatmap builders
+- Training Monitor — live stdout ingest + historical ``attention_viz.jsonl`` load
+- ML Introspection — Attention tab runtime panel + ``attention_viz.jsonl`` file picker
+
+**ROADMAP**
+- §A.2 Option A Studio attention ring-buffer checked (Option B BertViz deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixteenth pass (§A.6 Option C)
 
 Hundred-sixteenth pass completes ECharts route-diff overlay parity across Simulation

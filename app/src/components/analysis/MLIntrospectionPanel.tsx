@@ -44,7 +44,9 @@ import {
   suggestAttentionKeys,
   type AttentionRole,
 } from "../../utils/tensorHeatmap";
-import type { NpzArchiveInfo, NpzVectorData, TensorSlicePreview } from "../../types";
+import { RuntimeAttentionPanel } from "./RuntimeAttentionPanel";
+import { parseAttentionVizLine } from "../../utils/attentionViz";
+import type { AttentionVizEntry, NpzArchiveInfo, NpzVectorData, TensorSlicePreview } from "../../types";
 
 import type { LossLandscapeView } from "./LossLandscape3D";
 
@@ -126,6 +128,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
   const [pipelineLoading, setPipelineLoading] = useState(false);
   const [clusterK, setClusterK] = useState(0);
   const [lossView, setLossView] = useState<LossLandscapeView>("surface");
+  const [runtimeAttentionEntries, setRuntimeAttentionEntries] = useState<AttentionVizEntry[]>([]);
   const chartRef = useRef<ReactECharts>(null);
   const compareChartRef = useRef<ReactECharts>(null);
   const graphChartRef = useRef<ReactECharts>(null);
@@ -149,6 +152,25 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
     });
     if (!selected || typeof selected !== "string") return;
     setDistArchivePath(selected);
+  }, []);
+
+  const loadAttentionLog = useCallback(async () => {
+    const selected = await open({
+      multiple: false,
+      filters: [{ name: "Attention viz log", extensions: ["jsonl"] }],
+    });
+    if (!selected || typeof selected !== "string") return;
+    try {
+      const text = await invoke<string>("read_text_file", { path: selected });
+      const entries = text
+        .split("\n")
+        .map((line) => parseAttentionVizLine(line))
+        .filter((entry): entry is AttentionVizEntry => entry !== null);
+      setRuntimeAttentionEntries(entries);
+      toast.success("Attention log loaded", { description: `${entries.length} capture(s)` });
+    } catch (err) {
+      toast.error("Load failed", { description: String(err) });
+    }
   }, []);
 
   const primaryDistLabel = useMemo(
@@ -595,7 +617,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
         <div>
           <h2 className="text-sm font-semibold text-gray-200">ML Introspection (§G.5)</h2>
           <p className="text-[10px] text-canvas-muted">
-            NPZ/NPY/TensorDict (.td) inspector · attention heatmaps · 3D loss topography
+            NPZ/NPY/TensorDict (.td) inspector · runtime attention ring-buffer · 3D loss topography
           </p>
         </div>
         <div className="flex items-center gap-1 bg-canvas-elevated rounded-lg p-0.5">
@@ -696,6 +718,31 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
               ? " · large .npy/.npz eligible for mmap / decompress slice"
               : ""}
           </p>
+        </div>
+      )}
+
+      {tab === "attention" && (
+        <div className="space-y-3">
+          <div className="flex flex-wrap items-center gap-2">
+            <button
+              onClick={() => void loadAttentionLog()}
+              className="btn-ghost text-xs flex items-center gap-1"
+            >
+              <FolderOpen size={12} />
+              Load attention_viz.jsonl
+            </button>
+            {runtimeAttentionEntries.length > 0 && (
+              <span className="text-[10px] text-canvas-muted">
+                {runtimeAttentionEntries.length} runtime capture
+                {runtimeAttentionEntries.length !== 1 ? "s" : ""}
+              </span>
+            )}
+          </div>
+          <RuntimeAttentionPanel
+            entries={runtimeAttentionEntries}
+            theme={theme}
+            logScale={logScale}
+          />
         </div>
       )}
 
