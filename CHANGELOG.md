@@ -11,6 +11,26 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-fourth pass (§A.4 + §A.2)
+
+Hundred-thirty-fourth pass completes the bidirectional train/HPO navigation mesh by
+adding ``Training Hub →`` return shortcuts on every monitor and tracker page.
+
+**React frontend**
+- Training Monitor — ``Training Hub →`` shortcut during live train/HPO runs
+  (§G.17 / §A.2 / §A.4)
+- Process Monitor — ``Training Hub →`` shortcut for selected ``train_`` / ``hpo_``
+  processes (§G.15 / §A.2 / §A.4)
+- HPO Tracker — ``Training Hub →`` shortcut during live HPO (§G.18 / §A.2 / §A.4)
+- Experiment Tracker — ``Training Hub →`` shortcut during live HPO (§G.18 / §A.2 / §A.4)
+
+**ROADMAP**
+- §A.2 Training Hub return navigation mesh checked
+- §A.4 Training Hub return navigation mesh checked
+- §G.18 Training Hub navigation mesh checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-third pass (§A.4 + §A.2)
 
 Hundred-thirty-third pass completes the live HPO navigation mesh by wiring
