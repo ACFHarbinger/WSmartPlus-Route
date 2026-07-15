@@ -15,6 +15,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
@@ -483,6 +484,9 @@ export function TrainingHub() {
                 <FolderOpen size={12} />
               </button>
             </div>
+            {checkpointPath.trim() ? (
+              <PathRunLabelChip path={checkpointPath.trim()} className="max-w-full" />
+            ) : null}
           </div>
           <div className="flex flex-col gap-1">
             <label className="text-xs text-canvas-muted">Dataset</label>

@@ -11,6 +11,40 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-eighth pass (§G.14 + §G.12 + §G.10 + §G.13 + §D.7)
+
+Hundred-eighty-eighth pass closes the eval-checkpoint and Output Browser artefact
+path-chip gaps left after the hundred-eighty-seventh pass (which unified Training
+Monitor logs-root, checkpoint browser, Configuration Editor primary YAML, and ML
+Introspection tensor-archive ``PathRunLabelChip`` parity). Output Browser checkpoint
+rows, file viewer headers, Evaluation Runner checkpoint inputs, Training Hub eval
+checkpoint input, and Configuration Editor diff comparison paths now share
+``PathRunLabelChip`` ring-highlight + click-to-brush behaviour with analysis views.
+
+**React frontend**
+- Output Browser — checkpoint sidebar rows render ``PathRunLabelChip`` with parent-run
+  ``brushLabel`` parity with Training Monitor (§G.14 / §G.12 / §D.7)
+- Output Browser — file viewer header + checkpoint preview use ``PathRunLabelChip`` for
+  all artefact paths; checkpoint files brush parent run label (§G.14 / §D.7)
+- Output Browser — ``useLogPathRunLabelBrush`` derives label from ``runJsonlPath ??
+  selectedRun.path`` (§G.14 / §D.7)
+- Evaluation Runner — checkpoint list rows show ``PathRunLabelChip`` when path is set
+  (§G.12 / §D.7)
+- Training Hub — eval-mode checkpoint path ``PathRunLabelChip`` below input when path
+  is set (§G.10 / §G.12 / §D.7)
+- Configuration Editor — diff comparison file ``PathRunLabelChip`` +
+  ``useLogPathRunLabelBrush`` on ``diffPath``; diff summary uses chips for both files
+  (§G.13 / §D.7)
+
+**ROADMAP**
+- §G.14 Output Browser checkpoint-browser path-chip run-label brush + ring-highlight parity checked
+- §G.12 Evaluation Runner checkpoint-input path-chip brush parity checked
+- §G.10 Training Hub eval checkpoint path-chip brush parity checked
+- §G.13 Configuration Editor diff comparison path-chip brush parity checked
+- §D.7 eval-checkpoint path-chip run-label brush parity across Output Browser, Eval Runner, and Training Hub checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-eighty-seventh pass (§G.17 + §G.13 + §G.5 + §D.7)
 
 Hundred-eighty-seventh pass closes the Training Monitor checkpoint/logs path-chip gap left after the

@@ -1151,6 +1151,16 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ML Introspection — tensor archive ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on open ``.npz`` / ``.npy`` / ``.td`` path (§G.5 / §D.7)
 - [x] §G.17 / §G.13 / §G.5 file-based workflow path-chip run-label brush + ring-highlight parity checked (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-eighth pass)**
+
+- [x] Output Browser — checkpoint sidebar rows render ``PathRunLabelChip`` with parent-run ``brushLabel`` parity with Training Monitor (§G.14 / §G.12 / §D.7)
+- [x] Output Browser — file viewer header + checkpoint preview use ``PathRunLabelChip`` for all artefact paths (not only ``.jsonl``); checkpoint files brush parent run (§G.14 / §D.7)
+- [x] Output Browser — ``useLogPathRunLabelBrush`` derives label from ``runJsonlPath ?? selectedRun.path`` (§G.14 / §D.7)
+- [x] Evaluation Runner — checkpoint list rows show ``PathRunLabelChip`` when path is set; ring-highlight + click-to-brush parity (§G.12 / §D.7)
+- [x] Training Hub — eval-mode checkpoint path ``PathRunLabelChip`` below input when path is set (§G.10 / §G.12 / §D.7)
+- [x] Configuration Editor — diff comparison file ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on ``diffPath``; diff summary uses chips for both files (§G.13 / §D.7)
+- [x] §G.14 / §G.12 / §G.10 eval checkpoint path-chip run-label brush + ring-highlight parity across Output Browser, Eval Runner, and Training Hub checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1704,6 +1714,9 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] HPO Tracker trial health table + storage/report paths — ``PathRunLabelChip`` on trial ``log_dir``, SQLite storage URL, and exported Plotly report directory; ``GlobalFilterBar`` ``runLabels`` from selected trials + post-run paths (hundred-eighty-sixth pass; §G.18 / §D.7)
 - [x] Training Monitor logs root + checkpoint browser — ``PathRunLabelChip`` on ``logs/`` directory and per-checkpoint rows with parent-run brush label (hundred-eighty-seventh pass; §G.17 / §G.12 / §D.7)
 - [x] Configuration Editor + ML Introspection open-file headers — ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on YAML config and tensor archive paths (hundred-eighty-seventh pass; §G.13 / §G.5 / §D.7)
+- [x] Output Browser checkpoint browser + file viewer — ``PathRunLabelChip`` on checkpoint sidebar rows, artefact viewer header, and checkpoint preview with parent-run brush label (hundred-eighty-eighth pass; §G.14 / §G.12 / §D.7)
+- [x] Evaluation Runner + Training Hub eval checkpoint inputs — ``PathRunLabelChip`` below filled checkpoint paths for click-to-brush parity (hundred-eighty-eighth pass; §G.12 / §G.10 / §D.7)
+- [x] Configuration Editor diff comparison file — ``PathRunLabelChip`` + ``useLogPathRunLabelBrush`` on ``diffPath``; diff summary chip parity (hundred-eighty-eighth pass; §G.13 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
