@@ -11,6 +11,10 @@ import { Activity, CheckCircle, Copy, Download, ExternalLink, FolderOpen, Radio,
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { TrainHpoNavMesh } from "../../components/layout/TrainHpoNavMesh";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
+import {
+  GradNormSparkline,
+  LrSparkline,
+} from "../../components/monitor/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
 import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
@@ -434,7 +438,9 @@ export function HPOTracker() {
           ) : (
             <div className="flex items-center gap-2 text-xs text-canvas-muted">
               <Activity size={12} />
-              Post-run shortcuts — open Output Browser or Training Monitor for this sweep
+              {liveMetrics.length > 0
+                ? "Post-run metrics rehydrated from process store — sparklines persist after navigation"
+                : "Post-run shortcuts — open Output Browser or Training Monitor for this sweep"}
             </div>
           )}
           {latestLiveMetric && (
@@ -457,6 +463,20 @@ export function HPOTracker() {
                   <span className="font-mono text-gray-200">{latestLiveMetric.val_loss.toFixed(4)}</span>
                 </div>
               )}
+            </div>
+          )}
+          {liveMetrics.length >= 2 && (
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+              <GradNormSparkline
+                metrics={liveMetrics}
+                logScale={logScale}
+                exportName="hpo-tracker-grad-norm"
+              />
+              <LrSparkline
+                metrics={liveMetrics}
+                logScale={logScale}
+                exportName="hpo-tracker-lr"
+              />
             </div>
           )}
           <TrainingHealthPanel entries={liveHealthEntries} />

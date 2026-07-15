@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-eighth pass (§G.15 + §G.17 + §G.18 + §D.7)
+
+Hundred-forty-eighth pass closes the post-run sparkline gap left after the
+hundred-forty-seventh pass (which rehydrated metric snapshots on analytics pages).
+Process Monitor, HPO Tracker, and Experiment Tracker now restore grad-norm and
+learning-rate sparklines from persisted process stdout when navigation clears
+live streaming state.
+
+**React frontend**
+- ``TrainingMetricSparklines`` — shared ``GradNormSparkline``, ``LrSparkline``, and
+  ``TrainingMetricSnapshot`` for train/HPO analytics panels (§G.15 / §G.17 / §G.18)
+- Process Monitor — train/HPO metrics rehydrate from ``useProcessStore`` log lines;
+  metric snapshot + grad-norm/LR sparklines persist after completion (§G.15 / §D.7)
+- HPO Tracker + Experiment Tracker — post-run grad-norm + LR sparklines from persisted
+  HPO stdout; rehydration banner when metrics are present (§G.18 / §G.17 / §D.7)
+
+**ROADMAP**
+- §G.15 Process Monitor train/HPO post-run sparkline rehydration checked
+- §G.18 HPO Tracker + Experiment Tracker post-run sparklines checked
+- §G.17 ``TrainingMetricSparklines`` shared component checked
+- §D.7 monitor/analytics post-run sparkline parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-forty-seventh pass (§G.17 + §G.18 + §G.10 + §D.7)
 
 Hundred-forty-seventh pass closes the analytics-page post-run metrics gap left after the
