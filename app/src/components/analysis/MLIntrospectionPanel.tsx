@@ -19,7 +19,7 @@ import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { runTensorArrowPipeline, type ArrowPipelineTiming } from "../../utils/arrowPipeline";
 import { buildAttentionGraphOption } from "../../utils/attentionGraph";
-import { exportChartPng, exportChartSvg } from "../../utils/chartExport";
+import { exportChartPng, exportChartSvg, exportContainerCanvasPng } from "../../utils/chartExport";
 import {
   distributionDisplayName,
   inferDistributionLabel,
@@ -87,6 +87,14 @@ function exportEchartsSvg(
   toast.error("Export failed", { description: "Chart is not ready" });
 }
 
+function exportCanvasPair(container: HTMLElement | null, stem: string): void {
+  if (exportContainerCanvasPng(container, `${stem}.png`)) {
+    toast.success("Chart exported", { description: `${stem}.png` });
+    return;
+  }
+  toast.error("Export failed", { description: "Canvas is not ready" });
+}
+
 function buildLogAwareMatrixHeatmap(
   rawValues: number[][],
   opts: Parameters<typeof buildMatrixHeatmapOption>[1] & { title?: string },
@@ -150,6 +158,8 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
   const compareChartRef = useRef<ReactECharts>(null);
   const graphChartRef = useRef<ReactECharts>(null);
   const lossChartRef = useRef<ReactECharts>(null);
+  const loss3dRef = useRef<HTMLDivElement>(null);
+  const attentionSigmaRef = useRef<HTMLDivElement>(null);
 
   const pickArchive = useCallback(async () => {
     const selected = await open({
@@ -997,23 +1007,36 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
 
       {tab === "attention" && attentionView === "sigma" && processedValues && graphCoords?.length && (
         <div className="space-y-2">
-          <Suspense
-            fallback={
-              <div className="h-[400px] flex items-center justify-center text-xs text-canvas-muted">
-                Loading Sigma.js canvas…
-              </div>
-            }
-          >
-            <AttentionSigmaView
-              coords={graphCoords}
-              values={processedValues}
-              queryRow={decodeStep}
-              topK={sparseK > 0 ? sparseK : 24}
-              sparseValues={sparseK > 0 ? processedValues : undefined}
-              theme={theme}
-              logScale={logScale}
-            />
-          </Suspense>
+          <div className="flex justify-end gap-2">
+            <button
+              className="btn-ghost text-xs flex items-center gap-1"
+              onClick={() =>
+                exportCanvasPair(attentionSigmaRef.current, `attention-sigma-${selectedKey}`)
+              }
+            >
+              <Download size={12} />
+              PNG
+            </button>
+          </div>
+          <div ref={attentionSigmaRef}>
+            <Suspense
+              fallback={
+                <div className="h-[400px] flex items-center justify-center text-xs text-canvas-muted">
+                  Loading Sigma.js canvas…
+                </div>
+              }
+            >
+              <AttentionSigmaView
+                coords={graphCoords}
+                values={processedValues}
+                queryRow={decodeStep}
+                topK={sparseK > 0 ? sparseK : 24}
+                sparseValues={sparseK > 0 ? processedValues : undefined}
+                theme={theme}
+                logScale={logScale}
+              />
+            </Suspense>
+          </div>
           <p className="text-[10px] text-canvas-muted">
             Sigma.js WebGL bipartite graph: ForceAtlas2 layout on{" "}
             {GRAPH_PRESETS.find((p) => p.id === graphPreset)?.label}; query node (amber) at decode step{" "}
@@ -1122,20 +1145,32 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
                 </select>
               </div>
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-3">
-                <Suspense
-                  fallback={
-                    <div className="h-[280px] flex items-center justify-center text-xs text-canvas-muted">
-                      Loading 3D canvas…
-                    </div>
-                  }
-                >
-                  <LossLandscape3D
-                    values={lossPreview.values}
-                    markers={lossMarkers}
-                    view={lossView}
-                    logScale={logScale}
-                  />
-                </Suspense>
+                <div className="space-y-2">
+                  <div className="flex justify-end gap-2">
+                    <button
+                      className="btn-ghost text-xs flex items-center gap-1"
+                      onClick={() => exportCanvasPair(loss3dRef.current, `loss-terrain-3d-${lossView}`)}
+                    >
+                      <Download size={12} />
+                      3D PNG
+                    </button>
+                  </div>
+                  <Suspense
+                    fallback={
+                      <div className="h-[280px] flex items-center justify-center text-xs text-canvas-muted">
+                        Loading 3D canvas…
+                      </div>
+                    }
+                  >
+                    <LossLandscape3D
+                      ref={loss3dRef}
+                      values={lossPreview.values}
+                      markers={lossMarkers}
+                      view={lossView}
+                      logScale={logScale}
+                    />
+                  </Suspense>
+                </div>
                 <div className="space-y-2">
                   <div className="flex justify-end gap-2">
                     <button

@@ -53,3 +53,12 @@ export function exportCanvasPng(
   link.click();
   return true;
 }
+
+/** Export the first canvas inside a container (Sigma.js, R3F, deck.gl). */
+export function exportContainerCanvasPng(
+  container: HTMLElement | null | undefined,
+  filename = "canvas.png"
+): boolean {
+  const canvas = container?.querySelector("canvas");
+  return exportCanvasPng(canvas, filename);
+}
