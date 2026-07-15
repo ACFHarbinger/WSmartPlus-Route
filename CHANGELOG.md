@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-eighth pass (§A.3 Option C)
+
+Hundred-twenty-eighth pass extends policy telemetry to Process Monitor for live
+``test_sim`` processes and tightens Output Browser ``run_label`` brush sync on run
+selection.
+
+**React frontend**
+- ``collectPolicyVizFromLogLines`` / ``uniquePolicyVizPolicies`` — per-process
+  ``POLICY_VIZ_START:`` parsing from stdout
+- ``extractJsonlPathFromLogLines`` — derive SQLite ``run_label`` from ``.jsonl`` paths
+  in process logs
+- Process Monitor — ``PolicyTelemetryPanel`` + ``PolicyTelemetryTrendsPanel`` when a
+  ``test_sim`` process is selected; policy chip brush + 2 Hz live refresh (§G.15 / §A.3)
+- Output Browser — auto ``setRunLabel`` on run select; run list ring highlight when
+  global brush matches (§G.14 / §A.3)
+
+**ROADMAP**
+- §A.3 Option C Process Monitor telemetry + Output Browser run_label auto-brush checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-seventh pass (§A.3 Option C)
 
 Hundred-twenty-seventh pass adds policy telemetry trends to Output Browser when browsing

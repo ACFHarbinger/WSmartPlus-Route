@@ -114,6 +114,7 @@ export function OutputBrowser() {
     runLabel: activeRunLabel,
     logScale,
     setPolicy,
+    setRunLabel,
   } = useGlobalFiltersStore();
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
@@ -207,6 +208,7 @@ export function OutputBrowser() {
       const jsonlPath = await findRunJsonl(run.path);
       if (jsonlPath) {
         setRunJsonlPath(jsonlPath);
+        setRunLabel(runLabelFromPath(jsonlPath));
         try {
           const text = await invoke<string>("read_text_file", { path: jsonlPath });
           const acc: Record<string, { overflows: number[]; kgkm: number[]; profit: number[] }> = {};
@@ -229,11 +231,13 @@ export function OutputBrowser() {
           })).sort((a, b) => a.overflows - b.overflows);
           if (kpi.length > 0) setRunKpi(kpi);
         } catch { /* KPI optional */ }
+      } else {
+        setRunLabel(runLabelFromPath(run.name));
       }
     } catch (err) {
       toast.error("Failed to list run directory", { description: String(err) });
     }
-  }, [pushRecent]);
+  }, [pushRecent, setRunLabel]);
 
   useEffect(() => {
     if (!pendingRunPath || runs.length === 0) return;
@@ -489,12 +493,15 @@ export function OutputBrowser() {
         )}
 
         <div className="card flex-1 overflow-auto p-1">
-          {runs.map((r) => (
+          {runs.map((r) => {
+            const runBrushLabel = runLabelFromPath(r.name);
+            const runBrushActive = activeRunLabel === runBrushLabel;
+            return (
             <div
               key={r.path}
               className={`flex items-center gap-1 rounded text-xs ${
                 selectedRun?.path === r.path ? "bg-accent-primary/10" : ""
-              }`}
+              } ${runBrushActive ? "ring-1 ring-accent-secondary/40" : ""}`}
             >
               <input
                 type="checkbox"
@@ -515,7 +522,8 @@ export function OutputBrowser() {
                 <span className="truncate">{r.name}</span>
               </button>
             </div>
-          ))}
+          );
+          })}
           {runs.length === 0 && !loading && (
             <p className="text-xs text-canvas-muted p-2">No run directories found.</p>
           )}

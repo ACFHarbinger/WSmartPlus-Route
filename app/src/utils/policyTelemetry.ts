@@ -246,6 +246,29 @@ export function policyVizDataLen(data: PolicyVizEntry["data"]): number {
   return Math.max(0, ...Object.values(data).map((v) => (Array.isArray(v) ? v.length : 0)));
 }
 
+/** Parse all ``POLICY_VIZ_START:`` markers from process stdout (§A.3 Option B). */
+export function collectPolicyVizFromLogLines(lines: string[]): PolicyVizEntry[] {
+  const entries: PolicyVizEntry[] = [];
+  for (const line of lines) {
+    const parsed = parsePolicyVizLine(line);
+    if (parsed) entries.push(parsed);
+  }
+  return entries;
+}
+
+/** Unique policy names from parsed telemetry entries, stable order. */
+export function uniquePolicyVizPolicies(entries: PolicyVizEntry[]): string[] {
+  const seen = new Set<string>();
+  const out: string[] = [];
+  for (const e of entries) {
+    if (!seen.has(e.policy)) {
+      seen.add(e.policy);
+      out.push(e.policy);
+    }
+  }
+  return out;
+}
+
 export function filterPolicyVizEntries(
   entries: PolicyVizEntry[],
   policy: string | null,

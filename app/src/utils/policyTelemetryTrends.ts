@@ -19,6 +19,15 @@ export function runLabelFromPath(path: string): string {
   return stem || base;
 }
 
+/** Scan process stdout for the first ``.jsonl`` path (newest line wins). */
+export function extractJsonlPathFromLogLines(lines: string[]): string | null {
+  for (let i = lines.length - 1; i >= 0; i--) {
+    const match = lines[i]!.match(/([^\s'"]+\.jsonl)/);
+    if (match?.[1]) return match[1];
+  }
+  return null;
+}
+
 function trendRowHighlighted(row: PolicyTelemetryTrendRow, brush: TrendBrushFilter): boolean {
   const policyOk = isHighlighted(row.policy, brush.policy ? [brush.policy] : null);
   const runOk = !brush.runLabel || trendRowRunKey(row) === brush.runLabel;
