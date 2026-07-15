@@ -8,7 +8,7 @@
  *   - File viewer: CSV → DataExplorer-style table; YAML/text → raw view
  *   - "Open in Sim Summary" button for .jsonl log files
  */
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useLayoutStore } from "../../store/layout";
 import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
@@ -32,12 +32,11 @@ import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
 import { findRunJsonl } from "../../utils/outputRunLogs";
-import { resolveLocalProjectPath } from "../../utils/outputRunPath";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 
 import { downloadParquetFromCsv } from "../../utils/tableExport";
@@ -46,7 +45,7 @@ import {
   isCheckpointEntry,
   parentRunBrushLabelFromCheckpointPath,
 } from "../../utils/checkpoints";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
+import { portfolioRunLabel } from "../../utils/arrowPipeline";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -158,9 +157,13 @@ export function OutputBrowser() {
   const outputPath = projectRoot ? `${projectRoot}/assets/output` : null;
   const brushLogPath = selectedRun ? (runJsonlPath ?? selectedRun.path) : null;
   const derivedRunLabel = useLogPathRunLabelBrush(brushLogPath);
-  const parentRunBrushLabel = brushLogPath
-    ? runLabelFromPath(resolveLocalProjectPath(brushLogPath, projectRoot) ?? brushLogPath)
-    : null;
+  const sourceRunLabel = useMemo(
+    () =>
+      brushLogPath
+        ? portfolioRunLabel(brushLogPath, selectedRun?.name, projectRoot)
+        : null,
+    [brushLogPath, selectedRun?.name, projectRoot]
+  );
 
   const refresh = useCallback(async () => {
     if (!outputPath) return;
@@ -182,7 +185,11 @@ export function OutputBrowser() {
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const selectRun = useCallback(async (run: OutputDir) => {
-    pushRecent({ path: run.path, label: run.name || recentFileLabel(run.path), kind: "run" });
+    pushRecent({
+      path: run.path,
+      label: portfolioRunLabel(run.path, run.name, projectRoot),
+      kind: "run",
+    });
     setSelectedRun(run);
     setFileContent(null);
     setCsvRows(null);
@@ -277,7 +284,7 @@ export function OutputBrowser() {
     } catch (err) {
       toast.error("Failed to list run directory", { description: String(err) });
     }
-  }, [pushRecent]);
+  }, [pushRecent, projectRoot]);
 
   useEffect(() => {
     if (!pendingRunPath) return;
@@ -750,7 +757,7 @@ export function OutputBrowser() {
             theme={theme}
             logScale={logScale}
             initialPolicy={activePolicy}
-            initialRunLabel={derivedRunLabel ?? activeRunLabel}
+            initialRunLabel={activeRunLabel ?? sourceRunLabel ?? derivedRunLabel}
           />
         )}
 
@@ -914,7 +921,7 @@ export function OutputBrowser() {
                       <PathRunLabelChip
                         path={f.path}
                         projectRoot={projectRoot}
-                        brushLabel={parentRunBrushLabel ?? undefined}
+                        brushLabel={sourceRunLabel ?? undefined}
                         className="max-w-full"
                       />
                     </td>

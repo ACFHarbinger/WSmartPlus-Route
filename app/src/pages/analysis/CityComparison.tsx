@@ -13,6 +13,7 @@ import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
@@ -48,6 +49,7 @@ function mean(arr: number[]) {
 
 export function CityComparison() {
   const { projectRoot, effectiveTheme: theme } = useAppStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const { policy: filterPolicy, sampleId: filterSample, logScale } = useGlobalFiltersStore();
   const brushedPolicies = useMemo(() => (filterPolicy ? [filterPolicy] : null), [filterPolicy]);
   const {
@@ -108,11 +110,12 @@ export function CityComparison() {
     try {
       const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
       const label = portfolioRunLabel(path, undefined, projectRoot);
+      pushRecent({ path, label, kind: "log" });
       setRuns((prev) => [...prev.filter((r) => r.path !== path), { path, label, entries }]);
     } catch (err) {
       toast.error("Failed to load log", { description: String(err) });
     }
-  }, [projectRoot]);
+  }, [projectRoot, pushRecent]);
 
   const loadOutputPortfolio = useCallback(async () => {
     if (!projectRoot) return;

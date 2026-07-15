@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-second pass (§G.14 + §G.6 + §G.1 + §G.1.6 + §D.7)
+
+Two-hundred-and-second pass closes the Output Browser, OLAP Explorer, and portfolio
+add-run recent-file ``run_label`` gaps left after pass 201 unified single-log open-file
+UI labels. ``portfolioRunLabel`` now drives Output Browser run-directory select,
+Policy Telemetry Trends scoping, and ``.wsroute`` manifest path-chip brush.
+OLAP Explorer custom ingest uses the same helper for filter-bar selectors,
+DuckDB ``SqlQueryPanel`` brush/SQL sync, and Policy Telemetry Trends when tables
+lack a portfolio ``run_label`` column. Benchmark Analysis and City Comparison
+push recent files on add-run for Command Palette parity when ``projectRoot`` changes.
+
+**React frontend**
+- Output Browser — ``sourceRunLabel`` via ``portfolioRunLabel`` on run select, Policy Telemetry Trends, ``.wsroute`` manifest brush, and ``pushRecent`` (§G.14 / §D.7)
+- OLAP Explorer — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, Policy Telemetry Trends, and ``pushRecent`` on ingest (§G.6 / §D.7)
+- Benchmark Analysis — ``pushRecent`` on add-run via ``portfolioRunLabel`` (§G.1 / §D.7)
+- City Comparison — ``pushRecent`` on add-run via ``portfolioRunLabel`` (§G.1.6 / §D.7)
+
+**ROADMAP**
+- §G.14 Output Browser run-directory relative-path ``run_label`` brush + recent-file parity checked
+- §G.6 OLAP Explorer custom-ingest single-log DuckDB ``run_label`` brush/SQL parity checked
+- §G.1 / §G.1.6 Benchmark Analysis + City Comparison add-run recent-file ``portfolioRunLabel`` parity checked
+- §D.7 Output Browser + OLAP Explorer + portfolio add-run recent-file relative-path brush/SQL parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-first pass (§G.6 + §G.16 + §G.1 + §D.7)
 
 Two-hundred-and-first pass closes the single-log open-file UI ``run_label`` gaps left

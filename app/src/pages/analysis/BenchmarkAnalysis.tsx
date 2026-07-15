@@ -14,6 +14,7 @@ import { FolderOpen, X, Download } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
+import { useRecentFilesStore } from "../../store/recentFiles";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
@@ -225,6 +226,7 @@ export function BenchmarkAnalysis() {
     projectRoot,
     effectiveTheme: theme,
   } = useAppStore();
+  const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const {
     ready: duckdbReady,
     loading: duckdbLoading,
@@ -307,8 +309,9 @@ export function BenchmarkAnalysis() {
     if (!path) return;
     const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     const label = portfolioRunLabel(path, undefined, projectRoot);
+    pushRecent({ path, label, kind: "log" });
     setRuns((r) => [...r, { path, label, entries }]);
-  }, [projectRoot]);
+  }, [projectRoot, pushRecent]);
 
   const removeRun = (path: string) => setRuns((r) => r.filter((x) => x.path !== path));
 

@@ -1282,6 +1282,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary — recent-file push label via ``portfolioRunLabel`` for Command Palette brush parity (§G.1 / §D.7)
 - [x] §G.6 / §G.16 single-log open-file relative-path ``run_label`` brush/SQL parity across Data Explorer, Algorithm Comparison, and Simulation Monitor checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-second pass)**
+
+- [x] Output Browser — ``sourceRunLabel`` via ``portfolioRunLabel`` on run select, Policy Telemetry Trends scoping, and ``.wsroute`` manifest path-chip brush; ``pushRecent`` uses ``portfolioRunLabel`` for Command Palette parity (§G.14 / §D.7)
+- [x] OLAP Explorer — ``sourceRunLabel`` via ``portfolioRunLabel`` on filter bar, DuckDB ``SqlQueryPanel``, and Policy Telemetry Trends when custom ingest lacks portfolio ``run_label`` column; ``pushRecent`` on ingest (§G.6 / §D.7)
+- [x] Benchmark Analysis + City Comparison — ``pushRecent`` on add-run via ``portfolioRunLabel`` for Command Palette parity (§G.1 / §G.1.6 / §D.7)
+- [x] §G.14 Output Browser + §G.6 OLAP Explorer single-log / run-directory relative-path ``run_label`` brush/SQL + recent-file parity checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
