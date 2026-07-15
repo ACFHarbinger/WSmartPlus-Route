@@ -238,6 +238,7 @@ def _metric_series(
 def query_policy_trajectory_series(
     policy: Optional[str] = None,
     policy_type: Optional[str] = None,
+    run_label: Optional[str] = None,
     limit: int = 12,
 ) -> Dict[str, Any]:
     """Return improvement curves extracted from persisted ring-buffer JSON."""
@@ -269,6 +270,9 @@ def query_policy_trajectory_series(
             if policy_type:
                 sql += " AND s.policy_type = ?"
                 params.append(policy_type)
+            if run_label:
+                sql += " AND r.run_label = ?"
+                params.append(run_label)
             sql += " ORDER BY s.emitted_at DESC LIMIT ?"
             params.append(max(1, limit))
 
@@ -310,6 +314,7 @@ def query_policy_trajectory_series(
 
 def query_policy_telemetry_trends(
     policy_type: Optional[str] = None,
+    run_label: Optional[str] = None,
     limit: int = 500,
 ) -> Dict[str, Any]:
     """Return cross-run snapshot rows for the Studio trends panel."""
@@ -348,9 +353,15 @@ def query_policy_telemetry_trends(
                 JOIN simulation_runs r ON r.id = s.run_id
             """
             params: List[Any] = []
+            clauses: List[str] = []
             if policy_type:
-                sql += " WHERE s.policy_type = ?"
+                clauses.append("s.policy_type = ?")
                 params.append(policy_type)
+            if run_label:
+                clauses.append("r.run_label = ?")
+                params.append(run_label)
+            if clauses:
+                sql += " WHERE " + " AND ".join(clauses)
             sql += " ORDER BY s.emitted_at DESC LIMIT ?"
             params.append(max(1, limit))
 

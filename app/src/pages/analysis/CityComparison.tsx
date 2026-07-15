@@ -72,6 +72,7 @@ export function CityComparison() {
   const cityGroups = useMemo(() => groupRunsByCity(filteredRuns), [filteredRuns]);
   const {
     runLabels: portfolioRunLabels,
+    runLabel: activeRunLabel,
     brushedCity,
     brushedRunLabels,
     handleCityClick,
@@ -282,6 +283,10 @@ export function CityComparison() {
           theme={theme}
           logScale={logScale}
           initialPolicy={brushedPolicies?.length === 1 ? brushedPolicies[0]! : null}
+          initialRunLabel={
+            activeRunLabel ??
+            (brushedRunLabels?.length === 1 ? brushedRunLabels[0]! : null)
+          }
         />
       )}
 

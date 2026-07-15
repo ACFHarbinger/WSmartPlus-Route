@@ -2801,6 +2801,10 @@ export function SimulationSummary() {
               theme={theme}
               logScale={logScale}
               initialPolicy={effectiveBrushed?.length === 1 ? effectiveBrushed[0]! : null}
+              initialRunLabel={
+                activeRunLabel ??
+                (brushedRunLabels?.length === 1 ? brushedRunLabels[0]! : null)
+              }
             />
           )}
 

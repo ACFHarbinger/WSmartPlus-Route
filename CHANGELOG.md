@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-fifth pass (§A.3 Option C)
+
+Hundred-twenty-fifth pass adds portfolio ``run_label`` brush sync across telemetry
+trend pages, server-side run scoping in SQLite queries, and OLAP Explorer panel parity.
+
+**Python logic**
+- ``query_policy_telemetry_trends`` / ``query_policy_trajectory_series`` — optional
+  ``run_label`` SQL filter for portfolio-scoped cross-run queries
+- Unit test for ``run_label`` filter roundtrip in
+  ``logic/test/unit/tracking/test_policy_telemetry_db.py``
+
+**Rust backend**
+- ``load_policy_telemetry_trends`` / ``load_policy_trajectory_trends`` — ``run_label``
+  bridge arg forwarded to Python subprocess queries
+
+**React frontend**
+- ``PolicyTelemetryTrendsPanel`` — ``initialRunLabel`` prop syncs global run brush;
+  SQLite reload passes active ``runLabel`` to Rust commands; steps chart click indexes
+  ``displayStepRows`` (fixes brush click when chart shows top-12 rows)
+- Simulation Summary / Benchmark Analysis / City Comparison / Algorithm Comparison —
+  ``initialRunLabel`` from portfolio single-run brush
+- OLAP Explorer — ``PolicyTelemetryTrendsPanel`` with policy + run_label brush sync
+
+**ROADMAP**
+- §A.3 Option C run_label brush sync + OLAP Explorer panel checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-fourth pass (§A.3 Option C)
 
 Hundred-twenty-fourth pass completes global brush parity across all analysis pages:

@@ -50,8 +50,13 @@ const QUERY_TRENDS_SCRIPT: &str = r#"
 import json, sys
 from logic.src.tracking.logging.modules.policy_telemetry_db import query_policy_telemetry_trends
 policy_type = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else None
-limit = int(sys.argv[2]) if len(sys.argv) > 2 and sys.argv[2] else 500
-print(json.dumps(query_policy_telemetry_trends(policy_type=policy_type or None, limit=limit)))
+run_label = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else None
+limit = int(sys.argv[3]) if len(sys.argv) > 3 and sys.argv[3] else 500
+print(json.dumps(query_policy_telemetry_trends(
+    policy_type=policy_type or None,
+    run_label=run_label or None,
+    limit=limit,
+)))
 "#;
 
 const QUERY_TRAJECTORIES_SCRIPT: &str = r#"
@@ -59,10 +64,12 @@ import json, sys
 from logic.src.tracking.logging.modules.policy_telemetry_db import query_policy_trajectory_series
 policy = sys.argv[1] if len(sys.argv) > 1 and sys.argv[1] else None
 policy_type = sys.argv[2] if len(sys.argv) > 2 and sys.argv[2] else None
-limit = int(sys.argv[3]) if len(sys.argv) > 3 and sys.argv[3] else 12
+run_label = sys.argv[3] if len(sys.argv) > 3 and sys.argv[3] else None
+limit = int(sys.argv[4]) if len(sys.argv) > 4 and sys.argv[4] else 12
 print(json.dumps(query_policy_trajectory_series(
     policy=policy or None,
     policy_type=policy_type or None,
+    run_label=run_label or None,
     limit=limit,
 )))
 "#;
@@ -102,16 +109,18 @@ pub fn load_policy_telemetry_trends(
     project_root: String,
     python_executable: Option<String>,
     policy_type: Option<String>,
+    run_label: Option<String>,
     limit: Option<i32>,
 ) -> Result<PolicyTelemetryTrends, String> {
     let python = resolve_python(&project_root, python_executable);
     let type_arg = policy_type.unwrap_or_default();
+    let run_arg = run_label.unwrap_or_default();
     let limit_arg = limit.unwrap_or(500).to_string();
     let value = run_python_json(
         &python,
         &project_root,
         QUERY_TRENDS_SCRIPT,
-        &[&type_arg, &limit_arg],
+        &[&type_arg, &run_arg, &limit_arg],
     )?;
     serde_json::from_value(value).map_err(|e| e.to_string())
 }
@@ -123,17 +132,19 @@ pub fn load_policy_trajectory_trends(
     python_executable: Option<String>,
     policy: Option<String>,
     policy_type: Option<String>,
+    run_label: Option<String>,
     limit: Option<i32>,
 ) -> Result<PolicyTrajectoryTrends, String> {
     let python = resolve_python(&project_root, python_executable);
     let policy_arg = policy.unwrap_or_default();
     let type_arg = policy_type.unwrap_or_default();
+    let run_arg = run_label.unwrap_or_default();
     let limit_arg = limit.unwrap_or(12).to_string();
     let value = run_python_json(
         &python,
         &project_root,
         QUERY_TRAJECTORIES_SCRIPT,
-        &[&policy_arg, &type_arg, &limit_arg],
+        &[&policy_arg, &type_arg, &run_arg, &limit_arg],
     )?;
     serde_json::from_value(value).map_err(|e| e.to_string())
 }
