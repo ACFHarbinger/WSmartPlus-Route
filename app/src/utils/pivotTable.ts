@@ -2,6 +2,8 @@
  * Client-side pivot aggregation for DuckDB/CSV result grids (§G.6).
  */
 
+import { displayBarValue, isLogScaleMetric } from "./chartLogScale";
+
 export type PivotAgg = "mean" | "sum" | "count";
 
 export interface PivotConfig {
@@ -67,11 +69,22 @@ export function buildPivot(
   return { rowLabels, colLabels, cells };
 }
 
+export interface PivotHeatmapOptions {
+  logScale?: boolean;
+  valueKey?: string;
+}
+
 export function pivotHeatmapOption(
   result: PivotResult,
   title: string,
-  highlightRowLabels?: string[] | null
+  highlightRowLabels?: string[] | null,
+  opts: PivotHeatmapOptions = {}
 ) {
+  const { logScale = false, valueKey = "" } = opts;
+  const heatmapLog = logScale && valueKey && isLogScaleMetric(valueKey);
+  const displayCell = (v: number) =>
+    heatmapLog ? displayBarValue(v, valueKey, true) : v;
+
   const flat: Array<[number, number, number]> = [];
   let min = Infinity;
   let max = -Infinity;
@@ -80,7 +93,8 @@ export function pivotHeatmapOption(
     : null;
   for (let ri = 0; ri < result.rowLabels.length; ri++) {
     for (let ci = 0; ci < result.colLabels.length; ci++) {
-      const v = result.cells[ri][ci];
+      const raw = result.cells[ri][ci];
+      const v = displayCell(raw);
       min = Math.min(min, v);
       max = Math.max(max, v);
       flat.push([ci, ri, v]);

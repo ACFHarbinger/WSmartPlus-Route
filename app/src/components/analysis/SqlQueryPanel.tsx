@@ -577,6 +577,7 @@ export function SqlQueryPanel({
             <PivotTablePanel
               columns={columns}
               rows={rows}
+              logScale={logScale}
               onRowClick={handlePivotCrossFilter}
               highlightPolicyLabels={highlightPolicies}
               highlightRunLabels={highlightRunLabels}

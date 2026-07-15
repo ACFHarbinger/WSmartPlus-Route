@@ -23,6 +23,7 @@ import { exportChartPng } from "../../utils/chartExport";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
   chartMetricDisplay,
+  chartMetricUsesSymlog,
   chartMetricYAxisType,
   invertParallelAxisValue,
   isLogScaleMetric,
@@ -1563,22 +1564,26 @@ function PolicyParetoChart({
     }));
     const frontIds = new Set(paretoFront(points).map((p) => p.id));
     const step = paretoStepLine(paretoFront(points));
-    const displayY = (y: number) => (logScale ? Math.max(y, 0.001) : y);
-    const displayStep = step.map(([x, y]) => [x, displayY(y)] as [number, number]);
+    const overflowSymlog = chartMetricUsesSymlog("overflows", logScale);
+    const displayX = (x: number) => chartMetricDisplay(x, "profit", logScale) ?? x;
+    const displayY = (y: number) => chartMetricDisplay(y, "overflows", logScale) ?? y;
+    const displayStep = step.map(([x, y]) => [displayX(x), displayY(y)] as [number, number]);
 
     return {
       backgroundColor: "transparent",
       grid: { left: 50, right: 16, top: 24, bottom: 40 },
       xAxis: {
-        type: "value" as const,
-        name: "Profit (€)",
-        nameTextStyle: { color: "#9090b0", fontSize: 9 },
-        axisLabel: { color: "#9090b0", fontSize: 9 },
-      },
-      yAxis: {
         type: (logScale ? "log" : "value") as "log" | "value",
         logBase: 10,
-        name: "Overflows",
+        name: logScale ? "Profit (€, log)" : "Profit (€)",
+        nameTextStyle: { color: "#9090b0", fontSize: 9 },
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+        minorSplitLine: { show: false },
+      },
+      yAxis: {
+        type: (logScale && !overflowSymlog ? "log" : "value") as "log" | "value",
+        logBase: 10,
+        name: overflowSymlog ? "Overflows (symlog)" : logScale ? "Overflows (log)" : "Overflows",
         nameTextStyle: { color: "#9090b0", fontSize: 9 },
         axisLabel: { color: "#9090b0", fontSize: 9 },
         minorSplitLine: { show: false },
@@ -1592,7 +1597,7 @@ function PolicyParetoChart({
             const highlighted = isHighlighted(pt.id, brushed ?? null);
             return {
               name: pt.id,
-              value: [pt.x, displayY(pt.y)],
+              value: [displayX(pt.x), displayY(pt.y)],
               itemStyle: {
                 color: onFront ? strategyColor(pt.id, policyMeta) : "#6b7280",
                 opacity: highlighted ? 1 : 0.2,
@@ -1608,7 +1613,7 @@ function PolicyParetoChart({
               const lines = [
                 p.name,
                 meta ? formatPolicyMeta(meta) : "",
-                `Profit: ${fmt(p.value[0], 1)} €`,
+                `Profit: ${fmt(pt?.x ?? p.value[0], 1)} €`,
                 `Overflows: ${fmt(pt?.y ?? p.value[1], 1)}`,
                 frontIds.has(p.name) ? "Pareto-optimal" : "",
               ].filter(Boolean);
@@ -1641,7 +1646,10 @@ function PolicyParetoChart({
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
-        <p className="text-xs font-semibold text-gray-300">Profit vs Overflows (Pareto)</p>
+        <p className="text-xs font-semibold text-gray-300">
+          Profit vs Overflows (Pareto)
+          {logScale ? " · symlog overflows + log profit" : ""}
+        </p>
         <button
           onClick={() => exportChartPng({ current: chartRef.current }, "summary-pareto.png")}
           className="btn-ghost text-xs flex items-center gap-1"

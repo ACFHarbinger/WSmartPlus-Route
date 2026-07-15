@@ -12,6 +12,7 @@ import {
 interface Props {
   columns: string[];
   rows: Record<string, unknown>[];
+  logScale?: boolean;
   onRowClick?: (rowKey: string, rowLabel: string) => void;
   /** Bidirectional brush: dim pivot rows not matching active policy filter (§G.6). */
   highlightPolicyLabels?: string[] | null;
@@ -76,6 +77,7 @@ function DimensionWell({
 export function PivotTablePanel({
   columns,
   rows,
+  logScale = false,
   onRowClick,
   highlightPolicyLabels,
   highlightRunLabels,
@@ -147,11 +149,12 @@ export function PivotTablePanel({
       pivot
         ? pivotHeatmapOption(
             pivot,
-            `${agg}(${valueKey}) by ${rowKey}${colKey ? ` × ${colKey}` : ""}`,
-            pivotHighlights
+            `${agg}(${valueKey}) by ${rowKey}${colKey ? ` × ${colKey}` : ""}${logScale ? " · log" : ""}`,
+            pivotHighlights,
+            { logScale, valueKey }
           )
         : null,
-    [pivot, agg, valueKey, rowKey, colKey, pivotHighlights]
+    [pivot, agg, valueKey, rowKey, colKey, pivotHighlights, logScale]
   );
 
   if (columns.length < 2 || rows.length < 2) return null;

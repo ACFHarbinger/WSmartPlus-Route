@@ -3,6 +3,8 @@
  */
 
 import {
+  chartMetricDisplay,
+  chartMetricUsesSymlog,
   chartMetricYAxisType,
   displayBarValue,
   isLogScaleMetric,
@@ -251,9 +253,8 @@ export function buildAutoChartOption(
     const n = Number(v);
     return Number.isFinite(n) ? n : 0;
   };
-  const displayOverflow = (y: number) => (logScale ? Math.max(y, 0.001) : y);
-  const displayScatterX = (x: number) =>
-    logScale && isLogScaleMetric(spec.xKey) ? Math.max(x, 0.001) : x;
+  const displayMetric = (v: number, key: string) =>
+    chartMetricDisplay(v, key, logScale) ?? v;
 
   if (spec.type === "bar") {
     const labels = rows.map((r) => String(r[spec.xKey] ?? ""));
@@ -291,8 +292,13 @@ export function buildAutoChartOption(
         toNum(row[spec.yKey])
       );
     }
+    const heatmapLog = logScale && isLogScaleMetric(spec.yKey);
     const flat = rowLabels.flatMap((row, ri) =>
-      colLabels.map((col, ci) => [ci, ri, lookup.get(`${row}::${col}`) ?? 0] as [number, number, number])
+      colLabels.map((col, ci) => {
+        const raw = lookup.get(`${row}::${col}`) ?? 0;
+        const v = heatmapLog ? displayBarValue(raw, spec.yKey, true) : raw;
+        return [ci, ri, v] as [number, number, number];
+      })
     );
     const vals = flat.map(([, , v]) => v);
     const min = Math.min(...vals);
@@ -407,7 +413,9 @@ export function buildAutoChartOption(
     };
   }
 
-  const scatterYLog = logScale && isOverflowMetric(spec.yKey);
+  const scatterYSymlog = chartMetricUsesSymlog(spec.yKey, logScale);
+  const scatterYLog =
+    logScale && isLogScaleMetric(spec.yKey) && !scatterYSymlog;
   const scatterXLog = logScale && isLogScaleMetric(spec.xKey) && !isOverflowMetric(spec.xKey);
   const paretoPoints = spec.labelKey
     ? rows.map((r) => ({
@@ -428,7 +436,10 @@ export function buildAutoChartOption(
         const onFront = frontIds.has(name);
         return {
           name,
-          value: [displayScatterX(toNum(r[spec.xKey])), displayOverflow(y)] as [number, number],
+          value: [
+            displayMetric(toNum(r[spec.xKey]), spec.xKey),
+            displayMetric(y, spec.yKey),
+          ] as [number, number],
           itemStyle: { color: onFront ? "#34d399" : "#6366f1" },
         };
       })
@@ -451,7 +462,7 @@ export function buildAutoChartOption(
     series.push({
       type: "line",
       name: "Pareto front",
-      data: step.map(([x, y]) => [displayScatterX(x), displayOverflow(y)]),
+      data: step.map(([x, y]) => [displayMetric(x, spec.xKey), displayMetric(y, spec.yKey)]),
       lineStyle: { color: "#f3f4f6", type: "dashed", width: 1 },
       symbol: "none",
       tooltip: { show: false },
