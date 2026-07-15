@@ -2293,7 +2293,7 @@ export function SimulationSummary() {
                 key={r.path}
                 path={r.path}
                 projectRoot={projectRoot}
-                label={r.label}
+                label={portfolioRunLabel(r.path, r.label, projectRoot)}
                 activeRunLabel={activeRunLabel}
                 onRemove={() => removeComparisonRun(r.path)}
                 trailing={

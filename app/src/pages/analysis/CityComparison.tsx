@@ -62,13 +62,27 @@ export function CityComparison() {
   const [portfolioLoading, setPortfolioLoading] = useState(false);
   const [showErrorBars, setShowErrorBars] = useState(false);
 
-  const filteredRuns = useMemo(
+  const normalizedRuns = useMemo(
     () =>
       runs.map((r) => ({
         ...r,
+        label: portfolioRunLabel(r.path, r.label, projectRoot),
+      })),
+    [runs, projectRoot]
+  );
+
+  const portfolioDuckDbLogs = useMemo(
+    () => normalizedRuns.map((r) => ({ path: r.path, label: r.label })),
+    [normalizedRuns]
+  );
+
+  const filteredRuns = useMemo(
+    () =>
+      normalizedRuns.map((r) => ({
+        ...r,
         entries: filterEntries(r.entries, filterPolicy, filterSample),
       })),
-    [runs, filterPolicy, filterSample]
+    [normalizedRuns, filterPolicy, filterSample]
   );
 
   const cityGroups = useMemo(() => groupRunsByCity(filteredRuns), [filteredRuns]);
@@ -136,17 +150,13 @@ export function CityComparison() {
   const { pendingBenchmarkLogs, setPendingBenchmarkLogs } = useAppStore();
 
   useEffect(() => {
-    if (!duckdbReady || runs.length === 0) return;
+    if (!duckdbReady || portfolioDuckDbLogs.length === 0) return;
     setDuckdbLoading(true);
-    runPortfolioSimulationArrowPipeline(
-      runs.map((r) => ({ path: r.path, label: r.label })),
-      CITY_SIM_TABLE,
-      projectRoot
-    )
+    runPortfolioSimulationArrowPipeline(portfolioDuckDbLogs, CITY_SIM_TABLE, projectRoot)
       .then(setLastPipeline)
       .catch((err) => console.warn("City comparison Arrow pipeline:", err))
       .finally(() => setDuckdbLoading(false));
-  }, [runs, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
+  }, [portfolioDuckDbLogs, duckdbReady, projectRoot, setLastPipeline, setDuckdbLoading]);
 
   useEffect(() => {
     if (!pendingBenchmarkLogs?.length) return;
@@ -244,7 +254,7 @@ export function CityComparison() {
           <p className="text-xs font-semibold text-canvas-muted uppercase tracking-wider mb-2">
             Loaded runs
           </p>
-          {runs.map((r) => (
+          {normalizedRuns.map((r) => (
             <LoadedRunRow
               key={r.path}
               path={r.path}

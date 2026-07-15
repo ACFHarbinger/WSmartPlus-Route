@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundredth pass (§G.1 + §G.1.6 + §G.6 + §D.7)
+
+Two-hundredth pass closes the Benchmark Analysis and City Comparison portfolio UI
+``run_label`` gaps left after pass 199 unified Simulation Summary portfolio labels.
+``normalizedRuns`` + ``portfolioDuckDbLogs`` now derive labels via ``portfolioRunLabel``
+so loaded-run rows, ``GlobalFilterBar`` run selectors, and DuckDB ``run_label`` columns
+stay aligned for relative paths. OLAP Explorer custom JSONL ingest and Simulation
+Summary comparison-run rows use the same helper for display/brush parity.
+
+**React frontend**
+- Benchmark Analysis — ``normalizedRuns`` + ``portfolioDuckDbLogs`` ``portfolioRunLabel`` on loaded-run list, ``filteredRuns`` portfolio brush, and DuckDB union ingest (§G.1 / §G.6 / §D.7)
+- City Comparison — ``normalizedRuns`` + ``portfolioDuckDbLogs`` ``portfolioRunLabel`` on loaded-run list, ``filteredRuns`` portfolio brush, and DuckDB union ingest (§G.1.6 / §G.6 / §D.7)
+- OLAP Explorer — custom JSONL ingest path label via ``portfolioRunLabel`` (§G.6 / §D.7)
+- Simulation Summary — comparison-run ``LoadedRunRow`` labels re-derived via ``portfolioRunLabel`` (§G.1 / §D.7)
+
+**ROADMAP**
+- §G.1 Benchmark Analysis portfolio loaded-run list + filter-bar relative-path ``run_label`` brush/SQL parity checked
+- §G.1.6 City Comparison portfolio loaded-run list + filter-bar relative-path ``run_label`` brush/SQL parity checked
+- §D.7 Benchmark Analysis + City Comparison portfolio UI/DuckDB ``run_label`` relative-path brush/SQL parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-ninety-ninth pass (§G.1 + §G.6 + §D.7)
 
 Hundred-ninety-ninth pass closes the Simulation Summary portfolio UI ``run_label``
