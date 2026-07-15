@@ -16,7 +16,7 @@ import {
   inferDistributionLabel,
 } from "../../utils/distributionCompare";
 import { GRAPH_PRESETS, loadGraphCoordinates } from "../../utils/graphCoords";
-import { chartMetricDisplay } from "../../utils/chartLogScale";
+import { chartMetricDisplay, transformMatrixLogScale } from "../../utils/chartLogScale";
 import { analyzeLossMinima, resolveBpcMarker, type LandscapeMarker } from "../../utils/lossLandscape";
 import {
   CLUSTER_PALETTE,
@@ -54,6 +54,37 @@ function formatBytes(b: number): string {
   if (b < 1024) return `${b} B`;
   if (b < 1024 ** 2) return `${(b / 1024).toFixed(1)} KB`;
   return `${(b / 1024 ** 2).toFixed(1)} MB`;
+}
+
+function buildLogAwareMatrixHeatmap(
+  rawValues: number[][],
+  opts: Parameters<typeof buildMatrixHeatmapOption>[1] & { title?: string },
+  useLogScale: boolean,
+  metricKey = "attention"
+): Record<string, unknown> {
+  const displayValues = useLogScale
+    ? transformMatrixLogScale(rawValues, metricKey, true)
+    : rawValues;
+  const title = opts.title
+    ? `${opts.title}${useLogScale ? " · log colour" : ""}`
+    : opts.title;
+  const base = buildMatrixHeatmapOption(displayValues, { ...opts, title });
+  if (!useLogScale) return base;
+  const xLabel = opts.xLabel ?? "Col";
+  const yLabel = opts.yLabel ?? "Row";
+  return {
+    ...base,
+    tooltip: {
+      position: "top",
+      formatter: (p: { value?: [number, number, number] }) => {
+        const v = p.value;
+        if (!v) return "";
+        const raw = rawValues[v[1]]?.[v[0]];
+        const rawText = Number.isFinite(raw) ? Number(raw).toFixed(4) : "—";
+        return `${yLabel} ${v[1]} · ${xLabel} ${v[0]}<br/>${rawText}`;
+      },
+    },
+  };
 }
 
 export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean }) {
@@ -354,6 +385,9 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
 
   const heatmapOption = useMemo(() => {
     if (!processedValues) return null;
+    const isDiffMatrix =
+      (compareMode === "overlay" && !!compareValues) ||
+      (compareMode === "distribution" && !!distValues);
     const values =
       compareMode === "overlay" && compareValues
         ? diffMatrices(processedValues, compareValues)
@@ -370,7 +404,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
               compareMode === "overlay" && compareValues ? " Δ" : ""
             }`
         : `${preview?.key} [${preview?.full_shape.join("×")}]`;
-    return buildMatrixHeatmapOption(values, {
+    const heatmapOpts = {
       title: label,
       min: compareMode === "overlay" || compareMode === "distribution" ? undefined : preview?.min,
       max: compareMode === "overlay" || compareMode === "distribution" ? undefined : preview?.max,
@@ -380,7 +414,9 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
       attentionRole: tab === "attention" ? activeAttentionRole : undefined,
       clusterBandSplits: tab === "attention" ? clusteredAttention.bandSplits : undefined,
       clusterPalette: CLUSTER_PALETTE,
-    });
+    };
+    const useLogScale = logScale && tab === "attention" && !isDiffMatrix;
+    return buildLogAwareMatrixHeatmap(values, heatmapOpts, useLogScale);
   }, [
     processedValues,
     compareValues,
@@ -393,30 +429,39 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
     primaryDistLabel,
     activeAttentionRole,
     clusteredAttention.bandSplits,
+    logScale,
   ]);
 
   const compareHeatmapOption = useMemo(() => {
     if (compareMode === "side-by-side" && compareValues) {
-      return buildMatrixHeatmapOption(compareValues, {
-        title: `Compare step ${compareStep}`,
-        min: comparePreview?.min,
-        max: comparePreview?.max,
-        theme,
-        xLabel: "Key",
-        yLabel: "Query",
-        attentionRole: activeAttentionRole,
-      });
+      return buildLogAwareMatrixHeatmap(
+        compareValues,
+        {
+          title: `Compare step ${compareStep}`,
+          min: comparePreview?.min,
+          max: comparePreview?.max,
+          theme,
+          xLabel: "Key",
+          yLabel: "Query",
+          attentionRole: activeAttentionRole,
+        },
+        logScale
+      );
     }
     if (compareMode === "distribution" && distValues) {
-      return buildMatrixHeatmapOption(distValues, {
-        title: `${distCompareLabel} · ${distPreview?.key ?? selectedKey}`,
-        min: distPreview?.min,
-        max: distPreview?.max,
-        theme,
-        xLabel: "Key",
-        yLabel: "Query",
-        attentionRole: activeAttentionRole,
-      });
+      return buildLogAwareMatrixHeatmap(
+        distValues,
+        {
+          title: `${distCompareLabel} · ${distPreview?.key ?? selectedKey}`,
+          min: distPreview?.min,
+          max: distPreview?.max,
+          theme,
+          xLabel: "Key",
+          yLabel: "Query",
+          attentionRole: activeAttentionRole,
+        },
+        logScale
+      );
     }
     return null;
   }, [
@@ -430,19 +475,24 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
     selectedKey,
     theme,
     activeAttentionRole,
+    logScale,
   ]);
 
   const primaryHeatmapOption = useMemo(() => {
     if (!processedValues || compareMode !== "distribution") return heatmapOption;
-    return buildMatrixHeatmapOption(processedValues, {
-      title: `${primaryDistLabel} · ${preview?.key ?? selectedKey} [${effectiveIndices.join(",")}]`,
-      min: preview?.min,
-      max: preview?.max,
-      theme,
-      xLabel: "Key",
-      yLabel: "Query",
-      attentionRole: activeAttentionRole,
-    });
+    return buildLogAwareMatrixHeatmap(
+      processedValues,
+      {
+        title: `${primaryDistLabel} · ${preview?.key ?? selectedKey} [${effectiveIndices.join(",")}]`,
+        min: preview?.min,
+        max: preview?.max,
+        theme,
+        xLabel: "Key",
+        yLabel: "Query",
+        attentionRole: activeAttentionRole,
+      },
+      logScale
+    );
   }, [
     processedValues,
     compareMode,
@@ -453,6 +503,7 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
     effectiveIndices,
     theme,
     activeAttentionRole,
+    logScale,
   ]);
 
   const attentionGraphOption = useMemo(() => {
@@ -966,6 +1017,9 @@ export function MLIntrospectionPanel({ logScale = false }: { logScale?: boolean 
           <p className="text-[10px] text-canvas-muted">
             Q/K/V colour palettes ({activeAttentionRole}) · spherical k-means row bands · head selector ·
             sparse top-k · decode-step compare · Empirical vs Gamma-3 (side-by-side / overlay Δ).
+            {logScale
+              ? " Log-scale colour map on raw weights (overlay Δ stays linear)."
+              : " Linear colour map."}{" "}
             Graph-on-coords via ECharts or Sigma.js WebGL (View toggle).
           </p>
         </div>
