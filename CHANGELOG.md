@@ -11,6 +11,31 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-sixth pass (§G.10 + §G.12 + §D.7)
+
+Hundred-sixty-sixth pass closes the eval live panel shell gap left after the
+hundred-sixty-fifth pass (which added ``LauncherLivePanel`` ``logLines`` shell
+parity on Evaluation Runner and Process Monitor). Training Hub eval mode now uses
+the shared launcher eval panel instead of ``TrainHpoLivePanel``, matching the
+Evaluation Runner single-checkpoint pattern.
+
+**React frontend**
+- Training Hub — eval mode renders ``LauncherLivePanel`` + ``EvalCheckpointLiveCard``
+  / ``EvalResultCard`` instead of ``TrainHpoLivePanel`` (§G.10 / §G.12 / §D.7)
+- Training Hub — eval live panel passes ``logLines`` to shared ``LauncherLivePanel``
+  shell; ``EvalCheckpointLiveCard`` omits inline tail via ``showLogTail={false}``
+  (§G.10 / §G.12 / §D.7)
+- Training Hub — eval ``LauncherNavMesh`` post-run shortcuts (Output Browser,
+  Evaluation Runner reload, Benchmark Analysis) parity with Evaluation Runner
+  (§G.10 / §G.12 / §D.7)
+
+**ROADMAP**
+- §G.10 Training Hub eval ``LauncherLivePanel`` shell checked
+- §G.12 Training Hub eval ``EvalCheckpointLiveCard`` / ``EvalResultCard`` checked
+- §D.7 eval launcher live panel shell parity across Training Hub and Evaluation Runner checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-fifth pass (§G.12 + §G.15 + §D.7)
 
 Hundred-sixty-fifth pass closes the eval log tail shell gap left after the
