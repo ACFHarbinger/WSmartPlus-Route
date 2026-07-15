@@ -35,6 +35,7 @@ import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
 import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
 import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
+import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
 import { EvalResultCard } from "../../components/monitor/EvalResultCard";
 import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
@@ -51,6 +52,7 @@ import {
   hasEvalMetrics,
   toEvalAnalyticsRows,
 } from "../../utils/evalResults";
+import { processLogTail } from "../../utils/processLog";
 import { outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 
@@ -355,11 +357,20 @@ export function ProcessMonitor() {
     [selectedProc]
   );
 
+  const evalCheckpointName = useMemo(() => {
+    if (!selectedProc || !selectedIsEval) return "";
+    return checkpointLabelFromEvalProcess(selectedProc.id, selectedProc.command);
+  }, [selectedProc, selectedIsEval]);
+
   const evalResult = useMemo(() => {
     if (!selectedProc || !selectedIsEval) return null;
-    const label = checkpointLabelFromEvalProcess(selectedProc.id, selectedProc.command);
-    return collectEvalResultFromLogLines(selectedProc.logLines, label);
-  }, [selectedProc, selectedIsEval]);
+    return collectEvalResultFromLogLines(selectedProc.logLines, evalCheckpointName);
+  }, [selectedProc, selectedIsEval, evalCheckpointName]);
+
+  const evalLogTail = useMemo(() => {
+    if (!selectedProc) return [];
+    return processLogTail(selectedProc.logLines);
+  }, [selectedProc]);
 
   const evalCheckpointPath = useMemo(() => {
     if (!selectedProc || !selectedIsEval) return null;
@@ -506,12 +517,19 @@ export function ProcessMonitor() {
           }}
           footer={<ProcessIdFooter processId={selectedProc.id} />}
         >
-          {evalResult && hasEvalMetrics(evalResult) ? (
-            <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
+          {selectedProc.status === "running" ||
+          !evalResult ||
+          !hasEvalMetrics(evalResult) ? (
+            <EvalCheckpointLiveCard
+              procId={selectedProc.id}
+              checkpointName={evalCheckpointName}
+              status={selectedProc.status}
+              isRunning={selectedProc.status === "running"}
+              result={evalResult ?? undefined}
+              tail={evalLogTail}
+            />
           ) : (
-            <p className="text-xs text-canvas-muted">
-              Waiting for structured eval JSON in process output…
-            </p>
+            <EvalResultCard result={evalResult} onOpenAnalytics={openEvalInAnalytics} />
           )}
         </LauncherLivePanel>
       )}

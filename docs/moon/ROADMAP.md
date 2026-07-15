@@ -930,6 +930,13 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Evaluation Runner — deduplicated inline per-checkpoint live panel markup; import shared ``EvalCheckpointLiveCard`` (§G.12 / §D.7)
 - [x] §G.10 / §G.15 / §G.17 / §G.18 train/HPO workflow footer parity across all five pages (§D.7)
 
+**Delivered (§D.7 — hundred-sixtieth pass)**
+
+- [x] ``processLogTail`` — shared stdout/stderr tail helper for live eval panels (§G.12 / §G.15 / §D.7)
+- [x] Process Monitor — selected ``eval`` processes use ``EvalCheckpointLiveCard`` during live runs and while waiting for structured JSON; ``EvalResultCard`` retained on completion with metrics (§G.12 / §G.15 / §D.7)
+- [x] Evaluation Runner — deduplicated inline log tail formatting; import shared ``processLogTail`` (§G.12 / §D.7)
+- [x] §G.12 / §G.15 eval live checkpoint card parity across Evaluation Runner and Process Monitor (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1690,6 +1697,8 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Multi-checkpoint batch persistence via ``findRecentEvalProcessIds`` + ``collectEvalResultFromLogLines`` when navigation clears local state (hundred-forty-sixth pass; §G.12 / §D.7)
 - [x] ``LauncherLivePanel`` shared live progress panel shell for multi-checkpoint eval runs (hundred-fifty-seventh pass; §G.12 / §D.7)
 - [x] ``ProcessIdFooter`` multi-process footer + ``EvalResultKpiRow`` per-checkpoint KPI row on Evaluation Runner live panel (hundred-fifty-eighth pass; §G.12 / §D.7)
+- [x] ``EvalCheckpointLiveCard`` shared per-checkpoint live eval row on Evaluation Runner (hundred-fifty-ninth pass; §G.12 / §D.7)
+- [x] ``processLogTail`` + Process Monitor ``EvalCheckpointLiveCard`` live eval parity (hundred-sixtieth pass; §G.12 / §G.15 / §D.7)
 
 ---
 
@@ -1774,6 +1783,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``LauncherLivePanelHeader`` ``embedded`` muted subtitle header + run-label + live suffix parity on selected ``test_sim`` processes (hundred-fifty-seventh pass; §G.9 / §G.15 / §D.7)
 - [x] ``LauncherLivePanel`` ``embedded`` variant for selected ``test_sim`` / ``gen_data`` / ``eval`` analytics sections (hundred-fifty-seventh pass; §G.9 / §G.11 / §G.12 / §G.15 / §D.7)
 - [x] ``EvalResultCard`` shared eval result card with ``Open in Analytics →`` on selected ``eval`` processes (hundred-fifty-eighth pass; §G.12 / §G.15 / §D.7)
+- [x] ``EvalCheckpointLiveCard`` live progress + stdout tail on selected running ``eval`` processes; ``EvalResultCard`` on completion with metrics (hundred-sixtieth pass; §G.12 / §G.15 / §D.7)
 
 ---
 
