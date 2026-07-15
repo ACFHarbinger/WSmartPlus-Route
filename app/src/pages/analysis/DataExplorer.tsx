@@ -8,7 +8,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -281,26 +281,23 @@ export function DataExplorer() {
           Open CSV
         </button>
         {file && (
-          <>
-            <PathRunLabelChip
-              path={file.path}
-              projectRoot={projectRoot}
-              handoff="csv"
-              trailing={
-                <>
-                  <span className="shrink-0">
-                    · {file.rows.length.toLocaleString()} rows
-                    {hasActiveBrush && hasBrushColumns && (
-                      <> · {exportRows.length.toLocaleString()} brushed</>
-                    )}
-                    {loading && " · DuckDB ingesting…"}
-                    {!loading && lastPipeline?.tableName === "explorer_csv" && (
-                      <> · {formatPipelineTimingBadge(lastPipeline)}</>
-                    )}
-                  </span>
-                </>
-              }
-            />
+          <OpenPathToolbar
+            path={file.path}
+            projectRoot={projectRoot}
+            kind="csv"
+            trailing={
+              <span className="shrink-0">
+                · {file.rows.length.toLocaleString()} rows
+                {hasActiveBrush && hasBrushColumns && (
+                  <> · {exportRows.length.toLocaleString()} brushed</>
+                )}
+                {loading && " · DuckDB ingesting…"}
+                {!loading && lastPipeline?.tableName === "explorer_csv" && (
+                  <> · {formatPipelineTimingBadge(lastPipeline)}</>
+                )}
+              </span>
+            }
+          >
             <button
               onClick={() =>
                 downloadCsv(
@@ -338,7 +335,7 @@ export function DataExplorer() {
                 Export Parquet
               </button>
             )}
-          </>
+          </OpenPathToolbar>
         )}
       </div>
 

@@ -22,7 +22,6 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
@@ -201,7 +200,15 @@ function ConfigMetaBanner({
     <div className="card flex flex-wrap items-center gap-x-4 gap-y-1 text-xs text-canvas-muted">
       <span className="font-semibold text-gray-300">Run config</span>
       <span>{formatLogMeta(logMeta)}</span>
-      <PathRunLabelChip path={logPath} projectRoot={projectRoot} className="opacity-70" handoff />
+      <OpenPathToolbar
+        path={logPath}
+        projectRoot={projectRoot}
+        kind="log"
+        labeled
+        labeledTargets={["monitor"]}
+        labeledIconSize={12}
+        chipClassName="opacity-70"
+      />
     </div>
   );
 }

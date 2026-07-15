@@ -11,6 +11,28 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-ninth pass (§G.1 + §G.6 + §G.7 + §G.13 + §G.14 + §G.17 + §D.7)
+
+Two-hundred-and-twenty-ninth pass expands ``OpenPathToolbar`` after pass 228 introduced
+the shared open-path cluster. Remaining open-path toolbars migrate onto the component so
+Data Explorer exports, Config Editor YAML paths, Output Browser run headers, Training
+Monitor logs discovery, and Simulation Summary config banners share one path+handoff
+surface. Output Browser run headers and Summary config banners gain labeled reverse
+Summary / Monitor dual controls when a simulation log is known.
+
+**React frontend**
+- Data Explorer open-CSV toolbar → ``OpenPathToolbar`` with export ``children`` (§G.6 / §G.7 / §D.7)
+- Config Editor primary + diff path toolbars → ``OpenPathToolbar`` (§G.13 / §D.7)
+- Output Browser run header → ``OpenPathToolbar`` with labeled log dual when ``runJsonlPath`` is known (§G.14 / §G.1 / §D.7)
+- Training Monitor logs-root discovery chip → ``OpenPathToolbar`` (§G.17 / §D.7)
+- Simulation Summary ``ConfigMetaBanner`` → ``OpenPathToolbar`` with reverse Monitor ``labeledTargets`` (§G.1 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.6 / §G.13 / §G.14 / §G.17 remaining open-path toolbar surface expansion checked
+- §D.7 ``OpenPathToolbar`` studio-wide open-path parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-twenty-eighth pass (§G.1 + §G.6 + §G.7 + §G.14 + §G.16 + §D.7)
 
 Two-hundred-and-twenty-eighth pass unifies open-path toolbars after pass 227 put

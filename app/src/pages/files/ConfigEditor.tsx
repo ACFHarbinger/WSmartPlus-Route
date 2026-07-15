@@ -15,7 +15,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
 import { toast } from "sonner";
-import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
@@ -337,11 +337,11 @@ export function ConfigEditor() {
       </div>
 
       {filePath && (
-        <PathRunLabelChip
+        <OpenPathToolbar
           path={filePath}
           projectRoot={projectRoot}
-          className="max-w-full"
-          handoff="config"
+          kind="config"
+          chipClassName="max-w-full"
         />
       )}
 
@@ -442,11 +442,11 @@ export function ConfigEditor() {
               {diffPath ? "Change comparison file…" : "Open comparison file…"}
             </button>
             {diffPath ? (
-              <PathRunLabelChip
+              <OpenPathToolbar
                 path={diffPath}
                 projectRoot={projectRoot}
-                className="max-w-md"
-                handoff="config"
+                kind="config"
+                chipClassName="max-w-md"
               />
             ) : null}
           </div>
@@ -462,18 +462,18 @@ export function ConfigEditor() {
               <p className="text-xs text-canvas-muted mb-3 flex flex-wrap items-center gap-1.5">
                 <span>{changedKeys.length} difference(s) between</span>
                 {filePath ? (
-                  <PathRunLabelChip
+                  <OpenPathToolbar
                     path={filePath}
                     projectRoot={projectRoot}
-                    handoff="config"
+                    kind="config"
                   />
                 ) : null}
                 <span>and</span>
                 {diffPath ? (
-                  <PathRunLabelChip
+                  <OpenPathToolbar
                     path={diffPath}
                     projectRoot={projectRoot}
-                    handoff="config"
+                    kind="config"
                   />
                 ) : null}
               </p>

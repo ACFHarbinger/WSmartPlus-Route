@@ -1501,6 +1501,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser file viewer + checkpoint panel migrate labeled + chip dual control to ``OpenPathToolbar`` (§G.14 / §D.7)
 - [x] §G.1 / §G.6 / §G.14 / §G.16 open-path labeled+chip toolbar unification checked (§D.7)
 
+**Delivered (§D.7 — two-hundred-and-twenty-ninth pass)**
+
+- [x] Data Explorer open-CSV toolbar migrates to ``OpenPathToolbar`` with export ``children`` (CSV / Parquet) (§G.6 / §G.7 / §D.7)
+- [x] Config Editor primary YAML + diff comparison path chips migrate to ``OpenPathToolbar`` (§G.13 / §D.7)
+- [x] Output Browser run header migrates to ``OpenPathToolbar``; labeled Summary / Monitor dual when run log is known (§G.14 / §G.1 / §D.7)
+- [x] Training Monitor logs-root discovery chip migrates to ``OpenPathToolbar`` (§G.17 / §D.7)
+- [x] Simulation Summary ``ConfigMetaBanner`` migrates to ``OpenPathToolbar`` with reverse Monitor ``labeledTargets`` (§G.1 / §D.7)
+- [x] §G.1 / §G.6 / §G.13 / §G.14 / §G.17 remaining open-path toolbar surface expansion checked (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1930,6 +1939,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary / Algorithm Comparison open-log toolbars + path chips use shared ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Simulation Summary ConfigMetaBanner + open-path chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.1 / §D.7)
 - [x] Simulation Summary / Algorithm Comparison open-log toolbars use shared ``OpenPathToolbar`` labeled+chip cluster (two-hundred-and-twenty-eighth pass; §G.1 / §G.16 / §D.7)
+- [x] Simulation Summary ``ConfigMetaBanner`` uses shared ``OpenPathToolbar`` with reverse Monitor ``labeledTargets`` (two-hundred-and-twenty-ninth pass; §G.1 / §D.7)
 
 **Status**: §G.1 complete — all checklist items delivered.
 
@@ -2184,6 +2194,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] OLAP Explorer ingest path + Data Explorer open-CSV path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.6 / §D.7)
 - [x] OLAP / Data Explorer open-path chips migrate to ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.6 / §D.7)
 - [x] OLAP Explorer ingest path toolbar uses shared ``OpenPathToolbar`` labeled+chip cluster (two-hundred-and-twenty-eighth pass; §G.6 / §D.7)
+- [x] Data Explorer open-CSV toolbar uses shared ``OpenPathToolbar`` with export ``children`` (two-hundred-and-twenty-ninth pass; §G.6 / §G.7 / §D.7)
 
 **Status**: §G.6 complete — all checklist items delivered.
 
@@ -2408,6 +2419,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] ``Ctrl+S`` keyboard shortcut saves dirty config to disk when a file path is open (§D.7 / §G.13)
 - [x] Configuration Editor primary YAML + diff comparison path chips — Config Editor path-kind icon handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-sixth pass; §G.13 / §D.7)
 - [x] Configuration Editor path chips migrate to ``PathRunLabelChip`` ``handoff="config"`` (two-hundred-and-twenty-seventh pass; §G.13 / §D.7)
+- [x] Configuration Editor primary + diff path toolbars use shared ``OpenPathToolbar`` (two-hundred-and-twenty-ninth pass; §G.13 / §D.7)
 
 ---
 
@@ -2439,6 +2451,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Output Browser run list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.14 / §D.7)
 - [x] Output Browser run header / checkpoint sidebar / file-viewer / checkpoint panel chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.14 / §D.7)
 - [x] Output Browser file viewer + checkpoint panel labeled+chip dual control uses shared ``OpenPathToolbar`` (two-hundred-and-twenty-eighth pass; §G.14 / §D.7)
+- [x] Output Browser run header uses shared ``OpenPathToolbar``; labeled Summary / Monitor dual when run log is known (two-hundred-and-twenty-ninth pass; §G.14 / §G.1 / §D.7)
 
 ---
 
@@ -2564,6 +2577,7 @@ Source files ported from: `logic/src/ui/pages/training.py`, `logic/src/ui/pages/
 - [x] Training Monitor path-kind handoffs via ``PathHandoffButtons`` (two-hundred-and-twenty-fourth pass): run-panel training icon + checkpoint browser Eval icon (§G.17 / §G.12 / §D.7)
 - [x] Training Monitor run-discovery list ``pathHandoffs`` via ``LoadedRunRow`` (two-hundred-and-twenty-fifth pass; §G.17 / §D.7)
 - [x] Training Monitor run-panel + checkpoint browser chips use ``PathRunLabelChip`` ``handoff`` (two-hundred-and-twenty-seventh pass; §G.17 / §G.12 / §D.7)
+- [x] Training Monitor logs-root discovery chip uses shared ``OpenPathToolbar`` (two-hundred-and-twenty-ninth pass; §G.17 / §D.7)
 
 ---
 

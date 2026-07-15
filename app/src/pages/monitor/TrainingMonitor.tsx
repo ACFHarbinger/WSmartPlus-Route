@@ -19,6 +19,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
+import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
@@ -732,11 +733,12 @@ export function TrainingMonitor() {
           Discover Runs
         </button>
         {logsPath ? (
-          <PathRunLabelChip
+          <OpenPathToolbar
             path={logsPath}
             projectRoot={projectRoot}
             label="logs"
-            className="max-w-xs"
+            chipClassName="max-w-xs"
+            handoff={false}
           />
         ) : null}
       </div>
