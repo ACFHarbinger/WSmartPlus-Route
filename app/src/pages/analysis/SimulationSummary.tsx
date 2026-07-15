@@ -12,7 +12,7 @@ import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
-import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download, X } from "lucide-react";
+import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
 import { recentFileLabel, useRecentFilesStore } from "../../store/recentFiles";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
@@ -22,6 +22,7 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { PathRunLabelChip } from "../../components/common/PathRunLabelChip";
+import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
   chartMetricDisplay,
@@ -88,7 +89,7 @@ import {
 
 import { RouteViz } from "../../components/analysis/RouteViz";
 import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { runLabelMapFromPaths } from "../../utils/policyTelemetryTrends";
+
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
@@ -2114,11 +2115,6 @@ export function SimulationSummary() {
     handleRunLabelClick,
   } = usePortfolioRunBrush(allRuns);
 
-  const runBrushByPath = useMemo(
-    () => runLabelMapFromPaths(allRuns.map((r) => ({ path: r.path, name: r.label }))),
-    [allRuns]
-  );
-
   const cityComparisonOption = useMemo(
     () =>
       cityComparisonChartOption(buildCityComparisonSeries(cityGroups), {
@@ -2271,30 +2267,16 @@ export function SimulationSummary() {
           </p>
           <div className="space-y-1">
             {comparisonRuns.map((r) => (
-              <div
+              <LoadedRunRow
                 key={r.path}
-                className={`flex items-center gap-2 text-xs text-gray-300 rounded px-1 -mx-1 ${
-                  activeRunLabel === r.label ? "bg-accent-primary/15" : ""
-                } ${
-                  Boolean(activeRunLabel) && runBrushByPath[r.path] === activeRunLabel
-                    ? "ring-1 ring-accent-secondary/40"
-                    : ""
-                }`}
-              >
-                <button
-                  onClick={() => removeComparisonRun(r.path)}
-                  className="text-canvas-muted hover:text-accent-danger"
-                >
-                  <X size={12} />
-                </button>
-                <button
-                  onClick={() => handleRunLabelClick(r.label)}
-                  className="font-mono truncate text-left hover:text-accent-secondary flex-1"
-                >
-                  {r.label}
-                </button>
-                <span className="ml-auto text-canvas-muted">{r.entries.length} days</span>
-              </div>
+                path={r.path}
+                label={r.label}
+                activeRunLabel={activeRunLabel}
+                onRemove={() => removeComparisonRun(r.path)}
+                trailing={
+                  <span className="ml-auto text-canvas-muted shrink-0">{r.entries.length} days</span>
+                }
+              />
             ))}
           </div>
         </div>

@@ -1088,6 +1088,15 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] OLAP Explorer — custom-ingest ``PathRunLabelChip`` ring-highlight + click-to-brush parity with ingested-table picker (§G.6 / §G.14 / §D.7)
 - [x] §G.14–§G.16 file-path run-label brush + ring-highlight parity across all file-based analysis views (§D.7)
 
+**Delivered (§D.7 — hundred-eighty-first pass)**
+
+- [x] ``LoadedRunRow`` — shared portfolio loaded-run row wrapping ``PathRunLabelChip`` with optional remove, leading slots, and trailing metadata (§G.1 / §G.14 / §D.7)
+- [x] Benchmark Analysis — loaded-run list ``LoadedRunRow`` replaces inline font-mono brush buttons (§G.1 / §G.6 / §D.7)
+- [x] City Comparison — loaded-run list ``LoadedRunRow`` parity with Benchmark Analysis (§G.1.6 / §G.6 / §D.7)
+- [x] Simulation Summary — comparison-run list ``LoadedRunRow`` parity with portfolio analytics pages (§G.1 / §G.6 / §D.7)
+- [x] Output Browser — run-directory list ``LoadedRunRow`` with compare checkbox + folder select leading slots; chip click-to-brush parity with header chips (§G.14 / §D.7)
+- [x] §G.1 / §G.6 / §G.14 portfolio loaded-run list path-chip run-label brush + ring-highlight parity across all analysis views (§D.7)
+
 ---
 
 ### §D.8 — Toast Notifications for Background Completions
@@ -1633,6 +1642,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Simulation Summary portfolio run_label brush SQL sync: comparison-run click, city chart click, portfolio efficiency ranking click → `highlightRunLabels` + `brushSqlSync` on `summary_sim` (§G.6)
 - [x] Simulation Summary ``useLogPathRunLabelBrush`` on primary log open; ``GlobalFilterBar`` ``runLabels`` in single-log mode; comparison-run ring highlight via ``runLabelMapFromPaths`` (hundred-seventy-fifth pass; §G.1 / §G.16 / §D.7)
 - [x] Benchmark Analysis + City Comparison loaded-run list ring highlight + click-to-brush via ``runLabelMapFromPaths`` + ``handleRunLabelClick``; single-run ``GlobalFilterBar`` ``runLabels`` (hundred-seventy-sixth pass; §G.1 / §G.6 / §D.7)
+- [x] Portfolio loaded-run lists — ``LoadedRunRow`` + ``PathRunLabelChip`` on Benchmark Analysis, City Comparison, Simulation Summary comparison runs, and Output Browser run-directory list (hundred-eighty-first pass; §G.1 / §G.6 / §G.14 / §D.7)
 - [x] Algorithm Comparison ``useLogPathRunLabelBrush`` + ``GlobalFilterBar`` ``runLabels`` on watch path (hundred-seventy-sixth pass; §G.1 / §G.16 / §D.7)
 - [x] Data Explorer ``useLogPathRunLabelBrush`` path-derived ``runLabels`` + trends fallback when CSV lacks ``run_label`` column (hundred-seventy-sixth pass; §G.6 / §G.16 / §D.7)
 - [x] OLAP Explorer ``useLogPathRunLabelBrush`` on selected ingest path; table picker ring highlight + click-to-brush via ``runLabelMapFromTablePaths``; path-derived ``GlobalFilterBar`` ``runLabels`` when table lacks ``run_label`` column (hundred-seventy-seventh pass; §G.6 / §G.16 / §D.7)
