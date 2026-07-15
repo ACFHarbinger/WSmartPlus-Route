@@ -44,6 +44,16 @@ export function snapshotKey(snap: AttentionSnapshot): string {
   return `d${snap.decode_step}-L${snap.layer}-H${snap.head}`;
 }
 
+/** Parse all ``ATTENTION_VIZ_START:`` markers from process stdout (§A.2 Option A). */
+export function collectAttentionVizFromLogLines(lines: string[]): AttentionVizEntry[] {
+  const entries: AttentionVizEntry[] = [];
+  for (const line of lines) {
+    const parsed = parseAttentionVizLine(line);
+    if (parsed) entries.push(parsed);
+  }
+  return entries;
+}
+
 export function buildRuntimeAttentionHeatmapOption(
   snap: AttentionSnapshot,
   theme: "dark" | "light",

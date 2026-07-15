@@ -88,6 +88,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Studio ``RuntimeAttentionPanel`` — ECharts heatmap with snapshot/layer/head selectors on Training Monitor + ML Introspection Attention tab
 - [x] Unit tests in ``logic/test/unit/tracking/test_attention_buffer.py``
 
+**Delivered (§A.2 Option A — hundred-thirtieth pass)**
+
+- [x] ``collectAttentionVizFromLogLines`` — shared ``ATTENTION_VIZ_START:`` parser for process stdout
+- [x] Training Hub — ``RuntimeAttentionPanel`` during live train/hpo runs; stdout ingest alongside metrics (§G.10 / §A.2)
+- [x] Process Monitor — ``RuntimeAttentionPanel`` for selected ``train_`` / ``hpo_`` processes (§G.15 / §A.2)
+
 **Status**: §A.2 Options A+C complete — Option B (BertViz) deferred.
 
 ---
@@ -231,6 +237,12 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Ray Tune objective — per-epoch ``ray.train.report`` with ``grad_norm`` + ``entropy`` for ASHA schedulers
 - [x] Studio HPO Tracker — trial health table with grad norm, entropy, and ``health_pruned`` badge (§G.18 bridge)
 - [x] Unit tests in ``logic/test/unit/pipeline/callbacks/test_hpo_health.py``
+
+**Delivered (§A.4 Option A — hundred-thirtieth pass)**
+
+- [x] ``collectTrainingHealthFromLogLines`` — shared ``TRAINING_HEALTH_START:`` parser for process stdout
+- [x] Training Hub — ``TrainingHealthPanel`` during live train/hpo runs; stdout ingest alongside metrics (§G.10 / §A.4)
+- [x] Process Monitor — ``TrainingHealthPanel`` for selected ``train_`` / ``hpo_`` processes (§G.15 / §A.4)
 
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
@@ -1419,6 +1431,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Gradient norm and entropy sparklines: `MiniSparkline` component (70 px ECharts, area fill at 13% opacity); grad_norm in red `#f87171`, entropy in purple `#a78bfa`; rendered as 2-column grid below `LiveChart`; PNG export on live chart and sparklines; component returns `null` when no data for the given metric key
 - [x] On completion: "Output Browser →" button appears in live progress header when training completes successfully; navigates to `output_browser` mode
 - [x] Session persistence: `useTrainHubStore` (Zustand `persist`, key `wsroute-train-hub`) stores all form fields across train/hpo/eval modes; ephemeral runtime state stays in component state
+- [x] Live training health + runtime attention (§A.4 / §A.2): ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` in live progress panel during train/hpo; ``Training Monitor →`` navigation shortcut (hundred-thirtieth pass)
 
 ---
 
@@ -1512,6 +1525,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] Progress bar per process: subscribe to structured progress events (epoch, day, instance count) emitted by the Python subprocess via stdout markers — `PROGRESS:{json}` protocol; `getLatestProgress()` scans last 30 log lines; deterministic bar when `total` is known, indeterminate pulse otherwise
 - [x] Cancel any running process (§D.5): button in the process list row; sends SIGTERM (`cancel_process` command already wired in `ProcessRow`)
 - [x] Toast notification on process completion / failure (§D.8): `useProcessMonitor` fires `toast.success/error/info` on terminal status transitions; label derived from `id.split("_")[0]`
+- [x] Training analytics for ``train_`` / ``hpo_`` processes: ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` parsed from process stdout (§A.4 / §A.2 hundred-thirtieth pass)
 
 ---
 

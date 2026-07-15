@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirtieth pass (§A.4 + §A.2)
+
+Hundred-thirtieth pass extends training health alerts and runtime attention heatmaps
+to Training Hub and Process Monitor during live train/hpo runs.
+
+**React frontend**
+- ``collectTrainingHealthFromLogLines`` — shared ``TRAINING_HEALTH_START:`` parser for
+  process stdout (§A.4)
+- ``collectAttentionVizFromLogLines`` — shared ``ATTENTION_VIZ_START:`` parser for process
+  stdout (§A.2 Option A)
+- Training Hub — ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` in live progress panel
+  during train/hpo; ``Training Monitor →`` navigation shortcut (§G.10 / §A.4 / §A.2)
+- Process Monitor — training analytics section for selected ``train_`` / ``hpo_`` processes
+  with live status badge (§G.15 / §A.4 / §A.2)
+
+**ROADMAP**
+- §A.4 Training Hub + Process Monitor health panels checked
+- §A.2 Training Hub + Process Monitor runtime attention panels checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-twenty-ninth pass (§A.3 Option C)
 
 Hundred-twenty-ninth pass extends live policy telemetry to Simulation Launcher and

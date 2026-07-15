@@ -16,6 +16,8 @@ import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen, Activity, CheckCircle, XCircle } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
+import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { open } from "@tauri-apps/plugin-dialog";
 import { listen } from "@tauri-apps/api/event";
 import { useAppStore } from "../../store/app";
@@ -23,7 +25,16 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import type { StdoutLine, StatusUpdate, ProcessStatus, TrainingMetricsRow } from "../../types";
+import { parseAttentionVizLine } from "../../utils/attentionViz";
+import { parseTrainingHealthLine } from "../../utils/trainingHealth";
+import type {
+  AttentionVizEntry,
+  StdoutLine,
+  StatusUpdate,
+  ProcessStatus,
+  TrainingHealthEntry,
+  TrainingMetricsRow,
+} from "../../types";
 
 type Mode = "train" | "hpo" | "eval";
 
@@ -247,7 +258,7 @@ function MiniSparkline({
 }
 
 export function TrainingHub() {
-  const { projectRoot, setMode } = useAppStore();
+  const { projectRoot, setMode, effectiveTheme } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
   const { spawn, launching } = useSpawnProcess();
 
@@ -284,6 +295,8 @@ export function TrainingHub() {
   const [liveProcessId, setLiveProcessId] = useState<string | null>(null);
   const [runStatus, setRunStatus] = useState<ProcessStatus | null>(null);
   const [liveMetrics, setLiveMetrics] = useState<TrainingMetricsRow[]>([]);
+  const [liveHealth, setLiveHealth] = useState<TrainingHealthEntry[]>([]);
+  const [liveAttention, setLiveAttention] = useState<AttentionVizEntry[]>([]);
 
   const pickCheckpoint = async () => {
     const path = (await open({
@@ -363,6 +376,10 @@ export function TrainingHub() {
       if (id !== liveProcessId) return;
       const row = parseMetricLine(line);
       if (row) setLiveMetrics((prev) => [...prev, row]);
+      const alert = parseTrainingHealthLine(line);
+      if (alert) setLiveHealth((prev) => [...prev, alert]);
+      const attention = parseAttentionVizLine(line);
+      if (attention) setLiveAttention((prev) => [...prev, attention]);
     }).then((fn) => { unlistenOut = fn; });
 
     listen<StatusUpdate>("process:status", (event) => {
@@ -377,6 +394,8 @@ export function TrainingHub() {
     const procId = `${mode}_${Date.now()}`;
     setLiveProcessId(procId);
     setLiveMetrics([]);
+    setLiveHealth([]);
+    setLiveAttention([]);
     setRunStatus(null);
     await spawn({
       id: procId,
@@ -416,6 +435,7 @@ export function TrainingHub() {
 
   const isDone = runStatus !== null && runStatus !== "running";
   const latestMetric = liveMetrics[liveMetrics.length - 1];
+  const showTrainingAnalytics = liveProcessId != null && (mode === "train" || mode === "hpo");
 
   return (
     <div className="space-y-4 max-w-2xl">
@@ -619,6 +639,14 @@ export function TrainingHub() {
                   Output Browser →
                 </button>
               )}
+              {showTrainingAnalytics && (
+                <button
+                  onClick={() => setMode("training")}
+                  className="btn-ghost text-xs text-canvas-muted"
+                >
+                  Training Monitor →
+                </button>
+              )}
               <button
                 onClick={() => setMode("process_monitor")}
                 className="btn-ghost text-xs text-canvas-muted"
@@ -695,6 +723,17 @@ export function TrainingHub() {
                 label={logScale ? "Policy Entropy (log)" : "Policy Entropy"}
                 color="#a78bfa"
                 exportName="hub-entropy"
+                logScale={logScale}
+              />
+            </div>
+          )}
+
+          {showTrainingAnalytics && (
+            <div className="space-y-3 pt-2 border-t border-canvas-border">
+              <TrainingHealthPanel entries={liveHealth} />
+              <RuntimeAttentionPanel
+                entries={liveAttention}
+                theme={effectiveTheme}
                 logScale={logScale}
               />
             </div>
