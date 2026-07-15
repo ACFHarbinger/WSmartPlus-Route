@@ -14,7 +14,8 @@ export interface EvalCheckpointLiveCardProps {
   status?: string;
   isRunning: boolean;
   result?: EvalResult;
-  tail: string[];
+  logLines?: string[];
+  maxLines?: number;
   className?: string;
 }
 
@@ -24,7 +25,8 @@ export function EvalCheckpointLiveCard({
   status,
   isRunning,
   result,
-  tail,
+  logLines = [],
+  maxLines,
   className = "",
 }: EvalCheckpointLiveCardProps) {
   return (
@@ -47,7 +49,12 @@ export function EvalCheckpointLiveCard({
         <EvalResultKpiRow result={result} size="compact" showPolicy={false} />
       )}
       {isRunning && <LiveTrainProgressBar processId={procId} />}
-      <ProcessLogTail lines={tail} waiting={isRunning} variant="compact" />
+      <ProcessLogTail
+        logLines={logLines}
+        maxLines={maxLines}
+        waiting={isRunning}
+        variant="compact"
+      />
     </div>
   );
 }

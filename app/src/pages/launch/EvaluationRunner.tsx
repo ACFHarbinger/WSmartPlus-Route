@@ -26,7 +26,6 @@ import {
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
-import { processLogTail } from "../../utils/processLog";
 import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
 import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
 import { open } from "@tauri-apps/plugin-dialog";
@@ -637,7 +636,6 @@ export function EvaluationRunner() {
                 proc?.command ?? ""
               );
               const isRunning = proc?.status === "running";
-              const tail = processLogTail(proc?.logLines ?? []);
               const ckptResult = results.find((r) => r.checkpointName === ckptName);
 
               return (
@@ -648,7 +646,7 @@ export function EvaluationRunner() {
                   status={proc?.status}
                   isRunning={isRunning}
                   result={ckptResult}
-                  tail={tail}
+                  logLines={proc?.logLines ?? []}
                 />
               );
             })}

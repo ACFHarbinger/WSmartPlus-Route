@@ -11,6 +11,34 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-second pass (§G.9 + §G.12 + §G.15 + §D.7)
+
+Hundred-sixty-second pass closes the remaining launcher log tail display gaps left
+after the hundred-sixty-first pass (which added ``ProcessLogTail`` on Data
+Generation, ``EvalCheckpointLiveCard``, and Process Monitor ``gen_data``).
+Simulation Launcher and Process Monitor ``test_sim`` embedded sections now show
+the shared stdout tail, and ``EvalCheckpointLiveCard`` accepts raw ``logLines``
+so callers no longer pre-format tails via ``processLogTail``.
+
+**React frontend**
+- ``EvalCheckpointLiveCard`` — accepts ``logLines`` + optional ``maxLines``;
+  deduplicated ``processLogTail`` calls at Evaluation Runner and Process Monitor
+  (§G.12 / §D.7)
+- Simulation Launcher — ``ProcessLogTail`` in live status panel during ``test_sim``
+  runs (§G.9 / §D.7)
+- Process Monitor — selected ``test_sim`` processes show ``ProcessLogTail`` in
+  embedded workflow section (§G.9 / §G.15 / §D.7)
+- Evaluation Runner — passes raw ``logLines`` to ``EvalCheckpointLiveCard`` instead
+  of pre-formatted tail (§G.12 / §D.7)
+
+**ROADMAP**
+- §G.9 Simulation Launcher ``ProcessLogTail`` checked
+- §G.12 ``EvalCheckpointLiveCard`` ``logLines`` prop checked
+- §G.15 Process Monitor ``test_sim`` embedded log tail checked
+- §D.7 launcher log tail display parity across all four launcher pages + Process Monitor embedded sections checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-sixty-first pass (§G.11 + §G.12 + §G.15 + §D.7)
 
 Hundred-sixty-first pass closes the launcher log tail display gap left after the
