@@ -3,7 +3,7 @@
  */
 import { useAppStore } from "../../store/app";
 import { useRecentFilesStore } from "../../store/recentFiles";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
+import { applyRecentHandoff, type RecentPendingSetters } from "../../utils/recentHandoff";
 import type { LauncherKind } from "../../utils/launcherProcess";
 
 export interface LauncherNavMeshProps {
@@ -48,8 +48,26 @@ export function LauncherNavMesh({
   outputRunPath = null,
   className = "",
 }: LauncherNavMeshProps) {
-  const { projectRoot, setMode, setPendingCheckpoint, setPendingRunPath } = useAppStore();
+  const {
+    projectRoot,
+    setMode,
+    setPendingLogPath,
+    setPendingRunPath,
+    setPendingCsvPath,
+    setPendingTrainingRunPath,
+    setPendingCheckpoint,
+    setPendingConfigPath,
+  } = useAppStore();
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
+
+  const pendingSetters: RecentPendingSetters = {
+    pendingLogPath: setPendingLogPath,
+    pendingRunPath: setPendingRunPath,
+    pendingCsvPath: setPendingCsvPath,
+    pendingTrainingRunPath: setPendingTrainingRunPath,
+    pendingCheckpoint: setPendingCheckpoint,
+    pendingConfigPath: setPendingConfigPath,
+  };
 
   return (
     <div className={`flex items-center gap-2 flex-wrap ${className}`}>
@@ -109,13 +127,14 @@ export function LauncherNavMesh({
           {showPostRun && checkpointPath && (
             <button
               onClick={() => {
-                pushRecent({
+                applyRecentHandoff({
                   path: checkpointPath,
-                  label: portfolioRunLabel(checkpointPath, undefined, projectRoot),
                   kind: "checkpoint",
+                  projectRoot,
+                  pushRecent,
+                  setMode,
+                  pendingSetters,
                 });
-                setPendingCheckpoint(checkpointPath);
-                setMode("eval_runner");
               }}
               className="btn-ghost text-xs text-accent-secondary"
             >
@@ -137,14 +156,17 @@ export function LauncherNavMesh({
         <button
           onClick={() => {
             if (outputRunPath) {
-              pushRecent({
+              applyRecentHandoff({
                 path: outputRunPath,
-                label: portfolioRunLabel(outputRunPath, undefined, projectRoot),
                 kind: "run",
+                projectRoot,
+                pushRecent,
+                setMode,
+                pendingSetters,
               });
-              setPendingRunPath(outputRunPath);
+            } else {
+              setMode("output_browser");
             }
-            setMode("output_browser");
           }}
           className="btn-ghost text-xs text-accent-success"
         >

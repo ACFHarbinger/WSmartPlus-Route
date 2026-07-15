@@ -10,9 +10,9 @@ import { PathRunLabelChip } from "../common/PathRunLabelChip";
 import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";
 import {
+  applyRecentHandoff,
   makeRecentEntry,
-  recentHandoffSpec,
-  type RecentPendingKey,
+  type RecentPendingSetters,
 } from "../../utils/recentHandoff";
 
 function matchQuery(query: string, label: string, keywords?: string): boolean {
@@ -58,7 +58,7 @@ export function CommandPalette() {
   const [activeIndex, setActiveIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const pendingSetters: Record<RecentPendingKey, (path: string | null) => void> = {
+  const pendingSetters: RecentPendingSetters = {
     pendingLogPath: setPendingLogPath,
     pendingRunPath: setPendingRunPath,
     pendingCsvPath: setPendingCsvPath,
@@ -111,11 +111,10 @@ export function CommandPalette() {
       }
 
       const kind = file.kind;
-      const entry = makeRecentEntry(file.path, kind, projectRoot, file.label);
-      pushRecent(entry);
 
       // Logs: prefer Simulation Summary; fall back to Digital Twin if load fails.
       if (kind === "log") {
+        pushRecent(makeRecentEntry(file.path, kind, projectRoot, file.label));
         try {
           await invoke<DayLogEntry[]>("load_simulation_log", { path: file.path });
           setPendingLogPath(file.path);
@@ -128,9 +127,15 @@ export function CommandPalette() {
         return;
       }
 
-      const spec = recentHandoffSpec(kind);
-      pendingSetters[spec.pendingKey](file.path);
-      setMode(spec.mode);
+      applyRecentHandoff({
+        path: file.path,
+        kind,
+        projectRoot,
+        storedLabel: file.label,
+        pushRecent,
+        setMode,
+        pendingSetters,
+      });
       closePalette();
     },
     // pending setters are stable Zustand actions

@@ -48,7 +48,11 @@ import {
   parentRunBrushLabelFromCheckpointPath,
 } from "../../utils/checkpoints";
 import { portfolioRunLabel } from "../../utils/arrowPipeline";
-import { makeRecentEntry } from "../../utils/recentHandoff";
+import {
+  applyRecentHandoff,
+  makeRecentEntry,
+  type RecentPendingSetters,
+} from "../../utils/recentHandoff";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;
@@ -125,6 +129,7 @@ export function OutputBrowser() {
     setPendingCheckpoint,
     setPendingConfigPath,
     setPendingCsvPath,
+    setPendingTrainingRunPath,
   } = useAppStore();
   const {
     policy: activePolicy,
@@ -132,6 +137,16 @@ export function OutputBrowser() {
     logScale,
     setPolicy,
   } = useGlobalFiltersStore();
+
+  const pendingSetters: RecentPendingSetters = {
+    pendingLogPath: setPendingLogPath,
+    pendingRunPath: setPendingRunPath,
+    pendingCsvPath: setPendingCsvPath,
+    pendingTrainingRunPath: setPendingTrainingRunPath,
+    pendingCheckpoint: setPendingCheckpoint,
+    pendingConfigPath: setPendingConfigPath,
+  };
+
   const [runs, setRuns] = useState<OutputDir[]>([]);
   const [selectedRun, setSelectedRun] = useState<OutputDir | null>(null);
   const [compareSelection, setCompareSelection] = useState<Set<string>>(new Set());
@@ -191,11 +206,7 @@ export function OutputBrowser() {
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
 
   const selectRun = useCallback(async (run: OutputDir) => {
-    pushRecent({
-      path: run.path,
-      label: portfolioRunLabel(run.path, run.name, projectRoot),
-      kind: "run",
-    });
+    pushRecent(makeRecentEntry(run.path, "run", projectRoot, run.name));
     setSelectedRun(run);
     setFileContent(null);
     setCsvRows(null);
@@ -370,54 +381,63 @@ export function OutputBrowser() {
 
   const openInSimSummary = useCallback(
     (path: string) => {
-      pushRecent({
+      applyRecentHandoff({
         path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
         kind: "log",
+        projectRoot,
+        pushRecent,
+        setMode,
+        pendingSetters,
       });
-      setPendingLogPath(path);
-      setMode("simulation_summary");
     },
-    [pushRecent, projectRoot, setPendingLogPath, setMode]
+    // pending setters are stable Zustand actions
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pushRecent, projectRoot, setMode]
   );
 
   const loadInEvalRunner = useCallback(
     (path: string) => {
-      pushRecent({
+      applyRecentHandoff({
         path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
         kind: "checkpoint",
+        projectRoot,
+        pushRecent,
+        setMode,
+        pendingSetters,
       });
-      setPendingCheckpoint(path);
-      setMode("eval_runner");
     },
-    [pushRecent, projectRoot, setPendingCheckpoint, setMode]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pushRecent, projectRoot, setMode]
   );
 
   const openInConfigEditor = useCallback(
     (path: string) => {
-      pushRecent({
+      applyRecentHandoff({
         path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
         kind: "config",
+        projectRoot,
+        pushRecent,
+        setMode,
+        pendingSetters,
       });
-      setPendingConfigPath(path);
-      setMode("config_editor");
     },
-    [pushRecent, projectRoot, setPendingConfigPath, setMode]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pushRecent, projectRoot, setMode]
   );
 
   const openInDataExplorer = useCallback(
     (path: string) => {
-      pushRecent({
+      applyRecentHandoff({
         path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
         kind: "csv",
+        projectRoot,
+        pushRecent,
+        setMode,
+        pendingSetters,
       });
-      setPendingCsvPath(path);
-      setMode("data_explorer");
     },
-    [pushRecent, projectRoot, setPendingCsvPath, setMode]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [pushRecent, projectRoot, setMode]
   );
 
   const toggleCompareRun = useCallback((runPath: string) => {
@@ -438,7 +458,7 @@ export function OutputBrowser() {
       if (jsonl && run) {
         const label = portfolioRunLabel(jsonl, run.name, projectRoot);
         refs.push({ path: jsonl, label });
-        pushRecent({ path: jsonl, label, kind: "log" });
+        pushRecent(makeRecentEntry(jsonl, "log", projectRoot, run.name));
       }
     }
     if (refs.length < 2) {
@@ -496,13 +516,14 @@ export function OutputBrowser() {
       });
       toast.success(`Extracted ${result.extracted_files.length} files`);
       if (result.log_path) {
-        pushRecent({
+        applyRecentHandoff({
           path: result.log_path,
-          label: portfolioRunLabel(result.log_path, undefined, projectRoot),
           kind: "log",
+          projectRoot,
+          pushRecent,
+          setMode,
+          pendingSetters,
         });
-        setPendingLogPath(result.log_path);
-        setMode("simulation_summary");
       } else {
         toast.info("No .jsonl log found in bundle — browse extracted files manually");
       }
@@ -511,7 +532,8 @@ export function OutputBrowser() {
     } finally {
       setBundleExtracting(false);
     }
-  }, [viewingPath, viewingExt, pushRecent, projectRoot, setPendingLogPath, setMode]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [viewingPath, viewingExt, pushRecent, projectRoot, setMode]);
 
   const pickOutputDir = useCallback(async () => {
     const path = (await open({ directory: true })) as string | null;
@@ -525,11 +547,7 @@ export function OutputBrowser() {
         created_at: "",
         size_bytes: 0,
       };
-      pushRecent({
-        path,
-        label: portfolioRunLabel(path, name, projectRoot),
-        kind: "run",
-      });
+      pushRecent(makeRecentEntry(path, "run", projectRoot, name));
       setSelectedRun(fakeRun);
       setEntries(e);
       setFileContent(null);

@@ -37,7 +37,6 @@ import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useProcessStore } from "../../store/process";
 import { useRecentFilesStore } from "../../store/recentFiles";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
 import type { ProcessStatus } from "../../types";
 import {
   type EvalResult,
@@ -51,6 +50,7 @@ import {
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentEvalProcessIds } from "../../utils/launcherProcess";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;
@@ -297,11 +297,7 @@ export function EvaluationRunner() {
   // Consume pendingCheckpoint set by TrainingMonitor checkpoint browser
   useEffect(() => {
     if (pendingCheckpoint) {
-      pushRecent({
-        path: pendingCheckpoint,
-        label: portfolioRunLabel(pendingCheckpoint, undefined, projectRoot),
-        kind: "checkpoint",
-      });
+      pushRecent(makeRecentEntry(pendingCheckpoint, "checkpoint", projectRoot));
       setCheckpoints([{ id: "ckpt_pending", path: pendingCheckpoint }]);
       setPendingCheckpoint(null);
     }
@@ -416,11 +412,7 @@ export function EvaluationRunner() {
       filters: [{ name: "Checkpoint", extensions: ["pt", "ckpt", "pth"] }],
     })) as string | null;
     if (!path) return;
-    pushRecent({
-      path,
-      label: portfolioRunLabel(path, undefined, projectRoot),
-      kind: "checkpoint",
-    });
+    pushRecent(makeRecentEntry(path, "checkpoint", projectRoot));
     updateCheckpoint(id, path);
   };
 
@@ -431,11 +423,7 @@ export function EvaluationRunner() {
     if (!path) return;
     // CSV datasets are reopenable in Data Explorer via Command Palette recents (§G.6 / §G.12).
     if (/\.csv$/i.test(path)) {
-      pushRecent({
-        path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
-        kind: "csv",
-      });
+      pushRecent(makeRecentEntry(path, "csv", projectRoot));
     }
     setDatasetPath(path);
   };

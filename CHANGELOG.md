@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-eleventh pass (§G.1 + §G.6 + §G.7 + §G.8 + §G.9–§G.14 + §G.16 + §G.17 + §D.7)
+
+Two-hundred-and-eleventh pass closes the studio-wide recent-file helper gap left after
+pass 210 introduced ``makeRecentEntry`` / ``recentHandoffSpec`` without migrating all
+call sites. ``applyRecentHandoff`` centralises push + pending-path + mode navigation.
+``LauncherNavMesh``, ``TrainHpoNavMesh``, Output Browser handoff buttons, Command Palette,
+global drop, wsroute import, and Training Monitor checkpoint load use the shared helper.
+All remaining page-level ``pushRecent({… portfolioRunLabel …})`` call sites now use
+``makeRecentEntry`` for Command Palette brush/SQL label parity.
+
+**React frontend**
+- ``applyRecentHandoff`` — shared push + pending-path + mode handoff (§G.7 / §G.8 / §D.7)
+- ``LauncherNavMesh`` + ``TrainHpoNavMesh`` — post-run handoffs via ``applyRecentHandoff`` (§G.9–§G.12 / §G.15 / §G.17 / §D.7)
+- Output Browser — sim/eval/config/csv/bundle handoffs via ``applyRecentHandoff`` (§G.14 / §D.7)
+- Command Palette / global drop / wsroute import / Training Monitor checkpoint via shared handoff (§G.7 / §G.8 / §G.17 / §D.7)
+- Analytics + launcher + monitor + Config Editor ``pushRecent`` → ``makeRecentEntry`` (§G.1 / §G.6 / §G.10 / §G.12 / §G.13 / §G.16 / §D.7)
+
+**ROADMAP**
+- §G.7 / §G.8 / §G.14 studio-wide ``makeRecentEntry`` / ``applyRecentHandoff`` parity checked
+- §G.9–§G.12 / §G.15 / §G.17 nav-mesh recent-file handoff shared helper checked
+- §D.7 Shared handoff helper relative-path brush/SQL recent-file parity checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-tenth pass (§G.6 + §G.7 + §G.8 + §G.10 + §G.12 + §G.14 + §G.17 + §D.7)
 
 Two-hundred-and-tenth pass closes the shared recent-file handoff and directory-drop

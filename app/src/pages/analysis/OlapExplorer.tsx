@@ -24,6 +24,7 @@ import {
   runPortfolioSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 import { groupRunLabelsByCity } from "../../utils/cityComparison";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 import {
   duckDbHasColumn,
   duckDbRowCount,
@@ -181,11 +182,7 @@ export function OlapExplorer() {
     const tableName = `${CUSTOM_TABLE_PREFIX}${base.replace(/[^a-zA-Z0-9_]/g, "_")}`;
     const isJsonl = path.toLowerCase().endsWith(".jsonl");
     const runLabel = portfolioRunLabel(path, undefined, projectRoot);
-    pushRecent({
-      path,
-      label: runLabel,
-      kind: isJsonl ? "log" : "csv",
-    });
+    pushRecent(makeRecentEntry(path, isJsonl ? "log" : "csv", projectRoot, runLabel));
     setLoading(true);
     try {
       const timing = isJsonl

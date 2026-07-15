@@ -6,10 +6,11 @@ import { useLayoutStore } from "../store/layout";
 import { useRecentFilesStore, recentKindFromPath, type RecentFileKind } from "../store/recentFiles";
 import type { WsrouteExtractResult } from "../types";
 import {
+  applyRecentHandoff,
   highestPriorityKind,
   makeRecentEntry,
   recentHandoffSpec,
-  type RecentPendingKey,
+  type RecentPendingSetters,
 } from "../utils/recentHandoff";
 import { useFileDrop } from "./useFileDrop";
 
@@ -17,12 +18,10 @@ function findPath(paths: string[], re: RegExp): string | undefined {
   return paths.find((p) => re.test(p));
 }
 
-type PendingSetters = Record<RecentPendingKey, (path: string | null) => void>;
-
 /**
  * App-wide drop handler for Studio artefacts (§G.8 / §G.6 / §G.7 / §G.12–§G.14 / §G.17).
  * Routes logs, CSVs, checkpoints, configs, training/run directories, and `.wsroute`
- * bundles through shared ``recentKindFromPath`` + ``portfolioRunLabel`` handoffs.
+ * bundles through shared ``recentKindFromPath`` + ``applyRecentHandoff`` handoffs.
  */
 export function useGlobalFileDrop() {
   const {
@@ -38,7 +37,7 @@ export function useGlobalFileDrop() {
   const pushRecent = useRecentFilesStore((s) => s.pushRecent);
   const setFileDropDragging = useLayoutStore((s) => s.setFileDropDragging);
 
-  const pendingSetters: PendingSetters = {
+  const pendingSetters: RecentPendingSetters = {
     pendingLogPath: setPendingLogPath,
     pendingRunPath: setPendingRunPath,
     pendingCsvPath: setPendingCsvPath,
@@ -49,10 +48,14 @@ export function useGlobalFileDrop() {
 
   const handoffKind = useCallback(
     (path: string, kind: RecentFileKind, toastOnSuccess = true) => {
-      const spec = recentHandoffSpec(kind);
-      pushRecent(makeRecentEntry(path, kind, projectRoot));
-      pendingSetters[spec.pendingKey](path);
-      setMode(spec.mode);
+      const spec = applyRecentHandoff({
+        path,
+        kind,
+        projectRoot,
+        pushRecent,
+        setMode,
+        pendingSetters,
+      });
       if (toastOnSuccess) {
         toast.success(spec.successLabel, {
           description: path.split(/[/\\]/).pop(),

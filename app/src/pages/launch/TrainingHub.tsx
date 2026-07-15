@@ -31,7 +31,6 @@ import { useTrainHubStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
 import { useRecentFilesStore } from "../../store/recentFiles";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
 import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
 import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
@@ -46,6 +45,7 @@ import {
 } from "../../utils/evalResults";
 import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
 import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 import {
   findRecentHpoProcessId,
   findRecentTrainProcessId,
@@ -224,11 +224,7 @@ export function TrainingHub() {
       filters: [{ name: "Checkpoint", extensions: ["pt", "ckpt", "pth"] }],
     })) as string | null;
     if (!path) return;
-    pushRecent({
-      path,
-      label: portfolioRunLabel(path, undefined, projectRoot),
-      kind: "checkpoint",
-    });
+    pushRecent(makeRecentEntry(path, "checkpoint", projectRoot));
     setCheckpointPath(path);
   };
 
@@ -239,11 +235,7 @@ export function TrainingHub() {
     if (!path) return;
     // CSV datasets are reopenable in Data Explorer via Command Palette recents (§G.6 / §G.10).
     if (/\.csv$/i.test(path)) {
-      pushRecent({
-        path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
-        kind: "csv",
-      });
+      pushRecent(makeRecentEntry(path, "csv", projectRoot));
     }
     setEvalDataset(path);
   };

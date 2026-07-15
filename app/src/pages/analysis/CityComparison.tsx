@@ -38,6 +38,7 @@ import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTele
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import type { DayLogEntry } from "../../types";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 
 const CITY_SIM_TABLE = "city_sim";
 
@@ -110,7 +111,7 @@ export function CityComparison() {
     try {
       const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path });
       const label = portfolioRunLabel(path, undefined, projectRoot);
-      pushRecent({ path, label, kind: "log" });
+      pushRecent(makeRecentEntry(path, "log", projectRoot, label));
       setRuns((prev) => [...prev.filter((r) => r.path !== path), { path, label, entries }]);
     } catch (err) {
       toast.error("Failed to load log", { description: String(err) });
@@ -141,7 +142,7 @@ export function CityComparison() {
         entries: r.entries,
       }));
       for (const r of normalized) {
-        pushRecent({ path: r.path, label: r.label, kind: "log" });
+        pushRecent(makeRecentEntry(r.path, "log", projectRoot, r.label));
       }
       setRuns(normalized);
       toast.success(`Loaded ${loaded.length} simulation logs`);
@@ -171,7 +172,7 @@ export function CityComparison() {
         try {
           const entries = await invoke<DayLogEntry[]>("load_simulation_log", { path: ref.path });
           const label = portfolioRunLabel(ref.path, ref.label, projectRoot);
-          pushRecent({ path: ref.path, label, kind: "log" });
+          pushRecent(makeRecentEntry(ref.path, "log", projectRoot, label));
           loaded.push({
             path: ref.path,
             label,

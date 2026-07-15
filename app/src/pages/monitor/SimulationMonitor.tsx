@@ -57,6 +57,7 @@ import {
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import { filterFailureEntries } from "../../utils/simFailure";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
 import type { DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
 
@@ -414,11 +415,7 @@ export function SimulationMonitor() {
       loadFailureEntries(failureHistorical);
       setActiveLogPath(path);
       if (watch) setWatchPath(path);
-      pushRecent({
-        path,
-        label: portfolioRunLabel(path, undefined, projectRoot),
-        kind: "log",
-      });
+      pushRecent(makeRecentEntry(path, "log", projectRoot));
 
       if (duckdbReady) {
         setDuckdbLoading(true);

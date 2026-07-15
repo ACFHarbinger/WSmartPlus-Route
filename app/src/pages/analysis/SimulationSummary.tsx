@@ -82,6 +82,7 @@ import {
 } from "../../utils/outputRunLogs";
 import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
 import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
+import { makeRecentEntry } from "../../utils/recentHandoff";
 import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
@@ -1864,11 +1865,7 @@ export function SimulationSummary() {
     const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
     setEntries(loaded);
     setLogPath(path);
-    pushRecent({
-      path,
-      label: portfolioRunLabel(path, undefined, projectRoot),
-      kind: "log",
-    });
+    pushRecent(makeRecentEntry(path, "log", projectRoot));
   }, [pushRecent, projectRoot]);
 
   const allDuckDbLogs = useMemo(() => {
@@ -1923,7 +1920,7 @@ export function SimulationSummary() {
     try {
       const loaded = await invoke<DayLogEntry[]>("load_simulation_log", { path });
       const label = portfolioRunLabel(path, undefined, projectRoot);
-      pushRecent({ path, label, kind: "log" });
+      pushRecent(makeRecentEntry(path, "log", projectRoot, label));
       setComparisonRuns((prev) => [
         ...prev.filter((r) => r.path !== path),
         { path, label, entries: loaded },
@@ -1958,11 +1955,7 @@ export function SimulationSummary() {
       if (loaded.length > 0) {
         const [primary, ...rest] = loaded;
         for (const r of loaded) {
-          pushRecent({
-            path: r.path,
-            label: portfolioRunLabel(r.path, r.label, projectRoot),
-            kind: "log",
-          });
+          pushRecent(makeRecentEntry(r.path, "log", projectRoot, r.label));
         }
         if (!logPath) {
           await loadLog(primary.path);
