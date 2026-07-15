@@ -2307,6 +2307,7 @@ export function SimulationSummary() {
                 label={portfolioRunLabel(r.path, r.label, projectRoot)}
                 activeRunLabel={activeRunLabel}
                 onRemove={() => removeComparisonRun(r.path)}
+                logHandoffs
                 trailing={
                   <span className="ml-auto text-canvas-muted shrink-0">{r.entries.length} days</span>
                 }

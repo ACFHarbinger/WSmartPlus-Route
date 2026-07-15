@@ -11,6 +11,27 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fifteenth pass (§G.1 + §G.1.6 + §G.16 + §D.7)
+
+Two-hundred-and-fifteenth pass closes the portfolio loaded-run log-handoff gap left after
+pass 214 exposed Simulation Monitor mode override on Output Browser, Summary, and
+Algorithm Comparison. ``LoadedRunRow`` gains optional ``logHandoffs`` controls that open
+a run in Simulation Summary or Digital Twin via the shared handoff helper. Benchmark
+Analysis, City Comparison, and Simulation Summary comparison lists enable the controls
+so multi-run analytics can jump to per-run map/summary views without re-picking files.
+
+**React frontend**
+- ``LoadedRunRow`` — optional Summary + Simulation Monitor log handoffs (§G.1 / §G.16 / §D.7)
+- Benchmark Analysis — portfolio loaded-run log handoffs (§G.1 / §D.7)
+- City Comparison — portfolio loaded-run log handoffs (§G.1.6 / §D.7)
+- Simulation Summary — comparison-run log handoffs (§G.1 / §D.7)
+
+**ROADMAP**
+- §G.1 / §G.1.6 portfolio loaded-run Simulation Monitor / Summary handoff parity checked
+- §D.7 mode-override coverage on portfolio run lists checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-fourteenth pass (§G.1 + §G.14 + §G.16 + §D.7)
 
 Two-hundred-and-fourteenth pass closes the analytics/file-browser Simulation Monitor
