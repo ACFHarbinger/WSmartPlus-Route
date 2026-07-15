@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-eleventh pass (§A.4)
+
+Hundred-eleventh pass adds ``TrainingHealthCallback`` instability guardrails and wires
+them into the Studio Training Monitor, completing ROADMAP §A.4 Option A.
+
+**Python logic**
+- ``TrainingHealthCallback`` — detects gradient norm explosion, reward stagnation,
+  and entropy collapse; loguru warnings with per-code cooldown
+- ``training_health_emit.py`` — ``TRAINING_HEALTH_START:`` marker to stdout +
+  ``training_health.jsonl`` under Lightning ``log_dir``
+- ``WSTrainer`` — auto-registers health callback in default callback stack
+- Unit tests in ``logic/test/unit/pipeline/callbacks/test_training_health.py``
+
+**Rust backend**
+- ``parse_training_health_line`` + ``load_training_health_log`` command
+
+**React frontend**
+- ``TrainingHealthPanel`` — severity-coded alert list with code counts
+- ``trainingHealth.ts`` — marker parse + display helpers
+- Training Monitor — live stdout ingest + historical ``training_health.jsonl`` load
+
+**ROADMAP**
+- §A.4 Option A TrainingHealthCallback checked (Options B/C/D deferred)
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-tenth pass (§A.5)
 
 Hundred-tenth pass adds Optuna ``optuna.visualization`` Plotly report export to

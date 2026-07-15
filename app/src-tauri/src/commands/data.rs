@@ -38,6 +38,30 @@ pub struct TrainingRun {
     pub has_hparams: bool,
 }
 
+/// Training instability alert from ``TrainingHealthCallback`` (§A.4).
+#[derive(Debug, Serialize, Deserialize, Clone)]
+pub struct TrainingHealthEntry {
+    pub code: String,
+    pub severity: String,
+    pub epoch: i32,
+    pub step: i32,
+    pub message: String,
+    pub details: serde_json::Value,
+}
+
+pub fn parse_training_health_line(line: &str) -> Option<TrainingHealthEntry> {
+    let line = line.trim();
+    if !line.starts_with("TRAINING_HEALTH_START:") {
+        return None;
+    }
+    let json_part = &line["TRAINING_HEALTH_START:".len()..];
+    let entry: TrainingHealthEntry = serde_json::from_str(json_part).ok()?;
+    if entry.code.is_empty() || entry.severity.is_empty() {
+        return None;
+    }
+    Some(entry)
+}
+
 #[tauri::command]
 pub fn load_simulation_log(path: String) -> Result<Vec<DayLogEntry>, String> {
     let content = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
@@ -54,6 +78,16 @@ pub fn load_policy_viz_log(path: String) -> Result<Vec<PolicyVizEntry>, String> 
     let entries: Vec<PolicyVizEntry> = content
         .lines()
         .filter_map(parse_policy_viz_line)
+        .collect();
+    Ok(entries)
+}
+
+#[tauri::command]
+pub fn load_training_health_log(path: String) -> Result<Vec<TrainingHealthEntry>, String> {
+    let content = std::fs::read_to_string(&path).map_err(|e| e.to_string())?;
+    let entries: Vec<TrainingHealthEntry> = content
+        .lines()
+        .filter_map(parse_training_health_line)
         .collect();
     Ok(entries)
 }
@@ -707,6 +741,22 @@ mod tests {
         writeln!(f, "gurobi,12.5,0")?;
         writeln!(f, "alns,10.1,2")?;
         Ok(())
+    }
+
+    #[test]
+    fn parse_training_health_line_valid() {
+        let line = r#"TRAINING_HEALTH_START:{"code":"grad_norm_explosion","severity":"critical","epoch":2,"step":50,"message":"test","details":{"grad_norm":150.0}}"#;
+        let entry = parse_training_health_line(line).expect("parse");
+        assert_eq!(entry.code, "grad_norm_explosion");
+        assert_eq!(entry.severity, "critical");
+        assert_eq!(entry.epoch, 2);
+        assert_eq!(entry.step, 50);
+    }
+
+    #[test]
+    fn parse_training_health_line_ignores_policy_viz() {
+        let line = r#"POLICY_VIZ_START:ALNS,0,1,alns,{"iteration":[0]}"#;
+        assert!(parse_training_health_line(line).is_none());
     }
 
     #[test]

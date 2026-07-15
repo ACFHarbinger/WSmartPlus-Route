@@ -20,10 +20,12 @@ import { listen } from "@tauri-apps/api/event";
 import { ChevronDown, ChevronRight, FolderOpen, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
+import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
-import type { DirEntry, StdoutLine, TrainingRun, TrainingMetricsRow } from "../../types";
+import { parseTrainingHealthLine } from "../../utils/trainingHealth";
+import type { DirEntry, StdoutLine, TrainingHealthEntry, TrainingRun, TrainingMetricsRow } from "../../types";
 
 // Signal keys that identify a line as a training metric (covers Lightning column variants)
 const METRIC_SIGNAL_KEYS = [
@@ -34,6 +36,7 @@ const METRIC_SIGNAL_KEYS = [
 
 // Virtual key used for the live-process entry in metricsMap
 const LIVE_KEY = "__live__";
+const LIVE_HEALTH_KEY = "__live_health__";
 
 /**
  * Parse a stdout line as a training metric row.
@@ -470,6 +473,7 @@ export function TrainingMonitor() {
   const [runs, setRuns] = useState<TrainingRun[]>([]);
   const [selected, setSelected] = useState<string[]>([]);
   const [metricsMap, setMetricsMap] = useState<Record<string, TrainingMetricsRow[]>>({});
+  const [healthMap, setHealthMap] = useState<Record<string, TrainingHealthEntry[]>>({});
   const [loading, setLoading] = useState(false);
 
   const logsPath = projectRoot ? `${projectRoot}/logs` : "";
@@ -493,15 +497,29 @@ export function TrainingMonitor() {
         delete next[LIVE_KEY];
         return next;
       });
+      setHealthMap((h) => {
+        if (!h[LIVE_HEALTH_KEY]) return h;
+        const next = { ...h };
+        delete next[LIVE_HEALTH_KEY];
+        return next;
+      });
       return;
     }
     setMetricsMap((m) => ({ ...m, [LIVE_KEY]: [] }));
+    setHealthMap((h) => ({ ...h, [LIVE_HEALTH_KEY]: [] }));
     let unlisten: (() => void) | null = null;
     listen<StdoutLine>("process:stdout", (event) => {
       const { id, line } = event.payload;
       if (id !== activeTrainId) return;
       const row = parseMetricLine(line);
       if (row) setMetricsMap((m) => ({ ...m, [LIVE_KEY]: [...(m[LIVE_KEY] ?? []), row] }));
+      const alert = parseTrainingHealthLine(line);
+      if (alert) {
+        setHealthMap((h) => ({
+          ...h,
+          [LIVE_HEALTH_KEY]: [...(h[LIVE_HEALTH_KEY] ?? []), alert],
+        }));
+      }
     }).then((fn) => { unlisten = fn; });
     return () => { unlisten?.(); };
   }, [activeTrainId]);
@@ -541,20 +559,49 @@ export function TrainingMonitor() {
     [metricsMap]
   );
 
+  const loadHealth = useCallback(
+    async (run: TrainingRun) => {
+      if (healthMap[run.name]) return;
+      const healthPath = `${run.path}/training_health.jsonl`;
+      try {
+        const entries = await invoke<TrainingHealthEntry[]>("load_training_health_log", {
+          path: healthPath,
+        });
+        setHealthMap((h) => ({ ...h, [run.name]: entries }));
+      } catch {
+        setHealthMap((h) => ({ ...h, [run.name]: [] }));
+      }
+    },
+    [healthMap]
+  );
+
   const toggleRun = useCallback(
     (run: TrainingRun) => {
       setSelected((s) =>
         s.includes(run.name) ? s.filter((r) => r !== run.name) : [...s, run.name]
       );
       loadMetrics(run);
+      loadHealth(run);
     },
-    [loadMetrics]
+    [loadMetrics, loadHealth]
   );
 
   const selectedRunObjects = useMemo(
     () => runs.filter((r) => selected.includes(r.name)),
     [runs, selected]
   );
+
+  const displayedHealth = useMemo(() => {
+    const merged: TrainingHealthEntry[] = [];
+    if (activeTrainId && (healthMap[LIVE_HEALTH_KEY]?.length ?? 0) > 0) {
+      merged.push(...healthMap[LIVE_HEALTH_KEY]!);
+    }
+    for (const run of selectedRunObjects) {
+      const entries = healthMap[run.name];
+      if (entries?.length) merged.push(...entries);
+    }
+    return merged;
+  }, [activeTrainId, healthMap, selectedRunObjects]);
 
   const runsMetrics = useMemo(() => {
     const result: { name: string; metrics: TrainingMetricsRow[] }[] = [];
@@ -671,6 +718,11 @@ export function TrainingMonitor() {
             })}
           </div>
         </div>
+      )}
+
+      {/* Training health alerts (§A.4) */}
+      {(displayedHealth.length > 0 || activeTrainId) && (
+        <TrainingHealthPanel entries={displayedHealth} />
       )}
 
       {/* Multi-run overlay chart */}
