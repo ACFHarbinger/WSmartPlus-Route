@@ -269,10 +269,6 @@ export async function runPortfolioSimulationArrowPipeline(
   if (logs.length === 0) {
     throw new Error("No simulation logs to ingest");
   }
-  if (logs.length === 1) {
-    const timing = await runSimulationArrowPipeline(logs[0].path, tableName);
-    return { ...timing, logCount: 1, sidecarCount: timing.usedSidecar ? 1 : 0 };
-  }
 
   const t0 = performance.now();
   await initDuckDb();

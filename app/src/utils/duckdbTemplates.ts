@@ -203,6 +203,18 @@ FROM ${t}
 GROUP BY city_scale
 ORDER BY mean_kgkm DESC`,
     },
+    {
+      id: "portfolio-city-policy-matrix",
+      label: "City×policy matrix (kg/km)",
+      sql: `SELECT city_scale, policy,
+  ROUND(AVG(kg_per_km), 4) AS mean_kgkm,
+  ROUND(AVG(overflows), 4) AS mean_overflows,
+  ROUND(AVG(profit), 4) AS mean_profit,
+  COUNT(*)::INTEGER AS n
+FROM ${t}
+GROUP BY city_scale, policy
+ORDER BY city_scale, mean_kgkm DESC`,
+    },
   ];
 }
 

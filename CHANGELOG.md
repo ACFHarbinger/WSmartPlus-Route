@@ -11,6 +11,32 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — seventieth pass (§G.6)
+
+Seventieth pass ensures single-log portfolio ingests always carry ``run_label`` and
+``city_scale``, extends pivot/auto-chart/SQL tooling for city groups, and wires Data
+Explorer policy brush sync.
+
+**React frontend**
+- `arrowPipeline` — `runPortfolioSimulationArrowPipeline()` always adds ``run_label`` +
+  ``city_scale`` (removes single-log shortcut)
+- `SimulationSummary` — always uses portfolio pipeline for DuckDB ingest
+- `OlapExplorer` — JSONL ingest via portfolio pipeline with filename ``run_label``
+- `PivotTablePanel` — ``city_scale`` row highlight + cross-filter click
+- `SqlQueryPanel` — passes ``highlightCityScaleLabels`` to pivot panel
+- `queryAutoChart` — prefers ``city_scale`` / ``run_label`` / ``policy`` dimensions
+- `duckdbTemplates` — City×policy matrix (kg/km) template
+- `DataExplorer` — ``GlobalFilterBar`` + SQL ``brushSqlSync`` when CSV has policy column
+
+**ROADMAP**
+- §G.6 Portfolio single-log ``run_label`` + ``city_scale`` columns checked
+- §G.6 Pivot table ``city_scale`` cross-filter checked
+- §G.6 City×policy matrix SQL template checked
+- §G.6 Auto-chart portfolio GROUP BY detection checked
+- §G.6 Data Explorer global filter bar + SQL brush sync checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — sixty-ninth pass (§G.6)
 
 Sixty-ninth pass wires GlobalFilterBar selections into DuckDB SQL brush sync,

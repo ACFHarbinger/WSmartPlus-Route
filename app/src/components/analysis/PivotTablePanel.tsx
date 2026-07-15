@@ -17,6 +17,8 @@ interface Props {
   highlightPolicyLabels?: string[] | null;
   /** Bidirectional brush: dim pivot rows not matching active run_label filter (§G.6). */
   highlightRunLabels?: string[] | null;
+  /** Bidirectional brush: dim pivot rows not matching active city/scale filter (§G.6). */
+  highlightCityScaleLabels?: string[] | null;
 }
 
 type PivotWell = "row" | "col" | "value";
@@ -77,6 +79,7 @@ export function PivotTablePanel({
   onRowClick,
   highlightPolicyLabels,
   highlightRunLabels,
+  highlightCityScaleLabels,
 }: Props) {
   const [rowKey, setRowKey] = useState(columns[0] ?? "");
   const [colKey, setColKey] = useState<string>("");
@@ -133,8 +136,11 @@ export function PivotTablePanel({
     if (/^run_label$/i.test(rowKey) && highlightRunLabels?.length) {
       return highlightRunLabels;
     }
+    if (/^city_scale$/i.test(rowKey) && highlightCityScaleLabels?.length) {
+      return highlightCityScaleLabels;
+    }
     return null;
-  }, [highlightPolicyLabels, highlightRunLabels, rowKey]);
+  }, [highlightPolicyLabels, highlightRunLabels, highlightCityScaleLabels, rowKey]);
 
   const chartOption = useMemo(
     () =>
@@ -222,7 +228,7 @@ export function PivotTablePanel({
         />
       )}
 
-      {onRowClick && (/policy/i.test(rowKey) || /run_label/i.test(rowKey)) && (
+      {onRowClick && (/policy/i.test(rowKey) || /run_label/i.test(rowKey) || /city_scale/i.test(rowKey)) && (
         <p className="text-[10px] text-canvas-muted">
           Drag columns into wells · click pivot row to cross-filter
           {pivotHighlights?.length ? " · highlighted rows match active filter" : ""}.

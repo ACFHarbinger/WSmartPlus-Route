@@ -11,12 +11,43 @@ export interface AutoChartSpec {
   yKey: string;
 }
 
+const PREFERRED_DIMS = ["city_scale", "run_label", "policy", "day", "sample_id"];
+const PREFERRED_METRICS = [
+  "mean_kgkm",
+  "kg_per_km",
+  "mean_profit",
+  "profit",
+  "mean_overflows",
+  "overflows",
+  "mean_kg",
+  "kg",
+  "km",
+];
+
 function isNumericCol(col: string, rows: Record<string, unknown>[]): boolean {
   return rows.every((r) => {
     const v = r[col];
     if (v == null || v === "") return true;
     return !Number.isNaN(Number(v));
   });
+}
+
+function findPreferredDim(columns: string[], stringCols: string[]): string | undefined {
+  const lower = new Map(columns.map((c) => [c.toLowerCase(), c]));
+  for (const dim of PREFERRED_DIMS) {
+    const match = lower.get(dim);
+    if (match && stringCols.includes(match)) return match;
+  }
+  return stringCols[0];
+}
+
+function findPreferredMetric(numericCols: string[], xKey: string): string {
+  const lower = new Map(numericCols.map((c) => [c.toLowerCase(), c]));
+  for (const metric of PREFERRED_METRICS) {
+    const match = lower.get(metric);
+    if (match && match !== xKey) return match;
+  }
+  return numericCols.find((c) => c !== xKey) ?? numericCols[0];
 }
 
 export function suggestChart(
@@ -31,22 +62,24 @@ export function suggestChart(
   const timeCol = columns.find((c) => /^(day|epoch|step|time|sample)/i.test(c));
 
   if (timeCol && numericCols.some((c) => c !== timeCol)) {
-    const yKey = numericCols.find((c) => c !== timeCol) ?? numericCols[0];
+    const yKey = findPreferredMetric(numericCols, timeCol);
     return { type: "line", label: `${yKey} over ${timeCol}`, xKey: timeCol, yKey };
   }
 
   if (stringCols.length >= 1 && numericCols.length >= 1) {
-    const xKey = stringCols[0];
-    const yKey = numericCols.find((c) => c !== xKey) ?? numericCols[0];
+    const xKey = findPreferredDim(columns, stringCols) ?? stringCols[0];
+    const yKey = findPreferredMetric(numericCols, xKey);
     return { type: "bar", label: `${yKey} by ${xKey}`, xKey, yKey };
   }
 
   if (numericCols.length >= 2) {
+    const xKey = findPreferredMetric(numericCols, numericCols[1]);
+    const yKey = numericCols.find((c) => c !== xKey) ?? numericCols[1];
     return {
       type: "scatter",
-      label: `${numericCols[1]} vs ${numericCols[0]}`,
-      xKey: numericCols[0],
-      yKey: numericCols[1],
+      label: `${yKey} vs ${xKey}`,
+      xKey,
+      yKey,
     };
   }
 

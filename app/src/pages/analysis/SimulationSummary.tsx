@@ -67,7 +67,6 @@ import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
 import {
   formatPipelineTimingBadge,
   runPortfolioSimulationArrowPipeline,
-  runSimulationArrowPipeline,
 } from "../../utils/arrowPipeline";
 
 import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
@@ -1790,11 +1789,7 @@ export function SimulationSummary() {
   useEffect(() => {
     if (!duckdbReady || allDuckDbLogs.length === 0) return;
     setDuckdbLoading(true);
-    const pipeline =
-      allDuckDbLogs.length === 1
-        ? runSimulationArrowPipeline(allDuckDbLogs[0].path, SUMMARY_SIM_TABLE)
-        : runPortfolioSimulationArrowPipeline(allDuckDbLogs, SUMMARY_SIM_TABLE);
-    pipeline
+    runPortfolioSimulationArrowPipeline(allDuckDbLogs, SUMMARY_SIM_TABLE)
       .then(setLastPipeline)
       .catch((err) => console.warn("Summary Arrow pipeline:", err))
       .finally(() => setDuckdbLoading(false));
