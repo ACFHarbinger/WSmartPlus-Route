@@ -480,6 +480,12 @@ export function ProcessMonitor() {
               )}
             </p>
             <button
+              onClick={() => setMode("training_hub")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Training Hub →
+            </button>
+            <button
               onClick={() => setMode("training")}
               className="btn-ghost text-xs text-canvas-muted"
             >

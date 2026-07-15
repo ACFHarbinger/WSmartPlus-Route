@@ -742,6 +742,12 @@ export function TrainingMonitor() {
               </span>
             </label>
             <button
+              onClick={() => setMode("training_hub")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Training Hub →
+            </button>
+            <button
               onClick={() => setMode("process_monitor")}
               className="btn-ghost text-xs text-canvas-muted"
             >
