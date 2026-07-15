@@ -2,7 +2,7 @@
  * Suggest ECharts visualizations from DuckDB query results (§G.6).
  */
 
-export type AutoChartType = "bar" | "grouped-bar" | "line" | "scatter";
+export type AutoChartType = "bar" | "grouped-bar" | "heatmap" | "line" | "scatter";
 
 export interface AutoChartSpec {
   type: AutoChartType;
@@ -70,11 +70,23 @@ export function suggestChart(
 
   if (stringCols.length >= 2 && numericCols.length >= 1) {
     const lower = new Map(columns.map((c) => [c.toLowerCase(), c]));
+    const rowDim = lower.get("city_scale") ?? lower.get("run_label");
+    const colDim = lower.get("policy");
+    if (rowDim && colDim && rowDim !== colDim) {
+      const yKey = findPreferredMetric(numericCols, rowDim);
+      return {
+        type: "heatmap",
+        label: `${yKey} matrix (${rowDim} × ${colDim})`,
+        xKey: colDim,
+        seriesKey: rowDim,
+        yKey,
+      };
+    }
+
     const groupKey =
       lower.get("city_scale") ?? lower.get("run_label") ?? findPreferredDim(columns, stringCols);
     const seriesKey =
-      lower.get("policy") ??
-      stringCols.find((c) => c !== groupKey);
+      lower.get("policy") ?? stringCols.find((c) => c !== groupKey);
     if (groupKey && seriesKey && groupKey !== seriesKey) {
       const yKey = findPreferredMetric(numericCols, groupKey);
       return {
@@ -130,6 +142,61 @@ export function buildAutoChartOption(
       yAxis: { type: "value", axisLabel: { color: "#9090b0", fontSize: 9 } },
       series: [{ type: "bar", data: values, itemStyle: { color: "#6366f1" } }],
       tooltip: { trigger: "axis" },
+    };
+  }
+
+  if (spec.type === "heatmap" && spec.seriesKey) {
+    const rowLabels = [...new Set(rows.map((r) => String(r[spec.seriesKey!] ?? "")))];
+    const colLabels = [...new Set(rows.map((r) => String(r[spec.xKey] ?? "")))];
+    const lookup = new Map<string, number>();
+    for (const row of rows) {
+      lookup.set(
+        `${row[spec.seriesKey]}::${row[spec.xKey]}`,
+        toNum(row[spec.yKey])
+      );
+    }
+    const flat = rowLabels.flatMap((row, ri) =>
+      colLabels.map((col, ci) => [ci, ri, lookup.get(`${row}::${col}`) ?? 0] as [number, number, number])
+    );
+    const vals = flat.map(([, , v]) => v);
+    const min = Math.min(...vals);
+    const max = Math.max(...vals);
+    return {
+      backgroundColor: "transparent",
+      grid: { left: 72, right: 16, top: 24, bottom: 56 },
+      xAxis: {
+        type: "category",
+        data: colLabels,
+        axisLabel: { color: "#9090b0", fontSize: 9, rotate: 20 },
+      },
+      yAxis: {
+        type: "category",
+        data: rowLabels,
+        axisLabel: { color: "#9090b0", fontSize: 9 },
+      },
+      visualMap: {
+        min,
+        max,
+        calculable: false,
+        orient: "horizontal",
+        left: "center",
+        bottom: 0,
+        inRange: { color: ["#1e1b4b", "#6366f1", "#34d399"] },
+        textStyle: { color: "#9090b0", fontSize: 9 },
+        show: colLabels.length > 1,
+      },
+      series: [
+        {
+          type: "heatmap",
+          data: flat,
+          label: {
+            show: rowLabels.length * colLabels.length <= 48,
+            color: "#c0c0d8",
+            fontSize: 8,
+          },
+        },
+      ],
+      tooltip: { position: "top" },
     };
   }
 

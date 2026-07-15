@@ -3,7 +3,7 @@
  *
  * Full-page DuckDB-Wasm SQL editor with table picker for all ingested datasets.
  */
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
@@ -42,6 +42,8 @@ export function OlapExplorer() {
   const [rowCounts, setRowCounts] = useState<Record<string, number>>({});
   const [refreshing, setRefreshing] = useState(false);
   const [runLabels, setRunLabels] = useState<string[]>([]);
+  const [policies, setPolicies] = useState<string[]>([]);
+  const [cities, setCities] = useState<string[]>([]);
   const [portfolioMode, setPortfolioMode] = useState(false);
 
   const refreshTables = useCallback(async () => {
@@ -74,6 +76,8 @@ export function OlapExplorer() {
   useEffect(() => {
     if (!duckdbReady || !selectedTable) {
       setRunLabels([]);
+      setPolicies([]);
+      setCities([]);
       setPortfolioMode(false);
       return;
     }
@@ -81,14 +85,30 @@ export function OlapExplorer() {
       try {
         const hasRunLabel = await duckDbHasColumn(selectedTable, "run_label");
         setPortfolioMode(hasRunLabel);
-        if (!hasRunLabel) {
-          setRunLabels([]);
-          return;
-        }
-        const labels = await listDuckDbDistinctValues(selectedTable, "run_label");
+        const labels = hasRunLabel
+          ? await listDuckDbDistinctValues(selectedTable, "run_label")
+          : [];
         setRunLabels(labels);
+
+        const hasPolicy = await duckDbHasColumn(selectedTable, "policy");
+        setPolicies(
+          hasPolicy ? await listDuckDbDistinctValues(selectedTable, "policy") : []
+        );
+
+        const hasCityScale = await duckDbHasColumn(selectedTable, "city_scale");
+        if (hasCityScale) {
+          const cityValues = await listDuckDbDistinctValues(selectedTable, "city_scale");
+          setCities(cityValues.length > 1 ? cityValues : []);
+        } else if (hasRunLabel) {
+          const cityGroups = groupRunLabelsByCity(labels);
+          setCities(cityGroups.length > 1 ? cityGroups.map(([city]) => city) : []);
+        } else {
+          setCities([]);
+        }
       } catch {
         setRunLabels([]);
+        setPolicies([]);
+        setCities([]);
         setPortfolioMode(false);
       }
     })();
@@ -126,17 +146,14 @@ export function OlapExplorer() {
     }
   }, [refreshTables, setLastPipeline, setLoading]);
 
-  const cityGroups = useMemo(
-    () => (portfolioMode ? groupRunLabelsByCity(runLabels) : []),
-    [portfolioMode, runLabels]
-  );
   const highlightPolicies = activePolicy ? [activePolicy] : null;
 
   return (
     <div className="space-y-4">
       <GlobalFilterBar
+        policies={policies}
         runLabels={portfolioMode ? runLabels : []}
-        cities={portfolioMode && cityGroups.length > 1 ? cityGroups.map(([city]) => city) : []}
+        cities={cities}
       />
 
       <div className="flex items-center gap-3 flex-wrap">

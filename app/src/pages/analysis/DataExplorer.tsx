@@ -205,6 +205,13 @@ export function DataExplorer() {
     return rows;
   }, [file, filteredRows, sortCol, sortDir]);
 
+  const hasActiveBrush = Boolean(activePolicy || activeRunLabel || brushedCity);
+
+  const exportRows = useMemo(() => {
+    if (!hasBrushColumns || !hasActiveBrush) return sortedRows;
+    return sortedRows.filter(rowMatchesHighlight);
+  }, [sortedRows, hasBrushColumns, hasActiveBrush, rowMatchesHighlight]);
+
   const pageRows = sortedRows.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
   const totalPages = file ? Math.ceil(sortedRows.length / PAGE_SIZE) : 0;
 
@@ -236,6 +243,9 @@ export function DataExplorer() {
           <>
             <span className="text-xs text-canvas-muted">
               {file.path.split("/").pop()} · {file.rows.length.toLocaleString()} rows
+              {hasActiveBrush && hasBrushColumns && (
+                <> · {exportRows.length.toLocaleString()} brushed</>
+              )}
               {loading && " · DuckDB ingesting…"}
               {!loading && lastPipeline?.tableName === "explorer_csv" && (
                 <> · {formatPipelineTimingBadge(lastPipeline)}</>
@@ -246,7 +256,7 @@ export function DataExplorer() {
                 downloadCsv(
                   file.path.split("/").pop() ?? "data.csv",
                   file.headers,
-                  sortedRows.map((row) => file.headers.map((h) => row[h] ?? ""))
+                  exportRows.map((row) => file.headers.map((h) => row[h] ?? ""))
                 )
               }
               className="btn-ghost text-xs flex items-center gap-1.5"
@@ -314,9 +324,12 @@ export function DataExplorer() {
                 setPage(0);
               }}
             />
-            {filterText && (
+            {(filterText || (hasActiveBrush && hasBrushColumns)) && (
               <span className="text-xs text-canvas-muted">
                 {sortedRows.length.toLocaleString()} / {file.rows.length.toLocaleString()} rows
+                {hasActiveBrush && hasBrushColumns && (
+                  <> · {exportRows.length.toLocaleString()} exportable</>
+                )}
               </span>
             )}
           </div>
@@ -356,8 +369,6 @@ export function DataExplorer() {
                     <tr
                       key={i}
                       className={`hover:bg-canvas-hover ${
-                        hasBrushColumns ? "cursor-pointer" : ""
-                      } ${
                         isActive
                           ? "bg-accent-primary/15 ring-1 ring-inset ring-accent-primary/40"
                           : highlighted
@@ -366,23 +377,27 @@ export function DataExplorer() {
                               ? "opacity-35"
                               : ""
                       }`}
-                      onClick={() => {
-                        if (policyCol && row[policyCol] != null) {
-                          applyCrossFilter(policyCol, String(row[policyCol]));
-                        }
-                        if (runLabelCol && row[runLabelCol] != null) {
-                          applyCrossFilter(runLabelCol, String(row[runLabelCol]));
-                        }
-                        if (cityScaleCol && row[cityScaleCol] != null) {
-                          applyCrossFilter(cityScaleCol, String(row[cityScaleCol]));
-                        }
-                      }}
                     >
-                      {file.headers.map((h) => (
-                        <td key={h} className="px-3 py-1.5 text-gray-300 whitespace-nowrap font-mono">
-                          {row[h] ?? "—"}
-                        </td>
-                      ))}
+                      {file.headers.map((h) => {
+                        const isBrushCol =
+                          hasBrushColumns &&
+                          (h === policyCol || h === runLabelCol || h === cityScaleCol);
+                        return (
+                          <td
+                            key={h}
+                            onClick={
+                              isBrushCol
+                                ? () => applyCrossFilter(h, String(row[h] ?? ""))
+                                : undefined
+                            }
+                            className={`px-3 py-1.5 text-gray-300 whitespace-nowrap font-mono ${
+                              isBrushCol ? "cursor-pointer hover:text-accent-secondary" : ""
+                            }`}
+                          >
+                            {row[h] ?? "—"}
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })}
