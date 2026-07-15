@@ -6,9 +6,15 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import { invoke } from "@tauri-apps/api/core";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
-import { Download, ExternalLink, RefreshCw } from "lucide-react";
+import { Download, ExternalLink, Radio, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
+import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
+import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
 import { useAppStore } from "../../store/app";
+import { useProcessStore } from "../../store/process";
+import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
+import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
+import { findActiveHpoProcessId } from "../../utils/trainingProcess";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
 import {
@@ -43,8 +49,9 @@ function formatTime(ms: number | null) {
 }
 
 export function ExperimentTracker() {
-  const { projectRoot, pythonPath } = useAppStore();
+  const { projectRoot, pythonPath, effectiveTheme, setMode } = useAppStore();
   const logScale = useGlobalFiltersStore((s) => s.logScale);
+  const processes = useProcessStore((s) => s.processes);
   const [trackingUri, setTrackingUri] = useState(DEFAULT_TRACKING_URI);
   const [experimentName, setExperimentName] = useState(DEFAULT_EXPERIMENT);
   const [runs, setRuns] = useState<MlflowRun[]>([]);
@@ -59,6 +66,25 @@ export function ExperimentTracker() {
   const [mlflowView, setMlflowView] = useState<MlflowView>("runs");
   const [mlflowUiUrl, setMlflowUiUrl] = useState(DEFAULT_MLFLOW_UI);
   const chartRef = useRef<ReactECharts>(null);
+
+  const activeHpoId = useMemo(() => findActiveHpoProcessId(processes), [processes]);
+  const activeHpoProc = activeHpoId ? processes[activeHpoId] : null;
+
+  const liveHealthEntries = useMemo(
+    () =>
+      activeHpoProc
+        ? collectTrainingHealthFromLogLines(activeHpoProc.logLines)
+        : [],
+    [activeHpoProc]
+  );
+
+  const liveAttentionEntries = useMemo(
+    () =>
+      activeHpoProc
+        ? collectAttentionVizFromLogLines(activeHpoProc.logLines)
+        : [],
+    [activeHpoProc]
+  );
 
   const refreshRuns = useCallback(async () => {
     if (!projectRoot) return;
@@ -227,6 +253,36 @@ export function ExperimentTracker() {
   return (
     <div className="space-y-4">
       <GlobalFilterBar showLogScale />
+
+      {activeHpoId && activeHpoProc && (
+        <div className="card border-accent-success/30 space-y-3">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
+            <p className="text-sm text-accent-success font-mono">Live HPO</p>
+            <span className="text-xs text-canvas-muted font-mono truncate flex-1">
+              {activeHpoId}
+            </span>
+            <button
+              onClick={() => setMode("hpo_tracker")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              HPO Tracker →
+            </button>
+            <button
+              onClick={() => setMode("process_monitor")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Process Monitor →
+            </button>
+          </div>
+          <TrainingHealthPanel entries={liveHealthEntries} />
+          <RuntimeAttentionPanel
+            entries={liveAttentionEntries}
+            theme={effectiveTheme}
+            logScale={logScale}
+          />
+        </div>
+      )}
 
       {/* MLflow connection */}
       <div className="card space-y-3">

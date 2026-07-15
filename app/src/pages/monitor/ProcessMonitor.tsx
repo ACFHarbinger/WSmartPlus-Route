@@ -27,7 +27,7 @@ import {
 import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
 import { runLabelFromLogLines } from "../../utils/policyTelemetryTrends";
 import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { isTrainOrHpoProcess } from "../../utils/trainingProcess";
+import { isHpoProcess, isTrainOrHpoProcess } from "../../utils/trainingProcess";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).
@@ -295,7 +295,7 @@ function isTrainProcess(command: string, id: string): boolean {
 export function ProcessMonitor() {
   const processes = useProcessStore((s) => s.processes);
   const clearCompleted = useProcessStore((s) => s.clearCompleted);
-  const { effectiveTheme: theme } = useAppStore();
+  const { effectiveTheme: theme, setMode } = useAppStore();
   const {
     policy: activePolicy,
     runLabel: activeRunLabel,
@@ -471,13 +471,29 @@ export function ProcessMonitor() {
 
       {selectedIsTrain && selectedProc && (
         <div className="space-y-3 pt-2 border-t border-canvas-border">
-          <p className="text-xs text-canvas-muted">
-            Training analytics for{" "}
-            <span className="font-mono text-gray-300">{selectedProc.id}</span>
-            {selectedProc.status === "running" && (
-              <span className="ml-2 text-accent-success">· live</span>
+          <div className="flex items-center gap-2 flex-wrap">
+            <p className="text-xs text-canvas-muted flex-1 min-w-0">
+              Training analytics for{" "}
+              <span className="font-mono text-gray-300">{selectedProc.id}</span>
+              {selectedProc.status === "running" && (
+                <span className="ml-2 text-accent-success">· live</span>
+              )}
+            </p>
+            <button
+              onClick={() => setMode("training")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Training Monitor →
+            </button>
+            {isHpoProcess(selectedProc.id, selectedProc.command) && (
+              <button
+                onClick={() => setMode("hpo_tracker")}
+                className="btn-ghost text-xs text-canvas-muted"
+              >
+                HPO Tracker →
+              </button>
             )}
-          </p>
+          </div>
           <TrainingHealthPanel entries={trainingHealthEntries} />
           <RuntimeAttentionPanel
             entries={attentionEntries}

@@ -29,6 +29,7 @@ import { parseAttentionVizLine } from "../../utils/attentionViz";
 import { parseTrainingHealthLine } from "../../utils/trainingHealth";
 import {
   findActiveLiveTrainProcessId,
+  isHpoProcess,
   liveTrainProcessLabel,
 } from "../../utils/trainingProcess";
 import type {
@@ -502,6 +503,9 @@ export function TrainingMonitor() {
   const liveProcessLabel = activeTrainId
     ? liveTrainProcessLabel(activeTrainId)
     : "Live Training";
+  const activeIsHpo = activeTrainId
+    ? isHpoProcess(activeTrainId, processes[activeTrainId]?.command ?? "")
+    : false;
 
   // Subscribe to stdout of the active training process and accumulate live rows
   useEffect(() => {
@@ -717,25 +721,41 @@ export function TrainingMonitor() {
 
       {/* Live training indicator */}
       {activeTrainId && (
-        <div className="card border-accent-success/30">
-          <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer">
-            <input
-              type="checkbox"
-              checked={selected.includes(LIVE_KEY)}
-              onChange={() =>
-                setSelected((s) =>
-                  s.includes(LIVE_KEY) ? s.filter((k) => k !== LIVE_KEY) : [LIVE_KEY, ...s]
-                )
-              }
-              className="accent-accent-primary"
-            />
-            <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
-            <span className="text-sm text-accent-success font-mono flex-1">{liveProcessLabel}</span>
-            <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{activeTrainId}</span>
-            <span className="text-xs text-accent-success">
-              {metricsMap[LIVE_KEY]?.length ?? 0} updates
-            </span>
-          </label>
+        <div className="card border-accent-success/30 space-y-2">
+          <div className="flex items-center gap-2 flex-wrap">
+            <label className="flex items-center gap-3 py-1 px-1 rounded-lg cursor-pointer flex-1 min-w-0">
+              <input
+                type="checkbox"
+                checked={selected.includes(LIVE_KEY)}
+                onChange={() =>
+                  setSelected((s) =>
+                    s.includes(LIVE_KEY) ? s.filter((k) => k !== LIVE_KEY) : [LIVE_KEY, ...s]
+                  )
+                }
+                className="accent-accent-primary"
+              />
+              <Radio size={13} className="text-accent-success animate-pulse shrink-0" />
+              <span className="text-sm text-accent-success font-mono flex-1">{liveProcessLabel}</span>
+              <span className="text-xs text-canvas-muted font-mono truncate max-w-xs">{activeTrainId}</span>
+              <span className="text-xs text-accent-success">
+                {metricsMap[LIVE_KEY]?.length ?? 0} updates
+              </span>
+            </label>
+            <button
+              onClick={() => setMode("process_monitor")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Process Monitor →
+            </button>
+            {activeIsHpo && (
+              <button
+                onClick={() => setMode("hpo_tracker")}
+                className="btn-ghost text-xs text-canvas-muted"
+              >
+                HPO Tracker →
+              </button>
+            )}
+          </div>
         </div>
       )}
 

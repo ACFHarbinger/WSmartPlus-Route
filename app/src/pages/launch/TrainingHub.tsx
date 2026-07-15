@@ -27,6 +27,7 @@ import { useTrainHubStore } from "../../store/launchers";
 import { useSpawnProcess } from "../../hooks/useSpawnProcess";
 import { parseAttentionVizLine } from "../../utils/attentionViz";
 import { parseTrainingHealthLine } from "../../utils/trainingHealth";
+import { liveTrainProcessLabel } from "../../utils/trainingProcess";
 import type {
   AttentionVizEntry,
   StdoutLine,
@@ -436,6 +437,10 @@ export function TrainingHub() {
   const isDone = runStatus !== null && runStatus !== "running";
   const latestMetric = liveMetrics[liveMetrics.length - 1];
   const showTrainingAnalytics = liveProcessId != null && (mode === "train" || mode === "hpo");
+  const liveProgressLabel =
+    liveProcessId && showTrainingAnalytics
+      ? liveTrainProcessLabel(liveProcessId)
+      : "Live Progress";
 
   return (
     <div className="space-y-4 max-w-2xl">
@@ -624,7 +629,7 @@ export function TrainingHub() {
               <h2 className="text-sm font-semibold text-gray-200">
                 {isDone
                   ? runStatus === "completed" ? "Run Complete" : `Run ${runStatus}`
-                  : "Live Progress"}
+                  : liveProgressLabel}
               </h2>
               {liveMetrics.length > 0 && (
                 <span className="text-xs text-canvas-muted">{liveMetrics.length} updates</span>
@@ -640,12 +645,22 @@ export function TrainingHub() {
                 </button>
               )}
               {showTrainingAnalytics && (
-                <button
-                  onClick={() => setMode("training")}
-                  className="btn-ghost text-xs text-canvas-muted"
-                >
-                  Training Monitor →
-                </button>
+                <>
+                  <button
+                    onClick={() => setMode("training")}
+                    className="btn-ghost text-xs text-canvas-muted"
+                  >
+                    Training Monitor →
+                  </button>
+                  {mode === "hpo" && (
+                    <button
+                      onClick={() => setMode("hpo_tracker")}
+                      className="btn-ghost text-xs text-canvas-muted"
+                    >
+                      HPO Tracker →
+                    </button>
+                  )}
+                </>
               )}
               <button
                 onClick={() => setMode("process_monitor")}

@@ -100,6 +100,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Training Monitor — live stdout ingest for ``hpo_*`` processes; ``Live HPO`` label when HPO active (§G.17 / §A.2)
 - [x] HPO Tracker — ``RuntimeAttentionPanel`` during live ``hpo_*`` runs; ``Process Monitor →`` navigation shortcut (§G.18 / §A.2)
 
+**Delivered (§A.2 Option A — hundred-thirty-second pass)**
+
+- [x] Experiment Tracker — ``RuntimeAttentionPanel`` during live ``hpo_*`` runs; ``HPO Tracker →`` + ``Process Monitor →`` shortcuts (§G.18 / §A.2)
+- [x] Training Monitor / Process Monitor / HPO Tracker — cross-page navigation shortcuts for live train/HPO workflows (§G.15 / §G.17 / §G.18 / §A.2)
+
 **Status**: §A.2 Options A+C complete — Option B (BertViz) deferred.
 
 ---
@@ -255,6 +260,11 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] ``isTrainOrHpoProcess`` — shared train/HPO command matcher (Process Monitor parity)
 - [x] Training Monitor — live health alerts for ``hpo_*`` processes alongside ``train_*`` (§G.17 / §A.4)
 - [x] HPO Tracker — ``TrainingHealthPanel`` during live ``hpo_*`` runs; bridges §A.4 Option D trial health table (§G.18 / §A.4)
+
+**Delivered (§A.4 Option A — hundred-thirty-second pass)**
+
+- [x] Experiment Tracker — ``TrainingHealthPanel`` during live ``hpo_*`` runs (§G.18 / §A.4)
+- [x] Training Hub — ``liveTrainProcessLabel`` for Live HPO header; ``HPO Tracker →`` shortcut during live HPO (§G.10 / §A.4)
 
 **Status**: §A.4 Options A+D complete — Options B/C (PyHessian, loss landscape PNG) deferred.
 
@@ -1444,6 +1454,7 @@ All P0–P2 analytics bridges are delivered (§A.1–§A.6). Remaining items are
 - [x] On completion: "Output Browser →" button appears in live progress header when training completes successfully; navigates to `output_browser` mode
 - [x] Session persistence: `useTrainHubStore` (Zustand `persist`, key `wsroute-train-hub`) stores all form fields across train/hpo/eval modes; ephemeral runtime state stays in component state
 - [x] Live training health + runtime attention (§A.4 / §A.2): ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` in live progress panel during train/hpo; ``Training Monitor →`` navigation shortcut (hundred-thirtieth pass)
+- [x] Live HPO label + ``HPO Tracker →`` navigation during live HPO runs (hundred-thirty-second pass)
 
 ---
 
@@ -1604,6 +1615,8 @@ Source files ported from: `logic/src/ui/pages/experiment_tracker.py`, `logic/src
 - [x] **Cross-study comparison**: "Compare with" study dropdown in HPOTracker; overlaid best-so-far optimisation history (ECharts); side-by-side best-value KPI cards for both studies
 - [x] **MLflow dashboard embed fallback**: Runs/Dashboard tab toggle in ExperimentTracker; iframe embed of local MLflow UI (`http://localhost:5000` default) + open-in-browser via shell plugin (native WebView window deferred)
 - [x] **Live HPO analytics** (§A.4 / §A.2 hundred-thirty-first pass): ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` when an ``hpo_*`` process is running; ``Process Monitor →`` navigation shortcut
+- [x] **Experiment Tracker live HPO analytics** (§A.4 / §A.2 hundred-thirty-second pass): health + attention panels during live ``hpo_*``; ``HPO Tracker →`` + ``Process Monitor →`` shortcuts
+- [x] **Cross-page train/HPO navigation** (hundred-thirty-second pass): Training Monitor ``Process Monitor →`` + ``HPO Tracker →``; HPO Tracker ``Training Monitor →``; Process Monitor ``Training Monitor →`` + ``HPO Tracker →`` for ``hpo_*`` processes
 
 ---
 

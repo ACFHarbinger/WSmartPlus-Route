@@ -381,6 +381,12 @@ export function HPOTracker() {
               {activeHpoId}
             </span>
             <button
+              onClick={() => setMode("training")}
+              className="btn-ghost text-xs text-canvas-muted"
+            >
+              Training Monitor →
+            </button>
+            <button
               onClick={() => setMode("process_monitor")}
               className="btn-ghost text-xs text-canvas-muted"
             >

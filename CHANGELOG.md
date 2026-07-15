@@ -11,6 +11,30 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-second pass (§A.4 + §A.2)
+
+Hundred-thirty-second pass completes §G.18 Experiment Tracker live HPO analytics and adds
+cross-page navigation shortcuts across the train/HPO workflow pages.
+
+**React frontend**
+- Experiment Tracker — ``TrainingHealthPanel`` + ``RuntimeAttentionPanel`` during live
+  ``hpo_*`` runs; ``HPO Tracker →`` + ``Process Monitor →`` navigation shortcuts
+  (§G.18 / §A.4 / §A.2)
+- Training Monitor — ``Process Monitor →`` shortcut; ``HPO Tracker →`` when live HPO active
+  (§G.17 / §A.2)
+- HPO Tracker — ``Training Monitor →`` navigation shortcut (§G.18 / §A.2)
+- Process Monitor — ``Training Monitor →`` + ``HPO Tracker →`` for selected train/hpo
+  processes (§G.15 / §A.2 / §A.4)
+- Training Hub — ``liveTrainProcessLabel`` Live HPO header; ``HPO Tracker →`` during live
+  HPO runs (§G.10 / §A.4)
+
+**ROADMAP**
+- §A.2 Experiment Tracker live attention + cross-page navigation checked
+- §A.4 Experiment Tracker live health + Training Hub HPO shortcuts checked
+- §G.18 Experiment Tracker live HPO analytics checked
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — hundred-thirty-first pass (§A.4 + §A.2)
 
 Hundred-thirty-first pass closes the HPO live-analytics gap: Training Monitor and HPO
