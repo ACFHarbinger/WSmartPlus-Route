@@ -11,6 +11,29 @@ Version numbers follow [Semantic Versioning](https://semver.org/spec/v2.0.0.html
 
 ### Added
 
+#### WSmart-Route Studio — Tauri App (`app/`) — eighty-seventh pass (§G.1 / §G.2 / §G.6 / §G.7)
+
+Eighty-seventh pass extends global log-scale to policy/portfolio parallel
+coordinates, hierarchy drill-down profit bars, and OLAP profit vs overflows
+scatter charts via shared ``parallelAxisValue`` helpers.
+
+**React frontend**
+- `chartLogScale.ts` — ``parallelAxisValue()`` + ``invertParallelAxisValue()`` for
+  parallel-coordinates KPI transforms and symlog corridor brush inversion
+- `SimulationSummary` — ``PolicyParallelChart`` log-normalised axes; ``PolicyHierarchyPanel``
+  drill-down profit log x-axis; portfolio parallel passes ``logScale``
+- `BenchmarkPortfolioParallel` — log-normalised profit · kg/km · km; symlog overflows
+- `BenchmarkAnalysis` — portfolio parallel passes global ``logScale``
+- `queryAutoChart.ts` — profit vs overflows scatter log x + log y when ``logScale`` on
+
+**ROADMAP**
+- §G.1.4 Policy + portfolio parallel coordinates log-normalised axes checked
+- §G.2 Hierarchy drill-down profit bars log-scale checked
+- §G.6 Auto-chart profit vs overflows scatter log-scale checked (partial marker removed)
+- §G.7 Global log-scale propagation includes parallel coords + hierarchy drill-down
+
+---
+
 #### WSmart-Route Studio — Tauri App (`app/`) — eighty-sixth pass (§G.1 / §G.5 / §G.7 / §G.18)
 
 Eighty-sixth pass extends global log-scale to policy radar charts, HPO parallel

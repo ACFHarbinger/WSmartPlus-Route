@@ -24,7 +24,9 @@ import { paretoFront, paretoStepLine } from "../../utils/pareto";
 import {
   chartMetricDisplay,
   chartMetricYAxisType,
+  invertParallelAxisValue,
   isLogScaleMetric,
+  parallelAxisValue,
   radarAxisValue,
 } from "../../utils/chartLogScale";
 import { symlog } from "../../utils/symlog";
@@ -869,6 +871,7 @@ function PolicyParallelChart({
   policyMeta,
   logMeta,
   brushed,
+  logScale = false,
   onPolicyClick,
   onAxisBrush,
   onOverflowCorridorBrush,
@@ -878,6 +881,7 @@ function PolicyParallelChart({
   policyMeta: Record<string, PolicyMeta>;
   logMeta: LogPathMeta;
   brushed?: string[] | null;
+  logScale?: boolean;
   onPolicyClick?: (policy: string) => void;
   onAxisBrush?: (policies: string[] | null) => void;
   /** Sync zero-overflow corridor slider when brushing the overflows axis (§G.1.4). */
@@ -890,7 +894,27 @@ function PolicyParallelChart({
     [policies, stats, policyMeta, logMeta]
   );
 
+  const transformedRows = useMemo(
+    () =>
+      parallel.rows.map((row) => ({
+        ...row,
+        value: row.value.map((v, dim) => {
+          if (typeof v !== "number") return v;
+          const axis = parallel.axes.find((a) => a.dim === dim);
+          return axis ? parallelAxisValue(v, axis.name, logScale) : v;
+        }),
+      })),
+    [parallel, logScale]
+  );
+
   const option = useMemo(() => {
+    const axisLabel = (name: string) => {
+      if (!logScale) return name;
+      if (name === "Overflows") return "Overflows (symlog)";
+      if (["Profit", "kg/km", "km"].includes(name)) return `${name} (log-norm)`;
+      return name;
+    };
+
     return {
       backgroundColor: "transparent",
       brush: {
@@ -910,10 +934,17 @@ function PolicyParallelChart({
       },
       parallelAxis: parallel.axes.map((s) => ({
         dim: s.dim,
-        name: s.name,
+        name: axisLabel(s.name),
         type: s.type,
         ...(s.data ? { data: s.data } : {}),
-        ...(s.max != null ? { max: s.max } : {}),
+        ...(s.max != null
+          ? {
+              max:
+                s.type === "value" && logScale
+                  ? parallelAxisValue(s.max, s.name, true) * 1.1
+                  : s.max,
+            }
+          : {}),
         nameTextStyle: { color: "#9090b0", fontSize: 9 },
         axisLine: { lineStyle: { color: "#2d2d50" } },
         axisLabel: { color: "#9090b0", fontSize: 8 },
@@ -928,7 +959,7 @@ function PolicyParallelChart({
         {
           type: "parallel" as const,
           lineStyle: { width: 2 },
-          data: parallel.rows.map((row) => ({
+          data: transformedRows.map((row) => ({
             name: row.name,
             value: row.value,
             lineStyle: {
@@ -945,7 +976,7 @@ function PolicyParallelChart({
         },
       },
     };
-  }, [parallel, policyMeta, brushed]);
+  }, [parallel, transformedRows, policyMeta, brushed, logScale]);
 
   const events = useMemo(() => {
     const handlers: Record<string, (params: unknown) => void> = {};
@@ -979,19 +1010,21 @@ function PolicyParallelChart({
           if (area.parallelAxisIndex !== parallel.overflowDim || !area.coordRange?.length) continue;
           const range = area.coordRange;
           const hi = Math.max(range[0], range[range.length - 1]);
-          onOverflowCorridorBrush(hi);
+          onOverflowCorridorBrush(invertParallelAxisValue(hi, "Overflows", logScale));
           return;
         }
       };
     }
     return Object.keys(handlers).length ? handlers : undefined;
-  }, [onPolicyClick, onAxisBrush, onOverflowCorridorBrush, policies, parallel.overflowDim]);
+  }, [onPolicyClick, onAxisBrush, onOverflowCorridorBrush, policies, parallel.overflowDim, logScale]);
 
   return (
     <div className="card space-y-2">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-xs font-semibold text-gray-300">Policy Parallel Coordinates</p>
+          <p className="text-xs font-semibold text-gray-300">
+            Policy Parallel Coordinates{logScale ? " · log-normalised axes" : ""}
+          </p>
           {(onAxisBrush || onOverflowCorridorBrush) && (
             <p className="text-[10px] text-canvas-muted">
               Drag on any axis to brush · overflows axis syncs corridor slider · toolbox clear resets
@@ -1056,6 +1089,7 @@ function PolicyHierarchyPanel({
   brushed,
   onBrushPolicies,
   showErrorBars = false,
+  logScale = false,
 }: {
   stats: Record<string, PolicyStats>;
   policies: string[];
@@ -1065,6 +1099,7 @@ function PolicyHierarchyPanel({
   brushed?: string[] | null;
   onBrushPolicies: (ps: string[]) => void;
   showErrorBars?: boolean;
+  logScale?: boolean;
 }) {
   const chartRef = useRef<EChartsReact | null>(null);
   const [view, setView] = useState<HierarchyView>("sunburst");
@@ -1180,10 +1215,12 @@ function PolicyHierarchyPanel({
         ? {
             grid: { left: 110, right: 24, top: 12, bottom: 12 },
             xAxis: {
-              type: "value" as const,
-              name: "Profit (€)",
+              type: (logScale ? "log" : "value") as "log" | "value",
+              logBase: 10,
+              name: logScale ? "Profit (€, log)" : "Profit (€)",
               nameTextStyle: { color: "#9090b0", fontSize: 9 },
               axisLabel: { color: "#9090b0", fontSize: 9 },
+              minorSplitLine: { show: false },
             },
             yAxis: {
               type: "category" as const,
@@ -1194,7 +1231,7 @@ function PolicyHierarchyPanel({
           }
         : {}),
     }),
-    [tree, view, showDrillMorph, drillChildren, brushed, showErrorBars]
+    [tree, view, showDrillMorph, drillChildren, brushed, showErrorBars, logScale]
   );
 
   const handleSegmentClick = (path: string[]) => {
@@ -2226,10 +2263,11 @@ export function SimulationSummary() {
             brushed={effectiveBrushed}
             onBrushPolicies={handleBrushPolicies}
             showErrorBars={showErrorBars}
+            logScale={logScale}
           />
 
           {portfolioMode && allRuns.length >= 2 && (
-            <BenchmarkPortfolioParallel runs={allRuns} />
+            <BenchmarkPortfolioParallel runs={allRuns} logScale={logScale} />
           )}
 
           {portfolioMode && (
@@ -2418,6 +2456,7 @@ export function SimulationSummary() {
                 policyMeta={policyMeta}
                 logMeta={logMeta}
                 brushed={effectiveBrushed}
+                logScale={logScale}
                 onPolicyClick={handlePolicyClick}
                 onAxisBrush={handleBrushPolicies}
                 onOverflowCorridorBrush={(max) => setOverflowMax(max)}

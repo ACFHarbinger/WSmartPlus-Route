@@ -932,6 +932,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Portfolio DuckDB ingest: Simulation Summary unions primary + comparison runs into `summary_sim`; Benchmark Analysis → `benchmark_sim`; City Comparison → `city_sim` with sidecar-aware timing badges (§G.1.4 / §G.6)
 - [x] Brushing on any axis instantly filters all other panels: ECharts parallel-axis brush toolbox on `PolicyParallelChart` → `handleBrushPolicies` cross-filter; click polyline → `toggleBrush`; DuckDB SQL sync via `brushSqlSync` (§G.1)
 - [x] Highlight corridor: drag brush on overflows ≤ threshold to identify zero-overflow configs: overflow corridor slider + parallel-axis overflows brush syncs `overflowMax` + `effectiveBrushed` cross-filter on Simulation Summary (§G.1)
+- [x] Parallel coordinates follow global ``logScale``: ``PolicyParallelChart`` + ``BenchmarkPortfolioParallel`` log-normalise profit · kg/km · km axes; symlog overflows; corridor brush inverts symlog via ``invertParallelAxisValue`` (§G.1.4 / §G.7)
 - [x] Color polylines by mandatory-selection strategy: `strategyColor()` on `PolicyParallelChart` polylines (§G.1 partial)
 
 #### 1.5 Constructor Ranking Chart
@@ -956,7 +957,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Top-level Sunburst chart: inner ring = city/scale · middle ring = selection strategy · outer ring = constructor: `PolicyHierarchyPanel` + `policyHierarchy.ts` on Simulation Summary; `buildPortfolioHierarchy()` multi-root sunburst when ≥2 logs loaded (§G.2)
 - [x] Angular span mapped to accumulated profit; color gradient = kg/km efficiency: sunburst/treemap segment `value` = profit sum; `itemStyle.color` from kg/km gradient (§G.2 partial)
 - [x] Click on any segment fires DuckDB-Wasm filter query: segment click → `policiesAtPath` → `toggleBrush` cross-filter; `SqlQueryPanel` `brushSqlSync` + `autoRunOnBrushSync` executes `brushedPoliciesSql` (§G.2)
-- [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): `PolicyHierarchyPanel` `universalTransition` morphs sunburst/treemap → drill-down profit bars on segment click (§G.2)
+- [x] Drill-down transition: Sunburst morphs into horizontal bar chart (mean ± variance per variant): `PolicyHierarchyPanel` `universalTransition` morphs sunburst/treemap → drill-down profit bars on segment click; log-scale profit x-axis when global ``logScale`` on (§G.2 / §G.7)
 - [x] Error bars on drill-down bars representing variance across Empirical vs Gamma-3 distributions: `enrichDrillChildren` profit std + Empirical↔Gamma spread whiskers on `PolicyHierarchyPanel` drill-down (§G.2 partial)
 - [x] Breadcrumb trail showing current filter path; click to navigate back up: `HierarchyBreadcrumb` in `PolicyHierarchyPanel` with root **All** reset (§G.2)
 - [x] Treemap alternative view: area = profit, color = overflows (toggle with Sunburst): sunburst/treemap view toggle on Simulation Summary; kg/km vs overflows colour mode selector on `PolicyHierarchyPanel` (§G.2)
@@ -1092,7 +1093,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Pivot table UI: drag dimensions/measures onto row/column/value wells: `PivotTablePanel` draggable column chips + HTML5 drop wells for row/column/value + agg selector + heatmap on `SqlQueryPanel` (§G.6)
 - [x] Cross-filtering from pivot table updates all Phase 1–2 charts bidirectionally: pivot/result row click sets `useGlobalFiltersStore` policy; `GlobalFilterBar` policy highlights matching SQL rows + dims pivot heatmap rows via `highlightRowLabels` (§G.6)
 - [x] Auto-chart Pareto frontier step-line overlay: labeled profit vs overflows scatter highlights frontier points + dashed ``paretoStepLine()`` (§G.6)
-- [x] Auto-chart log-scale toggle on overflows scatter axis (§G.6 / §G.1 partial)
+- [x] Auto-chart log-scale on profit vs overflows scatter: log overflows y-axis + log profit x-axis when global ``logScale`` on (§G.6 / §G.1 / §G.7)
 - [x] Auto-chart log-scale on bar / grouped-bar / line when y-axis metric is overflow, loss, or KPI (§G.6 / §G.7)
 - [x] Auto-chart line cross-filter: time-series point click → ``onDaySelect`` when ``xKey`` is ``day`` (§G.6)
 - [x] Auto-chart line type in override alternatives for day/epoch/step queries (§G.6)
@@ -1110,7 +1111,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 - [x] Bookmarkable analysis states (serialize filter + view to URL hash for deep-linking via `useHashSync`)
 - [x] Bookmarkable ``run_label`` filter: `useHashSync` serializes global ``runLabel`` as ``r`` query param; restored on load and browser back/forward (§G.7)
 - [x] Bookmarkable city/scale brush: `useHashSync` serializes global ``brushedCity`` as ``c`` query param; restored on load and browser back/forward (§G.7)
-- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary (incl. per-day trajectory + policy radar), Benchmark Analysis, Algorithm Comparison (radar + metric bars), City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker (incl. parallel coordinates objective axis), Experiment Tracker (ZenML step durations + ML loss contour), Simulation Monitor daily KPI charts, Data Generation demand histogram, OLAP/Data Explorer auto-charts (§G.1 / §G.7)
+- [x] Global log-scale filter: ``logScale`` in ``useGlobalFiltersStore`` + ``GlobalFilterBar`` toggle propagates to Simulation Summary (incl. per-day trajectory + policy radar + policy/portfolio parallel coordinates + hierarchy drill-down profit bars), Benchmark Analysis (incl. portfolio parallel), Algorithm Comparison (radar + metric bars), City Comparison, Evaluation Runner, Training Monitor, Training Hub, HPO Tracker (incl. parallel coordinates objective axis), Experiment Tracker (ZenML step durations + ML loss contour), Simulation Monitor daily KPI charts, Data Generation demand histogram, OLAP/Data Explorer auto-charts (incl. profit vs overflows scatter) (§G.1 / §G.7)
 - [x] Bookmarkable log-scale toggle: `useHashSync` serializes global ``logScale`` as ``l=1`` query param; restored on load and browser back/forward (§G.7)
 - [x] Dark/light theme toggle with Tauri Store persistence (§D.3, §D.4): `TopBar` toggle + Settings appearance radio; `useAppStore` Zustand `persist`
 - [x] Keyboard shortcuts: `G` → simulation monitor, `Q` → HPO tracker, `P` → process monitor, `M` → map/simulation twin, `Ctrl+.` → cancel first running process, `Ctrl+Shift+P` → process monitor, `Ctrl+R` → launch on active launcher page, digits `1`–`8` → quick nav, `?` → shortcuts help overlay (§D.7)

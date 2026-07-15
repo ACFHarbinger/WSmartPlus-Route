@@ -1,6 +1,6 @@
 /** Shared log-scale heuristics for Studio ECharts panels (§G.1 / §G.7). */
 
-import { symlog } from "./symlog";
+import { symexp, symlog } from "./symlog";
 
 export function isOverflowMetric(key: string): boolean {
   return /^(mean_)?overflows?$/i.test(key) || /overflow/i.test(key);
@@ -50,4 +50,35 @@ export function displayBarValue(value: number, yKey: string, logScale: boolean):
 export function radarAxisValue(value: number, metricKey: string, logScale: boolean): number {
   if (!logScale || !isLogScaleMetric(metricKey)) return value;
   return chartMetricDisplay(value, metricKey, true) ?? value;
+}
+
+const PARALLEL_AXIS_METRICS: Record<string, string> = {
+  Overflows: "overflows",
+  "kg/km": "kg/km",
+  km: "km",
+  Profit: "profit",
+};
+
+/** Parallel-coordinates axis value transform (§G.1.4 / §G.7). */
+export function parallelAxisValue(
+  value: number,
+  axisName: string,
+  logScale: boolean
+): number {
+  const metricKey = PARALLEL_AXIS_METRICS[axisName];
+  if (!metricKey) return value;
+  return radarAxisValue(value, metricKey, logScale);
+}
+
+/** Invert a brushed parallel-axis coordinate back to raw metric space. */
+export function invertParallelAxisValue(
+  value: number,
+  axisName: string,
+  logScale: boolean
+): number {
+  if (!logScale) return value;
+  const metricKey = PARALLEL_AXIS_METRICS[axisName];
+  if (!metricKey || !isLogScaleMetric(metricKey)) return value;
+  if (isOverflowMetric(metricKey)) return symexp(value);
+  return value;
 }
