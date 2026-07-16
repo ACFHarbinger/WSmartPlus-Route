@@ -211,12 +211,12 @@ def _textbox(slide, left, top, width, height):
     return box, tf
 
 
-def _add_connector(slide, x, y, cx, cy, color="2E74B5", flip_v=False, width_pt=1.5) -> None:
+def _add_connector(slide, x, y, cx, cy, color="2E74B5", flip_v=False, flip_h=False, width_pt=1.5) -> None:
     """Inject a straight arrow connector (cxnSp) directly into the slide spTree."""
     PML = "http://schemas.openxmlformats.org/presentationml/2006/main"
     AML = "http://schemas.openxmlformats.org/drawingml/2006/main"
     new_id = len(slide.shapes) + 900
-    flip_attr = ' flipV="1"' if flip_v else ""
+    flip_attr = (' flipH="1"' if flip_h else "") + (' flipV="1"' if flip_v else "")
     w_emu = int(width_pt * 12700)
     xml = (
         f'<p:cxnSp xmlns:p="{PML}" xmlns:a="{AML}">'
@@ -995,10 +995,27 @@ class DeckBuilder:
             ("logo-cegist.png",           _lx[2], Inches(5.97), _lw[2], Inches(1.38)),
             ("logo-optimization2026.png", Inches(10.39), Inches(0.15), Inches(2.77), Inches(1.35)),
         ]
+        # Contain-fit each logo inside its [lx, ly, lw, lh] box at natural
+        # aspect ratio so none of them renders stretched.
         for fname, lx, ly, lw, lh in logo_specs:
             logo_path = ASSETS_DIR / fname
-            if logo_path.exists():
-                slide.shapes.add_picture(str(logo_path), lx, ly, lw, lh) # pyrefly: ignore [bad-argument-type]
+            if not logo_path.exists():
+                continue
+            fit_x, fit_y, fit_w, fit_h = lx, ly, lw, lh
+            try:
+                from PIL import Image as _PILImage
+
+                with _PILImage.open(logo_path) as im:
+                    nat_w, nat_h = im.size
+                if nat_w > 0 and nat_h > 0:
+                    scale = min(int(lw) / nat_w, int(lh) / nat_h)
+                    fit_w = int(nat_w * scale)
+                    fit_h = int(nat_h * scale)
+                    fit_x = int(lx) + (int(lw) - fit_w) // 2
+                    fit_y = int(ly) + (int(lh) - fit_h) // 2
+            except Exception:
+                pass  # keep the box as-is if the image cannot be measured
+            slide.shapes.add_picture(str(logo_path), fit_x, fit_y, fit_w, fit_h) # pyrefly: ignore [bad-argument-type]
         self._record_script(
             self.content["title"],
             [f"Presented by {self.author}." + (f" With {', '.join(self.coauthors)}." if self.coauthors else "")],
@@ -1281,33 +1298,46 @@ class DeckBuilder:
             p.font.color.rgb = WHITE
             p.alignment = PP_ALIGN.CENTER
 
-        def _tax_item(x_in, y_in, h_in, text, line_color):
+        def _tax_item(x_in, y_in, h_in, text, line_color, font_sz=13):
             box = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, int(x_in * I), int(y_in * I), int(3.811 * I), int(h_in * I))  # pyrefly: ignore [bad-argument-type]
             box.fill.solid()
             box.fill.fore_color.rgb = LIGHT_FILL # pyrefly: ignore [bad-assignment]
             box.line.color.rgb = line_color
             box.line.width = Pt(1.25)
             box.shadow.inherit = False
-            p = box.text_frame.paragraphs[0]
+            tf = box.text_frame
+            tf.word_wrap = True
+            tf.vertical_anchor = MSO_ANCHOR.MIDDLE
+            tf.margin_top = Pt(1)
+            tf.margin_bottom = Pt(1)
+            p = tf.paragraphs[0]
             p.text = text
-            p.font.size = Pt(13)
+            p.font.size = Pt(font_sz)
             p.font.bold = True
             p.font.color.rgb = DARK
             p.alignment = PP_ALIGN.CENTER
 
-        # Exact Methods column
+        # Exact Methods column (full algorithm names with acronyms)
         _tax_header(0.640, 4.258, ACCENT, "Exact Methods")
-        _tax_item(0.640, 5.008, 1.015, "BPC", ACCENT)
-        _tax_item(0.640, 6.143, 1.015, "SWC-TCF", ACCENT)
+        _tax_item(0.640, 5.008, 1.015, "Branch-and-Price-and-Cut (BPC)", ACCENT)
+        _tax_item(0.640, 6.143, 1.015, "Smart Waste Collection —\nTwo-Commodity Flow (SWC-TCF)", ACCENT)
 
-        # Meta-Heuristics column
+        # Meta-Heuristics column — taller items so the long full names
+        # (PG-CLNS, PSOMA) stay inside their boxes
         _tax_header(4.801, 4.258, GREEN, "Meta-Heuristics")
-        for ii, (algo, y_in) in enumerate([("HGS", 5.008), ("ALNS", 5.462), ("SANS", 5.916), ("PG-CLNS", 6.370), ("PSOMA", 6.824)]):
-            _tax_item(4.801, y_in, 0.334, algo, GREEN)
+        _meta_algos = [
+            "Hybrid Genetic Search (HGS)",
+            "Adaptive Large Neighborhood Search (ALNS)",
+            "Simulated Annealing Neighborhood Search (SANS)",
+            "Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS)",
+            "Particle Swarm Optimization Memetic Algorithm (PSOMA)",
+        ]
+        for ii, algo in enumerate(_meta_algos):
+            _tax_item(4.801, 5.008 + ii * 0.490, 0.450, algo, GREEN, font_sz=10)
 
         # Hyper-Heuristics column
         _tax_header(8.962, 4.258, ORANGE, "Hyper-Heuristics")
-        _tax_item(8.962, 5.008, 2.150, "ACO-HH", ORANGE)
+        _tax_item(8.962, 5.008, 2.150, "Ant Colony Optimization\nHyper-Heuristic (ACO-HH)", ORANGE)
 
         speaker_notes = spec.get("speaker_notes", [])
         self._record_script(spec["title"], speaker_notes)
@@ -1343,7 +1373,7 @@ class DeckBuilder:
             lp.text = pct_text
             lp.font.size = Pt(11)
             lp.font.bold = True
-            lp.font.color.rgb = DARK_NAVY
+            lp.font.color.rgb = WHITE
             lp.alignment = PP_ALIGN.CENTER
 
         # Left group (8 bins, scattered — before selection)
@@ -1385,22 +1415,30 @@ class DeckBuilder:
         if TRUCK_IMG.exists():
             slide.shapes.add_picture(str(TRUCK_IMG), int(7.700 * I), int(6.673 * I), int(1.231 * I), int(0.943 * I)) # pyrefly: ignore [bad-argument-type]
 
-        # Arrow connectors: right-group bins → truck
+        # Collection-tour arrows (orange): truck → 50 → 60 → 87 → 30 → 80 → truck.
+        # Bounding boxes + flips copied verbatim from the reference deck
+        # (tmp/wsmart_route_results.pptx slide 5) — the flips encode the tour
+        # direction, so the arrowhead (tailEnd) lands on the tour target.
         _connector_coords = [
-            (8.005, 6.032, 0.217, 0.756, False),
-            (8.299, 4.661, 0.373, 0.238, False),
-            (7.245, 5.688, 0.528, 0.158, False),
-            (7.039, 5.049, 0.385, 0.136, False),
-            (7.706, 4.567, 0.226, 0.146, False),
-            (8.462, 5.575, 0.140, 1.213, False),
+            (8.005, 6.032, 0.217, 0.756, True, True),   # truck → 50
+            (7.245, 5.688, 0.528, 0.158, True, True),   # 50 → 60
+            (7.039, 5.049, 0.385, 0.136, False, True),  # 60 → 87
+            (7.706, 4.567, 0.226, 0.146, False, True),  # 87 → 30
+            (8.299, 4.661, 0.373, 0.238, False, False),  # 30 → 80
+            (8.462, 5.575, 0.140, 1.213, True, False),  # 80 → truck
         ]
-        for cx0, cy0, ccx, ccy, fv in _connector_coords:
-            _add_connector(slide, cx0 * I, cy0 * I, ccx * I, ccy * I, "1F2D3D", flip_v=fv, width_pt=1.5)
+        for cx0, cy0, ccx, ccy, fh, fv in _connector_coords:
+            _add_connector(slide, cx0 * I, cy0 * I, ccx * I, ccy * I, "ED7D31", flip_v=fv, flip_h=fh, width_pt=1.5)
 
-        # Right brace separator (full-height, between the two groups)
-        brace = slide.shapes.add_shape(MSO_SHAPE.RIGHT_BRACE, int(7.977 * I), 0, int(0.323 * I), SLIDE_H)  # pyrefly: ignore [bad-argument-type]
+        # Horizontal underbrace beneath the constructor→improver chevrons — a
+        # right brace rotated 90° (geometry from the reference deck; the
+        # unrotated bbox spans vertically and rotates about its centre).
+        brace = slide.shapes.add_shape(
+            MSO_SHAPE.RIGHT_BRACE, int(7.977 * I), int(-0.194 * I), int(0.323 * I), int(8.752 * I)
+        )  # pyrefly: ignore [bad-argument-type]
+        brace.rotation = 90
         brace.fill.background()
-        brace.line.color.rgb = MUTED # pyrefly: ignore [bad-assignment]
+        brace.line.color.rgb = ACCENT # pyrefly: ignore [bad-assignment]
         brace.line.width = Pt(1.5)
         brace.shadow.inherit = False
 

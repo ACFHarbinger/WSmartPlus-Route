@@ -646,7 +646,9 @@ export class NativeDeckBuilder {
       slide.addShape("line", { x, y, w, h, flipV, line: { color, width: 2, endArrowType: "triangle" } });
     connector(3.485, 2.02, 1.564, 0.707, ACCENT);
     connector(3.485, 2.714, 1.564, 0.013, GREEN);
-    connector(3.485, 2.727 - 0.732, 1.564, 0.732, ORANGE, true);
+    // flipV: sources at the Hyper-Heuristics box centre (bottom-left), arrow
+    // into the simulator (top-right)
+    connector(3.485, 2.727, 1.564, 0.732, ORANGE, true);
     connector(7.475, 2.727, 1.136, 0.001, ACCENT);
 
     const taxHeader = (x: number, y: number, color: string, text: string) => {
@@ -669,7 +671,7 @@ export class NativeDeckBuilder {
         ["Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS)", 6.37],
         ["Particle Swarm Optimization Memetic Algorithm (PSOMA)", 6.824],
       ] as [string, number][]
-    ).forEach(([algo, y]) => taxItem(4.801, y, 0.334, algo, GREEN, 10));
+    ).forEach(([algo], i) => taxItem(4.801, 5.008 + i * 0.49, 0.45, algo, GREEN, 10));
     taxHeader(8.962, 4.258, ORANGE, "Hyper-Heuristics");
     taxItem(8.962, 5.008, 2.15, "Ant Colony Optimization\nHyper-Heuristic (ACO-HH)", ORANGE);
 
@@ -702,55 +704,38 @@ export class NativeDeckBuilder {
     for (const [x, y, pct] of rightBins) binAndLabel(x, y, pct);
     slide.addImage({ data: truckImg, x: 7.7, y: 6.673, w: 1.231, h: 0.943 });
 
-    // Collection tour (orange arrows): truck → 50 → 60 → 87 → 30 → 80 → truck,
-    // matching the reference deck's diagram.
-    const routeArrow = (x1: number, y1: number, x2: number, y2: number, trimA = 0.38, trimB = 0.42) => {
-      const dx = x2 - x1;
-      const dy = y2 - y1;
-      const len = Math.hypot(dx, dy);
-      if (len < 0.05) return;
-      const ux = dx / len;
-      const uy = dy / len;
-      // neighbouring bins sit closer than the nominal trims — scale down so
-      // every tour leg keeps a visible arrow
-      const ta = Math.min(trimA, len * 0.32);
-      const tb = Math.min(trimB, len * 0.36);
-      const ax = x1 + ux * ta;
-      const ay = y1 + uy * ta;
-      const bx = x2 - ux * tb;
-      const by = y2 - uy * tb;
+    // Collection-tour arrows (orange): truck → 50 → 60 → 87 → 30 → 80 → truck.
+    // Bounding boxes + flips copied verbatim from the reference deck
+    // (tmp/wsmart_route_results.pptx slide 5) — the flips encode the tour
+    // direction, so the arrowhead lands on the tour target.
+    const tourArrows: [number, number, number, number, boolean, boolean][] = [
+      [8.005, 6.032, 0.217, 0.756, true, true], // truck → 50
+      [7.245, 5.688, 0.528, 0.158, true, true], // 50 → 60
+      [7.039, 5.049, 0.385, 0.136, false, true], // 60 → 87
+      [7.706, 4.567, 0.226, 0.146, false, true], // 87 → 30
+      [8.299, 4.661, 0.373, 0.238, false, false], // 30 → 80
+      [8.462, 5.575, 0.14, 1.213, true, false], // 80 → truck
+    ];
+    for (const [x, y, w, h, flipH, flipV] of tourArrows) {
       slide.addShape("line", {
-        x: Math.min(ax, bx),
-        y: Math.min(ay, by),
-        w: Math.abs(bx - ax),
-        h: Math.abs(by - ay),
-        flipH: bx < ax,
-        flipV: by < ay,
-        line: { color: ARROW_ORANGE, width: 2.25, endArrowType: "triangle" },
+        x,
+        y,
+        w,
+        h,
+        flipH,
+        flipV,
+        line: { color: ARROW_ORANGE, width: 1.5, endArrowType: "triangle" },
       });
-    };
-    const binCenter = (i: number): [number, number] => [rightBins[i][0] + 0.248, rightBins[i][1] + 0.352];
-    const [c50, c60, c87, c30, c80] = [3, 1, 0, 4, 5].map(binCenter);
-    routeArrow(8.15, 6.75, c50[0], c50[1], 0.2, 0.42); // truck → 50
-    routeArrow(c50[0], c50[1], c60[0], c60[1]); // 50 → 60
-    routeArrow(c60[0], c60[1], c87[0], c87[1]); // 60 → 87
-    routeArrow(c87[0], c87[1], c30[0], c30[1]); // 87 → 30
-    routeArrow(c30[0], c30[1], c80[0], c80[1]); // 30 → 80
-    routeArrow(c80[0], c80[1], 8.55, 6.75, 0.42, 0.2); // 80 → truck
+    }
 
-    // Horizontal underbrace beneath the constructor→improver chevrons (a
-    // rightBrace rotated 90° — placed via its unrotated bounding box).
-    const braceLeft = 3.646;
-    const braceRight = 12.83;
-    const braceLen = braceRight - braceLeft;
-    const braceDepth = 0.28;
-    const braceCx = (braceLeft + braceRight) / 2;
-    const braceCy = 4.18;
+    // Horizontal underbrace beneath the constructor→improver chevrons — a
+    // rightBrace rotated 90° (geometry from the reference deck; the unrotated
+    // bbox spans vertically and rotates about its centre).
     slide.addShape("rightBrace", {
-      x: braceCx - braceDepth / 2,
-      y: braceCy - braceLen / 2,
-      w: braceDepth,
-      h: braceLen,
+      x: 7.977,
+      y: -0.194,
+      w: 0.323,
+      h: 8.752,
       rotate: 90,
       fill: { color: WHITE, transparency: 100 },
       line: { color: ACCENT, width: 1.5 },
