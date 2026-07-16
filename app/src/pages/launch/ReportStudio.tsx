@@ -13,6 +13,7 @@
 import { useCallback, useMemo, useState } from "react";
 import { Eye, Play, Terminal, FolderOpen, FileText, Presentation } from "lucide-react";
 import { DeckPreview } from "../../components/gen/DeckPreview";
+import { ReportPreview } from "../../components/gen/ReportPreview";
 import type { HtmlSlide } from "../../gen/deck/htmlDeck";
 import { open } from "@tauri-apps/plugin-dialog";
 import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
@@ -705,6 +706,13 @@ export function ReportStudio() {
                 />
               ))}
             </div>
+          )}
+          {nativeStatus === "completed" && projectRoot && nativeOutputs.some((p) => p.endsWith(".md")) && (
+            <ReportPreview
+              projectRoot={projectRoot}
+              mdRel={nativeOutputs.find((p) => p.endsWith(".md"))!}
+              onLog={(m) => setNativeLog((l) => [...l, m])}
+            />
           )}
         </div>
       )}
