@@ -88,10 +88,22 @@ export function useHashSync() {
     hydrated.current = true;
   }, [setMode, setPolicy, setSampleId, setRunLabel, setBrushedCity, setLogScale]);
 
-  // Write hash when state changes (after initial hydration)
+  // Write hash when state changes (after initial hydration). Read fresh store
+  // state rather than the render closure: under StrictMode the double-invoked
+  // effects otherwise write a stale hash between the restore effect's two runs,
+  // clobbering deep-links before the re-render lands.
   useEffect(() => {
     if (!hydrated.current) return;
-    const next = encodeHash(mode, policy, sampleId, runLabel, brushedCity, logScale);
+    const { mode: curMode } = useAppStore.getState();
+    const filters = useGlobalFiltersStore.getState();
+    const next = encodeHash(
+      curMode,
+      filters.policy,
+      filters.sampleId,
+      filters.runLabel,
+      filters.brushedCity,
+      filters.logScale
+    );
     if (window.location.hash !== next) {
       window.history.replaceState(null, "", next);
     }

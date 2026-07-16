@@ -41,6 +41,17 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 - **Report Studio** Launch-section page (`report_studio` mode): generates the dataset / simulation analysis reports and the results presentation deck from the Studio — three tabs assembling the full CLI for the archived `gen_dataset_analysis.py`, `gen_simulation_analysis.py` (report + raw-output→CSV parse modes) and `gen_presentation.py` (PPTX / speaker-script DOCX / XLSX), with persisted forms (`useReportGenStore`), command preview, live log tail, and post-run artefact path chips (§H interim)
 
+#### Studio test suites (`app/tests/`, `app/cypress/`)
+
+- **Vitest** unit tests (Pareto front/step-line, symlog, chart log-scale helpers, process progress markers, run-path/URI resolution), component tests (KpiCard, StatusPill via Testing Library/jsdom), and integration tests (native §H.1 data engine pipeline: filename decoding → filter → aggregate → context → Pareto; global filter store ↔ chart transforms) — `npm test`, 70 tests
+- **Cypress** e2e tests (shell boot, sidebar navigation with hash sync, `useHashSync` deep-links, hash filter restore, Ctrl+K command palette) running against `vite dev` with the Tauri v2 IPC internals stubbed — `npm run test:e2e`
+- npm scripts: `test`, `test:unit`, `test:component`, `test:integration`, `test:coverage`, `cy:open`, `cy:run`, `test:e2e`
+
+### Fixed
+
+- **Studio `useHashSync` deep-link clobbering under StrictMode**: the hash write-effect ran with a stale render closure between the restore effect's double-invocation, rewriting `#m=<mode>` deep-links back to the default page; it now reads fresh store state (caught by the new Cypress deep-link spec)
+- **Studio `symexp` inverse**: was not the mathematical inverse of `symlog` for non-default `linthresh` values (behaviour unchanged for the default threshold the app uses)
+
 ### Changed
 
 - **Studio source tree reorganised into logical subdirectories** (`app/src/`): `utils/` split into `charts/`, `duckdb/`, `graph/`, `map/`, `benchmark/`, `process/`, `training/`, `sim/`, `runs/`, `app/`; `hooks/` into `brush/`, `process/`, `files/`, `app/`; `components/analysis/` into `benchmark/`, `topology/`, `telemetry/`, `routes/`, `explorer/`, `training/`; `components/monitor/` into `live/`, `eval/`, `process/` — all relative imports rewritten, no behaviour change
