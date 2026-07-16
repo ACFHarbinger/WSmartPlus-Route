@@ -25,7 +25,9 @@ Full native port of the archived `gen` pipeline into the Studio — no Python in
 
 - **§H.5 interactive HTML exports** (`gen/report/interactiveHtml.ts`): self-contained single-file chart pages with the ECharts bundle inlined (no CDN, open offline) — pareto scatter with All-Points/Pareto-Front views, strategy bubble, policy×scenario heatmap with an Overflows/kg-km toggle, NPZ mean-vs-std scatter, per-city waste-distribution bars, and the city & network comparison grid; both report generators write them under the private dirs (per-horizon when multi-horizon) and the markdown gains the ported "Interactive version" links + "Interactive Charts" footer sections — replaces the archived Plotly-CDN HTML files and `pareto_buttons.js`
 
-Remaining §H scope: document spec + override patch layer, native OMML equations, PDF + HTML-deck exports, live preview/editing canvas.
+- **§H.6 HTML deck export** (`gen/deck/htmlDeck.ts`): the 21-slide deck as one self-contained offline HTML slideshow — keyboard/click navigation with hash-synced index and slide counter, `N` toggles a speaker-notes panel fed from the per-slide scripts, figures/logos/icons/equations embedded as data URLs, native-shape diagrams reproduced in HTML/CSS (chevron pipeline, policy grid, taxonomy, DoE tree, objective flow, bin/truck scene), and the results table as a real HTML table with merged header spans and best-cell highlighting; exposed as an "HTML slideshow" toggle on the native deck build
+
+Remaining §H scope: document spec + override patch layer, native OMML equations, PDF export, live preview/editing canvas.
 
 #### Report Studio — §H interim launcher
 
