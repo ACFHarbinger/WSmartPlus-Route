@@ -1,0 +1,35 @@
+# =============================================================================
+# PyDeck Animated Simulation Map Configuration
+# =============================================================================
+# Controls the pydeck_animated Streamlit component rendered from
+# logic.src.ui.components.maps.pydeck_animated.render_pydeck_animated_map
+#
+# Usage:
+#   from logic.src.ui.components.maps.pydeck_animated import render_pydeck_animated_map
+#   render_pydeck_animated_map(bin_locations=bins, **cfg.ui.pydeck_map)
+# =============================================================================
+
+# Map initialisation
+map_center_lat: 51.22   # Antwerp city centre latitude (override per deployment).
+map_center_lon: 4.41    # Antwerp city centre longitude.
+initial_zoom: 12
+map_style: "road"       # "road" | "satellite" | "mapbox://styles/..." (requires token).
+
+# Bin column layer
+column_radius: 50            # Column radius in metres.
+column_elevation_scale: 10   # Multiplier: fill_level → column height.
+
+# Arc layer
+arc_width: 3   # Stroke width in pixels for vehicle arc connections.
+
+# Bin fill simulation
+daily_fill_increment: 5.0   # % fill added to each bin per simulated day.
+
+# Default policy to display (must match a 'policy' field in the .jsonl log).
+default_policy: "gurobi"
+
+# Map widget height in pixels.
+height: 600
+
+# Section heading.
+title: "Simulation Animation"

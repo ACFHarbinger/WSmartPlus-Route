@@ -1,0 +1,41 @@
+# =============================================================================
+# Data Drift Detection Configuration
+# =============================================================================
+# Parameters forwarded to
+# logic.src.pipeline.features.eval.drift_detection.run_drift_detection
+#
+# Usage (CLI):
+#   python -m logic.src.pipeline.features.eval.drift_detection \
+#       --reference assets/datasets/april_2024_summary.csv \
+#       --current   assets/datasets/eval_synthetic.npz \
+#       --stattest  ks
+#
+# Usage (programmatic with Hydra cfg):
+#   run_drift_detection(
+#       reference_path=cfg.ui.drift_detection.reference_path,
+#       current_path=cfg.ui.drift_detection.current_path,
+#       **{k: v for k, v in cfg.ui.drift_detection.items()
+#          if k not in ("reference_path", "current_path")},
+#   )
+# =============================================================================
+
+# Dataset paths — override per environment.
+reference_path: "assets/datasets/april_2024_summary.csv"
+current_path: "assets/datasets/eval_synthetic.npz"
+
+# Output
+output_dir: "assets/drift_reports"
+
+# Problem type tag embedded in the report filename.
+# One of: vrpp | wcvrp | sdwcvrp | all
+problem: "vrpp"
+
+# Optional target column for target drift analysis.
+target_column: null
+
+# Statistical test for numeric column drift detection.
+# Options: ks (Kolmogorov-Smirnov) | psi (PSI) | wasserstein | mannw
+stattest: "ks"
+
+# p-value / threshold below which drift is flagged.
+stattest_threshold: 0.05

@@ -1,0 +1,32 @@
+# =============================================================================
+# HPO Tracker Dashboard Page Configuration
+# =============================================================================
+# Controls the Optuna study visualisation page rendered from
+# logic.src.ui.pages.hpo_tracker.render_hpo_tracker
+#
+# Usage (in dashboard):
+#   from logic.src.ui.pages.hpo_tracker import render_hpo_tracker
+#   render_hpo_tracker(**cfg.ui.hpo_tracker)
+# =============================================================================
+
+# Optuna storage backend (SQLAlchemy connection string).
+# Override per environment via env-var or CLI.
+storage_url: "sqlite:///assets/hpo/study.db"
+
+# Study to load on startup. null = show a picker dropdown.
+study_name: null
+
+# Table: number of top trials to display.
+n_top_trials: 10
+
+# Which visualisation panels to render.
+show_parallel_coords: true
+show_importance: true
+show_history: true
+show_contour: false       # Expensive for many hyperparameters — off by default.
+
+# Importance algorithm: "fanova" (default) or "mean_decrease_impurity".
+importance_evaluator: "fanova"
+
+# Chart height in pixels for all plots.
+height: 600
