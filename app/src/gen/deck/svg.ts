@@ -139,8 +139,23 @@ export class SvgCanvas {
   }
 }
 
+export type SvgRasterizer = (
+  svg: string,
+  width: number,
+  height: number,
+  scale: number
+) => Promise<string>;
+
+let rasterizerOverride: SvgRasterizer | null = null;
+
+/** Inject a non-browser rasteriser (headless generation runs outside the webview). */
+export function setSvgRasterizer(fn: SvgRasterizer | null): void {
+  rasterizerOverride = fn;
+}
+
 /** Rasterise an SVG string to a PNG data URL. */
 export async function svgToPngDataUrl(svg: string, width: number, height: number, scale = 2): Promise<string> {
+  if (rasterizerOverride) return rasterizerOverride(svg, width, height, scale);
   const url = `data:image/svg+xml;charset=utf-8,${encodeURIComponent(svg)}`;
   const img = new Image();
   await new Promise<void>((resolve, reject) => {

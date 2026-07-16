@@ -39,6 +39,7 @@ const WHITE = "FFFFFF";
 const GREEN = "3E8E41";
 const ORANGE = "B06A2E";
 const LIGHT_FILL = "F0F4FA";
+const ARROW_ORANGE = "ED7D31";
 
 const PIPELINE_STAGES: [string, string][] = [
   ["Mandatory bin\nselection strategy", "LA · LM · SL\nwhich bins today?"],
@@ -480,7 +481,9 @@ export class NativeDeckBuilder {
     }
     slide.addText(authorRuns, { x: 0.9, y: 4.8, w: SLIDE_W - 1.8, h: 2.4, valign: "top" });
 
-    // Institution logos (repo assets) + conference logo
+    // Institution logos (repo assets) + conference logo — each [x, y, w, h] is
+    // a bounding box; the image is contain-fitted to its natural aspect ratio
+    // so logos are never stretched.
     const logoSpecs: [string, number, number, number, number][] = [
       ["assets/images/logo-inescid.png", 0.9, 5.95, 1.83, 1.25],
       ["assets/images/logo-ist.png", 4.6, 5.82, 1.98, 1.69],
@@ -490,7 +493,20 @@ export class NativeDeckBuilder {
     for (const [rel, x, y, w, h] of logoSpecs) {
       const path = joinPath(this.opts.projectRoot, rel);
       if (await pathExists(path)) {
-        slide.addImage({ data: await readBinaryDataUrl(path), x, y, w, h });
+        const data = await readBinaryDataUrl(path);
+        let fit = { x, y, w, h };
+        try {
+          const nat = await imageSize(data);
+          if (nat.w > 0 && nat.h > 0) {
+            const scale = Math.min(w / nat.w, h / nat.h);
+            const fw = nat.w * scale;
+            const fh = nat.h * scale;
+            fit = { x: x + (w - fw) / 2, y: y + (h - fh) / 2, w: fw, h: fh };
+          }
+        } catch {
+          /* keep the box as-is if the image cannot be measured */
+        }
+        slide.addImage({ data, ...fit });
       }
     }
     this.recordScript(this.content.title, [
@@ -637,19 +653,25 @@ export class NativeDeckBuilder {
       slide.addShape("roundRect", { x, y, w: 3.811, h: 0.6, fill: { color }, rectRadius: 0.06 });
       slide.addText(text, { x, y, w: 3.811, h: 0.6, fontSize: 16, bold: true, color: WHITE, align: "center", valign: "middle" });
     };
-    const taxItem = (x: number, y: number, h: number, text: string, lineColor: string) => {
+    const taxItem = (x: number, y: number, h: number, text: string, lineColor: string, size = 13) => {
       slide.addShape("roundRect", { x, y, w: 3.811, h, fill: { color: LIGHT_FILL }, line: { color: lineColor, width: 1.25 }, rectRadius: 0.06 });
-      slide.addText(text, { x, y, w: 3.811, h, fontSize: 13, bold: true, color: DARK, align: "center", valign: "middle" });
+      slide.addText(text, { x, y, w: 3.811, h, fontSize: size, bold: true, color: DARK, align: "center", valign: "middle" });
     };
     taxHeader(0.64, 4.258, ACCENT, "Exact Methods");
-    taxItem(0.64, 5.008, 1.015, "BPC", ACCENT);
-    taxItem(0.64, 6.143, 1.015, "SWC-TCF", ACCENT);
+    taxItem(0.64, 5.008, 1.015, "Branch-and-Price-and-Cut (BPC)", ACCENT);
+    taxItem(0.64, 6.143, 1.015, "Smart Waste Collection —\nTwo-Commodity Flow (SWC-TCF)", ACCENT);
     taxHeader(4.801, 4.258, GREEN, "Meta-Heuristics");
-    ([["HGS", 5.008], ["ALNS", 5.462], ["SANS", 5.916], ["PG-CLNS", 6.37], ["PSOMA", 6.824]] as [string, number][]).forEach(
-      ([algo, y]) => taxItem(4.801, y, 0.334, algo, GREEN)
-    );
+    (
+      [
+        ["Hybrid Genetic Search (HGS)", 5.008],
+        ["Adaptive Large Neighborhood Search (ALNS)", 5.462],
+        ["Simulated Annealing Neighborhood Search (SANS)", 5.916],
+        ["Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS)", 6.37],
+        ["Particle Swarm Optimization Memetic Algorithm (PSOMA)", 6.824],
+      ] as [string, number][]
+    ).forEach(([algo, y]) => taxItem(4.801, y, 0.334, algo, GREEN, 10));
     taxHeader(8.962, 4.258, ORANGE, "Hyper-Heuristics");
-    taxItem(8.962, 5.008, 2.15, "ACO-HH", ORANGE);
+    taxItem(8.962, 5.008, 2.15, "Ant Colony Optimization\nHyper-Heuristic (ACO-HH)", ORANGE);
 
     this.recordScript(spec.title, spec.speaker_notes ?? []);
     slide.addNotes(this.scripts[this.scripts.length - 1].script);
@@ -665,7 +687,7 @@ export class NativeDeckBuilder {
     const truckImg = await assetToDataUrl(GEN_IMAGES.waste_truck_icon);
     const binAndLabel = (x: number, y: number, pct: string) => {
       slide.addImage({ data: binImg, x, y, w: 0.495, h: 0.703 });
-      slide.addText(pct, { x: x + 0.023, y: y + 0.36, w: 0.449, h: 0.286, fontSize: 11, bold: true, color: DARK, align: "center", valign: "middle" });
+      slide.addText(pct, { x: x + 0.023, y: y + 0.36, w: 0.449, h: 0.286, fontSize: 11, bold: true, color: WHITE, align: "center", valign: "middle" });
     };
     const leftBins: [number, number, string][] = [
       [1.063, 4.912, "87%"], [0.431, 5.399, "60%"], [0.708, 6.182, "42%"], [1.405, 5.6, "50%"],
@@ -679,14 +701,60 @@ export class NativeDeckBuilder {
     ];
     for (const [x, y, pct] of rightBins) binAndLabel(x, y, pct);
     slide.addImage({ data: truckImg, x: 7.7, y: 6.673, w: 1.231, h: 0.943 });
-    const connectors: [number, number, number, number][] = [
-      [8.005, 6.032, 0.217, 0.756], [8.299, 4.661, 0.373, 0.238], [7.245, 5.688, 0.528, 0.158],
-      [7.039, 5.049, 0.385, 0.136], [7.706, 4.567, 0.226, 0.146], [8.462, 5.575, 0.14, 1.213],
-    ];
-    for (const [x, y, w, h] of connectors) {
-      slide.addShape("line", { x, y, w, h, line: { color: DARK, width: 1.5, endArrowType: "triangle" } });
-    }
-    slide.addShape("rightBrace", { x: 7.977, y: 0, w: 0.323, h: SLIDE_H, fill: { color: WHITE, transparency: 100 }, line: { color: MUTED, width: 1.5 } });
+
+    // Collection tour (orange arrows): truck → 50 → 60 → 87 → 30 → 80 → truck,
+    // matching the reference deck's diagram.
+    const routeArrow = (x1: number, y1: number, x2: number, y2: number, trimA = 0.38, trimB = 0.42) => {
+      const dx = x2 - x1;
+      const dy = y2 - y1;
+      const len = Math.hypot(dx, dy);
+      if (len < 0.05) return;
+      const ux = dx / len;
+      const uy = dy / len;
+      // neighbouring bins sit closer than the nominal trims — scale down so
+      // every tour leg keeps a visible arrow
+      const ta = Math.min(trimA, len * 0.32);
+      const tb = Math.min(trimB, len * 0.36);
+      const ax = x1 + ux * ta;
+      const ay = y1 + uy * ta;
+      const bx = x2 - ux * tb;
+      const by = y2 - uy * tb;
+      slide.addShape("line", {
+        x: Math.min(ax, bx),
+        y: Math.min(ay, by),
+        w: Math.abs(bx - ax),
+        h: Math.abs(by - ay),
+        flipH: bx < ax,
+        flipV: by < ay,
+        line: { color: ARROW_ORANGE, width: 2.25, endArrowType: "triangle" },
+      });
+    };
+    const binCenter = (i: number): [number, number] => [rightBins[i][0] + 0.248, rightBins[i][1] + 0.352];
+    const [c50, c60, c87, c30, c80] = [3, 1, 0, 4, 5].map(binCenter);
+    routeArrow(8.15, 6.75, c50[0], c50[1], 0.2, 0.42); // truck → 50
+    routeArrow(c50[0], c50[1], c60[0], c60[1]); // 50 → 60
+    routeArrow(c60[0], c60[1], c87[0], c87[1]); // 60 → 87
+    routeArrow(c87[0], c87[1], c30[0], c30[1]); // 87 → 30
+    routeArrow(c30[0], c30[1], c80[0], c80[1]); // 30 → 80
+    routeArrow(c80[0], c80[1], 8.55, 6.75, 0.42, 0.2); // 80 → truck
+
+    // Horizontal underbrace beneath the constructor→improver chevrons (a
+    // rightBrace rotated 90° — placed via its unrotated bounding box).
+    const braceLeft = 3.646;
+    const braceRight = 12.83;
+    const braceLen = braceRight - braceLeft;
+    const braceDepth = 0.28;
+    const braceCx = (braceLeft + braceRight) / 2;
+    const braceCy = 4.18;
+    slide.addShape("rightBrace", {
+      x: braceCx - braceDepth / 2,
+      y: braceCy - braceLen / 2,
+      w: braceDepth,
+      h: braceLen,
+      rotate: 90,
+      fill: { color: WHITE, transparency: 100 },
+      line: { color: ACCENT, width: 1.5 },
+    });
 
     this.recordScript(spec.title, [...(spec.speaker_notes ?? []), ...(spec.bullets ?? [])]);
     slide.addNotes(this.scripts[this.scripts.length - 1].script);

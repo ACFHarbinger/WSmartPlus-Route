@@ -57,23 +57,23 @@ export function panelGrid(
 
 // ── Theme-aware axis/text defaults ───────────────────────────────────────────
 
-export function baseTextStyle(theme: GenTheme, size = 12) {
+export function baseTextStyle(theme: GenTheme, size = 14) {
   return { color: theme.fg, fontSize: size };
 }
 
 export function axisStyle(theme: GenTheme, opts: { name?: string; nameSize?: number } = {}) {
   return {
     name: opts.name,
-    nameTextStyle: { color: theme.axisLabelColor, fontSize: opts.nameSize ?? 13, fontWeight: "bold" as const },
+    nameTextStyle: { color: theme.axisLabelColor, fontSize: opts.nameSize ?? 16, fontWeight: "bold" as const },
     nameLocation: "middle" as const,
-    nameGap: 28,
+    nameGap: 30,
     axisLine: { lineStyle: { color: theme.axisLabelColor } },
-    axisLabel: { color: theme.axisLabelColor, fontSize: 11 },
+    axisLabel: { color: theme.axisLabelColor, fontSize: 13 },
     splitLine: { lineStyle: { color: theme.gridColor, opacity: theme.gridAlpha } },
   };
 }
 
-export function panelTitle(text: string, box: PanelBox, theme: GenTheme, size = 14) {
+export function panelTitle(text: string, box: PanelBox, theme: GenTheme, size = 17) {
   return {
     text,
     left: `${box.left + box.width / 2}%`,
@@ -146,6 +146,22 @@ export function stepFront(points: [number, number][]): [number, number][] {
     out.push([pts[j][0], pts[j - 1][1]], [pts[j][0], pts[j][1]]);
   }
   return out;
+}
+
+/**
+ * Empty named series backing decorative legend entries: ECharts only renders
+ * legend items whose name matches a series (or data) name, so purely visual
+ * legends (variant colours, marker shapes, front lines) need placeholders.
+ */
+export function legendPlaceholderSeries(
+  legendData: ReadonlyArray<{ name: string } | string>
+): SeriesOption[] {
+  return legendData.map((item) => ({
+    name: typeof item === "string" ? item : item.name,
+    type: "scatter" as const,
+    data: [],
+    silent: true,
+  }));
 }
 
 // ── Marker/hatch cycles (ports MARKER_CYCLE / HATCH_CYCLE) ───────────────────
