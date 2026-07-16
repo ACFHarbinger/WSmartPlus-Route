@@ -33,7 +33,9 @@ Full native port of the archived `gen` pipeline into the Studio — no Python in
 
 - **§H.5 self-contained HTML report export** (`gen/report/htmlReport.ts`): converts the generated markdown reports into standalone styled HTML documents (GFM tables, figure blocks) with every referenced figure inlined as a data URL — "HTML report" toggles on the native dataset/simulation tabs
 
-Remaining §H scope: document spec + override patch layer, native OMML equations, report PDF export + report preview, inspector/direct-manipulation editing.
+- **§H.7 report preview** (`components/gen/ReportPreview.tsx`): after a native report completes, "Preview report" renders the written markdown through the shared HTML builder (figures inlined) in a sandboxed iframe — scrolling document preview with refresh
+
+Remaining §H scope: document spec + override patch layer, native OMML equations, report PDF export, inspector/direct-manipulation editing.
 
 #### Report Studio — §H interim launcher
 
