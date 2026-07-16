@@ -2890,7 +2890,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 - [x] **Report Studio** page (`report_studio` mode, Launch section): three tabs assembling the full CLI for the archived scripts — Dataset Analysis (theme, NPZ/TD CSVs, NPZ dir, out-md, figures-dir, force/figures-only), Simulation Analysis (report mode: fontsize, pareto-points, repeatable horizons, scenario/strategy/constructor/improver/acceptance filters, map-mode, heatmap-labels; parse mode: raw output tree → summary CSV), Presentation Deck (figures-dir, out PPTX, author/coauthors/groups, results-table + split, speaker-script DOCX, image-mode, XLSX export)
 - [x] Persisted form state (`useReportGenStore`), command preview, spawn via shared process infra (`reportgen_*` ids), live log tail + status pill, post-run artefact path chips (markdown / CSV / PPTX / DOCX / XLSX)
 
-> Update (same day): the native §H engine shipped for §H.1–§H.6 core scope — the Report Studio page now defaults to the **Native** engine (in-app ECharts figures, MathJax equations, pptxgenjs/docx/exceljs exporters) with the archived scripts behind a **Legacy** toggle. Remaining §H gaps: document spec + override patch layer (§H.0), native OMML equations (§H.4), report PDF export (§H.5), and the live preview/editing UX (§H.7) — interactive HTML report charts (§H.5) plus the HTML deck slideshow and deck PDF (§H.6) shipped 2026-07-16.
+> Update (same day): the native §H engine shipped for §H.1–§H.6 core scope — the Report Studio page now defaults to the **Native** engine (in-app ECharts figures, MathJax equations, pptxgenjs/docx/exceljs exporters) with the archived scripts behind a **Legacy** toggle. Remaining §H gaps: document spec + override patch layer (§H.0), native OMML equations (§H.4), report PDF export + report preview (§H.5/§H.7), and the inspector/direct-manipulation editing UX (§H.7) — interactive HTML report charts (§H.5), the HTML deck slideshow + deck PDF (§H.6), and the paginated deck preview canvas (§H.7) shipped 2026-07-16.
 
 ---
 
@@ -2997,7 +2997,8 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 
 **Goal**: The core reason for the migration — see and adjust the exact output before producing files, replacing the regenerate-and-inspect loop and the `--fontsize-*` CLI flags.
 
-- [ ] **Preview canvas**: paginated slide preview / scrolling report preview rendered from the resolved spec (base + patches) at true output aspect; zoom and fit controls
+- [x] **Preview canvas (deck)**: paginated in-app slide preview in Report Studio — shadow-root isolation, true 1600×900 aspect with fit-to-width scaling, ←/→ pagination, speaker-notes strip, rebuild-from-settings; rendered by the same builder as the HTML/PDF exports (`components/gen/DeckPreview.tsx`)
+- [ ] **Preview canvas (report)**: scrolling report preview rendered from the resolved spec (base + patches); zoom controls
 - [ ] **Inspector panel**: click any element (chart, axis, legend, logo, diagram node, caption, table) → typed controls for its style/layout properties — fontsize per element class, colours, alignment, scale toggles (linear/symlog), legend position, marker sizes; edits write to the patch layer and re-render instantly
 - [ ] **Direct manipulation**: drag/resize elements on the canvas, drag diagram nodes and connector endpoints, snap guides + alignment/distribution tools (e.g. realign the cover-slide logos by eye); positions recorded as patches
 - [ ] **Global theme editor**: edit palettes and per-class font scales once, watch every chart/slide update live (supersedes `set_chart_fontsize` and the mplstyle files); switch dark/light per document
