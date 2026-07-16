@@ -205,6 +205,7 @@ interface ReportGenState {
   dsFiguresDir: string;
   dsForce: boolean;
   dsFiguresOnly: boolean;
+  dsHtml: boolean;
   // simulation analysis
   simMode: "report" | "parse";
   simFontsize: number;
@@ -219,6 +220,7 @@ interface ReportGenState {
   simFiguresDir: string;
   simForce: boolean;
   simFiguresOnly: boolean;
+  simHtml: boolean;
   simMapMode: "street" | "scatter";
   simHeatmapLabels: "both" | "show" | "hide";
   parseOutputDir: string;
@@ -254,6 +256,7 @@ export const useReportGenStore = create<ReportGenState>()(
       dsFiguresDir: "",
       dsForce: true,
       dsFiguresOnly: false,
+      dsHtml: false,
       simMode: "report" as const,
       simFontsize: 0,
       simParetoPoints: "default" as const,
@@ -267,6 +270,7 @@ export const useReportGenStore = create<ReportGenState>()(
       simFiguresDir: "",
       simForce: true,
       simFiguresOnly: false,
+      simHtml: false,
       simMapMode: "street" as const,
       simHeatmapLabels: "both" as const,
       parseOutputDir: "assets/output/90days",
