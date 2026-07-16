@@ -440,9 +440,11 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                     )
             if xscale != "linear":
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=FS(13))
-            ax.set_ylabel(f"Efficiency ({KGKM_LABEL})", fontsize=FS(13))
-            ax.set_title(f"{dist}", fontsize=FS(13))
+            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=FS(13), fontweight="bold")
+            ax.set_ylabel(f"Efficiency ({KGKM_LABEL})", fontsize=FS(13), fontweight="bold")
+            ax.set_title(f"{dist}", fontsize=FS(13), fontweight="bold")
+            for tick in ax.get_xticklabels() + ax.get_yticklabels():
+                tick.set_fontweight("bold")
             ax.tick_params(axis="both", labelsize=11)
             ax.yaxis.grid(True, alpha=0.4)
             ax.xaxis.grid(True, alpha=0.4)
@@ -485,7 +487,11 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
             )
             for s in scenarios
         ]
-        fig.legend(handles=leg, loc="lower center", ncol=min(len(leg), 6), fontsize=FS(12), bbox_to_anchor=(0.5, -0.1))
+        leg_obj = fig.legend(
+            handles=leg, loc="lower center", ncol=min(len(leg), 6), fontsize=FS(12), bbox_to_anchor=(0.5, -0.1)
+        )
+        for text in leg_obj.get_texts():
+            text.set_fontweight("bold")
         fig.subplots_adjust(bottom=0.2)
         return fig
 
@@ -994,25 +1000,25 @@ def _render_radar(
     fig.patch.set_facecolor(_RADAR_BG)
     ax.patch.set_facecolor(_RADAR_AX_BG)
     ax.set_xticks(angles[:-1])
-    ax.set_xticklabels(axes_labels, fontsize=FS(15), color=_RADAR_MUTED)
-    ax.tick_params(axis="x", pad=28, colors=_RADAR_MUTED)
+    ax.set_xticklabels(axes_labels, fontsize=FS(15), color="#ffffff")
+    ax.tick_params(axis="x", pad=28, colors="#ffffff")
     ax.set_ylim(0, 1)
-    ax.yaxis.set_tick_params(labelcolor=_RADAR_MUTED, labelsize=10)
+    ax.yaxis.set_tick_params(labelcolor="#ffffff", labelsize=10)
     ax.spines["polar"].set_color(_RADAR_MUTED)
     for r, lbl in zip([0.25, 0.5, 0.75, 1.0], ["25%", "50%", "75%", "100%"], strict=True):
         ax.plot(angles, [r] * (n_axes + 1), "--", color=_RADAR_FAINT, linewidth=0.8)
-        ax.text(0, r + 0.02, lbl, ha="center", va="bottom", fontsize=FS(10), color=_RADAR_MUTED)
+        ax.text(0, r + 0.02, lbl, ha="center", va="bottom", fontsize=FS(10), color="#ffffff")
     for c in key:
         vals = scores[c] + scores[c][:1]
         color = META["constructor_colors"].get(c, "#e0e0e0")
         ax.plot(angles, vals, "o-", color=color, linewidth=2.5, markersize=5, label=disp(c))
         ax.fill(angles, vals, color=color, alpha=0.08)
-    ax.set_title(title, fontsize=FS(15), fontweight="bold", pad=36, color=_RADAR_MUTED)
+    ax.set_title(title, fontsize=FS(15), fontweight="bold", pad=36, color="#ffffff")
     legend = ax.legend(loc="upper right", bbox_to_anchor=legend_anchor, fontsize=FS(13))
     legend.get_frame().set_facecolor(_RADAR_BG)
     legend.get_frame().set_edgecolor(_RADAR_MUTED)
     for text in legend.get_texts():
-        text.set_color(_RADAR_MUTED)
+        text.set_color("#ffffff")
     fig.subplots_adjust(top=0.82)
     return fig
 

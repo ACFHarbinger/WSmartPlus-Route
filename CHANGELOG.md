@@ -59,7 +59,17 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 - **Cypress** e2e tests (shell boot, sidebar navigation with hash sync, `useHashSync` deep-links, hash filter restore, Ctrl+K command palette) running against `vite dev` with the Tauri v2 IPC internals stubbed — `npm run test:e2e`
 - npm scripts: `test`, `test:unit`, `test:component`, `test:integration`, `test:coverage`, `cy:open`, `cy:run`, `test:e2e`
 
+### Changed
+
+- **Presentation & analysis deliverables now regenerated with the archived Python gen pipeline** (`archive/gen/`, user preference for its figures/tables/diagrams): `gen_simulation_analysis.py` rebuilt `public/figures/simulation` + `public/simulation_analysis.md`, `gen_presentation.py` rebuilt `assets/windows/wsmart_route_results.pptx` (21 slides); the native §H engine stays available in Report Studio and keeps parity fixes
+
 ### Fixed
+
+- **Presentation feedback fixes, round 2** (applied to `archive/gen/gen_presentation.py` / `gen_simulation_analysis.py`, with parity fixes in the native TS deck builder):
+  - slide 4: the Hyper-Heuristics→Simulator connector sources at the Hyper-Heuristics box again (the TS port had shifted its bounding box onto the Exact/Meta rows, leaving Hyper-Heuristics arrowless)
+  - slide 4 taxonomy: full algorithm names + acronyms ported to the Python deck; items middle-anchored and Meta-Heuristics boxes taller (0.45" on a 0.49" pitch) so PG-CLNS/PSOMA no longer overflow their borders
+  - slide 5: tour arrows now use the reference deck's exact connector bounding boxes **and flips** (the archived port had dropped flipH/flipV, scrambling the directions) — vehicle → 50 → 60 → 87 → 30 → 80 → vehicle, in orange; bin percentages white; the reference's rotated-brace geometry restored (the port also dropped `rot=90`, which is what produced the full-height grey line)
+  - Python figures: radar text white, pareto axis/tick/legend text bold, cover logos contain-fitted via PIL
 
 - **Presentation deck feedback fixes** (native §H deck + chart library; deck regenerated to `assets/windows/wsmart_route_results.pptx`):
   - cover-slide institution/conference logos contain-fitted to their natural aspect ratio instead of stretched into fixed boxes
