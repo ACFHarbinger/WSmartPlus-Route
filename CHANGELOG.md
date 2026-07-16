@@ -65,6 +65,14 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 ### Fixed
 
+- **Presentation feedback fixes, round 3** (figure/table readability, `archive/gen`; figures + deck regenerated):
+  - pareto scatter (slide 12), strategy bubble (14), improver bubble (17): axis-name and panel-title fontsizes increased
+  - KPI combined (13): y-labels/titles increased; only the FFZ-350 x tick labels shrunk slightly so they no longer collide (RM labels keep their size)
+  - per-scenario heatmaps (15): panels widened (3.8″→4.6″ each) + slightly smaller x tick labels so the LA/LM/SL × FTSP/CLS labels separate
+  - 90-day policy×scenario heatmaps (16): colorbar labels ("Overflow Count", "KG / KM Efficiency") enlarged
+  - radar figures (19): axis labels padded farther from the ring (pad 28→72) and the all-constructors legend moved right, clear of the radar
+  - results table (18): overflow now stacks **above** kg/km in each cell (full cell width per value — the side-by-side layout overflowed), row-label band narrowed (27%→16% of width) in favour of constructor/data columns, table image spans the entire slide width, corner note/speaker script updated to TOP/BOTTOM
+
 - **Presentation feedback fixes, round 2** (applied to `archive/gen/gen_presentation.py` / `gen_simulation_analysis.py`, with parity fixes in the native TS deck builder):
   - slide 4: the Hyper-Heuristics→Simulator connector sources at the Hyper-Heuristics box again (the TS port had shifted its bounding box onto the Exact/Meta rows, leaving Hyper-Heuristics arrowless)
   - slide 4 taxonomy: full algorithm names + acronyms ported to the Python deck; items middle-anchored and Meta-Heuristics boxes taller (0.45" on a 0.49" pitch) so PG-CLNS/PSOMA no longer overflow their borders
