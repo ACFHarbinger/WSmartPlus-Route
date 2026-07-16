@@ -25,6 +25,7 @@ import {
 } from "./resultsTable";
 import { buildSpeakerScript, type SlideScript } from "./speakerScript";
 import { generateHtmlDeck } from "./htmlDeck";
+import { generateDeckPdf } from "./pdfExport";
 import type { Progress } from "../report/simulationReport";
 
 const SLIDE_W = 13.333;
@@ -61,6 +62,8 @@ export interface DeckOptions {
   excel?: boolean;
   /** Also export the self-contained HTML slideshow (§H.6). */
   html?: boolean;
+  /** Also export the 16:9 PDF rendering of the deck (§H.6). */
+  pdf?: boolean;
 }
 
 type Slide = ReturnType<PptxGenJS["addSlide"]>;
@@ -874,6 +877,24 @@ export class NativeDeckBuilder {
         this.progress
       );
       outputs.push(htmlOut);
+    }
+
+    if (this.opts.pdf) {
+      const pdfOut = await generateDeckPdf(
+        {
+          projectRoot: this.opts.projectRoot,
+          figuresDir: this.opts.figuresDir,
+          out: this.opts.out,
+          author: this.opts.author,
+          coauthors: this.opts.coauthors,
+          groups: this.opts.groups,
+          resultsTable: this.opts.resultsTable,
+          resultsTableSplit: this.opts.resultsTableSplit,
+          imageMode: this.opts.imageMode,
+        },
+        this.progress
+      );
+      outputs.push(pdfOut);
     }
     return { outputs };
   }

@@ -202,6 +202,7 @@ export function ReportStudio() {
             imageMode: s.presImageMode,
             excel: s.presExcel,
             html: s.presHtml,
+            pdf: s.presPdf,
           },
           progress
         );
@@ -552,7 +553,10 @@ export function ReportStudio() {
             <Check label="Speaker script (.docx)" checked={s.presSpeakerScript} onChange={(v) => patch({ presSpeakerScript: v })} />
             <Check label="Excel results workbook" checked={s.presExcel} onChange={(v) => patch({ presExcel: v })} />
             {engine === "native" && (
-              <Check label="HTML slideshow" checked={s.presHtml} onChange={(v) => patch({ presHtml: v })} />
+              <>
+                <Check label="HTML slideshow" checked={s.presHtml} onChange={(v) => patch({ presHtml: v })} />
+                <Check label="PDF deck" checked={s.presPdf} onChange={(v) => patch({ presPdf: v })} />
+              </>
             )}
           </div>
           {s.presSpeakerScript && (

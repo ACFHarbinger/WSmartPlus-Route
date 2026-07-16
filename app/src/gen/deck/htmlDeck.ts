@@ -48,7 +48,100 @@ export interface HtmlDeckOptions {
 const esc = (s: string) =>
   s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 
-interface HtmlSlide {
+/** Deck stylesheet — shared by the slideshow page and the PDF rasteriser (§H.6). */
+export const DECK_CSS = `  html, body { margin: 0; height: 100%; background: #0c0c18; font-family: Helvetica, Arial, sans-serif; }
+  .frame { display: none; width: 100vw; height: 100vh; align-items: center; justify-content: center; }
+  .frame.active { display: flex; }
+  .slide { position: relative; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; background: #ffffff; overflow: hidden; display: flex; flex-direction: column; }
+  .slide.dark { background: ${DARK}; color: #ffffff; }
+  .titlebar { background: ${DARK}; color: #fff; font-size: 1.7em; font-weight: bold; padding: 0.55em 0.8em; flex: none; }
+  .body { flex: 1; padding: 0.8em 1.1em; overflow: hidden; display: flex; flex-direction: column; gap: 0.5em; color: ${DARK}; min-height: 0; }
+  .bullets { margin: 0.2em 0; padding-left: 1.2em; color: ${DARK}; font-size: 1.05em; }
+  .bullets.small { font-size: 0.9em; }
+  .bullets li { margin-bottom: 0.45em; }
+  .figrow { flex: 1; display: flex; gap: 0.6em; align-items: center; justify-content: center; min-height: 0; }
+  .figrow img { max-width: 100%; max-height: 100%; min-height: 0; object-fit: contain; flex: 1 1 0; }
+  .split { flex: 1; display: flex; gap: 1em; min-height: 0; }
+  .split > div { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
+  .eqband { background: ${LIGHT_FILL}; border-radius: 10px; padding: 0.7em; display: flex; flex-direction: column; align-items: center; gap: 0.45em; }
+  .eqband img.eq { max-width: 100%; object-fit: contain; }
+  .eq-fallback { font-family: 'Cambria Math', serif; color: ${DARK}; }
+  .caption { font-size: 0.75em; font-style: italic; color: ${MUTED}; margin: 0.2em 0 0; flex: none; }
+  /* cover */
+  .cover { justify-content: center; padding: 0 6%; }
+  .cover h1 { font-size: 2.1em; margin: 0 0 0.5em; }
+  .cover .band { height: 5px; background: ${ACCENT}; margin: 0.4em 0 0.9em; }
+  .cover .author { font-size: 1.25em; font-weight: bold; margin: 0.2em 0; }
+  .cover .coauthors { color: ${LIGHT_TXT}; margin: 0.2em 0; }
+  .cover .groups { color: #8A9BB0; font-style: italic; font-size: 0.8em; }
+  .cover .logos { display: flex; gap: 8%; align-items: center; margin-top: 1.2em; }
+  .cover .logos img { height: 3.2em; object-fit: contain; }
+  .cover .conf-logo { position: absolute; top: 2%; right: 2%; height: 4.2em; }
+  /* agenda */
+  .agenda-title { font-size: 2em; margin: 0.8em 1em 0.4em; }
+  .agenda { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; padding: 0 1.6em 1.6em; flex: 1; }
+  .agenda-card { display: flex; align-items: center; gap: 0.7em; background: #273749; border: 2px solid; border-radius: 10px; padding: 0.5em 0.8em; font-weight: bold; font-size: 1.05em; }
+  .agenda-card .badge { flex: none; width: 1.9em; height: 1.9em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05em; }
+  /* pipeline */
+  .pipeline { display: flex; gap: 0.5em; flex: none; }
+  .stage-wrap { flex: 1; text-align: center; }
+  .chevron { background: ${ACCENT}; color: #fff; font-weight: bold; padding: 0.9em 0.4em; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%); font-size: 0.9em; }
+  .chevron.optional { background: #8A9BB0; }
+  .stage-cap { color: ${MUTED}; font-size: 0.75em; margin-top: 0.4em; }
+  /* policy grid + taxonomy */
+  .policy-grid, .taxonomy { display: flex; gap: 0.8em; flex: 1; min-height: 0; }
+  .pg-col, .tax-col { flex: 1; display: flex; flex-direction: column; gap: 0.4em; }
+  .pg-head { background: ${DARK}; color: #fff; font-weight: bold; text-align: center; border-radius: 8px; padding: 0.45em; }
+  .pg-item { background: ${ACCENT}; color: #fff; font-weight: bold; text-align: center; border-radius: 8px; padding: 0.55em 0.3em; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85em; }
+  .pg-group { border: 1.5px dashed ${MUTED}; border-radius: 6px; padding: 0.4em; flex: 1; }
+  .pg-group-label { color: ${ACCENT}; font-weight: bold; text-align: center; font-size: 0.85em; }
+  .pg-group-items { text-align: center; font-size: 0.8em; color: ${DARK}; margin-top: 0.25em; }
+  .tax-item { background: ${LIGHT_FILL}; border: 1.5px solid; border-radius: 8px; color: ${DARK}; font-weight: bold; text-align: center; font-size: 0.78em; padding: 0.5em 0.3em; flex: 1; display: flex; align-items: center; justify-content: center; }
+  /* DoE tree */
+  .doe { text-align: center; flex: none; }
+  .doe-root { display: inline-block; background: ${DARK}; color: #fff; font-weight: bold; border-radius: 8px; padding: 0.4em 1.2em; margin-bottom: 0.6em; }
+  .doe-row { display: flex; gap: 1em; }
+  .doe-h { flex: 1; }
+  .doe-hbox { background: ${ACCENT}; color: #fff; font-weight: bold; border-radius: 8px; padding: 0.4em; font-size: 0.85em; }
+  .doe-scen { display: flex; gap: 0.4em; margin-top: 0.5em; }
+  .doe-s { flex: 1; }
+  .doe-sbox { background: #8A9BB0; color: #fff; font-weight: bold; padding: 0.3em; font-size: 0.75em; }
+  .doe-d { font-size: 0.65em; color: ${DARK}; margin-top: 0.25em; }
+  /* simulator scene */
+  .sim-scene { position: relative; flex: 1; min-height: 0; }
+  .sim-scene .bin { position: absolute; width: 4%; text-align: center; }
+  .sim-scene .bin img { width: 100%; }
+  .sim-scene .bin span { position: absolute; left: 0; right: 0; bottom: 18%; font-size: 0.6em; font-weight: bold; color: ${DARK}; }
+  .sim-scene .bin.selected { outline: 3px solid red; }
+  .sim-scene .truck { position: absolute; left: 72%; top: 78%; width: 10%; }
+  .sim-scene .brace { position: absolute; left: 58%; top: 20%; font-size: 7em; color: ${MUTED}; }
+  /* objective flow */
+  .obj-flow { display: flex; align-items: center; gap: 0.7em; flex: none; margin-bottom: 0.6em; }
+  .obj-inputs { display: flex; flex-direction: column; gap: 0.4em; }
+  .obj-box { color: #fff; font-weight: bold; border-radius: 8px; padding: 0.5em 0.9em; text-align: center; font-size: 0.85em; }
+  .obj-sim { background: ${DARK}; color: #fff; font-weight: bold; border-radius: 10px; padding: 0.9em 1.1em; text-align: center; }
+  .obj-sim small { display: block; color: ${LIGHT_TXT}; font-weight: normal; font-size: 0.7em; margin-top: 0.4em; }
+  .obj-arrow { font-size: 1.6em; color: #8A9BB0; font-weight: bold; }
+  /* results table */
+  .results { border-collapse: collapse; font-size: 0.52em; margin: auto; max-width: 100%; }
+  .results th, .results td { border: 1px solid #C8D0DA; padding: 0.25em 0.4em; text-align: center; }
+  .results th { background: ${DARK}; color: #fff; }
+  .results td.rowlabel { font-weight: bold; }
+  .results td.best { background: #C6EFCE; color: #1F6B2C; font-weight: bold; }
+  .results tbody tr:nth-child(even) td:not(.best) { background: #EEF2F7; }
+  /* statement slides */
+  .statement { align-items: center; justify-content: center; text-align: center; padding: 0 8%; }
+  .statement h2 { font-size: 1.9em; }
+  .statement p { color: ${LIGHT_TXT}; font-size: 1.05em; }
+  .statement img.fct { height: 4.5em; margin-top: 2em; }
+  .qa { flex-direction: row; gap: 4%; text-align: left; }
+  .qa .qa-fig { max-height: 80%; max-width: 45%; object-fit: contain; }
+  /* chrome */
+  #counter { position: fixed; bottom: 10px; right: 14px; color: #8A9BB0; font-size: 13px; z-index: 10; }
+  #notes-panel { position: fixed; left: 0; right: 0; bottom: 0; max-height: 30vh; overflow: auto; background: rgba(12,12,24,0.94); color: ${LIGHT_TXT}; padding: 12px 18px; font-size: 13px; white-space: pre-wrap; display: none; border-top: 2px solid ${ACCENT}; z-index: 9; }
+  #help { position: fixed; bottom: 10px; left: 14px; color: #4a4a68; font-size: 11px; z-index: 10; }`;
+
+export interface HtmlSlide {
   html: string;
   notes: string;
   dark?: boolean;
@@ -424,97 +517,7 @@ ${groups.length ? `<p class="groups">${esc(groups.join("   ·   "))}</p>` : ""}
 <meta charset="utf-8">
 <title>${esc(this.content.title)}</title>
 <style>
-  html, body { margin: 0; height: 100%; background: #0c0c18; font-family: Helvetica, Arial, sans-serif; }
-  .frame { display: none; width: 100vw; height: 100vh; align-items: center; justify-content: center; }
-  .frame.active { display: flex; }
-  .slide { position: relative; width: min(100vw, 177.78vh); aspect-ratio: 16 / 9; background: #ffffff; overflow: hidden; display: flex; flex-direction: column; }
-  .slide.dark { background: ${DARK}; color: #ffffff; }
-  .titlebar { background: ${DARK}; color: #fff; font-size: 1.7em; font-weight: bold; padding: 0.55em 0.8em; flex: none; }
-  .body { flex: 1; padding: 0.8em 1.1em; overflow: hidden; display: flex; flex-direction: column; gap: 0.5em; color: ${DARK}; min-height: 0; }
-  .bullets { margin: 0.2em 0; padding-left: 1.2em; color: ${DARK}; font-size: 1.05em; }
-  .bullets.small { font-size: 0.9em; }
-  .bullets li { margin-bottom: 0.45em; }
-  .figrow { flex: 1; display: flex; gap: 0.6em; align-items: center; justify-content: center; min-height: 0; }
-  .figrow img { max-width: 100%; max-height: 100%; min-height: 0; object-fit: contain; flex: 1 1 0; }
-  .split { flex: 1; display: flex; gap: 1em; min-height: 0; }
-  .split > div { flex: 1 1 0; min-width: 0; display: flex; flex-direction: column; min-height: 0; }
-  .eqband { background: ${LIGHT_FILL}; border-radius: 10px; padding: 0.7em; display: flex; flex-direction: column; align-items: center; gap: 0.45em; }
-  .eqband img.eq { max-width: 100%; object-fit: contain; }
-  .eq-fallback { font-family: 'Cambria Math', serif; color: ${DARK}; }
-  .caption { font-size: 0.75em; font-style: italic; color: ${MUTED}; margin: 0.2em 0 0; flex: none; }
-  /* cover */
-  .cover { justify-content: center; padding: 0 6%; }
-  .cover h1 { font-size: 2.1em; margin: 0 0 0.5em; }
-  .cover .band { height: 5px; background: ${ACCENT}; margin: 0.4em 0 0.9em; }
-  .cover .author { font-size: 1.25em; font-weight: bold; margin: 0.2em 0; }
-  .cover .coauthors { color: ${LIGHT_TXT}; margin: 0.2em 0; }
-  .cover .groups { color: #8A9BB0; font-style: italic; font-size: 0.8em; }
-  .cover .logos { display: flex; gap: 8%; align-items: center; margin-top: 1.2em; }
-  .cover .logos img { height: 3.2em; object-fit: contain; }
-  .cover .conf-logo { position: absolute; top: 2%; right: 2%; height: 4.2em; }
-  /* agenda */
-  .agenda-title { font-size: 2em; margin: 0.8em 1em 0.4em; }
-  .agenda { display: grid; grid-template-columns: 1fr 1fr; gap: 0.6em; padding: 0 1.6em 1.6em; flex: 1; }
-  .agenda-card { display: flex; align-items: center; gap: 0.7em; background: #273749; border: 2px solid; border-radius: 10px; padding: 0.5em 0.8em; font-weight: bold; font-size: 1.05em; }
-  .agenda-card .badge { flex: none; width: 1.9em; height: 1.9em; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.05em; }
-  /* pipeline */
-  .pipeline { display: flex; gap: 0.5em; flex: none; }
-  .stage-wrap { flex: 1; text-align: center; }
-  .chevron { background: ${ACCENT}; color: #fff; font-weight: bold; padding: 0.9em 0.4em; clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 50%, calc(100% - 14px) 100%, 0 100%, 14px 50%); font-size: 0.9em; }
-  .chevron.optional { background: #8A9BB0; }
-  .stage-cap { color: ${MUTED}; font-size: 0.75em; margin-top: 0.4em; }
-  /* policy grid + taxonomy */
-  .policy-grid, .taxonomy { display: flex; gap: 0.8em; flex: 1; min-height: 0; }
-  .pg-col, .tax-col { flex: 1; display: flex; flex-direction: column; gap: 0.4em; }
-  .pg-head { background: ${DARK}; color: #fff; font-weight: bold; text-align: center; border-radius: 8px; padding: 0.45em; }
-  .pg-item { background: ${ACCENT}; color: #fff; font-weight: bold; text-align: center; border-radius: 8px; padding: 0.55em 0.3em; flex: 1; display: flex; align-items: center; justify-content: center; font-size: 0.85em; }
-  .pg-group { border: 1.5px dashed ${MUTED}; border-radius: 6px; padding: 0.4em; flex: 1; }
-  .pg-group-label { color: ${ACCENT}; font-weight: bold; text-align: center; font-size: 0.85em; }
-  .pg-group-items { text-align: center; font-size: 0.8em; color: ${DARK}; margin-top: 0.25em; }
-  .tax-item { background: ${LIGHT_FILL}; border: 1.5px solid; border-radius: 8px; color: ${DARK}; font-weight: bold; text-align: center; font-size: 0.78em; padding: 0.5em 0.3em; flex: 1; display: flex; align-items: center; justify-content: center; }
-  /* DoE tree */
-  .doe { text-align: center; flex: none; }
-  .doe-root { display: inline-block; background: ${DARK}; color: #fff; font-weight: bold; border-radius: 8px; padding: 0.4em 1.2em; margin-bottom: 0.6em; }
-  .doe-row { display: flex; gap: 1em; }
-  .doe-h { flex: 1; }
-  .doe-hbox { background: ${ACCENT}; color: #fff; font-weight: bold; border-radius: 8px; padding: 0.4em; font-size: 0.85em; }
-  .doe-scen { display: flex; gap: 0.4em; margin-top: 0.5em; }
-  .doe-s { flex: 1; }
-  .doe-sbox { background: #8A9BB0; color: #fff; font-weight: bold; padding: 0.3em; font-size: 0.75em; }
-  .doe-d { font-size: 0.65em; color: ${DARK}; margin-top: 0.25em; }
-  /* simulator scene */
-  .sim-scene { position: relative; flex: 1; min-height: 0; }
-  .sim-scene .bin { position: absolute; width: 4%; text-align: center; }
-  .sim-scene .bin img { width: 100%; }
-  .sim-scene .bin span { position: absolute; left: 0; right: 0; bottom: 18%; font-size: 0.6em; font-weight: bold; color: ${DARK}; }
-  .sim-scene .bin.selected { outline: 3px solid red; }
-  .sim-scene .truck { position: absolute; left: 72%; top: 78%; width: 10%; }
-  .sim-scene .brace { position: absolute; left: 58%; top: 20%; font-size: 7em; color: ${MUTED}; }
-  /* objective flow */
-  .obj-flow { display: flex; align-items: center; gap: 0.7em; flex: none; margin-bottom: 0.6em; }
-  .obj-inputs { display: flex; flex-direction: column; gap: 0.4em; }
-  .obj-box { color: #fff; font-weight: bold; border-radius: 8px; padding: 0.5em 0.9em; text-align: center; font-size: 0.85em; }
-  .obj-sim { background: ${DARK}; color: #fff; font-weight: bold; border-radius: 10px; padding: 0.9em 1.1em; text-align: center; }
-  .obj-sim small { display: block; color: ${LIGHT_TXT}; font-weight: normal; font-size: 0.7em; margin-top: 0.4em; }
-  .obj-arrow { font-size: 1.6em; color: #8A9BB0; font-weight: bold; }
-  /* results table */
-  .results { border-collapse: collapse; font-size: 0.52em; margin: auto; max-width: 100%; }
-  .results th, .results td { border: 1px solid #C8D0DA; padding: 0.25em 0.4em; text-align: center; }
-  .results th { background: ${DARK}; color: #fff; }
-  .results td.rowlabel { font-weight: bold; }
-  .results td.best { background: #C6EFCE; color: #1F6B2C; font-weight: bold; }
-  .results tbody tr:nth-child(even) td:not(.best) { background: #EEF2F7; }
-  /* statement slides */
-  .statement { align-items: center; justify-content: center; text-align: center; padding: 0 8%; }
-  .statement h2 { font-size: 1.9em; }
-  .statement p { color: ${LIGHT_TXT}; font-size: 1.05em; }
-  .statement img.fct { height: 4.5em; margin-top: 2em; }
-  .qa { flex-direction: row; gap: 4%; text-align: left; }
-  .qa .qa-fig { max-height: 80%; max-width: 45%; object-fit: contain; }
-  /* chrome */
-  #counter { position: fixed; bottom: 10px; right: 14px; color: #8A9BB0; font-size: 13px; z-index: 10; }
-  #notes-panel { position: fixed; left: 0; right: 0; bottom: 0; max-height: 30vh; overflow: auto; background: rgba(12,12,24,0.94); color: ${LIGHT_TXT}; padding: 12px 18px; font-size: 13px; white-space: pre-wrap; display: none; border-top: 2px solid ${ACCENT}; z-index: 9; }
-  #help { position: fixed; bottom: 10px; left: 14px; color: #4a4a68; font-size: 11px; z-index: 10; }
+${DECK_CSS}
 </style>
 </head>
 <body>
@@ -553,7 +556,7 @@ ${slidesHtml}
 `;
   }
 
-  async build(): Promise<string> {
+  async buildSlides(): Promise<HtmlSlide[]> {
     this.progress("Building HTML deck …");
     await this.cover();
     this.agenda();
@@ -573,7 +576,11 @@ ${slidesHtml}
     await this.contentSlide("conclusion");
     await this.acknowledgments();
     await this.qa();
+    return this.slides;
+  }
 
+  async build(): Promise<string> {
+    await this.buildSlides();
     const html = this.pageHtml();
     await writeTextFile(joinPath(this.opts.projectRoot, this.opts.out), html);
     this.progress(`Written: ${this.opts.out} (${this.slides.length} slides, ${(html.length / 1e6).toFixed(1)} MB)`);
@@ -583,4 +590,12 @@ ${slidesHtml}
 
 export async function generateHtmlDeck(opts: HtmlDeckOptions, progress: Progress = () => {}): Promise<string> {
   return await new HtmlDeckBuilder(opts, progress).build();
+}
+
+/** Build the slide list without writing the page (used by the PDF exporter). */
+export async function buildHtmlDeckSlides(
+  opts: HtmlDeckOptions,
+  progress: Progress = () => {}
+): Promise<HtmlSlide[]> {
+  return await new HtmlDeckBuilder(opts, progress).buildSlides();
 }

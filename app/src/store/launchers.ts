@@ -236,6 +236,7 @@ interface ReportGenState {
   presImageMode: "native" | "fetch";
   presExcel: boolean;
   presHtml: boolean;
+  presPdf: boolean;
   extraArgs: string;
   patch: (updates: Partial<Omit<ReportGenState, "patch">>) => void;
 }
@@ -282,6 +283,7 @@ export const useReportGenStore = create<ReportGenState>()(
       presImageMode: "native" as const,
       presExcel: false,
       presHtml: false,
+      presPdf: false,
       extraArgs: "",
       patch: (updates) => set(updates as Partial<ReportGenState>),
     }),
