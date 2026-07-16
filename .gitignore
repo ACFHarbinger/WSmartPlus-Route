@@ -483,3 +483,9 @@ assets/tracking/tracking.db
 !logic/src/utils/target/
 !logic/src/utils/validation/target/
 !logic/src/pipeline/simulations/checkpoints/
+
+# Cypress artefacts (app/)
+app/cypress/screenshots/
+app/cypress/videos/
+app/cypress/downloads/
+app/coverage/

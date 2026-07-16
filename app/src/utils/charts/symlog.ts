@@ -15,5 +15,5 @@ export function symexp(value: number, linthresh = DEFAULT_LINTHRESH): number {
   const sign = Math.sign(value);
   const ax = Math.abs(value);
   if (ax <= linthresh) return value;
-  return sign * linthresh * 10 ** (ax / linthresh - 1);
+  return sign * linthresh * 10 ** (ax - linthresh);
 }
