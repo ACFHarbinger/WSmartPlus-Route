@@ -29,6 +29,12 @@ import {
   type NpzStatRow,
 } from "../data/dataset";
 import { finalizeMarkdown, toRel, PLACEHOLDER } from "./markdown";
+import {
+  buildCityNetworkComparisonInteractive,
+  buildInteractiveHtmlPage,
+  buildNpzStatsInteractive,
+  buildWasteDistributionInteractive,
+} from "./interactiveHtml";
 import type { Progress } from "./simulationReport";
 
 export interface DatasetReportOptions {
@@ -39,8 +45,11 @@ export interface DatasetReportOptions {
   npzDir?: string;
   outMd?: string;
   figuresDir?: string;
+  privateDir?: string;
   force?: boolean;
   figuresOnly?: boolean;
+  /** Write self-contained interactive HTML charts (default true). */
+  interactive?: boolean;
 }
 
 export async function generateDatasetReport(
@@ -53,6 +62,8 @@ export async function generateDatasetReport(
   const tdCsv = opts.tdCsv ?? DATASET_CFG.td_csv;
   const npzDir = opts.npzDir ?? DATASET_CFG.npz_dir;
   const figuresDir = opts.figuresDir ?? DATASET_CFG.figures_dir;
+  const privateDir = opts.privateDir ?? DATASET_CFG.private_dir;
+  const wantInteractive = opts.interactive ?? true;
   const outMdRel = opts.outMd ?? DATASET_CFG.out_md;
 
   progress(`Loading NPZ stats: ${npzCsv}`);
@@ -99,6 +110,19 @@ export async function generateDatasetReport(
   const hasCityCmp = cities.length > 1;
   if (hasCityCmp) await save("npz_city_comparison.png", buildNpzCityComparison(npz, ext, theme));
   if (hasTd) await save("npz_td_alignment.png", buildNpzTdAlignment(npz, td, theme));
+
+  if (wantInteractive) {
+    progress(`Generating interactive HTML → ${privateDir}`);
+    const pages: [string, ReturnType<typeof buildNpzStatsInteractive>][] = [
+      ["npz_stats_interactive.html", buildNpzStatsInteractive(npz, theme)],
+      ["waste_distribution_interactive.html", buildWasteDistributionInteractive(npz, theme)],
+      ["city_network_comparison_interactive.html", buildCityNetworkComparisonInteractive(npz, theme)],
+    ];
+    for (const [name, page] of pages) {
+      await writeTextFile(joinPath(root, `${privateDir}/${name}`), buildInteractiveHtmlPage(page, theme));
+      progress(`Saved: ${name}`);
+    }
+  }
 
   if (opts.figuresOnly) {
     progress("figures-only: skipping markdown generation");
@@ -268,7 +292,13 @@ ${PLACEHOLDER}
 ` : ""}
 *Figures are stored in \`${f}/\`.*
 *Raw statistics: \`${tdCsv}\` and \`${npzCsv}\`.*
-`);
+${wantInteractive ? `
+## Interactive Charts
+
+- [NPZ Statistics — Mean vs Std Scatter](${toRel(privateDir)}/npz_stats_interactive.html)
+- [Waste Distribution by City and Network Size](${toRel(privateDir)}/waste_distribution_interactive.html)
+- [City & Network Comparison](${toRel(privateDir)}/city_network_comparison_interactive.html)
+` : ""}`);
 
   await writeTextFile(outMdAbs, md);
   progress(`Written: ${outMdRel} (${md.length} chars)`);

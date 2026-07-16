@@ -56,6 +56,8 @@ export interface GenTheme {
   gridColor: string;
   gridAlpha: number;
   axisLabelColor: string;
+  buttonBg: string;
+  buttonBorder: string;
 }
 
 // mplstyle values, kept as data (ports style/dark.mplstyle + light.mplstyle)
@@ -79,6 +81,8 @@ export function loadTheme(name: "dark" | "light"): GenTheme {
     gridColor: m.grid,
     gridAlpha: m.gridAlpha,
     axisLabelColor: m.label,
+    buttonBg: String(t.button_bg),
+    buttonBorder: String(t.button_border),
   };
 }
 

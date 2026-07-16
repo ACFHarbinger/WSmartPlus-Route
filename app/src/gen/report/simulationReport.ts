@@ -46,6 +46,12 @@ import {
   type SimRow,
 } from "../data/simulation";
 import { finalizeMarkdown, toRel, PLACEHOLDER } from "./markdown";
+import {
+  buildInteractiveHtmlPage,
+  buildParetoInteractive,
+  buildPolicyHeatmapInteractive,
+  buildStrategyBubbleInteractive,
+} from "./interactiveHtml";
 import { buildBinMapChart, loadBinCoords, loadSelectedBinCoords, SELECTED_MAP_SPECS } from "./binMaps";
 
 export interface SimReportOptions {
@@ -60,9 +66,12 @@ export interface SimReportOptions {
   acceptance?: string[] | null;
   outMd?: string;
   figuresDir?: string;
+  privateDir?: string;
   force?: boolean;
   figuresOnly?: boolean;
   heatmapLabels?: "both" | "show" | "hide";
+  /** Write self-contained interactive HTML charts (default: config charts.interactive.enabled). */
+  interactive?: boolean;
 }
 
 export type Progress = (message: string) => void;
@@ -85,6 +94,8 @@ interface HorizonRender {
   data: HorizonData;
   csv: string;
   figuresDir: string;
+  privateDir: string;
+  interactive: boolean;
   flags: {
     paretoLog: boolean;
     overflowLog: boolean;
@@ -244,6 +255,8 @@ interface HorizonTemplateCtx {
   nLogs: number;
   constructors: string[];
   figuresRel: string;
+  privateRel: string;
+  interactive: boolean;
   paretoTable: string;
   overflowTable: string;
   efficiencyTable: string;
@@ -271,6 +284,8 @@ ${h.flags.paretoLog ? `
 ![Overflow vs Efficiency — Pareto Front (log scale)](${f}/pareto_scatter_log.png)
 
 *Same chart with symlog X-axis — spreads the densely clustered low-overflow region.*
+` : ""}${h.interactive ? `
+**[Interactive version](${h.privateRel}/pareto_scatter_interactive.html)**
 ` : ""}
 #### Pareto-Front Policy Catalogue (${h.days} days)
 
@@ -335,7 +350,9 @@ ${PLACEHOLDER}
 ![Per-Scenario Constructor Heatmaps](${f}/scenario_constructor_heatmap.png)
 
 *One panel per scenario: route constructors on the rows, selection strategy × route improver combinations on the columns.*
-
+${h.interactive ? `
+**[Interactive heatmap](${h.privateRel}/policy_heatmap_interactive.html)**
+` : ""}
 ${PLACEHOLDER}
 
 ### ${n}.4 Selection Strategy Comparison (${strategies.join(" vs ")})
@@ -347,6 +364,8 @@ ${h.flags.bubbleLog ? `
 ![Strategy Trade-off Bubble Chart (log X scale)](${f}/strategy_bubble_log.png)
 
 *Same chart with symlog X axis.*
+` : ""}${h.interactive ? `
+**[Interactive bubble chart](${h.privateRel}/strategy_bubble_interactive.html)**
 ` : ""}
 ${h.strategyBest}
 
@@ -475,6 +494,9 @@ export async function generateSimulationReport(
   const paretoPoints = opts.paretoPoints ?? ((SIM_CFG.charts.pareto_scatter?.points as "all" | "front") ?? "all");
   const specs = opts.horizons?.length ? opts.horizons : SIM_CFG.horizons;
   const figuresBase = opts.figuresDir ?? SIM_CFG.figures_dir;
+  const privateBase = opts.privateDir ?? SIM_CFG.private_dir;
+  const wantInteractive =
+    opts.interactive ?? ((SIM_CFG.charts.interactive?.enabled as boolean | undefined) ?? true);
   const outMdRel = opts.outMd ?? SIM_CFG.out_md;
 
   // load horizons
@@ -509,10 +531,25 @@ export async function generateSimulationReport(
     progress(`Generating ${h.days}d figures → ${figDir}`);
     const flags = await renderHorizonFigures(h, figDir, theme, opts, progress);
     await renderBinMaps(root, figDir, theme, progress);
+    const privDir = multi ? `${privateBase}/${h.days}d` : privateBase;
+    if (wantInteractive) {
+      progress(`Generating ${h.days}d interactive HTML → ${privDir}`);
+      const pages: [string, ReturnType<typeof buildParetoInteractive>][] = [
+        ["pareto_scatter_interactive.html", buildParetoInteractive(h.rows, h.ctx, theme)],
+        ["strategy_bubble_interactive.html", buildStrategyBubbleInteractive(h.dfm, h.ctx, theme)],
+        ["policy_heatmap_interactive.html", buildPolicyHeatmapInteractive(h.rows, h.ctx, theme)],
+      ];
+      for (const [name, page] of pages) {
+        await writeTextFile(joinPath(root, `${privDir}/${name}`), buildInteractiveHtmlPage(page, theme));
+        progress(`Saved: ${name}`);
+      }
+    }
     renders.push({
       data: h,
       csv: specs.find((s) => s.days === h.days)?.csv ?? "",
       figuresDir: figDir,
+      privateDir: privDir,
+      interactive: wantInteractive,
       flags,
     });
   }
@@ -551,6 +588,8 @@ export async function generateSimulationReport(
       nLogs: r.data.nLogs,
       constructors: r.data.ctx.constructors,
       figuresRel: toRel(r.figuresDir),
+      privateRel: toRel(r.privateDir),
+      interactive: r.interactive,
       paretoTable: buildParetoFrontTable(r.data.rows, r.data.ctx),
       overflowTable: buildKpiTable(r.data.dfm, r.data.ctx, "overflows", 1),
       efficiencyTable: buildKpiTable(r.data.dfm, r.data.ctx, "kgkm", 2),
@@ -639,10 +678,25 @@ _TABCAP_: Metrics tracked per simulation run, their optimisation direction, and 
 ---
 `;
 
+  const interactiveFooter = renders.some((r) => r.interactive)
+    ? "\n## Interactive Charts\n" +
+      renders
+        .filter((r) => r.interactive)
+        .map(
+          (r) =>
+            `\n### ${r.data.days}-Day Horizon\n\n` +
+            `- [Overflow vs Efficiency — Pareto View](${toRel(r.privateDir)}/pareto_scatter_interactive.html)\n` +
+            `- [Strategy Trade-off Bubble Chart](${toRel(r.privateDir)}/strategy_bubble_interactive.html)\n` +
+            `- [Policy Configuration Heatmap](${toRel(r.privateDir)}/policy_heatmap_interactive.html)\n`
+        )
+        .join("") +
+      "\n"
+    : "";
+
   const footer = `
 *Figures are stored under \`${toRel(figuresBase)}/\`.*
 *Raw simulation data: ${renders.filter((r) => r.csv).map((r) => `\`${r.csv}\``).join(", ")}.*
-`;
+${interactiveFooter}`;
 
   const md = finalizeMarkdown(
     header +
