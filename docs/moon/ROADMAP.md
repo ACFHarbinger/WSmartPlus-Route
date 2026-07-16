@@ -2890,7 +2890,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 - [x] **Report Studio** page (`report_studio` mode, Launch section): three tabs assembling the full CLI for the archived scripts — Dataset Analysis (theme, NPZ/TD CSVs, NPZ dir, out-md, figures-dir, force/figures-only), Simulation Analysis (report mode: fontsize, pareto-points, repeatable horizons, scenario/strategy/constructor/improver/acceptance filters, map-mode, heatmap-labels; parse mode: raw output tree → summary CSV), Presentation Deck (figures-dir, out PPTX, author/coauthors/groups, results-table + split, speaker-script DOCX, image-mode, XLSX export)
 - [x] Persisted form state (`useReportGenStore`), command preview, spawn via shared process infra (`reportgen_*` ids), live log tail + status pill, post-run artefact path chips (markdown / CSV / PPTX / DOCX / XLSX)
 
-> Update (same day): the native §H engine shipped for §H.1–§H.6 core scope — the Report Studio page now defaults to the **Native** engine (in-app ECharts figures, MathJax equations, pptxgenjs/docx/exceljs exporters) with the archived scripts behind a **Legacy** toggle. Remaining §H gaps: document spec + override patch layer (§H.0), native OMML equations (§H.4), PDF export (§H.6), and the live preview/editing UX (§H.7) — interactive HTML report charts (§H.5) and the HTML deck slideshow (§H.6) shipped 2026-07-16.
+> Update (same day): the native §H engine shipped for §H.1–§H.6 core scope — the Report Studio page now defaults to the **Native** engine (in-app ECharts figures, MathJax equations, pptxgenjs/docx/exceljs exporters) with the archived scripts behind a **Legacy** toggle. Remaining §H gaps: document spec + override patch layer (§H.0), native OMML equations (§H.4), report PDF export (§H.5), and the live preview/editing UX (§H.7) — interactive HTML report charts (§H.5) plus the HTML deck slideshow and deck PDF (§H.6) shipped 2026-07-16.
 
 ---
 
@@ -2987,7 +2987,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 - [x] **Speaker-script DOCX exporter** (TS `docx`, per-slide notes; `deck/speakerScript.ts`) — replaces docxtpl; a Rust OOXML rewrite remains optional (ports `gen_speaker_script`)
 - [ ] ~~Rust DOCX exporter~~ superseded by the TS exporter for the speaker script (per-slide notes composed from element captions/notes fields — ports `gen_speaker_script` without docxtpl)
 - [x] **XLSX exporter** for the results matrix (exceljs: header fills, alternating rows, best-cell highlight fills — ports `export_results_excel`)
-- [ ] **PDF export** of the deck (WebView print pipeline or headless HTML render)
+- [x] **PDF export** of the deck: off-screen WebKit rasterisation of the HTML deck slides (html-to-image) assembled into a compressed 16:9 landscape PDF via jsPDF (`deck/pdfExport.ts`) — no print dialog, preview ≡ output
 - [x] **HTML deck export**: self-contained offline slideshow — keyboard/click navigation, hash-synced index, speaker-notes panel (`N`), HTML/CSS diagrams, embedded figures/equations, real HTML results table with merged spans + best-cell highlighting (`deck/htmlDeck.ts`; interactive-chart embedding pairs with the §H.5 pages)
 - [x] Results-table slide options: horizon selection (single/all), split-by-level partitioning, CLS-only filtering — Report Studio form settings (`deck/resultsTable.ts`)
 

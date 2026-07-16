@@ -27,7 +27,9 @@ Full native port of the archived `gen` pipeline into the Studio — no Python in
 
 - **§H.6 HTML deck export** (`gen/deck/htmlDeck.ts`): the 21-slide deck as one self-contained offline HTML slideshow — keyboard/click navigation with hash-synced index and slide counter, `N` toggles a speaker-notes panel fed from the per-slide scripts, figures/logos/icons/equations embedded as data URLs, native-shape diagrams reproduced in HTML/CSS (chevron pipeline, policy grid, taxonomy, DoE tree, objective flow, bin/truck scene), and the results table as a real HTML table with merged header spans and best-cell highlighting; exposed as an "HTML slideshow" toggle on the native deck build
 
-Remaining §H scope: document spec + override patch layer, native OMML equations, PDF export, live preview/editing canvas.
+- **§H.6 PDF deck export** (`gen/deck/pdfExport.ts`): each HTML deck slide is rasterised off-screen with the real WebKit engine (html-to-image) at fixed 1600×900 geometry and assembled into a compressed 16:9 landscape PDF via jsPDF, written beside the PPTX — "PDF deck" toggle on the native build
+
+Remaining §H scope: document spec + override patch layer, native OMML equations, report PDF export, live preview/editing canvas.
 
 #### Report Studio — §H interim launcher
 
