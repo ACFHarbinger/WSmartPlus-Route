@@ -23,7 +23,9 @@ Full native port of the archived `gen` pipeline into the Studio — no Python in
 - **§H.7 (partial)**: Report Studio **Native/Legacy engine toggle** — native runs in-app with live progress log and artefact chips; legacy still spawns the archived scripts
 - Data-engine parity verified against the Python reference (filename decoding, Pareto, aggregation, tables, numpy-style percentiles, KDE normalisation, equation fallback)
 
-Remaining §H scope: document spec + override patch layer, native OMML equations, HTML/PDF exports, live preview/editing canvas.
+- **§H.5 interactive HTML exports** (`gen/report/interactiveHtml.ts`): self-contained single-file chart pages with the ECharts bundle inlined (no CDN, open offline) — pareto scatter with All-Points/Pareto-Front views, strategy bubble, policy×scenario heatmap with an Overflows/kg-km toggle, NPZ mean-vs-std scatter, per-city waste-distribution bars, and the city & network comparison grid; both report generators write them under the private dirs (per-horizon when multi-horizon) and the markdown gains the ported "Interactive version" links + "Interactive Charts" footer sections — replaces the archived Plotly-CDN HTML files and `pareto_buttons.js`
+
+Remaining §H scope: document spec + override patch layer, native OMML equations, PDF + HTML-deck exports, live preview/editing canvas.
 
 #### Report Studio — §H interim launcher
 
