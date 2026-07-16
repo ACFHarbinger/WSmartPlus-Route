@@ -31,6 +31,8 @@ Full native port of the archived `gen` pipeline into the Studio — no Python in
 
 - **§H.7 deck preview canvas** (`components/gen/DeckPreview.tsx`): "Preview deck" on the Report Studio presentation tab renders the deck in-app through the same slide builder as the HTML/PDF exports — shadow-root style isolation, true 16:9 geometry with fit-to-width scaling, arrow-key pagination, slide counter, speaker-notes strip, rebuild-from-settings
 
+- **§H.5 self-contained HTML report export** (`gen/report/htmlReport.ts`): converts the generated markdown reports into standalone styled HTML documents (GFM tables, figure blocks) with every referenced figure inlined as a data URL — "HTML report" toggles on the native dataset/simulation tabs
+
 Remaining §H scope: document spec + override patch layer, native OMML equations, report PDF export + report preview, inspector/direct-manipulation editing.
 
 #### Report Studio — §H interim launcher
