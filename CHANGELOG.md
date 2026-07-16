@@ -41,6 +41,10 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 - **Report Studio** Launch-section page (`report_studio` mode): generates the dataset / simulation analysis reports and the results presentation deck from the Studio — three tabs assembling the full CLI for the archived `gen_dataset_analysis.py`, `gen_simulation_analysis.py` (report + raw-output→CSV parse modes) and `gen_presentation.py` (PPTX / speaker-script DOCX / XLSX), with persisted forms (`useReportGenStore`), command preview, live log tail, and post-run artefact path chips (§H interim)
 
+#### Headless §H generation runner (`app/scripts/gen-headless.ts`)
+
+- Runs the Studio's native `src/gen` pipeline (simulation analysis figures/markdown/interactive HTML + PPTX deck) **without the GUI**: vite-node + jsdom + node-canvas for ECharts rasterisation, resvg for SVG→PNG (injectable via new `setSvgRasterizer` hook), and a Node fs implementation of the Tauri `invoke` commands (`scripts/headless/tauri-core-shim.ts`); `npx vite-node --config scripts/headless/vite.config.ts scripts/gen-headless.ts -- [--report] [--deck] …`
+
 #### Studio documentation (`app/docs/`)
 
 - New in-app docs dir: `README.md` (index), `ARCHITECTURE.md` (process model, reorganised source layout, stores, Rust command surface, IPC conventions), `PAGES.md` (page-by-page guide), `GEN_PIPELINE.md` (native §H engine), `TESTING.md`, `DEVELOPMENT.md`
@@ -53,6 +57,13 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 ### Fixed
 
+- **Presentation deck feedback fixes** (native §H deck + chart library; deck regenerated to `assets/windows/wsmart_route_results.pptx`):
+  - cover-slide institution/conference logos contain-fitted to their natural aspect ratio instead of stretched into fixed boxes
+  - slide 4 algorithm taxonomy spells out full names with acronyms (e.g. Hybrid Genetic Search (HGS), Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS))
+  - slide 5 simulator diagram matches the reference deck: orange collection-tour arrows (truck → 50 → 60 → 87 → 30 → 80 → truck) instead of miscounted dark connectors, white bin-percentage text, and the stray full-height grey line replaced by the intended horizontal underbrace beneath the constructor→improver chevrons (`rightBrace` rotated 90°)
+  - figure font sizes increased across the chart library (axis names 16 bold, axis labels 13, panel titles 17); slide-12 Pareto plots use bold axis/legend text
+  - Policy Performance Radar title/legend/axis text now white
+  - chart legends with decorative entries (variant colours, region shapes, front dashes) now actually render: placeholder series back the legend names, and the front dash icon uses closed subpaths (a stroke-only `path://` icon has a zero-height bbox that NaNs the legend layout)
 - **Studio `useHashSync` deep-link clobbering under StrictMode**: the hash write-effect ran with a stale render closure between the restore effect's double-invocation, rewriting `#m=<mode>` deep-links back to the default page; it now reads fresh store state (caught by the new Cypress deep-link spec)
 - **Studio `symexp` inverse**: was not the mathematical inverse of `symlog` for non-default `linthresh` values (behaviour unchanged for the default threshold the app uses)
 

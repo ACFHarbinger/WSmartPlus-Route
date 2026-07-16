@@ -12,6 +12,7 @@ import {
   panelTitle,
   axisStyle,
   errorBarSeries,
+  legendPlaceholderSeries,
   stepFront,
   symlogVals,
   symlogAxisLabelFormatter,
@@ -82,7 +83,8 @@ export function buildParetoScatter(
       ...axisStyle(theme, { name: `Overflows (${ctx.nDays} days)` }),
       axisLabel: {
         color: theme.axisLabelColor,
-        fontSize: 11,
+        fontSize: 13,
+        fontWeight: "bold",
         formatter: symlogAxisLabelFormatter(log),
       },
       scale: true,
@@ -92,6 +94,7 @@ export function buildParetoScatter(
       gridIndex: pi,
       ...axisStyle(theme, { name: `Efficiency (${KGKM_LABEL})` }),
       nameGap: 38,
+      axisLabel: { color: theme.axisLabelColor, fontSize: 13, fontWeight: "bold" },
       scale: true,
     });
     for (const s of scenarios.filter((sc) => sc.dist === dist)) {
@@ -166,7 +169,9 @@ export function buildParetoScatter(
       : []),
     ...scenarios.map((s) => ({
       name: `Front — ${scenarioLabel(s)}`,
-      icon: "path://M0,6L8,6M12,6L20,6",
+      // closed dash shapes: a stroke-only path has a zero-height bounding box,
+      // which turns the legend layout into NaNs
+      icon: "path://M0,4L8,4L8,6L0,6ZM12,4L20,4L20,6L12,6Z",
       itemStyle: { color: frontColors.get(`${s.city}|${s.N}|${s.dist}`) },
     })),
   ];
@@ -188,7 +193,7 @@ export function buildParetoScatter(
       legend: {
         bottom: 4,
         data: legendData as never,
-        textStyle: { color: theme.fg, fontSize: 11 },
+        textStyle: { color: theme.fg, fontSize: 13, fontWeight: "bold" },
         itemWidth: 18,
         type: "plain",
       },
@@ -202,7 +207,7 @@ export function buildParetoScatter(
             : "";
         },
       },
-      series,
+      series: [...series, ...legendPlaceholderSeries(legendData)],
     },
   };
 }
@@ -391,7 +396,7 @@ export function buildKpiBar(
       xAxis: xAxes as never,
       yAxis: yAxes as never,
       legend: { bottom: 4, data: legendData as never, textStyle: { color: theme.fg, fontSize: 12 } },
-      series,
+      series: [...series, ...legendPlaceholderSeries(legendData)],
     },
   };
 }
@@ -468,7 +473,7 @@ export function buildKpiCombined(dfm: SimRow[], ctx: AnalysisCtx, theme: GenThem
       xAxis: xAxes as never,
       yAxis: yAxes as never,
       legend: { bottom: 4, data: legendData as never, textStyle: { color: theme.fg, fontSize: 14 } },
-      series,
+      series: [...series, ...legendPlaceholderSeries(legendData)],
     },
   };
 }
@@ -606,7 +611,7 @@ export function buildKmViolin(df: SimRow[], ctx: AnalysisCtx, theme: GenTheme): 
       xAxis: xAxes as never,
       yAxis: yAxes as never,
       legend: { bottom: 4, data: legendData as never, textStyle: { color: theme.fg, fontSize: 12 } },
-      series,
+      series: [...series, ...legendPlaceholderSeries(legendData)],
     },
   };
 }
@@ -998,7 +1003,7 @@ function buildBubble(
         trigger: "item",
         formatter: (raw: unknown) => (raw as { data?: { _meta?: string } }).data?._meta ?? "",
       },
-      series,
+      series: [...series, ...legendPlaceholderSeries(legendData)],
     },
   };
 }
@@ -1136,20 +1141,20 @@ export function buildRadar(dfm: SimRow[], key: string[], title: string): ChartSp
         text: title,
         left: "center",
         top: 14,
-        textStyle: { color: RADAR_MUTED, fontSize: 17, fontWeight: "bold" },
+        textStyle: { color: "#ffffff", fontSize: 18, fontWeight: "bold" },
       },
       legend: {
         top: 70,
         right: 20,
         orient: "vertical",
-        textStyle: { color: RADAR_MUTED, fontSize: 13 },
+        textStyle: { color: "#ffffff", fontSize: 14 },
       },
       radar: {
         center: ["50%", "56%"],
         radius: "62%",
         indicator: metrics.map(([, label]) => ({ name: label.replace("\n", " "), max: 1 })),
         splitNumber: 4,
-        axisName: { color: RADAR_MUTED, fontSize: 14 },
+        axisName: { color: "#ffffff", fontSize: 15 },
         splitLine: { lineStyle: { color: RADAR_FAINT, type: "dashed" } },
         splitArea: { areaStyle: { color: [RADAR_AX_BG] } },
         axisLine: { lineStyle: { color: RADAR_MUTED } },
