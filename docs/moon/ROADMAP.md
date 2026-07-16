@@ -2890,7 +2890,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 - [x] **Report Studio** page (`report_studio` mode, Launch section): three tabs assembling the full CLI for the archived scripts — Dataset Analysis (theme, NPZ/TD CSVs, NPZ dir, out-md, figures-dir, force/figures-only), Simulation Analysis (report mode: fontsize, pareto-points, repeatable horizons, scenario/strategy/constructor/improver/acceptance filters, map-mode, heatmap-labels; parse mode: raw output tree → summary CSV), Presentation Deck (figures-dir, out PPTX, author/coauthors/groups, results-table + split, speaker-script DOCX, image-mode, XLSX export)
 - [x] Persisted form state (`useReportGenStore`), command preview, spawn via shared process infra (`reportgen_*` ids), live log tail + status pill, post-run artefact path chips (markdown / CSV / PPTX / DOCX / XLSX)
 
-> Update (same day): the native §H engine shipped for §H.1–§H.6 core scope — the Report Studio page now defaults to the **Native** engine (in-app ECharts figures, MathJax equations, pptxgenjs/docx/exceljs exporters) with the archived scripts behind a **Legacy** toggle. Remaining §H gaps: document spec + override patch layer (§H.0), native OMML equations (§H.4), report PDF export + report preview (§H.5/§H.7), and the inspector/direct-manipulation editing UX (§H.7) — interactive HTML report charts (§H.5), the HTML deck slideshow + deck PDF (§H.6), and the paginated deck preview canvas (§H.7) shipped 2026-07-16.
+> Update (same day): the native §H engine shipped for §H.1–§H.6 core scope — the Report Studio page now defaults to the **Native** engine (in-app ECharts figures, MathJax equations, pptxgenjs/docx/exceljs exporters) with the archived scripts behind a **Legacy** toggle. Remaining §H gaps: document spec + override patch layer (§H.0), native OMML equations (§H.4), report PDF export (§H.5) + report preview (§H.7), and the inspector/direct-manipulation editing UX (§H.7) — interactive HTML report charts (§H.5), the HTML deck slideshow + deck PDF (§H.6), and the paginated deck preview canvas (§H.7) shipped 2026-07-16.
 
 ---
 
@@ -2973,6 +2973,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 - [x] Multi-horizon report assembly: per-horizon sections small→large + conditional cross-horizon comparison section (ports the orchestration in `gen_simulation_analysis.main`)
 - [x] Markdown export (GFM tables, `<figure>` full-width images, Figure/Table numbering — `report/markdown.ts` ports `finalize_markdown`)
 - [x] Interactive HTML exports: self-contained pages with the ECharts bundle inlined — pareto (all-points/front views), strategy bubble, policy heatmap (metric toggle), NPZ stats scatter, waste-distribution bars, city & network grid; written to the private dirs with report links (`report/interactiveHtml.ts`; replaces the Plotly-CDN HTML + injected JS snippets)
+- [x] Self-contained HTML report export: generated markdown → standalone styled HTML with all figures inlined as data URLs (`report/htmlReport.ts`; "HTML report" toggles on the native engine)
 - [ ] PDF export of the report
 
 ---
