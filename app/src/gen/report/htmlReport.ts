@@ -35,11 +35,8 @@ const REPORT_CSS = `
   .toc-note, em { color: #5A6A7A; }
 `;
 
-/**
- * Convert a written markdown report into a standalone HTML file beside it.
- * Returns the project-relative output path.
- */
-export async function generateHtmlReport(
+/** Build the standalone HTML page for a written markdown report (§H.5/§H.7). */
+export async function buildHtmlReportPage(
   projectRoot: string,
   mdRel: string,
   progress: Progress = () => {}
@@ -84,6 +81,19 @@ ${html}
 </body>
 </html>
 `;
+  return page;
+}
+
+/**
+ * Convert a written markdown report into a standalone HTML file beside it.
+ * Returns the project-relative output path.
+ */
+export async function generateHtmlReport(
+  projectRoot: string,
+  mdRel: string,
+  progress: Progress = () => {}
+): Promise<string> {
+  const page = await buildHtmlReportPage(projectRoot, mdRel, progress);
   const outRel = mdRel.replace(/\.md$/i, "") + ".html";
   await writeTextFile(joinPath(projectRoot, outRel), page);
   progress(`Written: ${outRel} (${(page.length / 1e6).toFixed(1)} MB)`);
