@@ -2,8 +2,8 @@
  * Cross-page sim / data-gen / eval launcher shortcuts (§D.7 / §G.9 / §G.11 / §G.12).
  */
 import { PathHandoffButtons } from "../common/PathHandoffButtons";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
-import type { LauncherKind } from "../../utils/launcherProcess";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
+import type { LauncherKind } from "../../utils/process/launcherProcess";
 
 export interface LauncherNavMeshProps {
   kind: LauncherKind;

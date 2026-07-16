@@ -1,7 +1,7 @@
 import { Download } from "lucide-react";
 import type { RefObject } from "react";
 import type ReactECharts from "echarts-for-react";
-import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/chartExport";
+import { exportChartPngWithToast, exportChartSvgWithToast } from "../../utils/charts/chartExport";
 
 export type ChartExportRef =
   | RefObject<ReactECharts | null>

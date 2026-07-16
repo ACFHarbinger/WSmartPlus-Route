@@ -10,9 +10,9 @@ import { useAppStore } from "../../store/app";
 import {
   chartMetricDisplay,
   chartMetricYAxisType,
-} from "../../utils/chartLogScale";
+} from "../../utils/charts/chartLogScale";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { downloadCsv } from "../../utils/tableExport";
+import { downloadCsv } from "../../utils/charts/tableExport";
 import type { ZenmlPipelineRun, ZenmlPipelineStep } from "../../types";
 
 const STEP_COLORS: Record<string, string> = {

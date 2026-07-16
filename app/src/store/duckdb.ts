@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import type { ArrowPipelineTiming } from "../utils/arrowPipeline";
+import type { ArrowPipelineTiming } from "../utils/duckdb/arrowPipeline";
 
 interface DuckDbState {
   ready: boolean;

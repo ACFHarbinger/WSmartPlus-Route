@@ -21,41 +21,41 @@ import { ChevronDown, ChevronRight, FolderOpen, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
-import { GradNormSparkline, LrSparkline } from "../../components/monitor/TrainingMetricSparklines";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
+import { TrainHpoLivePanel } from "../../components/monitor/live/TrainHpoLivePanel";
+import { GradNormSparkline, LrSparkline } from "../../components/monitor/live/TrainingMetricSparklines";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { RuntimeAttentionPanel } from "../../components/analysis/RuntimeAttentionPanel";
-import { TrainingHealthPanel } from "../../components/analysis/TrainingHealthPanel";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
+import { RuntimeAttentionPanel } from "../../components/analysis/topology/RuntimeAttentionPanel";
+import { TrainingHealthPanel } from "../../components/analysis/training/TrainingHealthPanel";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
-import { collectAttentionVizFromLogLines, parseAttentionVizLine } from "../../utils/attentionViz";
-import { filterCheckpointEntries, parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
+import { collectAttentionVizFromLogLines, parseAttentionVizLine } from "../../utils/graph/attentionViz";
+import { filterCheckpointEntries, parentRunBrushLabelFromCheckpointPath } from "../../utils/training/checkpoints";
 import {
   collectTrainingHealthFromLogLines,
   parseTrainingHealthLine,
-} from "../../utils/trainingHealth";
+} from "../../utils/training/trainingHealth";
 import {
   collectTrainingMetricsFromLogLines,
   normalizeTrainingMetricRow,
   parseTrainingMetricLine,
-} from "../../utils/trainingMetrics";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
+} from "../../utils/training/trainingMetrics";
+import { portfolioRunLabel } from "../../utils/duckdb/arrowPipeline";
 import {
   brushLogPathFromProcessLines,
   outputRunPathFromLogLines,
-} from "../../utils/outputRunPath";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
-import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
+} from "../../utils/runs/outputRunPath";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
+import { trainingRunPathFromLogLines } from "../../utils/training/trainingRunPath";
 
 import {
   findActiveLiveTrainProcessId,
   findRecentTrainOrHpoProcessId,
   isHpoProcess,
   trainHpoLivePanelTitle,
-} from "../../utils/trainingProcess";
+} from "../../utils/training/trainingProcess";
 import type {
   AttentionVizEntry,
   DirEntry,

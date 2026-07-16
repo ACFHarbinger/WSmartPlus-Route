@@ -8,7 +8,7 @@
 import * as echarts from "echarts";
 import type { EChartsOption, SeriesOption } from "echarts";
 import type { GenTheme } from "../config";
-import { symlog } from "../../utils/symlog";
+import { symlog } from "../../utils/charts/symlog";
 
 export interface ChartSpec {
   option: EChartsOption;

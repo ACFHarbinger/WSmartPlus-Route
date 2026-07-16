@@ -9,28 +9,28 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { open as openUrl } from "@tauri-apps/plugin-shell";
 import { Copy, Download, ExternalLink, FolderOpen, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
+import { TrainHpoLivePanel } from "../../components/monitor/live/TrainHpoLivePanel";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { toast } from "sonner";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
-import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
-import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
+import { collectAttentionVizFromLogLines } from "../../utils/graph/attentionViz";
+import { collectTrainingHealthFromLogLines } from "../../utils/training/trainingHealth";
 import {
   brushLogPathFromProcessLines,
   outputRunPathFromLogLines,
   resolveLocalProjectPath,
   sqliteStoragePathFromUrl,
-} from "../../utils/outputRunPath";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
-import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import { trialLogDirFromUserAttrs } from "../../utils/trialRunPath";
-import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
-import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/trainingProcess";
+} from "../../utils/runs/outputRunPath";
+import { runLabelFromPath } from "../../utils/benchmark/policyTelemetryTrends";
+import { trainingRunPathFromLogLines } from "../../utils/training/trainingRunPath";
+import { trialLogDirFromUserAttrs } from "../../utils/training/trialRunPath";
+import { collectTrainingMetricsFromLogLines } from "../../utils/training/trainingMetrics";
+import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/training/trainingProcess";
 import type { HpoReportExportResult, OptunaStudyData, OptunaStudySummary, OptunaTrial } from "../../types";
 
 const DEFAULT_STORAGE = "sqlite:///assets/hpo/study.db";

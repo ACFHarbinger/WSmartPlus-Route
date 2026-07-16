@@ -16,11 +16,11 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Copy, RefreshCw, FileText, Table2, GitCompare, Save, Download, Rocket, ListChecks } from "lucide-react";
 import { toast } from "sonner";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
+import { useLogPathRunLabelBrush } from "../../hooks/brush/useLogPathRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useSimLauncherStore, useTrainHubStore, useDataGenStore } from "../../store/launchers";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
-import { applyConfigToLauncher, type LauncherTarget } from "../../utils/configToLauncher";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
+import { applyConfigToLauncher, type LauncherTarget } from "../../utils/process/configToLauncher";
 
 const YamlEditor = lazy(() => import("../../components/editors/YamlEditor"));
 

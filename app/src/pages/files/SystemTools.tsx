@@ -9,12 +9,12 @@
 import { useCallback, useMemo, useState } from "react";
 import { Play, Terminal, FolderOpen, AlertTriangle } from "lucide-react";
 import { open } from "@tauri-apps/plugin-dialog";
-import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
+import { ProcessLogTail } from "../../components/monitor/process/ProcessLogTail";
 import { StatusPill } from "../../components/ui/StatusPill";
 import { useAppStore } from "../../store/app";
 import { useSystemToolsStore, type SystemToolsTab } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
-import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { useSpawnProcess } from "../../hooks/process/useSpawnProcess";
 import type { ProcessEntry } from "../../types";
 
 const TABS: { id: SystemToolsTab; label: string }[] = [

@@ -6,7 +6,7 @@ import {
   resolveEffectiveTheme,
   type EffectiveTheme,
   type ThemePreference,
-} from "../utils/theme";
+} from "../utils/charts/theme";
 
 interface AppState {
   mode: AppMode;

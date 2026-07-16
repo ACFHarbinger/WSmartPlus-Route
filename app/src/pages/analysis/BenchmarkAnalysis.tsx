@@ -12,43 +12,43 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, X, Download } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
+import { usePortfolioRunBrush } from "../../hooks/brush/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
-import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
-import { barOpacity } from "../../utils/chartHighlight";
-import { errorBarBounds, groupedBarWhiskerX } from "../../utils/chartLogScale";
+import { PortfolioEfficiencyRanking } from "../../components/analysis/benchmark/PortfolioEfficiencyRanking";
+import { barOpacity } from "../../utils/charts/chartHighlight";
+import { errorBarBounds, groupedBarWhiskerX } from "../../utils/charts/chartLogScale";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { symlog } from "../../utils/symlog";
-import { PARETO_PANELS } from "../../utils/paretoPanels";
-import { buildParetoByPanel } from "../../utils/paretoPortfolio";
-import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
-import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphHeatmap";
-import type { HeatmapMode } from "../../utils/heatmapMetrics";
-import { BenchmarkPortfolioParallel } from "../../components/analysis/BenchmarkPortfolioParallel";
+import { symlog } from "../../utils/charts/symlog";
+import { PARETO_PANELS } from "../../utils/benchmark/paretoPanels";
+import { buildParetoByPanel } from "../../utils/benchmark/paretoPortfolio";
+import { BenchmarkParetoPanel } from "../../components/analysis/benchmark/BenchmarkParetoPanel";
+import { BenchmarkGraphHeatmap } from "../../components/analysis/benchmark/BenchmarkGraphHeatmap";
+import type { HeatmapMode } from "../../utils/benchmark/heatmapMetrics";
+import { BenchmarkPortfolioParallel } from "../../components/analysis/benchmark/BenchmarkPortfolioParallel";
 import {
   buildCityComparisonSeries,
   cityComparisonChartOption,
   groupRunsByCity,
-} from "../../utils/cityComparison";
+} from "../../utils/benchmark/cityComparison";
 import {
   loadPortfolioLogs,
   PORTFOLIO_SCAN_DEFAULT,
   scanOutputPortfolio,
-} from "../../utils/outputRunLogs";
-import { downloadCsv } from "../../utils/tableExport";
+} from "../../utils/runs/outputRunLogs";
+import { downloadCsv } from "../../utils/charts/tableExport";
 import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
   runPortfolioSimulationArrowPipeline,
-} from "../../utils/arrowPipeline";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+} from "../../utils/duckdb/arrowPipeline";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
+import { SqlQueryPanel } from "../../components/analysis/explorer/SqlQueryPanel";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/training/checkpoints";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry, EvalAnalyticsRow } from "../../types";

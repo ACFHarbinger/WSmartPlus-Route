@@ -22,42 +22,42 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { ChevronLeft, ChevronRight, FolderOpen, Pause, Play, RefreshCw } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { KpiCard } from "../../components/ui/KpiCard";
-import { useSimWatcher } from "../../hooks/useSimWatcher";
+import { useSimWatcher } from "../../hooks/process/useSimWatcher";
 import { useAppStore } from "../../store/app";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useProcessStore } from "../../store/process";
 import { useSimStore, uniquePolicies, uniqueSamples, filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { hexToRgb } from "../../utils/colors";
+import { hexToRgb } from "../../utils/charts/colors";
 import {
   enrichEntriesWithGraphCoords,
   GRAPH_PRESETS,
   guessGraphPreset,
   loadGraphCoordinates,
-} from "../../utils/graphCoords";
+} from "../../utils/graph/graphCoords";
 import {
   chartMetricDisplay,
   chartMetricYAxisType,
   isLogScaleMetric,
-} from "../../utils/chartLogScale";
+} from "../../utils/charts/chartLogScale";
 
-import { GraphTopologyPanel } from "../../components/analysis/GraphTopologyPanel";
-import { FailureAnalysisPanel } from "../../components/analysis/FailureAnalysisPanel";
-import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { RouteViz } from "../../components/analysis/RouteViz";
-import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { GraphTopologyPanel } from "../../components/analysis/topology/GraphTopologyPanel";
+import { FailureAnalysisPanel } from "../../components/analysis/routes/FailureAnalysisPanel";
+import { PolicyTelemetryPanel } from "../../components/analysis/telemetry/PolicyTelemetryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
+import { RouteViz } from "../../components/analysis/routes/RouteViz";
+import { SqlQueryPanel } from "../../components/analysis/explorer/SqlQueryPanel";
 import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
   runSimulationArrowPipeline,
-} from "../../utils/arrowPipeline";
+} from "../../utils/duckdb/arrowPipeline";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
-import { filterFailureEntries } from "../../utils/simFailure";
-import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
+import { filterFailureEntries } from "../../utils/sim/simFailure";
+import { useLogPathRunLabelBrush } from "../../hooks/brush/useLogPathRunLabelBrush";
 import type { DayLogEntry, PolicyVizEntry, SimDayData, SimFailureEntry } from "../../types";
 
 const DeckRouteMap = lazy(() => import("../../components/maps/DeckRouteMap"));

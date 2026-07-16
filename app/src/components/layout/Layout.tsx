@@ -1,5 +1,5 @@
 import { useEffect } from "react";
-import { useGlobalFileDrop } from "../../hooks/useGlobalFileDrop";
+import { useGlobalFileDrop } from "../../hooks/files/useGlobalFileDrop";
 import { useLayoutStore } from "../../store/layout";
 import { CommandPalette } from "./CommandPalette";
 import { KeyboardShortcutsHelp } from "./KeyboardShortcutsHelp";

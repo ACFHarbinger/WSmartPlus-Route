@@ -15,22 +15,22 @@ import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { open } from "@tauri-apps/plugin-dialog";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
+import { LauncherLivePanel } from "../../components/monitor/live/LauncherLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import {
   chartMetricYAxisType,
   displayBarValue,
-} from "../../utils/chartLogScale";
+} from "../../utils/charts/chartLogScale";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useDataGenStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
-import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
-import { dataExplorerPathFromGenData } from "../../utils/genDataPath";
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
-import { dataGenLivePanelTitle, findRecentLauncherProcessId } from "../../utils/launcherProcess";
+import { useSpawnProcess } from "../../hooks/process/useSpawnProcess";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
+import { dataExplorerPathFromGenData } from "../../utils/runs/genDataPath";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/runs/outputRunPath";
+import { dataGenLivePanelTitle, findRecentLauncherProcessId } from "../../utils/process/launcherProcess";
 import type { DatasetPreviewStats } from "../../types";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp", "all"] as const;

@@ -2,7 +2,7 @@
  * Cross-page train/HPO workflow shortcuts (§A.2 / §A.4 / §G.10 / §G.15 / §G.17 / §G.18).
  */
 import { PathHandoffButtons } from "../common/PathHandoffButtons";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 
 export interface TrainHpoNavMeshProps {
   /** Hide Training Hub shortcut (on the hub page itself). */

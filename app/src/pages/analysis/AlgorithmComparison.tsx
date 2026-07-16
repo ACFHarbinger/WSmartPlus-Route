@@ -6,12 +6,12 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import ReactECharts from "echarts-for-react";
 import type EChartsReact from "echarts-for-react";
 import { Map } from "lucide-react";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
+import { SqlQueryPanel } from "../../components/analysis/explorer/SqlQueryPanel";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useLogPathRunLabelBrush } from "../../hooks/brush/useLogPathRunLabelBrush";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import { useAppStore } from "../../store/app";
 import { useDuckDbStore } from "../../store/duckdb";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -20,11 +20,11 @@ import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
   runSimulationArrowPipeline,
-} from "../../utils/arrowPipeline";
-import { barOpacity } from "../../utils/chartHighlight";
+} from "../../utils/duckdb/arrowPipeline";
+import { barOpacity } from "../../utils/charts/chartHighlight";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { errorBarBounds, radarAxisValue } from "../../utils/chartLogScale";
-import { symlog } from "../../utils/symlog";
+import { errorBarBounds, radarAxisValue } from "../../utils/charts/chartLogScale";
+import { symlog } from "../../utils/charts/symlog";
 
 const ALGORITHM_SIM_TABLE = "algorithm_sim";
 

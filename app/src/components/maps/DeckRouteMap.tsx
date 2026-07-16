@@ -6,20 +6,20 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import DeckGL from "@deck.gl/react";
 import { OrbitView, COORDINATE_SYSTEM } from "@deck.gl/core";
 import { CanvasExportButton } from "../common/CanvasExportButton";
-import { FailureOverlayLegend } from "../analysis/FailureOverlayLegend";
-import { resolveBinPositions } from "../../utils/mapPositions";
+import { FailureOverlayLegend } from "../analysis/routes/FailureOverlayLegend";
+import { resolveBinPositions } from "../../utils/map/mapPositions";
 import {
   computeTourDiff,
   FAILURE_RGB,
   failureBinIdSets,
   TOUR_DIFF_RGB,
-} from "../../utils/routeFailureOverlay";
+} from "../../utils/map/routeFailureOverlay";
 import { PathLayer, ScatterplotLayer } from "@deck.gl/layers";
 import { TripsLayer } from "@deck.gl/geo-layers";
 import MapGL from "react-map-gl/maplibre";
 import "maplibre-gl/dist/maplibre-gl.css";
 import type { SimDayData, SimFailureSummary } from "../../types";
-import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/vehicleTours";
+import { splitVehicleTourIndices, VEHICLE_COLORS_RGB } from "../../utils/map/vehicleTours";
 
 const MAP_STYLE = "https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json";
 const TRIP_SEGMENT_MS = 120;

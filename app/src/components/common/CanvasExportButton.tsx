@@ -2,7 +2,7 @@ import { Download } from "lucide-react";
 import {
   exportCanvasPngWithToast,
   exportContainerCanvasPngWithToast,
-} from "../../utils/chartExport";
+} from "../../utils/charts/chartExport";
 
 interface CanvasExportButtonProps {
   filename: string;

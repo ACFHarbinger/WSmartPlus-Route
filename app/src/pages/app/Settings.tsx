@@ -18,7 +18,7 @@ import { invoke } from "@tauri-apps/api/core";
 import { open, save as saveDialog } from "@tauri-apps/plugin-dialog";
 import { CheckCircle, FolderOpen, Save, XCircle, Download, Upload, RefreshCw, Compass } from "lucide-react";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { useStartupTiming } from "../../hooks/useStartupTiming";
+import { useStartupTiming } from "../../hooks/app/useStartupTiming";
 import { toast } from "sonner";
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
@@ -28,11 +28,11 @@ import {
   formatPipelineTimingBadge,
   runCsvArrowPipeline,
   runSimulationArrowPipeline,
-} from "../../utils/arrowPipeline";
+} from "../../utils/duckdb/arrowPipeline";
 import {
   getChartRenderBudgetMs,
   runChartRenderBenchmark,
-} from "../../utils/chartRenderBenchmark";
+} from "../../utils/charts/chartRenderBenchmark";
 
 
 
