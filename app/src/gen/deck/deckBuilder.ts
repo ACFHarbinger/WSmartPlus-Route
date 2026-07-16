@@ -24,6 +24,7 @@ import {
   type ResultsTableSplit,
 } from "./resultsTable";
 import { buildSpeakerScript, type SlideScript } from "./speakerScript";
+import { generateHtmlDeck } from "./htmlDeck";
 import type { Progress } from "../report/simulationReport";
 
 const SLIDE_W = 13.333;
@@ -58,6 +59,8 @@ export interface DeckOptions {
   speakerScriptOut?: string;
   imageMode?: ImageMode;
   excel?: boolean;
+  /** Also export the self-contained HTML slideshow (§H.6). */
+  html?: boolean;
 }
 
 type Slide = ReturnType<PptxGenJS["addSlide"]>;
@@ -853,6 +856,24 @@ export class NativeDeckBuilder {
       } else {
         this.progress("[WARN] No data for Excel export");
       }
+    }
+
+    if (this.opts.html) {
+      const htmlOut = await generateHtmlDeck(
+        {
+          projectRoot: this.opts.projectRoot,
+          figuresDir: this.opts.figuresDir,
+          out: this.opts.out.replace(/\.pptx$/i, ".html"),
+          author: this.opts.author,
+          coauthors: this.opts.coauthors,
+          groups: this.opts.groups,
+          resultsTable: this.opts.resultsTable,
+          resultsTableSplit: this.opts.resultsTableSplit,
+          imageMode: this.opts.imageMode,
+        },
+        this.progress
+      );
+      outputs.push(htmlOut);
     }
     return { outputs };
   }
