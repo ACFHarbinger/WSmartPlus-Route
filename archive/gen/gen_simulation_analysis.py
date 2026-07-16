@@ -440,9 +440,9 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                     )
             if xscale != "linear":
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=FS(13), fontweight="bold")
-            ax.set_ylabel(f"Efficiency ({KGKM_LABEL})", fontsize=FS(13), fontweight="bold")
-            ax.set_title(f"{dist}", fontsize=FS(13), fontweight="bold")
+            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=FS(16), fontweight="bold")
+            ax.set_ylabel(f"Efficiency ({KGKM_LABEL})", fontsize=FS(16), fontweight="bold")
+            ax.set_title(f"{dist}", fontsize=FS(16), fontweight="bold")
             for tick in ax.get_xticklabels() + ax.get_yticklabels():
                 tick.set_fontweight("bold")
             ax.tick_params(axis="both", labelsize=11)
@@ -615,6 +615,11 @@ def _kpi_panel(ax: plt.Axes, dfm: pd.DataFrame, metric: str, ctx: dict, use_log:
         ax.set_yscale("symlog", linthresh=1)
     ax.set_xticks(x)
     ax.set_xticklabels(labels, fontsize=FS(10.5), fontweight="bold")
+    # Long region tokens (FFZ-350) overlap their neighbours at the shared
+    # size — shrink just those labels slightly.
+    for lbl in ax.get_xticklabels():
+        if lbl.get_text().startswith("FFZ"):
+            lbl.set_fontsize(FS(9.2))
     ax.tick_params(axis="y", labelsize=13)
     for lbl in ax.get_yticklabels():
         lbl.set_fontweight("bold")
@@ -633,8 +638,8 @@ def gen_kpi_combined(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
             ax = axes[mi][di]
             dist_ctx = {**ctx, "scenarios": [s for s in ctx["scenarios"] if s["dist"] == dist]}
             _kpi_panel(ax, dfm, metric, dist_ctx, use_log)
-            ax.set_ylabel(ylabel, fontsize=FS(16), fontweight="bold")
-            ax.set_title(dist, fontsize=FS(17), fontweight="bold")
+            ax.set_ylabel(ylabel, fontsize=FS(19), fontweight="bold")
+            ax.set_title(dist, fontsize=FS(19), fontweight="bold")
     strategies, improvers = ctx["strategies"], ctx["improvers"]
     patches = [mpatches.Patch(color=META["strategy_colors"].get(s, "#a0a0a0"), label=s) for s in strategies]
     patches += [
@@ -712,7 +717,7 @@ def gen_policy_scenario_heatmap(df: pd.DataFrame, ctx: dict, out_dir: Path) -> N
         norm = matplotlib.colors.SymLogNorm(linthresh=10, vmin=0) if metric == "overflows" else None
         im = ax.imshow(mat, aspect="auto", cmap=cmap, norm=norm)
         cbar = plt.colorbar(im, ax=ax, shrink=0.8)
-        cbar.set_label(mlabel, fontsize=FS(14), fontweight="bold")
+        cbar.set_label(mlabel, fontsize=FS(18), fontweight="bold")
         cbar.ax.tick_params(labelsize=12)
         ax.set_xticks(range(len(col_labels)))
         ax.set_xticklabels(col_labels, fontsize=FS(13), fontweight="bold", rotation=30, ha="right")
@@ -739,7 +744,7 @@ def gen_scenario_constructor_heatmap(dfm: pd.DataFrame, ctx: dict, out_dir: Path
     combos = [(s, i) for s in strategies for i in improvers]
     combo_labels = [f"{s}\n{i}" for s, i in combos]
     n = len(scenarios)
-    fig, axes = plt.subplots(2, n, figsize=(3.8 * n, 7.6), squeeze=False)
+    fig, axes = plt.subplots(2, n, figsize=(4.6 * n, 7.6), squeeze=False)
     pass
     for row_i, (metric, cmap, mlabel) in enumerate(
         [("overflows", "RdYlGn_r", "Overflows"), ("kgkm", "RdYlGn", KGKM_LABEL)]
@@ -761,7 +766,7 @@ def gen_scenario_constructor_heatmap(dfm: pd.DataFrame, ctx: dict, out_dir: Path
             cbar.ax.tick_params(labelsize=9)
             if shared_axis_labels:
                 ax.set_xticks(range(len(combo_labels)))
-                ax.set_xticklabels(combo_labels, fontsize=FS(10), fontweight="bold", rotation=0)
+                ax.set_xticklabels(combo_labels, fontsize=FS(8.0), fontweight="bold", rotation=0)
                 ax.set_yticks(range(len(constructors)))
                 ax.set_yticklabels(disp_all(constructors) if col_i == 0 else [], fontsize=FS(9), fontweight="bold")
             else:
@@ -850,9 +855,9 @@ def gen_strategy_bubble(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                         linewidths=0.5,
                     )
                     _annotate_no_overlap(ax, placed, ov, eff, region_label(s["city"], s["N"]), fontsize=FS_LABEL(11))
-            ax.set_xlabel("Overflows", fontsize=FS_AXIS(15), fontweight="bold")
-            ax.set_ylabel(f"{KGKM_LABEL} Efficiency", fontsize=FS_AXIS(15), fontweight="bold")
-            ax.set_title(f"{dist}", fontsize=FS_AXIS(15), fontweight="bold")
+            ax.set_xlabel("Overflows", fontsize=FS_AXIS(18), fontweight="bold")
+            ax.set_ylabel(f"{KGKM_LABEL} Efficiency", fontsize=FS_AXIS(18), fontweight="bold")
+            ax.set_title(f"{dist}", fontsize=FS_AXIS(18), fontweight="bold")
             ax.tick_params(axis="both", labelsize=12)
             for lbl in ax.get_xticklabels() + ax.get_yticklabels():
                 lbl.set_fontweight("bold")
@@ -909,9 +914,9 @@ def gen_improver_bubble(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                     ax.plot([x1, x2], [y1, y2], "-", color=ctx["theme"]["guide_line"], linewidth=0.8, alpha=0.6)
                 for _imp, (ov, eff) in pts.items():
                     _annotate_no_overlap(ax, placed, ov, eff, region_label(s["city"], s["N"]), fontsize=FS_LABEL(10))
-            ax.set_xlabel("Overflows", fontsize=FS_AXIS(15), fontweight="bold")
-            ax.set_ylabel(f"{KGKM_LABEL} Efficiency", fontsize=FS_AXIS(15), fontweight="bold")
-            ax.set_title(f"{dist}", fontsize=FS_AXIS(15), fontweight="bold")
+            ax.set_xlabel("Overflows", fontsize=FS_AXIS(18), fontweight="bold")
+            ax.set_ylabel(f"{KGKM_LABEL} Efficiency", fontsize=FS_AXIS(18), fontweight="bold")
+            ax.set_title(f"{dist}", fontsize=FS_AXIS(18), fontweight="bold")
             ax.tick_params(axis="both", labelsize=12)
             for lbl in ax.get_xticklabels() + ax.get_yticklabels():
                 lbl.set_fontweight("bold")
@@ -1001,7 +1006,7 @@ def _render_radar(
     ax.patch.set_facecolor(_RADAR_AX_BG)
     ax.set_xticks(angles[:-1])
     ax.set_xticklabels(axes_labels, fontsize=FS(15), color="#ffffff")
-    ax.tick_params(axis="x", pad=28, colors="#ffffff")
+    ax.tick_params(axis="x", pad=72, colors="#ffffff")
     ax.set_ylim(0, 1)
     ax.yaxis.set_tick_params(labelcolor="#ffffff", labelsize=10)
     ax.spines["polar"].set_color(_RADAR_MUTED)
@@ -1045,7 +1050,7 @@ def gen_radar_combined(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
         key,
         "Policy Performance Radar — All Constructors\n(normalised; outer = better)",
         (11, 10),
-        (1.3, 1.1),
+        (1.45, 1.1),
     )
     out_path = out_dir / "policy_radar_combined.png"
     fig.savefig(out_path, dpi=150, bbox_inches="tight", facecolor=fig.get_facecolor())

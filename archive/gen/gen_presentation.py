@@ -333,7 +333,7 @@ def render_hier_table_image(
         if partition_label:
             banner_h = min(banner_h, fig_h * 0.16)
         header_h = min(header_h, fig_h * 0.14)
-        x0 = fig_w * 0.27
+        x0 = fig_w * 0.16
         label_ws = [x0 * w / weight_sum for w in level_weights]
         y0 = banner_h + header_h * n_col_levels
         cell_w = (fig_w - x0) / max(n_cols, 1)
@@ -350,9 +350,10 @@ def render_hier_table_image(
         fig_h = min(total_h, 32)
     label_lefts = [sum(label_ws[:i]) for i in range(n_row_levels)]
 
-    fontsize = max(5.5, min(10, 260 / max(n_cols, 1)))
-    # Two stacked values (overflow/kg-km) must fit within cell_h — cap the font accordingly.
-    fontsize = min(fontsize, cell_h * 72 * 0.32)
+    fontsize = max(5.5, min(11, 300 / max(n_cols, 1)))
+    # Two stacked values (overflows over kg/km) must fit the cell: each line
+    # gets ~cell_h/2 of height and the full cell width for one value string.
+    fontsize = min(fontsize, cell_h * 72 * 0.30, cell_w * 72 * 0.185)
 
     fig, ax = plt.subplots(figsize=(fig_w, fig_h))
     fig.subplots_adjust(left=0, right=1, top=1, bottom=0)
@@ -436,9 +437,9 @@ def render_hier_table_image(
             if ov is None and kg is None:
                 ax.text(xs + cell_w / 2, ys + cell_h / 2, "—", ha="center", va="center", fontsize=fontsize * 0.85)
                 continue
-            # Dotted separator between the overflow (left) and kg/km (right) values in the cell.
+            # Dotted separator between the overflow (top) and kg/km (bottom) values in the cell.
             ax.plot(
-                [xs + cell_w * 0.5, xs + cell_w * 0.5], [ys + cell_h * 0.12, ys + cell_h * 0.88],
+                [xs + cell_w * 0.1, xs + cell_w * 0.9], [ys + cell_h * 0.5, ys + cell_h * 0.5],
                 linestyle=":", color="#AAAAAA", linewidth=0.8,
             )
             if global_best is not None:
@@ -450,12 +451,12 @@ def render_hier_table_image(
             ov_color, ov_weight = ("#1A7A34", "bold") if is_best_ov else ("#333333", "normal")
             kg_color, kg_weight = ("#1A7A34", "bold") if is_best_kg else ("#333333", "normal")
             ax.text(
-                xs + cell_w * 0.25, ys + cell_h / 2, ov[0] if ov else "—", ha="center", va="center",
-                fontsize=fontsize * 0.85, color=ov_color, fontweight=ov_weight,
+                xs + cell_w / 2, ys + cell_h * 0.27, ov[0] if ov else "—", ha="center", va="center",
+                fontsize=fontsize, color=ov_color, fontweight=ov_weight,
             )
             ax.text(
-                xs + cell_w * 0.75, ys + cell_h / 2, kg[0] if kg else "—", ha="center", va="center",
-                fontsize=fontsize * 0.85, color=kg_color, fontweight=kg_weight,
+                xs + cell_w / 2, ys + cell_h * 0.74, kg[0] if kg else "—", ha="center", va="center",
+                fontsize=fontsize, color=kg_color, fontweight=kg_weight,
             )
 
     fig.savefig(out_path, dpi=180, bbox_inches=None, pad_inches=0, facecolor="white")
@@ -1513,12 +1514,12 @@ class DeckBuilder:
         level_names = (["horizon"] if multi else []) + ["strategy", "constructor", "improver"]
         col_desc = " × ".join(level_phrases[n] for n in level_names)
         row_labels = ["Region", "N", "Dist"]
-        corner_note = "LEFT:\nOverflows\n\nRIGHT:\nKG / KM"
+        corner_note = "TOP:\nOverflows\n\nBOTTOM:\nKG / KM"
 
         slide = self._new_slide()
         self._title_bar(slide, title)
-        area_top, area_bottom = Inches(1.15), SLIDE_H - Inches(0.2)
-        area_w_in = Emu(SLIDE_W - Inches(0.6)).inches
+        area_top, area_bottom = Inches(1.15), SLIDE_H - Inches(0.1)
+        area_w_in = Emu(SLIDE_W).inches
         area_h_in = Emu(area_bottom - area_top).inches
 
         global_best = compute_global_best(row_keys, col_keys, cells)
@@ -1526,12 +1527,12 @@ class DeckBuilder:
             row_keys, col_keys, cells, row_labels, self._tmp / "full_results_table.png",
             target_size_in=(area_w_in, area_h_in), global_best=global_best, corner_note=corner_note,
         )
-        slide.shapes.add_picture(str(img_path), Inches(0.3), area_top, SLIDE_W - Inches(0.6), area_bottom - area_top)  # pyrefly: ignore [bad-argument-type]
+        slide.shapes.add_picture(str(img_path), 0, area_top, SLIDE_W, area_bottom - area_top)  # pyrefly: ignore [bad-argument-type]
 
         self._record_script(
             title,
             [f"CLS route improver results table, columns grouped by {col_desc}. "
-             f"In each cell, left=overflows (lower is better), right={KGKM_LABEL} (higher is better); best in bold green."],
+             f"In each cell, top=overflows (lower is better), bottom={KGKM_LABEL} (higher is better); best in bold green."],
         )
 
     def acknowledgments(self) -> None:
