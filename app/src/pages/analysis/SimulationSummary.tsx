@@ -14,16 +14,16 @@ import { invoke } from "@tauri-apps/api/core";
 import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, Download } from "lucide-react";
 import { useAppStore } from "../../store/app";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
-import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
+import { useLogPathRunLabelBrush } from "../../hooks/brush/useLogPathRunLabelBrush";
+import { usePortfolioRunBrush } from "../../hooks/brush/usePortfolioRunBrush";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
-import { paretoFront, paretoStepLine } from "../../utils/pareto";
+import { paretoFront, paretoStepLine } from "../../utils/benchmark/pareto";
 import {
   chartMetricDisplay,
   chartMetricUsesSymlog,
@@ -33,9 +33,9 @@ import {
   isLogScaleMetric,
   parallelAxisValue,
   radarAxisValue,
-} from "../../utils/chartLogScale";
-import { symlog } from "../../utils/symlog";
-import { barOpacity, isHighlighted, toggleBrush } from "../../utils/chartHighlight";
+} from "../../utils/charts/chartLogScale";
+import { symlog } from "../../utils/charts/symlog";
+import { barOpacity, isHighlighted, toggleBrush } from "../../utils/charts/chartHighlight";
 import {
   citySymbol,
   formatLogMeta,
@@ -45,7 +45,7 @@ import {
   strategyColor,
   type LogPathMeta,
   type PolicyMeta,
-} from "../../utils/simMetadata";
+} from "../../utils/sim/simMetadata";
 import {
   buildPolicyHierarchy,
   buildPortfolioHierarchy,
@@ -55,42 +55,42 @@ import {
   resolveDrillBarColor,
   type HierarchyColorMode,
   type PortfolioHierarchyRun,
-} from "../../utils/policyHierarchy";
-import { BenchmarkParetoPanel } from "../../components/analysis/BenchmarkParetoPanel";
-import { BenchmarkGraphHeatmap } from "../../components/analysis/BenchmarkGraphHeatmap";
-import { BenchmarkDistributionHeatmap } from "../../components/analysis/BenchmarkDistributionHeatmap";
-import { BenchmarkPortfolioHeatmap } from "../../components/analysis/BenchmarkPortfolioHeatmap";
-import { BenchmarkPortfolioParallel } from "../../components/analysis/BenchmarkPortfolioParallel";
-import { StrategyLegend } from "../../components/analysis/StrategyLegend";
+} from "../../utils/benchmark/policyHierarchy";
+import { BenchmarkParetoPanel } from "../../components/analysis/benchmark/BenchmarkParetoPanel";
+import { BenchmarkGraphHeatmap } from "../../components/analysis/benchmark/BenchmarkGraphHeatmap";
+import { BenchmarkDistributionHeatmap } from "../../components/analysis/benchmark/BenchmarkDistributionHeatmap";
+import { BenchmarkPortfolioHeatmap } from "../../components/analysis/benchmark/BenchmarkPortfolioHeatmap";
+import { BenchmarkPortfolioParallel } from "../../components/analysis/benchmark/BenchmarkPortfolioParallel";
+import { StrategyLegend } from "../../components/analysis/telemetry/StrategyLegend";
 import {
   buildNormalizedHeatmapCells,
   type HeatmapMode,
-} from "../../utils/heatmapMetrics";
-import { PortfolioEfficiencyRanking } from "../../components/analysis/PortfolioEfficiencyRanking";
-import { buildParetoByPanel, type PortfolioRunSlice } from "../../utils/paretoPortfolio";
-import { groupRunsByDistribution } from "../../utils/portfolioDistribution";
-import { PARETO_PANELS } from "../../utils/paretoPanels";
+} from "../../utils/benchmark/heatmapMetrics";
+import { PortfolioEfficiencyRanking } from "../../components/analysis/benchmark/PortfolioEfficiencyRanking";
+import { buildParetoByPanel, type PortfolioRunSlice } from "../../utils/benchmark/paretoPortfolio";
+import { groupRunsByDistribution } from "../../utils/benchmark/portfolioDistribution";
+import { PARETO_PANELS } from "../../utils/benchmark/paretoPanels";
 import {
   groupRunsByCity,
   buildCityComparisonSeries,
   cityComparisonChartOption,
-} from "../../utils/cityComparison";
+} from "../../utils/benchmark/cityComparison";
 import {
   loadPortfolioLogs,
   PORTFOLIO_SCAN_DEFAULT,
   scanOutputPortfolio,
-} from "../../utils/outputRunLogs";
-import { downloadCsv, downloadParquetTable } from "../../utils/tableExport";
-import { buildPolicyParallelAxes } from "../../utils/parallelPolicyAxes";
+} from "../../utils/runs/outputRunLogs";
+import { downloadCsv, downloadParquetTable } from "../../utils/charts/tableExport";
+import { buildPolicyParallelAxes } from "../../utils/benchmark/parallelPolicyAxes";
 import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
   runPortfolioSimulationArrowPipeline,
-} from "../../utils/arrowPipeline";
-import { RouteViz } from "../../components/analysis/RouteViz";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
+} from "../../utils/duckdb/arrowPipeline";
+import { RouteViz } from "../../components/analysis/routes/RouteViz";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
 
-import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { SqlQueryPanel } from "../../components/analysis/explorer/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import { toast } from "sonner";
 import type { DayLogEntry } from "../../types";

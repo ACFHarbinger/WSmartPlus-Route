@@ -30,24 +30,24 @@ import {
 } from "lucide-react";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { recentKindFromPath } from "../../store/recentFiles";
 import { useSessionProfilesStore } from "../../store/sessionProfiles";
 import { toast } from "sonner";
 import type { DirEntry, OutputDir, DayLogEntry, WsrouteBundleInfo, WsrouteExtractResult } from "../../types";
-import { findRunJsonl } from "../../utils/outputRunLogs";
-import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
+import { findRunJsonl } from "../../utils/runs/outputRunLogs";
+import { useLogPathRunLabelBrush } from "../../hooks/brush/useLogPathRunLabelBrush";
 
-import { downloadParquetFromCsv } from "../../utils/tableExport";
+import { downloadParquetFromCsv } from "../../utils/charts/tableExport";
 import {
   filterCheckpointEntries,
   isCheckpointEntry,
   parentRunBrushLabelFromCheckpointPath,
-} from "../../utils/checkpoints";
-import { portfolioRunLabel } from "../../utils/arrowPipeline";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+} from "../../utils/training/checkpoints";
+import { portfolioRunLabel } from "../../utils/duckdb/arrowPipeline";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 
 function formatBytes(b: number) {
   if (b < 1024) return `${b} B`;

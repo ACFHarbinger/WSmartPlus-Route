@@ -26,17 +26,17 @@ import {
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
-import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
-import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/training/checkpoints";
+import { EvalCheckpointLiveCard } from "../../components/monitor/eval/EvalCheckpointLiveCard";
+import { LauncherLivePanel } from "../../components/monitor/live/LauncherLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useProcessStore } from "../../store/process";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
-import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
+import { useSpawnProcess } from "../../hooks/process/useSpawnProcess";
 import type { ProcessStatus } from "../../types";
 import {
   type EvalResult,
@@ -46,10 +46,10 @@ import {
   evalLivePanelTitle,
   hasEvalMetrics,
   toEvalAnalyticsRows,
-} from "../../utils/evalResults";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
-import { findRecentEvalProcessIds } from "../../utils/launcherProcess";
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
+} from "../../utils/benchmark/evalResults";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
+import { findRecentEvalProcessIds } from "../../utils/process/launcherProcess";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/runs/outputRunPath";
 
 const PROBLEMS = ["vrpp", "wcvrp", "scwcvrp"] as const;
 const STRATEGIES = ["greedy", "sampling", "beam"] as const;

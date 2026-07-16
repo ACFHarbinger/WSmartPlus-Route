@@ -11,9 +11,9 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen } from "lucide-react";
 import { toast } from "sonner";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { usePortfolioRunBrush } from "../../hooks/usePortfolioRunBrush";
+import { usePortfolioRunBrush } from "../../hooks/brush/usePortfolioRunBrush";
 import { useAppStore } from "../../store/app";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { filterEntries } from "../../store/sim";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
@@ -22,20 +22,20 @@ import {
   cityComparisonChartOption,
   groupRunsByCity,
   type CityRunSlice,
-} from "../../utils/cityComparison";
+} from "../../utils/benchmark/cityComparison";
 import {
   loadPortfolioLogs,
   PORTFOLIO_SCAN_DEFAULT,
   scanOutputPortfolio,
-} from "../../utils/outputRunLogs";
+} from "../../utils/runs/outputRunLogs";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
   runPortfolioSimulationArrowPipeline,
-} from "../../utils/arrowPipeline";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+} from "../../utils/duckdb/arrowPipeline";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
+import { SqlQueryPanel } from "../../components/analysis/explorer/SqlQueryPanel";
 import { useDuckDbStore } from "../../store/duckdb";
 import type { DayLogEntry } from "../../types";
 const CITY_SIM_TABLE = "city_sim";

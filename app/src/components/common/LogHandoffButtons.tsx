@@ -7,7 +7,7 @@
  */
 import type { MouseEvent } from "react";
 import { BarChart2, Map as MapIcon } from "lucide-react";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 
 export type LogHandoffTarget = "summary" | "monitor";
 

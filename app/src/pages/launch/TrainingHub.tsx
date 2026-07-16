@@ -16,12 +16,12 @@ import type EChartsReact from "echarts-for-react";
 import { Play, ChevronDown, ChevronUp, Terminal, FolderOpen } from "lucide-react";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { parentRunBrushLabelFromCheckpointPath } from "../../utils/checkpoints";
-import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
-import { EvalResultCard } from "../../components/monitor/EvalResultCard";
-import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
-import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
+import { parentRunBrushLabelFromCheckpointPath } from "../../utils/training/checkpoints";
+import { EvalCheckpointLiveCard } from "../../components/monitor/eval/EvalCheckpointLiveCard";
+import { EvalResultCard } from "../../components/monitor/eval/EvalResultCard";
+import { LauncherLivePanel } from "../../components/monitor/live/LauncherLivePanel";
+import { TrainHpoLivePanel } from "../../components/monitor/live/TrainHpoLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
 import { open } from "@tauri-apps/plugin-dialog";
 import { useAppStore } from "../../store/app";
@@ -29,28 +29,28 @@ import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useTrainHubStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
-import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
-import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
-import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
+import { useSpawnProcess } from "../../hooks/process/useSpawnProcess";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/runs/outputRunPath";
+import { trainingRunPathFromLogLines } from "../../utils/training/trainingRunPath";
+import { collectAttentionVizFromLogLines } from "../../utils/graph/attentionViz";
+import { collectTrainingHealthFromLogLines } from "../../utils/training/trainingHealth";
+import { collectTrainingMetricsFromLogLines } from "../../utils/training/trainingMetrics";
 import {
   checkpointLabelFromEvalProcess,
   collectEvalResultFromLogLines,
   evalLivePanelTitle,
   hasEvalMetrics,
   toEvalAnalyticsRows,
-} from "../../utils/evalResults";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
-import { findRecentLauncherProcessId } from "../../utils/launcherProcess";
+} from "../../utils/benchmark/evalResults";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
+import { findRecentLauncherProcessId } from "../../utils/process/launcherProcess";
 import {
   findRecentHpoProcessId,
   findRecentMetaTrainProcessId,
   findRecentTrainProcessId,
   trainHpoLivePanelTitle,
-} from "../../utils/trainingProcess";
+} from "../../utils/training/trainingProcess";
 import type { ProcessEntry, TrainingMetricsRow } from "../../types";
 
 type Mode = "train" | "hpo" | "meta" | "eval";

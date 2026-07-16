@@ -10,33 +10,33 @@ import { Download, ExternalLink, RefreshCw } from "lucide-react";
 import { LoadedRunRow } from "../../components/common/LoadedRunRow";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
+import { TrainHpoLivePanel } from "../../components/monitor/live/TrainHpoLivePanel";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useProcessStore } from "../../store/process";
-import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
-import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
+import { collectAttentionVizFromLogLines } from "../../utils/graph/attentionViz";
+import { collectTrainingHealthFromLogLines } from "../../utils/training/trainingHealth";
 import {
   brushLogPathFromProcessLines,
   mlflowRunDirFromArtifactUri,
   outputRunPathFromLogLines,
   resolveLocalProjectPath,
-} from "../../utils/outputRunPath";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
-import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
-import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
-import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/trainingProcess";
+} from "../../utils/runs/outputRunPath";
+import { runLabelFromPath } from "../../utils/benchmark/policyTelemetryTrends";
+import { trainingRunPathFromLogLines } from "../../utils/training/trainingRunPath";
+import { collectTrainingMetricsFromLogLines } from "../../utils/training/trainingMetrics";
+import { findRecentHpoProcessId, trainHpoLivePanelTitle } from "../../utils/training/trainingProcess";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { MLIntrospectionPanel } from "../../components/analysis/MLIntrospectionPanel";
+import { MLIntrospectionPanel } from "../../components/analysis/training/MLIntrospectionPanel";
 import {
   chartMetricDisplay,
   chartMetricYAxisType,
   isLogScaleMetric,
-} from "../../utils/chartLogScale";
+} from "../../utils/charts/chartLogScale";
 import { ZenMLPipelineView } from "./ZenMLPipelineView";
 import { ChartExportButtons } from "../../components/common/ChartExportButtons";
-import { downloadCsv } from "../../utils/tableExport";
+import { downloadCsv } from "../../utils/charts/tableExport";
 import type { MlflowMetricPoint, MlflowRun, OutputDir } from "../../types";
 
 const DEFAULT_TRACKING_URI = "mlruns";

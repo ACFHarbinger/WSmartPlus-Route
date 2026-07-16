@@ -1,6 +1,6 @@
 import { Moon, PanelLeft, Sun, Monitor, AlertTriangle, Settings, Keyboard, Search, Compass } from "lucide-react";
 import { useAppStore } from "../../store/app";
-import { nextThemePreference } from "../../utils/theme";
+import { nextThemePreference } from "../../utils/charts/theme";
 import { useLayoutStore } from "../../store/layout";
 import { useProcessStore } from "../../store/process";
 

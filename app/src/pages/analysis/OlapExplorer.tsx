@@ -8,13 +8,13 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { Database, FolderOpen, RefreshCw } from "lucide-react";
 import { toast } from "sonner";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
+import { SqlQueryPanel } from "../../components/analysis/explorer/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
-import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
+import { useLogPathRunLabelBrush } from "../../hooks/brush/useLogPathRunLabelBrush";
+import { useTableRunLabelBrush } from "../../hooks/brush/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import { useDuckDbStore } from "../../store/duckdb";
 
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -23,19 +23,19 @@ import {
   portfolioRunLabel,
   runCsvArrowPipeline,
   runPortfolioSimulationArrowPipeline,
-} from "../../utils/arrowPipeline";
-import { groupRunLabelsByCity } from "../../utils/cityComparison";
+} from "../../utils/duckdb/arrowPipeline";
+import { groupRunLabelsByCity } from "../../utils/benchmark/cityComparison";
 import {
   duckDbHasColumn,
   duckDbRowCount,
   listDuckDbDistinctValues,
   listDuckDbTables,
-} from "../../utils/duckdbClient";
+} from "../../utils/duckdb/duckdbClient";
 import {
   runLabelMapFromSingleTableLabels,
   runLabelMapFromTablePaths,
   tableRunLabelBrushActive,
-} from "../../utils/policyTelemetryTrends";
+} from "../../utils/benchmark/policyTelemetryTrends";
 
 const CUSTOM_TABLE_PREFIX = "olap_";
 

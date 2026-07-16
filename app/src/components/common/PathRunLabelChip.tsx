@@ -9,11 +9,11 @@
  * the atomic path+brush control composed by those shared shells.
  */
 import { useMemo, type ReactNode } from "react";
-import { useRunLabelBrushToggle } from "../../hooks/useRunLabelBrushToggle";
+import { useRunLabelBrushToggle } from "../../hooks/brush/useRunLabelBrushToggle";
 import { useAppStore } from "../../store/app";
 import type { RecentFileKind } from "../../store/recentFiles";
-import { resolveLocalProjectPath } from "../../utils/outputRunPath";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
+import { resolveLocalProjectPath } from "../../utils/runs/outputRunPath";
+import { runLabelFromPath } from "../../utils/benchmark/policyTelemetryTrends";
 import type { LogHandoffTarget } from "./LogHandoffButtons";
 import { PathHandoffButtons } from "./PathHandoffButtons";
 

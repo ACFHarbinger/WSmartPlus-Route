@@ -1,12 +1,12 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Search } from "lucide-react";
 import { PALETTE_COMMANDS } from "../../constants/commands";
-import { useWsrouteImport } from "../../hooks/useWsrouteImport";
+import { useWsrouteImport } from "../../hooks/files/useWsrouteImport";
 import { invoke } from "@tauri-apps/api/core";
 import { useAppStore } from "../../store/app";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import { useLayoutStore } from "../../store/layout";
-import { nextThemePreference } from "../../utils/theme";
+import { nextThemePreference } from "../../utils/charts/theme";
 import { OpenPathToolbar } from "../common/OpenPathToolbar";
 import { useRecentFilesStore, type RecentFile, type RecentFileKind } from "../../store/recentFiles";
 import type { DayLogEntry } from "../../types";

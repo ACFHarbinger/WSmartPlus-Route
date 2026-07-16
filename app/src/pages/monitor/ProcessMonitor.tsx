@@ -20,9 +20,9 @@ import {
 } from "lucide-react";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
-import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
+import { PolicyTelemetryPanel } from "../../components/analysis/telemetry/PolicyTelemetryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
 
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
@@ -31,30 +31,30 @@ import { StatusPill } from "../../components/ui/StatusPill";
 import {
   collectPolicyVizFromLogLines,
   uniquePolicyVizPolicies,
-} from "../../utils/policyTelemetry";
-import { collectAttentionVizFromLogLines } from "../../utils/attentionViz";
+} from "../../utils/benchmark/policyTelemetry";
+import { collectAttentionVizFromLogLines } from "../../utils/graph/attentionViz";
 import {
   extractJsonlPathFromLogLines,
   runLabelMapFromProcesses,
-} from "../../utils/policyTelemetryTrends";
-import { collectTrainingHealthFromLogLines } from "../../utils/trainingHealth";
-import { collectTrainingMetricsFromLogLines } from "../../utils/trainingMetrics";
+} from "../../utils/benchmark/policyTelemetryTrends";
+import { collectTrainingHealthFromLogLines } from "../../utils/training/trainingHealth";
+import { collectTrainingMetricsFromLogLines } from "../../utils/training/trainingMetrics";
 import {
   isHpoProcess,
   isTrainOrHpoProcess,
   trainHpoLivePanelTitle,
-} from "../../utils/trainingProcess";
-import { EvalCheckpointLiveCard } from "../../components/monitor/EvalCheckpointLiveCard";
-import { EvalResultCard } from "../../components/monitor/EvalResultCard";
-import { LiveTrainProgressBar } from "../../components/monitor/LiveTrainProgressBar";
-import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { TrainHpoLivePanel } from "../../components/monitor/TrainHpoLivePanel";
+} from "../../utils/training/trainingProcess";
+import { EvalCheckpointLiveCard } from "../../components/monitor/eval/EvalCheckpointLiveCard";
+import { EvalResultCard } from "../../components/monitor/eval/EvalResultCard";
+import { LiveTrainProgressBar } from "../../components/monitor/live/LiveTrainProgressBar";
+import { LauncherLivePanel } from "../../components/monitor/live/LauncherLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
+import { TrainHpoLivePanel } from "../../components/monitor/live/TrainHpoLivePanel";
 import {
   dataGenLivePanelTitle,
   launcherKindFromProcess,
   simLivePanelTitle,
-} from "../../utils/launcherProcess";
+} from "../../utils/process/launcherProcess";
 import {
   checkpointLabelFromEvalProcess,
   checkpointPathFromEvalCommand,
@@ -62,15 +62,15 @@ import {
   evalLivePanelTitle,
   hasEvalMetrics,
   toEvalAnalyticsRows,
-} from "../../utils/evalResults";
+} from "../../utils/benchmark/evalResults";
 
-import { dataExplorerPathFromGenData } from "../../utils/genDataPath";
+import { dataExplorerPathFromGenData } from "../../utils/runs/genDataPath";
 import {
   brushLogPathFromProcessLines,
   brushLogPathMapFromProcesses,
   outputRunPathFromLogLines,
-} from "../../utils/outputRunPath";
-import { trainingRunPathFromLogLines } from "../../utils/trainingRunPath";
+} from "../../utils/runs/outputRunPath";
+import { trainingRunPathFromLogLines } from "../../utils/training/trainingRunPath";
 
 /**
  * Try to parse a log line as structured JSON (e.g. Python's structlog or loguru JSON sink).

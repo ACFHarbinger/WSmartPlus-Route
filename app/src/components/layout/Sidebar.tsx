@@ -24,7 +24,7 @@ import {
 import { useAppStore } from "../../store/app";
 import { useLayoutStore } from "../../store/layout";
 import type { AppMode, NavSection } from "../../types";
-import { prefetchPage } from "../../utils/pagePrefetch";
+import { prefetchPage } from "../../utils/app/pagePrefetch";
 
 const NAV: NavSection[] = [
   {

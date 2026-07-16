@@ -16,12 +16,12 @@ import {
   FileText,
   FolderOpen,
 } from "lucide-react";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import {
   recentKindFromPath,
   type RecentFileKind,
 } from "../../store/recentFiles";
-import { recentHandoffSpec } from "../../utils/recentHandoff";
+import { recentHandoffSpec } from "../../utils/runs/recentHandoff";
 import {
   isSimulationLogPath,
   LogHandoffButtons,

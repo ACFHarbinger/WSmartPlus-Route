@@ -9,21 +9,21 @@ import { open } from "@tauri-apps/plugin-dialog";
 import { FolderOpen, Download } from "lucide-react";
 import { toast } from "sonner";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
-import { SqlQueryPanel } from "../../components/analysis/SqlQueryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
+import { SqlQueryPanel } from "../../components/analysis/explorer/SqlQueryPanel";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { useLogPathRunLabelBrush } from "../../hooks/useLogPathRunLabelBrush";
-import { useTableRunLabelBrush } from "../../hooks/useTableRunLabelBrush";
+import { useLogPathRunLabelBrush } from "../../hooks/brush/useLogPathRunLabelBrush";
+import { useTableRunLabelBrush } from "../../hooks/brush/useTableRunLabelBrush";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
-import { downloadCsv, downloadParquetFromCsv } from "../../utils/tableExport";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
+import { downloadCsv, downloadParquetFromCsv } from "../../utils/charts/tableExport";
 import {
   formatPipelineTimingBadge,
   portfolioRunLabel,
   runCsvArrowPipeline,
-} from "../../utils/arrowPipeline";
-import { groupRunLabelsByCity, resolveBrushedRunLabels } from "../../utils/cityComparison";
+} from "../../utils/duckdb/arrowPipeline";
+import { groupRunLabelsByCity, resolveBrushedRunLabels } from "../../utils/benchmark/cityComparison";
 import { useDuckDbStore } from "../../store/duckdb";
 
 interface CsvRow {

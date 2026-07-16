@@ -13,26 +13,26 @@ import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { Play, ChevronDown, ChevronUp, Terminal, RefreshCw } from "lucide-react";
 import { invoke } from "@tauri-apps/api/core";
 import { GlobalFilterBar } from "../../components/layout/GlobalFilterBar";
-import { LauncherLivePanel } from "../../components/monitor/LauncherLivePanel";
-import { ProcessIdFooter } from "../../components/monitor/ProcessIdFooter";
-import { PolicyTelemetryPanel } from "../../components/analysis/PolicyTelemetryPanel";
-import { PolicyTelemetryTrendsPanel } from "../../components/analysis/PolicyTelemetryTrendsPanel";
+import { LauncherLivePanel } from "../../components/monitor/live/LauncherLivePanel";
+import { ProcessIdFooter } from "../../components/monitor/process/ProcessIdFooter";
+import { PolicyTelemetryPanel } from "../../components/analysis/telemetry/PolicyTelemetryPanel";
+import { PolicyTelemetryTrendsPanel } from "../../components/analysis/telemetry/PolicyTelemetryTrendsPanel";
 import { useAppStore } from "../../store/app";
 import { useGlobalFiltersStore } from "../../store/filters";
 import { useLaunchTriggerStore } from "../../store/launchTrigger";
 import { useSimLauncherStore } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
-import { useSpawnProcess } from "../../hooks/useSpawnProcess";
-import { useRecentHandoff } from "../../hooks/useRecentHandoff";
+import { useSpawnProcess } from "../../hooks/process/useSpawnProcess";
+import { useRecentHandoff } from "../../hooks/files/useRecentHandoff";
 import {
   collectPolicyVizFromLogLines,
   uniquePolicyVizPolicies,
-} from "../../utils/policyTelemetry";
-import { extractJsonlPathFromLogLines } from "../../utils/policyTelemetryTrends";
-import { useProcessRunLabelBrush } from "../../hooks/useProcessRunLabelBrush";
-import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/outputRunPath";
-import { collectLatestDayLogsByPolicy } from "../../utils/dayLog";
-import { findRecentLauncherProcessId, simLivePanelTitle } from "../../utils/launcherProcess";
+} from "../../utils/benchmark/policyTelemetry";
+import { extractJsonlPathFromLogLines } from "../../utils/benchmark/policyTelemetryTrends";
+import { useProcessRunLabelBrush } from "../../hooks/brush/useProcessRunLabelBrush";
+import { brushLogPathFromProcessLines, outputRunPathFromLogLines } from "../../utils/runs/outputRunPath";
+import { collectLatestDayLogsByPolicy } from "../../utils/sim/dayLog";
+import { findRecentLauncherProcessId, simLivePanelTitle } from "../../utils/process/launcherProcess";
 import type { DayLogEntry, SimPolicyEntry, ProcessStatus } from "../../types";
 
 /** Fallback when project root is unset or registry load fails. */

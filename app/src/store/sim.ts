@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { policyVizDataLen } from "../utils/policyTelemetry";
+import { policyVizDataLen } from "../utils/benchmark/policyTelemetry";
 import type { DayLogEntry, PolicyVizEntry, SimFailureEntry } from "../types";
 
 interface SimState {

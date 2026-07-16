@@ -6,8 +6,8 @@ import { useMemo, type ReactNode } from "react";
 import { X } from "lucide-react";
 import { OpenPathToolbar } from "./OpenPathToolbar";
 import { useAppStore } from "../../store/app";
-import { resolveLocalProjectPath } from "../../utils/outputRunPath";
-import { runLabelFromPath } from "../../utils/policyTelemetryTrends";
+import { resolveLocalProjectPath } from "../../utils/runs/outputRunPath";
+import { runLabelFromPath } from "../../utils/benchmark/policyTelemetryTrends";
 import type { RecentFileKind } from "../../store/recentFiles";
 
 interface Props {

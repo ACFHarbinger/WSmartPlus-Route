@@ -1,6 +1,6 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
-import { portfolioRunLabel } from "../utils/arrowPipeline";
+import { portfolioRunLabel } from "../utils/duckdb/arrowPipeline";
 
 export type RecentFileKind = "log" | "run" | "csv" | "training" | "checkpoint" | "config";
 

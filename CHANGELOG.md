@@ -43,6 +43,8 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 ### Changed
 
+- **Studio source tree reorganised into logical subdirectories** (`app/src/`): `utils/` split into `charts/`, `duckdb/`, `graph/`, `map/`, `benchmark/`, `process/`, `training/`, `sim/`, `runs/`, `app/`; `hooks/` into `brush/`, `process/`, `files/`, `app/`; `components/analysis/` into `benchmark/`, `topology/`, `telemetry/`, `routes/`, `explorer/`, `training/`; `components/monitor/` into `live/`, `eval/`, `process/` — all relative imports rewritten, no behaviour change
+
 - **Archived the `logic/gen` report/deck pipeline to `archive/gen/`** (frozen, bugfix-only per §H): `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their jinja/json/style/js/templates/images/svg/links assets; `gen_dist_matrix.py` and the Studio-support export scripts (`export_for_studio.py`, `export_loss_landscape.py`) remain in `logic/gen/`; ruff excludes `archive/`
 
 #### Studio parity for retired GUI/UI modules

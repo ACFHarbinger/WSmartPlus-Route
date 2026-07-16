@@ -2,16 +2,16 @@ import { lazy, Suspense, useEffect } from "react";
 import { RefreshCw } from "lucide-react";
 import { Toaster } from "sonner";
 import { Layout } from "./components/layout/Layout";
-import { useHashSync } from "./hooks/useHashSync";
-import { useProcessMonitor } from "./hooks/useProcessMonitor";
-import { useThemeSync } from "./hooks/useThemeSync";
+import { useHashSync } from "./hooks/app/useHashSync";
+import { useProcessMonitor } from "./hooks/process/useProcessMonitor";
+import { useThemeSync } from "./hooks/app/useThemeSync";
 import { useAppStore } from "./store/app";
 import { useRecentFilesStore } from "./store/recentFiles";
 import { useLaunchTriggerStore } from "./store/launchTrigger";
 import { useLayoutStore } from "./store/layout";
-import { useDuckDbInit } from "./hooks/useDuckDbInit";
-import { prefetchPage } from "./utils/pagePrefetch";
-import { markStartup } from "./utils/startupTiming";
+import { useDuckDbInit } from "./hooks/app/useDuckDbInit";
+import { prefetchPage } from "./utils/app/pagePrefetch";
+import { markStartup } from "./utils/app/startupTiming";
 import type { AppMode } from "./types";
 
 // Lazy-loaded pages (§G.7 performance)

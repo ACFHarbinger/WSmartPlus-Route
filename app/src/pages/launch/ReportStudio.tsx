@@ -16,13 +16,13 @@ import { DeckPreview } from "../../components/gen/DeckPreview";
 import { ReportPreview } from "../../components/gen/ReportPreview";
 import type { HtmlSlide } from "../../gen/deck/htmlDeck";
 import { open } from "@tauri-apps/plugin-dialog";
-import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
+import { ProcessLogTail } from "../../components/monitor/process/ProcessLogTail";
 import { StatusPill } from "../../components/ui/StatusPill";
 import { OpenPathToolbar } from "../../components/common/OpenPathToolbar";
 import { useAppStore } from "../../store/app";
 import { useReportGenStore, type ReportGenTab } from "../../store/launchers";
 import { useProcessStore } from "../../store/process";
-import { useSpawnProcess } from "../../hooks/useSpawnProcess";
+import { useSpawnProcess } from "../../hooks/process/useSpawnProcess";
 import type { ProcessEntry } from "../../types";
 
 // Archived batch pipeline location (§H — retired from logic/gen)
