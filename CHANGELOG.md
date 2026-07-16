@@ -41,6 +41,10 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 - **Report Studio** Launch-section page (`report_studio` mode): generates the dataset / simulation analysis reports and the results presentation deck from the Studio — three tabs assembling the full CLI for the archived `gen_dataset_analysis.py`, `gen_simulation_analysis.py` (report + raw-output→CSV parse modes) and `gen_presentation.py` (PPTX / speaker-script DOCX / XLSX), with persisted forms (`useReportGenStore`), command preview, live log tail, and post-run artefact path chips (§H interim)
 
+#### Studio documentation (`app/docs/`)
+
+- New in-app docs dir: `README.md` (index), `ARCHITECTURE.md` (process model, reorganised source layout, stores, Rust command surface, IPC conventions), `PAGES.md` (page-by-page guide), `GEN_PIPELINE.md` (native §H engine), `TESTING.md`, `DEVELOPMENT.md`
+
 #### Studio test suites (`app/tests/`, `app/cypress/`)
 
 - **Vitest** unit tests (Pareto front/step-line, symlog, chart log-scale helpers, process progress markers, run-path/URI resolution), component tests (KpiCard, StatusPill via Testing Library/jsdom), and integration tests (native §H.1 data engine pipeline: filename decoding → filter → aggregate → context → Pareto; global filter store ↔ chart transforms) — `npm test`, 70 tests
