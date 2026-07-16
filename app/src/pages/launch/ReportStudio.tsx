@@ -173,6 +173,10 @@ export function ReportStudio() {
           progress
         );
         if (res.outMd) outputs.push(res.outMd);
+        if (res.outMd && s.dsHtml) {
+          const { generateHtmlReport } = await import("../../gen/report/htmlReport");
+          outputs.push(await generateHtmlReport(projectRoot, res.outMd, progress));
+        }
         outputs.push(res.figuresDir);
       } else if (tab === "simulation") {
         const mod = await import("../../gen/report/simulationReport");
@@ -216,6 +220,10 @@ export function ReportStudio() {
             progress
           );
           if (res.outMd) outputs.push(res.outMd);
+          if (res.outMd && s.simHtml) {
+            const { generateHtmlReport } = await import("../../gen/report/htmlReport");
+            outputs.push(await generateHtmlReport(projectRoot, res.outMd, progress));
+          }
           outputs.push(...res.figuresDirs);
         }
       } else {
@@ -461,6 +469,9 @@ export function ReportStudio() {
           <div className="flex flex-wrap gap-4">
             <Check label="Force overwrite" checked={s.dsForce} onChange={(v) => patch({ dsForce: v })} />
             <Check label="Figures only (skip markdown)" checked={s.dsFiguresOnly} onChange={(v) => patch({ dsFiguresOnly: v })} />
+            {engine === "native" && (
+              <Check label="HTML report" checked={s.dsHtml} onChange={(v) => patch({ dsHtml: v })} />
+            )}
           </div>
         </div>
       )}
@@ -544,6 +555,9 @@ export function ReportStudio() {
               <div className="flex flex-wrap gap-4">
                 <Check label="Force overwrite" checked={s.simForce} onChange={(v) => patch({ simForce: v })} />
                 <Check label="Figures only (skip markdown)" checked={s.simFiguresOnly} onChange={(v) => patch({ simFiguresOnly: v })} />
+                {engine === "native" && (
+                  <Check label="HTML report" checked={s.simHtml} onChange={(v) => patch({ simHtml: v })} />
+                )}
               </div>
             </>
           )}
