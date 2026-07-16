@@ -1,0 +1,20 @@
+# =============================================================================
+# Policy Visualization Component Configuration
+# =============================================================================
+# Controls the policy_viz Streamlit component rendered from
+# logic.src.ui.components.policy_viz.render_policy_viz
+#
+# Usage:
+#   from logic.src.ui.components.policy_viz import render_policy_viz
+#   render_policy_viz(policy.get_viz_data(), **cfg.ui.policy_viz)
+# =============================================================================
+
+# Chart height in pixels for all plots.
+height: 400
+
+# Exponential moving average window applied to noisy cost time-series.
+# 1 = no smoothing; 10–30 is a sensible range for ALNS/HGS curves.
+smooth_window: 5
+
+# Optional section heading.  null = auto-detect from telemetry keys.
+title: null

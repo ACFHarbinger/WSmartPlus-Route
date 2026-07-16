@@ -41,6 +41,10 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 - **Report Studio** Launch-section page (`report_studio` mode): generates the dataset / simulation analysis reports and the results presentation deck from the Studio — three tabs assembling the full CLI for the archived `gen_dataset_analysis.py`, `gen_simulation_analysis.py` (report + raw-output→CSV parse modes) and `gen_presentation.py` (PPTX / speaker-script DOCX / XLSX), with persisted forms (`useReportGenStore`), command preview, live log tail, and post-run artefact path chips (§H interim)
 
+#### Archived Streamlit dashboard (`archive/streamlit_ui/`)
+
+- The Streamlit UI removed in `31b1b19` recovered from git history (parent commit) and archived frozen/reference-only like `archive/gen/`: all 79 deleted files (`logic/src/ui/`, `logic/src/utils/ui/`, `logic/configs/ui/`, `dashboard_entry.py`, dashboard constants, `.streamlit/`, `tools/ui/`, UI unit tests, `remove_ui.py`) preserved at their original repo-relative paths, plus a README documenting provenance and layout; `archive/` stays excluded from ruff/pytest/packaging
+
 #### Headless §H generation runner (`app/scripts/gen-headless.ts`)
 
 - Runs the Studio's native `src/gen` pipeline (simulation analysis figures/markdown/interactive HTML + PPTX deck) **without the GUI**: vite-node + jsdom + node-canvas for ECharts rasterisation, resvg for SVG→PNG (injectable via new `setSvgRasterizer` hook), and a Node fs implementation of the Tauri `invoke` commands (`scripts/headless/tauri-core-shim.ts`); `npx vite-node --config scripts/headless/vite.config.ts scripts/gen-headless.ts -- [--report] [--deck] …`

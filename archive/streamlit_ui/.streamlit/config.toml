@@ -1,0 +1,4 @@
+[server]
+# Raise upload limit to accommodate large .td dataset files (up to ~335 MB for
+# 170-node VRPP instances). Set to 2 GB to give headroom for future datasets.
+maxUploadSize = 2000
