@@ -235,6 +235,7 @@ interface ReportGenState {
   presSpeakerOut: string;
   presImageMode: "native" | "fetch";
   presExcel: boolean;
+  presHtml: boolean;
   extraArgs: string;
   patch: (updates: Partial<Omit<ReportGenState, "patch">>) => void;
 }
@@ -280,6 +281,7 @@ export const useReportGenStore = create<ReportGenState>()(
       presSpeakerOut: "",
       presImageMode: "native" as const,
       presExcel: false,
+      presHtml: false,
       extraArgs: "",
       patch: (updates) => set(updates as Partial<ReportGenState>),
     }),

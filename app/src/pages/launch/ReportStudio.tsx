@@ -201,6 +201,7 @@ export function ReportStudio() {
             speakerScriptOut: s.presSpeakerOut.trim() || undefined,
             imageMode: s.presImageMode,
             excel: s.presExcel,
+            html: s.presHtml,
           },
           progress
         );
@@ -550,6 +551,9 @@ export function ReportStudio() {
           <div className="flex flex-wrap gap-4">
             <Check label="Speaker script (.docx)" checked={s.presSpeakerScript} onChange={(v) => patch({ presSpeakerScript: v })} />
             <Check label="Excel results workbook" checked={s.presExcel} onChange={(v) => patch({ presExcel: v })} />
+            {engine === "native" && (
+              <Check label="HTML slideshow" checked={s.presHtml} onChange={(v) => patch({ presHtml: v })} />
+            )}
           </div>
           {s.presSpeakerScript && (
             <Field label="Speaker Script Output (empty = beside PPTX)">
