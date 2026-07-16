@@ -11,7 +11,9 @@
  * exporters, live preview/editing) replaces this page phase by phase.
  */
 import { useCallback, useMemo, useState } from "react";
-import { Play, Terminal, FolderOpen, FileText, Presentation } from "lucide-react";
+import { Eye, Play, Terminal, FolderOpen, FileText, Presentation } from "lucide-react";
+import { DeckPreview } from "../../components/gen/DeckPreview";
+import type { HtmlSlide } from "../../gen/deck/htmlDeck";
 import { open } from "@tauri-apps/plugin-dialog";
 import { ProcessLogTail } from "../../components/monitor/ProcessLogTail";
 import { StatusPill } from "../../components/ui/StatusPill";
@@ -106,6 +108,37 @@ export function ReportStudio() {
   );
   const displayProc = displayProcessId ? processes[displayProcessId] : null;
   const isDone = displayProc != null && displayProc.status !== "running";
+
+  // Deck preview (§H.7)
+  const [previewSlides, setPreviewSlides] = useState<HtmlSlide[]>([]);
+  const [previewOpen, setPreviewOpen] = useState(false);
+  const [previewBuilding, setPreviewBuilding] = useState(false);
+
+  const buildPreview = useCallback(async () => {
+    if (!projectRoot) return;
+    setPreviewOpen(true);
+    setPreviewBuilding(true);
+    try {
+      const { buildHtmlDeckSlides } = await import("../../gen/deck/htmlDeck");
+      const slides = await buildHtmlDeckSlides({
+        projectRoot,
+        figuresDir: s.presFiguresDir.trim() || "public/figures/simulation/30d",
+        out: "",
+        author: s.presAuthor.trim() || undefined,
+        coauthors: s.presCoauthors.trim() ? s.presCoauthors.split(";").map((x) => x.trim()) : undefined,
+        groups: s.presGroups.trim() ? s.presGroups.split(";").map((x) => x.trim()) : undefined,
+        resultsTable: s.presResultsTable,
+        resultsTableSplit: s.presResultsSplit,
+        imageMode: s.presImageMode,
+      });
+      setPreviewSlides(slides);
+    } catch (err) {
+      setPreviewSlides([]);
+      setNativeLog((log) => [...log, `Preview failed: ${err instanceof Error ? err.message : String(err)}`]);
+    } finally {
+      setPreviewBuilding(false);
+    }
+  }, [projectRoot, s]);
 
   // Native (§H in-app) engine state
   const [nativeLog, setNativeLog] = useState<string[]>([]);
@@ -613,7 +646,22 @@ export function ReportStudio() {
               ? "Generate (native)"
               : "Generate (script)"}
         </button>
+        {engine === "native" && tab === "presentation" && (
+          <button
+            onClick={buildPreview}
+            disabled={previewBuilding || !projectRoot}
+            className="btn-ghost flex items-center gap-2"
+          >
+            <Eye size={14} />
+            {previewBuilding ? "Building preview…" : "Preview deck"}
+          </button>
+        )}
       </div>
+
+      {/* Deck preview canvas (§H.7) */}
+      {engine === "native" && tab === "presentation" && previewOpen && (
+        <DeckPreview slides={previewSlides} onRebuild={buildPreview} building={previewBuilding} />
+      )}
 
       {/* Native engine output */}
       {engine === "native" && nativeStatus !== "idle" && (
