@@ -1516,7 +1516,7 @@ def gen_selected_bin_maps(out_dir: Path, mode: str = "street") -> None:
                 ax.set_ylabel("Latitude", fontsize=FS(11))
             ax.scatter(coords["lon"], coords["lat"], s=22, color="#C0392B",
                        alpha=0.85, edgecolor="white", linewidth=0.4, zorder=5)
-            ax.set_title(f"{city} — {n_bins} Selected Bins", fontsize=FS(14), fontweight="bold")
+            ax.set_title(f"{city} — {n_bins} Plastic Bins", fontsize=FS(14), fontweight="bold")
             fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
             plt.close(fig)
             print(f"  Saved: {out_name}")
