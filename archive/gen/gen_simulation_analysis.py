@@ -440,9 +440,9 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                     )
             if xscale != "linear":
                 ax.set_xscale("symlog", linthresh=1)
-            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=FS(16), fontweight="bold")
-            ax.set_ylabel(f"Efficiency ({KGKM_LABEL})", fontsize=FS(16), fontweight="bold")
-            ax.set_title(f"{dist}", fontsize=FS(16), fontweight="bold")
+            ax.set_xlabel(f"Overflows ({ctx['n_days']} days)", fontsize=FS(19), fontweight="bold")
+            ax.set_ylabel(f"Efficiency ({KGKM_LABEL})", fontsize=FS(19), fontweight="bold")
+            ax.set_title(f"{dist}", fontsize=FS(19), fontweight="bold")
             for tick in ax.get_xticklabels() + ax.get_yticklabels():
                 tick.set_fontweight("bold")
             ax.tick_params(axis="both", labelsize=11)
@@ -488,11 +488,12 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
             for s in scenarios
         ]
         leg_obj = fig.legend(
-            handles=leg, loc="lower center", ncol=min(len(leg), 6), fontsize=FS(12), bbox_to_anchor=(0.5, -0.1)
+            handles=leg, loc="lower center", ncol=min(len(leg), 6), fontsize=FS(12), bbox_to_anchor=(0.5, -0.155)
         )
         for text in leg_obj.get_texts():
             text.set_fontweight("bold")
-        fig.subplots_adjust(bottom=0.2)
+        # keep the panels themselves as large as possible; the legend hangs below
+        fig.subplots_adjust(left=0.07, right=0.99, top=0.94, bottom=0.13, wspace=0.18)
         return fig
 
     scales = _norm_scales(opts.get("x_scale"), "linear")
@@ -638,8 +639,8 @@ def gen_kpi_combined(dfm: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
             ax = axes[mi][di]
             dist_ctx = {**ctx, "scenarios": [s for s in ctx["scenarios"] if s["dist"] == dist]}
             _kpi_panel(ax, dfm, metric, dist_ctx, use_log)
-            ax.set_ylabel(ylabel, fontsize=FS(19), fontweight="bold")
-            ax.set_title(dist, fontsize=FS(19), fontweight="bold")
+            ax.set_ylabel(ylabel, fontsize=FS(22), fontweight="bold")
+            ax.set_title(dist, fontsize=FS(22), fontweight="bold")
     strategies, improvers = ctx["strategies"], ctx["improvers"]
     patches = [mpatches.Patch(color=META["strategy_colors"].get(s, "#a0a0a0"), label=s) for s in strategies]
     patches += [
@@ -717,8 +718,8 @@ def gen_policy_scenario_heatmap(df: pd.DataFrame, ctx: dict, out_dir: Path) -> N
         norm = matplotlib.colors.SymLogNorm(linthresh=10, vmin=0) if metric == "overflows" else None
         im = ax.imshow(mat, aspect="auto", cmap=cmap, norm=norm)
         cbar = plt.colorbar(im, ax=ax, shrink=0.8)
-        cbar.set_label(mlabel, fontsize=FS(18), fontweight="bold")
-        cbar.ax.tick_params(labelsize=12)
+        cbar.set_label(mlabel, fontsize=FS(22), fontweight="bold")
+        cbar.ax.tick_params(labelsize=13)
         ax.set_xticks(range(len(col_labels)))
         ax.set_xticklabels(col_labels, fontsize=FS(13), fontweight="bold", rotation=30, ha="right")
         ax.set_yticks(range(len(row_labels)))
@@ -763,21 +764,21 @@ def gen_scenario_constructor_heatmap(dfm: pd.DataFrame, ctx: dict, out_dir: Path
             norm = matplotlib.colors.SymLogNorm(linthresh=10, vmin=0) if metric == "overflows" else None
             im = ax.imshow(mat, aspect="auto", cmap=cmap, norm=norm)
             cbar = plt.colorbar(im, ax=ax, shrink=0.75)
-            cbar.ax.tick_params(labelsize=9)
+            cbar.ax.tick_params(labelsize=10)
             if shared_axis_labels:
                 ax.set_xticks(range(len(combo_labels)))
-                ax.set_xticklabels(combo_labels, fontsize=FS(8.0), fontweight="bold", rotation=0)
+                ax.set_xticklabels(combo_labels, fontsize=FS(8.6), fontweight="bold", rotation=0)
                 ax.set_yticks(range(len(constructors)))
-                ax.set_yticklabels(disp_all(constructors) if col_i == 0 else [], fontsize=FS(9), fontweight="bold")
+                ax.set_yticklabels(disp_all(constructors) if col_i == 0 else [], fontsize=FS(9.6), fontweight="bold")
             else:
                 ax.set_xticks([])
                 ax.set_yticks([])
             if row_i == 0:
-                ax.set_title(scenario_label(s), fontsize=FS(10), fontweight="bold")
+                ax.set_title(scenario_label(s), fontsize=FS(10.8), fontweight="bold")
             if col_i == n - 1 and shared_axis_labels:
                 ax.text(
                     1.28, 0.5, mlabel.upper(), transform=ax.transAxes, rotation=270, va="center", ha="left",
-                    fontsize=FS(13), fontweight="bold", color=ctx["theme"]["fg"],
+                    fontsize=FS(14), fontweight="bold", color=ctx["theme"]["fg"],
                 )
     plt.tight_layout()
     if out_fname:
@@ -1445,57 +1446,83 @@ def gen_bin_location_maps(out_dir: Path, mode: str = "street") -> None:
     gen_bin_location_map("Figueira da Foz", out_dir / "figueiradafoz_map.png", mode)
 
 
+def _load_selected_scenario_coords(city: str, n_bins: int) -> pd.DataFrame:
+    """(lat, lon) of exactly the bins simulated in a scenario.
+
+    Rio Maior: the exported selection files
+    (`selected_coordinates/coordinates{N}_plastic[riomaior].xlsx`, which
+    include the depot as ID 0 — dropped here). Figueira da Foz: the plastic
+    ("Mistura de embalagens") bins of `out_info[figdafoz].csv` sorted by ID —
+    the base frame the simulator builds — indexed by the positional selection
+    in `data/wsr_simulator/bins_selection/graphs_{N}V_1N_plastic.json`.
+    """
+    if city == "Rio Maior":
+        xlsx = _COORD_DIR / "selected_coordinates" / f"coordinates{n_bins}_plastic[riomaior].xlsx"
+        df = pd.read_excel(xlsx).rename(columns={"Lat": "lat", "Lng": "lon"})
+        df = df[df["ID"] != 0]  # ID 0 is the depot, not a bin
+        return df[["lat", "lon"]].dropna()
+    if city == "Figueira da Foz":
+        info = pd.read_csv(_COORD_DIR / "out_info[figdafoz].csv")
+        info = info[info["description"] == "Mistura de embalagens"]
+        info = info.assign(
+            lat=info["Latitude"].apply(lambda v: _fix_stripped_decimal(v, 36, 43)),
+            lon=info["Longitude"].apply(lambda v: _fix_stripped_decimal(v, -10, -6)),
+        )
+        base = info.drop_duplicates(subset=["ID"]).sort_values("ID").reset_index(drop=True)
+        sel_path = _COORD_DIR.parent / "bins_selection" / f"graphs_{n_bins}V_1N_plastic.json"
+        idx = json.loads(sel_path.read_text(encoding="utf-8"))[0]
+        picked = base.iloc[[i for i in idx if i < len(base)]]
+        return picked[["lat", "lon"]].dropna()
+    raise ValueError(f"No selected-bin coordinate source for city {city!r}")
+
+
 def gen_selected_bin_maps(out_dir: Path, mode: str = "street") -> None:
     """Generate per-scenario selected-bin maps (RM-100, RM-170, FFZ-350).
 
-    Tries to load scenario-specific coordinate files from _COORD_DIR; if they
-    are absent (coordinate data not yet exported), falls back to copying the
+    Loads the actual per-scenario bin selections (see
+    `_load_selected_scenario_coords`); if that fails, falls back to copying the
     corresponding all-bin map so the slide still has an image placeholder.
     """
     _SCENARIO_SPECS = [
-        ("Rio Maior",       100, "out_selected[riomaior100].csv", "riomaior100_selected_map.png",     "riomaior_map.png"),
-        ("Rio Maior",       170, "out_selected[riomaior170].csv", "riomaior170_selected_map.png",     "riomaior_map.png"),
-        ("Figueira da Foz", 350, "out_selected[figdafoz350].csv", "figueiradafoz350_selected_map.png","figueiradafoz_map.png"),
+        ("Rio Maior",       100, "riomaior100_selected_map.png",      "riomaior_map.png"),
+        ("Rio Maior",       170, "riomaior170_selected_map.png",      "riomaior_map.png"),
+        ("Figueira da Foz", 350, "figueiradafoz350_selected_map.png", "figueiradafoz_map.png"),
     ]
     import shutil as _shutil
 
-    for city, n_bins, csv_name, out_name, fallback_name in _SCENARIO_SPECS:
+    for city, n_bins, out_name, fallback_name in _SCENARIO_SPECS:
         out_path = out_dir / out_name
-        coord_csv = _COORD_DIR / csv_name
-        if coord_csv.exists():
-            try:
-                df = pd.read_csv(coord_csv)
-                df = df.rename(columns={c: c.lower() for c in df.columns})
-                if "lat" not in df.columns or "lon" not in df.columns:
-                    raise ValueError(f"Expected lat/lon columns, got {list(df.columns)}")
-                coords = df[["lat", "lon"]].dropna()
-                fig, ax = plt.subplots(figsize=(9, 6.2))
-                if mode == "street":
-                    try:
-                        import osmnx as ox
-                        graph = ox.graph_from_place(f"{city}, Portugal", network_type="drive")
-                        ox.plot_graph(graph, ax=ax, show=False, close=False, node_size=0,
-                                      edge_color="#B9C2CC", edge_linewidth=0.6, bgcolor="white")
-                    except Exception as exc:  # noqa: BLE001
-                        print(f"  [WARN] Street basemap unavailable for {city} ({exc}); scatter fallback")
-                        ax.set_facecolor("white")
-                        ax.invert_yaxis()
-                        ax.set_xlabel("Longitude", fontsize=FS(11))
-                        ax.set_ylabel("Latitude", fontsize=FS(11))
-                else:
+        try:
+            coords = _load_selected_scenario_coords(city, n_bins)
+            if coords.empty:
+                raise ValueError("selection resolved to zero bins")
+            fig, ax = plt.subplots(figsize=(9, 6.2))
+            if mode == "street":
+                try:
+                    import osmnx as ox
+                    graph = ox.graph_from_place(f"{city}, Portugal", network_type="drive")
+                    ox.plot_graph(graph, ax=ax, show=False, close=False, node_size=0,
+                                  edge_color="#B9C2CC", edge_linewidth=0.6, bgcolor="white")
+                except Exception as exc:  # noqa: BLE001
+                    print(f"  [WARN] Street basemap unavailable for {city} ({exc}); scatter fallback")
                     ax.set_facecolor("white")
                     ax.invert_yaxis()
                     ax.set_xlabel("Longitude", fontsize=FS(11))
                     ax.set_ylabel("Latitude", fontsize=FS(11))
-                ax.scatter(coords["lon"], coords["lat"], s=22, color="#C0392B",
-                           alpha=0.85, edgecolor="white", linewidth=0.4, zorder=5)
-                ax.set_title(f"{city} — {n_bins} Selected Bins", fontsize=FS(14), fontweight="bold")
-                fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
-                plt.close(fig)
-                print(f"  Saved: {out_name}")
-                continue
-            except Exception as exc:  # noqa: BLE001
-                print(f"  [WARN] Could not render selected-bin map for {city} N={n_bins}: {exc}")
+            else:
+                ax.set_facecolor("white")
+                ax.invert_yaxis()
+                ax.set_xlabel("Longitude", fontsize=FS(11))
+                ax.set_ylabel("Latitude", fontsize=FS(11))
+            ax.scatter(coords["lon"], coords["lat"], s=22, color="#C0392B",
+                       alpha=0.85, edgecolor="white", linewidth=0.4, zorder=5)
+            ax.set_title(f"{city} — {n_bins} Selected Bins", fontsize=FS(14), fontweight="bold")
+            fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
+            plt.close(fig)
+            print(f"  Saved: {out_name}")
+            continue
+        except Exception as exc:  # noqa: BLE001
+            print(f"  [WARN] Could not render selected-bin map for {city} N={n_bins}: {exc}")
         # Fallback: copy the all-bin map
         fallback_path = out_dir / fallback_name
         if fallback_path.exists():

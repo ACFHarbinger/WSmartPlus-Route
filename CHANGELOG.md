@@ -65,6 +65,18 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 ### Fixed
 
+- **Presentation feedback fixes, round 4** (`archive/gen`; figures + deck regenerated):
+  - slide 5: chevron captions reduced to one phrase each; selection caption now "is there a collection today?"
+  - slide 7: knapsack "Today's Route (capacity Q)" label moved clear of the sack outline
+  - slide 8: equations replaced by a new native **BPC price/cut phases** diagram (`bpc_phases.png`: column-generation loop between the restricted master problem and pricing subproblem, plus a cutting plane separating the fractional LP optimum) shown beside the existing B&B tree
+  - slide 9: "Trajectory-Based"/"Population-Based" panel titles matched in size and stripped of the algorithm examples (shared axes geometry so both render equally)
+  - slide 11: per-scenario maps now plot the **actual simulated bin selections** — RM-100/RM-170 from `selected_coordinates/coordinates{N}_plastic[riomaior].xlsx` (depot row dropped), FFZ-350 from the plastic bins of `out_info[figdafoz].csv` indexed by `bins_selection/graphs_350V_1N_plastic.json` — instead of falling back to the all-bins maps
+  - slide 12: axis names/titles enlarged again, legend moved further below, panels enlarged via tightened margins
+  - slide 13: y-labels and panel titles enlarged again
+  - slide 15: every fontsize slightly increased (ticks, titles, side labels, colorbar)
+  - slide 16: colorbar labels enlarged again
+  - slide 18: all table cell values bold (best values remain bold green)
+
 - **Presentation feedback fixes, round 3** (figure/table readability, `archive/gen`; figures + deck regenerated):
   - pareto scatter (slide 12), strategy bubble (14), improver bubble (17): axis-name and panel-title fontsizes increased
   - KPI combined (13): y-labels/titles increased; only the FFZ-350 x tick labels shrunk slightly so they no longer collide (RM labels keep their size)
