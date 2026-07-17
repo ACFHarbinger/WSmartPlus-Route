@@ -65,6 +65,8 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 ### Fixed
 
+- **Presentation feedback fixes, round 5** (`archive/gen`; figures + deck regenerated): slide-8 BPC diagram loses the "Branch-and-Price-and-Cut" heading (single-line title) and renders larger (narrower/taller figure aspect); slide-11 map titles read "N Plastic Bins"; slide-18 best half-cells get a light-green background behind the bold green values
+
 - **Presentation feedback fixes, round 4** (`archive/gen`; figures + deck regenerated):
   - slide 5: chevron captions reduced to one phrase each; selection caption now "is there a collection today?"
   - slide 7: knapsack "Today's Route (capacity Q)" label moved clear of the sack outline

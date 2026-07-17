@@ -448,6 +448,15 @@ def render_hier_table_image(
             else:
                 is_best_ov = ci == best_ov_ci
                 is_best_kg = ci == best_kg_ci
+            # Best half-cells get a light-green background behind the bold green value.
+            if is_best_ov:
+                ax.add_patch(mpatches.Rectangle(
+                    (xs, ys), cell_w, cell_h * 0.5, facecolor="#D5EEDC", edgecolor="none", zorder=0.6,
+                ))
+            if is_best_kg:
+                ax.add_patch(mpatches.Rectangle(
+                    (xs, ys + cell_h * 0.5), cell_w, cell_h * 0.5, facecolor="#D5EEDC", edgecolor="none", zorder=0.6,
+                ))
             ov_color, ov_weight = ("#1A7A34", "bold") if is_best_ov else ("#333333", "bold")
             kg_color, kg_weight = ("#1A7A34", "bold") if is_best_kg else ("#333333", "bold")
             ax.text(
@@ -2109,7 +2118,7 @@ def generate_bpc_phases_image(out_path: Path) -> Path:
     """The price and cut phases of Branch-and-Price-and-Cut: the column-generation
     loop between the restricted master problem and the pricing subproblem (left)
     and a cutting plane separating the fractional LP optimum (right)."""
-    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7.6, 7.8), dpi=200)
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(6.9, 8.0), dpi=200)
 
     # ── Left panel: pricing (column generation) loop ──
     ax1.set_xlim(0, 10)
@@ -2168,9 +2177,8 @@ def generate_bpc_phases_image(out_path: Path) -> Path:
     ax2.text(-0.3, 8.9, "valid inequality cuts off x*\n(all integer points kept)",
              fontsize=10, fontweight="bold", color="#B06A2E", ha="left", va="center")
 
-    fig.suptitle("Branch-and-Price-and-Cut —\nthe price and cut phases at every tree node",
-                 fontsize=14, fontweight="bold")
-    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    fig.suptitle("The price and cut phases at every tree node", fontsize=14, fontweight="bold")
+    fig.tight_layout(rect=(0, 0, 1, 0.95))
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close(fig)
