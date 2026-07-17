@@ -109,25 +109,27 @@
     },
     "exact": {
       "title": "Exact Methods: BPC & SWC-TCF",
-      "equation": [
-        "\\sum_j f_{ij} - \\sum_j f_{ji} = S_i\\,g_i, \\qquad \\sum_j h_{ji} - \\sum_j h_{ij} = S_i\\,g_i",
-        "f_{ij} + h_{ij} = Q\\,x_{ij} \\qquad \\text{(waste + empty space = vehicle capacity, if arc used)}",
-        "\\max\\ R\\sum_i S_i g_i \\ -\\ 0.5\\,C\\sum_{ij} x_{ij}d_{ij}\\ -\\ \\Omega\\,k",
-        "\\textbf{BPC master:}\\ \\ \\min \\sum_{r \\in \\Omega} c_r\\, \\lambda_r \\quad \\text{s.t.} \\quad \\sum_{r \\in \\Omega} a_{ir}\\, \\lambda_r = 1\\ \\ \\forall i \\in V,\\ \\ \\lambda_r \\in \\{0,1\\}"
-      ],
-      "caption": "SWC-TCF's two-commodity flow (Ramos, Morais & Barbosa-Póvoa, 2018): g_i marks a visited bin and x_ij the routing arcs; the waste commodity f_ij and the empty-space commodity h_ij are coupled to the vehicle capacity Q along every used arc. BPC instead solves a column-generation master problem (Barnhart et al., 1998): pick a minimum-cost combination of priced routes r ∈ Ω (weight λ_r) covering every node i exactly once (a_ir = 1 iff route r visits i), pricing new columns and adding cuts at every Branch-and-Bound node.",
-      "figure": "bb_tree.png",
+      "caption": "Branch-and-Price-and-Cut at work: at every Branch-and-Bound node (right), the price phase (left) exchanges duals and negative-reduced-cost routes between the restricted master problem and the pricing subproblem, while the cut phase separates the fractional LP optimum with valid inequalities that keep every integer solution. SWC-TCF instead solves the two-commodity flow MILP (Ramos, Morais & Barbosa-Póvoa, 2018) directly.",
       "show_bullets": false,
       "bullets": [
         "Branch-Price-and-Cut (BPC): a Branch-and-Bound tree where, at every node, column generation prices new routes and valid cuts tighten the LP relaxation before branching on a fractional arc/route variable — proven optimality (BHV2000 lineage)",
         "SWC-TCF: two-commodity network flow MILP (Ramos, Morais & Barbosa-Póvoa, 2018) — g_i marks a visited bin, x_ij the routing arcs, and two coupled flow commodities (f: waste, h: empty space) enforce capacity along each route",
         "Both are exact: guaranteed-optimal for the daily subproblem, at the cost of exponential worst-case runtime — no results figures belong on this slide, only the methodology"
+      ],
+      "figures": [
+        "bpc_phases.png",
+        "bb_tree.png"
       ]
     },
     "metaheuristics": {
       "title": "Meta-Heuristics & Hyper-Heuristics — Overarching Philosophy",
       "diagram": "metaheuristic_families",
-      "figures": ["metaheuristic_overview.png", "hyperheuristic_overview.png", "trajectory_overview.png", "population_overview.png"],
+      "figures": [
+        "metaheuristic_overview.png",
+        "hyperheuristic_overview.png",
+        "trajectory_overview.png",
+        "population_overview.png"
+      ],
       "caption": "Meta-heuristics (HGS, PSOMA, SANS, PG-CLNS, ALNS) search the solution space directly; the hyper-heuristic (ACO-HH) instead searches the space of low-level heuristics. Within meta-heuristics, trajectory-based methods refine one incumbent solution while population-based methods evolve many candidates in parallel.",
       "show_bullets": false,
       "bullets": [
@@ -155,7 +157,11 @@
       "title": "Experimental Methodology",
       "diagram": "doe_tree",
       "caption": "Every scenario (region × graph size × waste distribution) is simulated for both the 30-day and the 90-day horizon; the 90-day runs are restricted to the 30-day Pareto-front policies.",
-      "figures": ["riomaior100_selected_map.png", "riomaior170_selected_map.png", "figueiradafoz350_selected_map.png"],
+      "figures": [
+        "riomaior100_selected_map.png",
+        "riomaior170_selected_map.png",
+        "figueiradafoz350_selected_map.png"
+      ],
       "show_bullets": false,
       "bullets": [
         "Regions/graph sizes: RM-100, RM-170 (Rio Maior), FFZ-350 (Figueira da Foz) — two waste distributions each: Empirical and Gamma-3",
@@ -164,7 +170,10 @@
     },
     "conclusion": {
       "title": "Conclusions, Limitations & Future Work",
-      "figures": ["policy_radar.png", "policy_radar_combined.png"],
+      "figures": [
+        "policy_radar.png",
+        "policy_radar_combined.png"
+      ],
       "caption": "Overlaid radar charts comparing route constructors across overflow, efficiency, distance and profit axes (outer = better) — a curated subset (left) and every constructor (right).",
       "show_bullets": false,
       "bullets": [
@@ -207,7 +216,10 @@
     },
     "heatmaps": {
       "title": "Results — Overflow & KG / KM Heatmaps, 90 Days (Policies × Scenarios)",
-      "figures": ["policy_scenario_heatmap_overflows.png", "policy_scenario_heatmap_kgkm.png"],
+      "figures": [
+        "policy_scenario_heatmap_overflows.png",
+        "policy_scenario_heatmap_kgkm.png"
+      ],
       "figures_dir": "public/figures/simulation/90d",
       "note": "90-day runs (Pareto-front policies only — fewer rows, easier to read). Rows = policy configurations; columns = scenarios."
     },

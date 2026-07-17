@@ -189,10 +189,10 @@ LIGHT_TXT = RGBColor(0xC9, 0xD6, 0xE4)
 WHITE = RGBColor(0xFF, 0xFF, 0xFF)
 
 PIPELINE_STAGES = [
-    ("Mandatory bin\nselection strategy", "LA · LM · SL\nwhich bins today?"),
-    ("Route\nconstructor", "exact · meta-h. · hyper-h.\nbuild the routes"),
-    ("Acceptance criterion\n(optional)", "constructor-dependent\ne.g. BMC, OI"),
-    ("Route improver\n(optional)", "CLS · FTSP\npost-optimisation"),
+    ("Mandatory bin\nselection strategy", "is there a collection today?"),
+    ("Route\nconstructor", "build the routes"),
+    ("Acceptance criterion\n(optional)", "constructor-dependent"),
+    ("Route improver\n(optional)", "post-optimisation"),
 ]
 
 ASSETS_DIR = Path(__file__).resolve().parent.parent.parent / "assets" / "images"
@@ -448,8 +448,8 @@ def render_hier_table_image(
             else:
                 is_best_ov = ci == best_ov_ci
                 is_best_kg = ci == best_kg_ci
-            ov_color, ov_weight = ("#1A7A34", "bold") if is_best_ov else ("#333333", "normal")
-            kg_color, kg_weight = ("#1A7A34", "bold") if is_best_kg else ("#333333", "normal")
+            ov_color, ov_weight = ("#1A7A34", "bold") if is_best_ov else ("#333333", "bold")
+            kg_color, kg_weight = ("#1A7A34", "bold") if is_best_kg else ("#333333", "bold")
             ax.text(
                 xs + cell_w / 2, ys + cell_h * 0.27, ov[0] if ov else "—", ha="center", va="center",
                 fontsize=fontsize, color=ov_color, fontweight=ov_weight,
@@ -1435,8 +1435,8 @@ class DeckBuilder:
         # right brace rotated 90° (geometry from the reference deck; the
         # unrotated bbox spans vertically and rotates about its centre).
         brace = slide.shapes.add_shape(
-            MSO_SHAPE.RIGHT_BRACE, int(7.977 * I), int(-0.194 * I), int(0.323 * I), int(8.752 * I)
-        )  # pyrefly: ignore [bad-argument-type]
+            MSO_SHAPE.RIGHT_BRACE, int(7.977 * I), int(-0.194 * I), int(0.323 * I), int(8.752 * I) # pyrefly: ignore [bad-argument-type]
+        )
         brace.rotation = 90
         brace.fill.background()
         brace.line.color.rgb = ACCENT # pyrefly: ignore [bad-assignment]
@@ -1883,7 +1883,7 @@ def generate_knapsack_image(out_path: Path) -> Path:
         facecolor="#F0F4FA", edgecolor="#1F2D3D", linewidth=2.5,
     )
     ax.add_patch(sack)
-    ax.text(2.6, 7.15, "Today's Route\n(capacity Q)", ha="center", va="center", fontsize=11, fontweight="bold")
+    ax.text(2.6, 7.55, "Today's Route\n(capacity Q)", ha="center", va="center", fontsize=11, fontweight="bold")
 
     items_in = [("Bin 1\n90% full", "#3E8E41"), ("Bin 2\n85% full", "#3E8E41"), ("Bin 3\n70% full", "#3E8E41")]
     for i, (label, color) in enumerate(items_in):
@@ -2050,7 +2050,9 @@ def generate_trajectory_overview_image(out_path: Path) -> Path:
                         arrowprops=dict(arrowstyle="-|>", color="#C0392B", linewidth=1.2, alpha=0.7))
     ax.text(5, min(ys) - 1.3, "one solution moves step by step; occasional uphill\nmoves escape local optima (e.g. simulated annealing)",
             ha="center", fontsize=10, fontstyle="italic", color="#5A6A7A")
-    ax.set_title("Trajectory-Based: SANS, PG-CLNS", fontsize=12, fontweight="bold")
+    ax.set_xlim(0, 10)
+    ax.set_ylim(0, 8)
+    ax.set_title("Trajectory-Based", fontsize=13, fontweight="bold")
     ax.axis("off")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
@@ -2081,7 +2083,7 @@ def generate_population_overview_image(out_path: Path) -> Path:
     ax.set_xlim(0, 10)
     ax.set_ylim(0, 8)
     ax.axis("off")
-    ax.set_title("Population-Based: HGS, PSOMA", fontsize=12, fontweight="bold")
+    ax.set_title("Population-Based", fontsize=13, fontweight="bold")
     out_path.parent.mkdir(parents=True, exist_ok=True)
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
     plt.close(fig)
@@ -2103,8 +2105,81 @@ def generate_vrpp_illustration_fallback(out_path: Path) -> Path:
     return out_path
 
 
+def generate_bpc_phases_image(out_path: Path) -> Path:
+    """The price and cut phases of Branch-and-Price-and-Cut: the column-generation
+    loop between the restricted master problem and the pricing subproblem (left)
+    and a cutting plane separating the fractional LP optimum (right)."""
+    fig, (ax1, ax2) = plt.subplots(2, 1, figsize=(7.6, 7.8), dpi=200)
+
+    # ── Left panel: pricing (column generation) loop ──
+    ax1.set_xlim(0, 10)
+    ax1.set_ylim(0, 10)
+    ax1.axis("off")
+    ax1.set_title("Price: column generation", fontsize=13, fontweight="bold")
+
+    def _pbox(ax, x, y, w, h, color, label, fontsize=10):
+        box = mpatches.FancyBboxPatch(
+            (x - w / 2, y - h / 2), w, h, boxstyle="round,pad=0.06,rounding_size=0.15",
+            facecolor=color, edgecolor="white", linewidth=1.4, zorder=2,
+        )
+        ax.add_patch(box)
+        ax.text(x, y, label, ha="center", va="center", fontsize=fontsize, color="white",
+                fontweight="bold", zorder=3)
+
+    _pbox(ax1, 5, 8.1, 7.6, 2.2, "#1F2D3D", "Restricted Master Problem\nLP over the routes priced so far\nmin Σ c_r λ_r  ·  cover every bin once")
+    _pbox(ax1, 5, 2.1, 7.6, 2.2, "#2E74B5", "Pricing subproblem\nshortest path with duals π as arc prices —\nfind a route with negative reduced cost")
+    ax1.annotate("", xy=(2.6, 3.4), xytext=(2.6, 6.8),
+                 arrowprops=dict(arrowstyle="-|>", color="#B06A2E", linewidth=2.2))
+    ax1.text(2.25, 5.1, "duals π", ha="right", va="center", fontsize=10.5, fontweight="bold", color="#B06A2E")
+    ax1.annotate("", xy=(7.4, 6.8), xytext=(7.4, 3.4),
+                 arrowprops=dict(arrowstyle="-|>", color="#3E8E41", linewidth=2.2))
+    ax1.text(7.75, 5.1, "new column\n(route r)", ha="left", va="center", fontsize=10.5,
+             fontweight="bold", color="#3E8E41")
+    ax1.text(5, 5.1, "repeat until no route\nprices out (< 0)", ha="center", va="center",
+             fontsize=9.5, fontstyle="italic", color="#5A6A7A")
+
+    # ── Right panel: cutting plane on the LP relaxation ──
+    ax2.set_xlim(-0.5, 10.5)
+    ax2.set_ylim(-0.5, 9.5)
+    ax2.axis("off")
+    ax2.set_title("Cut: tighten the LP relaxation", fontsize=13, fontweight="bold")
+    # integer lattice
+    for gx in range(10):
+        for gy in range(9):
+            ax2.plot([gx], [gy], marker="o", markersize=2.4, color="#C4CDD6", zorder=1)
+    # LP feasible polytope
+    poly = np.array([[0.5, 0.6], [8.9, 1.1], [9.4, 4.4], [6.4, 8.3], [1.4, 7.4]])
+    ax2.add_patch(mpatches.Polygon(poly, closed=True, facecolor="#DCE7F5", edgecolor="#2E74B5",
+                                    linewidth=2.0, alpha=0.9, zorder=2))
+    # integer points inside the polytope
+    from matplotlib.path import Path as _MplPath
+    ppath = _MplPath(poly)
+    for gx in range(10):
+        for gy in range(9):
+            if ppath.contains_point((gx, gy), radius=-1e-9):
+                ax2.plot([gx], [gy], marker="o", markersize=4.2, color="#1F2D3D", zorder=3)
+    # fractional LP optimum near a vertex
+    frac = (8.05, 6.15)
+    ax2.plot([frac[0]], [frac[1]], marker="*", markersize=17, color="#C0392B", zorder=5)
+    ax2.annotate("fractional LP\noptimum x*", frac, textcoords="offset points", xytext=(14, 12),
+                 fontsize=10, fontweight="bold", color="#C0392B")
+    # cutting plane separating x* from the integer hull
+    ax2.plot([4.4, 10.2], [8.9, 2.5], color="#B06A2E", linewidth=2.6, linestyle="--", zorder=4)
+    ax2.text(-0.3, 8.9, "valid inequality cuts off x*\n(all integer points kept)",
+             fontsize=10, fontweight="bold", color="#B06A2E", ha="left", va="center")
+
+    fig.suptitle("Branch-and-Price-and-Cut —\nthe price and cut phases at every tree node",
+                 fontsize=14, fontweight="bold")
+    fig.tight_layout(rect=(0, 0, 1, 0.93))
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
 NATIVE_DIAGRAM_BUILDERS = {
     "bb_tree.png": generate_bb_tree_image,
+    "bpc_phases.png": generate_bpc_phases_image,
     "ls_operators.png": generate_ls_operators_image,
     "knapsack_illustration.png": generate_knapsack_image,
     "framework_objective.png": generate_framework_objective_image,
