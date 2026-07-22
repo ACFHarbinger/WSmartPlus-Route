@@ -5,7 +5,7 @@ Builds a 20-slide deck under assets/windows/ following the agreed structure:
 
   1.  Cover (title/authors/affiliations, as in the conference abstract)
   2.  Index / agenda (condensed)
-  3.  The VRPP problem                          (equation + caption)
+  3.  The VRPP problem                          (equation image + variable glossary)
   4.  Objective of this work                    (bullets)
   5.  Routing simulator philosophy              (pipeline diagram + caption)
   6.  Mandatory node selection strategies       (equation + caption)
@@ -14,23 +14,24 @@ Builds a 20-slide deck under assets/windows/ following the agreed structure:
   9.  Meta-heuristics & hyper-heuristics        (equation + caption, all algorithms)
   10. CLS vs Fast-TSP route improvers           (equation + figure + caption)
   11. Design of experiments                     (tree diagram + caption)
-  12. Pareto front plot (log X, per-scenario coloured fronts, figure caption)
-  13. Summary KPI plots (stacked vertically, full width, figure caption)
-  14. Strategy trade-off bubble chart (figure caption)
-  15. Per-scenario heatmaps (30 days, figure caption)
-  16. Overflow + kg/km policy × scenario heatmaps (90 days, side legend + caption)
-  17. Route improver bubble chart (figure caption)
-  18. Full results table (user-selected horizon, or all horizons — table caption)
-  19. Conclusions, limitations & future work    (radar figure)
-  20. Acknowledgements
-  21. End / Q&A (figure)
+  12. Pareto front plot (log X, per-region styled fronts, figure caption)
+  13. Strategy trade-off bubble chart (figure caption)
+  14. Per-scenario heatmaps (30 days, figure caption)
+  15. Overflow + kg/km policy × scenario heatmaps (90 days, side legend + caption)
+  16. Route improver bubble chart (figure caption)
+  17. Full results table (user-selected horizon, or all horizons — table caption)
+  18. Conclusions, limitations & future work    (radar figure)
+  19. Acknowledgements
+  20. End / Q&A (figure)
 
-Slide text, equations (LaTeX, embedded as native editable OMML equations)
-and captions live in json/presentation_content.json; result figures are
-pulled from the simulation analysis figures directories (30-day set by
-default; individual figure slides may override via "figures_dir"). The full
-results table (slide 18) is built directly from the horizon CSV(s)
-referenced in json/simulation_analysis_config.json.
+Slide text and captions live in json/presentation_content.json; equations
+("equation" key) are rendered as transparent-background images via
+matplotlib mathtext (render_equation_image) rather than native OOXML math
+objects — see the module docstring note below render_equation_image for why.
+Result figures are pulled from the simulation analysis figures directories
+(30-day set by default; individual figure slides may override via
+"figures_dir"). The full results table (slide 17) is built directly from the
+horizon CSV(s) referenced in json/simulation_analysis_config.json.
 
 A per-slide speaker script can also be generated as a .docx (see
 gen_speaker_script / --speaker-script), rendered via docxtpl from a template
@@ -52,15 +53,12 @@ Usage
 from __future__ import annotations
 
 import argparse
-import copy
+import math
 import re
 import shutil
-import subprocess
 import tempfile
 import textwrap
 import xml.etree.ElementTree as ET
-import xml.sax.saxutils as saxutils
-import zipfile
 from pathlib import Path
 
 import matplotlib
@@ -85,97 +83,130 @@ from pptx.dml.color import RGBColor
 from pptx.enum.dml import MSO_LINE_DASH_STYLE
 from pptx.enum.shapes import MSO_SHAPE
 from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
-from pptx.oxml.ns import qn
 from pptx.presentation import Presentation as PresentationClass
 from pptx.util import Emu, Inches, Pt
 from report_utils import load_json  # pyrefly: ignore [missing-import]
 
-# ── Editable (OMML) equations ───────────────────────────────────────────────
-# Equations are converted from LaTeX to Office Math Markup (OMML) via pandoc
-# and embedded directly in the slide XML (mc:AlternateContent / a14:m), so
-# they open as native, editable equation objects in PowerPoint rather than
-# rasterised images. Non-Microsoft viewers fall back to a plain-text run.
-_MATH_NS = "http://schemas.openxmlformats.org/officeDocument/2006/math"
-_A14_NS = "http://schemas.microsoft.com/office/drawing/2010/main"
-_MC_NS = "http://schemas.openxmlformats.org/markup-compatibility/2006"
-_A_NS = "http://schemas.openxmlformats.org/drawingml/2006/main"
+# ── Equations as images (matplotlib mathtext) ───────────────────────────────
+# An earlier version embedded equations as native, editable OOXML <m:oMath>
+# objects (pandoc LaTeX -> OMML, wrapped in mc:AlternateContent/a14:m). That
+# renders and edits correctly in desktop PowerPoint, but both LibreOffice
+# Impress and the PowerPoint web app either blank the math branch or refuse to
+# open it for editing — i.e. it fails for exactly the viewers this deck also
+# needs to work in. A plain raster image is strictly more portable: every
+# viewer just displays a picture. matplotlib's built-in "mathtext" renders the
+# large majority of the LaTeX used in this deck (\mathcal, \mathbb, \bar,
+# \sum, \min, \exists, \Rightarrow, \geq, sub/superscripts, ...) without
+# requiring a system LaTeX install, and — unlike real LaTeX — tolerates a
+# label written in \mathbf{...} that contains literal spaces/punctuation, so
+# a bold step-label can be authored directly inside the math markup.
+#
+# A line may mix plain text and math freely by wrapping only the math spans in
+# `$...$` (matplotlib supports multiple math spans per string); anything
+# outside `$...$` renders as plain (non-italic) text. A line with no `$` at
+# all is treated as a pure formula and auto-wrapped. Whether a line renders
+# bold is inferred from its shape: a line that opens with `$` is a bare
+# formula (kept at regular weight, matching the historical VRPP equation
+# style); a line that starts with plain text (e.g. a "Step N — ..." label) is
+# bolded in full, which reads naturally since the label dominates the line.
+def _prepare_equation_line(raw: str) -> tuple[str, bool]:
+    line = raw.replace(r"\textbf{", r"\mathbf{")  # legacy authoring safety net
+    if "$" not in line:
+        return f"${line}$", False
+    return line, not line.lstrip().startswith("$")
 
 
-def _latex_to_omath(latex: str) -> etree._Element:
-    """Convert one LaTeX equation line to an <m:oMath> element via pandoc."""
-    with tempfile.TemporaryDirectory() as td:
-        md_path, docx_path = Path(td) / "eq.md", Path(td) / "eq.docx"
-        md_path.write_text(f"$${latex}$$", encoding="utf-8")
-        subprocess.run(["pandoc", str(md_path), "-o", str(docx_path)], check=True, capture_output=True)
-        with zipfile.ZipFile(docx_path) as z:
-            doc_xml = z.read("word/document.xml")
-    root = etree.fromstring(doc_xml)
-    omath = root.find(f".//{{{_MATH_NS}}}oMath")
-    # Drop WordprocessingML control-run props (word/pptx sizing units differ);
-    # the equation instead inherits the paragraph's own default run formatting.
-    for ctrl_pr in omath.findall(f".//{{{_MATH_NS}}}ctrlPr"):
-        for child in list(ctrl_pr):
-            ctrl_pr.remove(child)
-    # omath is still attached to the docx's w:document tree, so serializing it
-    # in place would drag in the inherited-but-unused xmlns:w/o/v/w10/pic/wp
-    # declarations from that root. Foreign WordprocessingML namespaces on an
-    # <m:oMath> embedded in a PresentationML part make real PowerPoint's parser
-    # reject/blank the a14:m math branch outright (LibreOffice tolerates it,
-    # but it never even evaluates that branch since it lacks a14 support, so
-    # this never showed up in headless verification). Detach and clean up.
-    omath = copy.deepcopy(omath)
-    etree.cleanup_namespaces(omath)
-    return omath
+def render_equation_image(
+    lines: list[str],
+    out_path: Path,
+    width_in: float,
+    fontsize: float = 20,
+    line_h_in: float = 0.62,
+    color: str = "#1F2D3D",
+    align: str = "left",
+) -> Path:
+    """Render equation `lines` (mixed plain text + `$...$` mathtext) to a
+    transparent PNG sized at exactly `width_in` x (`line_h_in` * len(lines))
+    inches, so embedding it at that same size in the slide reproduces
+    `fontsize` as literal points — matching how the OMML equations used to be
+    sized via `size_pt`.
+    """
+    n = max(len(lines), 1)
+    height_in = line_h_in * n
+    fig = plt.figure(figsize=(width_in, height_in), dpi=220)
+    fig.patch.set_alpha(0.0)
+    x = {"left": 0.012, "center": 0.5, "right": 0.988}[align]
+    for i, raw in enumerate(lines):
+        text, bold = _prepare_equation_line(raw)
+        y = 1.0 - (i + 0.5) / n
+        fig.text(
+            x, y, text, ha=align, va="center", fontsize=fontsize, color=color,
+            fontweight="bold" if bold else "normal",
+        )
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=220, transparent=True)
+    plt.close(fig)
+    return out_path
 
 
-_FALLBACK_SYMBOLS = {
-    r"\Rightarrow": " => ", r"\rightarrow": " -> ", r"\geq": " >= ", r"\leq": " <= ",
-    r"\in": " in ", r"\notin": " not in ", r"\times": " x ", r"\cdot": " * ",
-    r"\quad": "   ", r"\qquad": "     ",
-}
-_FALLBACK_DROP = ("mathbf", "mathrm", "textbf", "text", "mathcal", "left", "right", "dfrac", "frac")
+def render_glossary_image(
+    items: list[tuple[str, str]],
+    out_path: Path,
+    width_in: float,
+    ncols: int = 2,
+    fontsize: float = 12.5,
+    color: str = "#1F2D3D",
+    max_lines: int = 2,
+) -> tuple[Path, float]:
+    """Render a "$symbol$ — meaning" variable glossary as a transparent PNG,
+    laid out in `ncols` columns of left-aligned rows spanning `width_in`
+    inches (see `render_equation_image` for why images, not native equation
+    objects). The `meaning` half of each entry is word-wrapped (up to
+    `max_lines`) to the column width so it cannot run into the next column —
+    matplotlib's mathtext does not wrap on its own.
 
+    Unlike `render_equation_image` (fixed line count), a glossary's row count
+    that actually needs 2 wrapped lines varies with content, so the image
+    height is *derived* from the wrapped layout (row-by-row, each row sized to
+    its tallest cell) rather than a height the caller must pre-guess — a
+    pre-guessed, too-short height silently overlapped adjacent rows.
 
-def _plain_fallback(latex: str) -> str:
-    """A readable, non-mathematical fallback string for non-OOXML-math viewers."""
-    text = latex
-    for sym, plain in _FALLBACK_SYMBOLS.items():
-        text = text.replace(sym, plain)
-    text = re.sub(r"\\(" + "|".join(_FALLBACK_DROP) + r")\b", "", text)
-    text = re.sub(r"\\([a-zA-Z]+)", r"\1", text)  # keep the word, drop the backslash (e.g. \tau -> tau)
-    text = re.sub(r"[\\{}$]", "", text).replace(",", " ")
-    return re.sub(r"\s+", " ", text).strip()
+    Returns the output path and the resulting image height in inches.
+    """
+    nrows = math.ceil(len(items) / ncols)
+    col_w = 1.0 / ncols
+    col_w_in = width_in * col_w
+    # Crude average-glyph-width estimate (~0.5 * point size, in inches) to size
+    # the wrap width — good enough since mismatches only cost a slightly early
+    # or late line break, never overflow into the next column.
+    char_w_in = fontsize * 0.0086
+    max_chars = max(int((col_w_in - 0.1) / char_w_in), 10)
+    wrapped_items = []
+    for symbol, meaning in items:
+        wrapped = (textwrap.wrap(meaning, width=max_chars) or [meaning])[:max_lines]
+        wrapped_items.append((symbol, wrapped))
 
+    line_unit_in = fontsize * 0.034  # matches the equation renderer's pt->inch line pitch
+    row_lines = [1] * nrows
+    for i, (_, wrapped) in enumerate(wrapped_items):
+        _, row = divmod(i, nrows)
+        row_lines[row] = max(row_lines[row], len(wrapped))
+    row_h_in = [n * line_unit_in for n in row_lines]
+    height_in = sum(row_h_in)
+    row_top_in = [sum(row_h_in[:r]) for r in range(nrows)]
 
-def _apply_equation_to_paragraph(p, latex: str, size_pt: int = 22, color: str = "1F2D3D", align: str = "ctr"):
-    """Turn an (empty) paragraph into a native, editable PowerPoint equation."""
-    omath = _latex_to_omath(latex)
-    p_el = p._p
-    pPr = etree.SubElement(p_el, qn("a:pPr"))
-    pPr.set("algn", align)
-    def_rpr = etree.SubElement(pPr, qn("a:defRPr"))
-    def_rpr.set("sz", str(size_pt * 100))
-    fill = etree.SubElement(def_rpr, qn("a:solidFill"))
-    etree.SubElement(fill, qn("a:srgbClr")).set("val", color)
-    alt_xml = (
-        f'<mc:AlternateContent xmlns:mc="{_MC_NS}" xmlns:a14="{_A14_NS}" xmlns:m="{_MATH_NS}" xmlns:a="{_A_NS}">'
-        f'<mc:Choice xmlns:a14="{_A14_NS}" Requires="a14">'
-        f'<a14:m><m:oMathPara xmlns:m="{_MATH_NS}">{etree.tostring(omath, encoding="unicode")}</m:oMathPara></a14:m>'
-        f"</mc:Choice>"
-        f'<mc:Fallback><a:r><a:rPr lang="en-US" sz="{size_pt * 100}">'
-        f'<a:solidFill><a:srgbClr val="{color}"/></a:solidFill></a:rPr>'
-        f"<a:t>{saxutils.escape(_plain_fallback(latex))}</a:t></a:r></mc:Fallback>"
-        f"</mc:AlternateContent>"
-    )
-    p_el.append(etree.fromstring(alt_xml))
-    return p
-
-
-def add_equation_paragraphs(text_frame, lines: list[str], size_pt: int = 22, color: str = "1F2D3D", align: str = "ctr"):
-    """Render each line of `lines` as its own native-equation paragraph in `text_frame`."""
-    for i, latex in enumerate(lines):
-        p = text_frame.paragraphs[0] if i == 0 else text_frame.add_paragraph()
-        _apply_equation_to_paragraph(p, latex, size_pt=size_pt, color=color, align=align)
+    fig = plt.figure(figsize=(width_in, height_in), dpi=220)
+    fig.patch.set_alpha(0.0)
+    for i, (symbol, wrapped) in enumerate(wrapped_items):
+        col, row = divmod(i, nrows)
+        x = col * col_w + 0.008
+        y = 1.0 - (row_top_in[row] + row_h_in[row] / 2) / height_in
+        text = f"{symbol} — {wrapped[0]}" + "".join(f"\n{extra}" for extra in wrapped[1:])
+        fig.text(x, y, text, ha="left", va="center", fontsize=fontsize, color=color, linespacing=1.2)
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=220, transparent=True)
+    plt.close(fig)
+    return out_path, height_in
 
 
 # 16:9 slide geometry
@@ -598,7 +629,7 @@ class DeckBuilder:
         self._caption_box(slide, f"Table {self._tab_count}", text, top=top)
 
     def _equation_focus(self, slide, lines: list[str], left=None, top=None, width=None, size_pt: int = 22, line_h: float = 0.62):
-        """Place native, editable equation lines as the slide's visual focus."""
+        """Place the equation image (render_equation_image) as the slide's visual focus, inside a light rounded panel."""
         self._eq_count += 1
         left = left if left is not None else Inches(0.6)
         top = top if top is not None else Inches(1.25)
@@ -607,11 +638,50 @@ class DeckBuilder:
         band = slide.shapes.add_shape(MSO_SHAPE.ROUNDED_RECTANGLE, left, top, width, area_h)
         _fill(band, RGBColor(0xF0, 0xF4, 0xFA))
         band.shadow.inherit = False
-        box = slide.shapes.add_textbox(left + Inches(0.2), top + Inches(0.1), width - Inches(0.4), area_h - Inches(0.2))
-        tf = box.text_frame
-        tf.word_wrap = True
-        add_equation_paragraphs(tf, lines, size_pt=size_pt)
+        inner_w = width - Inches(0.4)
+        img_h = Inches(line_h * len(lines))
+        img_path = render_equation_image(
+            lines, self._tmp / f"eq_{self._eq_count}.png",
+            width_in=Emu(inner_w).inches, fontsize=size_pt, line_h_in=line_h,
+        )
+        img_top = top + int((area_h - img_h) / 2)
+        slide.shapes.add_picture(str(img_path), left + Inches(0.2), img_top, inner_w, img_h)
         return top + area_h + Inches(0.2)
+
+    def _variable_glossary(
+        self, slide, items: list[tuple[str, str]], left=None, top=None, width=None, max_height=None, ncols: int = 2,
+        fontsize: float = 12.5,
+    ):
+        """Place a "$symbol$ — meaning" variable glossary below an equation (render_glossary_image).
+        The glossary image is sized to fit its wrapped content exactly (see render_glossary_image);
+        `max_height`, if given, uniformly shrinks it (rare) rather than letting it overflow the slide.
+        """
+        if not items:
+            return top
+        left = left if left is not None else Inches(0.6)
+        top = top if top is not None else Inches(1.25)
+        width = width if width is not None else SLIDE_W - Inches(1.2)
+        header_h = Inches(0.32)
+        head_box = slide.shapes.add_textbox(left, top, width, header_h)
+        hp = head_box.text_frame.paragraphs[0]
+        hp.text = "Variables"
+        hp.font.size = Pt(13)
+        hp.font.bold = True
+        hp.font.color.rgb = MUTED
+        img_top = top + header_h
+        img_path, img_h_in = render_glossary_image(
+            items, self._tmp / f"glossary_{self._eq_count}.png",
+            width_in=Emu(width).inches, ncols=ncols, fontsize=fontsize,
+        )
+        img_w = width
+        img_h = Inches(img_h_in)
+        budget = max_height - header_h if max_height is not None else None
+        if budget is not None and img_h > budget:
+            scale = budget / img_h
+            img_h = budget
+            img_w = int(width * scale)
+        slide.shapes.add_picture(str(img_path), left, img_top, img_w, img_h)
+        return img_top + img_h + Inches(0.15)
 
     def _pipeline_diagram(self, slide):
         """Draw the policy pipeline as chevron stages with sub-labels. Returns the diagram's bottom y."""
@@ -1139,13 +1209,19 @@ class DeckBuilder:
         if spec.get("equation"):
             col_w = int(SLIDE_W / 2) - Inches(0.4) if has_fig else SLIDE_W - Inches(1.2)
             eq_left = Inches(0.6)
-            bullets_top = self._equation_focus(
+            content_bottom = self._equation_focus(
                 slide, spec["equation"], left=eq_left, width=col_w,
                 size_pt=spec.get("eq_size_pt", 15 if has_fig else 20), line_h=spec.get("eq_line_h", 0.62),
             )
+            if spec.get("variables"):
+                content_bottom = self._variable_glossary(
+                    slide, spec["variables"], left=eq_left, top=content_bottom, width=col_w,
+                    max_height=SLIDE_H - Inches(0.25) - content_bottom,
+                    ncols=spec.get("variables_cols", 2), fontsize=spec.get("variables_fontsize", 12.5),
+                )
             if show_bullets:
                 self._bullets(
-                    slide, spec["bullets"], left=eq_left, top=bullets_top, width=col_w, size=13 if has_fig else 14
+                    slide, spec["bullets"], left=eq_left, top=content_bottom, width=col_w, size=13 if has_fig else 14
                 )
             if has_fig:
                 self._figures_side_by_side(
@@ -1624,15 +1700,14 @@ class DeckBuilder:
         self.content_slide("improvers")  # 10
         self.content_slide("design_of_experiments")  # 11
         self._figure_slide(self.content["figure_slides"]["pareto"])  # 12
-        self._figure_slide(self.content["figure_slides"]["kpi"])  # 13
-        self._figure_slide(self.content["figure_slides"]["strategy_bubble"])  # 14
-        self._figure_slide(self.content["figure_slides"]["scenario_heatmaps"])  # 15 (30d)
-        self._figure_slide(self.content["figure_slides"]["heatmaps"])  # 16 (90d)
-        self._figure_slide(self.content["figure_slides"]["improver_bubble"])  # 17
-        self._results_table_slide()  # 18 (full results table, if requested)
-        self.content_slide("conclusion")  # 19
-        self.acknowledgments()  # 20
-        self.qa()  # 21
+        self._figure_slide(self.content["figure_slides"]["strategy_bubble"])  # 13
+        self._figure_slide(self.content["figure_slides"]["scenario_heatmaps"])  # 14 (30d)
+        self._figure_slide(self.content["figure_slides"]["heatmaps"])  # 15 (90d)
+        self._figure_slide(self.content["figure_slides"]["improver_bubble"])  # 16
+        self._results_table_slide()  # 17 (full results table, if requested)
+        self.content_slide("conclusion")  # 18
+        self.acknowledgments()  # 19
+        self.qa()  # 20
         return self.prs
 
 
@@ -1922,6 +1997,102 @@ def generate_knapsack_image(out_path: Path) -> Path:
     return out_path
 
 
+def generate_lookahead_flow_image(out_path: Path) -> Path:
+    """The Look-Ahead (LA) mandatory-selection strategy's multi-phase decision flow
+    (ports `LookaheadSelection.select_bins`, logic/src/policies/mandatory_selection/
+    selection_lookahead.py): flag today's overflowing bins, simulate their collection,
+    find the next day any of them would overflow again, and bundle in any other bin
+    that would overflow before that day so it isn't visited on its own extra trip."""
+    DARK, ACCENT, GREEN, GREY = "#1F2D3D", "#2E74B5", "#3E8E41", "#5A6A7A"
+
+    fig, ax = plt.subplots(figsize=(6.9, 10.2), dpi=200)
+    ax.set_xlim(-0.3, 11.3)
+    ax.set_ylim(-0.4, 17.0)
+    ax.axis("off")
+    ax.text(5, 16.5, "Look-Ahead (LA) — multi-phase decision flow", ha="center", va="center",
+             fontsize=12.5, fontweight="bold", color=DARK)
+
+    def _box(cx, cy, w, h, text, color, fontsize=9.5):
+        b = mpatches.FancyBboxPatch(
+            (cx - w / 2, cy - h / 2), w, h, boxstyle="round,pad=0.05,rounding_size=0.12",
+            facecolor=color, edgecolor="white", linewidth=1.2, zorder=2,
+        )
+        ax.add_patch(b)
+        ax.text(cx, cy, text, ha="center", va="center", fontsize=fontsize, color="white",
+                 fontweight="bold", zorder=3)
+
+    def _diamond(cx, cy, w, h, text, fontsize=9.5):
+        pts = [(cx, cy + h / 2), (cx + w / 2, cy), (cx, cy - h / 2), (cx - w / 2, cy)]
+        ax.add_patch(mpatches.Polygon(pts, closed=True, facecolor=ACCENT, edgecolor="white",
+                                        linewidth=1.2, zorder=2))
+        ax.text(cx, cy, text, ha="center", va="center", fontsize=fontsize, color="white",
+                 fontweight="bold", zorder=3)
+
+    def _arrow(x1, y1, x2, y2, color=GREY, lw=1.6):
+        ax.annotate("", xy=(x2, y2), xytext=(x1, y1), arrowprops=dict(arrowstyle="-|>", color=color, linewidth=lw))
+
+    def _elbow(x1, y1, y2, x2, color=GREY, lw=1.6, label=None):
+        """Route right, then vertically, then arrow left/right into (x2, y2) — the flowchart's loop-back edges."""
+        x_mid = x1 + 0.6
+        ax.plot([x1, x_mid], [y1, y1], color=color, linewidth=lw, zorder=1)
+        ax.plot([x_mid, x_mid], [y1, y2], color=color, linewidth=lw, zorder=1)
+        _arrow(x_mid, y2, x2, y2, color=color, lw=lw)
+        if label:
+            ax.text(x_mid + 0.15, (y1 + y2) / 2, label, fontsize=8.5, color=color, ha="left", va="center")
+
+    # Step 1: flag mandatory bins
+    _box(5, 15.4, 8.6, 1.3, r"Day $t$: retrieve $w_{i,t}$" "\n" r"compute $w_{i,t}+\bar{\delta}_i,\ \forall i$",
+         DARK, fontsize=10)
+    _arrow(5, 14.75, 5, 14.0)
+    _diamond(5, 13.0, 7.0, 2.0, r"$\exists\, i: w_{i,t}+\bar{\delta}_i \geq \tau$ ?", fontsize=9.5)
+    _box(8.9, 13.0, 1.7, 1.0, r"$t=t{+}1$", GREY, fontsize=9.5)
+    _arrow(8.5, 13.0, 8.75, 13.0, color=GREY)
+    ax.text(8.15, 13.55, "No", fontsize=8.5, color=GREY, fontweight="bold")
+    _elbow(9.75, 13.0, 15.4, 8.75, color=GREY)  # t=t+1 loops back up to the top box
+    ax.text(5, 12.0 - 0.35, "Yes", fontsize=8.5, color=DARK, fontweight="bold", ha="center")
+    _arrow(5, 12.0, 5, 11.2)
+
+    # Step 2 (empty M_0 -> stop) is the diamond's "No" branch above: nothing flagged, day repeats.
+    # Step 3: simulate collection of M_0
+    _box(5, 10.4, 8.8, 1.6,
+         r"$\mathcal{M}_0=\{\,i : w_{i,t}+\bar{\delta}_i \geq \tau\,\}$" "\n"
+         r"simulate collection: $\hat{w}_{i,t}=0,\ \forall i\in\mathcal{M}_0$",
+         DARK, fontsize=9.5)
+    _arrow(5, 9.6, 5, 9.3)
+
+    # Step 4: next collection day nc — simulate M_0 forward day by day
+    _box(5, 8.85, 4.6, 0.9, r"$t'=t+1$", ACCENT, fontsize=10)
+    _arrow(5, 8.4, 5, 8.05)
+    _box(5, 7.55, 7.4, 1.0, r"compute $\hat{w}_{i,t'},\ \forall i\in\mathcal{M}_0$", ACCENT, fontsize=9.5)
+    _arrow(5, 7.05, 5, 6.5)
+    _diamond(5, 5.55, 7.2, 1.9, r"$\exists\, i\in\mathcal{M}_0: \hat{w}_{i,t'} \geq \tau$ ?", fontsize=9.2)
+    _box(8.9, 5.55, 1.7, 1.0, r"$t'=t'{+}1$", GREY, fontsize=9.5)
+    _arrow(8.6, 5.55, 8.75, 5.55, color=GREY)
+    ax.text(8.15, 6.1, "No", fontsize=8.5, color=GREY, fontweight="bold")
+    _elbow(9.75, 5.55, 7.55, 8.7, color=GREY, label="recompute")  # loops back to the compute box
+    ax.text(5, 4.6 - 0.35, "Yes", fontsize=8.5, color=DARK, fontweight="bold", ha="center")
+    _arrow(5, 4.6, 5, 3.85)
+
+    # nc found
+    _box(5, 3.35, 6.0, 1.0, r"$nc=t'$   (next collection day)", DARK, fontsize=10)
+    _arrow(5, 2.85, 5, 2.5)
+
+    # Step 5/6: bundle bins that would overflow before nc
+    _box(5, 1.85, 9.0, 1.3,
+         r"$\forall i \notin \mathcal{M}_0,\ t''=t{+}1,\dots,nc{-}1:$" "\n"
+         r"check $w_{i,t}+(t''-t)\bar{\delta}_i \geq \tau$",
+         ACCENT, fontsize=9.5)
+    _arrow(5, 1.2, 5, 0.9)
+    _box(5, 0.4, 9.0, 1.0,
+         r"$\mathcal{M}=\mathcal{M}_0\ \cup\ \{\,i: \text{overflows before } nc\,\}$",
+         GREEN, fontsize=10)
+
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
+    plt.close(fig)
+    return out_path
+
+
 def generate_framework_objective_image(out_path: Path) -> Path:
     """One simulator, many algorithms in, one comparable benchmark out."""
     fig, ax = plt.subplots(figsize=(6.2, 6.6), dpi=200)
@@ -2190,6 +2361,7 @@ NATIVE_DIAGRAM_BUILDERS = {
     "bpc_phases.png": generate_bpc_phases_image,
     "ls_operators.png": generate_ls_operators_image,
     "knapsack_illustration.png": generate_knapsack_image,
+    "lookahead_flow.png": generate_lookahead_flow_image,
     "framework_objective.png": generate_framework_objective_image,
     "metaheuristic_overview.png": generate_metaheuristic_overview_image,
     "hyperheuristic_overview.png": generate_hyperheuristic_overview_image,

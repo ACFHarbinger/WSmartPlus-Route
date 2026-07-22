@@ -385,6 +385,17 @@ def pareto_indices(xs, ys) -> set[int]:
 # ── Static figure generators ───────────────────────────────────────────────────
 
 
+# Per-region Pareto-front (color, linestyle) pairs — deliberately darker and
+# distinct from the LA/LM/SL point palette (blue/red/orange/teal/green), and
+# keyed by region only (not distribution) so the same region draws identically
+# in both the Empirical and Gamma-3 panels.
+_FRONT_STYLES: list[tuple[str, str]] = [
+    ("#5B2C6F", "-"),   # 1st region (RM-100) — dark purple, solid
+    ("#7B3F00", "--"),  # 2nd region (RM-170) — dark bronze, dashed
+    ("#37474F", ":"),   # 3rd region (FFZ-350) — dark slate, dotted
+]
+
+
 def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
     """Per-distribution panels of the overflows/kg-km space with Pareto fronts."""
     opts = ctx["charts"].get("pareto_scatter", {})
@@ -393,10 +404,7 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
     variants = sorted(df["variant"].unique())
     vcolors = {v: variant_color(v, i) for i, v in enumerate(variants)}
     markers = {tuple(r): MARKER_CYCLE[i % len(MARKER_CYCLE)] for i, r in enumerate(regions)}
-    front_colors = {
-        (s["city"], s["N"], s["dist"]): META["scenario_colors"][i % len(META["scenario_colors"])]
-        for i, s in enumerate(scenarios)
-    }
+    front_style = {r: _FRONT_STYLES[i % len(_FRONT_STYLES)] for i, r in enumerate(regions)}
     points_mode = ctx.get("pareto_points") or opts.get("points", "all")
 
     def _make(xscale: str) -> plt.Figure:
@@ -429,13 +437,14 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
                     for j in range(1, len(pts)):
                         sx += [pts[j][0], pts[j][0]]
                         sy += [pts[j - 1][1], pts[j][1]]
+                    front_color, front_ls = front_style[(s["city"], s["N"])]
                     ax.plot(
                         sx,
                         sy,
-                        "--",
-                        color=front_colors[(s["city"], s["N"], s["dist"])],
-                        linewidth=2.0,
-                        alpha=0.9,
+                        linestyle=front_ls,
+                        color=front_color,
+                        linewidth=2.3,
+                        alpha=0.95,
                         zorder=2,
                     )
             if xscale != "linear":
@@ -480,12 +489,12 @@ def gen_pareto_scatter(df: pd.DataFrame, ctx: dict, out_dir: Path) -> None:
             plt.Line2D(
                 [0],
                 [0],
-                color=front_colors[(s["city"], s["N"], s["dist"])],
-                linestyle="--",
-                linewidth=2,
-                label=f"Front — {scenario_label(s)}",
+                color=front_style[r][0],
+                linestyle=front_style[r][1],
+                linewidth=2.3,
+                label=f"Front — {region_label(r[0], r[1])} (both distributions)",
             )
-            for s in scenarios
+            for r in regions
         ]
         leg_obj = fig.legend(
             handles=leg, loc="lower center", ncol=min(len(leg), 6), fontsize=FS(12), bbox_to_anchor=(0.5, -0.155)
