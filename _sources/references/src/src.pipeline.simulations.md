@@ -27,6 +27,7 @@ src.pipeline.simulations.hpo
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.simulations.failure_analyzer
 src.pipeline.simulations.simulator
 src.pipeline.simulations.day_context
 ```

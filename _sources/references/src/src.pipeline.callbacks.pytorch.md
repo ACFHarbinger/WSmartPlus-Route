@@ -13,7 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
+src.pipeline.callbacks.pytorch.hpo_health
 src.pipeline.callbacks.pytorch.speed_monitor
+src.pipeline.callbacks.pytorch.attention_heatmaps
+src.pipeline.callbacks.pytorch.training_health
 src.pipeline.callbacks.pytorch.reptile
 src.pipeline.callbacks.pytorch.training_display
 src.pipeline.callbacks.pytorch.model_summary

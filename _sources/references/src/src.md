@@ -20,7 +20,6 @@ src.constants
 src.policies
 src.tracking
 src.envs
-src.ui
 src.enums
 src.data
 src.configs

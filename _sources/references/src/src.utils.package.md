@@ -23,7 +23,6 @@ src.utils.package.remove_tracking
 src.utils.package.remove_enums
 src.utils.package.remove_meta
 src.utils.package.remove_data
-src.utils.package.remove_ui
 src.utils.package.remove_imitation_policies
 src.utils.package.remove_eval
 src.utils.package.remove_envs

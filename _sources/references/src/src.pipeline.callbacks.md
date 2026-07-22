@@ -36,7 +36,7 @@ src.pipeline.callbacks.simulation
 ````{py:data} __all__
 :canonical: src.pipeline.callbacks.__all__
 :value: >
-   ['TrainingDisplayCallback', 'ReptileCallback', 'SpeedMonitor', 'ModelSummaryCallback', 'SimulationDi...
+   ['AttentionHeatmapCallback', 'TrainingDisplayCallback', 'HpoHealthMetricsCallback', 'TrainingHealthC...
 
 ```{autodoc2-docstring} src.pipeline.callbacks.__all__
 ```

@@ -21,7 +21,6 @@ src.constants.paths
 src.constants.tasks
 src.constants.hpo
 src.constants.simulation
-src.constants.dashboard
 src.constants.routing
 src.constants.testing
 src.constants.system

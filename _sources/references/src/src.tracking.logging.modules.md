@@ -14,8 +14,13 @@
 :maxdepth: 1
 
 src.tracking.logging.modules.gui
+src.tracking.logging.modules.failure_emit
 src.tracking.logging.modules.metrics
+src.tracking.logging.modules.attention_emit
+src.tracking.logging.modules.policy_telemetry_db
+src.tracking.logging.modules.policy_viz_emit
 src.tracking.logging.modules.storage
+src.tracking.logging.modules.training_health_emit
 src.tracking.logging.modules.analysis
 ```
 

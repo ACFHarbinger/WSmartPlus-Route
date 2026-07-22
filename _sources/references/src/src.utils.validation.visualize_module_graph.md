@@ -187,7 +187,7 @@
 :canonical: src.utils.validation.visualize_module_graph.DEFAULT_LAYERS
 :type: typing.List[typing.Tuple[str, str, str]]
 :value: >
-   [('logic', 'Logic', '#3498db'), ('gui', 'GUI', '#9b59b6'), ('test', 'Tests', '#27ae60'), ('script', ...
+   [('logic', 'Logic', '#3498db'), ('test', 'Tests', '#27ae60'), ('script', 'Scripts', '#e67e22')]
 
 ```{autodoc2-docstring} src.utils.validation.visualize_module_graph.DEFAULT_LAYERS
 ```
@@ -198,7 +198,7 @@
 :canonical: src.utils.validation.visualize_module_graph.FORBIDDEN_DIRECTIONS
 :type: typing.List[typing.Tuple[str, str]]
 :value: >
-   [('Logic', 'GUI')]
+   []
 
 ```{autodoc2-docstring} src.utils.validation.visualize_module_graph.FORBIDDEN_DIRECTIONS
 ```

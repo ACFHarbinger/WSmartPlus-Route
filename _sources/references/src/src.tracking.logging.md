@@ -13,6 +13,7 @@
 :titlesonly:
 :maxdepth: 3
 
+src.tracking.logging.visualization
 src.tracking.logging.modules
 ```
 

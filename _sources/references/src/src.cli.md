@@ -22,7 +22,6 @@ src.cli.base
 :titlesonly:
 :maxdepth: 1
 
-src.cli.gui_parser
 src.cli.output_parser
 src.cli.fs_parser
 src.cli.ts_parser
@@ -69,7 +68,7 @@ src.cli.target_parser
 ````{py:data} __all__
 :canonical: src.cli.__all__
 :value: >
-   ['parse_params', 'add_files_args', 'add_gui_args', 'add_test_suite_args', 'ConfigsParser', 'Lowercas...
+   ['parse_params', 'add_files_args', 'add_test_suite_args', 'ConfigsParser', 'LowercaseAction', 'Store...
 
 ```{autodoc2-docstring} src.cli.__all__
 ```

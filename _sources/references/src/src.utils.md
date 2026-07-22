@@ -22,7 +22,6 @@ src.utils.validation
 src.utils.security
 src.utils.expo
 src.utils.input
-src.utils.ui
 src.utils.graph
 src.utils.policy
 src.utils.data

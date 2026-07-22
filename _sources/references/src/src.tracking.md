@@ -29,6 +29,7 @@ src.tracking.hooks
 :titlesonly:
 :maxdepth: 1
 
+src.tracking.attention_buffer
 src.tracking.viz_mixin
 ```
 

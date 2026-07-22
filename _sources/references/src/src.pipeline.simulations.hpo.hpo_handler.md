@@ -47,6 +47,10 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.hpo.hpo_handler.objective_debug
     :summary:
     ```
+* - {py:obj}`_export_hpo_visualization_reports <src.pipeline.simulations.hpo.hpo_handler._export_hpo_visualization_reports>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.hpo.hpo_handler._export_hpo_visualization_reports
+    :summary:
+    ```
 * - {py:obj}`run_hpo_sim <src.pipeline.simulations.hpo.hpo_handler.run_hpo_sim>`
   - ```{autodoc2-docstring} src.pipeline.simulations.hpo.hpo_handler.run_hpo_sim
     :summary:
@@ -187,6 +191,13 @@
 :canonical: src.pipeline.simulations.hpo.hpo_handler.objective_debug
 
 ```{autodoc2-docstring} src.pipeline.simulations.hpo.hpo_handler.objective_debug
+```
+````
+
+````{py:function} _export_hpo_visualization_reports(study: optuna.Study) -> None
+:canonical: src.pipeline.simulations.hpo.hpo_handler._export_hpo_visualization_reports
+
+```{autodoc2-docstring} src.pipeline.simulations.hpo.hpo_handler._export_hpo_visualization_reports
 ```
 ````
 
