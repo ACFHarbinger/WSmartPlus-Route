@@ -518,6 +518,114 @@ def gen_speaker_script(deck_title: str, author: str, slides: list[dict], out_pat
     return out_path
 
 
+_INLINE_CODE_RE = re.compile(r"`([^`]+)`")
+_INLINE_BOLD_RE = re.compile(r"\*\*([^*]+)\*\*")
+
+
+def _add_markdown_paragraph(doc, text: str, *, size_pt: int = 11) -> None:
+    """Add one paragraph, splitting `**bold**` and `` `code` `` spans into separate runs
+    (a small hand-rolled inline-markdown renderer — good enough for the appendix's prose,
+    not a general Markdown engine)."""
+    from docx.shared import Pt as DocxPt
+
+    p = doc.add_paragraph()
+    p.paragraph_format.space_after = DocxPt(8)
+    # Tokenize on bold/code spans, longest-match-first isn't needed since the two never nest here.
+    pos = 0
+    tokens: list[tuple[str, str]] = []  # (kind, text): kind in {"plain","bold","code"}
+    combined_re = re.compile(r"\*\*([^*]+)\*\*|`([^`]+)`")
+    for m in combined_re.finditer(text):
+        if m.start() > pos:
+            tokens.append(("plain", text[pos : m.start()]))
+        if m.group(1) is not None:
+            tokens.append(("bold", m.group(1)))
+        else:
+            tokens.append(("code", m.group(2)))
+        pos = m.end()
+    if pos < len(text):
+        tokens.append(("plain", text[pos:]))
+    if not tokens:
+        tokens = [("plain", text)]
+    for kind, chunk in tokens:
+        r = p.add_run(chunk)
+        r.font.size = DocxPt(size_pt)
+        if kind == "bold":
+            r.font.bold = True
+        elif kind == "code":
+            r.font.name = "Consolas"
+            r.font.size = DocxPt(size_pt - 0.5)
+
+
+def append_markdown_appendix(docx_path: Path, md_path: Path, title: str = "Appendix — Q&A Preparation Notes") -> None:
+    """Append a Markdown file to an existing speaker-script .docx as a new titled section.
+
+    Supports a small subset of Markdown sufficient for the appendix content: `#`/`##`/`###`
+    headings (mapped to Word Heading 1/2/3, offset so the appendix's own top-level heading
+    is always Heading 1), blank-line-separated paragraphs, `**bold**` and `` `code` `` inline
+    spans, and `- `/`* ` bullet list items. Not a general CommonMark implementation.
+    """
+    from docx import Document
+    from docx.shared import Pt as DocxPt
+
+    doc = Document(str(docx_path))
+    doc.add_page_break()
+    doc.add_heading(title, level=1)
+
+    md_text = md_path.read_text(encoding="utf-8")
+    # Split into blocks on blank lines, keeping heading lines as their own block.
+    lines = md_text.splitlines()
+    para_buf: list[str] = []
+
+    def _flush() -> None:
+        if para_buf:
+            text = " ".join(line.strip() for line in para_buf if line.strip())
+            if text:
+                _add_markdown_paragraph(doc, text)
+            para_buf.clear()
+
+    for raw_line in lines:
+        line = raw_line.rstrip()
+        heading_m = re.match(r"^(#{1,4})\s+(.*)$", line)
+        bullet_m = re.match(r"^[-*]\s+(.*)$", line)
+        if not line.strip():
+            _flush()
+        elif heading_m:
+            _flush()
+            level = min(len(heading_m.group(1)) + 1, 4)  # md "#" (h1) -> docx Heading 2, etc.
+            doc.add_heading(heading_m.group(2).strip(), level=level)
+        elif bullet_m:
+            _flush()
+            p = doc.add_paragraph(style="List Bullet")
+            p.paragraph_format.space_after = DocxPt(4)
+            for kind, chunk in _split_inline_markdown(bullet_m.group(1)):
+                r = p.add_run(chunk)
+                r.font.size = DocxPt(11)
+                if kind == "bold":
+                    r.font.bold = True
+                elif kind == "code":
+                    r.font.name = "Consolas"
+                    r.font.size = DocxPt(10.5)
+        else:
+            para_buf.append(line)
+    _flush()
+    doc.save(str(docx_path))
+
+
+def _split_inline_markdown(text: str) -> list[tuple[str, str]]:
+    """Tokenize `**bold**` / `` `code` `` spans out of a line; shared by bullet + paragraph rendering."""
+    tokens: list[tuple[str, str]] = []
+    pos = 0
+    combined_re = re.compile(r"\*\*([^*]+)\*\*|`([^`]+)`")
+    for m in combined_re.finditer(text):
+        if m.start() > pos:
+            tokens.append(("plain", text[pos : m.start()]))
+        tokens.append(("bold", m.group(1)) if m.group(1) is not None else ("code", m.group(2)))
+        pos = m.end()
+    if pos < len(text):
+        tokens.append(("plain", text[pos:]))
+    return tokens or [("plain", text)]
+
+
 class DeckBuilder:
     def __init__(
         self,
@@ -740,7 +848,7 @@ class DeckBuilder:
                 ],
                 "grouped",
             ),
-            ("Route Improver", ["Fast-TSP", "Local Search (CLS)"], "flat"),
+            ("Route Improver", ["Fast-TSP", "Classical Local Search (CLS)"], "flat"),
         ]
         top, bottom = Inches(1.15), Inches(6.5)
         gap = Inches(0.3)
@@ -2608,7 +2716,12 @@ def main() -> None:
     if args.speaker_script:
         script_out = Path(args.speaker_script_out) if args.speaker_script_out else out.with_suffix(".docx")
         gen_speaker_script(content["title"], builder.author, builder.slide_scripts, script_out)
-        print(f"Written: {script_out} ({len(builder.slide_scripts)} slide scripts)")
+        appendix_md = Path(__file__).resolve().parent / "appendix_notes.md"
+        if appendix_md.exists():
+            append_markdown_appendix(script_out, appendix_md)
+            print(f"Written: {script_out} ({len(builder.slide_scripts)} slide scripts + Q&A appendix)")
+        else:
+            print(f"Written: {script_out} ({len(builder.slide_scripts)} slide scripts)")
 
     if getattr(args, "excel", False):
         excel_out = out.with_suffix(".xlsx")
