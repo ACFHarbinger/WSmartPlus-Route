@@ -285,13 +285,36 @@ def _parse_result_cell(text: str):
     return _pair(m.group(1)), _pair(m.group(2))
 
 
+_TIE_EPS = 1e-6
+
+
+def _all_argmin(vals: dict, key=None) -> set:
+    """Every key whose value ties the minimum (within a small float tolerance), not just one."""
+    if not vals:
+        return set()
+    getter = key or (lambda k: vals[k])
+    best_v = min(getter(k) for k in vals)
+    return {k for k in vals if abs(getter(k) - best_v) <= _TIE_EPS}
+
+
+def _all_argmax(vals: dict, key=None) -> set:
+    """Every key whose value ties the maximum (within a small float tolerance), not just one."""
+    if not vals:
+        return set()
+    getter = key or (lambda k: vals[k])
+    best_v = max(getter(k) for k in vals)
+    return {k for k in vals if abs(getter(k) - best_v) <= _TIE_EPS}
+
+
 def compute_global_best(row_keys: list[tuple], col_keys: list[tuple], cells: dict[tuple, str]) -> dict:
-    """Best (lowest overflow / highest kg-km) column per row, across the FULL column set.
+    """Best (lowest overflow / highest kg-km) column(s) per row, across the FULL column set.
 
     Computed once over every strategy/constructor/improver combination so that,
     when the table is later split into per-strategy partial images, the same
-    single best cell is highlighted rather than one (possibly different) best
-    per partition.
+    best cell(s) are highlighted rather than one (possibly different) best per
+    partition. Returns *every* column tied for best, not just the first one
+    found — ties are common (e.g. several constructors both hitting 0 or 1.0
+    overflows) and should all be highlighted.
     """
     best: dict = {}
     for rk in row_keys:
@@ -302,10 +325,7 @@ def compute_global_best(row_keys: list[tuple], col_keys: list[tuple], cells: dic
                 ov_vals[ck] = ov[1]
             if kg and kg[1] is not None:
                 kg_vals[ck] = kg[1]
-        best[rk] = {
-            "ov": min(ov_vals, key=ov_vals.get) if ov_vals else None,  # pyrefly: ignore [no-matching-overload]
-            "kg": max(kg_vals, key=kg_vals.get) if kg_vals else None,  # pyrefly: ignore [no-matching-overload]
-        }
+        best[rk] = {"ov": _all_argmin(ov_vals), "kg": _all_argmax(kg_vals)}
     return best
 
 
@@ -447,20 +467,20 @@ def render_hier_table_image(
                 ax.plot([x0, total_w], [ys, ys], color="#5A6A7A", linewidth=1.2, zorder=5)
 
     for ri, rk in enumerate(row_keys):
-        best_ov_key = None
-        best_kg_key = None
-        best_ov_ci = None
-        best_kg_ci = None
+        best_ov_keys: set = set()
+        best_kg_keys: set = set()
+        best_ov_cis: set = set()
+        best_kg_cis: set = set()
         if global_best is not None:
-            best_ov_key = global_best.get(rk, {}).get("ov")
-            best_kg_key = global_best.get(rk, {}).get("kg")
+            best_ov_keys = global_best.get(rk, {}).get("ov", set())
+            best_kg_keys = global_best.get(rk, {}).get("kg", set())
             parsed = {ci: _parse_result_cell(cells.get((rk, lk), "—")) for ci, lk in enumerate(col_lookup_keys)}
         else:
             parsed = {ci: _parse_result_cell(cells.get((rk, lk), "—")) for ci, lk in enumerate(col_lookup_keys)}
             ov_vals = {ci: v[0][1] for ci, v in parsed.items() if v[0] and v[0][1] is not None}
             kg_vals = {ci: v[1][1] for ci, v in parsed.items() if v[1] and v[1][1] is not None}
-            best_ov_ci = min(ov_vals, key=ov_vals.get) if ov_vals else None  # pyrefly: ignore [no-matching-overload]
-            best_kg_ci = max(kg_vals, key=kg_vals.get) if kg_vals else None  # pyrefly: ignore [no-matching-overload]
+            best_ov_cis = _all_argmin(ov_vals)
+            best_kg_cis = _all_argmax(kg_vals)
         for ci in range(n_cols):
             xs, ys = x0 + ci * cell_w, y0 + ri * cell_h
             ax.add_patch(mpatches.Rectangle((xs, ys), cell_w, cell_h, fill=False, edgecolor="#CCCCCC", linewidth=0.4))
@@ -474,11 +494,11 @@ def render_hier_table_image(
                 linestyle=":", color="#AAAAAA", linewidth=0.8,
             )
             if global_best is not None:
-                is_best_ov = best_ov_key is not None and col_lookup_keys[ci] == best_ov_key
-                is_best_kg = best_kg_key is not None and col_lookup_keys[ci] == best_kg_key
+                is_best_ov = col_lookup_keys[ci] in best_ov_keys
+                is_best_kg = col_lookup_keys[ci] in best_kg_keys
             else:
-                is_best_ov = ci == best_ov_ci
-                is_best_kg = ci == best_kg_ci
+                is_best_ov = ci in best_ov_cis
+                is_best_kg = ci in best_kg_cis
             # Best half-cells get a light-green background behind the bold green value.
             if is_best_ov:
                 ax.add_patch(mpatches.Rectangle(
@@ -2674,9 +2694,9 @@ def export_results_excel(out_path: Path, results_table: str = "30d") -> None:
             cell.alignment = CENTER
             if fill:
                 cell.fill = fill
-            if ck == best.get("ov"):
+            if ck in best.get("ov", set()):
                 cell.fill = BEST_OV_FILL
-            elif ck == best.get("kg"):
+            elif ck in best.get("kg", set()):
                 cell.fill = BEST_KG_FILL
 
     # Column widths
