@@ -133,6 +133,7 @@
     "strategies": {
       "title": "Mandatory Node Selection Strategies",
       "equation": [
+        "Look-Ahead (LA):$\\ $",
         "Step 1 — Flag mandatory bins: $\\mathcal{M}_0=\\{\\,i : w_{i,t}+\\bar{\\delta}_i \\geq \\tau\\,\\}$",
         "Step 2 — If $\\mathcal{M}_0=\\varnothing$: stop, $\\mathcal{M}=\\varnothing$",
         "Step 3 — Simulate collection: $\\hat{w}_{i,t}=0,\\ \\forall\\, i\\in\\mathcal{M}_0$",
@@ -145,14 +146,14 @@
       ],
       "eq_size_pt": 12,
       "caption": "Look-Ahead (LA) flags today's overflowing bins (Step 1), simulates their collection (Step 3), then predicts the earliest day any of them would overflow again — the next collection day nc (Step 4) — and, if that day has not already arrived, bundles in any other bin that would overflow before it (Step 6), so it is not visited on its own extra trip (ports LookaheadSelection.select_bins). Service-Level flags a bin once its n-day-ahead worst case (mean fill + z_α standard deviations) crosses capacity τ. Last-Minute reacts once the fill ratio f_i crosses a fixed critical threshold CF.",
-      "figure": "lookahead_flow.png",
+      "figure": "knapsack_illustration.png",
       "show_bullets": false,
       "bullets": [
         "Look-Ahead (LA) anticipates predicted overflows by bundling nearby future collections; Last-Minute (LM) waits for a critical fill threshold; Service-Level (SL) bounds each bin's overflow probability via a confidence factor",
         "Empirical trade-off: LM dominates efficiency (KG / KM), SL dominates overflow prevention, LA sits in between",
         "The choice spans the service-quality vs cost spectrum — an operational decision, not an algorithmic one"
       ],
-      "eq_line_h": 0.39,
+      "eq_line_h": 0.37,
       "variables": [
         [
           "$\\mathcal{M}_0$",

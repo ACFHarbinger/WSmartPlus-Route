@@ -65,6 +65,8 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 ### Fixed
 
+- **Presentation feedback fixes, round 7** (`archive/gen`; deck + speaker script regenerated): slide 7's equation gains a bold "Look-Ahead (LA):" header above its 6 steps (matching the existing "Service-Level (SL):"/"Last-Minute (LM):" labels); the slide's figure reverts from the LA flowchart back to the knapsack-equivalence illustration
+
 - **Presentation feedback fixes, round 6** (`archive/gen`; deck now 20 slides, figures + deck + speaker script regenerated):
   - removed the KPI-bar-charts slide (former slide 13); the underlying `kpi_combined.png` generator is unchanged and still feeds the markdown report
   - Pareto front (slide 12) restyled: fronts are keyed by **region only** (not distribution) so RM-100/RM-170/FFZ-350 draw with the same darker colour + linestyle (solid purple / dashed bronze / dotted slate) in both the Empirical and Gamma-3 panels — previously a global scenario index gave the same region a different colour per distribution; the point palette (LA/LM/SL colours) is untouched and the front colours are deliberately distinct from it; legend collapses from 6 scenario entries to 3 region entries
