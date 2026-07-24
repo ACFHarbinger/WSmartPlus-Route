@@ -5,4 +5,4 @@ torch_scatter==2.1.2
 # Install Operations Research proprietary software
 gurobipy==13.0.2
 --extra-index-url https://pip.hexaly.com
-hexaly== 14.5.20260618
+hexaly== 15.0.20260721
