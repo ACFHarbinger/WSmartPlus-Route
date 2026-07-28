@@ -1,5 +1,16 @@
 """Tests for Imitation Learning training pipelines."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import time
 from typing import Any
 

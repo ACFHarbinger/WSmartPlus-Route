@@ -10,6 +10,17 @@ Validates:
   6. End-to-end solver correctness
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import random
 
 import numpy as np

@@ -1,5 +1,16 @@
 """Unit tests for the tracking database stats and metrics subcommands."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path

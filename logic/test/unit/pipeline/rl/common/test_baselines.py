@@ -2,6 +2,17 @@
 Tests for RL baseline implementations.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 import pytest
 import torch

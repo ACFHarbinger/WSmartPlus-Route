@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import pytest
 import torch
 from logic.src.models.core.hybrid_attention_model.hybrid_two_step_policy import (

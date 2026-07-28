@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import numpy as np
 from logic.src.policies.helpers.solvers_and_matheuristics import (
     BranchNode,

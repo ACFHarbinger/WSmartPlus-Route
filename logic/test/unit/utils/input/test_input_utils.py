@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 from logic.src.utils.input import (
     find_single_input_values,
     process_dict_of_dicts,

@@ -1,5 +1,16 @@
 """Tests for problem environment physics (VRPP, WCVRP, etc)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import patch
 
 import pytest

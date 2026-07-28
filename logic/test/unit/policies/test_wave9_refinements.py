@@ -2,6 +2,17 @@
 Verification tests for Wave 9 refinements (GA, CFRS, HULK).
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pandas as pd
 import pytest

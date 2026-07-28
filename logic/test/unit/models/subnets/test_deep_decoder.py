@@ -1,5 +1,16 @@
 """Tests for DeepGATDecoder."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import torch
 import torch.nn as nn
 from logic.src.models.subnets.decoders.common import AttentionDecoderCache

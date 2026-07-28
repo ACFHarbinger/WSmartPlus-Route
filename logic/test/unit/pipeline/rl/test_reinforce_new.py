@@ -2,6 +2,17 @@
 Tests for REINFORCE algorithm implementation.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import MagicMock, patch
 
 import pytest

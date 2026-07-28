@@ -1,5 +1,16 @@
 """Tests for embedding modules."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import torch
 from logic.src.models.subnets.embeddings.context.vrpp import VRPPContextEmbedder as CVRPPContext
 from logic.src.models.subnets.embeddings.context.vrpp import VRPPContextEmbedder as VRPPContext

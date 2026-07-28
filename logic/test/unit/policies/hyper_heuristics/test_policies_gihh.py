@@ -4,6 +4,17 @@ Tests for GIHH policies.
 This module tests the Hyper-Heuristic with Two Guidance Indicators (GIHH) policy.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory

@@ -9,6 +9,17 @@ Tests the Phase 2 implementation including:
 - Historical tracking
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.matheuristics.lin_kernighan_helsgaun_three.adaptive_large_neighborhood_search import (

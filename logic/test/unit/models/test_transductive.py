@@ -2,6 +2,17 @@
 Tests for Transductive Models (Active Search, EAS).
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import MagicMock
 
 import pytest

@@ -1,5 +1,16 @@
 """Tests for optimizer monkey patch."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import torch
 import torch.nn as nn
 

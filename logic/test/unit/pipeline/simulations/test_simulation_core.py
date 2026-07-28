@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import pytest
 import torch  # noqa: F401
 from logic.src.pipeline.simulations.checkpoints import CheckpointError

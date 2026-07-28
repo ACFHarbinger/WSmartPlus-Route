@@ -152,8 +152,11 @@ def maybe_emit_policy_viz(
         getter = getattr(obj, "get_viz_data", None)
         if getter is None:
             continue
-        viz_data = getter()
-        if viz_data:
+        try:
+            viz_data = getter()
+        except Exception:
+            continue
+        if isinstance(viz_data, dict) and viz_data:
             send_policy_viz_to_gui(viz_data, policy, sample_idx, day, log_path, lock)
             return True
     return False

@@ -1,5 +1,16 @@
 """Tests for policy telemetry emission (§A.3)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import json
 
 import time

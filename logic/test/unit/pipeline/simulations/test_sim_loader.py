@@ -1,5 +1,16 @@
 """Unit tests for simulation loader and context."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import json
 import os
 from unittest.mock import patch

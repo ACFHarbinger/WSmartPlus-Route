@@ -1,5 +1,16 @@
 """Tests for TrainingHealthCallback and emit bridge (§A.4)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import json
 from unittest.mock import MagicMock
 

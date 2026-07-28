@@ -2,6 +2,17 @@
 Unit tests for Local Branching with Variable Neighborhood Search (LB-VNS).
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 import sys
 

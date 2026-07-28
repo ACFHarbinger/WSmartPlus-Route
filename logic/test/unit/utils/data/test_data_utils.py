@@ -1,4 +1,14 @@
 
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import pytest
 from logic.src.pipeline.simulations.repository import load_area_and_waste_type_params
 

@@ -1,5 +1,16 @@
 """Tests for RL4COEnvBase."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 import torch
 from logic.src.envs.base import RL4COEnvBase

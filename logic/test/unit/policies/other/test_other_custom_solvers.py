@@ -1,4 +1,14 @@
 
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import numpy as np
 from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import find_route

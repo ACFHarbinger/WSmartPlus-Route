@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
+import pytest
+
+import pytest
+
+
 import numpy as np
 import pytest
 from logic.src.policies import run_hgs

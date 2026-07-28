@@ -1,5 +1,16 @@
 """Tests for project definitions and constants."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 # Test module mapping
 TEST_MODULES = {
     "parser": "test_arg_parser.py",

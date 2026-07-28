@@ -1,5 +1,16 @@
 """Tests for HpoHealthMetricsCallback and DEHB health penalty (§A.4 Option D)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import MagicMock, patch
 
 import optuna

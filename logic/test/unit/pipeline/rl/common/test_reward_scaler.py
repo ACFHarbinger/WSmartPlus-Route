@@ -1,5 +1,16 @@
 """Tests for RewardScaler."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 import pytest
 import torch

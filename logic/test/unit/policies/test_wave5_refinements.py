@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import numpy as np
 import pandas as pd
 from logic.src.policies.route_construction.matheuristics.cluster_first_route_second.solver import run_cf_rs

@@ -1,6 +1,17 @@
 """Unit tests for the attention capture hooks in tracking hooks."""
 
 import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
+import pytest
 import torch
 from logic.src.tracking.hooks.attention_hooks import add_attention_hooks
 from torch import nn

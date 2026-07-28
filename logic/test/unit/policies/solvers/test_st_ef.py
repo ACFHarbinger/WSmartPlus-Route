@@ -2,6 +2,17 @@
 Unit tests for the Scenario-Tree Extensive Form (ST-EF) policy.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form import (

@@ -1,5 +1,16 @@
 """Unit tests for component cleanup tools and scripts."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch

@@ -8,6 +8,17 @@ Covers:
 - IPT crossover integrity (valid offspring, backbone preservation)
 - LKH-2 vs LKH-1 convergence benchmark
 """
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
 from random import Random
 from typing import List, Set, Tuple
 

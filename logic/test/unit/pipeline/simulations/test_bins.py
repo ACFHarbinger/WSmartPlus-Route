@@ -1,5 +1,16 @@
 """Unit tests for the Bins class in logic/src/pipeline/simulations/bins.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 import numpy as np
 from logic.src.pipeline.simulations.bins import Bins

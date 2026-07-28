@@ -1,6 +1,17 @@
 """Tests for Instance Generators."""
 
 import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
+import pytest
 import torch
 from logic.src.envs.generators import (
     SCWCVRPGenerator,

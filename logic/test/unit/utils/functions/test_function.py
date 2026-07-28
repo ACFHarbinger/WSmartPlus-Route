@@ -1,6 +1,17 @@
 """Unit tests for function.py utilities."""
 
 import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
+import pytest
 import torch
 import torch.nn as nn
 from logic.src.utils.functions import (

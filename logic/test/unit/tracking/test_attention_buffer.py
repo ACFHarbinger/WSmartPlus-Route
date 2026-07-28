@@ -1,5 +1,16 @@
 """Unit tests for runtime attention ring-buffer (§A.2 Option A)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import MagicMock, patch
 
 import numpy as np

@@ -4,6 +4,17 @@ Tests for HGS-RR policy.
 This module tests the Hybrid Genetic Search with Ruin-and-Recreate (HGS-RR) policy.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory

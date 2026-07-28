@@ -2,6 +2,17 @@
 Unit tests for RENS matheuristic.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 import sys
 

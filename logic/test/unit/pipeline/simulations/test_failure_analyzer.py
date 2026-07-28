@@ -1,5 +1,16 @@
 """Tests for FailureAnalyzer and emit bridge (§A.6)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import json
 
 import numpy as np

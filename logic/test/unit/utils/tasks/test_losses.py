@@ -1,5 +1,16 @@
 """Unit tests for tasks/losses.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import torch
 from logic.src.utils.tasks import losses
 

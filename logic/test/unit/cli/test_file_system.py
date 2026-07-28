@@ -2,6 +2,17 @@
 Unit tests for file system and cryptographic operations.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import mock_open, patch
 
 from logic.src.cli.fs_parser import (

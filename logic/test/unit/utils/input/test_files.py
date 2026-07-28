@@ -1,5 +1,16 @@
 """Unit tests for files.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import json
 import os
 import threading

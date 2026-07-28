@@ -3,6 +3,17 @@ Tests for PyTorch Lightning RL modules (REINFORCE, PPO, GRPO).
 """
 
 import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
+import pytest
 import torch
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 from tensordict import TensorDict

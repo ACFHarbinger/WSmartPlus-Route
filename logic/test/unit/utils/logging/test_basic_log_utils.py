@@ -1,5 +1,16 @@
 """Tests for log_utils.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 from logic.src.tracking.logging.modules.storage import _convert_numpy, _sort_log
 

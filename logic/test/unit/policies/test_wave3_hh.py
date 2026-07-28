@@ -3,6 +3,17 @@ Unit tests for Wave 3 Advanced Hyper-Heuristics:
 GP-HH, ACO-HH, RL-GD-HH, HMM-GD-HH, SS-HH.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import random
 
 import numpy as np

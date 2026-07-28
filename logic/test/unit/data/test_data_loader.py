@@ -1,5 +1,16 @@
 """Tests for data_utils.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import torch
 from logic.src.utils.data.loader import check_extension, collate_fn, load_td_dataset, save_td_dataset
 from tensordict import TensorDict

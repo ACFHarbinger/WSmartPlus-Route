@@ -1,5 +1,16 @@
 """Tests for selector factory functions."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from dataclasses import dataclass
 from typing import Optional
 
