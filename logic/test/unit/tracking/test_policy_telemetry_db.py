@@ -1,5 +1,16 @@
 """Tests for policy telemetry SQLite persistence (§A.3 Option C)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 
 import pytest

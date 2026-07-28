@@ -1,4 +1,14 @@
 
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import pytest
 import torch
 from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor

@@ -1,6 +1,17 @@
 """Unit tests for Optuna HPO report export (§A.5)."""
-
 from __future__ import annotations
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 from typing import Any
 from unittest.mock import MagicMock, patch

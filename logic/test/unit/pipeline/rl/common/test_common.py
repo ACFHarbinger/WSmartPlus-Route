@@ -2,6 +2,17 @@
 Tests for RL pipeline features (epoch utilities, metrics).
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from typing import Any
 
 import torch

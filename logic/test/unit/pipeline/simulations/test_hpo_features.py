@@ -1,5 +1,16 @@
 """Unit tests for HPO base classes and search spaces."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import dataclasses
 import json
 from typing import Any, List, Union

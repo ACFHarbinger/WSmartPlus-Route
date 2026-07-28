@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import torch
 from logic.src.policies.vector.hgs_alns import VectorizedHGSALNS
 from tensordict import TensorDict

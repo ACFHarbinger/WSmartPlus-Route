@@ -6,6 +6,17 @@ Merges functionality from:
 - test_visualize_epoch_coverage.py
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 import tempfile
 import unittest

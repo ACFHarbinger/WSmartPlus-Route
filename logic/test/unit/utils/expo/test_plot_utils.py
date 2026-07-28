@@ -1,5 +1,16 @@
 """Unit tests for plotting utilities."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import MagicMock, patch
 
 import matplotlib.pyplot as plt

@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams

@@ -2,6 +2,17 @@
 Unit tests for Tabu Search (TS) policy.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pandas as pd
 from logic.src.configs.policies.ts import TSConfig

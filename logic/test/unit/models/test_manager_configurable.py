@@ -1,4 +1,14 @@
 
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import torch.nn as nn
 from logic.src.models.meta.hrl_manager import MandatoryManager
 from logic.src.models.meta.hrl_manager.temporal_encoder import TemporalEncoder

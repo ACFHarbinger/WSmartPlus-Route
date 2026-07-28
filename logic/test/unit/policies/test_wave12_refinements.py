@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import numpy as np
 from logic.src.policies.helpers.operators.generalized_insertion_and_deletion import (
     apply_type_i_us,

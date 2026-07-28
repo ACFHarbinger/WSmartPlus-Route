@@ -1,5 +1,16 @@
 """Tests for setup_sims.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 from unittest.mock import MagicMock, patch
 

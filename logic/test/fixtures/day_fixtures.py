@@ -31,6 +31,7 @@ def mock_run_day_deps(mocker):
         0,
     )
     mock_bins.c = np.full(n_nodes, 50.0)  # 50% fill
+    mock_bins.real_c = np.full(n_nodes, 50.0)
     mock_bins.means = np.full(n_nodes, 10.0)
     mock_bins.std = np.full(n_nodes, 1.0)
     mock_bins.collectlevl = np.full(n_nodes, 90.0)  # For last_minute policy

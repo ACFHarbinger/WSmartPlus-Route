@@ -2,6 +2,17 @@
 Unit tests for Local Branching (LB) matheuristic.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 import sys
 

@@ -2,6 +2,17 @@
 Tests for DR-ALNS implementation.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pytest
 import torch

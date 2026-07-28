@@ -1,5 +1,16 @@
 """Tests for Branch-and-Bound policy."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from typing import Callable, cast
 from unittest.mock import patch
 

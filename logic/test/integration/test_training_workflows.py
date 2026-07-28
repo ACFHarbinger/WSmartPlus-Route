@@ -2,6 +2,17 @@
 Integration tests for training workflows.
 """
 
+import pytest
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 import pytest
 import torch

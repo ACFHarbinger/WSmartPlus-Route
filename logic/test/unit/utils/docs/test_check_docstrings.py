@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 from unittest.mock import mock_open, patch
 
 from logic.src.utils.docs.check_docstrings import check_docstrings_recursive, check_path

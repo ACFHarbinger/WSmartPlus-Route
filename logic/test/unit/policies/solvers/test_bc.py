@@ -4,6 +4,17 @@ Simple test for Branch-and-Cut VRPP solver.
 Run with: python -m pytest logic/src/policies/branch_and_cut/test_bc.py -v
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pandas as pd
 import pytest

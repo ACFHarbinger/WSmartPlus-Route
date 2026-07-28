@@ -2,6 +2,17 @@
 Comprehensive tests for input utilities, covering locking, processing, splitting, preview, and integration.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import json
 import os
 import tempfile

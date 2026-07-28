@@ -5,6 +5,17 @@ This module tests the Hybrid Genetic Search with Ruin and Recreate (HGS-RR) and
 Hyper-Heuristic with Two Guidance Indicators (GIHH) policies.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic import (

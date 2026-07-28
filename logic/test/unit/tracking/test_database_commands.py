@@ -1,5 +1,16 @@
 """Unit tests for the tracking database management commands."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import sqlite3
 from pathlib import Path
 

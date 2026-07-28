@@ -1,5 +1,16 @@
 """Tests for neural sub-networks (encoders/decoders)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from typing import cast
 
 import torch

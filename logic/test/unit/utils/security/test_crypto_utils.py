@@ -1,5 +1,16 @@
 """Unit tests for security utils."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import base64
 import pickle
 from unittest.mock import mock_open, patch

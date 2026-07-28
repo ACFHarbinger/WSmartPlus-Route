@@ -1,5 +1,16 @@
 """Unit tests for HGS local search operators."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from logic.src.policies.helpers.operators import (
     move_2opt_intra,
     move_2opt_star,

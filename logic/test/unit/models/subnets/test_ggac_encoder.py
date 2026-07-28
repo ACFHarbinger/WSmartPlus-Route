@@ -1,6 +1,17 @@
 """Tests for GatedGraphAttConvEncoder."""
 
 import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
+import pytest
 import torch
 from logic.src.models.subnets.encoders.ggac.encoder import AttentionGatedConvolutionLayer, GatedGraphAttConvEncoder
 

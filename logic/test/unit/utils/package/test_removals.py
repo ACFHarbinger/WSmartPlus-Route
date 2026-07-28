@@ -1,5 +1,16 @@
 """Unit tests for cleanup scripts (remove_hpo.py, remove_meta.py, remove_eval.py, remove_callbacks.py)."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock

@@ -1,5 +1,16 @@
 """Unit tests for the Google Style Docstring Validator check_google_style.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from unittest.mock import MagicMock, patch
 
 import pytest

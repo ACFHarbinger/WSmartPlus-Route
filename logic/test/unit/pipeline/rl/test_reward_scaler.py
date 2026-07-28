@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import torch
 from logic.src.pipeline.rl.common.reward_scaler import RewardScaler
 from logic.src.pipeline.rl.common.reward_scaler_batch import BatchRewardScaler

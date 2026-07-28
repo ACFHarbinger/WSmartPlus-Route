@@ -7,6 +7,17 @@ This module consolidates tests for:
 - ALNS (Adaptive Large Neighborhood Search) auxiliary functions (destroy, repair)
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 import random
 

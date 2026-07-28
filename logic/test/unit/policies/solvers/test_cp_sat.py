@@ -1,3 +1,13 @@
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import numpy as np
 from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat import (

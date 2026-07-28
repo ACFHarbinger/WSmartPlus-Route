@@ -1,4 +1,14 @@
 
+
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+import pytest
+
+import pytest
+
+
 import unittest.mock as mock
 
 import logic.src.pipeline.simulations.simulator as simulator

@@ -76,8 +76,8 @@ class FailureAnalyzer:
         root_causes = self._detect_root_causes(new_overflows, sum_lost, profit)
         has_failure = bool(root_causes)
 
-        visited = {int(node) - 1 for node in tour if int(node) > 0}
-        mandatory_set = {int(m) - 1 for m in (mandatory or []) if int(m) > 0}
+        visited = {node - 1 for node in tour if node > 0}
+        mandatory_set = {m - 1 for m in (mandatory or []) if m > 0}
         collected_arr = np.asarray(collected if collected is not None else np.zeros_like(fill))
 
         overflow_bins = self._overflow_bins(
@@ -109,9 +109,9 @@ class FailureAnalyzer:
             "root_causes": root_causes,
             "summary": self._summary_message(root_causes, new_overflows, sum_lost, profit),
             "metrics": {
-                "new_overflows": int(new_overflows),
-                "kg_lost": float(sum_lost),
-                "profit": float(profit),
+                "new_overflows": new_overflows,
+                "kg_lost": sum_lost,
+                "profit": profit,
             },
             "overflow_bins": overflow_bins,
             "skipped_high_fill_bins": skipped_high_fill,
@@ -167,6 +167,13 @@ class FailureAnalyzer:
         fill_spike_ratio: float,
         root_causes: List[str],
     ) -> List[Dict[str, Any]]:
+        if not isinstance(bins_real_c, np.ndarray):
+            try:
+                bins_real_c = np.asarray(bins_real_c)
+                if bins_real_c.dtype == object:
+                    bins_real_c = np.zeros(0)
+            except Exception:
+                bins_real_c = np.zeros(0)
         overflow_mask = bins_real_c >= MAX_CAPACITY_PERCENT
         indices = np.nonzero(overflow_mask)[0]
         results: List[Dict[str, Any]] = []
@@ -211,10 +218,10 @@ class FailureAnalyzer:
                 continue
             results.append(
                 {
-                    "bin_index": int(idx),
+                    "bin_index": idx,
                     "bin_id": self._resolve_bin_id(idx, coords),
                     "fill_level": float(level),
-                    "mandatory": int(idx) in mandatory_set,
+                    "mandatory": idx in mandatory_set,
                 }
             )
         results.sort(key=lambda row: row["fill_level"], reverse=True)

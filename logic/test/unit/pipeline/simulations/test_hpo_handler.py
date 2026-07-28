@@ -1,5 +1,16 @@
 """Unit tests for the HPO simulation handler and objective functions."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 from typing import Any
 from unittest.mock import MagicMock, patch

@@ -1,5 +1,16 @@
 """Tests for policy implementations and solver engines."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 from typing import Callable, cast
 from unittest.mock import patch

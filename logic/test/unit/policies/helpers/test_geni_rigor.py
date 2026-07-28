@@ -2,6 +2,17 @@
 Unit tests for GENI 3-opt and 4-opt topologies.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import numpy as np
 from logic.src.policies.helpers.operators.recreate_repair.geni import _apply_geni_move, _evaluate_route
 

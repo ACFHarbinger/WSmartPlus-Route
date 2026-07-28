@@ -5,6 +5,17 @@ Verifies that all joint selection-and-construction policies are correctly
 registered, instantiable, and executable via the main RouteConstructorFactory.
 """
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 
 import pytest

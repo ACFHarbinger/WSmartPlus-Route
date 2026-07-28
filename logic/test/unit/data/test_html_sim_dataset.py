@@ -1,5 +1,16 @@
 """Tests for HTML simulation dataset and crawler."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import os
 import tempfile
 

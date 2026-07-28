@@ -11,8 +11,19 @@ Tests verify:
 7. apply() before record_initial() returns zero shaping (safe guard).
 8. γ from config is correctly threaded through.
 """
-
 from __future__ import annotations
+
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 
 from unittest.mock import patch
 

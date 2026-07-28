@@ -1,5 +1,16 @@
 """Unit tests for storage.py."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
 import json
 import os
 import pickle

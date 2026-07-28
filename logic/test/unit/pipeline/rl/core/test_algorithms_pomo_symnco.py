@@ -1,6 +1,17 @@
 """Tests for POMO and SymNCO RL algorithms."""
 
 import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
+import pytest
 import torch
 from logic.src.pipeline.rl.core.pomo import POMO
 from logic.src.pipeline.rl.core.symnco import SymNCO

@@ -3,6 +3,17 @@ Tests for N2S Model and Policy.
 """
 
 import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+import pytest
+
+import pytest
+
+
+
+import pytest
 from logic.src.envs.tsp_kopt import TSPkoptEnv
 from logic.src.models.core.n2s import N2S
 from logic.src.models.core.n2s.policy import N2SPolicy

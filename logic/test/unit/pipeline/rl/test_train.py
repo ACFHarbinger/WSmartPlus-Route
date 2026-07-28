@@ -1,5 +1,16 @@
 """Tests for the modernized PyTorch Lightning training pipeline."""
 
+import pytest
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
+import pytest
+
+import pytest
+
+
+
 from typing import Any, Dict, cast
 from unittest.mock import MagicMock, patch
 
