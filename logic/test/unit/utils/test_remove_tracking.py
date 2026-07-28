@@ -1,23 +1,17 @@
 """Unit tests for remove_tracking.py functions."""
 
+from pathlib import Path
+
 import pytest
+from logic.src.utils.package.remove_tracking import (
+    append_to_class_body,
+    fix_empty_try_blocks,
+    get_project_root,
+)
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
-
-import pytest
-
-import pytest
-
-
-
-import pytest
-from pathlib import Path
-from logic.src.utils.package.remove_tracking import (
-    fix_empty_try_blocks,
-    append_to_class_body,
-    get_project_root,
-)
 
 
 @pytest.mark.unit

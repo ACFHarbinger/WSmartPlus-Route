@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -16,6 +8,11 @@ import torch.nn as nn
 from logic.src.envs.base import RL4COEnvBase
 from logic.src.pipeline.rl.core.stepwise_ppo import StepwisePPO
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockPolicy(nn.Module):

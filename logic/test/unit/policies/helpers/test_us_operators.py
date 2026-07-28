@@ -3,22 +3,15 @@ Unit tests for Unstringing and Stringing (US) operators.
 """
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from logic.src.policies.helpers.operators.generalized_insertion_and_deletion import (
     apply_type_i_us,
     apply_type_ii_us,
     apply_type_iii_us,
     apply_type_iv_us,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_type_i_unstringing():

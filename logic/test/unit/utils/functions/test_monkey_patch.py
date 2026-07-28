@@ -1,18 +1,11 @@
 """Tests for optimizer monkey patch."""
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import torch
 import torch.nn as nn
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class SimpleModel(nn.Module):
@@ -66,6 +59,8 @@ def test_load_state_dict_invalid_params():
     state_dict = {"state": {}, "param_groups": [{"params": []}]}
 
     import pytest
+
+
 
     with pytest.raises(ValueError, match="doesn't match the size of optimizer's group"):
         optimizer.load_state_dict(state_dict)

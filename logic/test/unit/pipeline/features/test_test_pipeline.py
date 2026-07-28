@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -17,6 +9,11 @@ from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.sim import SimConfig
 from logic.src.pipeline.features.test import run_wsr_simulator_test as run_sim_test_func
 from logic.src.pipeline.features.test import simulator_testing
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def _make_pipeline_cfg(**overrides):

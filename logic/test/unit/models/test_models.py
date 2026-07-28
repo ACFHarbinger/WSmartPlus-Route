@@ -1,16 +1,9 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import cast
 from unittest.mock import MagicMock
 
+import pytest
 import torch
 import torch.nn as nn
 from logic.src.data.datasets import BaselineDataset
@@ -39,6 +32,9 @@ from logic.src.pipeline.rl.common.baselines import (
 from logic.src.policies.route_construction.learning_algorithms.neural_agent import NeuralAgent
 from tensordict import TensorDict
 from torch.utils.data import Dataset
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 # Patch globals that are expected to be initialized by Dataset
 problem_module.COST_KM = 1.0
@@ -173,6 +169,8 @@ class TestMandatoryManager:
     def test_shared_encoder(self, am_setup):
         """Verifies shared encoder initialization."""
         from logic.src.models.meta.hrl_manager import MandatoryManager
+
+
 
         worker_model = am_setup
         B, N = 1, 5

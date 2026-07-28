@@ -1,16 +1,5 @@
 """Unit tests for the tracking database stats and metrics subcommands."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import sqlite3
 from datetime import datetime, timedelta, timezone
 from pathlib import Path
@@ -18,6 +7,11 @@ from pathlib import Path
 import logic.src.tracking.database.cmd_stats as cmd_stats
 import logic.src.tracking.database.shared as shared
 import pytest
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 SCHEMA_PATH = Path(__file__).parents[3] / "src/tracking/core/schema.sql"
 

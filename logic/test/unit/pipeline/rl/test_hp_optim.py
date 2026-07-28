@@ -1,16 +1,5 @@
 """Tests for hyperparameter optimization pipelines (DEHB, Optuna)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
@@ -18,6 +7,9 @@ import pytest
 from logic.src.configs import Config
 from logic.src.pipeline.rl.hpo.dehb import DifferentialEvolutionHyperband
 from logic.src.pipeline.rl.hpo.optuna_hpo import OptunaHPO
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def get_config_space(opts):
@@ -66,6 +58,8 @@ class TestOptunaHPO:
         hpo = OptunaHPO(cfg, MagicMock())
         sampler = hpo._get_sampler()
         import optuna
+
+
 
         assert isinstance(sampler, optuna.samplers.RandomSampler)
 

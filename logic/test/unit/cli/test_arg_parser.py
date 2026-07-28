@@ -1,21 +1,15 @@
 """Tests for CLI argument parsing utilities."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import sys
 from unittest.mock import patch
 
 import pytest
 from logic.src.cli import ConfigsParser, LowercaseAction, parse_params
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestConfigsParser:

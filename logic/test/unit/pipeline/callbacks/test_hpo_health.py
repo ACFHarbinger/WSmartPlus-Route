@@ -1,26 +1,17 @@
 """Tests for HpoHealthMetricsCallback and DEHB health penalty (§A.4 Option D)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import optuna
 import pytest
 import torch
-
 from logic.src.pipeline.callbacks.pytorch.hpo_health import (
     HpoHealthMetricsCallback,
     apply_dehb_health_penalty,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def _make_trainer(epoch: int = 0, metrics: dict | None = None) -> MagicMock:

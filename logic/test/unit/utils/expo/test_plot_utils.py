@@ -1,20 +1,10 @@
 """Unit tests for plotting utilities."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import matplotlib.pyplot as plt
 import numpy as np
+import pytest
 import torch
 from logic.src.utils.expo import (
     discrete_cmap,
@@ -23,6 +13,9 @@ from logic.src.utils.expo import (
     plot_linechart,
     plot_vehicle_routes,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @patch("logic.src.utils.expo.routes.plt")

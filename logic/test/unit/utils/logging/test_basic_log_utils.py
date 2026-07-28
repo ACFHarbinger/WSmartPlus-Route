@@ -1,18 +1,13 @@
 """Tests for log_utils.py."""
 
+import numpy as np
 import pytest
+from logic.src.tracking.logging.modules.storage import _convert_numpy, _sort_log
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import numpy as np
-from logic.src.tracking.logging.modules.storage import _convert_numpy, _sort_log
 
 
 def test_convert_numpy():

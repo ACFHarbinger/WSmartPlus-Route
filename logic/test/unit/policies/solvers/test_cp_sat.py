@@ -1,18 +1,14 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
+import pytest
 from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.constraint_programming_with_boolean_satisfiability.policy_cp_sat import (
     CPSATPolicy,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_cp_sat_basic():
@@ -42,6 +38,8 @@ def test_cp_sat_basic():
     policy = CPSATPolicy(config=config)
 
     from logic.src.interfaces.context.multi_day_context import MultiDayContext
+
+
 
     md_ctx = MultiDayContext(day_index=1)
     kwargs = {

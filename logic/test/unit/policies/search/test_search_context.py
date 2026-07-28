@@ -3,16 +3,6 @@ Unit tests for functional SearchContext tracking.
 """
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from logic.src.interfaces.context.search_context import (
     AcceptanceMetrics,
     ConstructionMetrics,
@@ -22,6 +12,9 @@ from logic.src.interfaces.context.search_context import (
     SelectionMetrics,
     merge_context,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_search_context_initialization():

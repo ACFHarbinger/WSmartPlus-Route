@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import os
 from unittest.mock import patch
 
@@ -21,6 +13,11 @@ from logic.src.data.network import (
     compute_distance_matrix,
 )
 from logic.src.utils.graph.network_utils import apply_edges, get_paths_between_states
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestNetwork:

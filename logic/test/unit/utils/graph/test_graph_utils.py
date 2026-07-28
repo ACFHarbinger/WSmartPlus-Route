@@ -1,20 +1,10 @@
 """Unit tests for graph_utils.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
 import networkx as nx
 import numpy as np
+import pytest
 import torch
 from logic.src.utils.graph import (
     adj_to_idx,
@@ -27,6 +17,9 @@ from logic.src.utils.graph import (
     sort_by_pairs,
     tour_to_adj,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_generate_adj_matrix_random():

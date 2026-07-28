@@ -1,16 +1,5 @@
 """Tests for selector factory functions."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from dataclasses import dataclass
 from typing import Optional
 
@@ -18,6 +7,11 @@ import pytest
 from logic.src.policies.vector.selection.factory import create_selector_from_config
 from logic.src.policies.vector.selection.last_minute import LastMinuteSelector
 from logic.src.policies.vector.selection.regular import RegularSelector
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @dataclass

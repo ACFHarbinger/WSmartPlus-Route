@@ -1,21 +1,16 @@
 """Tests for rl/common/utils.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
 import pytest
 import torch
 from logic.src.utils.tasks.training_utils import get_lightning_device, get_optimizer, get_scheduler
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
+
 
 
 def test_get_optimizer():

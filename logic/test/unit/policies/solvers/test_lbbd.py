@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
 import pytest
 from logic.src.interfaces.context.multi_day_context import MultiDayContext
@@ -16,11 +8,16 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.logic
     LBBDPolicy,
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 
 def _has_gurobi_license() -> bool:
     try:
         import gurobipy as _gp
         _m = _gp.Model("_check")
+
+
         _m.dispose()
         return True
     except Exception:

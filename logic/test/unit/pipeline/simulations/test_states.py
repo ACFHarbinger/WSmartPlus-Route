@@ -1,16 +1,5 @@
 """Unit tests for Simulation State Machine (states.py)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.slow]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -20,6 +9,11 @@ from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.sim import SimConfig
 from logic.src.pipeline.simulations.checkpoints import CheckpointError
 from logic.src.pipeline.simulations.states import FinishingState, InitializingState, RunningState, SimulationContext
+
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
 
 
 def _make_test_cfg(**overrides):

@@ -1,19 +1,8 @@
 """Unit tests for runtime attention ring-buffer (§A.2 Option A)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
-import numpy as np
+import pytest
 import torch
 from logic.src.tracking.attention_buffer import (
     AttentionRingBuffer,
@@ -26,6 +15,11 @@ from logic.src.tracking.logging.modules.attention_emit import (
     send_attention_viz_to_gui,
 )
 from torch import nn
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_attention_ring_buffer_record_and_cap():

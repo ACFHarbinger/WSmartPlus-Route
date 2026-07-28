@@ -1,20 +1,15 @@
 """Tests for CriticNetwork."""
 
+from unittest.mock import MagicMock
+
 import pytest
+import torch
+from logic.src.models.common.critic_network.model import LegacyCriticNetwork
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-from unittest.mock import MagicMock
-
-import torch
-from logic.src.models.common.critic_network.model import LegacyCriticNetwork
 
 
 def test_critic_network_init():

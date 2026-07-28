@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import patch
 
 import pytest
@@ -15,6 +7,9 @@ from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
     load_area_and_waste_type_params,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestFileSystemRepository:
@@ -26,6 +21,8 @@ class TestFileSystemRepository:
     def setup_repo(self, repo):
         from logic.src.pipeline.simulations.repository import set_repository
         set_repository(repo)
+
+
 
     def test_wrappers(self):
         # Test that wrappers call the imported function

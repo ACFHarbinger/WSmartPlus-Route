@@ -1,19 +1,16 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import Any, cast
 
 import pytest
 import torch
 from logic.src.utils.functions import boolmask
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestBoolMask:

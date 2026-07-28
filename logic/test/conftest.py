@@ -15,7 +15,6 @@ from pathlib import Path
 import pytest
 import torch
 
-
 # Global interception of sqlite3.connect to prevent updates to the production tracking.db
 _original_sqlite3_connect = sqlite3.connect
 

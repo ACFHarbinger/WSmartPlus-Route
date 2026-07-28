@@ -1,22 +1,16 @@
 """Unit tests for heatmaps.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
 from logic.src.utils.expo.heatmaps import plot_attention_heatmaps, plot_logit_lens
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

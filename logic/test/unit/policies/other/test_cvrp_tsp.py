@@ -1,14 +1,6 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -18,6 +10,11 @@ from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_
     CVRPPolicy,
 )
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.policy_tsp import TSPPolicy
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockBins:

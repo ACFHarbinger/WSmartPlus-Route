@@ -4,17 +4,6 @@ Simple test for Branch-and-Cut VRPP solver.
 Run with: python -m pytest logic/src/policies/branch_and_cut/test_bc.py -v
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -26,6 +15,9 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.branc
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_cut.heuristics import (
     construct_initial_solution,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available")

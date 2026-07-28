@@ -1,17 +1,6 @@
 """Unit tests for function.py utilities."""
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-import pytest
 import torch
 import torch.nn as nn
 from logic.src.utils.functions import (
@@ -27,6 +16,9 @@ from logic.src.utils.model import (
     parse_softmax_temperature,
     torch_load_cpu,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestGetInnerModel:

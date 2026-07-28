@@ -1,19 +1,17 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import unittest
 
 import numpy as np
+import pytest
 from logic.src.policies.helpers.operators.intra_route_local_search.swap import move_swap
 from logic.src.policies.helpers.operators.recreate_repair.geni import geni_insertion
 from logic.src.policies.helpers.operators.recreate_repair.nearest import nearest_insertion, nearest_profit_insertion
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockLS:

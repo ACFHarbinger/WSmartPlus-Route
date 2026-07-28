@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import cast
 
 import gurobipy as gp
@@ -15,6 +7,11 @@ import numpy as np
 import pytest
 from gurobipy import GRB
 from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver, Route, VRPPMasterProblem
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def _has_gurobi_license() -> bool:

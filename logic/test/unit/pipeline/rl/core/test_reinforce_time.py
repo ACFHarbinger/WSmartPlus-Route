@@ -1,14 +1,6 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import time
 from typing import Any, cast
 
@@ -19,6 +11,9 @@ from logic.src.envs.base import RL4COEnvBase
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 from logic.src.pipeline.rl.core.time_tracking import TimeOptimizedREINFORCE
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class MockPolicy(nn.Module):
@@ -105,6 +100,8 @@ def test_time_optimized_reinforce():
     # Verify wrapping
     from logic.src.models.common.time_tracking_policy import TimeTrackingPolicy
     assert isinstance(module.policy, TimeTrackingPolicy)
+
+
 
     # Run forward
     out = module.policy(td, env)

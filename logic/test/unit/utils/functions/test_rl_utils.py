@@ -1,19 +1,14 @@
 """Unit tests for rl.py."""
 
 import pytest
+import torch
+from logic.src.utils.functions.rl import ensure_tensordict
+from tensordict import TensorDict
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import torch
-from logic.src.utils.functions.rl import ensure_tensordict
-from tensordict import TensorDict
 
 
 def test_ensure_tensordict_from_dict():

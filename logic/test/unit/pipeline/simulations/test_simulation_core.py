@@ -1,17 +1,12 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
-import pytest
 import torch  # noqa: F401
 from logic.src.pipeline.simulations.checkpoints import CheckpointError
 from logic.src.pipeline.simulations.simulator import sequential_simulations, single_simulation
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestSimulation:
@@ -38,6 +33,8 @@ class TestSimulation:
         """Test error handling for broken checkpoints."""
         lock, counter = mock_lock_counter
         import logic.src.pipeline.simulations.simulator as sim
+
+
         sim._lock = lock
         sim._counter = counter
 

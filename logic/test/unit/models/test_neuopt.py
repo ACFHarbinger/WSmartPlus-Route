@@ -3,20 +3,14 @@ Tests for NeuOpt Model and Policy.
 """
 
 import pytest
+from logic.src.envs.tsp_kopt import TSPkoptEnv
+from logic.src.models.core.neuopt import NeuOpt
+from logic.src.models.core.neuopt.policy import NeuOptPolicy
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import pytest
-from logic.src.envs.tsp_kopt import TSPkoptEnv
-from logic.src.models.core.neuopt import NeuOpt
-from logic.src.models.core.neuopt.policy import NeuOptPolicy
 
 
 def test_neuopt_policy_forward():

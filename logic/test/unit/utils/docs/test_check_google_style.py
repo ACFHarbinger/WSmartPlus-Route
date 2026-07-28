@@ -1,16 +1,5 @@
 """Unit tests for the Google Style Docstring Validator check_google_style.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -20,6 +9,9 @@ from logic.src.utils.docs.check_google_style import (
     display_report,
     main,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture

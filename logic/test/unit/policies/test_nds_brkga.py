@@ -2,17 +2,6 @@
 Tests for NDS-BRKGA.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 
 import numpy as np
@@ -44,6 +33,9 @@ from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_
 from logic.src.policies.selection_and_construction.non_dominated_sorting_biased_random_key_genetic_algorithm.population import (
     Population,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture

@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.integration, pytest.mark.slow]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
 import pytest
 from logic.src.policies import run_hgs
@@ -18,6 +10,9 @@ from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_
     find_routes,
     find_routes_ortools,
 )
+
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
 
 
 class TestSolverEdgeCases:

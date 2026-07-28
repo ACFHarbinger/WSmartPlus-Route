@@ -1,14 +1,7 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
+import pytest
 from logic.src.policies.helpers.solvers_and_matheuristics import (
     BranchNode,
     EdgeBranching,
@@ -16,6 +9,9 @@ from logic.src.policies.helpers.solvers_and_matheuristics import (
     Route,
     RyanFosterBranching,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_edge_branching_partition_logic():

@@ -9,16 +9,6 @@ Covers:
 - LKH-2 vs LKH-1 convergence benchmark
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
 from random import Random
 from typing import List, Set, Tuple
 
@@ -36,6 +26,9 @@ from logic.src.policies.helpers.operators.search_heuristics.lin_kernighan_helsga
     ipt_crossover,
     solve_lkh2,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture

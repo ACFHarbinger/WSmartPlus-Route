@@ -1,17 +1,15 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
+import pytest
 import torch
 from logic.src.utils.functions.lexsort import _torch_lexsort_cuda, torch_lexsort
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestLexSort:

@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import pandas as pd
 import pytest
 from logic.src.constants import ROOT_DIR
@@ -18,6 +10,9 @@ from logic.src.pipeline.simulations.repository import (
     load_simulator_data,
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 
 class TestLoader:
     """Class for data loading tests."""
@@ -26,6 +21,8 @@ class TestLoader:
     def setup_repo(self):
         from logic.src.pipeline.simulations.repository import FileSystemRepository, set_repository
         set_repository(FileSystemRepository(ROOT_DIR))
+
+
 
     @pytest.mark.unit
     def test_load_params(self, mock_load_dependencies):

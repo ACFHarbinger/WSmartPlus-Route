@@ -1,21 +1,19 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import math
 import unittest
 from typing import Any
 
+import pytest
 from logic.src.interfaces.distance_metric import IDistanceMetric
 from logic.src.policies.acceptance_criteria.adaptive_boltzmann_metropolis import AdaptiveBoltzmannMetropolis
 from logic.src.policies.acceptance_criteria.epsilon_dominance import EpsilonDominanceCriterion
 from logic.src.policies.acceptance_criteria.skewed_variable_neighborhood_search import SkewedVNSAcceptance
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockDistanceMetric(IDistanceMetric):

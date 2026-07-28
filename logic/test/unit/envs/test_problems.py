@@ -1,22 +1,14 @@
 """Tests for problem environment physics (VRPP, WCVRP, etc)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import patch
 
 import pytest
 import torch
 from logic.src.envs import problems as problem_module
 from logic.src.envs.problems import CVRPP, VRPP, WCVRP
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestVRPP:
@@ -249,6 +241,8 @@ class TestStateWCVRP:
     def test_batched_max_waste_broadcasting(self):
         """Test that WCVRP handles multi-instance batch with 1D max_waste."""
         from logic.src.envs.problems import WCVRP
+
+
 
         batch_size = 2
         n_loc = 3

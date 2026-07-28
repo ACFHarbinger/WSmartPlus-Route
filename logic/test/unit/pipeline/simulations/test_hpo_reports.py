@@ -1,18 +1,6 @@
 """Unit tests for Optuna HPO report export (§A.5)."""
 from __future__ import annotations
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-
 from typing import Any
 from unittest.mock import MagicMock, patch
 
@@ -22,6 +10,9 @@ from logic.src.pipeline.simulations.hpo.hpo_reports import (
     export_optuna_study_from_storage,
     export_optuna_study_reports,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestExportOptunaStudyReports:
@@ -70,6 +61,8 @@ class TestExportOptunaStudyReports:
         manifest_path = f"{report_dir}/manifest.json"
         with open(manifest_path, encoding="utf-8") as handle:
             import json
+
+
 
             manifest = json.load(handle)
 

@@ -1,20 +1,12 @@
 """Unit tests for the Bins class in logic/src/pipeline/simulations/bins.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-
 import numpy as np
+import pytest
 from logic.src.pipeline.simulations.bins import Bins
 from logic.src.pipeline.simulations.bins.prediction import predict_days_to_overflow
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestBinsStats:
@@ -49,6 +41,8 @@ class TestBinsStats:
     def test_set_statistics(self, bins_stats, tmp_path):
         """Test loading pre-computed statistics."""
         import pandas as pd
+
+
         stats_file = tmp_path / "stats.csv"
         df = pd.DataFrame({
             "Mean": [25.0, 10.0],

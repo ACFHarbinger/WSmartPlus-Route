@@ -1,14 +1,6 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -16,6 +8,11 @@ from logic.src.models.core.temporal_attention_model.model import TemporalAttenti
 from logic.src.models.core.temporal_attention_model.policy import TemporalAMPolicy
 from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
 from logic.src.models.subnets.other.lstm_fill_predictor import LongShortTermMemoryFillPredictor
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestTemporalAMConfig:

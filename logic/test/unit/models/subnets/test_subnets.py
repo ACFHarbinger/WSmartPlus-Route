@@ -1,18 +1,8 @@
 """Tests for neural sub-networks (encoders/decoders)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from typing import cast
 
+import pytest
 import torch
 import torch.nn as nn
 from logic.src.models.subnets.decoders.gat.decoder import GraphAttentionDecoder
@@ -26,6 +16,9 @@ from logic.src.models.subnets.encoders.moe.encoder import MoEGraphAttentionEncod
 from logic.src.models.subnets.encoders.ptr.encoder import PointerEncoder
 from logic.src.models.subnets.encoders.tgc.encoder import TransGraphConvEncoder
 from logic.src.models.subnets.other.gru_fill_predictor import GatedRecurrentUnitFillPredictor
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestGACEncoder:
@@ -271,6 +264,8 @@ class TestGlimpseDecoder:
     def test_select_node(self):
         """Verifies node selection logic."""
         from unittest.mock import MagicMock
+
+
 
         problem = MagicMock()
         problem.NAME = "vrpp"

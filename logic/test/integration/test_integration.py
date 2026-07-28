@@ -3,17 +3,6 @@ Integration tests for the WSmart-Route pipeline (Training & Simulation).
 Modernized for the PyTorch Lightning architecture.
 """
 
-import pytest
-pytestmark = [pytest.mark.integration, pytest.mark.slow]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -25,6 +14,11 @@ from logic.src.pipeline.features.train import run_training
 from logic.src.pipeline.simulations.simulator import sequential_simulations
 from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
 from omegaconf import OmegaConf
+
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
+
+
 
 
 class TestIntegrationTraining:

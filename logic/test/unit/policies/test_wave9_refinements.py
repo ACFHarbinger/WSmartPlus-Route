@@ -2,17 +2,6 @@
 Verification tests for Wave 9 refinements (GA, CFRS, HULK).
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import numpy as np
 import pandas as pd
 import pytest
@@ -21,6 +10,11 @@ from logic.src.policies.route_construction.matheuristics.cluster_first_route_sec
     fisher_jaikumar_clustering,
 )
 from logic.src.policies.route_construction.meta_heuristics.genetic_algorithm.solver import GAParams, GASolver
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

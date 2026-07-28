@@ -1,23 +1,16 @@
 """Tests for pipeline/features/test.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
+import pytest
 import torch
 from logic.src.configs import Config
 from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.sim import SimConfig
 from logic.src.pipeline.features.test import simulator_testing
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def _make_sim_cfg(**overrides):
@@ -78,6 +71,8 @@ def test_simulator_testing_multi_core():
         mock_instance = mock_manager.return_value
 
         from multiprocessing.managers import DictProxy
+
+
 
         mock_dict_proxy = MagicMock(spec=DictProxy)
         mock_dict_proxy.items.return_value = [("policy1", [[1.0], [2.0]])]

@@ -42,9 +42,8 @@ def csv_to_arrow_ipc(csv_path: Path, arrow_path: Path) -> None:
 
     table = pacsv.read_csv(csv_path)
     arrow_path.parent.mkdir(parents=True, exist_ok=True)
-    with pa.OSFile(str(arrow_path), "wb") as sink:
-        with pa.ipc.new_file(sink, table.schema) as writer:
-            writer.write_table(table)
+    with pa.OSFile(str(arrow_path), "wb") as sink, pa.ipc.new_file(sink, table.schema) as writer:
+        writer.write_table(table)
 
 
 def parse_day_log_line(line: str) -> Optional[Dict[str, Any]]:
@@ -123,9 +122,8 @@ def jsonl_to_arrow_ipc(jsonl_path: Path, arrow_path: Path) -> None:
         ),
     )
     arrow_path.parent.mkdir(parents=True, exist_ok=True)
-    with pa.OSFile(str(arrow_path), "wb") as sink:
-        with pa.ipc.new_file(sink, table.schema) as writer:
-            writer.write_table(table)
+    with pa.OSFile(str(arrow_path), "wb") as sink, pa.ipc.new_file(sink, table.schema) as writer:
+        writer.write_table(table)
 
 
 def build_arrow_sidecars(source: Path, data_files: list[Path]) -> list[Path]:

@@ -1,14 +1,6 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
-import pytest
 import torch
 from logic.src.policies.vector.operators import (
     vectorized_greedy_insertion,
@@ -16,6 +8,9 @@ from logic.src.policies.vector.operators import (
     vectorized_regret_k_insertion,
     vectorized_worst_removal,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture

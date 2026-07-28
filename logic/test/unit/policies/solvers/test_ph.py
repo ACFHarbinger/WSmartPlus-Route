@@ -2,17 +2,6 @@
 Unit tests for the Progressive Hedging (PH) policy.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import numpy as np
 import pytest
 from logic.src.configs.policies import PHConfig
@@ -22,6 +11,9 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.branc
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.progressive_hedging import (
     ProgressiveHedgingPolicy,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.mark.skipif(not GUROBI_AVAILABLE, reason="Gurobi not available for subproblems")

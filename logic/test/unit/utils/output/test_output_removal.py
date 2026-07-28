@@ -1,15 +1,6 @@
-
-
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import json
 
+import pytest
 from logic.src.utils.output.matcher import (
     PolicyFilter,
     _parse_slug,
@@ -23,6 +14,10 @@ from logic.src.utils.output.remover import (
     remove_from_jsonl_file,
     remove_targeted_runs,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 
 
 def test_parse_slug():

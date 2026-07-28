@@ -2,22 +2,16 @@
 End-to-end smoke tests for CLI commands.
 """
 
-import pytest
-pytestmark = [pytest.mark.e2e, pytest.mark.slow]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import shutil
 import subprocess
 import sys
 
 import pytest
+
+pytestmark = [pytest.mark.e2e, pytest.mark.slow]
+
+
+
 
 
 @pytest.mark.e2e

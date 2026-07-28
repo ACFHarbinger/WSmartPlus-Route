@@ -2,22 +2,16 @@
 Tests for DR-ALNS implementation.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import numpy as np
 import pytest
 import torch
 from logic.src.envs.dr_alns import DRALNSEnv
 from logic.src.models.core.dr_alns import DRALNSPPOAgent, DRALNSSolver
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import logic.src.pipeline.simulations.repository as repo_module
@@ -15,6 +7,9 @@ import pandas as pd
 import pytest
 from logic.src.pipeline.simulations.repository.base import SimulationRepository
 from logic.src.pipeline.simulations.repository.filesystem import FileSystemRepository
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_set_repository():
@@ -256,6 +251,8 @@ def test_get_figueiradafoz_data(tmp_path):
 def test_dataset_repository():
     import numpy as np
     from logic.src.pipeline.simulations.repository.dataset import DatasetRepository
+
+
 
     fake_sample_0 = {
         "node_ids": [1, 2],

@@ -1,16 +1,6 @@
 """Tests for embedding modules."""
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import torch
 from logic.src.models.subnets.embeddings.context.vrpp import VRPPContextEmbedder as CVRPPContext
 from logic.src.models.subnets.embeddings.context.vrpp import VRPPContextEmbedder as VRPPContext
@@ -18,6 +8,11 @@ from logic.src.models.subnets.embeddings.context.wcvrp import WCVRPContextEmbedd
 from logic.src.models.subnets.embeddings.dynamic import DynamicEmbedding
 from logic.src.models.subnets.embeddings.static import StaticEmbedding
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestContextEmbedding:

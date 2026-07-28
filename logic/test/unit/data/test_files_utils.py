@@ -1,20 +1,15 @@
 """Tests for utils/input/files.py."""
 
+import json
+import os
+
 import pytest
+from logic.src.utils.input.files import compose_dirpath, extract_zip, read_json, zip_directory
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import json
-import os
-
-from logic.src.utils.input.files import compose_dirpath, extract_zip, read_json, zip_directory
 
 
 def test_read_json(tmp_path):

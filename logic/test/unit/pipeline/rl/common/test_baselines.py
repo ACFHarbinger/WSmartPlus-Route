@@ -3,18 +3,6 @@ Tests for RL baseline implementations.
 """
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-
-import pytest
 import torch
 import torch.nn as nn
 from logic.src.pipeline.rl.common.baselines import (
@@ -27,6 +15,11 @@ from logic.src.pipeline.rl.common.baselines import (
     get_baseline,
 )
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestBaselines:

@@ -1,16 +1,5 @@
 """Tests for HTML simulation dataset and crawler."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 import tempfile
 
@@ -18,6 +7,11 @@ import numpy as np
 import pytest
 from logic.src.data.datasets.web.dashboard_crawler import extract_dataframe
 from logic.src.data.datasets.web.html_sim_dataset import HtmlSimulationDataset
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 MOCK_HTML = """
 <div class="flow-section">

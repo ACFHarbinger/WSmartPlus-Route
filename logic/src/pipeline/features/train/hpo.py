@@ -37,11 +37,11 @@ import torch
 from omegaconf import OmegaConf
 
 from logic.src.configs import Config
-from logic.src.pipeline.features.train.model_factory import create_model
 from logic.src.pipeline.callbacks.pytorch.hpo_health import (
     HpoHealthMetricsCallback,
     apply_dehb_health_penalty,
 )
+from logic.src.pipeline.features.train.model_factory import create_model
 from logic.src.pipeline.rl.common.trainer import WSTrainer
 from logic.src.pipeline.rl.hpo import DifferentialEvolutionHyperband, OptunaHPO, RayTuneHPO
 from logic.src.pipeline.rl.hpo.base import BaseHPO, apply_params, normalise_search_space

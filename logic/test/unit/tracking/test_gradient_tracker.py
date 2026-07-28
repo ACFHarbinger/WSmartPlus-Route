@@ -1,21 +1,16 @@
 """Unit tests for GradientTrackerCallback in logic/src/tracking/integrations/gradient_tracker.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
+from unittest.mock import MagicMock
 
-
-
-import pytest
-
-import pytest
-
-
-
-from unittest.mock import MagicMock, patch
 import pytest
 import torch
 import torch.nn as nn
 from logic.src.tracking.integrations.gradient_tracker import GradientTrackerCallback
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class SimpleModule(nn.Module):

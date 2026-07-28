@@ -2,17 +2,6 @@
 Tests for PPO algorithm implementation.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -20,6 +9,9 @@ import torch
 import torch.nn as nn
 from logic.src.pipeline.rl.core.ppo import PPO
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class MockModel(nn.Module):
@@ -124,6 +116,8 @@ class TestPPO:
 
         # Mock optimizer
         from pytorch_lightning.core.optimizer import LightningOptimizer
+
+
         class DummyLO(LightningOptimizer):
             def zero_grad(self, *args, **kwargs): pass
             def step(self, *args, **kwargs): pass

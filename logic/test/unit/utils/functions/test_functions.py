@@ -1,15 +1,8 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import Tuple
 
+import pytest
 import torch
 import torch.nn as nn
 from logic.src.utils.functions.path import get_path_until_string
@@ -24,6 +17,11 @@ from logic.src.utils.functions.tensors import (
 from logic.src.utils.model.checkpoint_utils import torch_load_cpu
 from logic.src.utils.model.problem_factory import load_problem
 from logic.src.utils.model.processing import get_inner_model, parse_softmax_temperature
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestFunctions:

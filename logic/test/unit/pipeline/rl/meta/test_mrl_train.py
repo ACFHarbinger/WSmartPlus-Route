@@ -1,18 +1,12 @@
 """Tests for Meta-Reinforcement Learning training pipelines."""
 
 import pytest
+import torch
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import pytest
-import torch
 
 
 class TestWeightContextualBandit:

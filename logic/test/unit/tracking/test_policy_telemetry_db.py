@@ -1,16 +1,5 @@
 """Tests for policy telemetry SQLite persistence (§A.3 Option C)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 
 import pytest
@@ -20,6 +9,11 @@ from logic.src.tracking.logging.modules.policy_viz_emit import (
     maybe_emit_policy_viz,
 )
 from logic.src.tracking.viz_mixin import PolicyVizMixin
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture(autouse=True)

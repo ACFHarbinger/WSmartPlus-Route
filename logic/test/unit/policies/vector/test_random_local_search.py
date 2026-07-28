@@ -1,19 +1,16 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
-import pytest
 import torch
 from logic.src.policies.vector.random_local_search import (
     RandomLocalSearchPolicy,
 )
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.mark.unit

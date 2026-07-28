@@ -1,20 +1,10 @@
 """Unit tests for security utils."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import base64
 import pickle
 from unittest.mock import mock_open, patch
 
+import pytest
 from cryptography.fernet import Fernet
 from logic.src.utils.security import (
     decrypt_directory,
@@ -25,6 +15,10 @@ from logic.src.utils.security import (
     generate_key,
     load_key,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 
 
 def test_generate_key(mock_crypto_dotenv):

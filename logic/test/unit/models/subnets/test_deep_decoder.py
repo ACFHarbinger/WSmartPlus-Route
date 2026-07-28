@@ -1,20 +1,13 @@
 """Tests for DeepGATDecoder."""
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import torch
 import torch.nn as nn
 from logic.src.models.subnets.decoders.common import AttentionDecoderCache
 from logic.src.models.subnets.decoders.gat.decoder import DeepGATDecoder
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_deep_decoder_init():
@@ -56,6 +49,8 @@ def test_deep_decoder_get_log_p():
     fixed = model._precompute(embeddings)
 
     from unittest.mock import MagicMock
+
+
 
     state = MagicMock()
     # Mock current node (1 per batch)

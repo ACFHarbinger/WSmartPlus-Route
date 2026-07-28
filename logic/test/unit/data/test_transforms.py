@@ -1,16 +1,6 @@
 """Tests for data augmentation transforms."""
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import torch
 from logic.src.data.processor.transforms import (
     StateAugmentation,
@@ -19,6 +9,11 @@ from logic.src.data.processor.transforms import (
     symmetric_augmentation,
 )
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_batchify():

@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import List, Optional
 
 import numpy as np
@@ -19,6 +11,9 @@ from logic.src.policies.route_construction.matheuristics.iterated_local_search_r
 from logic.src.policies.route_construction.matheuristics.iterated_local_search_randomized_variable_neighborhood_descent_set_partitioning.params import (
     ILSRVNDSPParams,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class MockLocalSearch(LocalSearch):
@@ -139,6 +134,8 @@ def test_shift_2_0():
 
     from logic.src.policies.helpers.operators.inter_route_local_search.subramanian_neighborhoods import shift_2_0
     # shift [2, 3] from r0 (pos 1) to r1 (after pos 1)
+
+
     improved = shift_2_0(ls, r_src=0, pos_src=1, r_dst=1, pos_dst=1)
     assert improved
     assert ls.routes[0] == [1]

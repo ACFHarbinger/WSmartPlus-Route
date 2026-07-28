@@ -1,22 +1,17 @@
 """Tests for GFACS model."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
+import pytest
 import torch
 from logic.src.models.core.gfacs import GFACS
 from logic.src.models.core.gfacs.policy import GFACSPolicy
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestGFACS:

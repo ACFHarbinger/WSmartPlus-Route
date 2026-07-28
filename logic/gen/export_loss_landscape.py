@@ -103,7 +103,6 @@ def _td_to_batch_dict(td) -> dict:
 
 
 def _forward_loss(model, input_dict) -> float:
-    import torch
 
     out = model(input_dict, strategy="greedy")
     cost = out.get("cost")
@@ -123,7 +122,6 @@ def _probe_training_loss_surface(
     batch_size: int = 1,
 ) -> Tuple[np.ndarray, np.ndarray, np.ndarray, str]:
     import torch
-
     from logic.src.envs.generators import get_generator
     from logic.src.utils.model.loader import load_model
 

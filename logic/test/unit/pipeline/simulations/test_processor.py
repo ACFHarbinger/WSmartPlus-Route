@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import patch
 
 import numpy as np
@@ -15,6 +7,11 @@ import pandas as pd
 import pytest
 import torch
 from logic.src.data.processor import SimulationDataMapper, format_coordinates
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestSimulationDataMapper:

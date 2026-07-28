@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.integration, pytest.mark.slow]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -16,6 +8,11 @@ from logic.src.pipeline.simulations.day_context import run_day
 from logic.src.pipeline.simulations.simulator import single_simulation
 from logic.src.pipeline.simulations.states import InitializingState, SimulationContext
 from omegaconf import OmegaConf
+
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
+
+
 
 
 @pytest.fixture

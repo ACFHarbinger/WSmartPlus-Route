@@ -1,22 +1,14 @@
 """Unit tests for the tracking database management commands."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import sqlite3
 from pathlib import Path
 
 import logic.src.tracking.database.commands as commands
 import logic.src.tracking.database.shared as shared
 import pytest
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 # Determine schema path relative to this test file
 SCHEMA_PATH = Path(__file__).parents[3] / "src/tracking/core/schema.sql"
@@ -175,6 +167,8 @@ def test_export_run_to_file(temp_db, tmp_path, capsys):
     commands.export_run(run_id="run_1_uuid_32_chars_long_exactly_abc", output=str(out_file.resolve()))
     assert out_file.exists()
     import json
+
+
     with open(out_file) as f:
         data = json.load(f)
     assert data["name"] == "run_1"

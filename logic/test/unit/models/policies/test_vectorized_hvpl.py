@@ -1,16 +1,14 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import torch
 from logic.src.policies.vector.hybrid_volleyball_premier_league import VectorizedHVPL
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_vectorized_hvpl():

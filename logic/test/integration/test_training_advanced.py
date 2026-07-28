@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.integration, pytest.mark.slow]
-
-import pytest
-
-import pytest
-
-
 import os
 import shutil
 
@@ -20,6 +12,11 @@ from logic.src.pipeline.rl.core.dr_grpo import DRGRPO
 from logic.src.pipeline.rl.core.gdpo import GDPO
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 from pytorch_lightning import Trainer
+
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
+
+
 
 
 @pytest.fixture

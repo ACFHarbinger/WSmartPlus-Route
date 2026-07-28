@@ -1,21 +1,11 @@
 """Unit tests for simulation loader and context."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
 import os
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 from logic.src.pipeline.simulations.day_context import SimulationDayContext
 from logic.src.pipeline.simulations.repository import (
     FileSystemRepository,
@@ -23,6 +13,9 @@ from logic.src.pipeline.simulations.repository import (
     load_indices,
     load_simulator_data,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_simulation_day_context_mapping():

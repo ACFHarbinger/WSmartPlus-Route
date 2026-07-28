@@ -1,18 +1,8 @@
 """Tests for distribution utilities."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
+import pytest
 import torch
 from logic.src.data.distributions import (
     Cluster,
@@ -23,6 +13,9 @@ from logic.src.data.distributions import (
     Mixed,
     MixMultiDistributions,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestDistributions:
@@ -98,6 +91,8 @@ class TestDistributions:
     def test_empirical_with_bins(self):
         """Verify Empirical integration with Bins."""
         import numpy as np
+
+
         batch = 4
         num_loc = 10
         mock_grid = MagicMock()
