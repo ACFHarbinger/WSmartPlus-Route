@@ -1,202 +1,139 @@
+"""Parser dispatch module.
+
+Unified argparse entry point: receives the ``(command, opts)`` tuple from
+:func:`logic.controllers.cli.parse_params` and delegates to the appropriate
+function in :mod:`logic.controllers.ops`.  This module owns only the
+dispatch table, a pretty-printer helper, and the outermost exception handler.
+
+Supported commands
+------------------
+- ``"benchmark"``                       → :func:`~logic.controllers.ops.run_benchmarks`
+- ``"test_suite"``                      → :func:`~logic.controllers.ops.run_test_suite`
+- ``"file_system"`` + sub-command       → :func:`~logic.controllers.ops.run_file_system`
+- ``"clean_results"`` / ``"excel_summary"`` → :func:`~logic.controllers.ops.run_output_command`
+- ``"update_ms"`` / ``"update_ri"``     → :func:`~logic.controllers.ops.run_target_update`
+
+Example::
+
+    >>> from logic.controllers.parser_dispatch import parser_entry_point
+    >>> from logic.controllers.cli import parse_params
+    >>> parser_entry_point(parse_params())
 """
-Parser dispatch module.
 
-This module provides the unified entry point for all configuration-driven commands
-parsed by the standard argparse-based CLI. It handles dispatching to the
-appropriate handler based on the command-line arguments.
-
-Attributes:
-    parser_entry_point: Unified entry point for all configuration-driven commands.
-    run_test_suite: Execute the project's test suite.
-    pretty_print_args: Format and print dictionary arguments.
-
-Example:
-    >>> from logic.controller.parser_dispatch import parser_entry_point
-    >>> parser_entry_point()
-    # Runs the default command (gui) with default configuration
-    >>> parser_entry_point("--command=benchmark --benchmark.num_instances=10")
-    # Runs the benchmark command with specified number of instances
-"""
-
-import argparse
 import io
 import pprint
 import sys
 import traceback
+from typing import Any, Dict, Optional, Tuple, Union
 
-from logic.benchmark.benchmark_suite import run_benchmarks
-from logic.src.cli.fs_parser import (
-    delete_file_system_entries,
-    perform_cryptographic_operations,
-    update_file_system_entries,
+from logic.controllers.ops import (
+    _OUTPUT_COMMANDS,
+    _TARGET_COMMANDS,
+    run_benchmarks,
+    run_file_system,
+    run_output_command,
+    run_target_update,
+    run_test_suite,
 )
-from logic.src.cli.output_parser import (
-    _run_excel_summary_from_namespace,
-)
-from logic.src.cli.output_parser import (
-    _run_from_namespace as _run_clean_results,
-)
-from logic.src.cli.target_parser import _run_ms_from_namespace, _run_ri_from_namespace
-from logic.test import PyTestRunner
+
+# ---------------------------------------------------------------------------
+# Helper
+# ---------------------------------------------------------------------------
 
 
-def run_test_suite(opts):
-    """
-    Execute the project's test suite based on provided options.
+def _pretty_print_args(
+    comm: str,
+    opts: Dict[str, Any],
+    inner_comm: Optional[str] = None,
+) -> None:
+    """Format and print a command's options dictionary.
 
     Args:
-        opts (dict): A dictionary containing test configuration parameters:
-            - test_dir (str): Directory containing tests.
-            - list (bool): If True, lists available test modules.
-            - list_tests (bool): If True, lists collected tests.
-            - module (list): Specific modules to run.
-            - test_class (str): Specific class to run.
-            - test_method (str): Specific method to run.
-            - verbose (int): Verbosity level (0-2).
-            - coverage (bool): Enable coverage reporting.
-            - markers (str): Filter tests by markers.
-            - failed_first (bool): Run previously failed tests first.
-            - maxfail (int): Stop after N failures.
-            - capture (str): Stack capture method ('fd', 'sys', 'no').
-            - tb (str): Traceback style.
-            - parallel (bool): Enable parallel execution.
-            - keyword (str): Filter by keyword expression.
+        comm: Primary command name (e.g. ``'benchmark'``).
+        opts: Options dictionary to display.
+        inner_comm: Optional sub-command name (e.g. ``'update'`` for
+            ``file_system``).
+    """
+    buffer = io.StringIO()
+    printer = pprint.PrettyPrinter(width=1, indent=1, sort_dicts=False, stream=buffer)
+    printer.pprint(opts)
+    output = buffer.getvalue()
 
-    Returns:
-        int: Exit code (0 for success, non-zero for failure).
+    lines = output.splitlines()
+    lines[0] = lines[0].lstrip("{")
+    lines[-1] = lines[-1].rstrip("}")
+    formatted = (
+        comm
+        + ("" if inner_comm is None else f" {inner_comm}")
+        + ": {\n"
+        + "\n".join(f" {line}" for line in lines)
+        + "\n}"
+    )
+    print(formatted, end="\n\n")
+
+
+# ---------------------------------------------------------------------------
+# Entry point
+# ---------------------------------------------------------------------------
+
+
+def parser_entry_point(
+    args: Tuple[Union[str, Tuple[str, str]], Dict[str, Any]],
+) -> None:
+    """Unified entry point for all argparse-driven commands.
+
+    Routes execution to the appropriate :mod:`logic.controllers.ops` function
+    based on the command extracted from ``args``.  Each ops function calls
+    ``sys.exit`` internally; this function only handles unexpected top-level
+    exceptions.
+
+    Args:
+        args: ``(comm, opts)`` as returned by
+            :func:`logic.controllers.cli.parse_params`.  ``comm`` may be a
+            plain string or a ``(command, sub_command)`` tuple.
 
     Raises:
-        Exception: If test execution encounters a fatal error not handled by the runner.
-    """
-    try:
-        # Initialize test runner
-        runner = PyTestRunner(test_dir=opts["test_dir"])
-
-        # Handle information commands
-        if opts["list"]:
-            runner.list_modules()
-            return 0
-
-        if opts["list_tests"]:
-            runner.list_tests(opts["module"][0] if opts["module"] else None)
-            return 0
-
-        # Run tests
-        return runner.run_tests(
-            modules=opts["module"],
-            test_class=opts["test_class"],
-            test_method=opts["test_method"],
-            verbose=opts["verbose"],
-            coverage=opts["coverage"],
-            markers=opts["markers"],
-            failed_first=opts["failed_first"],
-            maxfail=opts["maxfail"],
-            capture=opts["capture"],
-            tb_style=opts["tb"],
-            parallel=opts["parallel"],
-            keyword=opts["keyword"],
-        )
-    except Exception as e:
-        raise Exception(f"failed to run test suite due to {repr(e)}") from e
-
-
-def pretty_print_args(comm, opts, inner_comm=None):
-    """
-    Format and print dictionary arguments in a clean, readable structure.
-
-    This function utilizes `pprint` to format the options dictionary and then
-    applies custom string manipulation to present it as a labeled block.
-
-    Args:
-        comm (str): The primary command name (e.g., 'train', 'gen_data').
-        opts (dict): The dictionary of options/arguments to print.
-        inner_comm (str, optional): A sub-command name (e.g., 'update' for 'file_system').
-            Defaults to None.
-
-    Raises:
-        Exception: If formatting or printing fails.
-    """
-    try:
-        # Capture the pprint output
-        buffer = io.StringIO()
-        printer = pprint.PrettyPrinter(width=1, indent=1, sort_dicts=False, stream=buffer)
-        printer.pprint(opts)
-        output = buffer.getvalue()
-
-        # Pretty print the run options
-        lines = output.splitlines()
-        lines[0] = lines[0].lstrip("{")
-        lines[-1] = lines[-1].rstrip("}")
-        formatted = (
-            comm
-            + "{}".format(f" {inner_comm}" if inner_comm is not None else "")
-            + ": {\n"
-            + "\n".join(f" {line}" for line in lines)
-            + "\n}"
-        )
-        print(formatted, end="\n\n")
-    except Exception as e:
-        raise Exception(f"failed to pretty print arguments due to {repr(e)}") from e
-
-
-def parser_entry_point(args) -> None:
-    """
-    Unified parser entry point for all configuration-driven commands.
-
-    Routes execution to the appropriate sub-system based on the command provided
-    in `args`. Handles top-level exception reporting and clean exit procedures.
-
-    Args:
-        args (tuple): A tuple returning from `parse_params`, containing:
-            - comm (str or tuple): The command string or (command, sub_command) tuple.
-            - opts (dict): The dictionary of configuration options.
-
-    Sys.Exit:
-        Exits with code 0 on success, 1 on error.
+        SystemExit: Always — delegates to the individual ops functions.
     """
     comm, opts = args
+
     if opts.get("profile"):
         from logic.src.tracking.profiling.profiler import start_global_profiling
 
         start_global_profiling(log_dir=opts.get("log_dir", "logs"))
 
-    inner_comm = None
+    inner_comm: Optional[str] = None
     exit_code = 0
+
     try:
         if isinstance(comm, tuple) and len(comm) > 1:
             comm, inner_comm = comm
-            pretty_print_args(comm, opts, inner_comm)
+            _pretty_print_args(comm, opts, inner_comm)
             assert comm == "file_system"
-            if inner_comm == "update":
-                update_file_system_entries(opts)
-            elif inner_comm == "delete":
-                delete_file_system_entries(opts)
-            else:
-                assert inner_comm == "cryptography"
-                perform_cryptographic_operations(opts)
+            run_file_system(opts, inner_comm)
+
         else:
-            pretty_print_args(comm, opts, inner_comm)
+            _pretty_print_args(comm, opts)
+
             if comm == "benchmark":
                 run_benchmarks(opts)
-            elif comm == "clean_results":
-                exit_code = _run_clean_results(argparse.Namespace(**opts))
-            elif comm == "excel_summary":
-                exit_code = _run_excel_summary_from_namespace(argparse.Namespace(**opts))
-            elif comm == "update_ms":
-                exit_code = _run_ms_from_namespace(argparse.Namespace(**opts))
-            elif comm == "update_ri":
-                exit_code = _run_ri_from_namespace(argparse.Namespace(**opts))
+            elif comm in _OUTPUT_COMMANDS:
+                run_output_command(comm, opts)
+            elif comm in _TARGET_COMMANDS:
+                run_target_update(comm, opts)
             else:
                 assert comm == "test_suite"
                 run_test_suite(opts)
+
     except Exception as e:
         traceback.print_exc(file=sys.stderr)
-        print("\n" + str(e))
+        print(f"\n{e}")
         exit_code = 1
-    finally:
         print(
             "\nFinished {}{} command execution with exit code: {}".format(
-                comm, f" ({inner_comm}) " if inner_comm is not None else "", exit_code
+                comm,
+                f" ({inner_comm}) " if inner_comm is not None else "",
+                exit_code,
             )
         )
         sys.stdout.flush()

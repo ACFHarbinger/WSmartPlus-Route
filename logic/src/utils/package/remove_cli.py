@@ -56,7 +56,7 @@ def main() -> None:
     print(f"Project root: {root}")
 
     to_delete = [
-        root / "logic/src/cli",
+        root / "logic/controllers/cli",
         root / "logic/src/file_system.py",
         root / "logic/controllers/parser_dispatch.py",
     ]

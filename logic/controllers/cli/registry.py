@@ -5,18 +5,18 @@ Attributes:
     get_parser: Returns the main ConfigsParser with all subcommands registered.
 
 Example:
-    >>> from logic.src.cli.registry import get_parser
+    >>> from logic.controllers.cli.registry import get_parser
     >>> parser = get_parser()
     >>> parser.parse_args(["test_suite", "-v"])
     Namespace(command='test_suite', verbose=True, ...)
 """
 
-from logic.src.cli.base import ConfigsParser
-from logic.src.cli.benchmark_parser import add_benchmark_args
-from logic.src.cli.fs_parser import add_files_args
-from logic.src.cli.output_parser import add_excel_summary_args, add_output_args
-from logic.src.cli.target_parser import add_ms_update_args, add_ri_update_args
-from logic.src.cli.ts_parser import add_test_suite_args
+from logic.controllers.cli.base import ConfigsParser
+from logic.controllers.cli.benchmark_parser import add_benchmark_args
+from logic.controllers.cli.fs_parser import add_files_args
+from logic.controllers.cli.output_parser import add_excel_summary_args, add_output_args
+from logic.controllers.cli.target_parser import add_ms_update_args, add_ri_update_args
+from logic.controllers.cli.ts_parser import add_test_suite_args
 
 
 def get_parser() -> ConfigsParser:

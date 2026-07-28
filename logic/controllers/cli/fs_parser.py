@@ -12,13 +12,13 @@ Attributes:
     delete_file_system_entries: Batch deletes project-related directories.
 
 Example:
-    >>> from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
+    >>> from logic.controllers.cli.fs_parser import add_files_args, validate_file_system_args
     >>> parser = argparse.ArgumentParser()
     >>> add_files_args(parser)
     >>> validate_file_system_args(parser.parse_args())
     ('update', {'target_entry': None, 'output_key': None, 'filename_pattern': None, 'update_operation': None, 'update_value': 0.0, 'update_preview': False, 'stats_function': None, 'output_filename': None, 'input_keys': (None, None)})
 
-    python -m logic.src.cli.fs_parser delete --delete_all
+    python -m logic.controllers.cli.fs_parser delete --delete_all
 """
 
 import argparse
@@ -28,7 +28,7 @@ import sys
 import traceback
 from typing import Any, Dict, Tuple
 
-from logic.src.cli.base import ConfigsParser, UpdateFunctionMapActionFactory
+from logic.controllers.cli.base import ConfigsParser, UpdateFunctionMapActionFactory
 from logic.src.constants import FS_COMMANDS, ROOT_DIR
 from logic.src.utils.input.file_processing import process_file, process_pattern_files
 from logic.src.utils.input.files import confirm_proceed

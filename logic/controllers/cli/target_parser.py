@@ -16,12 +16,12 @@ Integrates with the WSmart+ Route CLI registry as the ``update_ms`` and
         --keys ftsp
 
     # Standalone with subcommands
-    uv run python -m logic.src.cli.target_parser ms \\
+    uv run python -m logic.controllers.cli.target_parser ms \\
         --constructors aco_hh alns \\
         --file ms_last_minute \\
         --keys last_minute_cf70 last_minute_cf90
 
-    uv run python -m logic.src.cli.target_parser ri \\
+    uv run python -m logic.controllers.cli.target_parser ri \\
         --constructors aco_hh alns \\
         --file ri_cls \\
         --keys default
@@ -301,7 +301,7 @@ def main(argv=None) -> int:
         Exit code.
     """
     parser = argparse.ArgumentParser(
-        prog="python -m logic.src.cli.target_parser",
+        prog="python -m logic.controllers.cli.target_parser",
         description=(
             "Batch-update policy YAML config overrides for WSmart+ Route.\n\n"
             "  ms  — update mandatory-selection strategy overrides\n"

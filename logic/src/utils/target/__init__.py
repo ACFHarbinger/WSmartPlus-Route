@@ -28,8 +28,8 @@ Quick start::
 
 CLI usage::
 
-    python -m logic.src.cli.target_parser ms --help
-    python -m logic.src.cli.target_parser ri --help
+    python -m logic.controllers.cli.target_parser ms --help
+    python -m logic.controllers.cli.target_parser ri --help
 
 Attributes:
     update_mandatory_selection: Batch-update mandatory_selection in policy YAML files.

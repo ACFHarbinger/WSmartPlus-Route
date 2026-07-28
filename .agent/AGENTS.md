@@ -43,7 +43,7 @@ This document provides a high-level overview of the codebase. For deep dives int
 
 | Document                                                       | Module Path             | Description                                                                                  |
 | -------------------------------------------------------------- | ----------------------- | -------------------------------------------------------------------------------------------- |
-| **[CLI Module](docs/CLI_MODULE.md)**                           | `logic/src/cli/`        | Command-line interface, argument parsing, Hydra integration, entry points, and TUI           |
+| **[CLI Module](docs/CLI_MODULE.md)**                           | `logic/controllers/cli/`        | Command-line interface, argument parsing, Hydra integration, entry points, and TUI           |
 | **[Configuration Module](docs/CONFIGS_MODULE.md)**             | `logic/src/configs/`    | Config system architecture, Hydra composition, dataclass configurations, and overrides       |
 | **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)**         | -                       | Comprehensive guide to Hydra configuration, CLI syntax, multi-run sweeps, and best practices |
 | **[Constants Module](docs/CONSTANTS_MODULE.md)**               | `logic/src/utils/`      | System-wide constants, problem definitions, enum types, and magic numbers                    |
@@ -711,7 +711,7 @@ probs = F.softmax(logits, dim=-1)  # Can select invalid nodes
 | Purpose             | Location                          |
 | ------------------- | --------------------------------- |
 | Main entry point    | `main.py`                         |
-| CLI parsers         | `logic/src/cli/`                  |
+| CLI parsers         | `logic/controllers/cli/`                  |
 | Neural models       | `logic/src/models/`               |
 | Classical policies  | `logic/src/policies/`             |
 | Problem definitions | `logic/src/envs/`                 |

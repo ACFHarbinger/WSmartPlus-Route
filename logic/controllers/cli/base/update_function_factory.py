@@ -5,9 +5,9 @@ Attributes:
     UpdateFunctionMapActionFactory: Factory for mapping string update functions.
 
 Example:
-    >>> from logic.src.cli.base.update_function_factory import UpdateFunctionMapActionFactory
+    >>> from logic.controllers.cli.base.update_function_factory import UpdateFunctionMapActionFactory
     >>> UpdateFunctionMapActionFactory()
-    <class 'logic.src.cli.base.update_function_factory.UpdateFunctionMapActionFactory.<locals>.UpdateFunctionMapAction'>
+    <class 'logic.controllers.cli.base.update_function_factory.UpdateFunctionMapActionFactory.<locals>.UpdateFunctionMapAction'>
 """
 
 import argparse

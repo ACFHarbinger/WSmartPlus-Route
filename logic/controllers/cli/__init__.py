@@ -5,7 +5,7 @@ Attributes:
     parse_params: Parses arguments, determines the command, and performs necessary validation.
 
 Example:
-    >>> from logic.src.cli import parse_params
+    >>> from logic.controllers.cli import parse_params
     >>> command, opts = parse_params()
     >>> command
     'test_suite'
@@ -16,10 +16,10 @@ Example:
 import argparse
 from typing import Any, Dict, Tuple, Union
 
-from logic.src.cli.benchmark_parser import validate_benchmark_args
-from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
-from logic.src.cli.registry import get_parser
-from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
+from logic.controllers.cli.benchmark_parser import validate_benchmark_args
+from logic.controllers.cli.fs_parser import add_files_args, validate_file_system_args
+from logic.controllers.cli.registry import get_parser
+from logic.controllers.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 
 from .base import (
     ConfigsParser,

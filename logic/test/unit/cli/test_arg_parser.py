@@ -4,7 +4,7 @@ import sys
 from unittest.mock import patch
 
 import pytest
-from logic.src.cli import ConfigsParser, LowercaseAction, parse_params
+from logic.controllers.cli import ConfigsParser, LowercaseAction, parse_params
 
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
@@ -249,8 +249,8 @@ class TestFileSystemCommand:
         # Mock the maps used by UpdateFunctionMapActionFactory so our test inputs are considered valid
         # This allows us to skip the ValueError in the Action and hit the AssertionError in validation
         with (
-            patch("logic.src.cli.base.update_function_factory.OPERATION_MAP", {"op_test": 1}),
-            patch("logic.src.cli.base.update_function_factory.STATS_FUNCTION_MAP", {"stat_test": 1}),
+            patch("logic.controllers.cli.base.update_function_factory.OPERATION_MAP", {"op_test": 1}),
+            patch("logic.controllers.cli.base.update_function_factory.STATS_FUNCTION_MAP", {"stat_test": 1}),
             patch.object(sys, "argv", args),
             pytest.raises(AssertionError, match="mutually exclusive"),
         ):

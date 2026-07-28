@@ -947,7 +947,7 @@ hpo_range:
 
 **Validation**: Missing keys trigger default value fallbacks in `logic/src/configs/hpo.py`
 
-**CLI Integration**: Keys map to `logic/src/cli/ts_parser.py` arguments
+**CLI Integration**: Keys map to `logic/controllers/cli/ts_parser.py` arguments
 
 ---
 
@@ -1925,7 +1925,7 @@ hpo_range:
 
 **Validation**: Missing keys trigger default value fallbacks in `logic/src/configs/hpo.py`
 
-**CLI Integration**: Keys map to `logic/src/cli/ts_parser.py` arguments
+**CLI Integration**: Keys map to `logic/controllers/cli/ts_parser.py` arguments
 
 ---
 

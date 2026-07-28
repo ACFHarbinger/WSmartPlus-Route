@@ -82,7 +82,7 @@ def patch_cli_registry(file_path: Path):
     # Remove imports
     content = re.sub(
         r"from logic\.src\.cli\.fs_parser import add_files_args",
-        "# from logic.src.cli.fs_parser import add_files_args  # AUTO-REMOVED",
+        "# from logic.controllers.cli.fs_parser import add_files_args  # AUTO-REMOVED",
         content,
     )
 
@@ -107,7 +107,7 @@ def patch_cli_init(file_path: Path):
     # Remove imports
     content = re.sub(
         r"from logic\.src\.cli\.fs_parser import add_files_args, validate_file_system_args",
-        "# from logic.src.cli.fs_parser import add_files_args, validate_file_system_args  # AUTO-REMOVED",
+        "# from logic.controllers.cli.fs_parser import add_files_args, validate_file_system_args  # AUTO-REMOVED",
         content,
     )
 
@@ -159,7 +159,7 @@ def main():
     # 1. Delete security directory and file_system.py, fs_parser.py
     remove_path(root / "logic/src/utils/security")
     remove_path(root / "logic/src/file_system.py")
-    remove_path(root / "logic/src/cli/fs_parser.py")
+    remove_path(root / "logic/controllers/cli/fs_parser.py")
 
     # 2. Delete test files
     remove_path(root / "logic/test/unit/test_file_system.py")
@@ -169,8 +169,8 @@ def main():
     # 3. Patch dependent files
     patch_setup_env(root / "logic/src/utils/configs/setup_env.py")
     patch_google_maps(root / "logic/src/data/network/google.py")
-    patch_cli_registry(root / "logic/src/cli/registry.py")
-    patch_cli_init(root / "logic/src/cli/__init__.py")
+    patch_cli_registry(root / "logic/controllers/cli/registry.py")
+    patch_cli_init(root / "logic/controllers/cli/__init__.py")
     patch_parser_dispatch(root / "logic/controllers/parser_dispatch.py")
 
     print("\n--- Security Cleanup Complete! ---")

@@ -5,7 +5,7 @@ Attributes:
     LowercaseAction: Action to convert argument value to lowercase.
 
 Example:
-    >>> from logic.src.cli.base.lowercase_action import LowercaseAction
+    >>> from logic.controllers.cli.base.lowercase_action import LowercaseAction
     >>> action = LowercaseAction(option_strings=['--name'], dest='name')
     >>> namespace = argparse.Namespace()
     >>> action(None, namespace, 'Test')

@@ -1,30 +1,29 @@
-"""
-Hydra dispatch module.
+"""Hydra dispatch module.
 
-This module provides the unified Hydra entry point for all configuration-driven
-commands in the WSmart-Route application. It handles dispatching to the
-appropriate task handler based on the command-line arguments.
+Unified Hydra entry point: receives the composed ``Config`` and delegates
+to the appropriate controller in :mod:`logic.controllers.model_pipeline`
+or :mod:`logic.controllers.simulation`.  This module owns only the Hydra
+decorator, profiling lifecycle, and the single-level dispatch table.
 
-Attributes:
-    cs: ConfigStore instance for registering configurations.
-    ROOT_KEYS: List of root-level keys to filter when pretty-printing configs.
-    hydra_entry_point: Unified entry point for all configuration-driven commands.
-    _run_task: Dispatch to the appropriate task handler.
-    _pretty_print_hydra_config: Pretty print filtered sections of the Hydra configuration.
+Supported tasks
+---------------
+- ``train`` / ``meta_train`` / ``hpo`` → :func:`~logic.controllers.model_pipeline.run_training`
+- ``eval``                              → :func:`~logic.controllers.model_pipeline.run_evaluation`
+- ``test_sim`` / ``hpo_sim``            → :func:`~logic.controllers.simulation.run_simulation`
+- ``gen_data``                          → :func:`~logic.controllers.simulation.run_data_generation`
 
-Example:
-    >>> from logic.controller.hydra_dispatch import hydra_entry_point
-    >>> hydra_entry_point()
-    # Runs the default task (train) with default configuration
-    >>> hydra_entry_point("--task=eval --eval.model_path=path/to/model")
-    # Runs the evaluation task with specified model path
+Example::
+
+    python main.py train model=am env.name=vrpp env.num_loc=50
+    python main.py eval eval.model_path=./weights/best.pt
+    python main.py test_sim sim.days=31
+    python main.py gen_data data.problem=vrpp
 """
 
 from typing import Any
 
 import hydra
 from hydra.core.config_store import ConfigStore
-from omegaconf import OmegaConf
 
 from logic.src.configs import Config
 from logic.src.constants import CONFIGS_DIR
@@ -32,38 +31,54 @@ from logic.src.constants import CONFIGS_DIR
 cs = ConfigStore.instance()
 cs.store(name="config", node=Config)
 
-ROOT_KEYS = ["seed", "device", "experiment_name", "task", "output_dir", "run_name", "start", "tracking"]
+_TRAINING_TASKS = frozenset({"train", "meta_train", "hpo"})
+_SIM_TASKS = frozenset({"test_sim", "hpo_sim", "sim_hpo"})
 
 
-def _pretty_print_hydra_config(cfg: Any, filter_keys: Any = None) -> None:
-    """
-    Pretty print filtered sections of the Hydra configuration.
+def _run_task(cfg: Config) -> float:
+    """Dispatch ``cfg.task`` to the responsible controller function.
 
     Args:
-        cfg: The Hydra configuration object.
-        filter_keys: Optional list of keys to filter the configuration by.
+        cfg: Fully composed Hydra configuration object.
 
     Returns:
-        None
+        Scalar result (loss, reward, or 0.0 depending on the task).
+
+    Raises:
+        ValueError: If ``cfg.task`` is not a recognised task name.
     """
-    print("\n" + "=" * 80)
-    print("HYDRA CONFIGURATION".center(80))
-    print("=" * 80)
-    display_cfg = OmegaConf.masked_copy(cfg, filter_keys) if filter_keys else cfg
-    print(OmegaConf.to_yaml(display_cfg, resolve=False))
-    print("=" * 80 + "\n")
+    task = cfg.task
+
+    if task in _TRAINING_TASKS:
+        from logic.controllers.model_pipeline import run_training
+        return run_training(cfg)
+
+    if task == "eval":
+        from logic.controllers.model_pipeline import run_evaluation
+        return run_evaluation(cfg)
+
+    if task in _SIM_TASKS:
+        from logic.controllers.simulation import run_simulation
+        return run_simulation(cfg)
+
+    if task == "gen_data":
+        from logic.controllers.simulation import run_data_generation
+        return run_data_generation(cfg)
+
+    raise ValueError(f"Unknown task: {task!r}")
 
 
 @hydra.main(version_base=None, config_path=CONFIGS_DIR, config_name="config")
 def hydra_entry_point(cfg: Config) -> float:
-    """
-    Unified Hydra entry point for all configuration-driven commands.
+    """Unified Hydra entry point for all configuration-driven commands.
+
+    Wraps :func:`_run_task` with optional profiling support.
 
     Args:
-        cfg: The Hydra configuration object.
+        cfg: The Hydra ``Config`` object (structured configuration).
 
     Returns:
-        float: The result of the executed task.
+        Scalar result of the executed task.
     """
     if cfg.tracking.profile:
         from logic.src.tracking.profiling import start_global_profiling, stop_global_profiling
@@ -75,73 +90,3 @@ def hydra_entry_point(cfg: Config) -> float:
     finally:
         if cfg.tracking.profile:
             stop_global_profiling()
-
-
-def _run_task(cfg: Config) -> float:
-    """
-    Dispatch to the appropriate task handler.
-
-    Args:
-        cfg: The Hydra configuration object.
-
-    Returns:
-        float: The result of the executed task.
-    """
-    task = cfg.task
-
-    if task in ("train", "meta_train", "hpo"):
-        from logic.src.pipeline.features.train import run_hpo, run_training
-
-        if cfg.tracking.verbose:
-            _pretty_print_hydra_config(
-                cfg,
-                # type: ignore[arg-type]
-                filter_keys=ROOT_KEYS + ["env", "model", "train", "rl", "optim"],
-            )
-        if cfg.hpo.n_trials > 0:
-            return run_hpo(cfg)
-        return run_training(cfg)
-
-    if task == "eval":
-        from logic.src.pipeline.features.eval import run_evaluate_model
-
-        if cfg.tracking.verbose:
-            _pretty_print_hydra_config(cfg, filter_keys=ROOT_KEYS + ["eval"])  # type: ignore[arg-type]
-        run_evaluate_model(cfg)
-        return 0.0
-
-    if task == "test_sim":
-        from logic.src.pipeline.features.test import run_wsr_simulator_test
-
-        if cfg.tracking.verbose:
-            _pretty_print_hydra_config(cfg, filter_keys=ROOT_KEYS + ["sim"])  # type: ignore[arg-type]
-        run_wsr_simulator_test(cfg)
-        return 0.0
-
-    if task in ("hpo_sim", "sim_hpo"):
-        from logic.src.pipeline.simulations.hpo.hpo_handler import run_hpo_sim
-
-        if cfg.tracking.verbose:
-            _pretty_print_hydra_config(cfg, filter_keys=ROOT_KEYS + ["hpo_sim"])  # type: ignore[arg-type]
-        run_hpo_sim(cfg)
-        return 0.0
-
-    if task == "gen_data":
-        import logic.src.tracking as wst
-        from logic.src.data.generators import generate_datasets
-
-        if cfg.tracking.verbose:
-            _pretty_print_hydra_config(cfg, filter_keys=ROOT_KEYS + ["data"])  # type: ignore[arg-type]
-
-        experiment_name = cfg.experiment_name or f"gen_data_{cfg.data.problem}"
-        wst.init(experiment_name=experiment_name)
-        try:
-            generate_datasets(cfg)
-        finally:
-            run = wst.get_active_run()
-            if run is not None:
-                run.set_tag("status", "completed")
-                run.flush()
-        return 0.0
-
-    raise ValueError(f"Unknown task: {task}")

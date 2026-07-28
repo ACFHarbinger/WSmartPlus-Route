@@ -1,6 +1,6 @@
 # Command-Line Interface & Argument Parsing
 
-**Module**: `logic/src/cli`
+**Module**: `logic/controllers/cli`
 **Purpose**: Comprehensive technical specification of the modular CLI framework—handling argument parsing, validation, and command orchestration.
 **Version**: 3.0
 **Last Updated**: February 2026
@@ -24,7 +24,7 @@
 
 ## 1. Overview
 
-The `logic/src/cli` module provides a comprehensive command-line interface framework for WSmart+ Route. It uses a modular architecture built on top of Python's `argparse`, with custom parser extensions and specialized action classes.
+The `logic/controllers/cli` module provides a comprehensive command-line interface framework for WSmart+ Route. It uses a modular architecture built on top of Python's `argparse`, with custom parser extensions and specialized action classes.
 
 ### Key Features
 
@@ -41,7 +41,7 @@ The CLI follows a **hierarchical subcommand pattern**:
 
 ```
 main.py
-└── logic.src.cli.parse_params()
+└── logic.controllers.cli.parse_params()
     ├── ConfigsParser (base parser)
     ├── Registry (command registration)
     └── Command-specific parsers
@@ -65,7 +65,7 @@ main.py
 ### Directory Structure
 
 ```
-logic/src/cli/
+logic/controllers/cli/
 ├── __init__.py              # Unified entry point (parse_params)
 ├── registry.py              # Central parser registration
 │
@@ -86,7 +86,7 @@ logic/src/cli/
 The `__init__.py` exports the main parse function and base components:
 
 ```python
-from logic.src.cli import (
+from logic.controllers.cli import (
     parse_params,           # Main parsing function
     ConfigsParser,          # Custom parser class
     LowercaseAction,        # Lowercase conversion action
@@ -99,7 +99,7 @@ from logic.src.cli import (
 
 ```python
 # main.py
-from logic.src.cli import parse_params
+from logic.controllers.cli import parse_params
 
 # Parse command and options
 command, opts = parse_params()
@@ -118,7 +118,7 @@ elif command == ("file_system", "update"):
 
 ## 3. Base Parser Components
 
-**Directory**: `logic/src/cli/base/`
+**Directory**: `logic/controllers/cli/base/`
 **Purpose**: Core parser infrastructure and custom action classes
 
 ### ConfigsParser
@@ -177,7 +177,7 @@ class ConfigsParser(argparse.ArgumentParser):
 **Usage Example**
 
 ```python
-from logic.src.cli.base import ConfigsParser
+from logic.controllers.cli.base import ConfigsParser
 
 # Create parser
 parser = ConfigsParser(description="My CLI Tool")
@@ -345,7 +345,7 @@ def UpdateFunctionMapActionFactory(inplace: bool = False) -> type:
 **Usage Example**
 
 ```python
-from logic.src.cli.base import UpdateFunctionMapActionFactory
+from logic.controllers.cli.base import UpdateFunctionMapActionFactory
 
 # For in-place operations (OPERATION_MAP)
 parser.add_argument(
@@ -845,7 +845,7 @@ def parse_params():
 #!/usr/bin/env python
 """Main Entry Point for the WSmart-Route Application."""
 
-from logic.src.cli import parse_params
+from logic.controllers.cli import parse_params
 
 def main():
     """Main entry point."""
@@ -999,7 +999,7 @@ parser.add_argument(
 
 ### Adding a New Command
 
-**Step 1**: Create parser module `logic/src/cli/new_command_parser.py`
+**Step 1**: Create parser module `logic/controllers/cli/new_command_parser.py`
 
 ```python
 """New command argument parser."""
@@ -1031,7 +1031,7 @@ def validate_new_command_args(args):
 **Step 2**: Register in `registry.py`
 
 ```python
-from logic.src.cli.new_command_parser import add_new_command_args
+from logic.controllers.cli.new_command_parser import add_new_command_args
 
 def get_parser() -> ConfigsParser:
     parser = ConfigsParser(description="WSmart+ Route Unified CLI Framework")
@@ -1049,7 +1049,7 @@ def get_parser() -> ConfigsParser:
 **Step 3**: Add validation in `__init__.py`
 
 ```python
-from logic.src.cli.new_command_parser import validate_new_command_args
+from logic.controllers.cli.new_command_parser import validate_new_command_args
 
 def parse_params():
     parser = get_parser()
@@ -1255,10 +1255,10 @@ except Exception as e:
 
 ```python
 # Parse CLI arguments
-from logic.src.cli import parse_params
+from logic.controllers.cli import parse_params
 
 # Base components
-from logic.src.cli.base import (
+from logic.controllers.cli.base import (
     ConfigsParser,
     LowercaseAction,
     StoreDictKeyPair,
@@ -1266,12 +1266,12 @@ from logic.src.cli.base import (
 )
 
 # Command parsers
-from logic.src.cli.benchmark_parser import add_benchmark_args, validate_benchmark_args
-from logic.src.cli.fs_parser import add_files_args, validate_file_system_args
-from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
+from logic.controllers.cli.benchmark_parser import add_benchmark_args, validate_benchmark_args
+from logic.controllers.cli.fs_parser import add_files_args, validate_file_system_args
+from logic.controllers.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 
 # Registry
-from logic.src.cli.registry import get_parser
+from logic.controllers.cli.registry import get_parser
 ```
 
 ### Command Summary
