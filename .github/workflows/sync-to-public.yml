@@ -17,10 +17,11 @@ jobs:
       # Use the checkout action with your Personal Access Token (PAT)
       # to ensure the local environment has cross-repo permissions
       - name: Checkout Private Repo
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
         with:
           token: ${{ secrets.PUBLIC_REPO_TOKEN }}
           fetch-depth: 0 # Essential to get full history for a successful push
+          persist-credentials: false
 
       - name: Push to Public
         env:
@@ -30,25 +31,28 @@ jobs:
           git config --global user.name "github-actions[bot]"
           git config --global user.email "github-actions[bot]@users.noreply.github.com"
 
-          # 2. Remove directories you don't want public
-          # We use 'git rm -rf' to remove them from the index and the working tree
+          # 2. Clean up extraheader if set by checkout action to avoid authentication conflicts
+          git config --local --unset-all http.https://github.com/.extraheader || true
+
+          # 3. Remove directories you don't want public
+          # We use 'git rm -rf --ignore-unmatch' to remove them from the index and the working tree
           REMOVED=0
           if [ -d "bibliography" ]; then
-            git rm -rf bibliography
+            git rm -rf --ignore-unmatch bibliography
             REMOVED=1
           fi
           if [ -d "assets" ]; then
-            git rm -rf assets
+            git rm -rf --ignore-unmatch assets
             REMOVED=1
           fi
-          if [ "$REMOVED" = "1" ]; then
+          if [ "$REMOVED" = "1" ] && ! git diff --cached --quiet; then
             git commit -m "chore: exclude private directories from public sync"
           fi
 
-          # 3. Clean up and add remote
+          # 4. Clean up and add remote
           git remote remove public || true
           git remote add public https://x-access-token:${PAT_TOKEN}@github.com/ACFHarbinger/WSmartPlus-Route.git
 
-          # 4. Force push the modified local state
+          # 5. Force push the modified local state
           # This will make the public repo match your local state (minus bibliography)
           git push public main --force
