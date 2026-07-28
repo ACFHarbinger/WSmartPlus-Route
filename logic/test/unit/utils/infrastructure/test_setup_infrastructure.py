@@ -1,23 +1,18 @@
 """Tests for setup_sims.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 from unittest.mock import MagicMock, patch
 
+import pytest
 import torch
 from logic.src.utils.infrastructure.setup_env import setup_env
 from logic.src.utils.infrastructure.setup_manager import setup_hrl_manager
 from logic.src.utils.infrastructure.setup_worker import setup_model
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_setup_env_non_vrpp():

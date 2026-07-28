@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import (
@@ -17,6 +9,11 @@ from logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.par
 from logic.src.policies.route_construction.meta_heuristics.firefly_algorithm.solver import FASolver
 from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.params import QDEParams
 from logic.src.policies.route_construction.meta_heuristics.quantum_differential_evolution.solver import QDESolver
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

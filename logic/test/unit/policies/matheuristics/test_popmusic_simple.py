@@ -1,19 +1,12 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import os
 import sys
 from unittest.mock import MagicMock, patch
 
 import numpy as np
 import pandas as pd
+import pytest
 
 # Add project root to path
 sys.path.append(os.path.abspath("."))
@@ -23,6 +16,9 @@ from logic.src.policies.route_construction.matheuristics.partial_optimization_me
     run_popmusic,
 )
 from scipy.spatial import KDTree
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 # Mock missing dependencies to allow importing solver without triggering the whole tree.
 # Save originals and restore them immediately after the import so the mocks do not
@@ -138,6 +134,8 @@ if __name__ == "__main__":
     except Exception as e:
         print(f"\nTESTS FAILED: {e}")
         import traceback
+
+
 
         traceback.print_exc()
         sys.exit(1)

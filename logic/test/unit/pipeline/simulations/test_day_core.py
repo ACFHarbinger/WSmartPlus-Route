@@ -1,15 +1,12 @@
 
 
 import pytest
+from logic.src.pipeline.simulations.day_context import run_day
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
-import pytest
-
-import pytest
 
 
-import pytest
-from logic.src.pipeline.simulations.day_context import run_day
 
 
 class TestDay:

@@ -1,22 +1,12 @@
 """Unit tests for storage.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
 import os
 import pickle
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+import pytest
 from logic.src.tracking.logging.modules.storage import (
     _convert_numpy,
     _sort_log,
@@ -26,6 +16,9 @@ from logic.src.tracking.logging.modules.storage import (
     sort_log,
     update_log,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_convert_numpy():

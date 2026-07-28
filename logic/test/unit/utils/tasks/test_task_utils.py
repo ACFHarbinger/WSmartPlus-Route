@@ -1,21 +1,17 @@
 """Tests for task utility functions."""
 
+from typing import cast
+
+import numpy as np
 import pytest
+import torch
+from logic.src.utils.tasks.task_utils import calculate_edges, make_instance_generic
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
 
-import pytest
-
-
-
-from typing import cast
-
-import numpy as np
-import torch
-from logic.src.utils.tasks.task_utils import calculate_edges, make_instance_generic
 
 
 def test_calculate_edges_dist():

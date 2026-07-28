@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -37,6 +29,11 @@ from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
     SeparationEngine,
 )
 from logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model import VRPPModel
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

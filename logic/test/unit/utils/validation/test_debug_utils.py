@@ -1,17 +1,13 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
 from logic.src.utils.validation.debug_utils import watch
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 
 
 class TestDebugUtils:
@@ -164,6 +160,8 @@ class TestDebugUtils:
 
         from logic.src.utils.validation.debug_utils import watch_all
         watch_all()
+
+
         tracer = mock_settrace.call_args[0][0]
 
         mock_frame.f_locals = {"a": 2}

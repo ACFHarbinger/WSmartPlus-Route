@@ -1,19 +1,9 @@
 """Tests for attention heatmap capture and WandB logging (§A.2 Option C)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+import pytest
 import torch
 from logic.src.pipeline.callbacks.pytorch.attention_heatmaps import AttentionHeatmapCallback
 from logic.src.tracking.logging.visualization.heatmaps import (
@@ -23,6 +13,11 @@ from logic.src.tracking.logging.visualization.heatmaps import (
     render_attention_heatmap_png,
 )
 from torch import nn
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_extract_attention_matrix_4d():

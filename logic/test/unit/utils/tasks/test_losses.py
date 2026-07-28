@@ -1,18 +1,14 @@
 """Unit tests for tasks/losses.py."""
 
 import pytest
+import torch
+from logic.src.utils.tasks import losses
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
 
-import pytest
-
-
-
-import torch
-from logic.src.utils.tasks import losses
 
 
 def test_problem_symmetricity_loss_zeros():

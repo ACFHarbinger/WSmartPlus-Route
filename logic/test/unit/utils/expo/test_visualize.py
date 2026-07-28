@@ -6,23 +6,13 @@ Merges functionality from:
 - test_visualize_epoch_coverage.py
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 import tempfile
 import unittest
 from unittest.mock import MagicMock, patch
 
 import numpy as np
+import pytest
 import torch
 from logic.src.utils.expo import (
     get_batch,
@@ -39,6 +29,11 @@ from logic.src.utils.expo import (
     visualize_epoch,
 )
 from omegaconf import OmegaConf
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 # ============================================================================
 # Core Visualization Utils Tests

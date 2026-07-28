@@ -1,20 +1,10 @@
 """Unit tests for component cleanup tools and scripts."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock, patch
 
+import pytest
 from logic.src.utils.package.cleanup_helper import (
     PROTECTED_DIRS,
     _match_acronym,
@@ -22,6 +12,10 @@ from logic.src.utils.package.cleanup_helper import (
     clean_factory_file,
     clean_init_file,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 
 
 class TestCleanupComponents(unittest.TestCase):

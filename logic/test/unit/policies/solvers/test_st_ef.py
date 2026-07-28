@@ -2,17 +2,6 @@
 Unit tests for the Scenario-Tree Extensive Form (ST-EF) policy.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form import (
@@ -21,6 +10,9 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.scena
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.scenario_tree_extensive_form.st_ef_engine import (
     GUROBI_AVAILABLE,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def _has_gurobi_license() -> bool:
@@ -138,6 +130,8 @@ def test_st_ef_no_waste():
         MultiDayContext,
     )
     from logic.src.pipeline.simulations.bins.prediction import ScenarioGenerator
+
+
 
     generator = ScenarioGenerator(seed=42, horizon=2)
     wastes_arr = np.zeros(n_nodes)

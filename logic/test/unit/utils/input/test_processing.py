@@ -1,19 +1,9 @@
 """Unit tests for processing.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
 import os
 
+import pytest
 from logic.src.utils.input import (
     find_single_input_values,
     find_two_input_values,
@@ -24,6 +14,9 @@ from logic.src.utils.input import (
     process_list_of_dicts,
     process_pattern_files,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_process_dict_of_dicts():

@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import Any, cast
 from unittest.mock import MagicMock
 
@@ -15,6 +7,11 @@ import pytest
 import torch
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories import NeuralComponentFactory
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestAttentionModelStructure:

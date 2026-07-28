@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.integration, pytest.mark.slow]
-
-import pytest
-
-import pytest
-
-
 import json
 import pickle
 
@@ -20,6 +12,9 @@ from logic.src.envs.problems import VRPP
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
 from logic.src.pipeline.features.eval import eval_dataset
+
+pytestmark = [pytest.mark.integration, pytest.mark.slow]
+
 
 
 @pytest.fixture
@@ -132,6 +127,8 @@ def patch_validate_tours(monkeypatch):
     """Patches validate_tours to avoid assertion error on random model output."""
     from logic.src.envs.tasks.base import BaseProblem
     monkeypatch.setattr(BaseProblem, "validate_tours", lambda x: True)
+
+
 
 
 @pytest.fixture(autouse=True)

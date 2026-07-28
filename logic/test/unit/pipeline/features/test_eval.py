@@ -1,21 +1,14 @@
 """Tests for evaluation pipeline."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
+import pytest
 import torch
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy
 from logic.src.pipeline.features.eval.evaluators import AugmentationEval, GreedyEval, SamplingEval
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestEvaluation:
@@ -34,6 +27,8 @@ class TestEvaluation:
 
         # Mock dataset with TensorDict
         from tensordict import TensorDict
+
+
         # We simulate what a real data loader would return: a TensorDict with batch dimension
         self.td_batch = TensorDict({
             "locs": torch.randn(2, 5, 2),

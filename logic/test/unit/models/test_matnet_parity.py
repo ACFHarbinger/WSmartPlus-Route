@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import Any, cast
 from unittest.mock import MagicMock
 
@@ -16,6 +8,9 @@ import torch
 from logic.src.models.core.matnet.policy import MatNetPolicy
 from logic.src.models.subnets.embeddings.matnet import MatNetInitEmbedding
 from logic.src.models.subnets.modules.matnet_attention import MixedScoreMHA
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestMatNetParity:
@@ -47,6 +42,8 @@ class TestMatNetParity:
     def test_matnet_encoder_layer(self, matrix_input):
         from logic.src.models.subnets.encoders.matnet.encoder import MatNetEncoderLayer
         row_emb = torch.rand(2, 5, 128)
+
+
         col_emb = torch.rand(2, 5, 128)
 
         layer = MatNetEncoderLayer(embed_dim=128, n_heads=8)

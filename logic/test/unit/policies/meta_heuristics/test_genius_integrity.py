@@ -2,20 +2,15 @@
 Integration tests for GENIUS solver integrity.
 """
 
+import numpy as np
 import pytest
+from logic.src.policies.route_construction.meta_heuristics.genius.params import GENIUSParams
+from logic.src.policies.route_construction.meta_heuristics.genius.solver import GENIUSSolver
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import numpy as np
-from logic.src.policies.route_construction.meta_heuristics.genius.params import GENIUSParams
-from logic.src.policies.route_construction.meta_heuristics.genius.solver import GENIUSSolver
 
 
 def test_genius_node_conservation():

@@ -2,22 +2,17 @@
 Tests for RL pipeline features (epoch utilities, metrics).
 """
 
+from typing import Any
+
 import pytest
+import torch
+from logic.src.pipeline.rl.common.epoch import compute_validation_metrics, prepare_epoch
+from tensordict import TensorDict
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-from typing import Any
-
-import torch
-from logic.src.pipeline.rl.common.epoch import compute_validation_metrics, prepare_epoch
-from tensordict import TensorDict
 
 
 class TestFeatures:

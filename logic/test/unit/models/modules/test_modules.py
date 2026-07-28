@@ -1,16 +1,5 @@
 """Tests for neural network modules."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -42,6 +31,11 @@ from logic.src.models.subnets.modules.normalized_activation_function import (
     NormalizedActivationFunction,
 )
 from logic.src.models.subnets.modules.skip_connection import SkipConnection
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestActivationFunction:

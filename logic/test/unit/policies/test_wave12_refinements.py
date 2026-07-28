@@ -1,20 +1,18 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
+import pytest
 from logic.src.policies.helpers.operators.generalized_insertion_and_deletion import (
     apply_type_i_us,
     apply_type_iii_us,
 )
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_de_binomial_crossover_j_rand():

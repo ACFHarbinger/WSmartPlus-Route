@@ -1,30 +1,22 @@
 """Unit tests for wsmart_bin_analysis export modules (extract and transform)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-import pandas as pd
-import numpy as np
-import pytest
 from unittest.mock import MagicMock
+
+import numpy as np
+import pandas as pd
+import pytest
+from logic.src.pipeline.simulations.wsmart_bin_analysis.export.container import TAG
 from logic.src.pipeline.simulations.wsmart_bin_analysis.export.extract import (
     pre_process_data,
-    container_global_sorted_wrapper,
 )
 from logic.src.pipeline.simulations.wsmart_bin_analysis.export.transform import (
-    get_overall_sensors_statistics,
     filter_containers,
+    get_overall_sensors_statistics,
     pre_process_container_metrics,
 )
-from logic.src.pipeline.simulations.wsmart_bin_analysis.export.container import TAG
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.mark.unit

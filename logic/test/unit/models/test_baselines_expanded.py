@@ -1,20 +1,15 @@
 """Tests for baselines.py."""
 
+from unittest.mock import MagicMock
+
 import pytest
+import torch
+from logic.src.pipeline.rl.common.baselines import ExponentialBaseline, RolloutBaseline, WarmupBaseline, get_baseline
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-from unittest.mock import MagicMock
-
-import torch
-from logic.src.pipeline.rl.common.baselines import ExponentialBaseline, RolloutBaseline, WarmupBaseline, get_baseline
 
 
 def test_exponential_baseline_updates():

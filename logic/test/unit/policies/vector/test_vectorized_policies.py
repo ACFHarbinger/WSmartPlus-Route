@@ -3,17 +3,6 @@ Unit tests for vectorized policy implementations (Local Search, HGS, Split).
 """
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-import pytest
 import torch
 from logic.src.policies.vector.adaptive_large_neighborhood_search import (
     VectorizedALNS,
@@ -36,6 +25,9 @@ from logic.src.policies.vector.shared.linear import (
     vectorized_linear_split,
 )
 from tensordict.tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestVectorizedLocalSearch:

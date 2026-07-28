@@ -1,14 +1,6 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import Optional, cast
 from unittest.mock import MagicMock
 
@@ -18,6 +10,11 @@ from logic.src.envs.base import RL4COEnvBase
 from logic.src.models.subnets.decoders.mdam.decoder import MDAMDecoder
 from logic.src.models.subnets.decoders.mdam.path import MDAMPath
 from tensordict import TensorDict, TensorDictBase
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockEnv(RL4COEnvBase):

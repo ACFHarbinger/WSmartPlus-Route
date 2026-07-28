@@ -1,22 +1,16 @@
 """Tests for Mandatory Selection strategies."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import numpy as np
 import pytest
 from logic.src.interfaces.context.selection_context import SelectionContext
 from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
 from logic.src.policies.mandatory_selection.selection_lookahead import LookaheadSelection
 from logic.src.policies.mandatory_selection.selection_regular import RegularSelection
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

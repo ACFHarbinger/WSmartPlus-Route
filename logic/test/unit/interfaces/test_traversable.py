@@ -1,18 +1,13 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import Any, Iterator
 
 import pytest
 from logic.src.interfaces.traversable import ITraversable
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_dict_is_traversable():
@@ -68,6 +63,8 @@ def test_dataclass_mock_is_traversable():
 
 try:
     from omegaconf import DictConfig
+
+
     HAS_OMEGACONF = True
 except ImportError:
     HAS_OMEGACONF = False

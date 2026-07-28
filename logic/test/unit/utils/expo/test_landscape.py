@@ -1,16 +1,5 @@
 """Unit tests for landscape.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 from unittest.mock import MagicMock, patch
 
@@ -18,6 +7,11 @@ import pytest
 import torch
 from logic.src.utils.expo.landscape import imitation_loss_fn, plot_loss_landscape, rl_loss_fn
 from omegaconf import OmegaConf
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

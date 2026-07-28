@@ -1,17 +1,12 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.params import DEParams
 from logic.src.policies.route_construction.meta_heuristics.differential_evolution.solver import DESolver
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture
@@ -117,6 +112,8 @@ def test_gaussian_initialization(instance_data):
     py_rng_ref = np.random.RandomState(42) # Wait, solver uses random.Random for greedy
     import random
     py_rng_ref = random.Random(42)
+
+
 
     greedy_routes = build_greedy_routes(
         dist_matrix=dist_matrix,

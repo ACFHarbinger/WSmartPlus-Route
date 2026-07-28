@@ -2,24 +2,17 @@
 Unit tests for file system and cryptographic operations.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import mock_open, patch
 
+import pytest
 from logic.src.cli.fs_parser import (
     delete_file_system_entries,
     perform_cryptographic_operations,
     update_file_system_entries,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestFileSystem:

@@ -1,14 +1,6 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.slow]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -28,6 +20,9 @@ from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search
 from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans import (
     SANSPolicy,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 
 
 class MockBins:

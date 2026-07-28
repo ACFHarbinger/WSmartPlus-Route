@@ -1,19 +1,16 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, PropertyMock, patch
 
 import pytest
 import torch
 from logic.src.pipeline.rl.meta.hrl import HRLModule
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestHRLModule:

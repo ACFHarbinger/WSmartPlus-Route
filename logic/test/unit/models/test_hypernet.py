@@ -1,20 +1,14 @@
 """Tests for Hypernetwork and HypernetworkOptimizer."""
 
 import pytest
+import torch
+from logic.src.models.meta.hypernet.hypernetwork import HyperNetwork as Hypernetwork
+from logic.src.models.meta.hypernet.optimizer import HyperNetworkOptimizer as HypernetworkOptimizer
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import pytest
-import torch
-from logic.src.models.meta.hypernet.hypernetwork import HyperNetwork as Hypernetwork
-from logic.src.models.meta.hypernet.optimizer import HyperNetworkOptimizer as HypernetworkOptimizer
 
 
 class MockProblem:

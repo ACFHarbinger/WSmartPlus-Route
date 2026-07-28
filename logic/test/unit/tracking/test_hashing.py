@@ -1,18 +1,12 @@
 """Unit tests for the hashing utilities in tracking validation."""
 
 import pytest
+from logic.src.tracking.validation.hashing import hash_bytes, hash_file
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import pytest
-from logic.src.tracking.validation.hashing import hash_bytes, hash_file
 
 
 @pytest.mark.unit

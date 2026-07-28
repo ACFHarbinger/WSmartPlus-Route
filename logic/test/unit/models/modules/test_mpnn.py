@@ -2,17 +2,14 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
-import pytest
 import torch
 from logic.src.models.subnets.modules.mpnn_encoder import MPNNEncoder
 from logic.src.models.subnets.modules.mpnn_layer import MessagePassingLayer
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestMPNN:

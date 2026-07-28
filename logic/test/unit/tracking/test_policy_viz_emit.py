@@ -1,20 +1,9 @@
 """Tests for policy telemetry emission (§A.3)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.slow]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
-
 import time
 
+import pytest
 from logic.src.tracking.logging.modules.policy_viz_emit import (
     POLICY_VIZ_MARKER,
     PolicyVizStreamSession,
@@ -23,6 +12,11 @@ from logic.src.tracking.logging.modules.policy_viz_emit import (
     send_policy_viz_to_gui,
 )
 from logic.src.tracking.viz_mixin import PolicyVizMixin
+
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
 
 
 class _DummyPolicy(PolicyVizMixin):

@@ -5,17 +5,6 @@ Verifies that all joint selection-and-construction policies are correctly
 registered, instantiable, and executable via the main RouteConstructorFactory.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 
 import pytest
@@ -25,6 +14,9 @@ os.environ["PROTOCOL_BUFFERS_PYTHON_IMPLEMENTATION"] = "python"
 
 from logic.src.policies.route_construction.base.factory import RouteConstructorFactory
 from logic.src.policies.selection_and_construction.base.registry import JointPolicyRegistry
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_registry_discovery():
@@ -62,6 +54,8 @@ if __name__ == "__main__":
 
     from logic.src.policies.route_construction.base.registry import RouteConstructorRegistry
     print(f"Main Registry has matching entries: {[n for n in ['nds_brkga', 'jsa', 'jgo'] if RouteConstructorRegistry.get(n)]}")
+
+
 
     for name in ["nds_brkga", "jsa", "jgo"]:
         try:

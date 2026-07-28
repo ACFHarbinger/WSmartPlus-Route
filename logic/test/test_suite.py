@@ -30,22 +30,18 @@ Usage:
     python run_tests.py --list
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import subprocess
 from pathlib import Path
 from typing import List, Optional
 
+import pytest
+
 from logic.test.test_definitions import TEST_MODULES
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class PyTestRunner:

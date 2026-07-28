@@ -1,14 +1,6 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
-import pytest
 import torch
 import torch.nn.functional as F
 from hypothesis import HealthCheck, given, settings
@@ -18,6 +10,9 @@ from logic.src.utils.decoding.decoding_utils import (
     top_k_filter,
     top_p_filter,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 # Hypothesis strategies

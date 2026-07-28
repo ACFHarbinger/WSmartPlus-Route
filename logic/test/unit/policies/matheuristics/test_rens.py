@@ -2,19 +2,10 @@
 Unit tests for RENS matheuristic.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 import sys
+
+import pytest
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
@@ -23,6 +14,9 @@ import numpy as np
 from logic.src.policies.route_construction.matheuristics.relaxation_enforced_neighborhood_search.solver import (
     run_rens_gurobi,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def mock_run_rens(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):

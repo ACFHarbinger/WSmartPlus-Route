@@ -1,15 +1,13 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import torch
 from logic.src.models.meta.hrl_manager import MandatoryManager
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_gatlst_manager_init():

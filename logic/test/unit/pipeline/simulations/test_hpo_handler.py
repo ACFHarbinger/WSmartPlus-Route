@@ -1,16 +1,5 @@
 """Unit tests for the HPO simulation handler and objective functions."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.slow]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 from typing import Any
 from unittest.mock import MagicMock, patch
@@ -29,6 +18,11 @@ from logic.src.pipeline.simulations.hpo.hpo_handler import (
     worker,
 )
 from omegaconf import OmegaConf
+
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
 
 
 class TestHPOHandlerUtilities:

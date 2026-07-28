@@ -1,17 +1,14 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import os
 
 import pytest
 from logic.src.pipeline.simulations.checkpoints.manager import CheckpointError, checkpoint_manager
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestCheckpoints:

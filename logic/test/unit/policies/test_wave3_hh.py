@@ -3,17 +3,6 @@ Unit tests for Wave 3 Advanced Hyper-Heuristics:
 GP-HH, ACO-HH, RL-GD-HH, HMM-GD-HH, SS-HH.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import random
 
 import numpy as np
@@ -45,6 +34,9 @@ from logic.src.policies.route_construction.learning_heuristic_algorithms.reinfor
 from logic.src.policies.route_construction.learning_heuristic_algorithms.reinforcement_learning_great_deluge_hyper_heuristic.solver import (
     RLGDHHSolver,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture

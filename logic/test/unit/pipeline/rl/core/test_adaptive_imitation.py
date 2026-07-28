@@ -1,19 +1,16 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
 import torch
 from logic.src.pipeline.rl.core.adaptive_imitation import AdaptiveImitation
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestAdaptiveImitation:

@@ -2,23 +2,17 @@
 Tests for RL4COLitModule base class.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from typing import Any, cast
 
 import pytest
 import torch
 from logic.src.pipeline.rl.common.base import RL4COLitModule
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockLitModule(RL4COLitModule):

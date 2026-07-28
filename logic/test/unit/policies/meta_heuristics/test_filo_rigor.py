@@ -1,19 +1,14 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.slow]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.filo import FILOSolver
 from logic.src.policies.route_construction.meta_heuristics.fast_iterative_localized_optimization.params import (
     FILOParams,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 
 
 @pytest.fixture

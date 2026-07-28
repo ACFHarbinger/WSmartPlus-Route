@@ -13,20 +13,9 @@ Tests verify:
 """
 from __future__ import annotations
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-
 from unittest.mock import patch
 
+import pytest
 import torch
 from logic.src.pipeline.rl.common.pbrs_wrapper import (
     PBRSShaper,
@@ -34,6 +23,11 @@ from logic.src.pipeline.rl.common.pbrs_wrapper import (
     get_potential_vrpp,
 )
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 # ---------------------------------------------------------------------------
 # Helpers

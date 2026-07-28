@@ -1,26 +1,19 @@
 """Tests for FailureAnalyzer and emit bridge (§A.6)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
 
 import numpy as np
 import pandas as pd
+import pytest
 from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.pipeline.simulations.failure_analyzer import FailureAnalyzer
 from logic.src.tracking.logging.modules.failure_emit import (
     SIM_FAILURE_MARKER,
     emit_sim_failure_summary,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def _coords(n: int = 3) -> pd.DataFrame:

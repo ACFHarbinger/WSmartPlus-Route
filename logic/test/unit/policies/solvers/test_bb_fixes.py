@@ -1,19 +1,12 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import contextlib
 from typing import cast
 from unittest.mock import MagicMock, patch
 
 import gurobipy as gp
 import numpy as np
+import pytest
 from gurobipy import GRB
 from logic.src.policies.helpers.solvers_and_matheuristics.common.node import Node
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.dfj import _dfj_callback
@@ -21,6 +14,9 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.branc
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import (
     BranchAndBoundPolicy,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_fix_1_root_initialization():
@@ -233,6 +229,8 @@ def test_fix_10_node_field_comment():
 
     from logic.src.policies.helpers.solvers_and_matheuristics.common.node import Node
     source = inspect.getsource(Node)
+
+
     assert "upper bound for maximization" in source.lower()
     assert "field(compare=True)  # LP relaxation value (upper bound for maximization)" in source
 

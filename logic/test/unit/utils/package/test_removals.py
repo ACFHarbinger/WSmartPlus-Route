@@ -1,20 +1,10 @@
 """Unit tests for cleanup scripts (remove_hpo.py, remove_meta.py, remove_eval.py, remove_callbacks.py)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import unittest
 from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
 from logic.src.utils.package.remove_callbacks import (
     clean_callbacks_init as callbacks_clean_init,
 )
@@ -33,6 +23,10 @@ from logic.src.utils.package.remove_hpo import (
 from logic.src.utils.package.remove_meta import (
     clean_rl_init as meta_clean_rl,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 
 
 class TestRemovals(unittest.TestCase):
@@ -217,6 +211,8 @@ class TestRemovals(unittest.TestCase):
     def test_security_cleanups(self) -> None:
         """Test file modifications in Security removal script."""
         from logic.src.utils.package.remove_security import patch_google_maps, patch_setup_env
+
+
 
         mock_file = MagicMock(spec=Path)
         mock_file.exists.return_value = True

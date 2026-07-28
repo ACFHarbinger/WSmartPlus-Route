@@ -1,16 +1,5 @@
 """Tests for Branch-and-Bound policy."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from typing import Callable, cast
 from unittest.mock import patch
 
@@ -20,6 +9,9 @@ from logic.src.policies.route_construction.base.factory import RouteConstructorR
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_bound.policy_bb import (
     BranchAndBoundPolicy,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class MockBins:

@@ -1,16 +1,5 @@
 """Tests for NARGNN model."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -19,6 +8,11 @@ from logic.src.models.core.nargnn import NARGNN
 from logic.src.models.core.nargnn.policy import NARGNNPolicy
 from logic.src.models.subnets.encoders.nargnn.gnn_layer import BatchNorm, scatter_mean
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 PYG_AVAILABLE = BatchNorm is not None and scatter_mean is not None
 

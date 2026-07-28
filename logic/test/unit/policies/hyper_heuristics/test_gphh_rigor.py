@@ -10,17 +10,6 @@ Validates:
   6. End-to-end solver correctness
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import random
 
 import numpy as np
@@ -38,6 +27,9 @@ from logic.src.policies.route_construction.hyper_heuristics.genetic_programming_
     _subtree_crossover,
     to_callable,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 # ---------------------------------------------------------------------------
 # Fixtures

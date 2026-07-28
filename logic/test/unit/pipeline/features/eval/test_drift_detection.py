@@ -1,16 +1,5 @@
 """Unit tests for Evidently-based data drift detection module."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import pickle
 from unittest.mock import MagicMock, patch
 
@@ -24,6 +13,9 @@ from logic.src.pipeline.features.eval.drift_detection import (
     run_column_drift_suite,
     run_drift_detection,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture

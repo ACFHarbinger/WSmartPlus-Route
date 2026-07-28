@@ -1,16 +1,9 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import cast
 
 import numpy as np
+import pytest
 from logic.src.policies.helpers.solvers_and_matheuristics import MultiEdgePartitionBranching, RCSPPSolver, Route
 from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import (
     CompositeCuttingPlaneEngine,
@@ -18,6 +11,9 @@ from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes 
     SubsetRowCutEngine,
     create_cutting_plane_engine,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_polar_angle_partitioning():
@@ -136,6 +132,8 @@ def test_edge_clique_dual_penalties():
     [1, 2] would show RC = 20 instead of 15, and the cut would be ignored.
     """
     from logic.src.policies.helpers.solvers_and_matheuristics import RCSPPSolver
+
+
 
     # Zero cost matrix so travel is free; revenue dominates.
     cost_matrix = np.zeros((3, 3))

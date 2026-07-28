@@ -2,22 +2,15 @@
 Unit tests for Pure Branch-and-Price Solver.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import numpy as np
+import pytest
 from logic.src.policies.helpers.solvers_and_matheuristics import Route, VRPPMasterProblem
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price.bp import (
     BranchAndPriceSolver,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_master_problem_dual_signs():

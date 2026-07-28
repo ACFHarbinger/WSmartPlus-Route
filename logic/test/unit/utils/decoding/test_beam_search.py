@@ -1,19 +1,9 @@
 """Unit tests for beam_search.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from typing import Any, cast
 from unittest.mock import MagicMock
 
+import pytest
 import torch
 from logic.src.utils.decoding import (
     BatchBeam,
@@ -24,6 +14,9 @@ from logic.src.utils.decoding import (
     get_beam_search_results,
     segment_topk_idx,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_segment_topk_idx_single_group():

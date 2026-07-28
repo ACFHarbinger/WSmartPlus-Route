@@ -1,26 +1,18 @@
 """Tests for TrainingHealthCallback and emit bridge (§A.4)."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
 from unittest.mock import MagicMock
 
+import pytest
 import torch
-
 from logic.src.pipeline.callbacks.pytorch.training_health import TrainingHealthCallback
 from logic.src.tracking.logging.modules.training_health_emit import (
     TRAINING_HEALTH_MARKER,
     emit_training_health_alert,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_emit_training_health_alert_stdout(capsys):

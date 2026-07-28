@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.hyper_heuristics.guided_indicators_hyper_heuristic.gihh import GIHHSolver
@@ -16,6 +8,11 @@ from logic.src.policies.route_construction.meta_heuristics.harmony_search.params
 from logic.src.policies.route_construction.meta_heuristics.harmony_search.solver import HSSolver
 from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.params import SCAParams
 from logic.src.policies.route_construction.meta_heuristics.sine_cosine_algorithm.solver import SCASolver
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

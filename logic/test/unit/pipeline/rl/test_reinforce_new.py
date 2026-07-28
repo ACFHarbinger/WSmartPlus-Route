@@ -2,17 +2,6 @@
 Tests for REINFORCE algorithm implementation.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock, patch
 
 import pytest
@@ -20,6 +9,11 @@ import torch
 import torch.nn as nn
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockBaseline(nn.Module):

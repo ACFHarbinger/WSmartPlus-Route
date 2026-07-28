@@ -2,16 +2,13 @@
 
 
 import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
-import pytest
 import torch
 from logic.src.models.subnets.modules.pointer_attn_moe import PointerAttnMoE
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestPointerAttnMoE:

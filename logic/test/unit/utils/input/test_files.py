@@ -1,23 +1,18 @@
 """Unit tests for files.py."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
 import os
 import threading
 from typing import Any, cast
 from unittest.mock import patch
 
+import pytest
 from logic.src.utils.input.files import compose_dirpath, confirm_proceed, extract_zip, read_json, zip_directory
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def test_read_json(tmp_path):

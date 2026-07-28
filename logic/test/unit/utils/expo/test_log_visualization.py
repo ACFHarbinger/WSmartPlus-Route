@@ -1,19 +1,17 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import patch
 
 import pandas as pd
+import pytest
 from logic.src.tracking.logging.structured_logging import log_training
 from logic.src.utils.expo.log_visualization import plot_training_logs
 from omegaconf import OmegaConf
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestLogVisualization:

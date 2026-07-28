@@ -1,16 +1,5 @@
 """Tests for Non-Autoregressive models."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -22,6 +11,11 @@ from logic.src.models.core.deepaco.policy import DeepACOPolicy
 from logic.src.models.subnets.decoders.deepaco.decoder import ACODecoder
 from logic.src.models.subnets.encoders.deepaco.encoder import DeepACOEncoder
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestNonAutoregressiveBase:

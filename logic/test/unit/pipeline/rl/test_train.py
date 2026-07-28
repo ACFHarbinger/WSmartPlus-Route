@@ -1,16 +1,5 @@
 """Tests for the modernized PyTorch Lightning training pipeline."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.slow]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from typing import Any, Dict, cast
 from unittest.mock import MagicMock, patch
 
@@ -19,6 +8,9 @@ import torch
 from logic.src.configs import Config
 from logic.src.pipeline.features.train import create_model, run_training
 from logic.src.pipeline.rl.common import WSTrainer
+
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
 
 
 class TestTrainingOrchestration:
@@ -169,6 +161,8 @@ class TestLitModuleInterfaces:
         """Simple test for REINFORCE loss calculation logic."""
         from logic.src.pipeline.rl.core.reinforce import REINFORCE
         from tensordict import TensorDict
+
+
 
         # Mock policy and baseline
         policy = MagicMock()

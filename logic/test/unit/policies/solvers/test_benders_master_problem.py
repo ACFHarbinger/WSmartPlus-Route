@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -26,6 +18,9 @@ from logic.src.policies.route_construction.exact_and_decomposition_solvers.integ
     ILSBDParams,
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
 if GUROBI_AVAILABLE:
     from gurobipy import GRB
 else:
@@ -35,6 +30,8 @@ else:
 def _has_gurobi_license() -> bool:
     try:
         import gurobipy as _gp
+
+
 
         _m = _gp.Model("_check")
         _m.dispose()

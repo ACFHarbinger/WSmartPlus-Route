@@ -2,17 +2,6 @@
 Tests for Transductive Models (Active Search, EAS).
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -25,6 +14,11 @@ from logic.src.models.common.transductive.eas_embeddings import EASEmb
 from logic.src.models.common.transductive.eas_layers import EASLay
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories import AttentionComponentFactory
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class MockPolicy(nn.Module):

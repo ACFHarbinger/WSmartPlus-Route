@@ -1,20 +1,14 @@
 """Tests for RL4COEnvBase."""
 
 import pytest
+import torch
+from logic.src.envs.base import RL4COEnvBase
+from tensordict import TensorDict
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-
-import torch
-from logic.src.envs.base import RL4COEnvBase
-from tensordict import TensorDict
 
 
 class ConcreteEnv(RL4COEnvBase):

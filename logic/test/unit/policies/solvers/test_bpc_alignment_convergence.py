@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock
 
 import numpy as np
@@ -20,6 +12,9 @@ from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes 
 from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine import (
     run_bpc,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @pytest.fixture

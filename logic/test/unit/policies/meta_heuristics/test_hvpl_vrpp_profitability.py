@@ -1,17 +1,13 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
+import pytest
 from logic.src.policies.route_construction.meta_heuristics.hybrid_volleyball_premier_league.policy_hvpl import (
     HVPLPolicy,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_subset_dimensions():

@@ -1,13 +1,9 @@
 """Tests for project definitions and constants."""
 
 import pytest
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
-
-
-import pytest
-
-import pytest
 
 
 

@@ -7,18 +7,6 @@ This module consolidates tests for:
 - ALNS (Adaptive Large Neighborhood Search) auxiliary functions (destroy, repair)
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
-
 import random
 
 import numpy as np
@@ -70,6 +58,9 @@ from logic.src.policies.route_construction.meta_heuristics.simulated_annealing_n
     remove_bin,
     remove_n_bins_random,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 # ============================================================================
 # Look-Ahead Auxiliary Tests

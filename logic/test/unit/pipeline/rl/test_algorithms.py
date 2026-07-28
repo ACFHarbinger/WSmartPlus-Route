@@ -2,17 +2,6 @@
 Tests for RL algorithms (REINFORCE, PPO).
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 from typing import Any, cast
 
 import pytest
@@ -21,6 +10,9 @@ import torch.nn as nn
 from logic.src.pipeline.rl.core.ppo import PPO
 from logic.src.pipeline.rl.core.reinforce import REINFORCE
 from tensordict import TensorDict
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class TestAlgorithms:
@@ -90,6 +82,8 @@ class TestAlgorithms:
 
         # Mock Lightning internals for manual optimization
         from pytorch_lightning.core.optimizer import LightningOptimizer
+
+
 
         mock_opt = mocker.MagicMock(spec=LightningOptimizer)
         mock_opt.zero_grad = mocker.MagicMock()

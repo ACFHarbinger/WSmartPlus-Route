@@ -2,25 +2,19 @@
 Unit tests for Kernel Search matheuristic.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 import sys
+
+import pytest
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
 import numpy as np
 from logic.src.policies.route_construction.matheuristics.kernel_search.solver import run_kernel_search_gurobi
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def mock_run_ks(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
@@ -85,4 +79,6 @@ if __name__ == "__main__":
         print(f"Kernel Search test failed: {e}")
         import traceback
         traceback.print_exc()
+
+
         sys.exit(1)

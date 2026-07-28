@@ -1,17 +1,10 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from typing import Any, cast
 from unittest.mock import MagicMock, patch
 
 import pandas as pd
+import pytest
 import torch
 from logic.src.tracking.logging.log_utils import (
     log_epoch,
@@ -23,6 +16,11 @@ from logic.src.tracking.logging.log_utils import (
 )
 from logic.src.tracking.logging.structured_logging import log_training
 from omegaconf import OmegaConf
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestLogUtils:

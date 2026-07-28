@@ -1,16 +1,5 @@
 """Unit tests for HPO base classes and search spaces."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import dataclasses
 import json
 from typing import Any, List, Union
@@ -35,6 +24,9 @@ from logic.src.pipeline.simulations.hpo.search_spaces import (
     load_all_search_spaces,
     validate_search_space,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 @dataclasses.dataclass

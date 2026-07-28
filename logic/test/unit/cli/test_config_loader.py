@@ -1,18 +1,12 @@
 """Tests for config_loader.py."""
 
 import pytest
+from logic.src.utils.configs.config_loader import load_config
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 
-import pytest
-
-import pytest
-
-
-
-import pytest
-from logic.src.utils.configs.config_loader import load_config
 
 
 def test_load_yaml_config(tmp_path):

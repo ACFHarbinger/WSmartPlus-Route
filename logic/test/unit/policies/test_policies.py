@@ -1,17 +1,5 @@
 """Tests for policy implementations and solver engines."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.slow]
-
-
-
-import pytest
-
-import pytest
-
-
-
-
 from typing import Callable, cast
 from unittest.mock import patch
 
@@ -29,6 +17,11 @@ from logic.src.policies.route_construction.meta_heuristics.adaptive_large_neighb
     ALNSPolicy,
 )
 from logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.policy_hgs import HGSPolicy
+
+pytestmark = [pytest.mark.unit, pytest.mark.slow]
+
+
+
 
 
 class MockBins:

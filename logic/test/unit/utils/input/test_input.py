@@ -2,17 +2,6 @@
 Comprehensive tests for input utilities, covering locking, processing, splitting, preview, and integration.
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import json
 import os
 import tempfile
@@ -21,6 +10,7 @@ from unittest.mock import MagicMock, mock_open, patch
 
 import logic.src.utils.input as input_utils
 import pandas as pd
+import pytest
 from logic.src.utils.input import dict_processing, file_processing, locking, statistics, value_processing
 from logic.src.utils.input.preview import (
     preview_changes,
@@ -29,6 +19,11 @@ from logic.src.utils.input.preview import (
     preview_pattern_files_statistics,
 )
 from logic.src.utils.input.splitting import chunk_zip_content, reassemble_files, split_file
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 # ============================================================================
 # Export Coverage Tests

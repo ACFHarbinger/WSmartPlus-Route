@@ -1,22 +1,14 @@
 """Tests for RL4COLitModule."""
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 from unittest.mock import MagicMock
 
 import pytest
 import torch
 from logic.src.pipeline.rl.common.base import RL4COLitModule
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class ConcreteLitModule(RL4COLitModule):
@@ -90,6 +82,8 @@ def test_lit_module_setup_fit(lit_setup):
 
     # Mock generator to return TensorDict
     from tensordict import TensorDict
+
+
 
     mock_data_train = TensorDict({"loc": torch.randn(4, 5, 2)}, batch_size=[4])
     mock_data_val = TensorDict({"loc": torch.randn(2, 5, 2)}, batch_size=[2])

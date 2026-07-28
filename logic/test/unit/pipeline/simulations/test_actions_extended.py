@@ -1,14 +1,6 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock, patch
 
 import numpy as np
@@ -19,6 +11,9 @@ from logic.src.pipeline.simulations.actions import (
     MandatorySelectionAction,
     RouteImprovementAction,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 class SimpleContext(dict):

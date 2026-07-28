@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import ast
 
 # 7. Test trace_dependencies
@@ -140,11 +132,16 @@ from logic.src.utils.validation.visualize_module_graph import (
     resolve_to_module as resolve_to_module_visualize,
 )
 
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 def test_relative_imports_format():
     import ast
 
     node = ast.parse("from . import a, b as c").body[0]
+    # pyrefly: ignore [bad-argument-type]
     assert format_relative_import(node) == "from . import a, b as c"
 
 
@@ -238,6 +235,7 @@ def test_nested_imports_helpers():
     node_suppress = ast.parse("with contextlib.suppress(ImportError):\n    import bar").body[0]
     assert is_suppress_import_error_block(node_suppress)
 
+    # pyrefly: ignore [missing-attribute]
     node_const = ast.parse("X = 42").body[0].value
     assert is_constant_expression(node_const)
 
@@ -560,16 +558,16 @@ def test_compliance_base_name():
     import ast
 
     assert base_name(ast.Name(id="MyBase")) == "MyBase"
-    assert base_name(ast.Attribute(attr="MyAttr")) == "MyAttr"
+    assert base_name(ast.Attribute(attr="MyAttr")) == "MyAttr" # pyrefly: ignore [missing-argument]
     assert base_name(ast.Constant(value=42)) == ""
 
 
 def test_compliance_has_decorator():
     import ast
 
-    func1 = ast.FunctionDef(name="foo", decorator_list=[ast.Name(id="abstractmethod")], body=[])
-    func2 = ast.FunctionDef(name="bar", decorator_list=[ast.Attribute(attr="abstractmethod")], body=[])
-    func3 = ast.FunctionDef(name="baz", decorator_list=[], body=[])
+    func1 = ast.FunctionDef(name="foo", decorator_list=[ast.Name(id="abstractmethod")], body=[]) # pyrefly: ignore [missing-argument]
+    func2 = ast.FunctionDef(name="bar", decorator_list=[ast.Attribute(attr="abstractmethod")], body=[]) # pyrefly: ignore [missing-argument]
+    func3 = ast.FunctionDef(name="baz", decorator_list=[], body=[]) # pyrefly: ignore [missing-argument]
     assert has_decorator(func1, "abstractmethod") is True
     assert has_decorator(func2, "abstractmethod") is True
     assert has_decorator(func3, "abstractmethod") is False
@@ -867,27 +865,29 @@ def test_type_coverage_analyze_function():
 
     # Full annotation
     node1 = ast.parse("def f(x: int) -> str: pass").body[0]
-    assert analyze_function(node1) == (1, 1, True)
+    assert analyze_function(node1) == (1, 1, True) # pyrefly: ignore [bad-argument-type]
 
     # Partial annotation
     node2 = ast.parse("def f(x: int, y) -> str: pass").body[0]
-    assert analyze_function(node2) == (1, 2, True)
+    assert analyze_function(node2) == (1, 2, True) # pyrefly: ignore [bad-argument-type]
 
     # None annotation
     node3 = ast.parse("def f(x, y): pass").body[0]
-    assert analyze_function(node3) == (0, 2, False)
+    assert analyze_function(node3) == (0, 2, False) # pyrefly: ignore [bad-argument-type]
 
     # Skip self / cls
     node4 = ast.parse("def f(self, x: int) -> str: pass").body[0]
-    assert analyze_function(node4) == (1, 1, True)
+    assert analyze_function(node4) == (1, 1, True) # pyrefly: ignore [bad-argument-type]
 
     # Complex args (vararg/kwarg)
     node5 = ast.parse("def f(*args: int, **kwargs: str) -> None: pass").body[0]
-    assert analyze_function(node5) == (2, 2, True)
+    assert analyze_function(node5) == (2, 2, True) # pyrefly: ignore [bad-argument-type]
 
 
 def test_type_coverage_analyze_file(tmp_path):
     from logic.src.utils.validation.check_type_coverage import analyze_file
+
+
 
     py_file = tmp_path / "cov.py"
     py_file.write_text("""

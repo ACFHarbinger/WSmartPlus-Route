@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import numpy as np
 import pytest
 from logic.src.policies.route_construction.meta_heuristics.league_championship_algorithm.params import LCAParams
@@ -16,6 +8,11 @@ from logic.src.policies.route_construction.meta_heuristics.soccer_league_competi
 from logic.src.policies.route_construction.meta_heuristics.soccer_league_competition.solver import SLCSolver
 from logic.src.policies.route_construction.meta_heuristics.volleyball_premier_league.params import VPLParams
 from logic.src.policies.route_construction.meta_heuristics.volleyball_premier_league.solver import VPLSolver
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 @pytest.fixture

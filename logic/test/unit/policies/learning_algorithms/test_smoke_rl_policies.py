@@ -1,14 +1,10 @@
 
 
+import numpy as np
 import pytest
+
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
-import pytest
-
-import pytest
-
-
-import numpy as np
 
 
 def test_rl_alns_solver():
@@ -60,4 +56,6 @@ if __name__ == "__main__":
         print(f"\nSmoke test failed: {e}")
         import traceback
         traceback.print_exc()
+
+
         exit(1)

@@ -1,13 +1,5 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 from unittest.mock import MagicMock
 
 import pytest
@@ -17,6 +9,9 @@ from logic.src.policies.helpers.solvers_and_matheuristics.search.search_strategy
     HybridSearchStrategy,
     create_search_strategy,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def test_best_first_search() -> None:

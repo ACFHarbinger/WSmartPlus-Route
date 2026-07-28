@@ -1,20 +1,18 @@
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import math
 import unittest
 
+import pytest
 from logic.src.policies.acceptance_criteria.demon_algorithm import DemonAlgorithm
 from logic.src.policies.acceptance_criteria.exponential_monte_carlo_counter import EMCQAcceptance
 from logic.src.policies.acceptance_criteria.generalized_tsallis_simulated_annealing import GeneralizedTsallisSA
 from logic.src.policies.acceptance_criteria.non_linear_great_deluge import NonLinearGreatDeluge
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 class TestAdvancedAlgorithms(unittest.TestCase):

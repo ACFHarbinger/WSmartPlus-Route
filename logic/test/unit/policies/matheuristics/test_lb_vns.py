@@ -2,30 +2,23 @@
 Unit tests for Local Branching with Variable Neighborhood Search (LB-VNS).
 """
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-
-
-import pytest
-
-import pytest
-
-
-
 import os
 import sys
+
+import pytest
 
 # Add project root to path
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../../..")))
 
 import numpy as np
-import pytest
 from logic.src.policies.route_construction.matheuristics.local_branching_variable_neighborhood_search.lb_vns import (
     GUROBI_AVAILABLE,
     LBVNSParams,
     run_lb_vns_gurobi,
 )
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
 
 
 def mock_run_lb_vns(dist_matrix, wastes, capacity, R, C, mandatory_nodes, **kwargs):
@@ -94,4 +87,6 @@ if __name__ == "__main__":
         print(f"LB-VNS test failed: {e}")
         import traceback
         traceback.print_exc()
+
+
         sys.exit(1)

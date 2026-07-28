@@ -1,14 +1,6 @@
 
 
 
-import pytest
-pytestmark = [pytest.mark.unit, pytest.mark.fast]
-
-import pytest
-
-import pytest
-
-
 import unittest.mock as mock
 
 import logic.src.pipeline.simulations.simulator as simulator
@@ -19,6 +11,11 @@ from logic.src.configs import Config
 from logic.src.configs.envs.graph import GraphConfig
 from logic.src.configs.tasks.sim import SimConfig
 from logic.src.pipeline.simulations.checkpoints.manager import CheckpointError
+
+pytestmark = [pytest.mark.unit, pytest.mark.fast]
+
+
+
 
 
 def _make_integration_cfg(**overrides):
