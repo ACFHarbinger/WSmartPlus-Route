@@ -1,0 +1,58 @@
+# {py:mod}`src.pipeline.rl.common`
+
+```{py:module} src.pipeline.rl.common
+```
+
+```{autodoc2-docstring} src.pipeline.rl.common
+:allowtitles:
+```
+
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.pipeline.rl.common.base
+src.pipeline.rl.common.baselines
+```
+
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.pipeline.rl.common.pbrs_wrapper
+src.pipeline.rl.common.route_improvement
+src.pipeline.rl.common.trainer
+src.pipeline.rl.common.reward_scaler_batch
+src.pipeline.rl.common.epoch
+src.pipeline.rl.common.reward_scaler
+```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.pipeline.rl.common.__all__>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.pipeline.rl.common.__all__
+:value: >
+   ['RL4COLitModule', 'Baseline', 'NoBaseline', 'ExponentialBaseline', 'RolloutBaseline', 'CriticBaseli...
+
+```{autodoc2-docstring} src.pipeline.rl.common.__all__
+```
+
+````

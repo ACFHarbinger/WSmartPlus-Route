@@ -1,0 +1,124 @@
+# {py:mod}`src.pipeline.rl.common.base.module`
+
+```{py:module} src.pipeline.rl.common.base.module
+```
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module
+:allowtitles:
+```
+
+## Module Contents
+
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`RL4COLitModule <src.pipeline.rl.common.base.module.RL4COLitModule>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule
+    :summary:
+    ```
+````
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.pipeline.rl.common.base.module.logger>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.base.module.logger
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} logger
+:canonical: src.pipeline.rl.common.base.module.logger
+:value: >
+   'get_pylogger(...)'
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.logger
+```
+
+````
+
+`````{py:class} RL4COLitModule(env: logic.src.interfaces.env.IEnv, policy: logic.src.interfaces.policy.IPolicy, baseline: typing.Optional[str] = 'rollout', optimizer: str = 'adam', optimizer_kwargs: typing.Optional[dict] = None, lr_scheduler: typing.Optional[str] = None, lr_scheduler_kwargs: typing.Optional[dict] = None, val_dataset_path: typing.Optional[str] = None, batch_size: int = 256, num_workers: int = 4, persistent_workers: bool = True, pin_memory: bool = False, mandatory_selector: typing.Optional[logic.src.policies.vector.selection.VectorizedSelector] = None, **kwargs)
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule
+
+Bases: {py:obj}`src.pipeline.rl.common.base.data.DataMixin`, {py:obj}`src.pipeline.rl.common.base.optimization.OptimizationMixin`, {py:obj}`src.pipeline.rl.common.base.steps.StepMixin`, {py:obj}`pytorch_lightning.LightningModule`, {py:obj}`abc.ABC`
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule.__init__
+```
+
+````{py:attribute} cfg
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule.cfg
+:type: typing.Optional[logic.src.configs.Config]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule.cfg
+```
+
+````
+
+````{py:attribute} baseline
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule.baseline
+:type: typing.Any
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule.baseline
+```
+
+````
+
+````{py:method} save_weights(path: str)
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule.save_weights
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule.save_weights
+```
+
+````
+
+````{py:method} _init_baseline()
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule._init_baseline
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule._init_baseline
+```
+
+````
+
+````{py:method} _build_pbrs_shaper() -> typing.Optional[logic.src.pipeline.rl.common.pbrs_wrapper.PBRSShaper]
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule._build_pbrs_shaper
+```
+
+````
+
+````{py:method} on_train_epoch_start() -> None
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_start
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_start
+```
+
+````
+
+````{py:method} on_train_epoch_end()
+:canonical: src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_end
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.module.RL4COLitModule.on_train_epoch_end
+```
+
+````
+
+`````

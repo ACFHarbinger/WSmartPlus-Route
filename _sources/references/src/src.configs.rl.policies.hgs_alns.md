@@ -1,0 +1,142 @@
+# {py:mod}`src.configs.rl.policies.hgs_alns`
+
+```{py:module} src.configs.rl.policies.hgs_alns
+```
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns
+:allowtitles:
+```
+
+## Module Contents
+
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`HGSALNSConfig <src.configs.rl.policies.hgs_alns.HGSALNSConfig>`
+  - ```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig
+    :summary:
+    ```
+````
+
+### API
+
+`````{py:class} HGSALNSConfig
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig
+```
+
+````{py:attribute} time_limit
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.time_limit
+:type: float
+:value: >
+   60.0
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.time_limit
+```
+
+````
+
+````{py:attribute} mu
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.mu
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.mu
+```
+
+````
+
+````{py:attribute} nb_elite
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.nb_elite
+:type: int
+:value: >
+   10
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.nb_elite
+```
+
+````
+
+````{py:attribute} mutation_rate
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.mutation_rate
+:type: float
+:value: >
+   0.2
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.mutation_rate
+```
+
+````
+
+````{py:attribute} alns_education_iterations
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.alns_education_iterations
+:type: int
+:value: >
+   50
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.alns_education_iterations
+```
+
+````
+
+````{py:attribute} n_generations
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.n_generations
+:type: int
+:value: >
+   100
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.n_generations
+```
+
+````
+
+````{py:attribute} max_vehicles
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.max_vehicles
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.max_vehicles
+```
+
+````
+
+````{py:attribute} vrpp
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.vrpp
+```
+
+````
+
+````{py:attribute} crossover_rate
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.crossover_rate
+```
+
+````
+
+````{py:attribute} engine
+:canonical: src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine
+:type: str
+:value: >
+   'custom'
+
+```{autodoc2-docstring} src.configs.rl.policies.hgs_alns.HGSALNSConfig.engine
+```
+
+````
+
+`````

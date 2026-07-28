@@ -1,0 +1,351 @@
+# {py:mod}`src.configs.tasks.train`
+
+```{py:module} src.configs.tasks.train
+```
+
+```{autodoc2-docstring} src.configs.tasks.train
+:allowtitles:
+```
+
+## Module Contents
+
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`TrainConfig <src.configs.tasks.train.TrainConfig>`
+  - ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig
+    :summary:
+    ```
+````
+
+### API
+
+`````{py:class} TrainConfig
+:canonical: src.configs.tasks.train.TrainConfig
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig
+```
+
+````{py:attribute} batch_size
+:canonical: src.configs.tasks.train.TrainConfig.batch_size
+:type: int
+:value: >
+   256
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.batch_size
+```
+
+````
+
+````{py:attribute} val_dataset
+:canonical: src.configs.tasks.train.TrainConfig.val_dataset
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.val_dataset
+```
+
+````
+
+````{py:attribute} num_workers
+:canonical: src.configs.tasks.train.TrainConfig.num_workers
+:type: int
+:value: >
+   4
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.num_workers
+```
+
+````
+
+````{py:attribute} data_distribution
+:canonical: src.configs.tasks.train.TrainConfig.data_distribution
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.data_distribution
+```
+
+````
+
+````{py:attribute} seed
+:canonical: src.configs.tasks.train.TrainConfig.seed
+:type: int
+:value: >
+   42
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.seed
+```
+
+````
+
+````{py:attribute} precision
+:canonical: src.configs.tasks.train.TrainConfig.precision
+:type: str
+:value: >
+   '16-mixed'
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.precision
+```
+
+````
+
+````{py:attribute} train_time
+:canonical: src.configs.tasks.train.TrainConfig.train_time
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.train_time
+```
+
+````
+
+````{py:attribute} accumulation_steps
+:canonical: src.configs.tasks.train.TrainConfig.accumulation_steps
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.accumulation_steps
+```
+
+````
+
+````{py:attribute} enable_scaler
+:canonical: src.configs.tasks.train.TrainConfig.enable_scaler
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.enable_scaler
+```
+
+````
+
+````{py:attribute} checkpoint_epochs
+:canonical: src.configs.tasks.train.TrainConfig.checkpoint_epochs
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.checkpoint_epochs
+```
+
+````
+
+````{py:attribute} shrink_size
+:canonical: src.configs.tasks.train.TrainConfig.shrink_size
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.shrink_size
+```
+
+````
+
+````{py:attribute} route_improvement_epochs
+:canonical: src.configs.tasks.train.TrainConfig.route_improvement_epochs
+:type: int
+:value: >
+   0
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.route_improvement_epochs
+```
+
+````
+
+````{py:attribute} lr_route_improvement
+:canonical: src.configs.tasks.train.TrainConfig.lr_route_improvement
+:type: float
+:value: >
+   0.001
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.lr_route_improvement
+```
+
+````
+
+````{py:attribute} efficiency_weight
+:canonical: src.configs.tasks.train.TrainConfig.efficiency_weight
+:type: float
+:value: >
+   0.8
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.efficiency_weight
+```
+
+````
+
+````{py:attribute} overflow_weight
+:canonical: src.configs.tasks.train.TrainConfig.overflow_weight
+:type: float
+:value: >
+   0.2
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.overflow_weight
+```
+
+````
+
+````{py:attribute} eval_only
+:canonical: src.configs.tasks.train.TrainConfig.eval_only
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.eval_only
+```
+
+````
+
+````{py:attribute} checkpoint_encoder
+:canonical: src.configs.tasks.train.TrainConfig.checkpoint_encoder
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.checkpoint_encoder
+```
+
+````
+
+````{py:attribute} resume
+:canonical: src.configs.tasks.train.TrainConfig.resume
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.resume
+```
+
+````
+
+````{py:attribute} model_weights_path
+:canonical: src.configs.tasks.train.TrainConfig.model_weights_path
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.model_weights_path
+```
+
+````
+
+````{py:attribute} final_model_path
+:canonical: src.configs.tasks.train.TrainConfig.final_model_path
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.final_model_path
+```
+
+````
+
+````{py:attribute} eval_batch_size
+:canonical: src.configs.tasks.train.TrainConfig.eval_batch_size
+:type: int
+:value: >
+   256
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.eval_batch_size
+```
+
+````
+
+````{py:attribute} persistent_workers
+:canonical: src.configs.tasks.train.TrainConfig.persistent_workers
+:type: bool
+:value: >
+   True
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.persistent_workers
+```
+
+````
+
+````{py:attribute} pin_memory
+:canonical: src.configs.tasks.train.TrainConfig.pin_memory
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.pin_memory
+```
+
+````
+
+````{py:attribute} reload_dataloaders_every_n_epochs
+:canonical: src.configs.tasks.train.TrainConfig.reload_dataloaders_every_n_epochs
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.reload_dataloaders_every_n_epochs
+```
+
+````
+
+````{py:attribute} devices
+:canonical: src.configs.tasks.train.TrainConfig.devices
+:type: typing.Union[int, str]
+:value: >
+   'auto'
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.devices
+```
+
+````
+
+````{py:attribute} strategy
+:canonical: src.configs.tasks.train.TrainConfig.strategy
+:type: typing.Optional[str]
+:value: >
+   'auto'
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.strategy
+```
+
+````
+
+````{py:attribute} env
+:canonical: src.configs.tasks.train.TrainConfig.env
+:type: typing.Any
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.env
+```
+
+````
+
+````{py:attribute} policy
+:canonical: src.configs.tasks.train.TrainConfig.policy
+:type: logic.src.configs.policies.na.NeuralAgentConfig
+:value: >
+   'field(...)'
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.policy
+```
+
+````
+
+````{py:attribute} callbacks
+:canonical: src.configs.tasks.train.TrainConfig.callbacks
+:type: typing.Optional[typing.List[typing.Any]]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.callbacks
+```
+
+````
+
+`````

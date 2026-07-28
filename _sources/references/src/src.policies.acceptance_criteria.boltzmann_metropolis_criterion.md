@@ -1,0 +1,89 @@
+# {py:mod}`src.policies.acceptance_criteria.boltzmann_metropolis_criterion`
+
+```{py:module} src.policies.acceptance_criteria.boltzmann_metropolis_criterion
+```
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion
+:allowtitles:
+```
+
+## Module Contents
+
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`BoltzmannAcceptance <src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance>`
+  - ```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance
+    :summary:
+    ```
+````
+
+### API
+
+`````{py:class} BoltzmannAcceptance(initial_temp: float, alpha: float, seed: typing.Optional[int] = 42)
+:canonical: src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance
+
+Bases: {py:obj}`logic.src.interfaces.acceptance_criterion.IAcceptanceCriterion`
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.__init__
+```
+
+````{py:method} setup(initial_objective: logic.src.interfaces.acceptance_criterion.ObjectiveValue) -> None
+:canonical: src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.setup
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.setup
+```
+
+````
+
+````{py:property} get_temperature
+:canonical: src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_temperature
+:type: float
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_temperature
+```
+
+````
+
+````{py:method} set_temperature(value: float) -> None
+:canonical: src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.set_temperature
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.set_temperature
+```
+
+````
+
+````{py:method} accept(current_obj: logic.src.interfaces.acceptance_criterion.ObjectiveValue, candidate_obj: logic.src.interfaces.acceptance_criterion.ObjectiveValue, **kwargs: typing.Any) -> typing.Tuple[bool, logic.src.interfaces.context.search_context.AcceptanceMetrics]
+:canonical: src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.accept
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.accept
+```
+
+````
+
+````{py:method} step(current_obj: logic.src.interfaces.acceptance_criterion.ObjectiveValue, candidate_obj: logic.src.interfaces.acceptance_criterion.ObjectiveValue, accepted: bool, **kwargs: typing.Any) -> None
+:canonical: src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.step
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.step
+```
+
+````
+
+````{py:method} get_state() -> typing.Dict[str, typing.Any]
+:canonical: src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_state
+
+```{autodoc2-docstring} src.policies.acceptance_criteria.boltzmann_metropolis_criterion.BoltzmannAcceptance.get_state
+```
+
+````
+
+`````

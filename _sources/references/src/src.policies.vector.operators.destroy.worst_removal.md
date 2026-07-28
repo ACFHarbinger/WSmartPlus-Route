@@ -1,0 +1,31 @@
+# {py:mod}`src.policies.vector.operators.destroy.worst_removal`
+
+```{py:module} src.policies.vector.operators.destroy.worst_removal
+```
+
+```{autodoc2-docstring} src.policies.vector.operators.destroy.worst_removal
+:allowtitles:
+```
+
+## Module Contents
+
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`vectorized_worst_removal <src.policies.vector.operators.destroy.worst_removal.vectorized_worst_removal>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.destroy.worst_removal.vectorized_worst_removal
+    :summary:
+    ```
+````
+
+### API
+
+````{py:function} vectorized_worst_removal(tours: torch.Tensor, dist_matrix: torch.Tensor, n_remove: int, generator: typing.Optional[torch.Generator] = None) -> typing.Tuple[torch.Tensor, torch.Tensor]
+:canonical: src.policies.vector.operators.destroy.worst_removal.vectorized_worst_removal
+
+```{autodoc2-docstring} src.policies.vector.operators.destroy.worst_removal.vectorized_worst_removal
+```
+````

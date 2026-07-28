@@ -1,0 +1,59 @@
+# {py:mod}`src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search`
+
+```{py:module} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search
+```
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search
+:allowtitles:
+```
+
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.refinement
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.heuristics
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators
+```
+
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.dispatcher
+src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params
+```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.__all__>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.__all__
+:value: >
+   ['create_points', 'compute_initial_solution', 'add_bins_to_collect', 'get_next_collection_day', 'sho...
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.__all__
+```
+
+````

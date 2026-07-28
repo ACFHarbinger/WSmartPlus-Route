@@ -1,0 +1,48 @@
+# {py:mod}`src.data.datasets.simulation`
+
+```{py:module} src.data.datasets.simulation
+```
+
+```{autodoc2-docstring} src.data.datasets.simulation
+:allowtitles:
+```
+
+## Submodules
+
+```{toctree}
+:titlesonly:
+:maxdepth: 1
+
+src.data.datasets.simulation.gen_dataset
+src.data.datasets.simulation.np_pkl_dataset
+src.data.datasets.simulation.pd_csv_dataset
+src.data.datasets.simulation.pd_xlsx_dataset
+src.data.datasets.simulation.npz_dataset
+src.data.datasets.simulation.sim_dataset
+```
+
+## Package Contents
+
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__all__ <src.data.datasets.simulation.__all__>`
+  - ```{autodoc2-docstring} src.data.datasets.simulation.__all__
+    :summary:
+    ```
+````
+
+### API
+
+````{py:data} __all__
+:canonical: src.data.datasets.simulation.__all__
+:value: >
+   ['GenerativeDataset', 'NumpyDictDataset', 'NumpyPickleDataset', 'PandasCsvDataset', 'PandasExcelData...
+
+```{autodoc2-docstring} src.data.datasets.simulation.__all__
+```
+
+````

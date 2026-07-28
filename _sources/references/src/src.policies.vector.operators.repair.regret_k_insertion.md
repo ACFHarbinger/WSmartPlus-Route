@@ -1,0 +1,64 @@
+# {py:mod}`src.policies.vector.operators.repair.regret_k_insertion`
+
+```{py:module} src.policies.vector.operators.repair.regret_k_insertion
+```
+
+```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion
+:allowtitles:
+```
+
+## Module Contents
+
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`vectorized_regret_k_insertion <src.policies.vector.operators.repair.regret_k_insertion.vectorized_regret_k_insertion>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion.vectorized_regret_k_insertion
+    :summary:
+    ```
+* - {py:obj}`_compute_insertion_costs <src.policies.vector.operators.repair.regret_k_insertion._compute_insertion_costs>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion._compute_insertion_costs
+    :summary:
+    ```
+* - {py:obj}`_compute_regrets <src.policies.vector.operators.repair.regret_k_insertion._compute_regrets>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion._compute_regrets
+    :summary:
+    ```
+* - {py:obj}`_apply_insertion <src.policies.vector.operators.repair.regret_k_insertion._apply_insertion>`
+  - ```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion._apply_insertion
+    :summary:
+    ```
+````
+
+### API
+
+````{py:function} vectorized_regret_k_insertion(tours: torch.Tensor, removed_nodes: torch.Tensor, dist_matrix: torch.Tensor, k: int = 2, generator: typing.Optional[torch.Generator] = None) -> torch.Tensor
+:canonical: src.policies.vector.operators.repair.regret_k_insertion.vectorized_regret_k_insertion
+
+```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion.vectorized_regret_k_insertion
+```
+````
+
+````{py:function} _compute_insertion_costs(tours: torch.Tensor, removed_nodes: torch.Tensor, dist: torch.Tensor) -> torch.Tensor
+:canonical: src.policies.vector.operators.repair.regret_k_insertion._compute_insertion_costs
+
+```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion._compute_insertion_costs
+```
+````
+
+````{py:function} _compute_regrets(costs: torch.Tensor, k: int, pending_mask: torch.Tensor) -> typing.Tuple[torch.Tensor, torch.Tensor]
+:canonical: src.policies.vector.operators.repair.regret_k_insertion._compute_regrets
+
+```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion._compute_regrets
+```
+````
+
+````{py:function} _apply_insertion(tours: torch.Tensor, node: torch.Tensor, pos: torch.Tensor) -> torch.Tensor
+:canonical: src.policies.vector.operators.repair.regret_k_insertion._apply_insertion
+
+```{autodoc2-docstring} src.policies.vector.operators.repair.regret_k_insertion._apply_insertion
+```
+````

@@ -1,0 +1,42 @@
+# {py:mod}`src.policies.mandatory_selection.selection_set_cover`
+
+```{py:module} src.policies.mandatory_selection.selection_set_cover
+```
+
+```{autodoc2-docstring} src.policies.mandatory_selection.selection_set_cover
+:allowtitles:
+```
+
+## Module Contents
+
+### Classes
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`SetCoverSelection <src.policies.mandatory_selection.selection_set_cover.SetCoverSelection>`
+  - ```{autodoc2-docstring} src.policies.mandatory_selection.selection_set_cover.SetCoverSelection
+    :summary:
+    ```
+````
+
+### API
+
+`````{py:class} SetCoverSelection
+:canonical: src.policies.mandatory_selection.selection_set_cover.SetCoverSelection
+
+Bases: {py:obj}`logic.src.interfaces.mandatory_selection.IMandatorySelectionStrategy`
+
+```{autodoc2-docstring} src.policies.mandatory_selection.selection_set_cover.SetCoverSelection
+```
+
+````{py:method} select_bins(context: logic.src.interfaces.context.SelectionContext) -> typing.Tuple[typing.List[int], logic.src.interfaces.context.SearchContext]
+:canonical: src.policies.mandatory_selection.selection_set_cover.SetCoverSelection.select_bins
+
+```{autodoc2-docstring} src.policies.mandatory_selection.selection_set_cover.SetCoverSelection.select_bins
+```
+
+````
+
+`````
