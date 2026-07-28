@@ -46,7 +46,7 @@ cleanup-route-constructors acronyms="":
     @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acronyms:" "{{ acronyms }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
-    uv run python logic/src/utils/package/remove_route_constructors.py "{{ acronyms }}"
+    uv run python logic/package/remove_route_constructors.py "{{ acronyms }}"
 
 # Clean up other Policy configs and implementations
 
@@ -57,7 +57,7 @@ cleanup-policy-others acronyms="":
     @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acronyms:" "{{ acronyms }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
-    uv run python logic/src/utils/package/remove_policy_others.py "{{ acronyms }}"
+    uv run python logic/package/remove_policy_others.py "{{ acronyms }}"
 
 # Clean up Environment (Envs) configs and implementations
 
@@ -68,7 +68,7 @@ cleanup-envs acronyms="":
     @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acronyms:" "{{ acronyms }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
-    uv run python logic/src/utils/package/remove_envs.py "{{ acronyms }}"
+    uv run python logic/package/remove_envs.py "{{ acronyms }}"
 
 # Clean up Model configs and implementations
 
@@ -79,7 +79,7 @@ cleanup-models acronyms="":
     @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acronyms:" "{{ acronyms }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
-    uv run python logic/src/utils/package/remove_models.py "{{ acronyms }}"
+    uv run python logic/package/remove_models.py "{{ acronyms }}"
 
 # Clean up RL Training Algorithm configs and implementations
 
@@ -90,7 +90,7 @@ cleanup-rl-algorithms acronyms="":
     @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acronyms:" "{{ acronyms }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
-    uv run python logic/src/utils/package/remove_rl_algorithms.py "{{ acronyms }}"
+    uv run python logic/package/remove_rl_algorithms.py "{{ acronyms }}"
 
 # Clean up Route Constructor policies used for Imitation Learning
 
@@ -101,43 +101,43 @@ cleanup-imitation-policies acronyms="":
     @printf "\033[0;36m╠════════════════════════════════════════════════════════════╣\033[0m\n"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Acronyms:" "{{ acronyms }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
-    uv run python logic/src/utils/package/remove_imitation_policies.py "{{ acronyms }}"
+    uv run python logic/package/remove_imitation_policies.py "{{ acronyms }}"
 
 # Clean up HPO config files and implementations
 cleanup-hpo:
-    uv run python logic/src/utils/package/remove_hpo.py
+    uv run python logic/package/remove_hpo.py
 
 # Clean up Meta-RL config files and implementations
 cleanup-meta:
-    uv run python logic/src/utils/package/remove_meta.py
+    uv run python logic/package/remove_meta.py
 
 # Clean up Evaluation config files and implementations
 cleanup-eval:
-    uv run python logic/src/utils/package/remove_eval.py
+    uv run python logic/package/remove_eval.py
 
 # Clean up Callback implementations
 
 # Usage: just reducer::cleanup-callbacks keep_list="logging,checkpoint"
 cleanup-callbacks keep_list="":
-    uv run python logic/src/utils/package/remove_callbacks.py "{{ keep_list }}"
+    uv run python logic/package/remove_callbacks.py "{{ keep_list }}"
 
 # Clean up Tracking components and databases
 cleanup-tracking:
-    uv run python logic/src/utils/package/remove_tracking.py
+    uv run python logic/package/remove_tracking.py
 
 # Clean up Enums and the GlobalRegistry
 cleanup-enums:
-    uv run python logic/src/utils/package/remove_enums.py
+    uv run python logic/package/remove_enums.py
 
 # Clean up Datasets, Distributions, and Network Strategies
 
 # Usage: just reducer::cleanup-data datasets="baseline" distributions="uniform" network="euclidean"
 cleanup-data datasets="" distributions="" network="":
-    uv run python logic/src/utils/package/remove_data.py --datasets "{{ datasets }}" --distributions "{{ distributions }}" --network "{{ network }}"
+    uv run python logic/package/remove_data.py --datasets "{{ datasets }}" --distributions "{{ distributions }}" --network "{{ network }}"
 
 # Clean up Security and File System Utilities
 cleanup-security:
-    uv run python logic/src/utils/package/remove_security.py
+    uv run python logic/package/remove_security.py
 
 # Remove targeted simulation runs from output artefacts
 # Usage:

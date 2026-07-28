@@ -3,7 +3,7 @@
 from pathlib import Path
 
 import pytest
-from logic.src.utils.package.remove_tracking import (
+from logic.package.remove_tracking import (
     append_to_class_body,
     fix_empty_try_blocks,
     get_project_root,

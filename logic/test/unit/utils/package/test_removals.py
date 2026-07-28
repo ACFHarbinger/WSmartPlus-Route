@@ -5,22 +5,22 @@ from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
-from logic.src.utils.package.remove_callbacks import (
+from logic.package.remove_callbacks import (
     clean_callbacks_init as callbacks_clean_init,
 )
-from logic.src.utils.package.remove_callbacks import (
+from logic.package.remove_callbacks import (
     clean_trainer as callbacks_clean_trainer,
 )
-from logic.src.utils.package.remove_eval import (
+from logic.package.remove_eval import (
     clean_hydra_dispatch as eval_clean_dispatch,
 )
-from logic.src.utils.package.remove_hpo import (
+from logic.package.remove_hpo import (
     clean_configs_init as hpo_clean_configs,
 )
-from logic.src.utils.package.remove_hpo import (
+from logic.package.remove_hpo import (
     clean_tasks_init as hpo_clean_tasks,
 )
-from logic.src.utils.package.remove_meta import (
+from logic.package.remove_meta import (
     clean_rl_init as meta_clean_rl,
 )
 
@@ -167,7 +167,7 @@ class TestRemovals(unittest.TestCase):
 
     def test_enums_cleanups(self) -> None:
         """Test file modifications in Enums removal script."""
-        from logic.src.utils.package.remove_enums import process_python_file
+        from logic.package.remove_enums import process_python_file
 
         mock_file = MagicMock(spec=Path)
         mock_file.name = "policy_hgs.py"
@@ -189,7 +189,7 @@ class TestRemovals(unittest.TestCase):
 
     def test_data_cleanups(self) -> None:
         """Test clean_init_file for data removal script."""
-        from logic.src.utils.package.remove_data import clean_init_file
+        from logic.package.remove_data import clean_init_file
 
         mock_init = MagicMock(spec=Path)
         mock_init.exists.return_value = True
@@ -210,7 +210,7 @@ class TestRemovals(unittest.TestCase):
 
     def test_security_cleanups(self) -> None:
         """Test file modifications in Security removal script."""
-        from logic.src.utils.package.remove_security import patch_google_maps, patch_setup_env
+        from logic.package.remove_security import patch_google_maps, patch_setup_env
 
 
 

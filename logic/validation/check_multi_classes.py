@@ -9,7 +9,7 @@ Attributes:
     main: Main function to check for multiple top-level classes.
 
 Example:
-    >>> python logic/src/utils/validation/check_multi_classes.py logic/src --exclude logic/src/utils/validation
+    >>> python logic/validation/check_multi_classes.py logic/src --exclude logic/src/utils/validation
 """
 
 import argparse

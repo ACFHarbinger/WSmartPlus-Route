@@ -21,7 +21,7 @@ Attributes:
     ImportVisitor: Visitor class to collect import dependencies from AST.
 
 Example:
-    >>> python logic/src/utils/validation/check_circular_imports.py logic/src --exclude logic/src/utils/validation
+    >>> python logic/validation/check_circular_imports.py logic/src --exclude logic/src/utils/validation
 """
 
 import argparse

@@ -6,7 +6,7 @@ Attributes:
     main: Main function to count lines of code.
 
 Example:
-    >>> python logic/src/utils/validation/count_loc.py logic/src
+    >>> python logic/validation/count_loc.py logic/src
 """
 
 import argparse

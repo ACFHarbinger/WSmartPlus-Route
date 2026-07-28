@@ -32,7 +32,7 @@ Attributes:
     main: Main function to generate an interactive module-level import graph.
 
 Example:
-    >>> python logic/src/utils/validation/visualize_module_graph.py --root . --output graph.html
+    >>> python logic/validation/visualize_module_graph.py --root . --output graph.html
 """
 
 import argparse

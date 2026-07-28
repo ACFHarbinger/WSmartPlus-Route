@@ -15,7 +15,7 @@ Also handles:
 
 Usage (standalone — normally called by packager.py)::
 
-    python logic/src/utils/packages/prune_codebase.py \\
+    python logic/package/prune_codebase.py \\
         --constructors HGS ALNS BPC \\
         --selectors MS_REGULAR MS_SAVINGS \\
         --improvement RI_OROPT RI_S2OPT \\
@@ -41,8 +41,8 @@ from typing import Dict, List, Optional, Set, Tuple
 # Path bootstrap — makes cleanup_helper importable when run directly
 # ---------------------------------------------------------------------------
 _PACKAGES_DIR = Path(__file__).resolve().parent
-# parents[4] of the *file* == parents[3] of the directory; matches cleanup_helper.get_project_root()
-_PROJECT_ROOT = Path(__file__).resolve().parents[4]  # WSmart-Route/
+# logic/package/ is 2 levels below WSmart-Route/ (previously 5 levels in src/utils/package)
+_PROJECT_ROOT = Path(__file__).resolve().parents[2]  # WSmart-Route/
 if str(_PACKAGES_DIR) not in sys.path:
     sys.path.insert(0, str(_PACKAGES_DIR))
 
@@ -443,7 +443,8 @@ def remove_logic_dev_dirs(dry_run: bool) -> None:
         _PROJECT_ROOT / "logic" / "src" / "utils" / "expo",
         _PROJECT_ROOT / "logic" / "src" / "utils" / "output",
         _PROJECT_ROOT / "logic" / "src" / "utils" / "target",
-        _PROJECT_ROOT / "logic" / "src" / "utils" / "validation",
+        # logic/validation/ promoted from logic/src/utils/validation/
+        _PROJECT_ROOT / "logic" / "validation",
         # Constants only used by removed subsystems (stats removed by remove_cli.py)
         _PROJECT_ROOT / "logic" / "src" / "constants" / "testing.py",
         _PROJECT_ROOT / "logic" / "src" / "constants" / "plotting.py",
@@ -469,7 +470,7 @@ def remove_logic_dev_dirs(dry_run: bool) -> None:
 
 
 def remove_packages_self(dry_run: bool) -> None:
-    """Self-destruct: remove logic/src/utils/packages/ as the very last pruning step."""
+    """Self-destruct: remove logic/package/ as the very last pruning step."""
     import shutil  # noqa: PLC0415
 
     packages_dir = _PACKAGES_DIR
@@ -1085,7 +1086,7 @@ def main(argv: Optional[List[str]] = None) -> None:
 
     # Self-destruct: remove this packages dir last so all remove_*.py scripts are
     # available for the entire pruning run.
-    _log("Removing logic/src/utils/packages/ (self-cleanup) …")
+    _log("Removing logic/package/ (self-cleanup) …")
     remove_packages_self(dry_run=args.dry_run)
 
     _log(

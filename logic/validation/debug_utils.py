@@ -9,7 +9,7 @@ Attributes:
     watch_all (callable): Watch all local variables in the caller's frame. Prints every change with line number.
 
 Example:
-    >>> from logic.src.utils.validation.debug_utils import watch
+    >>> from logic.validation.debug_utils import watch
     >>> watch("my_variable")
     >>> watch_all()
 """
