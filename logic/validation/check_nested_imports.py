@@ -17,7 +17,7 @@ Attributes:
     main: Main function to find nested imports.
 
 Example:
-    >>> python logic/src/utils/validation/check_nested_imports.py --path logic/src
+    >>> python logic/validation/check_nested_imports.py --path logic/src
 """
 
 import argparse

@@ -5,7 +5,7 @@ End-to-end pipeline that:
 1. Validates user-requested algorithm acronyms against ``ci/export_config.json``.
 2. Creates a timestamped git branch (``algo-export-YYYYMMDD_HHMMSS``).
 3. Prunes all unselected algorithms from the working tree via
-   ``logic/src/utils/package/prune_codebase.py``.
+   ``logic/package/prune_codebase.py``.
 4. Optionally drops pipeline features (META_LEARNING, HPO, EVAL, SECURITY, …).
 5. Writes a tree listing of retained ``logic/src/`` files to
    ``retained_logic_files.txt``.

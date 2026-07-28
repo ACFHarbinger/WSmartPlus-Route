@@ -1968,7 +1968,7 @@ dist_matrix = load_distance_matrix(
 
 ## 17. Validation Utilities
 
-**Module**: `logic/src/utils/validation/`
+**Module**: `logic/validation/`
 
 Static analysis, debugging, and code hygiene enforcement.
 
@@ -1978,7 +1978,7 @@ Static analysis, debugging, and code hygiene enforcement.
 
 ```bash
 # Enforce "One Class Per File" rule
-python logic/src/utils/validation/check_multi_classes.py --path logic/src
+python logic/validation/check_multi_classes.py --path logic/src
 ```
 
 **Output**:
@@ -2003,10 +2003,10 @@ logic/src/legacy/old_module.py          | 3     | Network, Trainer, Evaluator
 
 ```bash
 # Count Lines of Code
-python logic/src/utils/validation/count_loc.py logic/src
+python logic/validation/count_loc.py logic/src
 
 # Visualize directory structure density
-python logic/src/utils/validation/tree_loc.py logic/src
+python logic/validation/tree_loc.py logic/src
 ```
 
 **Output**:
@@ -2024,7 +2024,7 @@ Total                        85       25,813   2,580
 #### Debug Utilities (`debug_utils.py`)
 
 ```python
-from logic.src.utils.validation.debug_utils import (
+from logic.validation.debug_utils import (
     inspect_object_state,
     trace_execution_path
 )
@@ -2354,7 +2354,7 @@ results = model(large_dataset)  # OOM error
 ✅ **Validate inputs:**
 
 ```python
-from logic.src.utils.validation import validate_path
+from logic.validation import validate_path
 
 if not validate_path(user_input, allowed_dirs):
     raise ValueError("Invalid path")

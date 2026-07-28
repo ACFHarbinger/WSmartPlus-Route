@@ -10,19 +10,19 @@ from unittest.mock import MagicMock, patch
 import pytest
 
 # 4. Test check_circular_imports
-from logic.src.utils.validation.check_circular_imports import (
+from logic.validation.check_circular_imports import (
     build_graph,
     file_to_module,
     generate_html,
     resolve_to_module,
     tarjan_sccs,
 )
-from logic.src.utils.validation.check_circular_imports import (
+from logic.validation.check_circular_imports import (
     main as main_circular,
 )
 
 # 9. Test check_interface_compliance
-from logic.src.utils.validation.check_interface_compliance import (
+from logic.validation.check_interface_compliance import (
     base_name,
     build_registry,
     check_compliance,
@@ -31,15 +31,15 @@ from logic.src.utils.validation.check_interface_compliance import (
     get_required_abstract_methods,
     has_decorator,
 )
-from logic.src.utils.validation.check_interface_compliance import (
+from logic.validation.check_interface_compliance import (
     main as main_compliance,
 )
-from logic.src.utils.validation.check_nested_imports import (
+from logic.validation.check_nested_imports import (
     analyze_file as analyze_nested,
 )
 
 # 3. Test check_nested_imports
-from logic.src.utils.validation.check_nested_imports import (
+from logic.validation.check_nested_imports import (
     is_constant_expression,
     is_constant_guarded_if,
     is_header_assignment,
@@ -48,87 +48,87 @@ from logic.src.utils.validation.check_nested_imports import (
     is_suppress_import_error_block,
     is_type_checking_block,
 )
-from logic.src.utils.validation.check_nested_imports import (
+from logic.validation.check_nested_imports import (
     main as main_nested,
 )
-from logic.src.utils.validation.check_nested_imports import (
+from logic.validation.check_nested_imports import (
     print_stats_table as print_stats_nested,
 )
-from logic.src.utils.validation.check_relative_imports import (
+from logic.validation.check_relative_imports import (
     analyze_file as analyze_relative,
 )
 
 # 1. Test check_relative_imports
-from logic.src.utils.validation.check_relative_imports import (
+from logic.validation.check_relative_imports import (
     format_relative_import,
 )
-from logic.src.utils.validation.check_relative_imports import (
+from logic.validation.check_relative_imports import (
     main as main_relative,
 )
-from logic.src.utils.validation.check_relative_imports import (
+from logic.validation.check_relative_imports import (
     print_stats_table as print_stats_relative,
 )
 
 # 2. Test check_unused_imports
-from logic.src.utils.validation.check_unused_imports import (
+from logic.validation.check_unused_imports import (
     analyze_file as analyze_unused,
 )
-from logic.src.utils.validation.check_unused_imports import (
+from logic.validation.check_unused_imports import (
     main as main_unused,
 )
-from logic.src.utils.validation.count_loc import (
+from logic.validation.count_loc import (
     analyze_file as analyze_count,
 )
 
 # 5. Test count_loc
-from logic.src.utils.validation.count_loc import (
+from logic.validation.count_loc import (
     get_docstring_lines as get_doc_count,
 )
-from logic.src.utils.validation.count_loc import (
+from logic.validation.count_loc import (
     group_by_directory as group_count,
 )
-from logic.src.utils.validation.count_loc import (
+from logic.validation.count_loc import (
     main as main_count,
 )
-from logic.src.utils.validation.trace_dependencies import (
+from logic.validation.trace_dependencies import (
     ASTScopeVisitor,
     DependencyGrapher,
 )
-from logic.src.utils.validation.trace_dependencies import (
+from logic.validation.trace_dependencies import (
     main as main_trace,
 )
 
 # 6. Test tree_loc
-from logic.src.utils.validation.tree_loc import (
+from logic.validation.tree_loc import (
     analyze_file as analyze_tree,
 )
-from logic.src.utils.validation.tree_loc import (
+from logic.validation.tree_loc import (
     main as main_tree,
 )
-from logic.src.utils.validation.tree_loc import (
+from logic.validation.tree_loc import (
     print_tree,
 )
 
 # 8. Test visualize_module_graph
-from logic.src.utils.validation.visualize_module_graph import (
+from logic.validation.visualize_module_graph import (
     build_graph as build_graph_visualize,
 )
-from logic.src.utils.validation.visualize_module_graph import (
+from logic.validation.visualize_module_graph import (
     collect_module_map,
     condense_to_packages,
     find_violations,
     get_layer,
 )
-from logic.src.utils.validation.visualize_module_graph import (
+from logic.validation.visualize_module_graph import (
     file_to_module as file_to_module_visualize,
 )
-from logic.src.utils.validation.visualize_module_graph import (
+from logic.validation.visualize_module_graph import (
     generate_html as generate_html_visualize,
 )
-from logic.src.utils.validation.visualize_module_graph import (
+from logic.validation.visualize_module_graph import (
     main as main_visualize,
 )
-from logic.src.utils.validation.visualize_module_graph import (
+from logic.validation.visualize_module_graph import (
     resolve_to_module as resolve_to_module_visualize,
 )
 
@@ -327,7 +327,7 @@ def test_circular_imports_html(tmp_path):
     graph = {"a": {"b"}, "b": {"a"}}
     output = tmp_path / "graph.html"
 
-    with patch("logic.src.utils.validation.check_circular_imports.Network") as mock_net:
+    with patch("logic.validation.check_circular_imports.Network") as mock_net:
         generate_html(cycles, graph, output)
         assert mock_net.called
 
@@ -450,7 +450,7 @@ def test_dependency_grapher_tracing(tmp_path):
     mock_template.render.return_value = "Mocked HTML Content"
     grapher.jinja_env.get_template.return_value = mock_template
 
-    with patch("logic.src.utils.validation.trace_dependencies.Network") as mock_network_cls:
+    with patch("logic.validation.trace_dependencies.Network") as mock_network_cls:
         mock_net = MagicMock()
         mock_net.show.side_effect = lambda f, notebook: Path(f).write_text("<html><body></body></html>")
         mock_network_cls.return_value = mock_net
@@ -473,7 +473,7 @@ def test_trace_dependencies_main(tmp_path):
 
     with (
         patch("sys.argv", ["trace_dependencies.py", str(tmp_path), str(a_py), "Target"]),
-        patch("logic.src.utils.validation.trace_dependencies.DependencyGrapher.generate_graph") as mock_gen,
+        patch("logic.validation.trace_dependencies.DependencyGrapher.generate_graph") as mock_gen,
     ):
         main_trace()
         mock_gen.assert_called_once_with(os.path.abspath(str(a_py)), "Target")
@@ -533,7 +533,7 @@ def test_visualize_module_graph_html(tmp_path):
     violation_edges = {("logic.a", "gui.b")}
     output = tmp_path / "module_graph.html"
 
-    with patch("logic.src.utils.validation.visualize_module_graph.Network") as mock_net_cls:
+    with patch("logic.validation.visualize_module_graph.Network") as mock_net_cls:
         mock_net = MagicMock()
         mock_net_cls.return_value = mock_net
         generate_html_visualize(graph, layers, violation_edges, output, depth=0)
@@ -692,7 +692,7 @@ def test_compliance_main_non_existent_dir(mock_exit):
 
 
 def test_embedded_languages_detect():
-    from logic.src.utils.validation.check_embedded_languages import detect_language
+    from logic.validation.check_embedded_languages import detect_language
 
     assert detect_language("") == ""
     assert detect_language("short") == ""
@@ -705,7 +705,7 @@ def test_embedded_languages_detect():
 def test_embedded_languages_get_docstring_lines():
     import ast
 
-    from logic.src.utils.validation.check_embedded_languages import get_docstring_lines
+    from logic.validation.check_embedded_languages import get_docstring_lines
 
     code = '''
 def my_func():
@@ -726,7 +726,7 @@ def my_func():
 def test_embedded_languages_visitor():
     import ast
 
-    from logic.src.utils.validation.check_embedded_languages import EmbeddedCodeVisitor
+    from logic.validation.check_embedded_languages import EmbeddedCodeVisitor
 
     code = 'html_str = "<div>hello</div>"'
     tree = ast.parse(code)
@@ -745,7 +745,7 @@ def test_embedded_languages_visitor():
 
 
 def test_embedded_languages_analyze_file(tmp_path):
-    from logic.src.utils.validation.check_embedded_languages import analyze_file
+    from logic.validation.check_embedded_languages import analyze_file
 
     py_file = tmp_path / "test_embed.py"
     py_file.write_text("""
@@ -767,7 +767,7 @@ def run():
 
 @patch("sys.exit")
 def test_embedded_languages_main(mock_exit, tmp_path):
-    from logic.src.utils.validation.check_embedded_languages import main as main_embedded
+    from logic.validation.check_embedded_languages import main as main_embedded
 
     # Create clean file
     py_file = tmp_path / "clean.py"
@@ -792,7 +792,7 @@ def test_embedded_languages_main(mock_exit, tmp_path):
 
 
 def test_multi_classes_get_top_level_classes(tmp_path):
-    from logic.src.utils.validation.check_multi_classes import get_top_level_classes
+    from logic.validation.check_multi_classes import get_top_level_classes
 
     py_file = tmp_path / "classes.py"
     py_file.write_text("""
@@ -817,7 +817,7 @@ def func():
 
 @patch("sys.exit")
 def test_multi_classes_main(mock_exit, tmp_path):
-    from logic.src.utils.validation.check_multi_classes import main as main_multi_classes
+    from logic.validation.check_multi_classes import main as main_multi_classes
 
     mock_exit.side_effect = SystemExit
 
@@ -861,7 +861,7 @@ def test_multi_classes_main(mock_exit, tmp_path):
 def test_type_coverage_analyze_function():
     import ast
 
-    from logic.src.utils.validation.check_type_coverage import analyze_function
+    from logic.validation.check_type_coverage import analyze_function
 
     # Full annotation
     node1 = ast.parse("def f(x: int) -> str: pass").body[0]
@@ -885,7 +885,7 @@ def test_type_coverage_analyze_function():
 
 
 def test_type_coverage_analyze_file(tmp_path):
-    from logic.src.utils.validation.check_type_coverage import analyze_file
+    from logic.validation.check_type_coverage import analyze_file
 
 
 
@@ -913,7 +913,7 @@ def f3():
 
 
 def test_type_coverage_markup():
-    from logic.src.utils.validation.check_type_coverage import _coverage_markup
+    from logic.validation.check_type_coverage import _coverage_markup
 
     assert _coverage_markup(0, 0) == "[dim]—[/dim]"
     assert "green" in _coverage_markup(9, 10)
@@ -922,7 +922,7 @@ def test_type_coverage_markup():
 
 
 def test_type_coverage_main(tmp_path):
-    from logic.src.utils.validation.check_type_coverage import main as main_type_coverage
+    from logic.validation.check_type_coverage import main as main_type_coverage
 
     # Create test files
     py_file1 = tmp_path / "test_cov1.py"

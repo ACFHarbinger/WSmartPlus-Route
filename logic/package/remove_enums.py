@@ -7,7 +7,7 @@ from pathlib import Path
 
 def get_project_root() -> Path:
     """Find WSmart-Route root directory."""
-    return Path(__file__).resolve().parents[4]
+    return Path(__file__).resolve().parents[2]
 
 
 def remove_path(path: Path):
