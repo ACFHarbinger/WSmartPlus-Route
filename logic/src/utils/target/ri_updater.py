@@ -15,7 +15,7 @@ Quick start::
 
 CLI usage::
 
-    python -m logic.controllers.cli.target_parser ri \\
+    python -m logic.controllers.cli.tgt_parser ri \\
         --constructors aco_hh alns bpc \\
         --file ri_ftsp \\
         --keys ftsp
@@ -33,9 +33,7 @@ import re
 from typing import List, Tuple
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-_DEFAULT_CONFIGS_DIR = os.path.normpath(
-    os.path.join(_SCRIPT_DIR, "../../../configs/policies")
-)
+_DEFAULT_CONFIGS_DIR = os.path.normpath(os.path.join(_SCRIPT_DIR, "../../../configs/policies"))
 
 _RI_FIELD_RE = re.compile(r"(route_improvement:\s*)\{[^}]+\}")
 
@@ -68,11 +66,7 @@ def list_available_ri_improvers(configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List
     other_dir = os.path.join(configs_dir, "other")
     if not os.path.isdir(other_dir):
         return []
-    return sorted(
-        os.path.splitext(f)[0]
-        for f in os.listdir(other_dir)
-        if f.startswith("ri_") and f.endswith(".yaml")
-    )
+    return sorted(os.path.splitext(f)[0] for f in os.listdir(other_dir) if f.startswith("ri_") and f.endswith(".yaml"))
 
 
 def list_improver_keys(ri_yaml: str, configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
@@ -136,17 +130,13 @@ def update_route_improvement(
     ri_file_path = os.path.join(configs_dir, "other", f"{stem}.yaml")
     if not os.path.isfile(ri_file_path):
         raise FileNotFoundError(
-            f"Route-improver file not found: {ri_file_path}\n"
-            f"Available: {list_available_ri_improvers(configs_dir)}"
+            f"Route-improver file not found: {ri_file_path}\nAvailable: {list_available_ri_improvers(configs_dir)}"
         )
 
     available_keys = list_improver_keys(stem, configs_dir)
     for key in keys:
         if key not in available_keys:
-            raise ValueError(
-                f"Key '{key}' not found in {stem}.yaml. "
-                f"Available keys: {available_keys}"
-            )
+            raise ValueError(f"Key '{key}' not found in {stem}.yaml. Available keys: {available_keys}")
 
     keys_str = ", ".join(f'"{k}"' for k in keys)
     replacement = f'\\g<1>{{ "other/{stem}.yaml": [{keys_str}] }}'

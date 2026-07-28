@@ -6,7 +6,7 @@ Attributes:
     validate_benchmark_args: Validates benchmark arguments
 
 Example:
-    >>> from logic.controllers.cli.benchmark_parser import add_benchmark_args, validate_benchmark_args
+    >>> from logic.controllers.cli.bench_parser import add_benchmark_args, validate_benchmark_args
     >>> parser = ConfigsParser()
     >>> add_benchmark_args(parser)
     >>> validate_benchmark_args(parser.parse_args())

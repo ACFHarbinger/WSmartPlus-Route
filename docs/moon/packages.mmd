@@ -13,7 +13,7 @@ classDiagram
   }
   class update_function_factory {
   }
-  class benchmark_parser {
+  class bench_parser {
   }
   class fs_parser {
   }
@@ -3436,7 +3436,7 @@ classDiagram
   class visualize_module_graph {
   }
   cli --> base
-  cli --> benchmark_parser
+  cli --> bench_parser
   cli --> fs_parser
   cli --> gui_parser
   cli --> registry
@@ -3447,13 +3447,13 @@ classDiagram
   base --> update_function_factory
   update_function_factory --> stats
   update_function_factory --> system
-  benchmark_parser --> base
+  bench_parser --> base
   fs_parser --> base
   fs_parser --> constants
   gui_parser --> base
   gui_parser --> constants
   registry --> base
-  registry --> benchmark_parser
+  registry --> bench_parser
   registry --> fs_parser
   registry --> gui_parser
   registry --> ts_parser

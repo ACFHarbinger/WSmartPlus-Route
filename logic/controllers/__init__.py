@@ -4,16 +4,15 @@ Entry points and command controllers for the WSmart-Route application.
 
 Hydra-driven controllers
 ------------------------
-All neural-model commands (``train``, ``meta_train``, ``hpo``, ``eval``) are
-handled by :mod:`~logic.controllers.model_pipeline`.  Simulation and data
-commands (``test_sim``, ``hpo_sim``, ``gen_data``) are handled by
-:mod:`~logic.controllers.simulation`.
+All neural-model commands (``train``, ``meta_train``, ``hpo``, ``eval``) and
+simulation/data commands (``test_sim``, ``hpo_sim``, ``gen_data``) are handled by
+:mod:`~logic.controllers.jobs.pipeline_runner`.
 
 Argparse-driven controllers
 ----------------------------
 Operational commands (``benchmark``, ``test_suite``, ``file_system``,
 ``clean_results``, ``excel_summary``, ``update_ms``, ``update_ri``) are
-handled by :mod:`~logic.controllers.ops`.
+handled by :mod:`~logic.controllers.jobs.ops_runner`.
 
 Dispatchers
 -----------
@@ -23,6 +22,7 @@ Dispatchers
 Sub-packages
 ------------
 - :mod:`logic.controllers.cli`     — argument parsers and ``parse_params()``
+- :mod:`logic.controllers.jobs`    — task runners and job execution functions
 - :mod:`logic.controllers.manager` — ``BatchManager`` for multi-run experiments
 
 Example::

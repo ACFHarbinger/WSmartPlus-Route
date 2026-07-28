@@ -76,7 +76,7 @@ logic/controllers/cli/
 │   ├── store_dict_key.py    # StoreDictKeyPair
 │   └── update_function_factory.py  # UpdateFunctionMapActionFactory
 │
-├── benchmark_parser.py      # Benchmark suite arguments
+├── bench_parser.py      # Benchmark suite arguments
 ├── ts_parser.py             # Test suite arguments
 └── fs_parser.py             # File system operations
 ```
@@ -707,7 +707,7 @@ python main.py test_suite --list-tests
 
 ### Benchmark Parser
 
-**File**: `benchmark_parser.py`
+**File**: `bench_parser.py`
 
 Configures performance benchmark execution.
 
@@ -1266,7 +1266,7 @@ from logic.controllers.cli.base import (
 )
 
 # Command parsers
-from logic.controllers.cli.benchmark_parser import add_benchmark_args, validate_benchmark_args
+from logic.controllers.cli.bench_parser import add_benchmark_args, validate_benchmark_args
 from logic.controllers.cli.fs_parser import add_files_args, validate_file_system_args
 from logic.controllers.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 
@@ -1316,7 +1316,7 @@ from logic.controllers.cli.registry import get_parser
 | `base/lowercase_action.py`        | 34    | LowercaseAction                 |
 | `base/store_dict_key.py`          | 47    | StoreDictKeyPair                |
 | `base/update_function_factory.py` | 75    | UpdateFunctionMapActionFactory  |
-| `benchmark_parser.py`             | 41    | Benchmark arguments             |
+| `bench_parser.py`             | 41    | Benchmark arguments             |
 | `ts_parser.py`                    | 100   | Test suite arguments            |
 | `fs_parser.py`                    | 211   | File system arguments           |
 

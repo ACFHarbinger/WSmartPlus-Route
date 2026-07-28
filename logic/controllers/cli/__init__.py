@@ -16,9 +16,11 @@ Example:
 import argparse
 from typing import Any, Dict, Tuple, Union
 
-from logic.controllers.cli.benchmark_parser import validate_benchmark_args
+from logic.controllers.cli.bench_parser import validate_benchmark_args
 from logic.controllers.cli.fs_parser import add_files_args, validate_file_system_args
+from logic.controllers.cli.out_parser import add_excel_summary_args, add_output_args
 from logic.controllers.cli.registry import get_parser
+from logic.controllers.cli.tgt_parser import add_ms_update_args, add_ri_update_args
 from logic.controllers.cli.ts_parser import add_test_suite_args, validate_test_suite_args
 
 from .base import (
@@ -67,6 +69,10 @@ __all__ = [
     "parse_params",
     "add_files_args",
     "add_test_suite_args",
+    "add_ms_update_args",
+    "add_ri_update_args",
+    "add_output_args",
+    "add_excel_summary_args",
     "ConfigsParser",
     "LowercaseAction",
     "StoreDictKeyPair",
