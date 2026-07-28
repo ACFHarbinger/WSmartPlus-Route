@@ -8,7 +8,7 @@ Attributes:
     ConfigsParser: Custom ArgumentParser to handle string-based nargs correctly.
 
 Example:
-    >>> from logic.src.cli.base.parser import ConfigsParser
+    >>> from logic.controllers.cli.base.parser import ConfigsParser
     >>> parser = ConfigsParser()
     >>> parser.add_argument('--test', action='store_true')
     >>> parser.parse_args(['--test'])

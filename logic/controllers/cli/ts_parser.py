@@ -6,7 +6,7 @@ Attributes:
     validate_test_suite_args: Validates and post-processes arguments for test_suite.
 
 Example:
-    >>> from logic.src.cli.ts_parser import add_test_suite_args, validate_test_suite_args
+    >>> from logic.controllers.cli.ts_parser import add_test_suite_args, validate_test_suite_args
     >>> parser = argparse.ArgumentParser()
     >>> add_test_suite_args(parser)
     >>> validate_test_suite_args(parser.parse_args())

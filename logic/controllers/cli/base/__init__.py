@@ -8,7 +8,7 @@ Attributes:
     StoreDictKeyPair: Custom action to parse key=value into a dictionary.
 
 Example:
-    >>> from logic.src.cli.base import ConfigsParser, UpdateFunctionMapActionFactory, LowercaseAction, StoreDictKeyPair
+    >>> from logic.controllers.cli.base import ConfigsParser, UpdateFunctionMapActionFactory, LowercaseAction, StoreDictKeyPair
     >>> parser = ConfigsParser()
     >>> parser.add_argument('--test', action='store_true')
     >>> parser.parse_args(['--test'])

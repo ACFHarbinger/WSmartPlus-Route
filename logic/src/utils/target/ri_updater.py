@@ -15,7 +15,7 @@ Quick start::
 
 CLI usage::
 
-    python -m logic.src.cli.target_parser ri \\
+    python -m logic.controllers.cli.target_parser ri \\
         --constructors aco_hh alns bpc \\
         --file ri_ftsp \\
         --keys ftsp

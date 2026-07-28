@@ -94,7 +94,7 @@ Detailed technical documentation for each subsystem. Essential for deep dives in
 
 | Document                                                       | Description                                                                    | Module Path             |
 | :------------------------------------------------------------- | :----------------------------------------------------------------------------- | :---------------------- |
-| **[CLI Module](docs/CLI_MODULE.md)**                           | Command-line interface, argument parsing, Hydra integration, and entry points. | `logic/src/cli/`        |
+| **[CLI Module](docs/CLI_MODULE.md)**                           | Command-line interface, argument parsing, Hydra integration, and entry points. | `logic/controllers/cli/`        |
 | **[Configuration Module](docs/CONFIGS_MODULE.md)**             | Config system architecture, Hydra composition, and config classes.             | `logic/src/configs/`    |
 | **[Configuration Guide](docs/CONFIGURATION_GUIDE.md)**         | Comprehensive guide to Hydra configuration, CLI overrides, and best practices. | -                       |
 | **[Constants Module](docs/CONSTANTS_MODULE.md)**               | System-wide constants, problem definitions, and enum types.                    | `logic/src/utils/`      |

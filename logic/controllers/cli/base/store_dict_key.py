@@ -5,7 +5,7 @@ Attributes:
     StoreDictKeyPair: Custom action to parse key=value into a dictionary.
 
 Example:
-    >>> from logic.src.cli.base.store_dict_key import StoreDictKeyPair
+    >>> from logic.controllers.cli.base.store_dict_key import StoreDictKeyPair
     >>> action = StoreDictKeyPair(option_strings=['--param'], dest='params')
     >>> namespace = argparse.Namespace()
     >>> action(None, namespace, ['key=value'])

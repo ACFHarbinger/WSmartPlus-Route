@@ -22,7 +22,7 @@ Quick start::
 
 CLI usage::
 
-    python -m logic.src.cli.output_parser --help
+    python -m logic.controllers.cli.output_parser --help
 
 Excel summary::
 

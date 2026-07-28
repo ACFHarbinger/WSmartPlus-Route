@@ -5,7 +5,7 @@ Unit tests for file system and cryptographic operations.
 from unittest.mock import mock_open, patch
 
 import pytest
-from logic.src.cli.fs_parser import (
+from logic.controllers.cli.fs_parser import (
     delete_file_system_entries,
     perform_cryptographic_operations,
     update_file_system_entries,
@@ -18,10 +18,10 @@ pytestmark = [pytest.mark.unit, pytest.mark.fast]
 class TestFileSystem:
     """Test suite for file system management logic."""
 
-    @patch("logic.src.cli.fs_parser.process_pattern_files")
-    @patch("logic.src.cli.fs_parser.process_pattern_files_statistics")
-    @patch("logic.src.cli.fs_parser.preview_changes")
-    @patch("logic.src.cli.fs_parser.confirm_proceed", return_value=True)
+    @patch("logic.controllers.cli.fs_parser.process_pattern_files")
+    @patch("logic.controllers.cli.fs_parser.process_pattern_files_statistics")
+    @patch("logic.controllers.cli.fs_parser.preview_changes")
+    @patch("logic.controllers.cli.fs_parser.confirm_proceed", return_value=True)
     @patch("os.path.isdir", return_value=True)
     @patch("os.path.exists", return_value=True)
     def test_update_directory(
@@ -40,10 +40,10 @@ class TestFileSystem:
         # mock_process is not name-bound here if not in signature, but we removed it to fix F841
         # Let's check the signature.
 
-    @patch("logic.src.cli.fs_parser.process_file")
-    @patch("logic.src.cli.fs_parser.process_file_statistics")
-    @patch("logic.src.cli.fs_parser.preview_file_changes")
-    @patch("logic.src.cli.fs_parser.confirm_proceed", return_value=True)
+    @patch("logic.controllers.cli.fs_parser.process_file")
+    @patch("logic.controllers.cli.fs_parser.process_file_statistics")
+    @patch("logic.controllers.cli.fs_parser.preview_file_changes")
+    @patch("logic.controllers.cli.fs_parser.confirm_proceed", return_value=True)
     @patch("os.path.isdir", return_value=False)
     @patch("os.path.isfile", return_value=True)
     @patch("os.path.exists", return_value=True)
@@ -65,23 +65,23 @@ class TestFileSystem:
 
     @patch("shutil.rmtree")
     @patch("os.path.exists", return_value=True)
-    @patch("logic.src.cli.fs_parser.confirm_proceed", return_value=True)
+    @patch("logic.controllers.cli.fs_parser.confirm_proceed", return_value=True)
     def test_delete_entries(self, mock_confirm, mock_exists, mock_rmtree, fs_delete_opts):
         """Test deletion of file system entries (wandb, logs)."""
         delete_file_system_entries(fs_delete_opts)
         # Should delete wandb and logs
         assert mock_rmtree.call_count == 2
 
-    @patch("logic.src.cli.fs_parser.generate_key")
+    @patch("logic.controllers.cli.fs_parser.generate_key")
     def test_crypto_gen_key(self, mock_gen, fs_crypto_gen_opts):
         """Test cryptographic key generation."""
         mock_gen.return_value = (None, None)
         perform_cryptographic_operations(fs_crypto_gen_opts)
         mock_gen.assert_called_once()
 
-    @patch("logic.src.cli.fs_parser.load_key")
-    @patch("logic.src.cli.fs_parser.encrypt_file_data")
-    @patch("logic.src.cli.fs_parser.decrypt_file_data")
+    @patch("logic.controllers.cli.fs_parser.load_key")
+    @patch("logic.controllers.cli.fs_parser.encrypt_file_data")
+    @patch("logic.controllers.cli.fs_parser.decrypt_file_data")
     @patch("builtins.open", new_callable=mock_open, read_data="data")
     def test_crypto_encrypt(self, mock_open, mock_decrypt, mock_encrypt, mock_load, fs_crypto_encrypt_opts):
         """Test file encryption and decryption operations."""
@@ -105,11 +105,11 @@ class TestFileSystem:
             "stats_function": None,
         }
         with (
-            patch("logic.src.cli.fs_parser.os.path.isdir", return_value=True),
-            patch("logic.src.cli.fs_parser.preview_pattern_files_statistics"),
-            patch("logic.src.cli.fs_parser.preview_changes") as mock_preview,
-            patch("logic.src.cli.fs_parser.confirm_proceed", return_value=True),
-            patch("logic.src.cli.fs_parser.process_pattern_files"),
+            patch("logic.controllers.cli.fs_parser.os.path.isdir", return_value=True),
+            patch("logic.controllers.cli.fs_parser.preview_pattern_files_statistics"),
+            patch("logic.controllers.cli.fs_parser.preview_changes") as mock_preview,
+            patch("logic.controllers.cli.fs_parser.confirm_proceed", return_value=True),
+            patch("logic.controllers.cli.fs_parser.process_pattern_files"),
         ):
             res = update_file_system_entries(opts)
             assert res == 1
@@ -126,8 +126,8 @@ class TestFileSystem:
             "stats_function": lambda x: x,
         }
         with (
-            patch("logic.src.cli.fs_parser.os.path.isdir", return_value=True),
-            patch("logic.src.cli.fs_parser.process_pattern_files_statistics") as mock_process,
+            patch("logic.controllers.cli.fs_parser.os.path.isdir", return_value=True),
+            patch("logic.controllers.cli.fs_parser.process_pattern_files_statistics") as mock_process,
         ):
             res = update_file_system_entries(opts)
             assert res == 1

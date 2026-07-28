@@ -7,14 +7,12 @@ project, including the WSmart-Route simulator, reinforcement learning training
 pipelines, and test suite execution. The graphical interface is the WSmart-Route
 Studio Tauri application (see `app/`), which spawns these CLI commands.
 
-It dispatches commands based on arguments parsed by `logic.src.cli`
+It dispatches commands based on arguments parsed by ``logic.controllers.cli``
 to the appropriate subsystems (Logic, Test).
 
 Key Functions:
-    - run_test_suite: Orchestrates the execution of unit and integration tests.
-    - pretty_print_args: Formats and displays command-line arguments for logging.
     - main: The central dispatcher that routes the parsed CLI arguments to the
-      corresponding execution logic.
+      corresponding execution logic via the Hydra or argparse dispatch systems.
 """
 
 import sys
@@ -42,9 +40,9 @@ try:
 except ImportError:
     pass
 
+from logic.controllers.cli import parse_params
 from logic.controllers.hydra_dispatch import hydra_entry_point
 from logic.controllers.parser_dispatch import parser_entry_point
-from logic.src.cli import parse_params
 
 warnings.filterwarnings(
     "ignore",
