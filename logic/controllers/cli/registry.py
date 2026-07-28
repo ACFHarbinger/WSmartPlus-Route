@@ -12,10 +12,10 @@ Example:
 """
 
 from logic.controllers.cli.base import ConfigsParser
-from logic.controllers.cli.benchmark_parser import add_benchmark_args
+from logic.controllers.cli.bench_parser import add_benchmark_args
 from logic.controllers.cli.fs_parser import add_files_args
-from logic.controllers.cli.output_parser import add_excel_summary_args, add_output_args
-from logic.controllers.cli.target_parser import add_ms_update_args, add_ri_update_args
+from logic.controllers.cli.out_parser import add_excel_summary_args, add_output_args
+from logic.controllers.cli.tgt_parser import add_ms_update_args, add_ri_update_args
 from logic.controllers.cli.ts_parser import add_test_suite_args
 
 

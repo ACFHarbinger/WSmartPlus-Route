@@ -16,12 +16,12 @@ Integrates with the WSmart+ Route CLI registry as the ``clean_results`` and
     python main.py excel_summary --output-path my_summary.xlsx --dirs 31_days/riomaior_104
 
     # Standalone with subcommands
-    uv run python -m logic.controllers.cli.output_parser clean \\
+    uv run python -m logic.controllers.cli.out_parser clean \\
         --results-dir assets/output/30_days/riomaior_100 \\
         --ms-strategy lookahead --distribution gamma3
 
-    uv run python -m logic.controllers.cli.output_parser excel
-    uv run python -m logic.controllers.cli.output_parser excel --output-path my_summary.xlsx
+    uv run python -m logic.controllers.cli.out_parser excel
+    uv run python -m logic.controllers.cli.out_parser excel --output-path my_summary.xlsx
 
 All filter options for ``clean`` are optional; an omitted option matches *any* value.
 Multiple values can be passed to the same option (space-separated).
@@ -116,10 +116,7 @@ def add_excel_summary_args(parser: argparse.ArgumentParser) -> None:
         "--output-path",
         default=_DEFAULT_EXCEL_OUTPUT,
         metavar="PATH",
-        help=(
-            f"Destination ``.xlsx`` file.  "
-            f"Defaults to '{_DEFAULT_EXCEL_OUTPUT}'."
-        ),
+        help=(f"Destination ``.xlsx`` file.  Defaults to '{_DEFAULT_EXCEL_OUTPUT}'."),
     )
     parser.add_argument(
         "--dirs",
@@ -220,7 +217,7 @@ def main(argv=None) -> int:
         Exit code.
     """
     parser = argparse.ArgumentParser(
-        prog="python -m logic.controllers.cli.output_parser",
+        prog="python -m logic.controllers.cli.out_parser",
         description=(
             "WSmart+ Route output artefact utilities.\n\n"
             "  clean  — remove targeted simulation runs\n"

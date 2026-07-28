@@ -2,16 +2,16 @@
 
 Unified argparse entry point: receives the ``(command, opts)`` tuple from
 :func:`logic.controllers.cli.parse_params` and delegates to the appropriate
-function in :mod:`logic.controllers.ops`.  This module owns only the
+function in :mod:`logic.controllers.jobs.ops_runner`.  This module owns only the
 dispatch table, a pretty-printer helper, and the outermost exception handler.
 
 Supported commands
 ------------------
-- ``"benchmark"``                       → :func:`~logic.controllers.ops.run_benchmarks`
-- ``"test_suite"``                      → :func:`~logic.controllers.ops.run_test_suite`
-- ``"file_system"`` + sub-command       → :func:`~logic.controllers.ops.run_file_system`
-- ``"clean_results"`` / ``"excel_summary"`` → :func:`~logic.controllers.ops.run_output_command`
-- ``"update_ms"`` / ``"update_ri"``     → :func:`~logic.controllers.ops.run_target_update`
+- ``"benchmark"``                       → :func:`~logic.controllers.jobs.ops_runner.run_benchmarks`
+- ``"test_suite"``                      → :func:`~logic.controllers.jobs.ops_runner.run_test_suite`
+- ``"file_system"`` + sub-command       → :func:`~logic.controllers.jobs.ops_runner.run_file_system`
+- ``"clean_results"`` / ``"excel_summary"`` → :func:`~logic.controllers.jobs.ops_runner.run_output_command`
+- ``"update_ms"`` / ``"update_ri"``     → :func:`~logic.controllers.jobs.ops_runner.run_target_update`
 
 Example::
 
@@ -26,7 +26,7 @@ import sys
 import traceback
 from typing import Any, Dict, Optional, Tuple, Union
 
-from logic.controllers.ops import (
+from logic.controllers.jobs.ops_runner import (
     _OUTPUT_COMMANDS,
     _TARGET_COMMANDS,
     run_benchmarks,
@@ -82,7 +82,7 @@ def parser_entry_point(
 ) -> None:
     """Unified entry point for all argparse-driven commands.
 
-    Routes execution to the appropriate :mod:`logic.controllers.ops` function
+    Routes execution to the appropriate :mod:`logic.controllers.jobs.ops_runner` function
     based on the command extracted from ``args``.  Each ops function calls
     ``sys.exit`` internally; this function only handles unexpected top-level
     exceptions.

@@ -1,21 +1,19 @@
-"""Simulation and data-generation controller.
+"""Pipeline runner for Hydra-driven tasks.
 
-Entry point for commands that exercise the simulation engine or the
-dataset-generation pipeline, all routed through Hydra:
+Unified entry point for all configuration-driven pipeline execution tasks:
 
-- ``test_sim``          — standard multi-day WSmart-Route simulator test
-- ``hpo_sim`` / ``sim_hpo`` — hyperparameter optimisation over policy params
-- ``gen_data``          — dataset generation (virtual / val / test splits)
+- Neural model training and evaluation: ``train``, ``meta_train``, ``hpo``, ``eval``
+- Simulation engine execution: ``test_sim``, ``hpo_sim`` / ``sim_hpo``
+- Dataset generation: ``gen_data``
 
-Grouping rationale: all three commands operate on the *problem instance*
-level rather than on the model weights.  ``gen_data`` produces the raw
-data that the simulator (and trainer) consume; ``test_sim`` / ``hpo_sim``
-run the full-stack routing simulation.
+Hydra drives configuration for all tasks in this module; the underlying business
+logic is implemented in the corresponding feature pipelines.
 
 Example::
 
+    python main.py train model=am env.name=vrpp env.num_loc=50
+    python main.py eval eval.model_path=./weights/best.pt
     python main.py test_sim sim.days=31 sim.policies=regular,gurobi,alns
-    python main.py hpo_sim hpo_sim.policy=bpc hpo_sim.n_trials=20
     python main.py gen_data data.problem=vrpp data.graph_sizes=[50]
 """
 
@@ -26,10 +24,17 @@ from typing import Any, List
 # ---------------------------------------------------------------------------
 
 _ROOT_KEYS: List[str] = [
-    "seed", "device", "experiment_name", "task",
-    "output_dir", "run_name", "start", "tracking",
+    "seed",
+    "device",
+    "experiment_name",
+    "task",
+    "output_dir",
+    "run_name",
+    "start",
+    "tracking",
 ]
 
+_TRAINING_TASKS = frozenset({"train", "meta_train", "hpo"})
 _SIM_TASKS = frozenset({"test_sim", "hpo_sim", "sim_hpo"})
 
 # ---------------------------------------------------------------------------
@@ -42,7 +47,7 @@ def _print_config(cfg: Any, label: str, filter_keys: Any = None) -> None:
 
     Args:
         cfg: The Hydra configuration object.
-        label: Section header label (e.g. ``"SIMULATION"``).
+        label: Section header label (e.g. ``"TRAINING"``).
         filter_keys: Optional list of top-level keys to include.
     """
     from omegaconf import OmegaConf
@@ -56,7 +61,58 @@ def _print_config(cfg: Any, label: str, filter_keys: Any = None) -> None:
 
 
 # ---------------------------------------------------------------------------
-# Simulation main
+# Model Training & Evaluation
+# ---------------------------------------------------------------------------
+
+
+def run_training(cfg: Any) -> float:
+    """Dispatch a training, meta-RL, or HPO run.
+
+    Delegates to :func:`~logic.src.pipeline.features.train.run_hpo` when
+    ``cfg.hpo.n_trials > 0``, otherwise to
+    :func:`~logic.src.pipeline.features.train.run_training`.
+
+    Args:
+        cfg: Hydra ``Config`` object (structured config).
+
+    Returns:
+        Scalar result value (loss, reward, or HPO best metric).
+    """
+    from logic.src.pipeline.features.train import run_hpo
+    from logic.src.pipeline.features.train import run_training as _train
+
+    if cfg.tracking.verbose:
+        _print_config(
+            cfg,
+            "TRAINING",
+            filter_keys=_ROOT_KEYS + ["env", "model", "train", "rl", "optim"],  # type: ignore[arg-type]
+        )
+
+    if cfg.hpo.n_trials > 0:
+        return run_hpo(cfg)
+    return _train(cfg)
+
+
+def run_evaluation(cfg: Any) -> float:
+    """Run model evaluation.
+
+    Args:
+        cfg: Hydra ``Config`` object (structured config).
+
+    Returns:
+        0.0 on success.
+    """
+    from logic.src.pipeline.features.eval import run_evaluate_model
+
+    if cfg.tracking.verbose:
+        _print_config(cfg, "EVALUATION", filter_keys=_ROOT_KEYS + ["eval"])  # type: ignore[arg-type]
+
+    run_evaluate_model(cfg)
+    return 0.0
+
+
+# ---------------------------------------------------------------------------
+# Simulation & Data Generation
 # ---------------------------------------------------------------------------
 
 
@@ -96,11 +152,6 @@ def run_simulation(cfg: Any) -> float:
         return 0.0
 
     raise ValueError(f"Unknown simulation task: {task!r}")
-
-
-# ---------------------------------------------------------------------------
-# Data generation main
-# ---------------------------------------------------------------------------
 
 
 def run_data_generation(cfg: Any) -> float:

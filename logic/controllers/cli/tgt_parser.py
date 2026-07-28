@@ -16,12 +16,12 @@ Integrates with the WSmart+ Route CLI registry as the ``update_ms`` and
         --keys ftsp
 
     # Standalone with subcommands
-    uv run python -m logic.controllers.cli.target_parser ms \\
+    uv run python -m logic.controllers.cli.tgt_parser ms \\
         --constructors aco_hh alns \\
         --file ms_last_minute \\
         --keys last_minute_cf70 last_minute_cf90
 
-    uv run python -m logic.controllers.cli.target_parser ri \\
+    uv run python -m logic.controllers.cli.tgt_parser ri \\
         --constructors aco_hh alns \\
         --file ri_cls \\
         --keys default
@@ -75,10 +75,7 @@ def add_ms_update_args(parser: argparse.ArgumentParser) -> None:
         nargs="+",
         default=_ALL_CONSTRUCTORS,
         metavar="CON",
-        help=(
-            "Route constructor(s) whose policy file(s) to update.  "
-            f"Defaults to all: {' '.join(_ALL_CONSTRUCTORS)}"
-        ),
+        help=(f"Route constructor(s) whose policy file(s) to update.  Defaults to all: {' '.join(_ALL_CONSTRUCTORS)}"),
     )
     parser.add_argument(
         "--file",
@@ -132,10 +129,7 @@ def add_ri_update_args(parser: argparse.ArgumentParser) -> None:
         nargs="+",
         default=_ALL_CONSTRUCTORS,
         metavar="CON",
-        help=(
-            "Route constructor(s) whose policy file(s) to update.  "
-            f"Defaults to all: {' '.join(_ALL_CONSTRUCTORS)}"
-        ),
+        help=(f"Route constructor(s) whose policy file(s) to update.  Defaults to all: {' '.join(_ALL_CONSTRUCTORS)}"),
     )
     parser.add_argument(
         "--file",
@@ -301,7 +295,7 @@ def main(argv=None) -> int:
         Exit code.
     """
     parser = argparse.ArgumentParser(
-        prog="python -m logic.controllers.cli.target_parser",
+        prog="python -m logic.controllers.cli.tgt_parser",
         description=(
             "Batch-update policy YAML config overrides for WSmart+ Route.\n\n"
             "  ms  — update mandatory-selection strategy overrides\n"

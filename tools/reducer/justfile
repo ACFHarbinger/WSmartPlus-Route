@@ -163,7 +163,7 @@ clean-results results_dir="" distribution="" constructor="" ms_strategy="" impro
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Improver:" "{{ improver }}"
     @printf "\033[0;36m║\033[0m \033[0;33m%-15s\033[0m \033[0;35m%-42s\033[0m \033[0;36m║\033[0m\n" "Dry Run:" "{{ dry_run }}"
     @printf "\033[0;36m╚════════════════════════════════════════════════════════════╝\033[0m\n"
-    uv run python -m logic.controllers.cli.output_parser clean \
+    uv run python -m logic.controllers.cli.out_parser clean \
         --results-dir {{ results_dir }} \
         $([ -n "{{ distribution }}" ] && echo "--distribution {{ distribution }}" || true) \
         $([ -n "{{ constructor }}" ] && echo "--constructor {{ constructor }}" || true) \

@@ -31,7 +31,7 @@ Example::
 import argparse
 import sys
 import traceback
-from typing import Any, Dict, Optional
+from typing import Any, Dict
 
 # ---------------------------------------------------------------------------
 # Benchmark
@@ -43,7 +43,7 @@ def run_benchmarks(opts: Dict[str, Any]) -> None:
 
     Args:
         opts: Validated options dict from
-            :func:`~logic.controllers.cli.benchmark_parser.validate_benchmark_args`.
+            :func:`~logic.controllers.cli.bench_parser.validate_benchmark_args`.
 
     Raises:
         SystemExit: Exits with code 0 on success, 1 on failure.
@@ -195,8 +195,10 @@ def run_output_command(comm: str, opts: Dict[str, Any]) -> None:
         SystemExit: Exits with the integer exit code returned by the
             sub-command (0 = success).
     """
-    from logic.controllers.cli.output_parser import (
+    from logic.controllers.cli.out_parser import (
         _run_excel_summary_from_namespace,
+    )
+    from logic.controllers.cli.out_parser import (
         _run_from_namespace as _run_clean,
     )
 
@@ -238,7 +240,7 @@ def run_target_update(comm: str, opts: Dict[str, Any]) -> None:
         SystemExit: Exits with the integer exit code returned by the
             sub-command (0 = success, 1 = error or nothing matched).
     """
-    from logic.controllers.cli.target_parser import (
+    from logic.controllers.cli.tgt_parser import (
         _run_ms_from_namespace,
         _run_ri_from_namespace,
     )

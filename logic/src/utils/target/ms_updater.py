@@ -15,7 +15,7 @@ Quick start::
 
 CLI usage::
 
-    python -m logic.controllers.cli.target_parser ms \\
+    python -m logic.controllers.cli.tgt_parser ms \\
         --constructors aco_hh alns bpc \\
         --file ms_service_level \\
         --keys service_level1 service_level2
@@ -33,9 +33,7 @@ import re
 from typing import List, Tuple
 
 _SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-_DEFAULT_CONFIGS_DIR = os.path.normpath(
-    os.path.join(_SCRIPT_DIR, "../../../configs/policies")
-)
+_DEFAULT_CONFIGS_DIR = os.path.normpath(os.path.join(_SCRIPT_DIR, "../../../configs/policies"))
 
 _MS_FIELD_RE = re.compile(r"(mandatory_selection:\s*)\{[^}]+\}")
 
@@ -68,11 +66,7 @@ def list_available_ms_strategies(configs_dir: str = _DEFAULT_CONFIGS_DIR) -> Lis
     other_dir = os.path.join(configs_dir, "other")
     if not os.path.isdir(other_dir):
         return []
-    return sorted(
-        os.path.splitext(f)[0]
-        for f in os.listdir(other_dir)
-        if f.startswith("ms_") and f.endswith(".yaml")
-    )
+    return sorted(os.path.splitext(f)[0] for f in os.listdir(other_dir) if f.startswith("ms_") and f.endswith(".yaml"))
 
 
 def list_strategy_keys(ms_yaml: str, configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
@@ -142,10 +136,7 @@ def update_mandatory_selection(
     available_keys = list_strategy_keys(stem, configs_dir)
     for key in keys:
         if key not in available_keys:
-            raise ValueError(
-                f"Key '{key}' not found in {stem}.yaml. "
-                f"Available keys: {available_keys}"
-            )
+            raise ValueError(f"Key '{key}' not found in {stem}.yaml. Available keys: {available_keys}")
 
     keys_str = ", ".join(f'"{k}"' for k in keys)
     replacement = f'\\g<1>{{ "other/{stem}.yaml": [{keys_str}] }}'
