@@ -18,14 +18,12 @@ src.utils.decoding
 src.utils.graph
 src.utils.expo
 src.utils.infrastructure
-src.utils.package
 src.utils.security
 src.utils.policy
 src.utils.tasks
 src.utils.model
 src.utils.functions
 src.utils.actions
-src.utils.validation
 src.utils.target
 src.utils.docs
 src.utils.input

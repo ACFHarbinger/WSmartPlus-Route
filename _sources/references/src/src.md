@@ -18,7 +18,6 @@ src.models
 src.utils
 src.enums
 src.pipeline
-src.cli
 src.constants
 src.policies
 src.interfaces
