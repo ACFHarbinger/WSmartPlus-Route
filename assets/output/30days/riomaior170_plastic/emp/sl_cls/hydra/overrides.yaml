@@ -1,5 +1,0 @@
-- sim.policies=[aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf]
-- sim.n_samples=1
-- sim.graph.area=riomaior
-- sim.cpu_cores=20
-- tasks=test_sim
