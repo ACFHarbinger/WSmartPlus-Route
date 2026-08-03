@@ -563,14 +563,13 @@ This project adapts code and ideas from:
 
 ## License
 
-This project is licensed under the terms specified in the [LICENSE](LICENSE) file.
+This project is dual-licensed under an open-core model:
 
----
-
-<div align="center">
-
-**WSmart+ Route** - Bridging AI and Operations Research for Smarter Waste Collection
-
-[Report a Bug](https://github.com/ACFHarbinger/WSmart-Route/issues) | [Request a Feature](https://github.com/ACFHarbinger/WSmart-Route/issues) | [Documentation](docs/TUTORIAL.md)
-
-</div>
+- **Open source (free) — GNU AGPL-3.0.** Free to use, modify, and
+  distribute for hobbyists, students, researchers, non-profits, and any
+  other use that complies with the [AGPL-3.0](LICENSE.md)'s copyleft and
+  network source-disclosure terms.
+- **Commercial (paid).** For proprietary, closed-source, or SaaS use that
+  can't comply with the AGPL's obligations, a paid
+  [commercial license](LICENSE.txt) is available — contact ACFHarbinger
+  <afonso.fernandes100@gmail.com> for pricing and terms.
