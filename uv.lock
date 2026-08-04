@@ -9,6 +9,12 @@ resolution-markers = [
     "python_full_version < '3.11'",
 ]
 
+[manifest]
+members = [
+    "wsmart-route",
+    "wsmart-route-workspace",
+]
+
 [[package]]
 name = "absl-py"
 version = "2.4.0"
@@ -8461,7 +8467,7 @@ wheels = [
 [[package]]
 name = "wsmart-route"
 version = "1.0.0"
-source = { virtual = "." }
+source = { virtual = "logic" }
 dependencies = [
     { name = "cryptography" },
     { name = "docxtpl" },
@@ -8718,6 +8724,11 @@ dev = [
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "types-pyyaml", specifier = ">=6.0.12.20250915" },
 ]
+
+[[package]]
+name = "wsmart-route-workspace"
+version = "1.0.0"
+source = { virtual = "." }
 
 [[package]]
 name = "xlsxwriter"
