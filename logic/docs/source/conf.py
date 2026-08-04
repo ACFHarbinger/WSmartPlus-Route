@@ -52,7 +52,8 @@ autodoc2_output_dir = "references"
 autodoc2_render_plugin = "myst"
 
 templates_path = ["_templates"]
-exclude_patterns = []
+exclude_patterns = ["**/.venv/**", "**/site-packages/**", "**/__pycache__/**"]
+
 
 
 # -- Options for HTML output -------------------------------------------------

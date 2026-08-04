@@ -198,7 +198,7 @@ jobs:
           echo "$HOME/.cargo/bin" >> "$GITHUB_PATH"
 
       - name: Sync Python environment
-        run: uv sync --frozen
+        run: uv sync --all-packages --frozen
         env:
           UV_SYSTEM_PYTHON: "1"
 

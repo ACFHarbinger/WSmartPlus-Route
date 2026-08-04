@@ -35,7 +35,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --all-extras --all-groups
+        run: uv sync --all-packages --all-extras --all-groups
 
       - name: Run pre-commit hooks
         run: uv run pre-commit run --all-files
@@ -79,7 +79,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --all-extras --dev
+        run: uv sync --all-packages --all-extras --all-groups
 
       - name: Run E2E Tests
         run: uv run pytest -m "e2e"
@@ -110,7 +110,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --all-extras --dev
+        run: uv sync --all-packages --all-extras --all-groups
 
       - name: Run Integration Tests
         run: uv run pytest -m "integration"
@@ -141,7 +141,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --all-extras --dev
+        run: uv sync --all-packages --all-extras --all-groups
 
       - name: Test Fast Unit with Coverage
         run: uv run pytest -m "unit and fast" --cov=logic/src --cov-report=xml --cov-report=term-missing
@@ -177,7 +177,7 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install dependencies
-        run: uv sync --all-extras --dev
+        run: uv sync --all-packages --all-extras --all-groups
 
       - name: Run Slow Unit Tests
         run: uv run pytest -m "unit and slow"

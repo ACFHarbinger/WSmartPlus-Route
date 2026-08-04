@@ -6,12 +6,12 @@ set working-directory := '../..'
 # Initialize environment and install all dependencies
 setup:
     @printf "\033[0;34mSetting up environment with uv...\033[0m\n"
-    uv sync --all-groups --all-extras
+    uv sync --all-packages --all-groups --all-extras
     @printf "\033[0;32mEnvironment ready.\033[0m\n"
 
 # Sync dependencies using uv
 sync:
-    uv sync --all-groups --all-extras
+    uv sync --all-packages --all-groups --all-extras
 
 # Install dependencies via pip
 install:
