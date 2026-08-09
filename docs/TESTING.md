@@ -818,7 +818,7 @@ Ensures parity and robustness across different optimization engines.
 
 Structured logging infrastructure for visualizing test metrics and benchmarking results.
 
-- **Infrastructure**: Docker Compose in `docker/elk/`.
+- **Infrastructure**: Docker Compose in `infra/global/docker/elk/`.
 - **Structured Logs**: `logic/src/utils/structured_logging.py` provides JSON formatting for Logstash.
 - **Usage**:
   ```python
@@ -826,7 +826,7 @@ Structured logging infrastructure for visualizing test metrics and benchmarking 
   log_test_metric("inference_latency", 12.5)
 ````
 
-- **Kibana**: Dashboard template available at `docker/elk/kibana_dashboard.json`.
+- **Kibana**: Dashboard template available at `infra/global/docker/elk/kibana_dashboard.json`.
 
 To start the ELK stack:
 
