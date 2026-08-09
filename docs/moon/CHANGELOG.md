@@ -152,7 +152,7 @@ Remaining §H scope: document spec + override patch layer, native OMML equations
 
 ### Changed
 
-- `docker/Dockerfile` now builds the Studio into Linux bundles (`.deb` / `.AppImage`) instead of serving the Streamlit dashboard
+- `infra/global/docker/Dockerfile` now builds the Studio into Linux bundles (`.deb` / `.AppImage`) instead of serving the Streamlit dashboard
 - Docs, justfiles, CI workflow, agent rules/workflows, and packager configs updated for the Studio-only interface
 
 #### WSmart-Route Studio — Tauri App (`app/`) — two-hundred-and-thirty-eighth pass (§G.1 + §G.6 + §G.11 + §G.15 + §G.17 + §G.18 + §D.7 + §D.8)
