@@ -7,7 +7,7 @@ Description: Serverless Backend stack for the WSmart Route.
 
 Resources:
   # DynamoDB Database Table
-  Wsmart_routeTable:
+  WsmartRouteTable:
     Type: AWS::Serverless::SimpleTable
     Properties:
       PrimaryKey:
@@ -18,7 +18,7 @@ Resources:
         WriteCapacityUnits: 5
 
   # Lambda Function
-  Wsmart_routeFunction:
+  WsmartRouteFunction:
     Type: AWS::Serverless::Function
     Properties:
       Handler: handler.lambda_handler
@@ -26,10 +26,10 @@ Resources:
       CodeUri: ./src
       Environment:
         Variables:
-          TABLE_NAME: !Ref Wsmart_routeTable
+          TABLE_NAME: !Ref WsmartRouteTable
       Policies:
         - DynamoDBCrudPolicy:
-            TableName: !Ref Wsmart_routeTable
+            TableName: !Ref WsmartRouteTable
       Events:
         ApiEvent:
           Type: Api
