@@ -1,0 +1,15 @@
+{
+  "name": "wsmart-route",
+  "version": "1.0.0",
+  "description": "WSmart-Route Root Package",
+  "private": true,
+  "scripts": {
+    "docs:install": "cd docs/website && npm install",
+    "docs:dev": "cd docs/website && npm run dev",
+    "docs:build": "cd docs/website && npm run build",
+    "docs:preview": "cd docs/website && npm run preview",
+    "app:install": "cd app && npm install",
+    "app:dev": "cd app && npm run tauri dev",
+    "app:build": "cd app && npm run tauri build"
+  }
+}
