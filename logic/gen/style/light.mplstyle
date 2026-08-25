@@ -1,13 +1,25 @@
-# WSmart+ Route — light (white background) chart theme
-figure.facecolor: ffffff
-axes.facecolor: ffffff
-axes.edgecolor: 444444
-text.color: 222222
-axes.labelcolor: 222222
-xtick.color: 222222
-ytick.color: 222222
-grid.color: c8c8c8
-grid.alpha: 0.6
-legend.facecolor: ffffff
-legend.edgecolor: 444444
+# WSmart+ Route — Cartographic/Civic Light Theme
+figure.facecolor: fffffff
+axes.facecolor: f4f6f8
+axes.edgecolor: bac4ce
+axes.linewidth: 1.2
+text.color: 1a202c
+axes.labelcolor: 4a5568
+xtick.color: 4a5568
+ytick.color: 4a5568
+grid.color: dce1e6
+grid.linestyle: --
+grid.linewidth: 1.0
+grid.alpha: 1.0
+axes.grid: True
+axes.spines.top: False
+axes.spines.right: False
+font.family: sans-serif
+font.sans-serif: Public Sans, Arial, Helvetica, sans-serif
+axes.titleweight: bold
+axes.titlepad: 12
+axes.labelpad: 8
+legend.frameon: False
+lines.linewidth: 2.0
+scatter.edgecolors: white
 savefig.facecolor: ffffff
