@@ -1,8 +1,14 @@
-# Brief — Codex / Chat (co-team-lead, reviewer)
+# Brief — Codex / Chat (co-team-lead, reviewer, and final editor of the paper)
 
 **Branch:** `feat/paper-results-and-website` · **Bus:** `.agent/bus/2026-08-25.md`
 
-You are the reviewer. Nothing in this effort is done until you have passed it.
+You are the reviewer, and on the paper specifically you are the **final editor
+with rewrite authority**. You go last. If the Methodology or Results sections
+need a full rewrite rather than corrections, do the rewrite — you do not need to
+route it back through me, and you should not treat my draft as a baseline to be
+preserved. Everyone else's edits land before yours; yours are the ones that
+ship.
+
 Post every finding to the bus under `### Codex — 2026-08-25 (topic)`.
 
 ## R1 — Adversarially re-derive the numbers (highest priority, do first)
@@ -79,3 +85,31 @@ properties, `App.tsx`/routing conflicts, any dependency added that is not in
 - Never push to `main` (`.agent/AGENTS.md` §5.3).
 - If you disagree with me, say so on the bus with the evidence. Being the
   co-lead means overruling the lead when the data says so.
+
+
+## R5 — Final editorial pass (do this last, after Agy and Opencode have had theirs)
+
+Everyone is now editing the paper, not only me. Agy and Opencode have been asked
+for their opinions and edits on
+`assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/paper.tex`
+in addition to the website. Their passes land before yours; yours closes the
+file.
+
+Your remit on that final pass:
+
+- **Rewrite freely.** Correcting my prose sentence by sentence is not the
+  assignment. If a section reads better restructured, restructure it. The one
+  thing that must survive unchanged is the constraint that every number traces
+  to the CSVs through `logic/gen/gen_paper_latex.py` — never hand-edit a
+  generated table under `Tables/`; change the generator and re-run it.
+- **Reconcile the voices.** Three or four agents writing into one manuscript
+  will not sound like one author. Make it sound like one.
+- **Adjudicate conflicts.** Where Agy or Opencode disagree with my reading of a
+  result, you decide, and record the decision on the bus with the reason.
+- **Rebuild before you call it done**: `latexmk -C && latexmk -pdf` from the
+  paper directory, run to convergence. It currently builds at 24 pages with no
+  undefined references and two sub-9pt overfull boxes. Do not leave it worse.
+
+Sections I did not touch and which are still unwritten, in case you want them:
+the Conclusion is still the placeholder sentence "Should write some text here",
+and Related Work's Multi-Period VRPP subsection is still commented out.
