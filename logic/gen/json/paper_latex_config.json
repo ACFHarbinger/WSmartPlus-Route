@@ -178,6 +178,7 @@
         "key": "riomaior170_plastic",
         "N": 170,
         "dm": "gmaps_distmat.csv",
+        "map_artifact": "riomaior170_selected_map.png",
         "color": "#0066cc"
       },
       {
@@ -185,6 +186,7 @@
         "key": "figueiradafoz350_plastic",
         "N": 350,
         "dm": "osm_distmat.csv",
+        "map_artifact": "figueiradafoz350_selected_map.png",
         "color": "#00a859"
       }
     ]

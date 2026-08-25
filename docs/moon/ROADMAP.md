@@ -3070,11 +3070,14 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 - [x] Results and the stale Data/Baselines subsections rewritten against `public/global/simulation/simulation_summary{,_90d}.csv`. The previous Results described an Attention Model / gurobi / look-ahead study that nothing in the repo reproduces (2026-08-25)
 - [x] Simulation Protocol subsection stating paired demand realisations, sensing noise, the overflow/loss distinction and the single-vehicle single-depot restriction (2026-08-25)
 - [x] Conclusion and Future Work completed; Related Work now includes the multi-period profitable-routing gap and scopes NCO to framework capability rather than a benchmarked result (2026-08-25)
+- [x] Final publication edit: concise introduction/contributions, corrected route formulation, evidence-calibrated Results prose, six-author block and PDF metadata, citation records checked against original publication pages (2026-08-25)
+- [x] Real side-by-side coordinate maps for Rio Maior–170 and Figueira da Foz–350 from the retained selected-bin maps over OpenStreetMap drive-network geometry; MDS layouts removed from the paper figure (2026-08-25)
 - [ ] `[Research]` Run a complete, replicated 90-day grid so cross-constructor and population-level horizon effects become estimable (see §I.3). Current paired values describe only policies selected on 30-day Pareto performance
 
 ### I.2 — Reproducible generation
 
 - [x] `logic/gen/gen_paper_latex.py`: six tables and six figures generated from the summary CSVs/raw logs into the paper's own tree, including balanced demand/network marginals (2026-08-25)
+- [x] Network-map generation reuses tracked coordinate-derived analysis artifacts and fails explicitly when they are absent, avoiding geographic reconstruction from inconsistent distance-matrix copies (2026-08-25)
 - [x] Report/deck generators revived from `archive/gen/` to `logic/gen/` and brought up to ruff (2026-08-25)
 - [ ] `[Quick Win]` A `just paper` target that regenerates tables and figures and rebuilds the PDF in one step
 - [ ] Wire the same degenerate-run exclusion into `gen_simulation_analysis.py` and the Studio's native `app/src/gen/` engine, so all four consumers apply one rule
