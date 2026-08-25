@@ -592,33 +592,40 @@ Sect.~\ref{sec:integrity} demonstrates.
 \subsection{Data Integrity}
 \label{sec:integrity}
 
-Three of the 480 runs are degenerate rather than merely poor, and all three are
-SWC-TCF on Figueira da Foz under Gamma-3 (Table~\ref{tab:excluded}). Because
-every constructor in a scenario collects from an identical waste realisation,
-collected tonnage is comparable by construction; these runs collected 47\%,
-47\% and 30\% less than their scenario median, having failed to complete rather
-than having routed badly. Their very large overflow counts measure that
+Four runs are degenerate rather than merely poor, and all four are SWC-TCF on
+Figueira da Foz under Gamma-3 (Table~\ref{tab:excluded}). Because every
+constructor in a scenario collects from an identical waste realisation,
+collected tonnage is comparable by construction; these runs collected between
+30\% and 86\% less than their scenario median, having failed to complete rather
+than having routed badly. Their very large overflow counts --- up to 23{,}886
+events for the 90-day case, which reached day 13 of 90 --- measure that
 truncation, not policy behaviour. This is the concrete realisation of the
 scaling exposure noted for the monolithic MILP formulation: it is the largest
 network under the heavier of the two generating processes.
 
 The detection rule is a tonnage shortfall against the scenario median, and its
-threshold is not tuned. Across the 576 runs in scenarios of four or more, the
-shortfall distribution has median $0.00$ and 99th percentile $0.057$, then jumps
-directly to these three runs above $0.20$; the gap identifies them
-unambiguously. We note that the count of collection days is \emph{not} a
-truncation signal, despite appearances --- several of the strongest policies
-collect on only 15 of 30 days precisely because they bundle collections well.
+threshold is not tuned. Outside these four runs the shortfall distribution has
+median $0.00$ and does not exceed $0.071$; the four sit at $0.30$, $0.47$,
+$0.47$ and $0.86$. The gap identifies them unambiguously. We note that the count
+of collection days is \emph{not} a truncation signal, despite appearances ---
+several of the strongest policies collect on only 15 of 30 days precisely
+because they bundle collections well, so tonnage is the honest measure.
 
-Excluding these three runs alone would have introduced a subtler bias of the same
-family as the 90-day sampling problem: since all three are SWC-TCF's, removing
+Excluding these runs alone would have introduced a subtler bias of the same
+family as the 90-day sampling problem: since all four are SWC-TCF's, removing
 only them would average SWC-TCF over the scenarios where it did not fail while
-averaging its rivals over those scenarios too. We therefore drop the three
-affected scenario cells for \emph{all} constructors, at a cost of 21 further
-runs, leaving 456 runs at 30 days with every constructor contributing exactly 57.
-The tables and figures in this section are generated directly from the simulation
+averaging its rivals over those scenarios too. We therefore drop the affected
+scenario cells for \emph{all} constructors, at a cost of 23 further runs,
+leaving 456 runs at 30 days with every constructor contributing exactly 57.
+
+The same reasoning applies to every other marginal comparison, in a form that is
+easy to miss. Dropping a scenario cell removes all constructors together, but it
+removes only \emph{one} selection variant and \emph{one} improver, since those
+identify the cell. Marginal tables over those stages are therefore additionally
+restricted to the slices in which every level of the compared stage actually
+ran. All tables and figures in this section are generated from the simulation
 output by a single tool that applies these rules centrally, so no reported
-number is transcribed by hand.
+number is transcribed by hand and the paper cannot drift from the data.
 
 \subsection{Results}
 
@@ -684,39 +691,48 @@ with these instances.
 \subsubsection{Mandatory Selection Strategies}
 \label{sec:res-strategies}
 
-The selection stage produces a larger effect than the constructor stage, and it
-is the paper's central operational result (Table~\ref{tab:strategies30},
-Fig.~\ref{fig:strategy}). Efficiency falls monotonically as the rule grows more
-conservative, from 7.74\,kg/km at LM-CF90 down to 4.03 at SL-SL2 --- a 48\%
-range, against the 24\% range across all eight constructors. Which bins are
-visited matters more than how well the visit is routed.
+The selection stage produces a far larger effect than the constructor stage, and
+it is the paper's central operational result (Table~\ref{tab:strategies30},
+Fig.~\ref{fig:strategy}). Mean efficiency ranges 94\% across the five selection
+variants, from 7.38\,kg/km at LM-CF90 down to 3.81 at SL-SL2, against a 24\%
+range across all eight constructors. Which bins are visited matters
+substantially more than how well the visit is routed --- which is an argument
+for the modular pipeline itself, since a framework that fixed the selection rule
+and benchmarked only constructors would be optimising the smaller of the two
+effects.
 
-Overflow risk, however, does \emph{not} fall monotonically with it. It collapses
-from 28.6 at CF90 to 5.5 at LA, then sits essentially flat across LA (5.5),
-LM-CF70 (7.7) and SL-SL1 (6.3), before falling again to 1.4 at SL-SL2. The
-interesting region is that flat middle. Three strategies with quite different
-mechanisms --- a reactive threshold, a forward simulation, and a statistical
-projection --- deliver materially the same service level, but at steadily
-increasing cost: 3{,}396\,km for LA, 4{,}646 for LM-CF70, 5{,}088 for SL-SL1.
-Look-Ahead reaches that service level for the least distance \emph{and} the
-least runtime (914\,s) of the three, which is a stronger result for it than its
-per-decision expense would suggest, and it does so without assuming a
-distributional form.
+The five variants order monotonically on every measure simultaneously.
+Efficiency falls (7.38, 6.37, 5.82, 5.23, 3.81\,kg/km), overflow events fall
+(14.9, 5.5, 4.3, 3.3, 1.2), distance rises (2{,}940 to 5{,}711\,km) and runtime
+rises (892 to 1{,}941\,s). The selection threshold therefore behaves as a single
+dial: collecting later means hauling more per kilometre on shorter routes and
+overflowing more, and every intermediate setting sits on the curve between those
+extremes rather than off it. No variant dominates another, and the choice
+reduces to how an operator prices an overflow against a kilometre.
 
-The practical reading for an operator is that the choice is not efficiency
-versus safety along a single dial. Moving from CF90 to CF70 buys a large
-reduction in overflows for a moderate efficiency cost and is clearly worthwhile;
-moving further, from LA or CF70 to SL-SL1, buys almost no additional service for
-a real efficiency cost and is not; and moving to SL-SL2 buys a genuine further
-reduction, to a median of one overflow event, but at 4.03\,kg/km and the longest
-routes in the study. Only the first and last steps are defensible, and which of
-them applies depends on how an operator values an overflow.
+The three mechanisms are nonetheless not interchangeable at equal service.
+Look-Ahead attains 5.5 mean overflows at 3{,}396\,km, while Service-Level (SL1)
+needs 4{,}147\,km to reach 3.3 --- so the marginal cost of the last two overflow
+events is roughly 750\,km, an order of magnitude worse than the 456\,km that
+buys the nine events between LM-CF90 and Look-Ahead. Diminishing returns set in
+sharply, and an operator with a fixed distance budget should read the top of the
+table rather than the bottom.
+
+One caveat governs this table specifically. The degenerate runs of
+Sect.~\ref{sec:integrity} fall in Look-Ahead and Service-Level (SL2) cells, so
+removing them removed the study's hardest scenario from those two variants and
+not from the other three. Comparing the raw marginals would have credited
+Look-Ahead with a service level it did not achieve on equal terms. The table is
+therefore restricted to the slices in which all five variants ran, 80 runs each.
+This correction is not cosmetic: on the unrestricted data Look-Ahead appears to
+match LM-CF70 on overflows, and on the balanced data it is clearly worse.
 
 \begin{figure}
     \centering
     \includegraphics[width=0.8\linewidth]{Images/Results/Generated/strategy_tradeoff_30d.png}
     \caption{Efficiency and overflow events by selection strategy, ordered by
-    efficiency. Efficiency declines monotonically; overflow risk does not.}
+    efficiency, over the slices all five variants share. Both decline
+    monotonically: the threshold is a single dial.}
     \label{fig:strategy}
 \end{figure}
 
@@ -731,7 +747,8 @@ Table~\ref{tab:improvers30} is the same constructor, strategy, network and
 demand realisation, differing only in improver.
 
 In aggregate CLS wins, and comfortably: 202 of the 224 pairs, mean
-$+0.74$\,kg/km, on routes 304\,km shorter, at indistinguishable runtime. The
+$+0.74$\,kg/km, on routes 304\,km shorter (4{,}358 against 4{,}662), at
+indistinguishable runtime. The
 mechanism is straightforward --- CLS can move a bin between vehicles, and
 Fast-TSP cannot, so CLS optimises the plan where Fast-TSP only optimises each
 route's internal order.
