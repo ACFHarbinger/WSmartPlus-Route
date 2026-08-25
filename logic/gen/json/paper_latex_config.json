@@ -1,0 +1,115 @@
+{
+  "paths": {
+    "paper_dir": "assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection",
+    "tables_subdir": "Tables",
+    "figures_subdir": "Images/Results/Generated"
+  },
+  "variant_order": [
+    "LMCF90",
+    "LA",
+    "LMCF70",
+    "SLSL1",
+    "SLSL2"
+  ],
+  "variant_labels": {
+    "LMCF90": "Last-Minute (CF90)",
+    "LMCF70": "Last-Minute (CF70)",
+    "LA": "Look-Ahead",
+    "SLSL1": "Service-Level (SL1)",
+    "SLSL2": "Service-Level (SL2)"
+  },
+  "headers": {
+    "constructor": "Route constructor",
+    "strategy": "Selection strategy",
+    "metric": "Metric",
+    "metrics": [
+      "kg/km",
+      "Overflows",
+      "kg lost",
+      "km",
+      "Collections",
+      "Time (s)"
+    ],
+    "improver": [
+      "CLS",
+      "Fast-TSP",
+      "$\\Delta$",
+      "CLS wins",
+      "Ties"
+    ],
+    "horizon": [
+      "Pairs",
+      "kg/km 30d",
+      "kg/km 90d",
+      "Ovf. 30d",
+      "Ovf. 90d"
+    ],
+    "excluded": [
+      "Horizon",
+      "Region",
+      "Configuration",
+      "kg collected",
+      "Shortfall",
+      "Overflows"
+    ]
+  },
+  "metric_labels": {
+    "kgkm": "Efficiency (kg/km)",
+    "km": "Distance travelled (km)",
+    "overflows": "Overflow events",
+    "time": "Runtime (s)"
+  },
+  "improver_metrics": [
+    [
+      "kgkm",
+      2,
+      "max"
+    ],
+    [
+      "km",
+      0,
+      "min"
+    ],
+    [
+      "overflows",
+      1,
+      "min"
+    ],
+    [
+      "time",
+      0,
+      "min"
+    ]
+  ],
+  "captions": {
+    "constructors": "Route constructor performance at the {horizon}-day horizon, averaged over the factorial grid ({runs} runs remaining after the degenerate runs of Table~\\ref{{tab:excluded}} are removed). Best value per column in bold.",
+    "strategies": "Mandatory-selection strategies at the {horizon}-day horizon, ordered by observed collection efficiency. Efficiency falls monotonically as the rule grows more conservative; overflow risk does not fall with it, being essentially flat across the three middle strategies.",
+    "improvers": "Classical Local Search against Fast-TSP at the {horizon}-day horizon, paired over the {pairs} configurations that differ only in route improver.",
+    "horizon": "Horizon sensitivity, computed on the {pairs} policy configurations observed at both horizons and compared against themselves.",
+    "excluded": "Runs excluded from all aggregate statistics as degenerate rather than merely poor."
+  },
+  "notes": {
+    "constructors": "Every constructor faced the identical demand realisation within each scenario, and contributes {runs_per} runs, so the marginal means are directly comparable.",
+    "strategies": "CF70/CF90 are Last-Minute critical-fill thresholds of 70\\% and 90\\%; SL1/SL2 are Service-Level projection horizons of one and two days.",
+    "improvers": "Pairing rather than averaging: each pair is the same constructor, strategy, region and demand realisation, differing only in improver. Win counts exclude ties, which are reported separately; overflow counts tie often because neither improver changes which bins were selected for collection.",
+    "horizon": "Only configurations on the 30-day Pareto front were re-run at 90 days, so the 90-day sample is conditioned on 30-day performance. Constructors are therefore compared against themselves across horizons and never against each other at 90 days.",
+    "excluded": "Within a scenario every constructor collects from the same waste realisation, so collected tonnage is comparable by construction. These runs fell more than {threshold}\\% below their scenario median and did not complete; their overflow counts measure truncation, not policy behaviour."
+  },
+  "figure_titles": {
+    "pareto": "Efficiency against service failures ({horizon}-day horizon)",
+    "strategy": "The selection trade-off ({horizon}-day horizon)",
+    "improver": "CLS $-$ Fast-TSP efficiency, per matched pair ({horizon}d; CLS wins {wins} of {pairs})",
+    "scale": "Runtime against instance size ({horizon}-day horizon)"
+  },
+  "axis": {
+    "kgkm": "Efficiency (kg/km)",
+    "kgkm_delta": "$\\Delta$ kg/km",
+    "overflows": "Overflow events",
+    "time": "Mean runtime (s, log scale)",
+    "n_bins": "Bins in the instance ($N$)",
+    "pair_index": "Matched configuration ({pairs} pairs, sorted)"
+  },
+  "constructor_labels": {
+    "ACO_HH": "ACO-HH"
+  }
+}
