@@ -3090,11 +3090,12 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 
 ### I.4 — Public website (`docs/website/`)
 
-- [ ] Visual identity and design system — semantic tokens, real light *and* dark states, a hero that is not three blurred orbs (issue #45)
-- [ ] Interactive policy-pipeline diagram covering all three stages (issue #46)
-- [ ] Animated bin selection with a draggable critical-fill threshold, making the efficiency/service trade-off legible (issue #46)
-- [ ] 3D/4D routing view — multi-period is space plus time; scrubbable 30-day routes from `assets/output/30days/**/log_*.json` (issue #46)
-- [ ] Results charts driven by generated JSON under `docs/website/public/data/`, never hand-copied numbers, with the degenerate-run exclusion applied (issue #46)
+- [x] Visual identity and design system — semantic tokens, real light *and* dark states, a hero that is not three blurred orbs (issue #45)
+- [x] Interactive policy-pipeline diagram covering all three stages (issue #46)
+- [x] Animated bin selection with a draggable critical-fill threshold, making the efficiency/service trade-off legible (issue #46)
+- [x] 3D/4D routing view — multi-period is space plus time; scrubbable 30-day routes from `assets/output/30days/**/log_*.json` (issue #46)
+- [x] Results charts driven by generated JSON under `docs/website/public/data/`, never hand-copied numbers, with the degenerate-run exclusion applied (issue #46)
+- [x] Website data generator `logic/gen/export_website_data.py` reuses the paper's integrity machinery (2026-08-25)
 
 ---
 

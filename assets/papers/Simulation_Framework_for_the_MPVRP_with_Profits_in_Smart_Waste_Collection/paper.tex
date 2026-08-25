@@ -725,6 +725,27 @@ buys the nine events between LM-CF90 and Look-Ahead. Diminishing returns set in
 sharply, and an operator with a fixed distance budget should read the top of the
 table rather than the bottom.
 
+The mechanism behind the dial is visible at the level of a single bin
+(Fig.~\ref{fig:fill}). Because the demand realisation is fixed, the same bin
+faces the identical waste increments under every strategy; what changes is when
+it is collected. Under the CF70 threshold the bin is emptied early and often,
+so its level never approaches capacity. Under CF90 collection is deferred until
+the bin is nearly full, hauling more waste per visit but leaving the bin one bad
+day away from overflowing --- and, for the highest-accumulation bins, actually
+overflowing. The aggregate trade-off of Fig.~\ref{fig:strategy} is this dynamic
+summed over every bin and day.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=1.0\linewidth]{Images/Results/Generated/fill_trajectory_30d.png}
+    \caption{Fill level over the 30-day horizon for three representative bins
+    under the CF70 and CF90 thresholds, re-simulated from the recovered daily
+    increments (Rio Maior, $N=100$, Gamma-3). CF90 defers collection until the
+    bin is nearly full, hauling more per visit but overflowing where CF70 does
+    not.}
+    \label{fig:fill}
+\end{figure}
+
 One caveat governs this table specifically. The degenerate runs of
 Sect.~\ref{sec:integrity} fall in Look-Ahead and Service-Level (SL2) cells, so
 removing them removed the study's hardest scenario from those two variants and
