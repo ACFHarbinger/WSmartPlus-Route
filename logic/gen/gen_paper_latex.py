@@ -534,56 +534,61 @@ def pareto_front(points: pd.DataFrame) -> pd.DataFrame:
             best = row.overflows
     return points.loc[keep].sort_values("kgkm")
 
-def fig_policy_space(out_dir: Path) -> None:
-    """Generate the policy configuration space diagram in a cartographic style."""
-    import matplotlib.patches as patches
-    fig, ax = plt.subplots(figsize=(8.5, 4.5))
-    ax.axis('off')
-    
-    # Styles
-    box_style = dict(boxstyle="round,pad=0.6", facecolor="#ffffff", edgecolor="#0066cc", lw=1.5)
-    title_style = dict(fontsize=12, fontweight='bold', color="#1a202c", ha='center', va='center')
-    text_style = dict(fontsize=10, color="#4a5568", ha='center', va='center')
-    
-    # Nodes
-    y_top = 0.7
-    y_bot = 0.3
-    
-    # Stage 1
-    ax.text(0.15, y_top + 0.15, "STAGE 1\nMandatory Selection", **title_style)
-    ax.text(0.15, y_top, "Last-Minute (CF70, CF90)\nLook-Ahead\nService-Level (SL1, SL2)", 
-            bbox=box_style, **text_style)
-    
-    # Stage 2
-    ax.text(0.5, y_top + 0.15, "STAGE 2\nRoute Construction", **title_style)
-    ax.text(0.5, y_top, "ALNS, BPC, HGS\nACO-HH, PG-CLNS\nPSOMA, SANS, SWC-TCF", 
-            bbox=dict(boxstyle="round,pad=0.6", facecolor="#ffffff", edgecolor="#00a859", lw=1.5), **text_style)
-    
-    # Stage 3
-    ax.text(0.85, y_top + 0.15, "STAGE 3\nRoute Improvement", **title_style)
-    ax.text(0.85, y_top, "CLS\nFast-TSP", 
-            bbox=dict(boxstyle="round,pad=0.6", facecolor="#ffffff", edgecolor="#f26522", lw=1.5), **text_style)
-            
-    # Arrows
-    arrow_props = dict(arrowstyle="->", lw=2, color="#bac4ce")
-    ax.annotate("", xy=(0.35, y_top), xytext=(0.3, y_top), arrowprops=arrow_props)
-    ax.annotate("", xy=(0.70, y_top), xytext=(0.65, y_top), arrowprops=arrow_props)
-    
-    # Bottom Note
-    ax.text(0.5, y_bot, "32 Strategies × 8 Constructors × 33 Improvers\n= 8,448 Configuration Space", 
-            fontsize=11, fontweight='bold', color="#1a202c", ha='center', va='center',
-            bbox=dict(boxstyle="square,pad=0.8", facecolor="#eef2f5", edgecolor="none"))
-    
-    # Legend/Key
-    ax.plot([0.1], [0.1], marker='s', markersize=12, color="#0066cc", linestyle='None')
-    ax.text(0.13, 0.1, "Multi-Period Scope", va='center', fontsize=9)
-    
-    ax.plot([0.45], [0.1], marker='s', markersize=12, color="#00a859", linestyle='None')
-    ax.text(0.48, 0.1, "Single-Period Scope", va='center', fontsize=9)
-    
-    ax.plot([0.8], [0.1], marker='s', markersize=12, color="#f26522", linestyle='None')
-    ax.text(0.83, 0.1, "Local Search", va='center', fontsize=9)
-    
+def fig_policy_space(out_dir: Path, cfg: dict) -> None:
+    """
+    The three-stage policy configuration space, as Fig. 1 of the paper.
+
+    Drawn in figure coordinates on an invisible axes with explicit limits. The
+    limits matter: a previous version placed the legend keys with single-point
+    ``ax.plot`` calls, and a one-point dataset collapses the autoscaled axes to a
+    sliver around that point. Everything else then sat outside the axes and
+    ``bbox_inches="tight"`` grew the canvas to contain it, producing a 1215x35753
+    image. Set the limits, and never let a stray artist drive them.
+    """
+    import matplotlib.patches as mpatches
+
+    stages = cfg["policy_space"]["stages"]
+    counts = cfg["policy_space"]["registry_counts"]
+
+    fig, ax = plt.subplots(figsize=(9.0, 3.9))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    centres = [0.175, 0.5, 0.825]
+    box_w, box_top, box_bot = 0.29, 0.86, 0.40
+
+    for centre, stage in zip(centres, stages, strict=True):
+        colour = stage["color"]
+        ax.add_patch(
+            mpatches.FancyBboxPatch(
+                (centre - box_w / 2, box_bot), box_w, box_top - box_bot,
+                boxstyle="round,pad=0.012,rounding_size=0.02",
+                facecolor=stage["fill"], edgecolor=colour, linewidth=1.4, zorder=2,
+            )
+        )
+        ax.text(centre, box_top - 0.07, stage["title"], ha="center", va="center",
+                fontsize=10.5, fontweight="bold", color=colour, zorder=3)
+        ax.text(centre, box_top - 0.135, stage["scope"], ha="center", va="center",
+                fontsize=7.8, style="italic", color="#5a6673", zorder=3)
+        ax.text(centre, (box_top + box_bot) / 2 - 0.055, "\n".join(stage["members"]),
+                ha="center", va="center", fontsize=8.6, color="#26313d", zorder=3,
+                linespacing=1.5)
+        ax.text(centre, box_bot + 0.045, stage["registered"].format(**counts),
+                ha="center", va="center", fontsize=7.6, color="#5a6673", zorder=3)
+
+    for a, b in zip(centres, centres[1:], strict=False):
+        ax.annotate("", xy=(b - box_w / 2 - 0.008, (box_top + box_bot) / 2),
+                    xytext=(a + box_w / 2 + 0.008, (box_top + box_bot) / 2),
+                    arrowprops=dict(arrowstyle="-|>", linewidth=1.6, color="#94a2b0"),
+                    zorder=1)
+
+    ax.text(0.5, 0.20, cfg["policy_space"]["benchmarked"].format(**counts),
+            ha="center", va="center", fontsize=9.2, color="#26313d", zorder=3,
+            bbox=dict(boxstyle="round,pad=0.6", facecolor="#eef2f5", edgecolor="#d5dde4"))
+    ax.text(0.5, 0.045, cfg["policy_space"]["footnote"].format(**counts),
+            ha="center", va="center", fontsize=7.8, color="#5a6673", zorder=3)
+
     savefig(fig, out_dir / "policy_configuration_space.png")
 
 
@@ -744,7 +749,7 @@ def main() -> None:
     if not args.tables_only:
         args.figures_dir.mkdir(parents=True, exist_ok=True)
         print(f"Writing figures to {args.figures_dir}:")
-        fig_policy_space(args.figures_dir)
+        fig_policy_space(args.figures_dir, cfg)
         fig_pareto(clean, horizon, args.figures_dir, colors, cfg)
         fig_strategy_tradeoff(clean, horizon, args.figures_dir, cfg)
         fig_improver_paired(clean, horizon, args.figures_dir, cfg)
