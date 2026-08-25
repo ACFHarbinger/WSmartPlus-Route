@@ -8,25 +8,25 @@
 % {label, cells[]}, and an optional note rendered as a table footnote.
 \begin{table}[htbp]
 \centering
-\caption{Route constructor performance at the 30-day horizon, averaged over the factorial grid (477 runs remaining after the degenerate runs of Table~\ref{tab:excluded} are removed). Best value per column in bold.}\label{tab:constructors30}
-\begin{tabular}{lrrrrrr}
+\caption{Route constructor performance at the 30-day horizon over the balanced factorial grid (456 runs). Best value per column in bold.}\label{tab:constructors30}
+\begin{tabular}{lrrrrrrr}
 \toprule
-Route constructor & kg/km & Overflows & kg lost & km & Collections & Time (s) \\
+Route constructor & $n$ & kg/km & med. & Ovf. & med. & km & Time (s) \\
 \midrule
-BPC & \textbf{6.73} & 8.1 & 44.5 & \textbf{4,261} & 2,533 & 1,207 \\
-PG-CLNS & 6.39 & 6.1 & 30.5 & 4,588 & 3,229 & 2,040 \\
-ACO-HH & 6.39 & 10.8 & 58.7 & 4,503 & 2,663 & \textbf{621} \\
-ALNS & 6.21 & \textbf{6.0} & \textbf{30.0} & 4,743 & 3,219 & 1,182 \\
-HGS & 6.17 & 19.6 & 98.5 & 4,987 & 2,092 & 2,436 \\
-SWC-TCF & 5.66 & 15.6 & 79.1 & 5,035 & 2,515 & 1,109 \\
-PSOMA & 5.66 & 6.2 & 31.4 & 5,599 & 2,841 & 1,094 \\
-SANS & 5.46 & 8.7 & 44.2 & 5,450 & 3,980 & 2,588 \\
+BPC & 57 & \textbf{6.65} & \textbf{6.31} & 8.1 & \textbf{4.0} & \textbf{4,018} & 1,140 \\
+PG-CLNS & 57 & 6.31 & 6.22 & 6.0 & \textbf{4.0} & 4,340 & 1,967 \\
+ACO-HH & 57 & 6.30 & 6.04 & 11.1 & \textbf{4.0} & 4,266 & \textbf{589} \\
+HGS & 57 & 6.16 & 5.99 & 19.9 & 6.0 & 4,553 & 2,309 \\
+ALNS & 57 & 6.13 & 6.22 & \textbf{5.9} & \textbf{4.0} & 4,497 & 1,168 \\
+SWC-TCF & 57 & 5.66 & 5.05 & 15.6 & \textbf{4.0} & 5,035 & 1,109 \\
+PSOMA & 57 & 5.62 & 5.14 & 6.1 & \textbf{4.0} & 5,294 & 1,067 \\
+SANS & 57 & 5.36 & 5.25 & 9.0 & \textbf{4.0} & 5,211 & 2,439 \\
 \bottomrule
 \end{tabular}
 
 \vspace{0.4em}
 \begin{minipage}{\linewidth}
-\footnotesize Every constructor faced the identical demand realisation within each scenario, and contributes 57 runs, so the marginal means are directly comparable.
+\footnotesize Means and medians over the scenarios that survive the integrity filter. Every constructor faced the identical demand realisation within each scenario and contributes the same 57 runs: the scenario cells containing the degenerate runs of Table~\ref{tab:excluded} were dropped for all constructors, not only for the one that failed them, so no constructor is averaged over a subset that flatters it. Medians are reported alongside means because a single extreme scenario can move a mean substantially at this sample size.
 \end{minipage}
 
 \end{table}
