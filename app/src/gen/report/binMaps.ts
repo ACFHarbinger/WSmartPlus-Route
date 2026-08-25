@@ -1,6 +1,6 @@
 /**
  * Bin-location map figures (§H.2) — native port of `gen_bin_location_maps` /
- * `gen_selected_bin_maps` from `archive/gen/gen_simulation_analysis.py`.
+ * `gen_selected_bin_maps` from `logic/gen/gen_simulation_analysis.py`.
  *
  * Renders lat/lon scatter maps of all/selected bins per city. The Python
  * "street" mode fetched an OSMnx basemap; natively the interactive deck.gl
