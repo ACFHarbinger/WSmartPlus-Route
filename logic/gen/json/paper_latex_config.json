@@ -170,5 +170,23 @@
     ],
     "benchmarked": "This benchmark: {sel_bench} selection variants × {con_bench} constructors × {imp_bench} improvers = {policies} policies",
     "footnote": "The framework registries expose a larger implementation space; this figure shows only the fully crossed benchmark subset."
+  },
+  "networks": {
+    "panels": [
+      {
+        "city": "Rio Maior",
+        "key": "riomaior170_plastic",
+        "N": 170,
+        "dm": "gmaps_distmat.csv",
+        "color": "#0066cc"
+      },
+      {
+        "city": "Figueira da Foz",
+        "key": "figueiradafoz350_plastic",
+        "N": 350,
+        "dm": "osm_distmat.csv",
+        "color": "#00a859"
+      }
+    ]
   }
 }

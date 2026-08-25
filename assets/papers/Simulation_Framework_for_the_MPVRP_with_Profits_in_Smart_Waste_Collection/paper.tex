@@ -578,13 +578,29 @@ parametric model against real observations:
 Neither process reveals its parameters to any selection strategy; all
 accumulation statistics a strategy uses are estimated online from the days it
 has observed (Sect.~\ref{sec:protocol}). Two planning horizons are used, 30 and
-90 days. The map of the Figueira da Foz network appears in Fig.~\ref{fig:map}.
+90 days. The two networks are shown side by side in Fig.~\ref{fig:networks}.
+
+Both share a feature that shapes every result reported later: the depot is
+remote from the bins it serves. Its median road distance to a bin is roughly
+five times the median distance between two bins (52.9 against 8.6 units at Rio
+Maior, 46.6 against 10.6 at Figueira da Foz), so every route pays a long
+outbound and return leg before it collects anything. Selection strategies that
+collect on fewer days therefore amortise that fixed cost over a larger load,
+which is the mechanism behind the efficiency ordering in
+Sect.~\ref{sec:res-strategies}.
 
 \begin{figure}
     \centering
-    \includegraphics[width=0.75\linewidth]{Images/map317.png}
-    \caption{Depot and bin coordinates for the larger of the two networks.}
-    \label{fig:map}
+    \includegraphics[width=\linewidth]{Images/Results/Generated/networks.png}
+    \caption{The two service networks. Positions are a two-dimensional
+    embedding of each network's real road-distance matrix, not geographic
+    coordinates: per-bin latitude and longitude are not part of this
+    repository. The embedding reproduces pairwise road distances with a Kruskal
+    stress of 0.171 at Rio Maior and 0.134 at Figueira da Foz, so it is a
+    faithful rendering of relative proximity but not a map, and no bearing or
+    absolute position should be read from it. Each panel is scaled to its own
+    extent; the depot lies well outside the bin cloud in both.}
+    \label{fig:networks}
 \end{figure}
 
 \subsection{Design of Experiments}
