@@ -30,6 +30,15 @@ The gap is the signal. Excluded rows are reported in their own table rather than
 dropped silently -- they are a real and citable scale limit of the
 two-commodity-flow MIP.
 
+``drop_affected_cells`` then removes the *entire* scenario cell each degenerate
+run belonged to, for every constructor. Dropping only the offending rows would
+reintroduce the same selection bias this module refuses to accept in the 90-day
+data: all three degenerate runs are SWC-TCF's, so removing just them would
+average SWC-TCF over the scenarios where it did not fail while its rivals are
+averaged over those too. Losing the cell for everyone costs rows but keeps every
+constructor's mean over an identical set of scenarios, which is the only thing
+that makes the marginal means comparable.
+
 Note that the ``days`` column counts *collection* days, not elapsed days, so a
 low value there is not evidence of truncation on its own: several of the best
 policies collect on 15 of 30 days precisely because they bundle well. Tonnage is
@@ -40,9 +49,12 @@ the honest signal.
 the scenarios where it already did well. Cross-constructor 90-day aggregates are
 therefore selection-biased and this module refuses to emit one. The horizon table
 is built by ``paired_horizon_frame`` from configurations present at *both*
-horizons, compared against themselves -- a contrast the selection does not bias,
-since whether a configuration was carried to 90 days does not depend on how it
-would do there.
+horizons, compared against themselves. That contrast is far less distorted than a
+cross-constructor one, but it is not unbiased either: a configuration reached 90
+days because its 30-day result was on the Pareto front, so the 30-day arm of
+every pair is conditioned on having been high, and regression to the mean works
+against the measured change. Read the paired difference as a conservative
+estimate -- direction trustworthy, magnitude understated.
 
 Non-Python content lives in sibling directories, as with the other generators:
   jinja/paper_*.tex.j2       LaTeX fragment templates
@@ -158,14 +170,46 @@ def split_degenerate(df: pd.DataFrame) -> tuple[pd.DataFrame, pd.DataFrame]:
     return clean, degenerate
 
 
+def drop_affected_cells(df: pd.DataFrame, degenerate: pd.DataFrame) -> pd.DataFrame:
+    """
+    Remove every scenario cell that contained a degenerate run, for all constructors.
+
+    Dropping only the degenerate rows would reintroduce exactly the bias this
+    module refuses to accept for the 90-day sample. All three degenerate runs
+    belong to SWC-TCF, so removing them alone would leave SWC-TCF averaged over
+    the scenarios where it did *not* fail while every rival is averaged over
+    those scenarios too -- a mean quietly computed on a favourable subset.
+
+    Removing the whole cell costs the other constructors those scenarios as well,
+    but keeps every constructor's mean over an identical set of scenarios, which
+    is the only reason the marginal means are comparable in the first place.
+    """
+    if degenerate.empty:
+        return df
+    affected = set(map(tuple, degenerate[CELL_KEYS].to_numpy()))
+    keep = ~df[CELL_KEYS].apply(lambda row: tuple(row) in affected, axis=1)
+    dropped = int((~keep).sum())
+    print(
+        f"  Dropped {dropped} further run(s) so that every constructor is averaged "
+        f"over the same {len(affected)} fewer scenario cells"
+    )
+    return df[keep].copy()
+
+
 def paired_horizon_frame(clean: pd.DataFrame) -> pd.DataFrame:
     """
     Configurations observed at both horizons, as one row per configuration.
 
-    This is the only horizon contrast the 90-day sampling does not bias, because
-    a configuration's presence at 90 days was decided by its 30-day result, not
-    its 90-day one -- so comparing it against *itself* is fair even though
-    comparing constructors against each other at 90 days is not.
+    This is the horizon contrast least distorted by the 90-day sampling, because
+    each configuration is compared against *itself* rather than against a rival
+    whose 90-day scenarios are a different, self-favouring subset.
+
+    It is not, however, unbiased. A configuration reached 90 days precisely
+    because its 30-day result put it on the Pareto front, so the 30-day arm of
+    every pair is conditioned on having been high. Regression to the mean then
+    works against the measured 30-to-90 change, and the paired difference should
+    be read as a conservative estimate of the horizon effect -- the direction is
+    trustworthy, the magnitude is understated.
     """
     wide = clean.pivot_table(index=CONFIG_KEYS, columns="horizon", values=["kgkm", "overflows", "km", "time"])
     wide = wide.dropna()
@@ -200,25 +244,39 @@ def fmt(value: float, decimals: int = 2, *, best: bool = False) -> str:
     return rf"\textbf{{{text}}}" if best else text
 
 
-def build_rows(frame: pd.DataFrame, spec: list[tuple[str, int, str]]) -> list[dict]:
+def aggregate(sub: pd.DataFrame, by: str, spec: list[tuple[str, str, int, str]]) -> pd.DataFrame:
+    """Aggregate ``sub`` by one key into the (column, aggfunc) pairs a spec asks for."""
+    out = pd.DataFrame(index=sorted(sub[by].unique()))
+    for col, how, _, _ in spec:
+        if col == "n":
+            out[(col, how)] = sub.groupby(by).size()
+        else:
+            out[(col, how)] = sub.groupby(by)[col].agg(how)
+    return out
+
+
+def build_rows(frame: pd.DataFrame, spec: list[tuple[str, str, int, str]]) -> list[dict]:
     """
     Turn an aggregated frame into template-ready rows, marking the best cell per column.
 
-    ``spec`` is ``(column, decimals, direction)`` where direction is ``"max"`` or
-    ``"min"``; ``"none"`` disables best-marking for descriptive columns.
+    ``spec`` is ``(column, aggfunc, decimals, direction)`` where direction is
+    ``"max"`` or ``"min"``; ``"none"`` disables best-marking for columns where
+    "best" is meaningless (a run count, or a descriptive quantity like the number
+    of collections, which is neither good nor bad on its own).
     """
     best_of = {}
-    for col, _, direction in spec:
-        if direction == "max":
-            best_of[col] = frame[col].max()
-        elif direction == "min":
-            best_of[col] = frame[col].min()
+    for col, how, _, direction in spec:
+        if direction in ("max", "min"):
+            series = frame[(col, how)]
+            best_of[(col, how)] = series.max() if direction == "max" else series.min()
     rows = []
     for label, row in frame.iterrows():
-        cells = [
-            fmt(row[col], dec, best=(col in best_of and np.isclose(row[col], best_of[col])))
-            for col, dec, _ in spec
-        ]
+        cells = []
+        for col, how, dec, _ in spec:
+            key = (col, how)
+            value = row[key]
+            is_best = key in best_of and np.isclose(value, best_of[key])
+            cells.append(fmt(value, dec, best=is_best))
         rows.append({"label": tex_escape(label), "cells": cells})
     return rows
 
@@ -227,30 +285,28 @@ def build_rows(frame: pd.DataFrame, spec: list[tuple[str, int, str]]) -> list[di
 # Tables
 # --------------------------------------------------------------------------- #
 
+#: Means are reported beside medians for the two headline metrics. A single run
+#: out of ~96 moved Service-Level's mean overflow count from 9.3 to 1.4, so the
+#: means here are genuinely fragile to individual scenarios and a median-based
+#: reading is the honest companion, not a footnote.
 CONSTRUCTOR_SPEC = [
-    ("kgkm", 2, "max"),
-    ("overflows", 1, "min"),
-    ("kg_lost", 1, "min"),
-    ("km", 0, "min"),
-    ("ncol", 0, "none"),
-    ("time", 0, "min"),
+    ("n", "size", 0, "none"),
+    ("kgkm", "mean", 2, "max"),
+    ("kgkm", "median", 2, "max"),
+    ("overflows", "mean", 1, "min"),
+    ("overflows", "median", 1, "min"),
+    ("km", "mean", 0, "min"),
+    ("time", "mean", 0, "min"),
 ]
 
-STRATEGY_SPEC = [
-    ("kgkm", 2, "max"),
-    ("overflows", 1, "min"),
-    ("kg_lost", 1, "min"),
-    ("km", 0, "min"),
-    ("ncol", 0, "none"),
-    ("time", 0, "min"),
-]
+STRATEGY_SPEC = CONSTRUCTOR_SPEC
 
 
 def table_constructors(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
-    """Per-constructor means over the balanced grid at one horizon."""
+    """Per-constructor means and medians over the balanced grid at one horizon."""
     sub = clean[clean.horizon == horizon]
-    agg = sub.groupby("constructor")[[c for c, _, _ in CONSTRUCTOR_SPEC]].mean()
-    agg = agg.sort_values("kgkm", ascending=False)
+    agg = aggregate(sub, "constructor", CONSTRUCTOR_SPEC)
+    agg = agg.sort_values(("kgkm", "mean"), ascending=False)
     counts = sub.groupby("constructor").size()
     agg.index = [display_name(c, cfg) for c in agg.index]
     return render_template(
@@ -270,7 +326,7 @@ def table_strategies(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
     sub = clean[clean.horizon == horizon].copy()
     sub["variant"] = sub.strategy + sub.cf + sub.sl_var
     order = [v for v in cfg["variant_order"] if v in set(sub.variant)]
-    agg = sub.groupby("variant")[[c for c, _, _ in STRATEGY_SPEC]].mean().reindex(order)
+    agg = aggregate(sub, "variant", STRATEGY_SPEC).reindex(order)
     agg.index = [cfg["variant_labels"].get(v, v) for v in agg.index]
     return render_template(
         "paper_results_table.tex.j2",
@@ -551,6 +607,7 @@ def main() -> None:
 
     print("Checking data integrity:")
     clean, degenerate = split_degenerate(raw)
+    clean = drop_affected_cells(clean, degenerate)
     paired = paired_horizon_frame(clean)
     print(f"  {len(clean)} runs retained; {len(paired)} configurations present at both horizons")
 
