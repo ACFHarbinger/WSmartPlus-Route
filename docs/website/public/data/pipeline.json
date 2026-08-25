@@ -57,8 +57,8 @@
    "name": "Multi-day Overflow Probability"
   },
   {
-   "key": "pareto",
-   "name": "Pareto"
+   "key": "pareto_front",
+   "name": "Pareto Front"
   },
   {
    "key": "dispatcher_portfolio",
@@ -117,7 +117,7 @@
    "name": "Thompson Dispatcher"
   },
   {
-   "key": "wasserstein",
+   "key": "wasserstein_robust",
    "name": "Wasserstein Robust"
   },
   {
@@ -193,7 +193,7 @@
      "name": "Adaptive Memory Programming Hyper Heuristic"
     },
     {
-     "key": "gp_hh",
+     "key": "gphh",
      "name": "Genetic Programming Hyper Heuristic"
     },
     {
@@ -235,7 +235,7 @@
    "key": "learning_algorithms",
    "constructors": [
     {
-     "key": "adp",
+     "key": "adp_rollout",
      "name": "Approximate Dynamic Programming With Rollout"
     },
     {
@@ -561,6 +561,10 @@
  ],
  "improvement": [
   {
+   "key": "steepest_two_opt",
+   "name": "2-opt (steepest)"
+  },
+  {
    "key": "adaptive_ensemble",
    "name": "Adaptive Ensemble"
   },
@@ -575,6 +579,10 @@
   {
    "key": "cheapest_insertion",
    "name": "Cheapest Insertion"
+  },
+  {
+   "key": "classical_local_search",
+   "name": "Classical Local Search"
   },
   {
    "key": "cross_exchange",
@@ -597,14 +605,6 @@
    "name": "Guided Local Search"
   },
   {
-   "key": "learned",
-   "name": "Learned"
-  },
-  {
-   "key": "lk",
-   "name": "Lk"
-  },
-  {
    "key": "lkh",
    "name": "LKH"
   },
@@ -613,8 +613,12 @@
    "name": "LKH-2"
   },
   {
-   "key": "local_search",
-   "name": "Classical Local Search"
+   "key": "learned",
+   "name": "Learned"
+  },
+  {
+   "key": "lk",
+   "name": "Lk"
   },
   {
    "key": "mip_lns",
@@ -661,8 +665,8 @@
    "name": "Ruin-and-Recreate"
   },
   {
-   "key": "set_covering",
-   "name": "Set Covering"
+   "key": "set_cover",
+   "name": "Set Cover"
   },
   {
    "key": "set_partitioning",
@@ -675,10 +679,6 @@
   {
    "key": "simulated_annealing",
    "name": "Simulated Annealing"
-  },
-  {
-   "key": "steepest_two_opt",
-   "name": "2-opt (steepest)"
   }
  ],
  "counts": {

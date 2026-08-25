@@ -17,6 +17,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Changed
+
+#### MPVRPP paper — Codex final editorial and data audit (`2026-08-25`)
+
+- Rewrote the abstract, contribution statement, multi-period Related Work, improver interpretation, horizon caveat, scenario-effects discussion, and Conclusion into one consistent manuscript voice. Learned constructors are now explicitly framework capability/future work, not a result of the classical benchmark
+- Corrected a missed balancing error in both the paper and website: demand-process and network-size marginals had retained unequal policy slices after the Gamma-3/$N=350$ exclusions. `balance_marginal` now supports scenario factors and includes every other policy stage in its slice key; a sixth generated LaTeX table reports the corrected like-for-like scenario marginals
+- Downgraded the CLS-versus-Fast-TSP result from causal to descriptive. Although 224 configurations can be matched on constructor, selection, scenario, and demand realisation, upstream collected tonnage differs in 90 pairs and collected-bin count in 128; the stored experiment therefore does not isolate the improver stage. Also corrected the loss distribution: 21 of 22, not all 22, occur at $N=350$
+- Removed stale hand-maintained registry totals from the paper figure. The website policy picker now reads literal registry decorator keys while continuing to count implementation files, so aliases and filenames no longer masquerade as configuration keys
+- Website light/dark choice now initializes from the operating-system preference and persists in `localStorage`; the results view carries the same improver and scenario-balance caveats as the paper
+- Eliminated duplicate PDF destinations from the current LaTeX/LLNCS combination with unique internal hypertext names; the clean, converged 25-page build has no undefined references, duplicate anchors, or overfull boxes
+
 ### Added
 
 #### MPVRPP paper — Methodology and Results rewritten against the real experiment (`assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/`)

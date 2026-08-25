@@ -9,7 +9,7 @@
 
 \usepackage{amsmath}
 \usepackage[utf8]{inputenc} % allow utf-8 input
-\usepackage[colorlinks=true, allcolors=blue]{hyperref}       % hyperlinks
+\usepackage[hypertexnames=false, colorlinks=true, allcolors=blue]{hyperref} % hyperlinks
 \usepackage{url}            % simple URL typesetting
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
@@ -28,7 +28,6 @@
 \usepackage{longtable}
 \usepackage{booktabs}
 \usepackage{array}
-\usepackage{hyperref}
 
 \DeclareMathOperator*{\dist}{dist}
 
@@ -52,7 +51,23 @@ Instituto Superior T\'ecnico, Universidade de Lisboa, Lisboa, Portugal \email{af
 \maketitle              % typeset the header of the contribution
 
 \begin{abstract}
-Urban waste collection is a critical municipal service with profound implications for sanitation and public health. This service heavily relies on vehicle routing and has traditionally been modeled as a static Capacitated Vehicle Routing Problem (CVRP), where vehicles perform an exhaustive collection of all bins. The introduction of smart waste bin monitoring technology has enabled dynamic vehicle routing, allowing vehicles to selectively visit only the subset of bins that require immediate service or are profitable to collect, a task which can be modeled as a Vehicle Routing Problem with Profits (VRPP). Furthermore, this task must be performed across an extended planning horizon, where routes executed in a given period impact the optimal routes for subsequent periods, forming a Multi-Period VRPP (MPVRPP). Because of the large scale and temporal dependencies, transferring existing CVRP solvers to this selective routing problem presents significant structural difficulties. Moreover, progress is currently hindered by a lack of standardized multi-period evaluation environments. To address these limitations, this paper introduces WSmartRoute+, a Python simulation framework designed specifically for the stochastic MPVRPP. Using this environment, a unified methodology is developed to adapt state-of-the-art CVRP algorithms - spanning exact methods, meta-heuristics such as Hybrid Genetic Search (HGS) and Adaptive Large Neighborhood Search (ALNS), and hyper-heuristics - to dynamic waste collection. The adaptations introduce novel profit-aware repair operators, and dynamic dispatch heuristics. The framework composes any mandatory-selection strategy, route constructor and route improver as interchangeable stages, and integrates Neural Combinatorial Optimization (NCO) constructors on the same interface as the classical ones, so that learning-based and classical solvers can be evaluated under identical demand realisations; the benchmark reported here exercises eight classical constructors across a complete factorial design, and the learned constructors are left to future work. The experimental results establish a unified baseline for the MPVRPP and show that the choice of which bins to collect dominates the choice of how to route them, with efficiency varying by 94\% across selection strategies against 24\% across constructors - demonstrating WSmartRoute+ as a testbed for future research in dynamic, multi-period waste collection routing.
+Smart waste collection is a stochastic multi-period routing problem: bins fill
+between decisions, sensing is imperfect, and collecting a bin today changes the
+opportunities available tomorrow. We introduce WSmartRoute+, a Python
+simulation framework for evaluating policies for this setting. A policy is
+composed from three interchangeable stages---mandatory-bin selection, profitable
+route construction, and route improvement---so that each decision can be varied
+while the demand realisation and the other stages are held fixed. The reported
+benchmark crosses five selection variants, eight classical constructors, two
+improvers, two waste-generation processes, and three municipal network sizes at
+a 30-day horizon. The results show a substantially larger observed efficiency
+spread across selection variants than across constructors, exposing a clear
+trade-off between collection efficiency and overflow risk. Matched-demand
+improver configurations differ substantially, although stochastic upstream
+construction prevents causal attribution to that stage. A selected subset is followed for 90 days; we report it only through matched
+within-policy comparisons because selection on 30-day performance precludes an
+unbiased cross-constructor ranking. Learned constructors share the same framework
+interface but are not benchmarked in this study.
 \end{abstract}
 
 \section{Introduction}
@@ -78,7 +93,10 @@ This paper makes the following contributions:
     
     \item We propose a modular Waste Collection Routing Simulator that enables the evaluation of routing policies under both blind and smart collection settings. The simulator supports stochastic waste generation processes, sensor uncertainty, and long-term policy evaluation over extended planning horizons.
     
-    \item We develop and adapt Neural Combinatorial Optimization architectures for dynamic waste collection, including a lightweight attention-based model inspired by recommendation systems, and benchmark them against state-of-the-art expert-crafted OR solvers \cite{jorge2022hybrid,lopes2023efficient,de2024data}.
+    \item We provide a common interface for classical and Neural Combinatorial
+    Optimization constructors. The present benchmark establishes the classical
+    baseline; evaluating learned constructors under the same demand
+    realisations is left to future work.
     
     \item We conduct an extensive computational study using real-world data from a Portuguese waste management company, considering networks of 100, 170, and up to 350 containers. The experiments analyze scalability, robustness to uncertainty, and trade-offs between operational cost, service level, and environmental impact.
     
@@ -160,8 +178,20 @@ have to be, and where in the pipeline it would sit.
 Following a slightly modified version of the taxonomy introduced by \cite{wu2024neural}, which also considers the categories defined by \cite{sun2023difusco}, NCO solvers can be classified into five different types based on how the DNN model generates the solution: 1) autoregressive constructive solvers \cite{Kool2018AttentionLT,kwon2020pomo,vinyals2015pointer}, which start from an empty set and build a valid solution by sequentially selecting unvisited vertices; 2) non-autoregressive constructive solvers \cite{joshi2019efficient,karalias2020erdos}, where the DNN model learns to output the entire solution (usually consisting of probabilities over the vertices or edges of the graph, that are then used by a decoding algorithm to build a valid route) in a single step; 3) improvement heuristic solvers \cite{ma2024learning}, which use a Markov Decision Process (MDP) to iteratively refine an existing complete solution; 4) predict-once solvers \cite{sun2023difusco}, where the model predicts information before starting a solution search with a OR solver or a search algorithm (like beam search); and 5) predict-many solvers \cite{liu2024evolution}, a similar approach to the previous category, with the difference that the model performs additional predictions to further restrict the solution search space, and thus decrease time complexity. The NCO solvers from different categories provide various trade-offs between performance, solving time, and ability to scale to larger problem instances \cite{joshi2020learning,sun2023difusco,wu2024neural}.\\
 While all of these algorithms share the same purpose, to produce a near-optimal solution to a given CO problem instance, in practice they learn to perform different specific tasks using a plethora of methods from multiple ML paradigms, including training to mimic OR solvers via SL \cite{joshi2019efficient,sun2023difusco,vinyals2015pointer}, approximating the optimal policy by minimizing a cost function via policy gradient RL \cite{Kool2018AttentionLT,kwon2020pomo,ma2024learning}, and using Unsupervised Learning (UL) to make a model define a probability distribution over a graph's vertices that is used at inference time to build a feasible route through the method of conditional expectation \cite{karalias2020erdos}.
 
-% \subsection{Multi-Period Vehicle Routing Problem with Profits}
-% The Vehicle Routing Problem with Profits (VRPP) can be seen as a variation of the Vehicle Routing Problem (VRP), which is in itself an generalization of the TSP where each vertex has a demand and routes must be constructed such that they both start and end at the depot \cite{Kool2018AttentionLT,wu2024neural}. Unlike the base VRP, the VRPP's objective function is the profit, which considers the demand collected in addition to the route travel cost, thus visiting only the subset of nodes that is profitable, instead of always visiting every available node \cite{doi:10.1137/1.9781611973594.ch10}. Additionally, for the Multi-Period variant of the VRPP (MPVRPP), the vehicles must perform multiple collection routes during a given time range, where the current day's optimal route is dependent upon the choices taken at previous days \cite{DBLP:journals/eor/ZhangCCLQ13}.
+\subsection{Multi-Period Routing with Profits}
+Classical VRP formulations require service at every customer, whereas profitable
+routing jointly chooses whom to serve and how to route the chosen subset
+\cite{doi:10.1137/1.9781611973594.ch10}. Extending that decision over multiple
+periods changes its meaning: service resets a bin's state, while deferral raises
+both its future collection value and its risk of overflow. The resulting policy
+must therefore trade immediate routing cost against future system state, rather
+than solve independent daily snapshots \cite{DBLP:journals/eor/ZhangCCLQ13}.
+Waste-routing studies have developed exact and heuristic methods for realistic
+operational constraints \cite{hess2024waste,jorge2022hybrid,lopes2023efficient,de2024data},
+but reproducible comparisons across selection, construction, and improvement
+rules remain difficult when each study embeds those decisions in a monolithic
+solver. WSmartRoute+ addresses that evaluation gap by separating the decisions
+and replaying identical stochastic demand across composed policies.
 
 
 
@@ -182,10 +212,9 @@ cheaper-per-kilogram load it would offer tomorrow --- while construction is a
 single-period profit-maximising routing question, and improvement is a pure
 geometry question. Composing them freely means an experiment can vary one stage
 while holding the others fixed, which is what makes the marginal effect of each
-stage measurable at all. It is also what turns a benchmark of eight algorithms
-into a benchmark of a policy \emph{space}: the registries hold 33 mandatory-selection
-strategies, 102 route constructors across eight families, and 30 route
-improvers, all interchangeable by configuration rather than by code.
+stage measurable at all. It also turns a benchmark of individual algorithms
+into a benchmark of a policy \emph{space}: registered implementations are
+interchangeable by configuration rather than wired into a single solver.
 
 This work benchmarks a deliberately small, representative subset of that space:
 three selection strategies (in five threshold variants), eight route constructors
@@ -451,9 +480,8 @@ away from.
 
 \subsection{Route Improvers}
 
-Both improvers take a constructed route plan and refine it, and neither can
-change which bins were selected --- a property that the experiments confirm
-directly (Sect.~\ref{sec:res-improvers}).
+Both improvers take a constructed route plan and refine it, and neither is
+designed to change which bins were selected.
 
 \paragraph{Classical Local Search (CLS).}
 Variable-neighbourhood descent over a fixed toolbox ordered from cheapest to
@@ -698,24 +726,20 @@ with these instances.
 \subsubsection{Mandatory Selection Strategies}
 \label{sec:res-strategies}
 
-The selection stage produces a far larger effect than the constructor stage, and
-it is the paper's central operational result (Table~\ref{tab:strategies30},
-Fig.~\ref{fig:strategy}). Mean efficiency ranges 94\% across the five selection
-variants, from 7.38\,kg/km at LM-CF90 down to 3.81 at SL-SL2, against a 24\%
-range across all eight constructors. Which bins are visited matters
-substantially more than how well the visit is routed --- which is an argument
-for the modular pipeline itself, since a framework that fixed the selection rule
-and benchmarked only constructors would be optimising the smaller of the two
-effects.
+The selection stage produces a substantially larger observed spread than the
+constructor stage (Table~\ref{tab:strategies30}, Fig.~\ref{fig:strategy}). The
+range in mean efficiency across the five tested selection variants is nearly
+four times the corresponding range across constructors. This is evidence for
+the modular pipeline itself: a benchmark that fixed selection and varied only
+construction would miss the larger operational trade-off in this design. It is
+not, however, a general variance decomposition beyond the tested levels.
 
-The five variants order monotonically on every measure simultaneously.
-Efficiency falls (7.38, 6.37, 5.82, 5.23, 3.81\,kg/km), overflow events fall
-(14.9, 5.5, 4.3, 3.3, 1.2), distance rises (2{,}940 to 5{,}711\,km) and runtime
-rises (892 to 1{,}941\,s). The selection threshold therefore behaves as a single
-dial: collecting later means hauling more per kilometre on shorter routes and
-overflowing more, and every intermediate setting sits on the curve between those
-extremes rather than off it. No variant dominates another, and the choice
-reduces to how an operator prices an overflow against a kilometre.
+The five variants order monotonically on every reported measure: efficiency and
+overflow events fall together, while distance and runtime rise. Across these
+three different selection mechanisms, the observed ordering behaves like a
+single operational dial: deferring collection hauls more per kilometre on
+shorter routes but permits more overflows. No tested variant dominates another,
+so deployment requires an explicit valuation of service failure against travel.
 
 The three mechanisms are nonetheless not interchangeable at equal service.
 Look-Ahead attains 5.5 mean overflows at 3{,}396\,km, while Service-Level (SL1)
@@ -760,7 +784,7 @@ match LM-CF70 on overflows, and on the balanced data it is clearly worse.
     \includegraphics[width=0.8\linewidth]{Images/Results/Generated/strategy_tradeoff_30d.png}
     \caption{Efficiency and overflow events by selection strategy, ordered by
     efficiency, over the slices all five variants share. Both decline
-    monotonically: the threshold is a single dial.}
+    monotonically along the observed efficiency--service trade-off.}
     \label{fig:strategy}
 \end{figure}
 
@@ -769,33 +793,31 @@ match LM-CF70 on overflows, and on the balanced data it is clearly worse.
 \subsubsection{Route Improvers}
 \label{sec:res-improvers}
 
-Because the two improvers were run across otherwise identical configurations,
-they can be compared pairwise rather than marginally: each of the 224 pairs in
-Table~\ref{tab:improvers30} is the same constructor, strategy, network and
-demand realisation, differing only in improver.
+The two improvers can be matched by configuration: each of the 224 pairs in
+Table~\ref{tab:improvers30} has the same constructor, strategy, network and
+demand realisation, with a different configured improver. This controls the
+scenario mix, but it is not a controlled treatment comparison. Collected
+tonnage or bin count differs in many pairs, showing that stochastic upstream
+construction did not reproduce the same input route for both improvers.
 
-In aggregate CLS wins, and comfortably: 202 of the 224 pairs, mean
-$+0.74$\,kg/km, on routes 304\,km shorter (4{,}358 against 4{,}662), at
-indistinguishable runtime. The
-mechanism is straightforward --- CLS can move a bin between vehicles, and
-Fast-TSP cannot, so CLS optimises the plan where Fast-TSP only optimises each
-route's internal order.
+In aggregate, configurations using CLS have higher efficiency than their
+matched-demand Fast-TSP counterparts (Table~\ref{tab:improvers30}). CLS has a
+broader neighbourhood that can move bins between routes, whereas Fast-TSP holds
+each route's bin assignment fixed and changes only its internal order, but the
+observed delta cannot be attributed to that difference alone.
 
-The aggregate, however, conceals the more useful finding. Twenty-one of the 22
-CLS losses occur at $N=350$, and they belong to exactly three constructors:
-PSOMA (8, mean $-2.42$), SWC-TCF (8, $-2.02$) and HGS (6, $-1.46$). The losses
-are also substantially deeper than the wins, reaching $-3.3$\,kg/km against a
-typical win below $+1$ (Fig.~\ref{fig:improver}). The correct claim is therefore
-conditional: \emph{CLS dominates Fast-TSP except on the largest instances for
-those constructors that produce long routes, where global per-route reordering
-beats incremental descent.} This is consistent with the two designs --- CLS
-performs first-improvement descent whose cost grows with route length, while
-Fast-TSP solves each route's ordering in one shot. An operator choosing an
-improver should choose by instance size, not by the aggregate.
+The aggregate, however, conceals a concentrated failure mode. Twenty-one of the
+22 CLS losses occur at $N=350$; the remaining loss is HGS at $N=170$. Every
+loss belongs to PSOMA, SWC-TCF, or HGS, and the negative differences are fewer
+but deeper than the positive ones (Fig.~\ref{fig:improver}). The data therefore
+support an instance-size-conditioned choice of improver for those constructors.
+They do not establish why the reversal occurs: the different neighbourhoods
+provide a plausible mechanism, but the summary logs contain no controlled
+route-length intervention with which to identify it.
 
-Overflow counts tie on 181 of the 224 pairs, confirming directly that neither
-improver alters which bins were selected --- exactly as the pipeline's stage
-separation intends.
+Overflow counts tie on 181 of the 224 pairs. The remaining differences are
+further evidence that the stored experiment did not hold every upstream outcome
+fixed across improvers.
 
 \begin{figure}
     \centering
@@ -814,51 +836,79 @@ separation intends.
 Table~\ref{tab:horizon} compares the 165 configurations observed at both
 horizons against themselves. Efficiency is essentially horizon-invariant and
 slightly improving: the mean paired change is $+0.26$\,kg/km, positive in 140 of
-165 pairs, with HGS the only constructor whose efficiency falls ($-0.47$). This
-supports the interpretation that efficiency is governed by route geometry, which
-a longer horizon does not change.
+165 pairs, with HGS the only constructor whose efficiency falls ($-0.47$). For
+this selected subset, the result is consistent with efficiency being governed
+more by route geometry than by horizon length; it is not evidence for that claim
+over the unobserved policies.
 
-Overflow counts grow, and the magnitude is informative: the median 90-day to
-30-day ratio lies between 2.4 and 3.3 for six of the seven constructors, against
-a horizon ratio of exactly 3. Overflow events therefore accumulate at an
+Overflow counts grow, and the magnitude is informative: among pairs with a
+nonzero 30-day count, the median 90-day to 30-day ratio lies between 2.4 and 3.3
+for six of the seven constructors, against a horizon ratio of exactly 3.
+Overflow events therefore accumulate at an
 approximately constant \emph{rate} rather than compounding --- a longer horizon
 produces proportionally more failures, not disproportionately more. SWC-TCF is
 the exception at 5.6, degrading faster than linearly, consistent with its
 scaling exposure elsewhere in these results.
 
 Two cautions apply. First, this comparison is paired precisely because a
-cross-constructor comparison at 90 days is not available to us. Second, even the
-paired comparison is not fully unbiased: a configuration reached the 90-day
-stage because its 30-day result put it on the Pareto front, so the 30-day arm of
-each pair is conditioned on having been high, and regression to the mean works
-against the measured change. The direction of these results should be trusted;
-their magnitude should be read as conservative.
+cross-constructor comparison at 90 days is not available. Second, pairing does
+not undo selection into the 90-day sample: every configuration was carried
+forward because of its 30-day Pareto performance. The table therefore describes
+the selected configurations only. With one realisation per configuration, we
+cannot estimate the selection effect or claim that the observed direction would
+hold over the full factorial design.
 
 \input{Tables/results_horizon}
 
 \subsubsection{Scenario Effects}
 
 The two generating processes produce markedly different regimes and should not
-be pooled. Gamma-3 yields 7.35\,kg/km mean efficiency against 4.83 for the
-Empirical process, and 15.0 mean overflow events against 5.9 --- it is simply a
-heavier load, generating more waste per bin-day, which makes collection more
-efficient per kilometre and service failure more likely at the same time. Any
-conclusion stated across both processes without qualification would be
-misleading, and we have stated results per process wherever the two disagree.
+be pooled (Table~\ref{tab:scenarios30}). On policy slices present under both
+processes, Gamma-3 produces both higher collection efficiency and more overflow
+events than the Empirical process. It is a heavier load: more waste is available
+per kilometre, but capacity is reached more often.
 
-Network size does not act monotonically on efficiency (5.97, 5.26 and
-6.99\,kg/km at $N = 100$, $170$ and $350$), because the two networks differ in
-bin density as well as in size and Figueira da Foz is the denser. It does act
-monotonically on cost: mean distance rises from 2{,}343 to 7{,}618\,km and mean
-runtime from 819 to 2{,}608\,s. Overflow events rise sharply at $N=350$ (21.6
-against 4.9 and 5.9), which is where every constructor's tail behaviour ---
-including the three degenerate runs of Sect.~\ref{sec:integrity} --- is
-concentrated.
+Network size does not act monotonically on efficiency because the two cities
+differ in spatial density as well as scale. Cost does increase across the three
+networks: both mean distance and runtime are highest at $N=350$, as are overflow
+events. These marginals are restricted to policy slices shared by all levels of
+the factor being compared; without that balancing, the exclusions confined to
+Gamma-3 at $N=350$ would confound the scenario contrasts.
+
+\input{Tables/results_scenarios}
 
 \input{Tables/results_excluded}
 
 \section{Conclusion and Future Work}
-Should write some text here after finishing up the Experimental Evaluation.
+WSmartRoute+ makes the temporal state of smart waste collection part of the
+benchmark rather than an implementation detail. Its three-stage policy model
+separates the decision to collect from the decisions that construct and refine a
+route, while common demand realisations make comparisons within a scenario
+directly attributable to policy behaviour. This separation exposed the central
+operational result of the study: across the tested design, changing mandatory
+selection moves the efficiency--service trade-off more than changing the route
+constructor. Constructor choice still matters, particularly in runtime and in
+the tails of the overflow distribution. Improver configurations are associated
+with markedly different outcomes, but the stored runs do not isolate that stage
+from stochastic upstream construction.
+
+The evaluation also shows why integrity rules belong in the experimental
+method. Whole-cell exclusion prevents failed SWC-TCF runs from flattering that
+constructor, and balancing every reported marginal prevents the same exclusions
+from flattering a strategy or scenario level instead. The 90-day results require
+an equally explicit boundary: because follow-up was conditioned on 30-day
+Pareto membership, they describe matched selected policies and cannot support a
+cross-constructor ranking or a population-level horizon effect.
+
+The immediate next experiment is therefore a complete, replicated 90-day
+factorial design with multiple random seeds. That design would separate horizon
+effects from selection and regression to the mean. Further work should exercise
+the framework's learned constructors against the classical baseline reported
+here, extend evaluation to multi-vehicle and multi-depot operations, and test
+whether adaptive selection rules can move the observed efficiency--service
+frontier rather than merely choose a point along it. For the monolithic
+two-commodity-flow model, explicit timeout and completion telemetry should also
+replace post-hoc failure detection at the largest scale.
 
 \begin{credits}
 \subsubsection{\ackname} This study was funded by the WSmart Route+ project (grant number BI|2024/549), and carried out at INESC-ID.

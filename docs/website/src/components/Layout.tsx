@@ -2,11 +2,20 @@ import { NavLink, Outlet } from "react-router-dom";
 import { githubRepo, navLinks } from "../data/site";
 import { useState, useEffect } from "react";
 
+type Theme = "light" | "dark";
+
+function initialTheme(): Theme {
+  const stored = window.localStorage.getItem("wsmart-theme");
+  if (stored === "light" || stored === "dark") return stored;
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
 export default function Layout() {
-  const [theme, setTheme] = useState("light");
+  const [theme, setTheme] = useState<Theme>(initialTheme);
 
   useEffect(() => {
     document.documentElement.setAttribute("data-theme", theme);
+    window.localStorage.setItem("wsmart-theme", theme);
   }, [theme]);
 
   const toggleTheme = () => {
