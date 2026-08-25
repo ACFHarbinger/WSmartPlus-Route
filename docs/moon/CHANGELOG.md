@@ -19,6 +19,17 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### MPVRPP paper tracked as a submodule (`2026-08-25`)
+
+- Replaced the vendored `assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/`
+  copy and its zip with a git submodule at
+  `assets/papers/Simulation-Framework-for-the-MPVRP-with-Profits-in-Smart-Waste-Collection`
+  pointing at the paper's own repo. The paper's edit history now lives with
+  the paper instead of being duplicated and re-zipped inside this repo
+- `logic/gen/json/paper_latex_config.json`'s `paper_dir` updated to the new
+  path; `gen_paper_latex.py` re-verified idempotent against the submodule
+  (all tables and figures regenerate byte-identical)
+
 #### MPVRPP paper — final editorial, citation, and map pass (`2026-08-25`)
 
 - Reworked the introduction, contributions, problem definition, NCO survey, and
