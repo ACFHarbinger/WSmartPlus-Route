@@ -109,7 +109,8 @@ References:
   Operations Research, 48(2), 318–326.
 - Barnhart, C., et al. (1998). "Branch-and-price: Column generation for solving
   huge integer programs." Operations Research, 46(3), 316–329.
-- Baldacci, R., et al. (2011). "New state-space relaxation for the car-dependent VRP."
+- Baldacci, R., et al. (2011). "New Route Relaxation and Pricing Strategies for the
+  Vehicle Routing Problem."
 - Ryan, D. M., & Foster, B. A. (1981). "An integer programming approach to scheduling."
 - Lysgaard, J., et al. (2004). "A new branch-and-cut algorithm for the capacitated VRP."
 - Jepsen, M., et al. (2008). "Subset-row inequalities applied to the VRP with time windows."
