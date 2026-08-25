@@ -46,13 +46,14 @@
       "Ovf. 90d"
     ],
     "excluded": [
-      "Horizon",
-      "Region",
-      "Configuration",
-      "kg collected",
-      "Shortfall",
-      "Overflows"
-    ]
+      "$H$",
+      "Scenario",
+      "Policy",
+      "kg",
+      "Short.",
+      "Ovf."
+    ],
+    "constructor_short": "Constructor"
   },
   "metric_labels": {
     "kgkm": "Efficiency (kg/km)",
@@ -94,7 +95,7 @@
     "strategies": "CF70/CF90 are Last-Minute critical-fill thresholds of 70\\% and 90\\%; SL1/SL2 are Service-Level projection horizons of one and two days. Medians are reported alongside means: removing one run in roughly ninety moved the Service-Level (SL2) mean overflow count from 9.3 to 1.4, so the means at this sample size are sensitive to individual scenarios.",
     "improvers": "Pairing rather than averaging: each pair is the same constructor, strategy, region and demand realisation, differing only in improver. Win counts exclude ties, which are reported separately; overflow counts tie often because neither improver changes which bins were selected for collection.",
     "horizon": "Only configurations on the 30-day Pareto front were re-run at 90 days, so the 90-day sample is conditioned on 30-day performance. Constructors are therefore compared against themselves across horizons and never against each other at 90 days.",
-    "excluded": "Within a scenario every constructor collects from the same waste realisation, so collected tonnage is comparable by construction. These runs fell more than {threshold}\\% below their scenario median and did not complete; their overflow counts measure truncation, not policy behaviour."
+    "excluded": "$H$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Within a scenario every constructor collects from the same waste realisation, so collected tonnage is comparable by construction. These runs fell more than {threshold}\\% below their scenario median and did not complete; their overflow counts measure truncation, not policy behaviour."
   },
   "figure_titles": {
     "pareto": "Efficiency against service failures ({horizon}-day horizon)",

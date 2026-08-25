@@ -9,6 +9,12 @@
 \begin{table}[htbp]
 \centering
 \caption{<< caption >>}\label{<< label >>}
+% A reduced size and a tightened column gap: the wider of these tables carry
+% eight columns, which overflow the LNCS text block at the default settings.
+% `size` lets an individual table step down further when its cells hold text
+% rather than numbers.
+<< size | default('\\small') >>
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{<< column_spec >>}
 \toprule
 << first_header >><% for h in headers %> & << h >><% endfor %> \\
