@@ -24,20 +24,30 @@ a cell and every constructor should collect a comparable amount of it. Runs that
 collect drastically less did not lose on policy quality; they failed to complete.
 ``find_degenerate_runs`` flags rows whose collected tonnage falls more than
 ``SHORTFALL_THRESHOLD`` below their cell median. The threshold is not arbitrary:
-across the 576 rows in a cell of four or more, the shortfall distribution has
-median 0.0 and 99th percentile 0.057, then jumps to a handful of rows above 0.20.
-The gap is the signal. Excluded rows are reported in their own table rather than
-dropped silently -- they are a real and citable scale limit of the
-two-commodity-flow MIP.
+the shortfall distribution has median 0.0 and rises to only 0.071 outside the
+runs it catches, which sit at 0.30, 0.47, 0.47 and 0.86. The gap is the signal.
+Excluded rows are reported in their own table rather than dropped silently --
+they are a real and citable scale limit of the two-commodity-flow MIP.
 
 ``drop_affected_cells`` then removes the *entire* scenario cell each degenerate
 run belonged to, for every constructor. Dropping only the offending rows would
 reintroduce the same selection bias this module refuses to accept in the 90-day
-data: all three degenerate runs are SWC-TCF's, so removing just them would
+data: all four degenerate runs are SWC-TCF's, so removing just them would
 average SWC-TCF over the scenarios where it did not fail while its rivals are
 averaged over those too. Losing the cell for everyone costs rows but keeps every
 constructor's mean over an identical set of scenarios, which is the only thing
 that makes the marginal means comparable.
+
+``balance_marginal`` handles the same problem for every *other* stage. Because
+``constructor`` is absent from ``CELL_KEYS``, dropping a cell removes all
+constructors together and the constructor marginal stays balanced for free. Any
+other stage -- selection variant, improver -- is *inside* ``CELL_KEYS``, so
+dropping a cell removes one level of that stage and leaves its siblings intact.
+That is how the selection-strategy table came to average Look-Ahead over a
+scenario set with the study's hardest cell deleted while Last-Minute and
+Service-Level (SL1) kept theirs, which made Look-Ahead look better on service
+than it is. Marginal tables therefore restrict to the slices every level of the
+compared stage actually shares.
 
 Note that the ``days`` column counts *collection* days, not elapsed days, so a
 low value there is not evidence of truncation on its own: several of the best
@@ -92,13 +102,31 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 #: docstring for why 0.20 sits in a genuine gap in the distribution.
 SHORTFALL_THRESHOLD = 0.20
 
-#: Minimum rows in a cell before its median is trustworthy enough to judge against.
-MIN_CELL_SIZE = 4
+#: Minimum rows in a cell before its median means anything: two, so that there is
+#: at least one comparator. It was 4, which silently exempted the sparse 90-day
+#: cells from the check entirely and let through the single worst run in the
+#: study -- SWC-TCF at 90 days on Figueira da Foz N=350 under Gamma-3, which
+#: reached day 13 of 90 and recorded 23,886 overflow events at an 85.6% tonnage
+#: shortfall. At 2 the rule flags exactly four runs across both horizons and the
+#: next-highest shortfall in the data is 0.071, so the gap remains unambiguous.
+MIN_CELL_SIZE = 2
 
 #: The columns that identify a scenario cell: everything except the constructor,
 #: so that the constructors within a cell are exactly the competitors that faced
 #: the identical demand realisation.
 CELL_KEYS = ["horizon", "city", "N", "dist", "strategy", "cf", "sl_var", "improver"]
+
+#: The scenario coordinates, independent of any policy stage. A marginal
+#: comparison across one stage must hold these fixed; see balance_marginal.
+SCENARIO_KEYS = ["horizon", "city", "N", "dist"]
+
+#: The policy stages that can be compared marginally, and the columns that
+#: identify a level of each.
+STAGE_KEYS = {
+    "constructor": ["constructor"],
+    "variant": ["strategy", "cf", "sl_var"],
+    "improver": ["improver"],
+}
 
 #: The columns that identify one policy configuration across horizons.
 CONFIG_KEYS = ["city", "N", "dist", "improver", "strategy", "cf", "sl_var", "acceptance", "constructor"]
@@ -193,6 +221,40 @@ def drop_affected_cells(df: pd.DataFrame, degenerate: pd.DataFrame) -> pd.DataFr
         f"  Dropped {dropped} further run(s) so that every constructor is averaged "
         f"over the same {len(affected)} fewer scenario cells"
     )
+    return df[keep].copy()
+
+
+def balance_marginal(df: pd.DataFrame, stage: str) -> pd.DataFrame:
+    """
+    Restrict ``df`` to the slices in which *every* level of ``stage`` is present.
+
+    ``drop_affected_cells`` balances the constructor marginal only, because
+    ``constructor`` is absent from ``CELL_KEYS`` and so all constructors in a
+    cell are removed together. Any other stage is inside ``CELL_KEYS``, so
+    dropping a cell removes one level of that stage and leaves its siblings
+    intact --- which is how the selection-strategy table came to average
+    Look-Ahead over a scenario set with the study's hardest cell deleted while
+    its rivals kept theirs.
+
+    A marginal comparison across a stage is only meaningful when every level
+    faced the same scenarios, so this keeps the slices --- scenario coordinates
+    plus the *other* policy stages --- that survive for all levels of the stage
+    being compared, and drops the rest for everyone.
+    """
+    stage_cols = STAGE_KEYS[stage]
+    slice_cols = [c for c in df.columns if c in set(SCENARIO_KEYS) | {"improver", "constructor"} and c not in stage_cols]
+    levels = df[stage_cols].drop_duplicates()
+    common: set | None = None
+    for _, level in levels.iterrows():
+        mask = (df[stage_cols] == level.values).all(axis=1)
+        present = set(map(tuple, df.loc[mask, slice_cols].drop_duplicates().to_numpy()))
+        common = present if common is None else common & present
+    if not common:
+        return df
+    keep = df[slice_cols].apply(lambda row: tuple(row) in common, axis=1)
+    dropped = int((~keep).sum())
+    if dropped:
+        print(f"  Balancing the {stage} marginal: dropped {dropped} run(s) from slices not shared by all levels")
     return df[keep].copy()
 
 
@@ -304,7 +366,7 @@ STRATEGY_SPEC = CONSTRUCTOR_SPEC
 
 def table_constructors(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
     """Per-constructor means and medians over the balanced grid at one horizon."""
-    sub = clean[clean.horizon == horizon]
+    sub = balance_marginal(clean[clean.horizon == horizon], "constructor")
     agg = aggregate(sub, "constructor", CONSTRUCTOR_SPEC)
     agg = agg.sort_values(("kgkm", "mean"), ascending=False)
     counts = sub.groupby("constructor").size()
@@ -323,7 +385,7 @@ def table_constructors(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
 
 def table_strategies(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
     """Per-strategy-variant means: the efficiency/service trade-off, in one table."""
-    sub = clean[clean.horizon == horizon].copy()
+    sub = balance_marginal(clean[clean.horizon == horizon], "variant").copy()
     sub["variant"] = sub.strategy + sub.cf + sub.sl_var
     order = [v for v in cfg["variant_order"] if v in set(sub.variant)]
     agg = aggregate(sub, "variant", STRATEGY_SPEC).reindex(order)
@@ -497,7 +559,7 @@ def fig_pareto(clean: pd.DataFrame, horizon: int, out: Path, colors: dict, cfg: 
 
 def fig_strategy_tradeoff(clean: pd.DataFrame, horizon: int, out: Path, cfg: dict) -> None:
     """The efficiency/service trade-off across strategy variants, as paired bars."""
-    sub = clean[clean.horizon == horizon].copy()
+    sub = balance_marginal(clean[clean.horizon == horizon], "variant").copy()
     sub["variant"] = sub.strategy + sub.cf + sub.sl_var
     order = [v for v in cfg["variant_order"] if v in set(sub.variant)]
     agg = sub.groupby("variant")[["kgkm", "overflows"]].mean().reindex(order)
