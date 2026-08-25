@@ -35,12 +35,12 @@ horizon CSV(s) referenced in json/simulation_analysis_config.json.
 
 A per-slide speaker script can also be generated as a .docx (see
 gen_speaker_script / --speaker-script), rendered via docxtpl from a template
-under archive/gen/templates/.
+under logic/gen/templates/.
 
 Usage
 -----
-    uv run python archive/gen/gen_presentation.py
-    uv run python archive/gen/gen_presentation.py \\
+    uv run python logic/gen/gen_presentation.py
+    uv run python logic/gen/gen_presentation.py \\
         --figures-dir public/figures/simulation/30d \\
         --out assets/windows/wsmart_route_results.pptx \\
         --author "Afonso Fernandes" \\
@@ -86,6 +86,7 @@ from pptx.enum.text import MSO_ANCHOR, PP_ALIGN
 from pptx.presentation import Presentation as PresentationClass
 from pptx.util import Emu, Inches, Pt
 from report_utils import load_json  # pyrefly: ignore [missing-import]
+
 
 # ── Equations as images (matplotlib mathtext) ───────────────────────────────
 # An earlier version embedded equations as native, editable OOXML <m:oMath>
@@ -1569,7 +1570,6 @@ class DeckBuilder:
         I = 914400
         BIN_IMG = Path(__file__).resolve().parent / "images" / "waste_bin_icon.png"
         TRUCK_IMG = Path(__file__).resolve().parent / "images" / "waste_truck_icon.png"
-        DARK_NAVY = RGBColor(0x1F, 0x2D, 0x3D)
         RED = RGBColor(0xFF, 0x00, 0x00)
 
         def _bin_and_label(x_in, y_in, pct_text):
@@ -2024,18 +2024,18 @@ def generate_ls_operators_image(out_path: Path) -> Path:
     labels = ["A", "B", "C", "D"]
     ax = axes[0, 0]
     _ls_points(ax, pts, labels)
-    ax.plot(*zip(pts[0], pts[1]), color="#C0392B", linewidth=3, zorder=3)
-    ax.plot(*zip(pts[2], pts[3]), color="#C0392B", linewidth=3, zorder=3)
-    ax.plot(*zip(pts[1], pts[2]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
-    ax.plot(*zip(pts[3], pts[0]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    ax.plot(*zip(pts[0], pts[1], strict=True), color="#C0392B", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[2], pts[3], strict=True), color="#C0392B", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[1], pts[2], strict=True), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    ax.plot(*zip(pts[3], pts[0], strict=True), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
     _ls_axis(ax)
     ax.set_title("2-opt — before", fontsize=12, fontweight="bold", color="#C0392B")
     ax = axes[1, 0]
     _ls_points(ax, pts, labels)
-    ax.plot(*zip(pts[0], pts[2]), color="#3E8E41", linewidth=3, zorder=3)
-    ax.plot(*zip(pts[1], pts[3]), color="#3E8E41", linewidth=3, zorder=3)
-    ax.plot(*zip(pts[1], pts[2]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
-    ax.plot(*zip(pts[3], pts[0]), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    ax.plot(*zip(pts[0], pts[2], strict=True), color="#3E8E41", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[1], pts[3], strict=True), color="#3E8E41", linewidth=3, zorder=3)
+    ax.plot(*zip(pts[1], pts[2], strict=True), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
+    ax.plot(*zip(pts[3], pts[0], strict=True), "--", color="#8A9BB0", linewidth=1.5, zorder=2)
     _ls_axis(ax)
     ax.set_title("2-opt — after: A–C, B–D", fontsize=12, fontweight="bold", color="#3E8E41")
 
@@ -2406,7 +2406,7 @@ LINKS_DIR = Path(__file__).resolve().parent / "links"
 
 def generate_vrpp_illustration_fallback(out_path: Path) -> Path:
     """Native fallback for the VRPP illustration: copy the locally stored reference image
-    (see archive/gen/images/vrpp_illustration_source.png) instead of a code-drawn diagram."""
+    (see logic/gen/images/vrpp_illustration_source.png) instead of a code-drawn diagram."""
     src = IMAGES_DIR / "vrpp_illustration_source.png"
     out_path.parent.mkdir(parents=True, exist_ok=True)
     shutil.copyfile(src, out_path)
@@ -2500,7 +2500,7 @@ NATIVE_DIAGRAM_BUILDERS = {
 
 
 def _load_reference_links() -> dict:
-    """Parse archive/gen/links/reference_image_links.xml -> {key: {"url": ...}}."""
+    """Parse logic/gen/links/reference_image_links.xml -> {key: {"url": ...}}."""
     path = LINKS_DIR / "reference_image_links.xml"
     if not path.exists():
         return {}
