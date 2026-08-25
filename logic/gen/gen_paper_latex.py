@@ -38,7 +38,8 @@ averaged over those too. Losing the cell for everyone costs rows but keeps every
 constructor's mean over an identical set of scenarios, which is the only thing
 that makes the marginal means comparable.
 
-``balance_marginal`` handles the same problem for every *other* stage. Because
+``balance_marginal`` handles the same problem for every *other* stage or
+scenario factor. Because
 ``constructor`` is absent from ``CELL_KEYS``, dropping a cell removes all
 constructors together and the constructor marginal stays balanced for free. Any
 other stage -- selection variant, improver -- is *inside* ``CELL_KEYS``, so
@@ -59,12 +60,11 @@ the honest signal.
 the scenarios where it already did well. Cross-constructor 90-day aggregates are
 therefore selection-biased and this module refuses to emit one. The horizon table
 is built by ``paired_horizon_frame`` from configurations present at *both*
-horizons, compared against themselves. That contrast is far less distorted than a
-cross-constructor one, but it is not unbiased either: a configuration reached 90
-days because its 30-day result was on the Pareto front, so the 30-day arm of
-every pair is conditioned on having been high, and regression to the mean works
-against the measured change. Read the paired difference as a conservative
-estimate -- direction trustworthy, magnitude understated.
+horizons, compared against themselves. That contrast is descriptive of the
+selected configurations, not an unbiased estimate for the full factorial
+design: a configuration reached 90 days because its 30-day result was on the
+Pareto front. Without replicated seeds, the size or even direction of the
+resulting selection effect cannot be estimated.
 
 Non-Python content lives in sibling directories, as with the other generators:
   jinja/paper_*.tex.j2       LaTeX fragment templates
@@ -126,6 +126,8 @@ STAGE_KEYS = {
     "constructor": ["constructor"],
     "variant": ["strategy", "cf", "sl_var"],
     "improver": ["improver"],
+    "dist": ["dist"],
+    "network": ["city", "N"],
 }
 
 #: The columns that identify one policy configuration across horizons.
@@ -203,7 +205,7 @@ def drop_affected_cells(df: pd.DataFrame, degenerate: pd.DataFrame) -> pd.DataFr
     Remove every scenario cell that contained a degenerate run, for all constructors.
 
     Dropping only the degenerate rows would reintroduce exactly the bias this
-    module refuses to accept for the 90-day sample. All three degenerate runs
+    module refuses to accept for the 90-day sample. All four degenerate runs
     belong to SWC-TCF, so removing them alone would leave SWC-TCF averaged over
     the scenarios where it did *not* fail while every rival is averaged over
     those scenarios too -- a mean quietly computed on a favourable subset.
@@ -242,7 +244,12 @@ def balance_marginal(df: pd.DataFrame, stage: str) -> pd.DataFrame:
     being compared, and drops the rest for everyone.
     """
     stage_cols = STAGE_KEYS[stage]
-    slice_cols = [c for c in df.columns if c in set(SCENARIO_KEYS) | {"improver", "constructor"} and c not in stage_cols]
+    policy_cols = {column for columns in STAGE_KEYS.values() for column in columns}
+    slice_cols = [
+        c
+        for c in df.columns
+        if c in set(SCENARIO_KEYS) | policy_cols and c not in stage_cols
+    ]
     levels = df[stage_cols].drop_duplicates()
     common: set | None = None
     for _, level in levels.iterrows():
@@ -266,12 +273,11 @@ def paired_horizon_frame(clean: pd.DataFrame) -> pd.DataFrame:
     each configuration is compared against *itself* rather than against a rival
     whose 90-day scenarios are a different, self-favouring subset.
 
-    It is not, however, unbiased. A configuration reached 90 days precisely
-    because its 30-day result put it on the Pareto front, so the 30-day arm of
-    every pair is conditioned on having been high. Regression to the mean then
-    works against the measured 30-to-90 change, and the paired difference should
-    be read as a conservative estimate of the horizon effect -- the direction is
-    trustworthy, the magnitude is understated.
+    It does not identify a horizon effect for the full design. A configuration
+    reached 90 days precisely because its 30-day result put it on the Pareto
+    front, and there are no replicated seeds from which to estimate the
+    resulting selection effect. The paired difference is therefore descriptive
+    of the selected configurations only.
     """
     wide = clean.pivot_table(index=CONFIG_KEYS, columns="horizon", values=["kgkm", "overflows", "km", "time"])
     wide = wide.dropna()
@@ -407,10 +413,10 @@ def improver_pairs(clean: pd.DataFrame, horizon: int) -> pd.DataFrame:
     """
     CLS against Fast-TSP on the configurations that differ *only* in improver.
 
-    Pairing rather than averaging matters here: the two improvers are not run on
-    identical marginal distributions of scenario, so a difference of means would
-    confound improver with scenario mix. Every pair below is the same policy, the
-    same scenario, the same demand realisation.
+    Pairing rather than averaging controls scenario mix: every pair has the same
+    constructor, selection strategy, scenario and demand realisation. It does
+    not isolate a causal improver effect, because stochastic upstream
+    construction outcomes are not identical in every pair.
     """
     sub = clean[clean.horizon == horizon]
     keys = [k for k in CONFIG_KEYS if k != "improver"]
@@ -424,9 +430,8 @@ def table_improvers(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
     for metric, decimals, better in cfg["improver_metrics"]:
         cls, ftsp = pairs[(metric, "CLS")], pairs[(metric, "FTSP")]
         delta = cls - ftsp
-        # Ties are common on overflow counts (both improvers reorder within an
-        # already-fixed bin set, so neither changes which bins were collected),
-        # and a bare win count silently reads them as losses. Report all three.
+        # Ties are common on overflow counts, and a bare win count silently reads
+        # them as losses. Report all three.
         wins = int((delta > 0).sum() if better == "max" else (delta < 0).sum())
         ties = int(np.isclose(delta, 0.0).sum())
         rows.append(
@@ -480,6 +485,45 @@ def table_horizon(paired: pd.DataFrame, cfg: dict) -> str:
         column_spec="lrrrrr",
         rows=rows,
         note=cfg["notes"]["horizon"],
+    )
+
+
+def table_scenarios(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
+    """Distribution and network marginals over like-for-like policy slices."""
+    metrics = [
+        ("n", "size", 0, "none"),
+        ("kgkm", "mean", 2, "none"),
+        ("overflows", "mean", 1, "none"),
+        ("km", "mean", 0, "none"),
+        ("time", "mean", 0, "none"),
+    ]
+    primary = clean[clean.horizon == horizon]
+    dist = balance_marginal(primary, "dist").copy()
+    dist["level"] = dist["dist"].map(lambda value: f"Demand: {value}")
+    network = balance_marginal(primary, "network").copy()
+    network["level"] = network.apply(
+        lambda row: f"Network: {row.city} ($N={row.N}$)", axis=1
+    )
+    frame = pd.concat([dist, network], ignore_index=True)
+    agg = aggregate(frame, "level", metrics)
+    order = [
+        "Demand: Empirical",
+        "Demand: Gamma-3",
+        "Network: Rio Maior ($N=100$)",
+        "Network: Rio Maior ($N=170$)",
+        "Network: Figueira da Foz ($N=350$)",
+    ]
+    agg = agg.reindex(order)
+    return render_template(
+        "paper_results_table.tex.j2",
+        label="tab:scenarios30",
+        caption=cfg["captions"]["scenarios"].format(horizon=horizon),
+        first_header=cfg["headers"]["scenario_factor"],
+        headers=cfg["headers"]["scenario_metrics"],
+        column_spec="l" + "r" * len(metrics),
+        size=r"\footnotesize",
+        rows=build_rows(agg, metrics),
+        note=cfg["notes"]["scenarios"],
     )
 
 
@@ -548,7 +592,7 @@ def fig_policy_space(out_dir: Path, cfg: dict) -> None:
     import matplotlib.patches as mpatches
 
     stages = cfg["policy_space"]["stages"]
-    counts = cfg["policy_space"]["registry_counts"]
+    counts = cfg["policy_space"]["benchmark_counts"]
 
     fig, ax = plt.subplots(figsize=(9.0, 3.9))
     ax.set_xlim(0, 1)
@@ -574,7 +618,7 @@ def fig_policy_space(out_dir: Path, cfg: dict) -> None:
         ax.text(centre, (box_top + box_bot) / 2 - 0.055, "\n".join(stage["members"]),
                 ha="center", va="center", fontsize=8.6, color="#26313d", zorder=3,
                 linespacing=1.5)
-        ax.text(centre, box_bot + 0.045, stage["registered"].format(**counts),
+        ax.text(centre, box_bot + 0.045, stage["footer"].format(**counts),
                 ha="center", va="center", fontsize=7.6, color="#5a6673", zorder=3)
 
     for a, b in zip(centres, centres[1:], strict=False):
@@ -711,8 +755,8 @@ def fig_fill_trajectory(out_dir: Path) -> None:
     """
     The multi-period mechanism behind the paper's central claim, as a figure.
 
-    The static aggregates (Fig. 5) show that selection is a single dial trading
-    efficiency against overflow, but not *why*. This figure shows three bins'
+    The static aggregates show an ordered trade-off between efficiency and
+    overflow, but not *why*. This figure shows the Last-Minute mechanism for three bins'
     fill levels over the 30-day horizon under the two Last-Minute thresholds,
     CF70 and CF90, re-simulated from the recovered daily increments. CF70
     collects earlier and more often, holding the bin below the threshold; CF90
@@ -836,6 +880,7 @@ def main() -> None:
         write(args.tables_dir / "results_strategies.tex", table_strategies(clean, horizon, cfg), args.force)
         write(args.tables_dir / "results_improvers.tex", table_improvers(clean, horizon, cfg), args.force)
         write(args.tables_dir / "results_horizon.tex", table_horizon(paired, cfg), args.force)
+        write(args.tables_dir / "results_scenarios.tex", table_scenarios(clean, horizon, cfg), args.force)
         write(args.tables_dir / "results_excluded.tex", table_excluded(degenerate, cfg), args.force)
 
     if not args.tables_only:

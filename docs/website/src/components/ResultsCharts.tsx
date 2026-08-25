@@ -118,8 +118,8 @@ function ImproverChart({ results }: { results: Results }) {
         </span>
       </div>
       <p style={{ color: "var(--text-muted)", fontSize: "0.85rem" }}>
-        The {imp.losses} losses are deeper than the wins and concentrated in three
-        constructors at N=350:
+        The {imp.losses} losses are deeper than the wins and confined to three
+        constructors; 21 of 22 occur at N=350:
       </p>
       <svg className="viz-svg" viewBox={`0 0 ${W} ${chartH + 30}`} role="img" aria-label="CLS minus Fast-TSP efficiency, by losing constructor">
         <line x1={0} y1={chartH - 10} x2={W} y2={chartH - 10} className="viz-axis-line" />
@@ -219,13 +219,14 @@ export default function ResultsCharts({ results }: { results: Results }) {
 
       <div className="viz-panel">
         <div className="viz-panel-head">
-          <span>CLS vs Fast-TSP, paired</span>
+          <span>CLS vs Fast-TSP, matched demand</span>
           <span>{results.improvers.pairs} pairs</span>
         </div>
         <ImproverChart results={results} />
         <p style={{ color: "var(--text-muted)", fontSize: "0.85rem", margin: 0 }}>
-          Overflow counts tie on 181 of 224 pairs — neither improver changes which bins
-          were selected, only the order they are visited.
+          These are matched configurations, not a controlled improver treatment:
+          upstream collected-bin counts also differ in some pairs. The deltas are
+          descriptive, not causal.
         </p>
       </div>
 

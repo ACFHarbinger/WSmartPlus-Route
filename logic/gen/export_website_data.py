@@ -13,11 +13,10 @@ transcribed by hand.
 
 It emits four JSON documents into ``docs/website/public/data/``:
 
-  pipeline.json   the policy configuration space, enumerated from the plugin
-                  registries (``logic/src/policies/``), with the benchmarked
-                  subset marked. Counts are whatever the filesystem actually
-                  contains -- they are not the paper's prose counts, which the
-                  bus flags as stale.
+  pipeline.json   the policy configuration space, enumerated from registry
+                  decorators in ``logic/src/policies/``, with the benchmarked
+                  subset marked. Counts describe implementation files rather
+                  than backward-compatibility aliases.
 
   results.json    the balanced 30-day aggregates (constructors, selection
                   variants, improver pairs, Pareto front, scenario effects) and
@@ -50,6 +49,7 @@ Idempotent: skips existing output unless --force is passed.
 from __future__ import annotations
 
 import argparse
+import ast
 import json
 from pathlib import Path
 
@@ -123,6 +123,7 @@ NAME_OVERRIDES = {
     # improvement
     "fast_tsp": "Fast-TSP",
     "local_search": "Classical Local Search",
+    "classical_local_search": "Classical Local Search",
     "dp_route_reopt": "DP Route Re-optimisation",
     "lkh": "LKH",
     "lkh2": "LKH-2",
@@ -160,6 +161,39 @@ def prettify(key: str) -> str:
     return " ".join(w.capitalize() for w in key.replace("-", "_").split("_") if w)
 
 
+def registry_keys(path: Path, registry: str) -> list[str]:
+    """Return literal keys used to register classes in one source file."""
+    tree = ast.parse(path.read_text(encoding="utf-8"))
+    keys: list[str] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.ClassDef):
+            continue
+        for decorator in node.decorator_list:
+            if not (
+                isinstance(decorator, ast.Call)
+                and isinstance(decorator.func, ast.Attribute)
+                and isinstance(decorator.func.value, ast.Name)
+                and decorator.func.value.id == registry
+                and decorator.func.attr == "register"
+                and decorator.args
+            ):
+                continue
+            key = ast.literal_eval(decorator.args[0])
+            if isinstance(key, str):
+                keys.append(key)
+    return keys
+
+
+def implementation_key(path: Path, registry: str, filename_key: str) -> str:
+    """Choose the canonical registry key for an implementation source file."""
+    keys = registry_keys(path, registry)
+    if filename_key in keys:
+        return filename_key
+    if not keys:
+        raise ValueError(f"No {registry}.register decorator in {path}")
+    return keys[0]
+
+
 # --------------------------------------------------------------------------- #
 # Policy space enumeration
 # --------------------------------------------------------------------------- #
@@ -171,10 +205,11 @@ def enumerate_pipeline() -> dict:
     construction_root = LOGIC_SRC / "route_construction"
     improvement_dir = LOGIC_SRC / "route_improvement"
 
-    selection_names = {
-        p.stem.split("_", 1)[1]: prettify(p.stem.split("_", 1)[1])
-        for p in sel_dir.glob("selection_*.py")
-    }
+    selection_names = {}
+    for path in sel_dir.glob("selection_*.py"):
+        filename_key = path.stem.split("_", 1)[1]
+        key = implementation_key(path, "MandatorySelectionRegistry", filename_key)
+        selection_names[key] = prettify(key)
     selection = [
         {"key": k, "name": v}
         for k, v in sorted(selection_names.items(), key=lambda item: item[1])
@@ -190,7 +225,8 @@ def enumerate_pipeline() -> dict:
             continue
         constructors = []
         for p in policies:
-            key = p.stem[len("policy_"):]
+            filename_key = p.stem[len("policy_"):]
+            key = implementation_key(p, "RouteConstructorRegistry", filename_key)
             # The algorithm identity is the subdirectory, not the policy file
             # stem: e.g. meta_heuristics/simulated_annealing_neighborhood_search/
             # policy_sans.py is "Simulated Annealing Neighborhood Search", key
@@ -217,10 +253,13 @@ def enumerate_pipeline() -> dict:
         )
     families.sort(key=lambda f: f["family"])
 
-    improvement = sorted(
-        [p.stem for p in improvement_dir.glob("*.py") if p.stem not in {"__init__"}]
-    )
-    improvement = [{"key": k, "name": prettify(k)} for k in improvement]
+    improvement = []
+    for path in improvement_dir.glob("*.py"):
+        if path.stem == "__init__":
+            continue
+        key = implementation_key(path, "RouteImproverRegistry", path.stem)
+        improvement.append({"key": key, "name": prettify(key)})
+    improvement.sort(key=lambda item: item["name"])
 
     return {
         "selection": selection,
@@ -361,7 +400,9 @@ def build_results(clean: pd.DataFrame, degenerate: pd.DataFrame, cfg: dict) -> d
         "by_dist": [],
         "by_N": [],
     }
-    for dist, grp in clean[clean.horizon == horizon].groupby("dist"):
+    primary = clean[clean.horizon == horizon]
+    balanced_dist = gpl.balance_marginal(primary, "dist")
+    for dist, grp in balanced_dist.groupby("dist"):
         scenario["by_dist"].append(
             {
                 "dist": cfg.get("dist_labels", {}).get(dist, dist),
@@ -370,7 +411,8 @@ def build_results(clean: pd.DataFrame, degenerate: pd.DataFrame, cfg: dict) -> d
                 "kg_lost": _round(grp.kg_lost.mean(), 0),
             }
         )
-    for n, grp in clean[clean.horizon == horizon].groupby("N"):
+    balanced_network = gpl.balance_marginal(primary, "network")
+    for n, grp in balanced_network.groupby("N"):
         scenario["by_N"].append(
             {
                 "N": int(n),
@@ -385,7 +427,7 @@ def build_results(clean: pd.DataFrame, degenerate: pd.DataFrame, cfg: dict) -> d
     # "where does each constructor win/lose" view. Cells are the six
     # network-distribution combinations; per the paper, Gamma-3 and Empirical
     # must not be pooled, so they are shown as distinct columns.
-    hsub = clean[clean.horizon == horizon].copy()
+    hsub = gpl.balance_marginal(balanced_dist, "network").copy()
     dist_short = {"Empirical": "Emp", "Gamma-3": "Gamma-3"}
     hsub["cell"] = (
         hsub.city.map(cfg.get("city_short", {}))

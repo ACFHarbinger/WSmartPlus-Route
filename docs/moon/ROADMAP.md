@@ -3069,13 +3069,12 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 - [x] Methodology completed: BPC, SANS, PG-CLNS and PSOMA written from `logic/src/policies/` and `bibliography/`; Look-Ahead described (it was a third of the experimental grid and went unnamed); CF70/CF90 and SL1/SL2 variants defined; the sentence that ended mid-clause finished (2026-08-25)
 - [x] Results and the stale Data/Baselines subsections rewritten against `public/global/simulation/simulation_summary{,_90d}.csv`. The previous Results described an Attention Model / gurobi / look-ahead study that nothing in the repo reproduces (2026-08-25)
 - [x] Simulation Protocol subsection stating paired demand realisations, sensing noise, the overflow/loss distinction and the single-vehicle single-depot restriction (2026-08-25)
-- [ ] Conclusion and Future Work — still a placeholder sentence
-- [ ] Related Work — the Multi-Period VRPP subsection is commented out; NCO subsection is thin
-- [ ] `[Research]` Complete the 90-day grid so a cross-constructor horizon comparison becomes possible at all (see §I.3). Currently the paper can only make paired within-configuration claims
+- [x] Conclusion and Future Work completed; Related Work now includes the multi-period profitable-routing gap and scopes NCO to framework capability rather than a benchmarked result (2026-08-25)
+- [ ] `[Research]` Run a complete, replicated 90-day grid so cross-constructor and population-level horizon effects become estimable (see §I.3). Current paired values describe only policies selected on 30-day Pareto performance
 
 ### I.2 — Reproducible generation
 
-- [x] `logic/gen/gen_paper_latex.py`: five tables and four figures generated from the summary CSVs into the paper's own tree; nothing in Results is typed by hand (2026-08-25)
+- [x] `logic/gen/gen_paper_latex.py`: six tables and six figures generated from the summary CSVs/raw logs into the paper's own tree, including balanced demand/network marginals (2026-08-25)
 - [x] Report/deck generators revived from `archive/gen/` to `logic/gen/` and brought up to ruff (2026-08-25)
 - [ ] `[Quick Win]` A `just paper` target that regenerates tables and figures and rebuilds the PDF in one step
 - [ ] Wire the same degenerate-run exclusion into `gen_simulation_analysis.py` and the Studio's native `app/src/gen/` engine, so all four consumers apply one rule
@@ -3084,7 +3083,8 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 ### I.3 — Data integrity
 
 - [x] Degenerate-run detection on collected tonnage, with whole-cell exclusion so no constructor is averaged over a subset that flatters it (2026-08-25)
-- [ ] Root-cause the three degenerate SWC-TCF runs at Figueira da Foz N=350 / Gamma-3 from the raw logs — Gurobi time limit is the leading hypothesis (issue #41)
+- [ ] Root-cause the four degenerate SWC-TCF runs at Figueira da Foz N=350 / Gamma-3 from the raw logs — Gurobi time limit is the leading hypothesis (issue #41)
+- [ ] `[Research]` Re-run CLS and Fast-TSP from identical stored constructor outputs and controlled seeds; the current matched-demand pairs differ in upstream collected-bin counts and cannot identify a causal improver effect
 - [ ] `[Research]` Horizon-adaptive time budgets and constructor-specific timeout/fallback handling for long-horizon runs. This addresses an observed failure, not a hypothetical one
 - [ ] Sweep for degenerate runs the tonnage rule may miss (issue #41, assigned to review)
 
