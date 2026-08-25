@@ -14,19 +14,14 @@
 \usepackage{amsfonts}       % blackboard math symbols
 \usepackage{nicefrac}       % compact symbols for 1/2, etc.
 \usepackage{microtype}      % microtypography
-\usepackage{xcolor}         % colors
-\usepackage{graphicx}
 \usepackage{float}
 \usepackage{bm}
 \usepackage{bbm}
 \usepackage{enumitem}
 \usepackage[colorinlistoftodos]{todonotes}
-\usepackage{mwe}
-% N.B.: you may delete the preceding line. It is used to display an example image in this template.
 
-% --- REQUIRED PACKAGES FOR TABLE FORMATTING ---
+% Required packages for generated tables.
 \usepackage{longtable}
-\usepackage{booktabs}
 \usepackage{array}
 
 \DeclareMathOperator*{\dist}{dist}
@@ -35,18 +30,27 @@
 
 \title{A Simulation Framework for the Multi-Period Vehicle Routing Problem with Profits in Smart Waste Collection}
 
-\titlerunning{A Simulation Framework for MPVRP w/ profits}
+\titlerunning{A Simulation Framework for the MPVRPP}
+\author{Afonso Cruz Fernandes\inst{1}\corr \and
+H\'ector Bonilla-Londo\~no\inst{2} \and
+Diana Jorge\inst{2} \and
+Manuel Lopes\inst{1} \and
+Pedro A. Santos\inst{1} \and
+T\^ania Ramos\inst{2}}
 \authorrunning{A.C. Fernandes et al.}
-% First names are abbreviated in the running head.
-% If there is one author, write 'A.L. Benjamin'.
-% If there are two authors, write 'A.L. Benjamin and C.C. Broadus Jr.'
-% If there are more than two authors, '[...] et al.' is used.
-
-\institute{INESC-ID, Lisboa, Portugal \email{afonso.fernandes@inesc-id.pt}
+\institute{INESC-ID, Instituto Superior T\'ecnico, Universidade de Lisboa,
+Lisboa, Portugal\\
+\email{\{afonso.fernandes,manuel.lopes,pedro.santos\}@tecnico.ulisboa.pt}
 \and
-Instituto Superior T\'ecnico, Universidade de Lisboa, Lisboa, Portugal \email{afonso.fernandes@tecnico.ulisboa.pt}
+CEGIST, Instituto Superior T\'ecnico, Universidade de Lisboa, Lisboa, Portugal\\
+\email{hector.fabio.bonilla.londono@tecnico.ulisboa.pt}\\
+\email{\{diana.jorge,tania.p.ramos\}@tecnico.ulisboa.pt}
 }
-%\email{\{a.l.benjamin,a.a.patton\}@fsu.fake}}
+
+\hypersetup{
+  pdftitle={A Simulation Framework for the Multi-Period Vehicle Routing Problem with Profits in Smart Waste Collection},
+  pdfauthor={Afonso Cruz Fernandes, H\'ector Bonilla-Londo\~no, Diana Jorge, Manuel Lopes, Pedro A. Santos, T\^ania Ramos}
+}
 
 \maketitle              % typeset the header of the contribution
 
@@ -54,138 +58,155 @@ Instituto Superior T\'ecnico, Universidade de Lisboa, Lisboa, Portugal \email{af
 Smart waste collection is a stochastic multi-period routing problem: bins fill
 between decisions, sensing is imperfect, and collecting a bin today changes the
 opportunities available tomorrow. We introduce WSmartRoute+, a Python
-simulation framework for evaluating policies for this setting. A policy is
-composed from three interchangeable stages---mandatory-bin selection, profitable
-route construction, and route improvement---so that each decision can be varied
-while the demand realisation and the other stages are held fixed. The reported
+simulation framework for evaluating policies for this setting. Each policy
+combines interchangeable mandatory-bin selection, profitable route construction,
+and route-improvement stages. This structure allows one decision to vary while
+the demand realisation and other stages remain fixed. The reported
 benchmark crosses five selection variants, eight classical constructors, two
 improvers, two waste-generation processes, and three municipal network sizes at
 a 30-day horizon. The results show a substantially larger observed efficiency
 spread across selection variants than across constructors, exposing a clear
 trade-off between collection efficiency and overflow risk. Matched-demand
 improver configurations differ substantially, although stochastic upstream
-construction prevents causal attribution to that stage. A selected subset is followed for 90 days; we report it only through matched
-within-policy comparisons because selection on 30-day performance precludes an
-unbiased cross-constructor ranking. Learned constructors share the same framework
-interface but are not benchmarked in this study.
+construction prevents causal attribution to that stage. A selected subset is
+followed for 90 days. We report matched within-policy comparisons only because
+selection on 30-day performance precludes an unbiased cross-constructor ranking.
+Learned constructors share the framework interface but are not benchmarked here.
 \end{abstract}
 
 \section{Introduction}
 
-Urban waste collection is a core public service with significant economic, environmental, and social implications. The operational planning of waste collection routes directly affects fuel consumption, labor costs, greenhouse gas emissions, service reliability, and citizen satisfaction. From a methodological standpoint, waste collection routing represents a particularly challenging class of vehicle routing problems, characterized by spatially distributed service points, capacity constraints, heterogeneous waste generation rates, and strict operational requirements.
+Waste collection routing couples transport cost to service reliability. Bins
+accumulate material at different rates, sensor readings are imperfect, vehicle
+capacity is limited, and a collection changes the following day's state. A
+useful evaluation must therefore follow a policy over time instead of scoring an
+isolated route.
 
-Over the past decades, Operations Research (OR) has produced a wide range of optimization-based models and solution methods for waste collection routing, including exact formulations, decomposition approaches, and advanced heuristics \cite{hess2024waste,jorge2022hybrid,lopes2023efficient,de2024data}. While these approaches are capable of modeling realistic constraints and multiple objectives, their evaluation is typically conducted either on limited real instances or on static snapshots of the system. As a result, important operational aspects—such as daily variability in waste accumulation, interdependence between routing decisions over time, and the long-term effects of routing policies—are often neglected.
+Existing work covers exact models, meta-heuristics, sensor placement, and
+data-driven planning for waste collection
+\cite{hess2024waste,jorge2022hybrid,lopes2023efficient,de2024data}. Neural
+combinatorial optimization (NCO) adds learned constructive and improvement
+methods for routing \cite{wu2024neural}. Results remain difficult to compare
+when studies use different operational dynamics, demand samples, or tightly
+coupled selection and routing rules.
 
-In parallel, recent advances in Deep Learning (DL) have given rise to Neural Combinatorial Optimization (NCO) methods, which aim to learn routing policies directly from data using deep neural networks trained via reinforcement learning \cite{wu2024neural}. These approaches have shown promising results on classical routing benchmarks, particularly when evaluated on synthetic and static problem instances. However, their applicability to real-world waste collection operations remains largely unexplored, due in part to the lack of realistic, dynamic, and reproducible evaluation environments.
+WSmartRoute+ provides a simulation layer for the stochastic MPVRPP. It
+models daily accumulation, noisy sensing, route execution, overflow and loss,
+then carries the resulting state into the next decision. Policy components use
+registries and a common interface, allowing classical or learned constructors
+to be combined with the same selection and improvement stages.
 
-A critical limitation of the current literature is the absence of simulation frameworks that faithfully capture the operational dynamics of waste collection systems. Real-world operations involve continuous waste accumulation, sensor uncertainty, service-level requirements, and feedback effects whereby routing decisions made on one day influence the state of the system on subsequent days. Without a simulation layer that explicitly models these dynamics, it is difficult to assess the true performance, robustness, and scalability of both OR-based solvers and learning-based routing policies.
-
-To address this gap, this paper introduces a Waste Collection Routing Simulator designed to serve as a unified experimental platform for the development, evaluation, and comparison of routing strategies. The simulator integrates a dynamic system state that evolves over time, daily route execution, container-level waste accumulation processes, and multi-objective performance metrics reflecting real operational trade-offs. By decoupling the simulation of the operational environment from the optimization or learning components, the framework enables a fair and reproducible comparison between expert-crafted OR solvers and data-driven NCO models under identical conditions.
-
-Within this simulator, routing decisions are not evaluated in isolation but as part of a sequential decision-making process, where each day's routes influence future system states, service feasibility, and performance outcomes. This perspective shifts the focus from solving single-shot routing problems to evaluating routing policies over extended planning horizons, which is more aligned with real-world waste management practice.
-
-The proposed simulator is validated using real-world data from a waste management company operating across multiple municipalities in Portugal, involving instances with several hundreds of containers. It provides a realistic testbed for studying the strengths and limitations of both optimization-based and learning-based routing approaches, and supports systematic experimentation on scalability, robustness to uncertainty, and multi-objective trade-offs in waste collection operations.
+We evaluate the classical baseline on bin locations, road distances, and
+historical fill records from two Portuguese municipalities. The complete
+30-day factorial design contains 480 runs. A performance-selected subset is
+also observed for 90 days, with the corresponding inferential limits stated
+explicitly.
 
 This paper makes the following contributions:
 
 \begin{itemize}
-    \item We introduce a dynamic, multi-objective waste collection routing problem in which routing decisions influence the evolution of future problem instances through container-level waste accumulation and service constraints. This formulation naturally captures the sequential nature of real-world waste collection operations.
+    \item A reproducible simulator for stochastic multi-period waste collection,
+    including bin-level accumulation, sensing error, overflow, loss, and state
+    transitions after collection.
     
-    \item We propose a modular Waste Collection Routing Simulator that enables the evaluation of routing policies under both blind and smart collection settings. The simulator supports stochastic waste generation processes, sensor uncertainty, and long-term policy evaluation over extended planning horizons.
+    \item A three-stage policy interface that separates mandatory selection,
+    profitable route construction, and route improvement, with common demand
+    realisations for matched comparisons.
     
-    \item We provide a common interface for classical and Neural Combinatorial
-    Optimization constructors. The present benchmark establishes the classical
-    baseline; evaluating learned constructors under the same demand
-    realisations is left to future work.
+    \item A classical baseline spanning five selection variants, eight
+    constructors, two improvers, two demand processes, and three municipal
+    network sizes; learned constructors can use the same interface in future
+    comparisons.
     
-    \item We conduct an extensive computational study using real-world data from a Portuguese waste management company, considering networks of 100, 170, and up to 350 containers. The experiments analyze scalability, robustness to uncertainty, and trade-offs between operational cost, service level, and environmental impact.
-    
-    \item We systematically investigate the impact of different waste generation models, including Gamma distributions with varying parameters and empirical distributions derived from historical data, providing insights into how demand uncertainty affects the relative performance of static and dynamic routing policies.
+    \item An integrity-aware analysis that excludes failed runs by whole
+    scenario cells, balances every marginal comparison, and limits the selected
+    90-day follow-up to claims supported by its design.
 \end{itemize}
 
 \section{Problem Definition}
-We model the Multi-Period Vehicle Routing Problem with Profits (MPVRPP) as a profit maximizing, multi-period constrained combinatorial optimization problem over a horizon of $D$ days. 
+We model the Multi-Period Vehicle Routing Problem with Profits (MPVRPP) as a
+constrained stochastic optimization problem over $D$ days.
 
 \subsection{Problem State and Dynamics}
-Let $\mathcal{G} = (\mathcal{V}, \mathcal{E})$ be a fully connected graph where $\mathcal{V} = \{v_0, v_1, \dots, v_V \}$, with $v_0$ representing the depot and $\mathcal{V} \setminus \{v_0\}$ denoting the set of waste bins located at spatial coordinates $\vec{l}_i \in \mathbb{R}^2$. The state of the environment at day $d \in \{1, \dots, D\}$ is defined by the fill levels of the bins, denoted by the vector $\vec{w}_d = [w_{1, d}, \dots, w_{V, d}]^\top \in [0, \tau]^V$, where $\tau$ is the maximum bin capacity.
+Let $\mathcal{G}=(\mathcal{V},\mathcal{E})$ be a complete graph with depot
+$v_0$ and bins $\mathcal{V}\setminus\{v_0\}$. Bin $i$ has location
+$\vec{l}_i\in\mathbb{R}^2$, capacity $C_i$, and waste level
+$w_{i,d}\in[0,C_i]$ on day $d$. The system state is
+$\vec{w}_d=[w_{1,d},\ldots,w_{V,d}]^\top$.
 
-The waste $w_{i,d}$ accumulates stochastically according to a daily waste fill value sampled from a bin-specific distribution $\delta_{i,d} \sim P_i$. If a bin $v_i$ is visited on day $d$, its waste is collected and the level is reset; otherwise, waste continues to accumulate up to the bins' maximum capacity $\tau$:
+Daily accumulation $\delta_{i,d}\sim P_i$ is bin-specific and stochastic. If
+bin $i$ is collected on day $d$, the next day's level contains only the next
+increment; otherwise accumulation continues to capacity:
 \begin{equation}
     w_{i, d+1} = 
     \begin{cases} 
         \delta_{i, d+1} & \text{if } v_i \in \mathcal{A}_d \\
-        \min(w_{i, d} + \delta_{i, d+1}, \tau) & \text{if } v_i \notin \mathcal{A}_d
+        \min(w_{i, d} + \delta_{i, d+1}, C_i) & \text{if } v_i \notin \mathcal{A}_d
     \end{cases}
 \end{equation}
 
-\begin{figure}
-    \centering
-    \includegraphics[width=0.75\linewidth]{Images/vrpp_multi_vehicle_example.png}
-    \caption{Example of a single-day VRPP where multiple vehicles each serve a different subset of the selected bins. Figure adapted from \cite{sym11040546}.}
-    \label{fig:vrpp_example}
-\end{figure}
-
 \subsection{Optimization Objective}
 
-At each day $d$, the agent selects a (possibly empty) set $\mathcal{A}_{d}$ of bins to be visited distributed by $K$ routes, with each route starting and ending at the depot $v_0$:
+On day $d$, the policy produces up to $K$ routes. Route $k$ visits
+$T_{d,k}$ bins and starts and ends at $v_0$:
 \begin{equation}
-    \mathcal{A}_{d,k} = (a_{0, k}, a_{1, k}, a_{2, k}, \dots, v_0).
+    \mathcal{A}_{d,k}=(a_{0,k},a_{1,k},\ldots,a_{T_{d,k},k},a_{T_{d,k}+1,k}),
+    \qquad a_{0,k}=a_{T_{d,k}+1,k}=v_0.
 \end{equation}
 
-Here $a_{t,k}$ represents the action of visiting a certain bin on route $k$, with $a_{0, k} \equiv v_0$. The maximum number of routes can be limited by the resources available (vehicles). The constrained optimization problem for a single day can be formulated as finding the route(s) that:
+Let $\mathcal{A}_{d,\cdot}$ denote the union of non-depot visits. The daily
+problem is
 
 \begin{equation}
 \begin{aligned}
-    \textrm{maximize} \quad & \mathcal{P} = r_{w} \cdot \sum_{v_i \in \mathcal{A}_{d,\cdot}} w_{i, d} - c_{km} \cdot \sum_{k=1}^{K}\sum_{a_{t,k} \in \mathcal{A}_{d,k}} \dist(a_{t,k}, a_{t+1,k})\label{eq:profit_function}\\
-    \textrm{subject to} \quad & a_{t,k} \neq a_{t',k'} \quad \forall {t,k} \neq {t',k'} \\
-    & \sum_{v_i \in \mathcal{A}_{d,k}} w_{i, d} \leq Q_k
+    \textrm{maximize} \quad & \mathcal{P}_d = r_w \sum_{v_i\in\mathcal{A}_{d,\cdot}}w_{i,d}
+    -c_{km}\sum_{k=1}^{K}\sum_{t=0}^{T_{d,k}}
+    \dist(a_{t,k},a_{t+1,k}) \label{eq:profit_function}\\
+    \textrm{subject to} \quad
+    & a_{t,k}\neq a_{t',k'} \quad
+      \forall (t,k)\neq(t',k'),\ 1\leq t\leq T_{d,k},\ 1\leq t'\leq T_{d,k'},\\
+    & \sum_{t=1}^{T_{d,k}}w_{a_{t,k},d}\leq Q_k
+      \quad \forall k\in\{1,\ldots,K\}.
 \end{aligned}
 \end{equation}
-where $r_{w}$ is a scalar value for the revenue obtained from each waste kilogram collected, $c_{km}$ is a scalar value corresponding to the cost it takes for a vehicle to travel one kilometer, $a_t$ represents the action of going to a certain bin, and $Q_k$ is the vehicle maximum waste capacity constraint.
+Here $r_w$ is revenue per kilogram, $c_{km}$ is travel cost per kilometre, and
+$Q_k$ is vehicle $k$'s capacity. Optional service distinguishes the VRPP from
+the classical VRP: the policy chooses a profitable subset as well as its routes
+\cite{doi:10.1137/1.9781611973594.ch10}.
 
-The Vehicle Routing Problem with Profits (VRPP) can be seen as a variation of the Vehicle Routing Problem (VRP), which is in itself an generalization of the TSP where each vertex has a demand and routes must be constructed such that they both start and end at the depot \cite{Kool2018AttentionLT,wu2024neural}. Unlike the base VRP, the VRPP's objective function is the profit, which considers the demand collected in addition to the route travel cost, thus visiting only the subset of nodes that is profitable, instead of always visiting every available node \cite{doi:10.1137/1.9781611973594.ch10}. Additionally, for the Multi-Period variant of the VRPP (MPVRPP), the vehicles must perform multiple collection routes during a given time range, where the current day's optimal route is dependent upon the choices taken at previous days \cite{DBLP:journals/eor/ZhangCCLQ13}.
-
-
-
-% At each day $d$, the agent selects $K$ routes ($K$ can be zero) where route $r_k$ is of the form $\mathcal{A}_{d,k} = (a_0, a_1, \dots, a_{T_{d,k}})$ starting and ending at the depot $v_0$. The maximum number of routes can be limited by the resources available (vehicles). The constrained optimization problem for a single day can be formulated as finding the route(s) that:
-% \begin{equation}
-% \begin{aligned}
-%     \textrm{maximize} \quad & \mathcal{P} = r_{w} \cdot \sum_{v_i \in \mathcal{A}_{d,\cdot}} w_{i, d} - c_{km} \cdot \sum_{k=1}^{K}\sum_{t=0}^{T_{d,k}} \dist(a_t, a_{t+1})\label{eq:profit_function}\\
-%     \textrm{subject to} \quad & a_{0} = a_{T_d} \quad \forall r\\
-%     & a_t \neq a_{t'} \quad \forall t \neq t' \in \{1, \dots, T_{d-1,k}\} \\
-%     & \sum_{v_i \in \mathcal{A}_{d,k}} w_{i, d} \leq Q_k
-% \end{aligned}
-% \end{equation}
-% where $r_{w}$ is a scalar value for the revenue obtained from each waste kilogram collected, $c_{km}$ is a scalar value corresponding to the cost it takes for a vehicle to travel one kilometer, $a_t$ represents the action of going to a certain bin, and $Q_k$ is the vehicle maximum waste capacity constraint.
-
-Since decisions made on day $d$ affect the state on day $d+1$, we must optimize over the full horizon. The global objective is to find a policy $\bm{\pi}$ that generates a sequence of routes $(\mathcal{A}_1, \dots, \mathcal{A}_D)$ to maximize the expected cumulative profit:
+Because each collection changes the next state, policy $\bm{\pi}$ maximises
+expected cumulative profit over the horizon:
 \begin{equation}
-    \max_{\bm{\pi}} \mathbb{E} \left[ \sum_{d=1}^D \mathcal{P}(\mathcal{A}_{d,\cdot}, \bm{w}_d) \right],
+    \max_{\bm{\pi}} \mathbb{E} \left[ \sum_{d=1}^D \mathcal{P}_d(\mathcal{A}_{d,\cdot}, \bm{w}_d) \right],
 \end{equation}
-where $\mathcal{P}$ is the daily route(s) profit function defined in \eqref{eq:profit_function}.
+where $\mathcal{P}_d$ is defined in \eqref{eq:profit_function}.
 
 
 
 \section{Related Work}
 \subsection{Neural Combinatorial Optimization}
-The framework registers NCO constructors on the same interface as the classical
-ones, so the taxonomy below defines the design space those constructors are
-drawn from. They are not part of the benchmark reported in
-Sect.~\ref{sec:eval}, which exercises the eight classical constructors; the
-purpose of this subsection is to establish what a learned constructor would
-have to be, and where in the pipeline it would sit.
-
-Following a slightly modified version of the taxonomy introduced by \cite{wu2024neural}, which also considers the categories defined by \cite{sun2023difusco}, NCO solvers can be classified into five different types based on how the DNN model generates the solution: 1) autoregressive constructive solvers \cite{Kool2018AttentionLT,kwon2020pomo,vinyals2015pointer}, which start from an empty set and build a valid solution by sequentially selecting unvisited vertices; 2) non-autoregressive constructive solvers \cite{joshi2019efficient,karalias2020erdos}, where the DNN model learns to output the entire solution (usually consisting of probabilities over the vertices or edges of the graph, that are then used by a decoding algorithm to build a valid route) in a single step; 3) improvement heuristic solvers \cite{ma2024learning}, which use a Markov Decision Process (MDP) to iteratively refine an existing complete solution; 4) predict-once solvers \cite{sun2023difusco}, where the model predicts information before starting a solution search with a OR solver or a search algorithm (like beam search); and 5) predict-many solvers \cite{liu2024evolution}, a similar approach to the previous category, with the difference that the model performs additional predictions to further restrict the solution search space, and thus decrease time complexity. The NCO solvers from different categories provide various trade-offs between performance, solving time, and ability to scale to larger problem instances \cite{joshi2020learning,sun2023difusco,wu2024neural}.\\
-While all of these algorithms share the same purpose, to produce a near-optimal solution to a given CO problem instance, in practice they learn to perform different specific tasks using a plethora of methods from multiple ML paradigms, including training to mimic OR solvers via SL \cite{joshi2019efficient,sun2023difusco,vinyals2015pointer}, approximating the optimal policy by minimizing a cost function via policy gradient RL \cite{Kool2018AttentionLT,kwon2020pomo,ma2024learning}, and using Unsupervised Learning (UL) to make a model define a probability distribution over a graph's vertices that is used at inference time to build a feasible route through the method of conditional expectation \cite{karalias2020erdos}.
+Learned solvers fit the framework at either route construction or improvement;
+the present experiment does not benchmark them. Constructive solvers may decode
+a route sequentially, as in Pointer Networks, the Attention Model, and POMO
+\cite{vinyals2015pointer,Kool2018AttentionLT,kwon2020pomo}, or predict edge
+scores or a complete solution representation for a separate decoder
+\cite{joshi2019efficient,karalias2020erdos,sun2023difusco}. Learning-to-search
+methods instead refine an existing solution through learned local moves
+\cite{ma2024learning}. These families use supervised, reinforcement, or
+unsupervised objectives and differ materially in inference cost and
+generalisation beyond their training sizes
+\cite{joshi2020learning,wu2024neural}. The shared constructor interface permits
+a later controlled comparison with the classical baseline reported here.
 
 \subsection{Multi-Period Routing with Profits}
 Classical VRP formulations require service at every customer, whereas profitable
 routing jointly chooses whom to serve and how to route the chosen subset
-\cite{doi:10.1137/1.9781611973594.ch10}. Extending that decision over multiple
-periods changes its meaning: service resets a bin's state, while deferral raises
-both its future collection value and its risk of overflow. The resulting policy
-must therefore trade immediate routing cost against future system state, rather
-than solve independent daily snapshots \cite{DBLP:journals/eor/ZhangCCLQ13}.
+\cite{doi:10.1137/1.9781611973594.ch10}. Prior multi-period profitable routing
+distributes service across periods under inter-period scheduling constraints
+\cite{DBLP:journals/eor/ZhangCCLQ13}. Waste collection introduces a different
+coupling: service resets a bin's state, while deferral raises its future
+collection value and overflow risk. The policy must trade immediate routing cost
+against the future system state.
 Waste-routing studies have developed exact and heuristic methods for realistic
 operational constraints \cite{hess2024waste,jorge2022hybrid,lopes2023efficient,de2024data},
 but reproducible comparisons across selection, construction, and improvement
@@ -197,8 +218,8 @@ and replaying identical stochastic demand across composed policies.
 
 \section{Methodology}
 
-A routing policy in WSmartRoute+ is not a single algorithm but a composition of
-three independent stages, each drawn from its own plugin registry
+A WSmartRoute+ policy composes three independent stages, each drawn from its
+own plugin registry
 (Fig.~\ref{fig:pol_config}). The first is \emph{mandatory selection}: given the
 sensed fill level of every bin, decide which bins \emph{must} be serviced today.
 The second is \emph{route construction}: build a route over those mandatory bins,
@@ -206,15 +227,12 @@ free to add any further bin whose waste repays the detour needed to reach it.
 The third, optional, stage is \emph{route improvement}: take the constructed
 route and refine it.
 
-Separating the three matters because they answer different questions. Selection
-is a multi-period question --- collecting a bin today forgoes the larger,
-cheaper-per-kilogram load it would offer tomorrow --- while construction is a
-single-period profit-maximising routing question, and improvement is a pure
-geometry question. Composing them freely means an experiment can vary one stage
-while holding the others fixed, which is what makes the marginal effect of each
-stage measurable at all. It also turns a benchmark of individual algorithms
-into a benchmark of a policy \emph{space}: registered implementations are
-interchangeable by configuration rather than wired into a single solver.
+The stages answer different questions. Selection is multi-period because
+collecting today forgoes a larger, cheaper-per-kilogram load tomorrow.
+Construction solves the current profitable-routing problem, and improvement
+refines its geometry. Their composition lets an experiment vary one stage while
+holding the others fixed. Registered implementations therefore define a policy
+\emph{space} instead of one fixed solver.
 
 This work benchmarks a deliberately small, representative subset of that space:
 three selection strategies (in five threshold variants), eight route constructors
@@ -271,8 +289,8 @@ has had least opportunity to recover from a mistake.
 A simulation-based rule that assumes no distributional form at all. Rather than
 projecting analytically, it rolls the bin's accumulation forward day by day to
 find the last day on which the bin could still be collected without overflowing,
-and makes it mandatory only on that day --- deferring collection to the latest
-safe moment so that the collected load is as large as possible. It has no
+and makes it mandatory on that day. This defers collection to the latest safe
+moment so that the collected load is as large as possible. It has no
 threshold variant, which is why it contributes fewer configurations than LM or
 SL to the experimental grid. It is also the most expensive of the three per
 decision, since it simulates forward instead of evaluating a closed form.
@@ -282,19 +300,19 @@ decision, since it simulates forward instead of evaluating a closed form.
 Every constructor below solves the same single-period problem: visit all
 mandatory bins, optionally visit any subset of the remaining bins, respect
 vehicle capacity, and maximise collected waste net of travel cost. The
-adaptation that matters is uniform across the families --- classical CVRP
-methods assume every node must be visited, and each constructor needs some
-mechanism to decide that a bin is \emph{not} worth the detour.
+adaptation is uniform across the families. Classical CVRP methods assume every
+node must be visited; each constructor therefore needs a mechanism to reject
+bins whose collected value would not repay the detour.
 
 \subsubsection{Exact Methods}
 
-\paragraph{Smart Waste Collection --- Two-Commodity Flow (SWC-TCF).}
+\paragraph{Smart Waste Collection: Two-Commodity Flow (SWC-TCF).}
 A direct implementation of the waste-collection formulation of Ramos et
 al.~\cite{RAMOS2018146}, written as a single monolithic mixed-integer program
 and handed to a general-purpose solver. Its core device is to track two
-commodities on every arc simultaneously --- waste collected so far, and residual
-capacity --- and to require that they sum to the vehicle capacity on every used
-arc. That single constraint family enforces capacity and eliminates subtours at
+quantities on every arc simultaneously: waste collected so far and residual
+capacity. Their sum equals vehicle capacity on every used arc. This constraint
+family enforces capacity and eliminates subtours at
 once, where a conventional formulation needs two separate and awkward families.
 
 Unlike the other constructors, SWC-TCF needs no VRPP retrofit: the source
@@ -305,8 +323,8 @@ forced into the solution regardless.
 
 Its exposure is scale. The model grows roughly quadratically in the number of
 candidate bins and there is no decomposition to keep the working problem small,
-so it is the constructor most vulnerable to instance-size blow-up --- a
-vulnerability that our largest scenario realises concretely
+making it the constructor most vulnerable to instance-size blow-up. The largest
+scenario exhibits this vulnerability
 (Sect.~\ref{sec:integrity}).
 
 \paragraph{Branch-Price-and-Cut (BPC).}
@@ -328,10 +346,9 @@ distance, so route extension stops naturally once a detour costs more than the
 waste it collects; and branching resolves the visit/no-visit decision for a bin
 \emph{before} it branches on arcs, settling the question a classical
 always-cover formulation never has to ask. Beyond the base formulation, lifted
-cover inequalities on saturated arcs are separated --- chosen to match the
-reference methodology rather than the now more common rounded capacity cuts ---
-together with VRPP-specific minimum-cut, triangle-clique and node-profit
-families.
+cover inequalities on saturated arcs are separated, following the reference
+methodology, together with VRPP-specific minimum-cut, triangle-clique and
+node-profit families.
 
 Both exact methods run under a per-run time budget in these experiments. Neither
 is run to certified optimality on the larger instances, and both have a
@@ -365,8 +382,7 @@ counterpart to ALNS. Its central design choice is representational: individuals
 are encoded as a single giant tour over all bins with no route boundaries, and
 are decoded into actual routes only when evaluated. Decoding is a dynamic
 program that finds the optimal split of the giant tour into capacity-feasible
-segments --- and, critically for VRPP, it is also where bins are \emph{skipped},
-by allowing the split to jump over any bin whose inclusion would reduce net
+segments. For the VRPP, decoding can also skip any bin whose inclusion reduces net
 profit. Skipped bins remain in the genotype, so their relative position survives
 into later generations in case a subsequent mutation makes them worth collecting
 again.
@@ -386,9 +402,9 @@ Fitness combines cost $C(S)$ with a diversity contribution $D(S)$:
 \paragraph{Simulated Annealing Neighborhood Search (SANS).}
 An implementation of the hybrid published by Jorge et
 al.~\cite{jorge2022hybrid} specifically for smart waste collection. It couples
-the standard annealing acceptance rule --- accept improving moves always, accept
-a worsening move of magnitude $\Delta$ with probability $\exp(-\Delta/T)$ under a
-temperature $T$ that cools over the run --- with a broad, purpose-built move
+the standard annealing acceptance rule, which always accepts improvements and
+accepts a worsening move of magnitude $\Delta$ with probability $\exp(-\Delta/T)$
+under a cooling temperature $T$. It combines this rule with a purpose-built move
 library: single-bin relocation and swapping within and between routes, batched
 relocation and swapping of both random and contiguous bin groups, segment
 reversal, and route-segment crossover. Moves are sampled uniformly rather than
@@ -399,9 +415,9 @@ The profitable-subset decision is folded into the neighbourhood itself. Bins can
 be moved into a removed pool and reconsidered for reinsertion later, so
 inclusion is one more move type rather than a separate phase. A refinement stage
 follows the annealing loop: an uncrossing pass, further annealing, deterministic
-local search applied twice --- once in forward order and once with routes and
-positions reversed, which escapes the local optima that an order-dependent sweep
-creates --- and a final pass over the removed pool.
+local search applied in forward order and then with routes and positions
+reversed, followed by a final pass over the removed pool. Reversing the sweep
+can reach moves hidden by the first order.
 
 \paragraph{Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS).}
 An original design combining population-level construction with per-individual
@@ -430,9 +446,9 @@ sequencing problem requires an encoding. PSOMA uses ranked-order values: each
 particle holds a real vector with one coordinate per bin, and the visiting order
 is simply the rank order of those coordinates. The numbers themselves are
 meaningless; only their relative order is read, so the standard continuous
-velocity update --- inertia, plus attraction to the particle's own best and to
-the swarm's best --- runs unmodified underneath, with the discrete tour emerging
-from a sort. The resulting giant tour is split into routes by the same
+velocity update combines inertia with attraction to the particle's own best and
+the swarm's best. Sorting the updated values yields the discrete tour. The
+resulting giant tour is split into routes by the same
 profit-aware dynamic program HGS uses, which is likewise where PSOMA decides
 which bins to skip.
 
@@ -503,9 +519,9 @@ A narrower operation: holding each route's bin assignment fixed, find the best
 visiting order within it. Routes of up to roughly twenty stops are solved to
 optimality by dynamic programming; longer ones fall back to a randomised local
 search within a small fixed budget. Fast-TSP cannot move a bin between vehicles,
-drop a bin, or account for revenue --- it solves each route's ordering globally
-where CLS improves the plan incrementally, and that difference is precisely what
-the paired comparison in Sect.~\ref{sec:res-improvers} isolates.
+drop a bin, or account for revenue. It solves each route's ordering globally,
+whereas CLS improves the plan incrementally. Section~\ref{sec:res-improvers}
+compares configurations using the two improvers.
 
 \subsection{Simulation Protocol}
 \label{sec:protocol}
@@ -534,9 +550,8 @@ reported, as in a real deployment.
 
 \emph{Overflow is a flag, loss is a quantity.} A bin's true level is tracked
 continuously; waste beyond capacity is recorded as lost and the displayed level
-capped. An overflowing bin that stays unvisited does not accrue a special debt
---- it simply keeps losing whatever it accumulates, every subsequent day, until
-collected. Overflow counts and kilograms lost are therefore related but distinct
+capped. An overflowing bin that stays unvisited keeps losing each subsequent
+increment until collection. Overflow counts and kilograms lost are therefore related but distinct
 measures of service failure.
 
 \emph{Every scenario uses a single vehicle and a single depot.} This is a
@@ -550,8 +565,8 @@ policed centrally by the simulator.
 
 \subsection{Scenarios and Data}
 
-Experiments are run on two Portuguese municipal networks, each with real bin and
-depot coordinates and a real road-distance matrix:
+Experiments use two Portuguese municipal networks with observed bin locations
+and road-distance matrices:
 
 \begin{itemize}
     \item \textbf{Rio Maior}, at $N = 100$ and $N = 170$ plastic-waste bins,
@@ -571,8 +586,8 @@ parametric model against real observations:
           behaviour varies across the network and not merely in scale;
     \item \textbf{Empirical}, resampling directly from historical daily-fill
           records collected by the WSmart+ Bin Analysis module between
-          2021-01-12 and 2023-10-23 --- a bootstrap with no parametric
-          assumption, replaying observed patterns.
+          2021-01-12 and 2023-10-23. This bootstrap makes no parametric
+          assumption and replays observed patterns.
 \end{itemize}
 
 Neither process reveals its parameters to any selection strategy; all
@@ -592,14 +607,11 @@ Sect.~\ref{sec:res-strategies}.
 \begin{figure}
     \centering
     \includegraphics[width=\linewidth]{Images/Results/Generated/networks.png}
-    \caption{The two service networks. Positions are a two-dimensional
-    embedding of each network's real road-distance matrix, not geographic
-    coordinates: per-bin latitude and longitude are not part of this
-    repository. The embedding reproduces pairwise road distances with a Kruskal
-    stress of 0.171 at Rio Maior and 0.134 at Figueira da Foz, so it is a
-    faithful rendering of relative proximity but not a map, and no bearing or
-    absolute position should be read from it. Each panel is scaled to its own
-    extent; the depot lies well outside the bin cloud in both.}
+    \caption{Geographic distribution of the selected plastic-waste bins in the
+    two benchmark networks, shown over OpenStreetMap drive-network geometry.
+    Each panel uses its own extent; bin positions are actual coordinates, while
+    the remote depots are omitted to preserve detail within the service areas.
+    Map data \copyright{} OpenStreetMap contributors.}
     \label{fig:networks}
 \end{figure}
 
@@ -636,9 +648,8 @@ events} counts bin-days on which a bin was at capacity, and \emph{kilograms
 lost} the waste discarded as a result; the two are related but distinct, since a
 single bin left uncollected keeps losing waste every subsequent day.
 \emph{Distance} and \emph{runtime} measure operational and computational cost.
-Means are reported alongside medians throughout, because at this sample size a
-single extreme scenario can move a mean substantially --- as
-Sect.~\ref{sec:integrity} demonstrates.
+Means are reported alongside medians because a single extreme scenario can move
+a mean substantially at this sample size (Sect.~\ref{sec:integrity}).
 
 \subsection{Data Integrity}
 \label{sec:integrity}
@@ -646,21 +657,19 @@ Sect.~\ref{sec:integrity} demonstrates.
 Four runs are degenerate rather than merely poor, and all four are SWC-TCF on
 Figueira da Foz under Gamma-3 (Table~\ref{tab:excluded}). Because every
 constructor in a scenario collects from an identical waste realisation,
-collected tonnage is comparable by construction; these runs collected between
-30\% and 86\% less than their scenario median, having failed to complete rather
-than having routed badly. Their very large overflow counts --- up to 23{,}886
-events for the 90-day case, which reached day 13 of 90 --- measure that
-truncation, not policy behaviour. This is the concrete realisation of the
+collected tonnage is comparable by construction. These runs collected between
+30\% and 86\% less than their scenario median and failed to complete. Their very
+large overflow counts include 23{,}886 events for the 90-day case, which reached
+day 13 of 90, and principally reflect truncation. This is the concrete realisation of the
 scaling exposure noted for the monolithic MILP formulation: it is the largest
 network under the heavier of the two generating processes.
 
 The detection rule is a tonnage shortfall against the scenario median, and its
 threshold is not tuned. Outside these four runs the shortfall distribution has
 median $0.00$ and does not exceed $0.071$; the four sit at $0.30$, $0.47$,
-$0.47$ and $0.86$. The gap identifies them unambiguously. We note that the count
-of collection days is \emph{not} a truncation signal, despite appearances ---
-several of the strongest policies collect on only 15 of 30 days precisely
-because they bundle collections well, so tonnage is the honest measure.
+$0.47$ and $0.86$. The gap identifies them unambiguously. Collection-day count
+cannot diagnose truncation: several strong policies collect on only 15 of 30
+days because they bundle collections well. Tonnage provides the relevant signal.
 
 Excluding these runs alone would have introduced a subtler bias of the same
 family as the 90-day sampling problem: since all four are SWC-TCF's, removing
@@ -687,23 +696,17 @@ Table~\ref{tab:constructors30} reports per-constructor performance, and
 Fig.~\ref{fig:pareto} places the constructors in the efficiency/service plane.
 
 BPC attains the highest mean efficiency (6.65\,kg/km) on the shortest mean
-routes (4{,}018\,km), which is the expected outcome for the method with the
-strongest optimality machinery --- though, as noted, it runs to a time budget
-and is not certified optimal at these sizes. ALNS achieves the fewest mean
+routes (4{,}018\,km), although its time limit prevents an optimality certificate
+at these sizes. ALNS achieves the fewest mean
 overflows (5.9) and PG-CLNS is the strongest all-round compromise, second on
-efficiency and second on overflows. ACO-HH is the most interesting entry: third
-on efficiency, within 5\% of BPC, at 589\,s mean runtime --- roughly a quarter
-of HGS's and PG-CLNS's, and the fastest of the eight. The hyper-heuristic's
-extra level of abstraction pays for itself.
+efficiency and second on overflows. ACO-HH ranks third on efficiency, within
+5\% of BPC, and is the fastest constructor at 589\,s mean runtime, roughly a
+quarter of the HGS and PG-CLNS means.
 
-The medians qualify the overflow column sharply, and this is the result we would
-most caution against over-reading. Seven of the eight constructors have a
-\emph{median} overflow count of exactly 4.0; the spread in the means, from 5.9
-for ALNS to 19.9 for HGS, is therefore almost entirely tail behaviour rather
-than typical-case behaviour. The statement ``HGS overflows more than ALNS'' is
-true of the mean and false of the median. What separates the constructors on
-this measure is not how they behave on an ordinary day but how badly they fail
-on an unusual one.
+Seven of the eight constructors have a median overflow count of 4.0. The spread
+in their means, from 5.9 for ALNS to 19.9 for HGS, is therefore driven largely
+by tail events. Constructor differences on this measure describe the severity
+of unusual cases more than typical performance.
 
 Pareto-front membership across the six scenario--distribution combinations,
 recomputed after the integrity filter, gives PG-CLNS 5 of 6, PSOMA and HGS 3
@@ -713,11 +716,8 @@ which is the characteristic signature of a good compromise method.
 
 Runtime separates the constructors more cleanly than quality does
 (Fig.~\ref{fig:scaling}). At $N=350$ the spread is 4.5-fold, from ACO-HH at
-1{,}219\,s to SANS at 5{,}451\,s. Notably, BPC at 2{,}430\,s is \emph{not} the
-most expensive method: PG-CLNS, HGS and SANS all cost more wall-clock time per
-run than the exact branch-price-and-cut solver at this scale. The common
-intuition that the exact method is the expensive one does not survive contact
-with these instances.
+1{,}219\,s to SANS at 5{,}451\,s. BPC averages 2{,}430\,s; PG-CLNS, HGS and
+SANS all require more wall-clock time per run at this scale.
 
 \begin{figure}
     \centering
@@ -745,10 +745,10 @@ with these instances.
 The selection stage produces a substantially larger observed spread than the
 constructor stage (Table~\ref{tab:strategies30}, Fig.~\ref{fig:strategy}). The
 range in mean efficiency across the five tested selection variants is nearly
-four times the corresponding range across constructors. This is evidence for
-the modular pipeline itself: a benchmark that fixed selection and varied only
-construction would miss the larger operational trade-off in this design. It is
-not, however, a general variance decomposition beyond the tested levels.
+four times the corresponding range across constructors. A benchmark that fixed
+selection and varied only construction would miss the larger operational
+trade-off in this design. The comparison describes the tested levels and does
+not constitute a general variance decomposition.
 
 The five variants order monotonically on every reported measure: efficiency and
 overflow events fall together, while distance and runtime rise. Across these
@@ -757,13 +757,12 @@ single operational dial: deferring collection hauls more per kilometre on
 shorter routes but permits more overflows. No tested variant dominates another,
 so deployment requires an explicit valuation of service failure against travel.
 
-The three mechanisms are nonetheless not interchangeable at equal service.
+At similar service levels, the mechanisms carry different distance costs.
 Look-Ahead attains 5.5 mean overflows at 3{,}396\,km, while Service-Level (SL1)
-needs 4{,}147\,km to reach 3.3 --- so the marginal cost of the last two overflow
-events is roughly 750\,km, an order of magnitude worse than the 456\,km that
-buys the nine events between LM-CF90 and Look-Ahead. Diminishing returns set in
-sharply, and an operator with a fixed distance budget should read the top of the
-table rather than the bottom.
+needs 4{,}147\,km to reach 3.3. The marginal cost of those last two overflow
+events is roughly 750\,km, an order of magnitude greater than the 456       \,km that
+buys the nine-event reduction between LM-CF90 and Look-Ahead. These observed
+increments indicate sharply diminishing service returns.
 
 The mechanism behind the dial is visible at the level of a single bin
 (Fig.~\ref{fig:fill}). Because the demand realisation is fixed, the same bin
@@ -771,8 +770,8 @@ faces the identical waste increments under every strategy; what changes is when
 it is collected. Under the CF70 threshold the bin is emptied early and often,
 so its level never approaches capacity. Under CF90 collection is deferred until
 the bin is nearly full, hauling more waste per visit but leaving the bin one bad
-day away from overflowing --- and, for the highest-accumulation bins, actually
-overflowing. The aggregate trade-off of Fig.~\ref{fig:strategy} is this dynamic
+day from overflow. The highest-accumulation bins do overflow. The aggregate
+trade-off of Fig.~\ref{fig:strategy} is this dynamic
 summed over every bin and day.
 
 \begin{figure}
@@ -792,8 +791,8 @@ removing them removed the study's hardest scenario from those two variants and
 not from the other three. Comparing the raw marginals would have credited
 Look-Ahead with a service level it did not achieve on equal terms. The table is
 therefore restricted to the slices in which all five variants ran, 80 runs each.
-This correction is not cosmetic: on the unrestricted data Look-Ahead appears to
-match LM-CF70 on overflows, and on the balanced data it is clearly worse.
+The correction changes the conclusion: Look-Ahead appears to match LM-CF70 on
+overflows in the unrestricted data and performs worse in the balanced data.
 
 \begin{figure}
     \centering
@@ -822,14 +821,14 @@ broader neighbourhood that can move bins between routes, whereas Fast-TSP holds
 each route's bin assignment fixed and changes only its internal order, but the
 observed delta cannot be attributed to that difference alone.
 
-The aggregate, however, conceals a concentrated failure mode. Twenty-one of the
+The losses are concentrated. Twenty-one of the
 22 CLS losses occur at $N=350$; the remaining loss is HGS at $N=170$. Every
 loss belongs to PSOMA, SWC-TCF, or HGS, and the negative differences are fewer
-but deeper than the positive ones (Fig.~\ref{fig:improver}). The data therefore
-support an instance-size-conditioned choice of improver for those constructors.
-They do not establish why the reversal occurs: the different neighbourhoods
-provide a plausible mechanism, but the summary logs contain no controlled
-route-length intervention with which to identify it.
+but deeper than the positive ones (Fig.~\ref{fig:improver}). This concentration
+motivates a controlled rerun at $N=350$ before selecting an improver for those
+constructors. The different neighbourhoods provide a plausible mechanism, but
+the summary logs contain no controlled route-length intervention with which to
+identify it.
 
 Overflow counts tie on 181 of the 224 pairs. The remaining differences are
 further evidence that the stored experiment did not hold every upstream outcome
@@ -860,11 +859,9 @@ over the unobserved policies.
 Overflow counts grow, and the magnitude is informative: among pairs with a
 nonzero 30-day count, the median 90-day to 30-day ratio lies between 2.4 and 3.3
 for six of the seven constructors, against a horizon ratio of exactly 3.
-Overflow events therefore accumulate at an
-approximately constant \emph{rate} rather than compounding --- a longer horizon
-produces proportionally more failures, not disproportionately more. SWC-TCF is
-the exception at 5.6, degrading faster than linearly, consistent with its
-scaling exposure elsewhere in these results.
+The observed overflow counts therefore grow approximately in proportion to the
+horizon for these six constructors. SWC-TCF is the exception at 5.6, consistent
+with its scaling exposure elsewhere in these results.
 
 Two cautions apply. First, this comparison is paired precisely because a
 cross-constructor comparison at 90 days is not available. Second, pairing does

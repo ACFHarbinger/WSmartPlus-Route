@@ -100,6 +100,10 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 #: Raw simulation output tree, source of the road-distance matrices.
 OUTPUT_DIR = REPO_ROOT / "assets" / "output" / "30days"
 
+#: Retained coordinate-derived maps produced by gen_simulation_analysis.py from
+#: the original (gitignored) bin-coordinate exports and OpenStreetMap roads.
+NETWORK_MAP_DIR = REPO_ROOT / "public" / "figures" / "simulation" / "30d"
+
 #: Collected-tonnage shortfall, relative to the scenario-cell median, above which
 #: a run is treated as degenerate rather than merely bad. See the module
 #: docstring for why 0.20 sits in a genuine gap in the distribution.
@@ -823,51 +827,67 @@ def read_network_layout(scenario: dict) -> dict:
 
 
 def fig_networks(out_dir: Path, cfg: dict) -> None:
-    """
-    The two service networks, side by side.
+    """Compose the retained coordinate maps for the two benchmark networks.
 
-    Each panel is autoscaled to its own extent rather than to a shared span. The
-    depot sits far outside the bin cloud in both networks -- its median distance
-    to a bin is roughly five times the median distance between two bins -- so a
-    shared span would leave both panels almost empty. The compression this causes
-    is itself the point: these are not compact instances, and every route pays a
-    long outbound leg before it collects anything.
+    The raw coordinate exports are intentionally gitignored, but the analysis
+    pipeline's exact scenario maps are tracked.  Those artifacts were rendered
+    from the selected bins' latitude/longitude over OpenStreetMap drive-network
+    geometry.  Reusing them is both reproducible and geographically honest;
+    reconstructing positions from a road-distance matrix is neither.
     """
     scenarios = cfg["networks"]["panels"]
-    layouts = [read_network_layout(s) for s in scenarios]
 
-    fig, axes = plt.subplots(1, 2, figsize=(7.6, 3.6))
-    for ax, scenario, lay in zip(axes, scenarios, layouts, strict=True):
-        coords = lay["coords"]
-        bins = np.ones(len(coords), dtype=bool)
-        bins[lay["depot"]] = False
+    fig, axes = plt.subplots(1, 2, figsize=(7.8, 4.25), facecolor="#f6f2e9")
+    for ax, scenario in zip(axes, scenarios, strict=True):
+        source = NETWORK_MAP_DIR / scenario["map_artifact"]
+        if not source.exists():
+            raise SystemExit(
+                f"Missing coordinate-map artifact {source}; regenerate it with "
+                "logic/gen/gen_simulation_analysis.py while the coordinate data are mounted"
+            )
 
-        ax.scatter(coords[bins, 0], coords[bins, 1], s=11, linewidths=0.35,
-                   facecolor=scenario["color"], edgecolor="white", zorder=2,
-                   label=f"{scenario['N']} bins")
-        ax.scatter(*coords[lay["depot"]], s=130, marker="*", zorder=3,
-                   facecolor="#f26522", edgecolor="#8a3510", linewidths=0.7,
-                   label="depot")
+        image = plt.imread(source)[70:, :, :3].copy()  # discard the source title
+        content = np.any(image < 0.94, axis=2)
+        ys, xs = np.nonzero(content)
+        pad = 12
+        image = image[max(0, ys.min() - pad):ys.max() + pad,
+                      max(0, xs.min() - pad):xs.max() + pad]
 
-        lo, hi = coords.min(axis=0), coords.max(axis=0)
-        pad = (hi - lo).max() * 0.09
-        mid = (hi + lo) / 2
-        half = (hi - lo).max() / 2 + pad
-        ax.set_xlim(mid[0] - half, mid[0] + half)
-        ax.set_ylim(mid[1] - half, mid[1] + half)
-        ax.set_aspect("equal")
+        # Retain the real geometry while giving the paper figure a legible,
+        # cartographic palette instead of a large blank white canvas.
+        background = np.all(image > 0.965, axis=2)
+        roads = ((image[..., 0] > 0.62) & (image[..., 0] < 0.9)
+                 & (np.max(image, axis=2) - np.min(image, axis=2) < 0.12))
+        bins = ((image[..., 0] > 0.55) & (image[..., 1] < 0.52)
+                & (image[..., 2] < 0.52))
+        image[background] = np.array([0.965, 0.945, 0.89])
+        image[roads] = np.array([0.48, 0.58, 0.65])
+        rgb = np.array([int(scenario["color"][i:i + 2], 16) for i in (1, 3, 5)]) / 255
+        image[bins] = rgb
+
+        ax.set_facecolor("#f6f2e9")
+        ax.imshow(image)
         ax.set_xticks([])
         ax.set_yticks([])
-        ax.grid(True, alpha=0.2)
-        ax.set_title(f"{scenario['city']}  ($N={scenario['N']}$)", fontsize=10)
-        ax.legend(loc="upper left", fontsize=7, frameon=False, handletextpad=0.2,
-                  borderpad=0.2, labelspacing=0.25)
+        for spine in ax.spines.values():
+            spine.set_color("#91a0aa")
+            spine.set_linewidth(0.8)
+        ax.set_title(f"{scenario['city']}  ($N={scenario['N']}$)", fontsize=10,
+                     fontweight="bold", pad=7)
+        ax.text(0.03, 0.035, "selected plastic bins  |  OSM roads",
+                transform=ax.transAxes, fontsize=6.7, color="#35434c",
+                bbox={"boxstyle": "round,pad=0.25", "facecolor": "#fffdf7",
+                      "edgecolor": "#aab5bb", "alpha": 0.92})
+        ax.annotate("", xy=(0.94, 0.94), xytext=(0.94, 0.84),
+                    xycoords="axes fraction",
+                    arrowprops={"arrowstyle": "-|>", "color": "#35434c", "lw": 0.9})
+        ax.text(0.94, 0.955, "N", ha="center", va="bottom",
+                transform=ax.transAxes, fontsize=7, fontweight="bold", color="#35434c")
 
+    fig.text(0.995, 0.006, "© OpenStreetMap contributors", ha="right", va="bottom",
+             fontsize=5.5, color="#5d6970")
     savefig(fig, out_dir / "networks.png")
-    for scenario, lay in zip(scenarios, layouts, strict=True):
-        if lay["source"] == "embedding":
-            print(f"    {scenario['city']} N={scenario['N']}: distance-matrix "
-                  f"embedding, stress {lay['stress']:.3f} (no coordinates on disk)")
+    print("    coordinate-derived selected-bin maps over OpenStreetMap road geometry")
 
 
 def fig_scale(clean: pd.DataFrame, horizon: int, out: Path, colors: dict, cfg: dict) -> None:

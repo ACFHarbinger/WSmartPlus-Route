@@ -19,6 +19,30 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### MPVRPP paper — final editorial, citation, and map pass (`2026-08-25`)
+
+- Reworked the introduction, contributions, problem definition, NCO survey, and
+  results commentary to remove repetition, synthetic contrasts, excessive
+  parenthetical interruptions, and causal language unsupported by the design.
+  The route model now has consistent per-bin capacities, explicit return-to-depot
+  indices, a valid travel summation, and uniqueness constraints that exclude the
+  repeated depot
+- Restored the six-author/affiliation block from the matching Optimization 2026
+  abstract, added PDF title/author metadata, and removed the generic dynamic-VRP
+  illustration whose availability semantics did not match the paper's use
+- Audited every cited key against its publication record. Corrected the Attention
+  Model and Neural k-opt publication years, promoted the Joshi generalisation
+  paper from its preprint record, completed the SIAM chapter metadata, normalised
+  malformed DOI fields, and rewrote the multi-period citation context to match
+  Zhang et al.'s scheduling formulation
+- Replaced the distance-matrix embeddings with real coordinate maps for Rio
+  Maior–170 and Figueira da Foz–350, composed reproducibly from the retained
+  selected-bin/OSM-road artifacts under `public/figures/simulation/30d/`. The
+  publication path no longer reconstructs geography from the disputed matrices
+- The converged 22-page PDF has complete author metadata and no undefined
+  references, bibliography warnings, duplicate destinations, or overfull boxes;
+  the LaTeX generator is byte-idempotent and `logic/gen` remains ruff-clean
+
 #### MPVRPP paper — Codex final editorial and data audit (`2026-08-25`)
 
 - Rewrote the abstract, contribution statement, multi-period Related Work, improver interpretation, horizon caveat, scenario-effects discussion, and Conclusion into one consistent manuscript voice. Learned constructors are now explicitly framework capability/future work, not a result of the classical benchmark
@@ -26,7 +50,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Downgraded the CLS-versus-Fast-TSP result from causal to descriptive. Although 224 configurations can be matched on constructor, selection, scenario, and demand realisation, upstream collected tonnage differs in 90 pairs and collected-bin count in 128; the stored experiment therefore does not isolate the improver stage. Also corrected the loss distribution: 21 of 22, not all 22, occur at $N=350$
 - Removed stale hand-maintained registry totals from the paper figure. The website policy picker now reads literal registry decorator keys while continuing to count implementation files, so aliases and filenames no longer masquerade as configuration keys
 - Website light/dark choice now initializes from the operating-system preference and persists in `localStorage`; the results view carries the same improver and scenario-balance caveats as the paper
-- Eliminated duplicate PDF destinations from the current LaTeX/LLNCS combination with unique internal hypertext names; the clean, converged 25-page build has no undefined references, duplicate anchors, or overfull boxes
+- Eliminated duplicate PDF destinations from the current LaTeX/LLNCS combination with unique internal hypertext names
 
 ### Added
 
@@ -36,7 +60,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - **Methodology completed**: the four placeholder paragraphs (BPC, SANS, PG-CLNS, PSOMA) written from `logic/src/policies/` and `bibliography/`; the sentence that ended mid-clause finished; Look-Ahead described for the first time despite being a third of the experimental grid; the CF70/CF90 and SL1/SL2 variants used throughout the results finally defined; a new **Simulation Protocol** subsection stating the paired demand realisations, the sensing-noise gap, the overflow-flag vs. kg-lost distinction, and the single-vehicle/single-depot restriction the abstract had left implicit
 - **Results rebuilt from data**: every table and figure `\input` from generator output instead of hand-maintained. Findings that survived the cleaned data — selection matters more than construction (48% efficiency range across selection variants vs. 24% across all constructors); the efficiency/service trade-off is *not* a single dial (efficiency falls monotonically, overflow risk does not); constructor overflow *medians* are 4.0 for seven of eight, so the spread in the means is tail behaviour; CLS beats Fast-TSP on 202 of 224 matched pairs but all but one of the 22 losses are at N=350 under PSOMA/SWC-TCF/HGS; BPC is *not* the most expensive method (three meta-heuristics cost more per run at N=350); overflows accumulate at a roughly constant rate across horizons rather than compounding
 - **Data integrity is a section of the paper, not a silent filter**: the three degenerate SWC-TCF runs get their own table with the whole-cell exclusion justified, and the 90-day sample's conditioning on 30-day Pareto-front membership is disclosed before any 90-day number appears
-- Bare `&` escaped in the Vidal entry of `mybibliography.bib`, which broke bibtex as soon as that entry was first cited. Builds clean at 23 pages with no undefined references
+- Bare `&` escaped in the Vidal entry of `mybibliography.bib`, which broke bibtex as soon as that entry was first cited
 
 #### Paper LaTeX generator (`logic/gen/gen_paper_latex.py`)
 
