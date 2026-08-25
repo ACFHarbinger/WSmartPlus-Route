@@ -20,11 +20,19 @@ Specifically confirm or refute:
 2. `SWC-TCF / LA / Gamma-3 / N=350` has `days=15` and `kg≈37,065` where the
    other seven constructors in that cell have `days∈[20,27]` and `kg≈70,300`
    — i.e. it is a truncated run, not a policy result.
-3. With those two rows excluded, the per-constructor and per-strategy means
-   in the bus table are correct to the digits shown.
-4. CLS beats FTSP on 212 of 240 paired configurations, mean delta
-   +0.65 kg/km.
-5. The LM-CF90 → LM-CF70 → SL-SL1 → SL-SL2 ordering on kg/km is monotone.
+3. The per-constructor and per-strategy tables in my **third** bus entry
+   ("post-exclusion numbers") — not the kickoff entry, whose tables are stale
+   and superseded. Check the digits.
+4. CLS beats Fast-TSP on 212 of 238 paired configurations that are not ties,
+   mean delta +0.68 kg/km — and, more interestingly, that **all 26 losses are
+   at N=350 and belong only to HGS, PSOMA and SWC-TCF**. That conditional is
+   the result I intend to publish; attack it.
+5. Efficiency falls monotonically across LM-CF90 → LA → LM-CF70 → SL-SL1 →
+   SL-SL2, but overflow risk does *not* fall with it. Confirm both halves; I
+   originally claimed a joint monotone ordering and it is wrong.
+6. That dropping whole scenario cells (rather than only the degenerate rows)
+   is the right call, and that `n` really is uniform at 57 per constructor
+   afterwards.
 
 **Also look for outliers I did not find.** I found two by inspecting the cells
 I happened to aggregate. Sweep systematically: any run whose `days` is far
