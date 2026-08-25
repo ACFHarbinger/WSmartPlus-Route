@@ -84,6 +84,21 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### MPVRPP paper — appendix with presentation figures and CLS results table (`2026-08-25`)
+
+- New `\appendix` in `paper.tex`: the Pareto front, strategy trade-off, and
+  Empirical-only per-scenario heatmaps (30d), the policy×scenario overflow
+  and efficiency heatmaps (90d, landscape), and the full CLS-only results
+  table (30d, landscape) from the results presentation. Pulled from their
+  generator source (`public/figures/simulation/`, and
+  `gen_presentation.py`'s own `render_hier_table_image`), not screenshots
+- Four of the six items predate the degenerate-run exclusion and still carry
+  the four truncated SWC-TCF runs (`tab:excluded`) as raw values — kept
+  as-is per explicit direction, with each caption stating exactly where the
+  artefact appears (e.g. the 2,168-overflow LA/CLS/Gamma-3/Figueira-da-Foz
+  cell) rather than silently reproducing an unqualified number the main text
+  excludes everywhere else
+
 #### MPVRPP paper — Methodology and Results rewritten against the real experiment (`assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/`)
 
 - **The paper described two different studies.** Methodology committed to eight route constructors (ALNS, HGS, SANS, PG-CLNS, PSOMA, BPC, SWC-TCF, ACO-HH) x three selection strategies x two improvers; Results discussed an Attention Model / gurobi / look-ahead comparison on Gamma-1/2/3 at N=20…317 over 31/93/365 days that nothing in the repo reproduces. `public/global/simulation/simulation_summary{,_90d}.csv` holds exactly the design Methodology promised, so Results, the stale Data subsection and the incoherent Baselines subsection were rewritten from it
