@@ -97,6 +97,9 @@ from report_utils import apply_theme, load_json, load_theme, render_template, sa
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 
+#: Raw simulation output tree, source of the road-distance matrices.
+OUTPUT_DIR = REPO_ROOT / "assets" / "output" / "30days"
+
 #: Collected-tonnage shortfall, relative to the scenario-cell median, above which
 #: a run is treated as degenerate rather than merely bad. See the module
 #: docstring for why 0.20 sits in a genuine gap in the distribution.
@@ -700,6 +703,173 @@ def fig_improver_paired(clean: pd.DataFrame, horizon: int, out: Path, cfg: dict)
     savefig(fig, out / f"improver_delta_{horizon}d.png")
 
 
+# --------------------------------------------------------------------------- #
+# Network geometry
+# --------------------------------------------------------------------------- #
+
+#: Where real per-bin coordinates live when the gitignored data tree is present.
+#: Absent from a fresh clone, which is why read_network_layout falls back to an
+#: embedding of the road-distance matrix and says so.
+COORD_DIR = REPO_ROOT / "data" / "wsr_simulator" / "graphs"
+
+
+def find_distance_matrix(scenario: dict) -> Path:
+    """
+    Pick the trustworthy copy of a network's road-distance matrix.
+
+    Several copies of each matrix are stored across the run directories, and some
+    are longer than they should be (issue #48). Reading the first ``n`` rows of an
+    oversized copy is *not* safe: the oversized files do not begin with the
+    canonical block. For Figueira da Foz the three correctly sized copies agree
+    with each other and every oversized copy disagrees with all of them, and two
+    of the Rio Maior N=170 oversized copies disagree as well.
+
+    So the rule is to prefer a copy whose data-row count is exactly ``n``, and to
+    take the majority content when several such copies exist.
+    """
+    from collections import Counter
+
+    candidates = sorted((OUTPUT_DIR / scenario["key"]).glob(f"*/*/{scenario['dm']}"))
+    if not candidates:
+        raise SystemExit(f"No {scenario['dm']} under {scenario['key']}")
+
+    exact = []
+    for path in candidates:
+        lines = path.read_text(encoding="utf-8").strip().splitlines()
+        if len(lines) - 1 == len(lines[0].split(",")):
+            exact.append(path)
+    if not exact:
+        raise SystemExit(
+            f"Every copy of {scenario['dm']} for {scenario['key']} is mis-sized; "
+            f"cannot pick a canonical matrix (issue #48)"
+        )
+
+    digests = Counter(path.read_bytes() for path in exact)
+    winner, votes = digests.most_common(1)[0]
+    chosen = next(path for path in exact if path.read_bytes() == winner)
+    if len(digests) > 1:
+        print(f"  Note: {scenario['dm']} for {scenario['key']} has {len(digests)} distinct "
+              f"correctly sized variants; taking the {votes}-way majority (issue #48)")
+    return chosen
+
+
+def read_distance_matrix(path: Path) -> tuple[list[int], np.ndarray]:
+    """
+    Return ``(node_ids, symmetric distance matrix)`` from a project distmat CSV.
+
+    The on-disk format is a header row of node ids (depot first) followed by one
+    plain row of distances per node, with no leading row-label column. Road
+    distances are mildly asymmetric because of one-way streets, so the result is
+    symmetrised. Use ``find_distance_matrix`` to choose the file.
+    """
+    lines = path.read_text(encoding="utf-8").strip().splitlines()
+    node_ids = [int(float(x)) for x in lines[0].split(",")]
+    n = len(node_ids)
+    if len(lines) - 1 != n:
+        raise SystemExit(f"{path} has {len(lines) - 1} data rows for {n} nodes (issue #48)")
+    dist = np.array([[float(v) for v in line.split(",")][:n] for line in lines[1:]])
+    return node_ids, (dist + dist.T) / 2.0
+
+
+def classical_mds(dist: np.ndarray, ndim: int = 2) -> np.ndarray:
+    """Classical multidimensional scaling of a distance matrix."""
+    d2 = dist.astype(float) ** 2
+    n = d2.shape[0]
+    centering = np.eye(n) - np.ones((n, n)) / n
+    b = -0.5 * centering @ d2 @ centering
+    eigvals, eigvecs = np.linalg.eigh(b)
+    order = np.argsort(eigvals)[::-1]
+    eigvals, eigvecs = eigvals[order], eigvecs[:, order]
+    return eigvecs[:, :ndim] * np.sqrt(np.maximum(eigvals[:ndim], 0.0))
+
+
+def embedding_stress(coords: np.ndarray, dist: np.ndarray) -> float:
+    """
+    Kruskal-style stress of a 2-D embedding against the true distances.
+
+    Reported in the figure caption rather than hidden, because road networks are
+    not Euclidean -- rivers, one-way systems and coastlines all force detours
+    that no planar layout can honour. A stress this large is the reason the
+    fallback layout is labelled a layout and not a map.
+    """
+    diff = np.linalg.norm(coords[:, None, :] - coords[None, :, :], axis=-1) - dist
+    off = ~np.eye(len(dist), dtype=bool)
+    return float(np.sqrt((diff[off] ** 2).sum() / (dist[off] ** 2).sum()))
+
+
+def read_network_layout(scenario: dict) -> dict:
+    """
+    Positions for one network: true coordinates when available, else an embedding.
+
+    Returns ``{"coords", "depot", "source", "stress"}``. ``source`` is
+    ``"coordinates"`` or ``"embedding"`` and drives what the caption is allowed
+    to claim.
+    """
+    node_ids, dist = read_distance_matrix(find_distance_matrix(scenario))
+
+    coord_file = COORD_DIR / f"{scenario['key']}.csv"
+    if coord_file.exists():
+        frame = pd.read_csv(coord_file).set_index("id")
+        coords = frame.loc[node_ids, ["x", "y"]].to_numpy(dtype=float)
+        return {"coords": coords, "depot": 0, "source": "coordinates", "stress": None}
+
+    coords = classical_mds(dist)
+    return {
+        "coords": coords,
+        "depot": 0,
+        "source": "embedding",
+        "stress": embedding_stress(coords, dist),
+    }
+
+
+def fig_networks(out_dir: Path, cfg: dict) -> None:
+    """
+    The two service networks, side by side.
+
+    Each panel is autoscaled to its own extent rather than to a shared span. The
+    depot sits far outside the bin cloud in both networks -- its median distance
+    to a bin is roughly five times the median distance between two bins -- so a
+    shared span would leave both panels almost empty. The compression this causes
+    is itself the point: these are not compact instances, and every route pays a
+    long outbound leg before it collects anything.
+    """
+    scenarios = cfg["networks"]["panels"]
+    layouts = [read_network_layout(s) for s in scenarios]
+
+    fig, axes = plt.subplots(1, 2, figsize=(7.6, 3.6))
+    for ax, scenario, lay in zip(axes, scenarios, layouts, strict=True):
+        coords = lay["coords"]
+        bins = np.ones(len(coords), dtype=bool)
+        bins[lay["depot"]] = False
+
+        ax.scatter(coords[bins, 0], coords[bins, 1], s=11, linewidths=0.35,
+                   facecolor=scenario["color"], edgecolor="white", zorder=2,
+                   label=f"{scenario['N']} bins")
+        ax.scatter(*coords[lay["depot"]], s=130, marker="*", zorder=3,
+                   facecolor="#f26522", edgecolor="#8a3510", linewidths=0.7,
+                   label="depot")
+
+        lo, hi = coords.min(axis=0), coords.max(axis=0)
+        pad = (hi - lo).max() * 0.09
+        mid = (hi + lo) / 2
+        half = (hi - lo).max() / 2 + pad
+        ax.set_xlim(mid[0] - half, mid[0] + half)
+        ax.set_ylim(mid[1] - half, mid[1] + half)
+        ax.set_aspect("equal")
+        ax.set_xticks([])
+        ax.set_yticks([])
+        ax.grid(True, alpha=0.2)
+        ax.set_title(f"{scenario['city']}  ($N={scenario['N']}$)", fontsize=10)
+        ax.legend(loc="upper left", fontsize=7, frameon=False, handletextpad=0.2,
+                  borderpad=0.2, labelspacing=0.25)
+
+    savefig(fig, out_dir / "networks.png")
+    for scenario, lay in zip(scenarios, layouts, strict=True):
+        if lay["source"] == "embedding":
+            print(f"    {scenario['city']} N={scenario['N']}: distance-matrix "
+                  f"embedding, stress {lay['stress']:.3f} (no coordinates on disk)")
+
+
 def fig_scale(clean: pd.DataFrame, horizon: int, out: Path, colors: dict, cfg: dict) -> None:
     """Runtime against instance size, per constructor -- the cost side of the trade-off."""
     sub = clean[clean.horizon == horizon]
@@ -887,6 +1057,7 @@ def main() -> None:
         args.figures_dir.mkdir(parents=True, exist_ok=True)
         print(f"Writing figures to {args.figures_dir}:")
         fig_policy_space(args.figures_dir, cfg)
+        fig_networks(args.figures_dir, cfg)
         fig_pareto(clean, horizon, args.figures_dir, colors, cfg)
         fig_strategy_tradeoff(clean, horizon, args.figures_dir, cfg)
         fig_improver_paired(clean, horizon, args.figures_dir, cfg)

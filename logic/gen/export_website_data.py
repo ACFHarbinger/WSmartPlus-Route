@@ -598,42 +598,6 @@ def build_bin_fills() -> dict:
 # --------------------------------------------------------------------------- #
 
 
-def _classical_mds(dist: np.ndarray, ndim: int = 2) -> np.ndarray:
-    """Classical multidimensional scaling of a squared distance matrix."""
-    d2 = dist.astype(float) ** 2
-    n = d2.shape[0]
-    centering = np.eye(n) - np.ones((n, n)) / n
-    b = -0.5 * centering @ d2 @ centering
-    eigvals, eigvecs = np.linalg.eigh(b)
-    order = np.argsort(eigvals)[::-1]
-    eigvals, eigvecs = eigvals[order], eigvecs[:, order]
-    keep = np.maximum(eigvals[:ndim], 0.0)
-    return eigvecs[:, :ndim] * np.sqrt(keep)
-
-
-def _read_distmat(path: Path) -> tuple[list[int], np.ndarray]:
-    """Return (node_ids, symmetric distance matrix) from a project distmat CSV.
-
-    The on-disk format is a header row of node ids (depot first) followed by
-    one plain row of distances per node -- no leading row-label column. Road
-    distances are slightly asymmetric (one-way streets), so the returned
-    matrix is symmetrised for embedding.
-    """
-    lines = path.read_text(encoding="utf-8").strip().splitlines()
-    node_ids = [int(float(x)) for x in lines[0].split(",")]
-    n = len(node_ids)
-    dist = np.zeros((n, n))
-    for i, line in enumerate(lines[1:1 + n]):
-        vals = [float(v) for v in line.split(",")][:n]
-        if len(vals) != n:
-            raise SystemExit(f"Distmat {path.name} row {i} has {len(vals)} cols, expected {n}")
-        dist[i] = vals
-    if len(lines) - 1 != n:
-        print(f"  Note: {path.name} has {len(lines) - 1} data rows for {n} nodes; "
-              f"using the first {n} (the Rio Maior N=170 gmaps matrix is stored doubled).")
-    return node_ids, (dist + dist.T) / 2.0
-
-
 def _rep_run_path(scenario: dict) -> Path:
     rep = REPRESENTATIVE
     base = OUTPUT_DIR / scenario["key"] / "gamma3"
@@ -652,12 +616,11 @@ def build_routes() -> dict:
     """Per-day tours + MDS layout for one representative run per network."""
     scenarios = []
     for sc in SCENARIOS:
-        dm_path = OUTPUT_DIR / sc["key"] / "gamma3" / ("lm_cls" if REPRESENTATIVE["improver"] == "cls" else "lm_ftsp") / sc["dm"]
-        if not dm_path.exists():
-            # The distmat lives in one of the strategy subdirs; find it.
-            dm_path = next((OUTPUT_DIR / sc["key"] / "gamma3").rglob(sc["dm"]), None)
-        node_ids, dist = _read_distmat(dm_path)
-        coords = _classical_mds(dist, ndim=2)
+        # Several copies of each matrix are stored and the oversized ones do not
+        # begin with the canonical block, so the copy must be chosen rather than
+        # globbed for -- see gen_paper_latex.find_distance_matrix and issue #48.
+        node_ids, dist = gpl.read_distance_matrix(gpl.find_distance_matrix(sc))
+        coords = gpl.classical_mds(dist, ndim=2)
         # Normalise to a unit square for a stable canvas, preserving aspect.
         coords = (coords - coords.min(axis=0)) / (coords.max(axis=0) - coords.min(axis=0) + 1e-12)
 
