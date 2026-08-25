@@ -674,6 +674,98 @@ def fig_scale(clean: pd.DataFrame, horizon: int, out: Path, colors: dict, cfg: d
     savefig(fig, out / f"runtime_scaling_{horizon}d.png")
 
 
+def _recover_increments(fills: np.ndarray) -> np.ndarray:
+    """Recover the policy-independent daily waste increment per bin.
+
+    The fill-history spreadsheet records the *realised* level after each day's
+    collection, but the waste arriving each day is fixed by the demand
+    realisation (the simulator re-seeds waste per policy-and-day, so every
+    policy faces the identical increments). A drop between consecutive days
+    marks a collection (reset to zero), so the next day's level is exactly that
+    day's increment; otherwise the increment is the level rise.
+    """
+    inc = np.zeros_like(fills)
+    inc[:, 0] = fills[:, 0]
+    inc[:, 1:] = np.where(
+        fills[:, 1:] >= fills[:, :-1],
+        fills[:, 1:] - fills[:, :-1],
+        fills[:, 1:],
+    )
+    return inc
+
+
+def _simulate_last_minute(increments: np.ndarray, tau: float, capacity: float) -> np.ndarray:
+    """Re-simulate the Last-Minute rule and return per-bin, per-day fill levels."""
+    n_bins, n_days = increments.shape
+    level = np.zeros(n_bins)
+    out = np.zeros_like(increments)
+    for d in range(n_days):
+        collect = level >= tau
+        level = np.minimum(level + increments[:, d], capacity)
+        out[:, d] = level.copy()
+        level[collect] = 0.0
+    return out
+
+
+def fig_fill_trajectory(out_dir: Path) -> None:
+    """
+    The multi-period mechanism behind the paper's central claim, as a figure.
+
+    The static aggregates (Fig. 5) show that selection is a single dial trading
+    efficiency against overflow, but not *why*. This figure shows three bins'
+    fill levels over the 30-day horizon under the two Last-Minute thresholds,
+    CF70 and CF90, re-simulated from the recovered daily increments. CF70
+    collects earlier and more often, holding the bin below the threshold; CF90
+    defers collection until the bin is nearly full, hauling more per visit but
+    occasionally overflowing. That is the trade-off, at the level of a single
+    bin, before any aggregation.
+    """
+    import openpyxl
+
+    candidate = (
+        REPO_ROOT / "assets/output/30days/riomaior100_plastic/gamma3/lm_ftsp/fill_history"
+    )
+    xlsx = sorted(candidate.glob("*.xlsx"))[0] if candidate.is_dir() else None
+    if xlsx is None:
+        print("  Skipped fill-trajectory figure (no fill_history found).")
+        return
+
+    wb = openpyxl.load_workbook(xlsx, read_only=True, data_only=True)
+    ws = wb[wb.sheetnames[0]]
+    fills = np.array([[float(c) for c in row] for row in ws.iter_rows(values_only=True)])
+    increments = _recover_increments(fills)
+    capacity = 100.0
+
+    levels_70 = _simulate_last_minute(increments, 70.0, capacity)
+    levels_90 = _simulate_last_minute(increments, 90.0, capacity)
+
+    # Choose three bins that span the accumulation spectrum: a heavy one that
+    # overflows under CF90 but not CF70, a typical one, and a light one.
+    total = increments.sum(axis=1)
+    heavy = int(np.argmax((levels_90.max(axis=1) >= capacity) & (levels_70.max(axis=1) < capacity)))
+    median = int(np.argsort(total)[len(total) // 2])
+    light = int(np.argsort(total)[max(0, len(total) // 8)])
+
+    days = np.arange(1, levels_70.shape[1] + 1)
+    fig, axes = plt.subplots(1, 3, figsize=(9.6, 2.9), sharey=True)
+    for ax, (idx, label) in zip(
+        axes, [(heavy, "High accumulation"), (median, "Typical"), (light, "Light")], strict=True
+    ):
+        ax.step(days, levels_70[idx], where="post", linewidth=1.4, color="#4e88d9", label="CF70")
+        ax.step(days, levels_90[idx], where="post", linewidth=1.4, color="#e07830", linestyle="--", label="CF90")
+        ax.axhline(100, color="#c04070", linewidth=0.9, linestyle=":")
+        ax.set_title(label, fontsize=9)
+        ax.set_xlabel("Day", fontsize=8)
+        ax.set_ylim(0, 110)
+        ax.grid(True, alpha=0.2)
+    axes[0].set_ylabel("Fill level (% of capacity)", fontsize=8)
+    axes[0].legend(fontsize=7, frameon=False, loc="upper left")
+    fig.suptitle("Last-Minute selection at two thresholds (Rio Maior, N=100, Gamma-3)",
+                 fontsize=10, y=1.02)
+    fig.tight_layout()
+    savefig(fig, out_dir / "fill_trajectory_30d.png")
+
+
 # --------------------------------------------------------------------------- #
 # CLI
 # --------------------------------------------------------------------------- #
@@ -754,6 +846,7 @@ def main() -> None:
         fig_strategy_tradeoff(clean, horizon, args.figures_dir, cfg)
         fig_improver_paired(clean, horizon, args.figures_dir, cfg)
         fig_scale(clean, horizon, args.figures_dir, colors, cfg)
+        fig_fill_trajectory(args.figures_dir)
 
     print("Done.")
 
