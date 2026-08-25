@@ -19,6 +19,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### MPVRPP paper — Methodology and Results rewritten against the real experiment (`assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/`)
+
+- **The paper described two different studies.** Methodology committed to eight route constructors (ALNS, HGS, SANS, PG-CLNS, PSOMA, BPC, SWC-TCF, ACO-HH) x three selection strategies x two improvers; Results discussed an Attention Model / gurobi / look-ahead comparison on Gamma-1/2/3 at N=20…317 over 31/93/365 days that nothing in the repo reproduces. `public/global/simulation/simulation_summary{,_90d}.csv` holds exactly the design Methodology promised, so Results, the stale Data subsection and the incoherent Baselines subsection were rewritten from it
+- **Methodology completed**: the four placeholder paragraphs (BPC, SANS, PG-CLNS, PSOMA) written from `logic/src/policies/` and `bibliography/`; the sentence that ended mid-clause finished; Look-Ahead described for the first time despite being a third of the experimental grid; the CF70/CF90 and SL1/SL2 variants used throughout the results finally defined; a new **Simulation Protocol** subsection stating the paired demand realisations, the sensing-noise gap, the overflow-flag vs. kg-lost distinction, and the single-vehicle/single-depot restriction the abstract had left implicit
+- **Results rebuilt from data**: every table and figure `\input` from generator output instead of hand-maintained. Findings that survived the cleaned data — selection matters more than construction (48% efficiency range across selection variants vs. 24% across all constructors); the efficiency/service trade-off is *not* a single dial (efficiency falls monotonically, overflow risk does not); constructor overflow *medians* are 4.0 for seven of eight, so the spread in the means is tail behaviour; CLS beats Fast-TSP on 202 of 224 matched pairs but all but one of the 22 losses are at N=350 under PSOMA/SWC-TCF/HGS; BPC is *not* the most expensive method (three meta-heuristics cost more per run at N=350); overflows accumulate at a roughly constant rate across horizons rather than compounding
+- **Data integrity is a section of the paper, not a silent filter**: the three degenerate SWC-TCF runs get their own table with the whole-cell exclusion justified, and the 90-day sample's conditioning on 30-day Pareto-front membership is disclosed before any 90-day number appears
+- Bare `&` escaped in the Vidal entry of `mybibliography.bib`, which broke bibtex as soon as that entry was first cited. Builds clean at 23 pages with no undefined references
+
+#### Paper LaTeX generator (`logic/gen/gen_paper_latex.py`)
+
+- New sibling to `gen_simulation_analysis.py` / `gen_presentation.py`: same summary-CSV schema, theme and Jinja machinery, emitting `.tex` fragments (`jinja/paper_results_table.tex.j2`, `json/paper_latex_config.json`) plus the figures they reference into the paper's own `Images/Results/Generated/` tree. Five tables (constructors, strategies, paired improvers, paired horizons, excluded runs) and four figures (Pareto, strategy trade-off, per-pair improver delta, runtime scaling)
+- **Degenerate-run detection**, centralised so the paper, the markdown reports and the website cannot disagree: flags runs whose collected tonnage falls >20% below their scenario-cell median. Justified rather than tuned — across 576 rows the shortfall distribution has median 0.00 and 99th percentile 0.057, then jumps to three rows above 0.20. Collection-day count is explicitly *not* used as a signal: it counts collection days, not elapsed days, and several of the best policies collect on 15 of 30 days by bundling well
+- **Whole affected scenario cells are dropped, not just the offending rows.** All three degenerate runs are SWC-TCF's, so removing only them would average SWC-TCF over the scenarios it did not fail while averaging rivals over those too — the same selection bias the module refuses to accept in the 90-day data. Costs 21 further runs and restores a uniform n=57
+- **Refuses to emit a cross-constructor 90-day aggregate.** Only 30-day Pareto-front policies were re-run at 90 days, so the 90-day sample is conditioned on the outcome variable; the horizon table pairs each configuration against itself instead, documented as a conservative estimate rather than an unbiased one
+- Means reported beside medians throughout: removing one run in ~90 moved Service-Level (SL2) from 9.3 to 1.4 mean overflows
+
+#### Report/deck generators revived from `archive/` into `logic/gen/`
+
+- `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their `jinja/ json/ style/ js/ images/ svg/ links/ templates/` assets moved back out of `archive/gen/` to `logic/gen/`, alongside `gen_dist_matrix.py` / `export_for_studio.py` / `export_loss_landscape.py`. The scripts resolve assets from `__file__`, so only path strings in docstrings, `app/src/gen/*` provenance comments and `ReportStudio.GEN_SCRIPTS_DIR` needed rewriting
+- `logic/` is linted where `archive/` was not: import blocks sorted, `zip(strict=True)` on the equal-length local-search point pairs, one dead colour constant dropped; `C901` waived per-file for the three generators in `pyproject.toml`
+
+#### Multi-agent coordination (`.agent/`)
+
+- `.agent/bus/` (index + dated daily log, modelled on the Image-Toolkit layout) and `.agent/tasks/` with a brief per agent: Codex as reviewer/co-lead, Agy on the website design system, Opencode on interactive/3D visualisation. GitHub issues #40–#47 track the same work
+
 #### Analysis & Presentation Studio — native §H engine (`app/src/gen/`)
 
 Full native port of the archived `gen` pipeline into the Studio — no Python in the loop:

@@ -23,6 +23,7 @@ Tags: `[Quick Win]` ≤ 1 day · `[Research]` involves novel work · `[Blocked]`
 | [§F — Performance](#f--performance)                                  | Batched inference, GPU memory, test suite speed, simulation throughput |
 | [§G — WSmart-Route Studio](#g--wsmart-route-studio)                  | Tauri 2.0 app: analytics, geospatial, ML introspection, launcher UIs  |
 | [§H — Analysis & Presentation Studio](#h--analysis--presentation-studio) | Migration of `logic/gen/` report + deck generation into the Studio |
+| [§I — Publication & Dissemination](#i--publication--dissemination) | MPVRPP paper, reproducible LaTeX generation, public website |
 
 ---
 
@@ -2859,7 +2860,7 @@ Phase 18 →  Phase 1, Phase 17 (builds on analytics dashboard and training runs
 
 ## H — Analysis & Presentation Studio
 
-> Migration of the `logic/gen/` generation pipeline (now archived at `archive/gen/`) — `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their JSON/Jinja/mplstyle assets — into WSmart-Route Studio as a first-class **document authoring subsystem**. This is explicitly **not a 1:1 port**: the Python scripts are a batch pipeline with hardcoded geometry, colours, fontsizes and content baked into code; the Studio replaces them with a declarative, fully data-driven document model, native TS/Rust rendering, live editable previews, and a far richer feature set for building analysis reports and presentation decks.
+> Migration of the `logic/gen/` generation pipeline (archived at `archive/gen/` in 2026-07, **revived to `logic/gen/` in 2026-08** when it was needed again for the MPVRPP paper — see §I) — `gen_dataset_analysis.py`, `gen_simulation_analysis.py`, `gen_presentation.py`, `report_utils.py` and their JSON/Jinja/mplstyle assets — into WSmart-Route Studio as a first-class **document authoring subsystem**. This is explicitly **not a 1:1 port**: the Python scripts are a batch pipeline with hardcoded geometry, colours, fontsizes and content baked into code; the Studio replaces them with a declarative, fully data-driven document model, native TS/Rust rendering, live editable previews, and a far richer feature set for building analysis reports and presentation decks.
 
 **Design decisions** (agreed 2026-07):
 
@@ -3056,6 +3057,44 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 | §H.5 | Report Builder | Medium | High | P2 `[Blocked]` §H.1, §H.2 |
 | §H.7 | Live Preview & Editing UX | High | Very High | P1 `[Blocked]` §H.2 |
 | §H.8 | Beyond Parity | High | Medium | P3 `[Blocked]` §H.7 |
+
+---
+
+## I — Publication & Dissemination
+
+> The MPVRPP manuscript, the tooling that keeps it honest, and the public-facing website. Added 2026-08-25, when rewriting the paper's Results section surfaced enough data-integrity work to justify its own track.
+
+### I.1 — MPVRPP manuscript
+
+- [x] Methodology completed: BPC, SANS, PG-CLNS and PSOMA written from `logic/src/policies/` and `bibliography/`; Look-Ahead described (it was a third of the experimental grid and went unnamed); CF70/CF90 and SL1/SL2 variants defined; the sentence that ended mid-clause finished (2026-08-25)
+- [x] Results and the stale Data/Baselines subsections rewritten against `public/global/simulation/simulation_summary{,_90d}.csv`. The previous Results described an Attention Model / gurobi / look-ahead study that nothing in the repo reproduces (2026-08-25)
+- [x] Simulation Protocol subsection stating paired demand realisations, sensing noise, the overflow/loss distinction and the single-vehicle single-depot restriction (2026-08-25)
+- [ ] Conclusion and Future Work — still a placeholder sentence
+- [ ] Related Work — the Multi-Period VRPP subsection is commented out; NCO subsection is thin
+- [ ] `[Research]` Complete the 90-day grid so a cross-constructor horizon comparison becomes possible at all (see §I.3). Currently the paper can only make paired within-configuration claims
+
+### I.2 — Reproducible generation
+
+- [x] `logic/gen/gen_paper_latex.py`: five tables and four figures generated from the summary CSVs into the paper's own tree; nothing in Results is typed by hand (2026-08-25)
+- [x] Report/deck generators revived from `archive/gen/` to `logic/gen/` and brought up to ruff (2026-08-25)
+- [ ] `[Quick Win]` A `just paper` target that regenerates tables and figures and rebuilds the PDF in one step
+- [ ] Wire the same degenerate-run exclusion into `gen_simulation_analysis.py` and the Studio's native `app/src/gen/` engine, so all four consumers apply one rule
+- [ ] Port the LaTeX table path into the native §H engine, or decide explicitly that LaTeX stays Python-only
+
+### I.3 — Data integrity
+
+- [x] Degenerate-run detection on collected tonnage, with whole-cell exclusion so no constructor is averaged over a subset that flatters it (2026-08-25)
+- [ ] Root-cause the three degenerate SWC-TCF runs at Figueira da Foz N=350 / Gamma-3 from the raw logs — Gurobi time limit is the leading hypothesis (issue #41)
+- [ ] `[Research]` Horizon-adaptive time budgets and constructor-specific timeout/fallback handling for long-horizon runs. This addresses an observed failure, not a hypothetical one
+- [ ] Sweep for degenerate runs the tonnage rule may miss (issue #41, assigned to review)
+
+### I.4 — Public website (`docs/website/`)
+
+- [ ] Visual identity and design system — semantic tokens, real light *and* dark states, a hero that is not three blurred orbs (issue #45)
+- [ ] Interactive policy-pipeline diagram covering all three stages (issue #46)
+- [ ] Animated bin selection with a draggable critical-fill threshold, making the efficiency/service trade-off legible (issue #46)
+- [ ] 3D/4D routing view — multi-period is space plus time; scrubbable 30-day routes from `assets/output/30days/**/log_*.json` (issue #46)
+- [ ] Results charts driven by generated JSON under `docs/website/public/data/`, never hand-copied numbers, with the degenerate-run exclusion applied (issue #46)
 
 ---
 
