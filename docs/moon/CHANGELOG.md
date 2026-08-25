@@ -31,6 +31,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   road costs remain asymmetric by design
 - Added regression coverage for shape rejection and concurrent publication
 
+#### Empty-tour diagnostics (`2026-08-25`)
+
+- Preserved the pre-solver mandatory-node set in daily logs when a constructor
+  returns an empty tour. Previously that branch overwrote the set with `[]`,
+  making selection failure and solver infeasibility indistinguishable in the
+  stored evidence; issue #41's targeted rerun can now diagnose the boundary
+
 #### MPVRPP paper tracked as a submodule (`2026-08-25`)
 
 - Replaced the vendored `assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/`

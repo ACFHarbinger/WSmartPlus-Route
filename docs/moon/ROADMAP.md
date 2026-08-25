@@ -3087,7 +3087,7 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 
 - [x] Degenerate-run detection on collected tonnage, with whole-cell exclusion so no constructor is averaged over a subset that flatters it (2026-08-25)
 - [x] Root-cause and repair the duplicated/partial road-distance artifacts: parallel policy workers shared one non-atomic CSV writer. All correctly sized copies agreed within each network; atomic publication now prevents mixed output (issue #48, 2026-08-25)
-- [ ] Root-cause the degenerate SWC-TCF runs at Figueira da Foz N=350 / Gamma-3. Raw logs rule out the earlier Gurobi-timeout hypothesis and localise the collapse to mandatory selection receiving no accumulation rates after day 16 or 22 (issue #41)
+- [ ] Root-cause the degenerate SWC-TCF runs at Figueira da Foz N=350 / Gamma-3. The stored logger erases `mandatory_nodes` whenever the returned tour is empty, so the current logs cannot distinguish a selection failure from solver infeasibility; instrument both values and the solver status in a targeted rerun (issue #41)
 - [ ] `[Research]` Re-run CLS and Fast-TSP from identical stored constructor outputs and controlled seeds; the current matched-demand pairs differ in upstream collected-bin counts and cannot identify a causal improver effect
 - [ ] `[Research]` Horizon-adaptive time budgets and constructor-specific timeout/fallback handling for long-horizon runs. This addresses an observed failure, not a hypothetical one
 - [ ] Sweep for degenerate runs the tonnage rule may miss (issue #41, assigned to review)

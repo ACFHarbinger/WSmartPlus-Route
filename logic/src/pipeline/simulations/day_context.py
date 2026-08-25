@@ -613,6 +613,14 @@ def get_daily_results(
     dlog["overflows"] = new_overflows
     dlog["kg_lost"] = sum_lost
     dlog["time"] = time
+    mandatory_ids: List[int] = []
+    for idx in mandatory_nodes or []:
+        try:
+            mandatory_ids.append(int(coordinates.iloc[idx]["ID"]))
+        except (IndexError, KeyError, TypeError, ValueError):
+            mandatory_ids.append(idx)
+    dlog["mandatory_nodes"] = mandatory_ids
+
     if tour and len(tour) > 2:
         reward = total_collected - new_overflows - cost
         dlog["kg"] = total_collected
@@ -622,17 +630,6 @@ def get_daily_results(
         dlog["reward"] = reward
         dlog["profit"] = profit
         ids = np.array([x for x in tour if x != 0])
-        # Resolve mandatory node indices to real bin IDs
-        if mandatory_nodes:
-            mandatory_ids: List[int] = []
-            for idx in mandatory_nodes:
-                try:
-                    mandatory_ids.append(int(coordinates.iloc[idx]["ID"]))
-                except (IndexError, KeyError):
-                    mandatory_ids.append(idx)
-            dlog["mandatory_nodes"] = mandatory_ids
-        else:
-            dlog["mandatory_nodes"] = []
         # Use iloc as node indices from the environment correspond to row positions in the coordinates DataFrame
         dlog["tour"] = [0] + coordinates.iloc[ids]["ID"].tolist() + [0] # pyrefly: ignore [bad-index]
     else:
@@ -642,7 +639,6 @@ def get_daily_results(
         dlog["kg/km"] = 0
         dlog["reward"] = -new_overflows
         dlog["profit"] = 0
-        dlog["mandatory_nodes"] = []
         dlog["tour"] = [0]
     return dlog
 
