@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 3
 
+src.tracking.helpers
 src.tracking.hooks
 src.tracking.profiling
-src.tracking.helpers
-src.tracking.logging
-src.tracking.validation
-src.tracking.database
 src.tracking.core
+src.tracking.logging
+src.tracking.database
 src.tracking.integrations
+src.tracking.validation
 ```
 
 ## Submodules
@@ -29,8 +29,8 @@ src.tracking.integrations
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.attention_buffer
 src.tracking.viz_mixin
+src.tracking.attention_buffer
 ```
 
 ## Package Contents

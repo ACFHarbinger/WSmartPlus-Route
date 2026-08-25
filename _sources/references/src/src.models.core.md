@@ -13,22 +13,22 @@
 :titlesonly:
 :maxdepth: 3
 
+src.models.core.moe
+src.models.core.temporal_attention_model
+src.models.core.n2s
+src.models.core.mdam
+src.models.core.attention_model
 src.models.core.dact
-src.models.core.polynet
-src.models.core.glop
-src.models.core.matnet
 src.models.core.deepaco
-src.models.core.neuopt
+src.models.core.gfacs
+src.models.core.hybrid_attention_model
+src.models.core.dr_alns
 src.models.core.nargnn
 src.models.core.pointer_network
-src.models.core.hybrid_attention_model
-src.models.core.moe
-src.models.core.gfacs
-src.models.core.temporal_attention_model
-src.models.core.attention_model
-src.models.core.mdam
-src.models.core.dr_alns
-src.models.core.n2s
+src.models.core.matnet
+src.models.core.polynet
+src.models.core.glop
+src.models.core.neuopt
 ```
 
 ## Package Contents

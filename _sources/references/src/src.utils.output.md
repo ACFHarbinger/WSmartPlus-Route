@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.output.remover
 src.utils.output.excel_summary
+src.utils.output.remover
 src.utils.output.matcher
 ```
 

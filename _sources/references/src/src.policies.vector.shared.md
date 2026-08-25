@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.vector.shared.limited
-src.policies.vector.shared.linear
 src.policies.vector.shared.reconstruction
+src.policies.vector.shared.linear
+src.policies.vector.shared.limited
 ```
 
 ## Package Contents

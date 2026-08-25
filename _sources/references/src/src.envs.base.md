@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.base.ops
 src.envs.base.batch
+src.envs.base.ops
 src.envs.base.improvement
 src.envs.base.base
 ```

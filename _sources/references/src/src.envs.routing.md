@@ -13,20 +13,20 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.routing.cvrpp
 src.envs.routing.swcvrp
-src.envs.routing.cvrp
-src.envs.routing.wcvrp
-src.envs.routing.atsp
-src.envs.routing.cwcvrp
-src.envs.routing.thop
-src.envs.routing.pdp
-src.envs.routing.pctsp
 src.envs.routing.irp
+src.envs.routing.cvrpp
+src.envs.routing.vrpp
+src.envs.routing.thop
+src.envs.routing.wcvrp
+src.envs.routing.cvrp
 src.envs.routing.op
 src.envs.routing.spctsp
+src.envs.routing.pctsp
+src.envs.routing.pdp
+src.envs.routing.cwcvrp
 src.envs.routing.tsp
-src.envs.routing.vrpp
+src.envs.routing.atsp
 ```
 
 ## Package Contents

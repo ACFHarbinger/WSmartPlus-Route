@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.decoders.ptr.decoder
 src.models.subnets.decoders.ptr.pointer_attention
+src.models.subnets.decoders.ptr.decoder
 ```
 
 ## Package Contents

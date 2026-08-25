@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.mlp.encoder
 src.models.subnets.encoders.mlp.mlp_layer
+src.models.subnets.encoders.mlp.encoder
 ```
 
 ## Package Contents

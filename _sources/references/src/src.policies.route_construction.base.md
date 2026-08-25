@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.route_construction.base.base_multi_period_policy
-src.policies.route_construction.base.registry
 src.policies.route_construction.base.base_routing_policy
+src.policies.route_construction.base.registry
 src.policies.route_construction.base.factory
 ```
 

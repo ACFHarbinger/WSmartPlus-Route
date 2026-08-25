@@ -13,15 +13,15 @@
 :titlesonly:
 :maxdepth: 3
 
-src.configs
-src.models
-src.utils
+src.policies
 src.enums
+src.models
+src.tracking
+src.envs
+src.data
+src.interfaces
+src.utils
+src.configs
 src.pipeline
 src.constants
-src.policies
-src.interfaces
-src.tracking
-src.data
-src.envs
 ```

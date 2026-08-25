@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.attention_model.decoding
-src.models.core.attention_model.policy
 src.models.core.attention_model.deep_decoder_policy
+src.models.core.attention_model.decoding
 src.models.core.attention_model.model
+src.models.core.attention_model.policy
 src.models.core.attention_model.symnco_policy
 ```
 

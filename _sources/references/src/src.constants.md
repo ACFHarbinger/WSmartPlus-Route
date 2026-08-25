@@ -13,18 +13,18 @@
 :titlesonly:
 :maxdepth: 1
 
-src.constants.routing
+src.constants.paths
+src.constants.models
+src.constants.hpo
 src.constants.simulation
-src.constants.user_interface
-src.constants.metrics
 src.constants.data
-src.constants.testing
 src.constants.stats
+src.constants.routing
+src.constants.metrics
+src.constants.plotting
+src.constants.waste
+src.constants.user_interface
 src.constants.system
 src.constants.tasks
-src.constants.plotting
-src.constants.hpo
-src.constants.models
-src.constants.waste
-src.constants.paths
+src.constants.testing
 ```

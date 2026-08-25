@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.core.run
 src.tracking.core.store
+src.tracking.core.run
 src.tracking.core.tracker
 ```
 

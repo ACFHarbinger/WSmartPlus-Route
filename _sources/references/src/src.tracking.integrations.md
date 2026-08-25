@@ -13,13 +13,13 @@
 :titlesonly:
 :maxdepth: 1
 
+src.tracking.integrations.gradient_tracker
 src.tracking.integrations.simulation
-src.tracking.integrations.data
-src.tracking.integrations.zenml_bridge
 src.tracking.integrations.mlflow_bridge
 src.tracking.integrations.lightning
-src.tracking.integrations.gradient_tracker
+src.tracking.integrations.data
 src.tracking.integrations.data_lineage
+src.tracking.integrations.zenml_bridge
 src.tracking.integrations.filesystem
 ```
 

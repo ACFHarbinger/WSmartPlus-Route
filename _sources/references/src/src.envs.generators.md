@@ -13,17 +13,17 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.generators.cvrp
-src.envs.generators.wcvrp
-src.envs.generators.atsp
-src.envs.generators.thop
-src.envs.generators.pdp
-src.envs.generators.pctsp
 src.envs.generators.irp
-src.envs.generators.op
-src.envs.generators.scwcvrp
-src.envs.generators.tsp
 src.envs.generators.vrpp
+src.envs.generators.thop
+src.envs.generators.wcvrp
+src.envs.generators.cvrp
+src.envs.generators.op
+src.envs.generators.pctsp
+src.envs.generators.pdp
+src.envs.generators.tsp
+src.envs.generators.atsp
+src.envs.generators.scwcvrp
 src.envs.generators.base
 ```
 

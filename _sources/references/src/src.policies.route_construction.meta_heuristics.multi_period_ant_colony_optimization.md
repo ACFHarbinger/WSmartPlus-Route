@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.policy_mp_aco
 src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.params
+src.policies.route_construction.meta_heuristics.multi_period_ant_colony_optimization.policy_mp_aco
 ```
 
 ## Package Contents

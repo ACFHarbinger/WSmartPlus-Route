@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.models.subnets.encoders.gac.attention_convolution_layer
-src.models.subnets.encoders.gac.encoder
 src.models.subnets.encoders.gac.ff_conv_sublayer
+src.models.subnets.encoders.gac.encoder
 ```
 
 ## Package Contents

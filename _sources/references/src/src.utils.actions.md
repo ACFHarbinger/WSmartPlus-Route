@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.actions.tensor
 src.utils.actions.probabilistic
 src.utils.actions.distance
-src.utils.actions.graph
+src.utils.actions.tensor
 src.utils.actions.pomo
+src.utils.actions.graph
 ```
 
 ## Package Contents

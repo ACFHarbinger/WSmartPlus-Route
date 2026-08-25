@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.policies.vector.operators.exchange.or_opt
+src.policies.vector.operators.exchange.ejection_chain
 src.policies.vector.operators.exchange.cross_exchange
 src.policies.vector.operators.exchange.lambda_interchange
-src.policies.vector.operators.exchange.ejection_chain
 ```
 
 ## Package Contents

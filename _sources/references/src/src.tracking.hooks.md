@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.hooks.weight_hooks
-src.tracking.hooks.memory_hooks
 src.tracking.hooks.activation_hooks
+src.tracking.hooks.memory_hooks
+src.tracking.hooks.weight_hooks
 src.tracking.hooks.gradient_hooks
 src.tracking.hooks.attention_hooks
 ```

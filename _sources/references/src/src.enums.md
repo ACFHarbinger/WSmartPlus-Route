@@ -14,11 +14,11 @@
 :maxdepth: 1
 
 src.enums.policy_tags
+src.enums.environment_tags
 src.enums.trainer_tags
 src.enums.operator_tags
-src.enums.environment_tags
-src.enums.registry
 src.enums.model_tags
+src.enums.registry
 ```
 
 ## Package Contents

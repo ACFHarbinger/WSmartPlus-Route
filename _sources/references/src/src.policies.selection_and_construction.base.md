@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.selection_and_construction.base.registry
 src.policies.selection_and_construction.base.base_joint_policy
+src.policies.selection_and_construction.base.registry
 src.policies.selection_and_construction.base.factory
 ```
 

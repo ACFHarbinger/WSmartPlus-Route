@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab
-src.policies.helpers.reinforcement_learning.agents.contextual.linucb
 src.policies.helpers.reinforcement_learning.agents.contextual.thompson
+src.policies.helpers.reinforcement_learning.agents.contextual.linucb
+src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab
 src.policies.helpers.reinforcement_learning.agents.contextual.base
 ```
 
