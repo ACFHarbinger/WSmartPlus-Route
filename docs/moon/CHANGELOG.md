@@ -19,6 +19,18 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### Simulation distance-matrix integrity (`2026-08-25`)
+
+- Made per-run distance-matrix publication atomic. Parallel policy workers
+  still share a scenario output path, but each now publishes one validated,
+  complete square matrix through a same-directory temporary file and
+  `os.replace`; workers can no longer concatenate or interleave CSV rows
+- Repaired all 14 malformed 30-day matrix copies from the unanimously matching
+  correctly sized artifacts for their network: one Rio Maior–100 copy, four
+  Rio Maior–170 copies, and nine Figueira da Foz–350 copies. The directional
+  road costs remain asymmetric by design
+- Added regression coverage for shape rejection and concurrent publication
+
 #### MPVRPP paper tracked as a submodule (`2026-08-25`)
 
 - Replaced the vendored `assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/`
