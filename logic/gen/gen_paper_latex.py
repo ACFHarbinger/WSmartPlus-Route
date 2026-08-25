@@ -335,6 +335,7 @@ def table_strategies(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
         first_header=cfg["headers"]["strategy"],
         headers=cfg["headers"]["metrics"],
         column_spec="l" + "r" * len(STRATEGY_SPEC),
+        size=r"\footnotesize",
         rows=build_rows(agg, STRATEGY_SPEC),
         note=cfg["notes"]["strategies"],
     )
@@ -432,8 +433,11 @@ def table_excluded(degenerate: pd.DataFrame, cfg: dict) -> str:
                 "label": tex_escape(display_name(r.constructor, cfg)),
                 "cells": [
                     f"{r.horizon:.0f}",
-                    tex_escape(f"{r.city} $N$={r.N}"),
-                    tex_escape(f"{r.dist} / {variant} / {r.improver}"),
+                    # Abbreviated: this is the widest table in the paper and the
+                    # full region name plus a slash-joined policy triple overflows
+                    # the LNCS text block.
+                    tex_escape(f"{''.join(w[0] for w in r.city.split() if w[0].isupper())} {r.N}"),
+                    tex_escape(f"{r.dist}/{variant}/{r.improver}"),
                     fmt(r.kg, 0),
                     f"{r.shortfall:.0%}".replace("%", r"\%"),
                     fmt(r.overflows, 0),
@@ -444,9 +448,10 @@ def table_excluded(degenerate: pd.DataFrame, cfg: dict) -> str:
         "paper_results_table.tex.j2",
         label="tab:excluded",
         caption=cfg["captions"]["excluded"],
-        first_header=cfg["headers"]["constructor"],
+        first_header=cfg["headers"]["constructor_short"],
         headers=cfg["headers"]["excluded"],
-        column_spec="llllrrr",
+        column_spec="lllrrrr",
+        size=r"\footnotesize",
         rows=rows,
         note=cfg["notes"]["excluded"].format(threshold=int(SHORTFALL_THRESHOLD * 100)),
     )

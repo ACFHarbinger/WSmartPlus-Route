@@ -9,6 +9,12 @@
 \begin{table}[htbp]
 \centering
 \caption{Mandatory-selection strategies at the 30-day horizon, ordered by observed collection efficiency. Efficiency falls monotonically as the rule grows more conservative; overflow risk does not fall with it, being essentially flat across the three middle strategies.}\label{tab:strategies30}
+% A reduced size and a tightened column gap: the wider of these tables carry
+% eight columns, which overflow the LNCS text block at the default settings.
+% `size` lets an individual table step down further when its cells hold text
+% rather than numbers.
+\footnotesize
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrrrr}
 \toprule
 Selection strategy & $n$ & kg/km & med. & Ovf. & med. & km & Time (s) \\

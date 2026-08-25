@@ -9,6 +9,12 @@
 \begin{table}[htbp]
 \centering
 \caption{Horizon sensitivity, computed on the 165 policy configurations observed at both horizons and compared against themselves.}\label{tab:horizon}
+% A reduced size and a tightened column gap: the wider of these tables carry
+% eight columns, which overflow the LNCS text block at the default settings.
+% `size` lets an individual table step down further when its cells hold text
+% rather than numbers.
+\small
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrr}
 \toprule
 Route constructor & Pairs & kg/km 30d & kg/km 90d & Ovf. 30d & Ovf. 90d \\

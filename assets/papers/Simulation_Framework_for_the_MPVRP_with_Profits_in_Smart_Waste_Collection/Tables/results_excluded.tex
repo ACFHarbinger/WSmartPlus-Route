@@ -9,19 +9,25 @@
 \begin{table}[htbp]
 \centering
 \caption{Runs excluded from all aggregate statistics as degenerate rather than merely poor.}\label{tab:excluded}
-\begin{tabular}{llllrrr}
+% A reduced size and a tightened column gap: the wider of these tables carry
+% eight columns, which overflow the LNCS text block at the default settings.
+% `size` lets an individual table step down further when its cells hold text
+% rather than numbers.
+\footnotesize
+\setlength{\tabcolsep}{4pt}
+\begin{tabular}{lllrrrr}
 \toprule
-Route constructor & Horizon & Region & Configuration & kg collected & Shortfall & Overflows \\
+Constructor & $H$ & Scenario & Policy & kg & Short. & Ovf. \\
 \midrule
-SWC-TCF & 30 & Figueira da Foz $N$=350 & Gamma-3 / LA / FTSP & 37,065 & 47\% & 2,166 \\
-SWC-TCF & 30 & Figueira da Foz $N$=350 & Gamma-3 / LA / CLS & 37,065 & 47\% & 2,168 \\
-SWC-TCF & 30 & Figueira da Foz $N$=350 & Gamma-3 / SLSL2 / FTSP & 51,086 & 30\% & 757 \\
+SWC-TCF & 30 & FF 350 & Gamma-3/LA/FTSP & 37,065 & 47\% & 2,166 \\
+SWC-TCF & 30 & FF 350 & Gamma-3/LA/CLS & 37,065 & 47\% & 2,168 \\
+SWC-TCF & 30 & FF 350 & Gamma-3/SLSL2/FTSP & 51,086 & 30\% & 757 \\
 \bottomrule
 \end{tabular}
 
 \vspace{0.4em}
 \begin{minipage}{\linewidth}
-\footnotesize Within a scenario every constructor collects from the same waste realisation, so collected tonnage is comparable by construction. These runs fell more than 20\% below their scenario median and did not complete; their overflow counts measure truncation, not policy behaviour.
+\footnotesize $H$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Within a scenario every constructor collects from the same waste realisation, so collected tonnage is comparable by construction. These runs fell more than 20\% below their scenario median and did not complete; their overflow counts measure truncation, not policy behaviour.
 \end{minipage}
 
 \end{table}

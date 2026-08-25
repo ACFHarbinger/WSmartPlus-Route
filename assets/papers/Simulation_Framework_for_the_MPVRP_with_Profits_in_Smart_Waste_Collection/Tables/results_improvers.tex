@@ -9,6 +9,12 @@
 \begin{table}[htbp]
 \centering
 \caption{Classical Local Search against Fast-TSP at the 30-day horizon, paired over the 224 configurations that differ only in route improver.}\label{tab:improvers30}
+% A reduced size and a tightened column gap: the wider of these tables carry
+% eight columns, which overflow the LNCS text block at the default settings.
+% `size` lets an individual table step down further when its cells hold text
+% rather than numbers.
+\small
+\setlength{\tabcolsep}{4pt}
 \begin{tabular}{lrrrrr}
 \toprule
 Metric & CLS & Fast-TSP & $\Delta$ & CLS wins & Ties \\

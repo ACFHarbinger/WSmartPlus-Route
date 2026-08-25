@@ -160,174 +160,657 @@ While all of these algorithms share the same purpose, to produce a near-optimal 
 
 \section{Methodology}
 
-The policies we implemented and tested consist of three consecutive steps, each of these steps being supported by specific strategies or algorithms (see Fig. \ref{fig:pol_config}). The fist step is the mandatory selection, that is, choosing which bins must be visited on that day. The bins are selected depending on their fill level. For instance a bin that is full or predicted to be overflowing on the next day must be visited on the present day. But there are other possible selection policies, which will be described below. Then comes the main route constructor, where we tested Exact Methods, Meta-Heuristics and Hyper-Heuristics. An optional third step is the Route Improver, that can add new bins that are very near a built route, or try to optimize the produced routes.
+A routing policy in WSmartRoute+ is not a single algorithm but a composition of
+three independent stages, each drawn from its own plugin registry
+(Fig.~\ref{fig:pol_config}). The first is \emph{mandatory selection}: given the
+sensed fill level of every bin, decide which bins \emph{must} be serviced today.
+The second is \emph{route construction}: build a route over those mandatory bins,
+free to add any further bin whose waste repays the detour needed to reach it.
+The third, optional, stage is \emph{route improvement}: take the constructed
+route and refine it.
 
-Besides the algorithms described below, we also used a regular policy as a baseline for comparison.
+Separating the three matters because they answer different questions. Selection
+is a multi-period question --- collecting a bin today forgoes the larger,
+cheaper-per-kilogram load it would offer tomorrow --- while construction is a
+single-period profit-maximising routing question, and improvement is a pure
+geometry question. Composing them freely means an experiment can vary one stage
+while holding the others fixed, which is what makes the marginal effect of each
+stage measurable at all. It is also what turns a benchmark of eight algorithms
+into a benchmark of a policy \emph{space}: the codebase registers 32 selection
+strategies, more than 90 route constructors across seven families, and 33 route
+improvers, all interchangeable by configuration rather than by code.
 
-In this work, we solve the Vehicle Routing Problem with Profits (VRPP) using five state-of-the-art meta-heuristics: Adaptive Large Neighborhood Search (ALNS), Hybrid Genetic Search (HGS), Simulated Annealing Neighborhood Search (SANS), Pheromone Guided - Cooperative Large Neighborhood Search (PG-CLNS), and Particle Swarm Optimization Memetic Algorithm (PSOMA). We also include two exact methods, namely Branch-and-Price-and-Cut (BPC) and the Smart Waste Collection - Two-Commodity Flow (SWC-TCF), and a hyper-heuristic algorithm called Hyper-Heuristic Ant Colony Optimization (HH-ACO). These algorithms were selected for their proven capability to balance exploration and exploitation in complex combinatorial optimization landscapes.
+This work benchmarks a deliberately small, representative subset of that space:
+three selection strategies (in five threshold variants), eight route constructors
+spanning exact methods, meta-heuristics and hyper-heuristics, and two route
+improvers.
+
 \begin{figure}
     \centering
     \includegraphics[width=1.0\linewidth]{Images/policy_configuration_space.png}
-    \caption{Diagram of the routing policies considered for this work.}
+    \caption{The policy configuration space. A policy is one choice from each
+    of the three stages; the experiments in Sect.~\ref{sec:eval} cross the
+    highlighted subset exhaustively.}
     \label{fig:pol_config}
 \end{figure}
 
 \subsection{Mandatory Selection Strategies}
 
-We considered three mandatory selection strategies. The simplest is the Last-Minute, where the mandatory bins are those whose predicted fill level at the end of the day is above a certain threshold. We tested with thresholds of 70\% (CF70) and 90\% (CF90). A second strategy is the Service Level one, which has the main goal of avoiding waste overflows, which has the number of days 
+All three strategies decide from \emph{sensed} fill levels, never from the true
+ones, and all three must estimate whatever they need about accumulation from the
+history the simulation has produced so far. Neither the generating distribution
+nor its parameters are ever revealed to them. The three were chosen to span the
+conceptual space rather than to be exhaustive: one reactive, one statistical,
+one simulation-based.
+
+\paragraph{Last-Minute (LM).}
+The simplest possible rule, and the reactive baseline: a bin becomes mandatory
+when its sensed fill level crosses a fixed critical-fill threshold, judged in
+complete isolation from every other bin and from any estimate of how fast it is
+filling. Formally, bin $i$ is mandatory on day $t$ iff $\hat{f}_{i,t} \geq \tau$,
+for sensed fill $\hat{f}_{i,t}$ and threshold $\tau$. We test $\tau = 0.7$
+(CF70) and $\tau = 0.9$ (CF90). The threshold is the only knob, and it trades
+overflow risk against visit frequency directly, with no model connecting the two.
+
+\paragraph{Service-Level (SL).}
+A statistical rule that projects forward rather than reacting. For each bin it
+maintains online estimates of the mean daily accumulation $\hat{\mu}_i$ and its
+standard deviation $\hat{\sigma}_i$ from the days observed so far, and flags bin
+$i$ as mandatory when a conservative projection of its fill $h$ days ahead
+already exceeds capacity $C_i$:
+\begin{equation}
+    \hat{f}_{i,t} \cdot C_i + h\hat{\mu}_i + z\hat{\sigma}_i\sqrt{h} \;\geq\; C_i ,
+\end{equation}
+where $z$ is a fixed safety coefficient. We test projection horizons $h=1$ (SL1)
+and $h=2$ (SL2), holding $z$ constant, so the two variants differ in how far
+ahead they look and not in how conservative they are at a given distance.
+
+Two caveats apply to reading this as a probabilistic guarantee. The safety
+margin approximates a Gaussian quantile, whereas the waste actually generated in
+our scenarios is right-skewed; and $\hat{\mu}_i$, $\hat{\sigma}_i$ are cold-start
+estimates that are least reliable early in a horizon, exactly when the strategy
+has had least opportunity to recover from a mistake.
+
+\paragraph{Look-Ahead (LA).}
+A simulation-based rule that assumes no distributional form at all. Rather than
+projecting analytically, it rolls the bin's accumulation forward day by day to
+find the last day on which the bin could still be collected without overflowing,
+and makes it mandatory only on that day --- deferring collection to the latest
+safe moment so that the collected load is as large as possible. It has no
+threshold variant, which is why it contributes fewer configurations than LM or
+SL to the experimental grid. It is also the most expensive of the three per
+decision, since it simulates forward instead of evaluating a closed form.
 
 \subsection{Route Constructors}
-\subsubsection{Exact Methods}
-\paragraph{Smart Waste Collection - Two-Commodity Flow (SWC-TCF)}
-The SWC-TCF was an algorithm introduced in \cite{RAMOS2018146}, which models the VRPP using a two-commodity flow formulation where the flow of at each bin is two times the amount of the bin's current waste fill.
 
-\paragraph{Branch-Price-and-Cut (BPC)}
-Write something about the BPC exact route constructors...
+Every constructor below solves the same single-period problem: visit all
+mandatory bins, optionally visit any subset of the remaining bins, respect
+vehicle capacity, and maximise collected waste net of travel cost. The
+adaptation that matters is uniform across the families --- classical CVRP
+methods assume every node must be visited, and each constructor needs some
+mechanism to decide that a bin is \emph{not} worth the detour.
+
+\subsubsection{Exact Methods}
+
+\paragraph{Smart Waste Collection --- Two-Commodity Flow (SWC-TCF).}
+A direct implementation of the waste-collection formulation of Ramos et
+al.~\cite{RAMOS2018146}, written as a single monolithic mixed-integer program
+and handed to a general-purpose solver. Its core device is to track two
+commodities on every arc simultaneously --- waste collected so far, and residual
+capacity --- and to require that they sum to the vehicle capacity on every used
+arc. That single constraint family enforces capacity and eliminates subtours at
+once, where a conventional formulation needs two separate and awkward families.
+
+Unlike the other constructors, SWC-TCF needs no VRPP retrofit: the source
+formulation already treats ``is bin $i$ visited'' as a first-class binary, with
+the objective trading collection revenue against travel cost and a per-vehicle
+usage penalty directly. Bins flagged mandatory, or already critically full, are
+forced into the solution regardless.
+
+Its exposure is scale. The model grows roughly quadratically in the number of
+candidate bins and there is no decomposition to keep the working problem small,
+so it is the constructor most vulnerable to instance-size blow-up --- a
+vulnerability that our largest scenario realises concretely
+(Sect.~\ref{sec:integrity}).
+
+\paragraph{Branch-Price-and-Cut (BPC).}
+The decomposition-based exact method. The master problem is a route-selection
+linear program in which each column is one complete candidate route; routes are
+generated on demand by a pricing subproblem rather than enumerated, since the
+number of possible routes is astronomically large for any non-trivial instance.
+Pricing solves a resource-constrained shortest-path problem whose arc costs
+incorporate the master problem's current duals, so a route is only generated if
+it could improve the incumbent. Because an exactly elementary path search is
+itself intractable at this scale, the pricer works with near-elementary paths and
+tightens that relaxation adaptively when generated routes begin revisiting bins
+too often.
+
+Three mechanisms together give BPC its profitable-subset behaviour. Coverage
+constraints are \emph{at most once} for optional bins and \emph{exactly once} for
+mandatory ones; the pricing subproblem maximises profit rather than minimising
+distance, so route extension stops naturally once a detour costs more than the
+waste it collects; and branching resolves the visit/no-visit decision for a bin
+\emph{before} it branches on arcs, settling the question a classical
+always-cover formulation never has to ask. Beyond the base formulation, lifted
+cover inequalities on saturated arcs are separated --- chosen to match the
+reference methodology rather than the now more common rounded capacity cuts ---
+together with VRPP-specific minimum-cut, triangle-clique and node-profit
+families.
+
+Both exact methods run under a per-run time budget in these experiments. Neither
+is run to certified optimality on the larger instances, and both have a
+documented non-exact fallback on timeout: BPC returns a greedily constructed
+plan, SWC-TCF its best incumbent. Their results should be read as ``best
+solution found within budget'', not as proven optima.
 
 \subsubsection{Meta-Heuristics}
-\paragraph{Adaptive Large Neighborhood Search (ALNS)}
-The Adaptive Large Neighborhood Search (ALNS) extends the Large Neighborhood Search framework by dynamically selecting destroy and repair operators based on their past performance. At each iteration, a \textit{destroy} operator removes $q$ customers from the current solution, and a \textit{repair} operator reinserts them to form a new candidate solution.
 
-For the VRPP, specific operators are designed to manage the selection of profitable nodes. Destroy operators may target nodes with low profit-to-cost ratios, while repair operators prioritize the insertion of high-profit nodes that incur minimal detour costs.
-
-The selection of operator $i$ is governed by a roulette-wheel mechanism, where the probability $P(i)$ depends on its accumulated weight $w_i$. The weights are updated adaptively after each segment of $\varphi$ iterations:
+\paragraph{Adaptive Large Neighborhood Search (ALNS).}
+A trajectory method that maintains one incumbent and repeatedly destroys and
+repairs part of it. Its adaptivity is in operator choice: it holds a portfolio of
+destroy operators (random removal, worst removal, and Shaw removal, which
+removes a set of mutually related bins so that repair has the freedom to place
+them jointly) and repair operators (greedy insertion and regret-$k$ insertion,
+optionally with randomised noise on insertion costs), and reweights them by
+recent success. Operator $i$ is drawn by roulette wheel from weights updated
+every $\varphi$ iterations:
 \begin{equation}
-    w_{i,t+1} = \lambda w_{i,t} + (1-\lambda) \frac{\pi_i}{\theta_i}
+    w_{i,t+1} = \lambda w_{i,t} + (1-\lambda)\frac{\pi_i}{\theta_i},
 \end{equation}
-where $\lambda \in [0, 1]$ is a decay factor, $\pi_i$ is the accumulated score of operator $i$ during the segment, and $\theta_i$ is the number of times it was used. Scores are awarded based on the quality of the new solution (e.g., finding a new global best).
+where $\lambda \in [0,1]$ is a decay factor, $\pi_i$ the score accumulated by
+operator $i$ during the segment, and $\theta_i$ its usage count. Candidates are
+accepted by a simulated-annealing rule, so the trajectory can escape local
+optima. The profitable-subset decision falls out of repair: a removed bin for
+which no insertion position yields positive marginal profit is simply left out.
 
-\paragraph{Hybrid Genetic Search (HGS)}
-The Hybrid Genetic Search (HGS) combines the evolutionary principles of a genetic algorithm with the fine-tuning capabilities of local search. The algorithm maintains a population of solutions, including feasible and infeasible individuals, to navigate the search space effectively. The core components include:
-\begin{itemize}
-    \item \textbf{Crossover:} An Ordered Crossover (OX) or similar operator generates offspring by inheriting routes from two parent solutions. In the context of VRPP, the crossover must ensure that the offspring respects the profit collection objectives.
-    \item \textbf{Local Search (Education):} Each offspring undergoes an intensive local search procedure (e.g., 2-opt, Relocate, Swap) to reach a local optimum.
-    \item \textbf{Population Management:} Diversity is strictly maintained by penalizing solutions that are too similar to existing ones, preventing premature convergence.
-\end{itemize}
-The fitness $F(S)$ of a solution $S$ is a weighted sum of its cost $C(S)$ and a diversity contribution $D(S)$:
+\paragraph{Hybrid Genetic Search (HGS).}
+A memetic algorithm following Vidal~\cite{VIDAL2022105643}, and the population
+counterpart to ALNS. Its central design choice is representational: individuals
+are encoded as a single giant tour over all bins with no route boundaries, and
+are decoded into actual routes only when evaluated. Decoding is a dynamic
+program that finds the optimal split of the giant tour into capacity-feasible
+segments --- and, critically for VRPP, it is also where bins are \emph{skipped},
+by allowing the split to jump over any bin whose inclusion would reduce net
+profit. Skipped bins remain in the genotype, so their relative position survives
+into later generations in case a subsequent mutation makes them worth collecting
+again.
+
+Two sub-populations are maintained, one feasible and one infeasible-but-penalised,
+so that promising infeasible individuals survive long enough to be repaired.
+Each generation selects two parents by a tournament biased toward both fitness
+and diversity, recombines them, and educates the offspring by local search over
+relocate, 2-opt and the algorithm's signature \textsc{swap*} move, which searches
+for each exchanged node's genuinely best new position rather than only the
+partner's vacated slot, pruned to angularly nearby sectors to stay tractable.
+Fitness combines cost $C(S)$ with a diversity contribution $D(S)$:
 \begin{equation}
-    F(S) = C(S) + (1 - \frac{|P_{feas}|}{|P|}) \cdot D(S)
+    F(S) = C(S) + \left(1 - \frac{|P_{feas}|}{|P|}\right) \cdot D(S).
 \end{equation}
-where $|P_{feas}|$ is the number of feasible individuals in the population $P$.
 
-\paragraph{Simulated Annealing Neighborhood Search (SANS)}
-Write something about the SANS meta-heuristic route constructor...
+\paragraph{Simulated Annealing Neighborhood Search (SANS).}
+An implementation of the hybrid published by Jorge et
+al.~\cite{jorge2022hybrid} specifically for smart waste collection. It couples
+the standard annealing acceptance rule --- accept improving moves always, accept
+a worsening move of magnitude $\Delta$ with probability $\exp(-\Delta/T)$ under a
+temperature $T$ that cools over the run --- with a broad, purpose-built move
+library: single-bin relocation and swapping within and between routes, batched
+relocation and swapping of both random and contiguous bin groups, segment
+reversal, and route-segment crossover. Moves are sampled uniformly rather than
+adaptively, which is the substantive difference from ALNS: SANS steers entirely
+through acceptance, never down-weighting an unproductive operator.
 
-\paragraph{Pheromone Guided - Cooperative Large Neighborhood Search (PG-CLNS)}
-Write something about the PG-CLNS meta-heuristic route constructor...
+The profitable-subset decision is folded into the neighbourhood itself. Bins can
+be moved into a removed pool and reconsidered for reinsertion later, so
+inclusion is one more move type rather than a separate phase. A refinement stage
+follows the annealing loop: an uncrossing pass, further annealing, deterministic
+local search applied twice --- once in forward order and once with routes and
+positions reversed, which escapes the local optima that an order-dependent sweep
+creates --- and a final pass over the removed pool.
 
-\paragraph{Particle Swarm Optimization Memetic Algorithm (PSOMA)}
-Write something about the PSOMA meta-heuristic route constructor...
+\paragraph{Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS).}
+An original design combining population-level construction with per-individual
+refinement. Construction is ant-colony-based, with pheromone deposited on
+\emph{edges} of the bin graph, so that road segments appearing in good solutions
+are more likely to be chosen again; only the global best solution deposits into
+the shared trail each round, keeping the signal focused, while a temporary
+within-round penalty discourages ants from reusing edges another ant has just
+taken. Refinement is large neighbourhood search, run independently on every
+member of the population with its own adaptive destroy/repair weighting.
+
+The two levels adapt on different objects and at different scopes: pheromone is
+edge-based and population-wide, operator weights are move-based and per
+individual. Each round constructs a population under the current trail, refines
+every member, updates the trail from the round's best, and regenerates the
+weakest fraction of the population under the updated field. Profitability is
+screened at insertion in both phases, as in ALNS.
+
+Because every member is refined every round, total work scales with population
+size times refinement depth times rounds; on non-trivial instances the algorithm
+is typically stopped by its time budget rather than by convergence.
+
+\paragraph{Particle Swarm Optimization Memetic Algorithm (PSOMA).}
+Particle swarm optimisation is a continuous method, and applying it to a
+sequencing problem requires an encoding. PSOMA uses ranked-order values: each
+particle holds a real vector with one coordinate per bin, and the visiting order
+is simply the rank order of those coordinates. The numbers themselves are
+meaningless; only their relative order is read, so the standard continuous
+velocity update --- inertia, plus attraction to the particle's own best and to
+the swarm's best --- runs unmodified underneath, with the discrete tour emerging
+from a sort. The resulting giant tour is split into routes by the same
+profit-aware dynamic program HGS uses, which is likewise where PSOMA decides
+which bins to skip.
+
+The memetic component refines the swarm's incumbent once per iteration by a
+simulated-annealing local search over swap, relocate and segment-reversal moves,
+adaptively favouring whichever move type has recently been productive. A
+secondary heuristic biases the local search's cost estimates so that pairs of
+profitable bins appear closer together, steering cheap moves toward retaining
+valuable bins without paying for a full route decode.
 
 \subsubsection{Hyper-Heuristics}
-\paragraph{Hyper-Heuristic - Ant Colony Optimization (HH-ACO)}
-While traditional Ant Colony Optimization (ACO) constructs solutions probabilistically based on pheromone trails, the Hyper-Heuristic ACO (HH-ACO) operates at a higher level of abstraction. Instead of directly building routes, the ants construct a sequence of low-level heuristics (LLH) to apply to the problem.
 
-The problem state can be defined by the current solution quality or search stage. The ants probabilistically select heuristics based on a pheromone matrix $\tau_{sh}$ associated with state $s$ and heuristic $h$. The probability of choosing heuristic $h$ in state $s$ is given by:
+\paragraph{Ant Colony Optimization Hyper-Heuristic (ACO-HH).}
+The one true hyper-heuristic in the benchmark, and worth contrasting directly
+with PG-CLNS, which uses the same metaphor one level lower. Where classical ACO
+lays pheromone on edges of the \emph{bin} graph to decide which bin to visit
+next, ACO-HH lays pheromone on transitions in a graph whose nodes are the
+available low-level heuristics, and so decides which \emph{move to apply} next.
+It searches the space of operator sequences and delegates all solution
+modification to the operator it selects.
+
+An ant walks this operator graph, applying each move it steps onto to the working
+solution. The next operator is drawn with probability
 \begin{equation}
-    p_{sh} = \frac{[\tau_{sh}]^\alpha [\eta_{sh}]^\beta}{\sum_{k \in \mathcal{H}} [\tau_{sk}]^\alpha [\eta_{sk}]^\beta}
+    p_{sh} = \frac{[\tau_{sh}]^{\alpha}[\eta_{sh}]^{\beta}}
+                  {\sum_{k \in \mathcal{H}} [\tau_{sk}]^{\alpha}[\eta_{sk}]^{\beta}},
 \end{equation}
-where $\eta_{sh}$ is heuristic information indicating the potential efficacy of $h$, and $\alpha, \beta$ control the relative influence of pheromone and heuristic information. This allows the algorithm to learn essentially "which heuristic to apply when," adapting the search strategy specifically to the instance of the VRPP being solved.
+where $\tau_{sh}$ is the pheromone on the transition from state $s$ to heuristic
+$h$, $\eta_{sh}$ is heuristic information about $h$'s likely efficacy, and
+$\alpha,\beta$ weight the two. If a completed walk improved the solution,
+pheromone is deposited along every transition it used, so operator
+\emph{sequences} that work well together are reinforced rather than merely
+individually good operators; a faster-adapting efficiency signal that accounts
+for each operator's runtime modulates selection on a shorter timescale, and all
+pheromone evaporates so that stale sequences fade.
+
+Two separate portfolios are involved: construction heuristics (greedy,
+nearest- and farthest-insertion, regret-based, each with a profit-aware variant)
+used once to build the initial solution, and the modification operators the ant
+colony actually searches over. Inclusion decisions are handled by the
+profit-aware variants throughout, supplemented by a strategic-oscillation
+mechanism that periodically relaxes the capacity penalty when the search
+stagnates, letting it revisit inclusion decisions it would otherwise be trapped
+away from.
 
 \subsection{Route Improvers}
-Route improvers are the last section of our modular routing policies, which receive an already constructed route (or set of routes) and fine-tunes the route node sequence to further increase routing efficiency. In this work, we made use of two different route improvement algorithms: Classical Local Search (CLS), which applies local search operators like 2-opt by increasing order of complexity, until no further improvement is found; and Fast-TSP, a Python library which underneath the hood implements a variation of Stochastic Local Search (SLC) for graph instances with more than 20 nodes.
+
+Both improvers take a constructed route plan and refine it, and neither can
+change which bins were selected --- a property that the experiments confirm
+directly (Sect.~\ref{sec:res-improvers}).
+
+\paragraph{Classical Local Search (CLS).}
+Variable-neighbourhood descent over a fixed toolbox ordered from cheapest to
+most expensive to evaluate: relocate a bin, swap two bins, reverse a segment
+(2-opt), relocate a chain of two or three consecutive bins (Or-opt), exchange
+route tails between vehicles, exchange bins between routes with re-optimised
+placement, and finally full three- and four-bin reordering. Whenever any move
+succeeds the search restarts from the cheapest neighbourhood rather than
+continuing, and it terminates at a local optimum with respect to every move in
+the toolbox.
+
+One property matters for interpreting the results: every CLS move is scored
+purely by its effect on travel distance. Capacity is enforced as a feasibility
+check, but collected revenue never enters the accept/reject decision, so CLS
+optimises distance and not profit. It can, however, move a bin between vehicles.
+
+\paragraph{Fast-TSP.}
+A narrower operation: holding each route's bin assignment fixed, find the best
+visiting order within it. Routes of up to roughly twenty stops are solved to
+optimality by dynamic programming; longer ones fall back to a randomised local
+search within a small fixed budget. Fast-TSP cannot move a bin between vehicles,
+drop a bin, or account for revenue --- it solves each route's ordering globally
+where CLS improves the plan incrementally, and that difference is precisely what
+the paired comparison in Sect.~\ref{sec:res-improvers} isolates.
+
+\subsection{Simulation Protocol}
+\label{sec:protocol}
+
+Each simulated day executes a fixed cycle: bins accumulate waste; the selection
+strategy reads sensed fill levels and flags mandatory bins; the constructor
+builds a route and the improver refines it; the route is executed and the
+collected waste recorded; the day is logged and the state carried forward.
+
+Four properties of this loop bear on how the results should be read.
+
+\emph{Comparisons are paired at the level of the demand realisation.} The
+simulator re-seeds its waste generation per policy-and-day combination rather
+than letting each run consume randomness in its own order, so every algorithm in
+a given scenario faces the literal identical sequence of daily fill levels, bin
+by bin and day by day. Differences between algorithms in the same scenario are
+therefore differences in decision-making, not in the draws they happened to face.
+This also underwrites the integrity check of Sect.~\ref{sec:integrity}: within a
+scenario the total waste available to collect is fixed, so collected tonnage is
+directly comparable across constructors.
+
+\emph{Selection acts on noisy observations.} Strategies see a sensed fill level
+perturbed by random error; overflow and loss accounting always uses the true
+level. A strategy can therefore make a wrong call purely from what its sensors
+reported, as in a real deployment.
+
+\emph{Overflow is a flag, loss is a quantity.} A bin's true level is tracked
+continuously; waste beyond capacity is recorded as lost and the displayed level
+capped. An overflowing bin that stays unvisited does not accrue a special debt
+--- it simply keeps losing whatever it accumulates, every subsequent day, until
+collected. Overflow counts and kilograms lost are therefore related but distinct
+measures of service failure.
+
+\emph{Every scenario uses a single vehicle and a single depot.} This is a
+deliberate scope restriction and a real limitation: multi-vehicle and multi-depot
+dispatch is not exercised anywhere in these experiments, and the capacity
+constraint is delegated to each constructor's own internal mechanism rather than
+policed centrally by the simulator.
 
 \section{Experimental Evaluation}
-We evaluate the models on a scenario where, given a statistical distribution, and the coordinates of a depot and multiple recycling bins, a simulator generates an amount of waste to fill each bin for ${d=\{31, 93, 365\}}$ days. Each day, the models are tasked with selecting which bins the recycling vehicle(s) are to collect waste from, a task which can be interpreted as a type of CO problem.
+\label{sec:eval}
 
-\subsection{Data}
-During the evaluation process, we use the following statistical distributions and data sources (alternatives include \cite{brouwer2023comparison}):
-\begin{itemize}
-    \item Gamma distribution, and files with the coordinates and the waste accumulation rate of ${b_1=\{20, 50, 225\}}$ bins;
-    \item Empirical distribution (WSmart+ Bin Analysis module), and two files with the coordinates of $b_2={317}$ bins and how much waste was generated each day for each bin (from 2021-01-12 to 2023-10-23), respectively.
-\end{itemize}
-We evaluate the models with ${V_{\Gamma}=20, 50, 100, 150, 225}$ bins on the Gamma distribution and ${V_{E}=20, 50, 100, 150, 225, 317}$ bins on the Empirical distribution. When $V_{\Gamma} \in V_1 \lor V_{E}=V_2$, we run a single simulation with bins available in the coordinates data file. Otherwise, we randomly sample $V_{\Gamma} = \{100, 150\}$ or $V_{E} = \{20, 50, 100, 150, 225\}$ bins for $N_s=100$ or $N_s=10$ samples, respectively.\\
-Parameters for the Gamma distribution:
-\begin{itemize}
-    \item Gamma 1: alpha = [5, 5, 5, 5, 5, 10, 10, 10, 10, 10], beta =[5, 2]
-        \subitem mean = [25, 10, 50, 20]
-        \subitem variance = [125, 20, 250, 40]
-    \item Gamma 2: alpha = [2, 2, 2, 2, 2, 6, 6, 6, 6, 6], beta = [6, 4]
-        \subitem mean = [12, 8, 36, 24]
-        \subitem variance = [72, 32, 216, 96]
-    \item Gamma 3: alpha = [1, 1, 1, 1, 1, 3, 3, 3, 3, 3], beta = [8, 6]
-        \subitem mean = [8, 6, 24, 18]
-        \subitem variance = [64, 36, 192, 108]
-\end{itemize}
-The daily generated waste data from the WSmart+ Bin Analysis module is pre-processed to compute the waste accumulation rate of each bin.
+\subsection{Scenarios and Data}
 
-\subsubsection{Map}
-The map of the $V=317$ bins' coordinates can be seen in Figure \ref{fig:map}.
+Experiments are run on two Portuguese municipal networks, each with real bin and
+depot coordinates and a real road-distance matrix:
+
+\begin{itemize}
+    \item \textbf{Rio Maior}, at $N = 100$ and $N = 170$ plastic-waste bins,
+          with road distances from the Google Maps distance matrix;
+    \item \textbf{Figueira da Foz}, at $N = 350$ bins, with road distances from
+          OpenStreetMap.
+\end{itemize}
+
+Two waste-generation processes drive each network, chosen to contrast a
+parametric model against real observations:
+
+\begin{itemize}
+    \item \textbf{Gamma-3}, drawing daily accumulation from fitted Gamma
+          distributions ($\alpha \in \{1,3\}$, $\beta \in \{8,6\}$; means 8, 6,
+          24 and 18\,kg/day with variances 64, 36, 192 and 108) with different
+          presets assigned to different groups of bins, so accumulation
+          behaviour varies across the network and not merely in scale;
+    \item \textbf{Empirical}, resampling directly from historical daily-fill
+          records collected by the WSmart+ Bin Analysis module between
+          2021-01-12 and 2023-10-23 --- a bootstrap with no parametric
+          assumption, replaying observed patterns.
+\end{itemize}
+
+Neither process reveals its parameters to any selection strategy; all
+accumulation statistics a strategy uses are estimated online from the days it
+has observed (Sect.~\ref{sec:protocol}). Two planning horizons are used, 30 and
+90 days. The map of the Figueira da Foz network appears in Fig.~\ref{fig:map}.
+
 \begin{figure}
     \centering
     \includegraphics[width=0.75\linewidth]{Images/map317.png}
-    \caption{Map of the depot and the 317 bins used in experiments.}
+    \caption{Depot and bin coordinates for the larger of the two networks.}
     \label{fig:map}
 \end{figure}
 
-\subsubsection{Baselines}
-We will compare the proposed models with some state-of-the-art algorithms proposed recently, including: \textsc{look\_ahead\_policy} \cite{jorge2022hybrid}; \textsc{policy\_lastminute} \cite{lopes2023efficient}; \textsc{gurobi} \cite{de2024data}; and \textsc{policy\_regular}, where each location is visited regularly with an interval of 3 days, following a route computed by a TSP solver.
+\subsection{Design of Experiments}
+
+The 30-day design is a complete factorial crossing of every policy stage with
+every scenario:
+\[
+    \underbrace{8}_{\text{constructors}} \times
+    \underbrace{5}_{\text{selection variants}} \times
+    \underbrace{2}_{\text{improvers}} \times
+    \underbrace{2}_{\text{distributions}} \times
+    \underbrace{3}_{\text{network sizes}}
+\]
+yielding 480 simulation runs, balanced so that each constructor appears in every
+scenario an equal number of times. Because the demand realisation is fixed per
+scenario (Sect.~\ref{sec:protocol}), the marginal mean of any one stage is a
+genuine like-for-like comparison rather than a comparison confounded by which
+scenarios that stage happened to be run in.
+
+The 90-day design is \emph{not} a factorial replication of this, and the
+distinction is important enough to state before any 90-day number is read. Only
+policy configurations that lay on the 30-day Pareto front were carried forward,
+producing 174 runs. Each constructor's 90-day rows are therefore the scenarios
+in which it had already performed well at 30 days, and a cross-constructor
+comparison at 90 days would compare each constructor against a different,
+self-favouring subset. We report no such comparison. The horizon analysis in
+Sect.~\ref{sec:res-horizon} instead pairs each configuration against
+\emph{itself} across the two horizons.
+
+We report five measures. \emph{Efficiency} (kg/km) is collected waste per
+kilometre driven and is the primary operational objective. \emph{Overflow
+events} counts bin-days on which a bin was at capacity, and \emph{kilograms
+lost} the waste discarded as a result; the two are related but distinct, since a
+single bin left uncollected keeps losing waste every subsequent day.
+\emph{Distance} and \emph{runtime} measure operational and computational cost.
+Means are reported alongside medians throughout, because at this sample size a
+single extreme scenario can move a mean substantially --- as
+Sect.~\ref{sec:integrity} demonstrates.
+
+\subsection{Data Integrity}
+\label{sec:integrity}
+
+Three of the 480 runs are degenerate rather than merely poor, and all three are
+SWC-TCF on Figueira da Foz under Gamma-3 (Table~\ref{tab:excluded}). Because
+every constructor in a scenario collects from an identical waste realisation,
+collected tonnage is comparable by construction; these runs collected 47\%,
+47\% and 30\% less than their scenario median, having failed to complete rather
+than having routed badly. Their very large overflow counts measure that
+truncation, not policy behaviour. This is the concrete realisation of the
+scaling exposure noted for the monolithic MILP formulation: it is the largest
+network under the heavier of the two generating processes.
+
+The detection rule is a tonnage shortfall against the scenario median, and its
+threshold is not tuned. Across the 576 runs in scenarios of four or more, the
+shortfall distribution has median $0.00$ and 99th percentile $0.057$, then jumps
+directly to these three runs above $0.20$; the gap identifies them
+unambiguously. We note that the count of collection days is \emph{not} a
+truncation signal, despite appearances --- several of the strongest policies
+collect on only 15 of 30 days precisely because they bundle collections well.
+
+Excluding these three runs alone would have introduced a subtler bias of the same
+family as the 90-day sampling problem: since all three are SWC-TCF's, removing
+only them would average SWC-TCF over the scenarios where it did not fail while
+averaging its rivals over those scenarios too. We therefore drop the three
+affected scenario cells for \emph{all} constructors, at a cost of 21 further
+runs, leaving 456 runs at 30 days with every constructor contributing exactly 57.
+The tables and figures in this section are generated directly from the simulation
+output by a single tool that applies these rules centrally, so no reported
+number is transcribed by hand.
 
 \subsection{Results}
-\subsubsection{Gamma Distribution (31 days)}
-Comparison of the algorithms and models' efficiency (kg/km) and the number of times a bin overflows with waste (overflows) for ${b_{\Gamma}=20, 50, 100, 150, 225}$ \ref{fig:log_gamma31}.
-\begin{figure}
-    \centering
-    \includegraphics[width=0.7\textwidth]{Images/Results/Gamma/31days/log_comp.png}
-    \caption{Experimental results for Gamma distribution (with logarithmic scale on the Y axis and normalized by the number of days).}
-    \label{fig:log_gamma31}
-\end{figure}\\
-Simulation runtime (time): \ref{fig:g31_logtime}\\
-Number of bin waste collections (ncol): \ref{fig:g31_ncols}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.49\linewidth]{Images/Results/Gamma/31days/log_time.png}
-    \includegraphics[width=0.49\linewidth]{Images/Results/Gamma/31days/ncol.png}
-    \caption{(Left) Time (in seconds) it took to complete the simulation (with logarithmic scale on the Y axis and normalized by the number of days). (Right) Total number of bins collected during the simulation (normalized by the number of days).}
-    \label{fig:g31_logtime}
-    \label{fig:g31_ncols}
-\end{figure}\\
-In terms of truck capacity efficiency (kg/km) and the amount of waste overflows, the \textsc{attention model} seems to be the best option when it comes to smaller graphs, but \textsc{gurobi} eventually overtakes it as the best algorithms as we increase the number of bins in the simulation.\\
-The \textsc{attention model} can output a solution to a problem instance in just a few seconds of inference time, making it the fastest algorithm by far. This is to be expected, as the model performs multiple parallel computations on the GPU, while the other algorithms are not parallelizable and must thus run on a single CPU thread. While significantly slower in comparison, both the \textsc{policy\_regular} and the \textsc{policy\_lastminute} can output a solution in a respectable time frame, taking around 1 to 3 minutes for graphs with $b \geq 100$. The \textsc{look\_ahead\_policy} and \textsc{gurobi} are - by a wide margin - the slowest of all algorithms, taking up to 3500x and 17000x more time than the attention model, respectively, to finish the simulation for 225 bins.\\
-Overall, the attention model seems to offer the best runtime and performance in small graphs, while \textsc{gurobi} always offers a solid performance and is the superior algorithm for larger graphs with the trade-off of having a significantly higher runtime and computational cost. Also, \textsc{look\_ahead\_policy} seems to offer no significant performance benefits when compared to other algorithms and is the second most costly algorithm, making it a worse choice regardless of the metric.
 
-\subsubsection{Gamma Distribution (365 days)}
-Some results for 20 bins: \ref{fig:enter-label}\\
-Some tours for 20 bins: \ref{fig:tours}
+\subsubsection{Route Constructors}
+\label{sec:res-constructors}
+
+Table~\ref{tab:constructors30} reports per-constructor performance, and
+Fig.~\ref{fig:pareto} places the constructors in the efficiency/service plane.
+
+BPC attains the highest mean efficiency (6.65\,kg/km) on the shortest mean
+routes (4{,}018\,km), which is the expected outcome for the method with the
+strongest optimality machinery --- though, as noted, it runs to a time budget
+and is not certified optimal at these sizes. ALNS achieves the fewest mean
+overflows (5.9) and PG-CLNS is the strongest all-round compromise, second on
+efficiency and second on overflows. ACO-HH is the most interesting entry: third
+on efficiency, within 5\% of BPC, at 589\,s mean runtime --- roughly a quarter
+of HGS's and PG-CLNS's, and the fastest of the eight. The hyper-heuristic's
+extra level of abstraction pays for itself.
+
+The medians qualify the overflow column sharply, and this is the result we would
+most caution against over-reading. Seven of the eight constructors have a
+\emph{median} overflow count of exactly 4.0; the spread in the means, from 5.9
+for ALNS to 19.9 for HGS, is therefore almost entirely tail behaviour rather
+than typical-case behaviour. The statement ``HGS overflows more than ALNS'' is
+true of the mean and false of the median. What separates the constructors on
+this measure is not how they behave on an ordinary day but how badly they fail
+on an unusual one.
+
+Pareto-front membership across the six scenario--distribution combinations,
+recomputed after the integrity filter, gives PG-CLNS 5 of 6, PSOMA and HGS 3
+each, BPC 2, and ACO-HH and ALNS 1 each. PG-CLNS is thus the most consistently
+non-dominated constructor even though it never leads a single column outright,
+which is the characteristic signature of a good compromise method.
+
+Runtime separates the constructors more cleanly than quality does
+(Fig.~\ref{fig:scaling}). At $N=350$ the spread is 4.5-fold, from ACO-HH at
+1{,}219\,s to SANS at 5{,}451\,s. Notably, BPC at 2{,}430\,s is \emph{not} the
+most expensive method: PG-CLNS, HGS and SANS all cost more wall-clock time per
+run than the exact branch-price-and-cut solver at this scale. The common
+intuition that the exact method is the expensive one does not survive contact
+with these instances.
+
 \begin{figure}
     \centering
-    \includegraphics[width=\linewidth]{Images/comp.png}
-    \caption{For gamma dist 1 on 365 days.}
-    \label{fig:enter-label}
-\end{figure}
-\begin{figure}
-    \centering
-    \includegraphics[width=0.49\textwidth]{Images/am_tour.png}
-    \includegraphics[width=0.49\textwidth]{Images/lookahead_tour.png}
-    \caption{Example tours for Attention Model (left) and LookAhead Policy (right).}
-    \label{fig:tours}
+    \includegraphics[width=0.8\linewidth]{Images/Results/Generated/pareto_30d.png}
+    \caption{Mean efficiency against mean overflow events per constructor at the
+    30-day horizon, with the non-dominated front. Read alongside the medians in
+    Table~\ref{tab:constructors30}: the horizontal spread is largely tail
+    behaviour.}
+    \label{fig:pareto}
 \end{figure}
 
-\subsubsection{WSmart+ Bin Analysis (93 days)}
-Comparison of the algorithms and models' efficiency (kg/km) and the number of times a bin overflows with waste (overflows) for ${b_{\Gamma}=20, 50, 100, 150, 225, 317}$ \ref{fig:log_emp93}.
+\input{Tables/results_constructors}
+
 \begin{figure}
     \centering
-    \includegraphics[width=0.49\textwidth]{Images/Results/Empirical/93days/log_comp.png}
-    \includegraphics[width=0.49\textwidth]{Images/Results/Empirical/93days/comp.png}
-    \caption{Experimental results for Gamma distribution (with logarithmic scale on both axes and normalized by the number of days).}
-    \label{fig:log_emp93}
-\end{figure}\\
-Simulation runtime (time): \ref{fig:e93_logtime}\\
-Number of bin waste collections (ncol): \ref{fig:e93_ncols}
+    \includegraphics[width=0.8\linewidth]{Images/Results/Generated/runtime_scaling_30d.png}
+    \caption{Mean runtime against network size. The exact BPC solver is
+    mid-pack; three meta-heuristics cost more per run than it does.}
+    \label{fig:scaling}
+\end{figure}
+
+\subsubsection{Mandatory Selection Strategies}
+\label{sec:res-strategies}
+
+The selection stage produces a larger effect than the constructor stage, and it
+is the paper's central operational result (Table~\ref{tab:strategies30},
+Fig.~\ref{fig:strategy}). Efficiency falls monotonically as the rule grows more
+conservative, from 7.74\,kg/km at LM-CF90 down to 4.03 at SL-SL2 --- a 48\%
+range, against the 24\% range across all eight constructors. Which bins are
+visited matters more than how well the visit is routed.
+
+Overflow risk, however, does \emph{not} fall monotonically with it. It collapses
+from 28.6 at CF90 to 5.5 at LA, then sits essentially flat across LA (5.5),
+LM-CF70 (7.7) and SL-SL1 (6.3), before falling again to 1.4 at SL-SL2. The
+interesting region is that flat middle. Three strategies with quite different
+mechanisms --- a reactive threshold, a forward simulation, and a statistical
+projection --- deliver materially the same service level, but at steadily
+increasing cost: 3{,}396\,km for LA, 4{,}646 for LM-CF70, 5{,}088 for SL-SL1.
+Look-Ahead reaches that service level for the least distance \emph{and} the
+least runtime (914\,s) of the three, which is a stronger result for it than its
+per-decision expense would suggest, and it does so without assuming a
+distributional form.
+
+The practical reading for an operator is that the choice is not efficiency
+versus safety along a single dial. Moving from CF90 to CF70 buys a large
+reduction in overflows for a moderate efficiency cost and is clearly worthwhile;
+moving further, from LA or CF70 to SL-SL1, buys almost no additional service for
+a real efficiency cost and is not; and moving to SL-SL2 buys a genuine further
+reduction, to a median of one overflow event, but at 4.03\,kg/km and the longest
+routes in the study. Only the first and last steps are defensible, and which of
+them applies depends on how an operator values an overflow.
+
 \begin{figure}
     \centering
-    \includegraphics[width=0.49\linewidth]{Images/Results/Empirical/93days/log_time.png}
-    \includegraphics[width=0.49\linewidth]{Images/Results/Empirical/93days/ncol.png}
-    \caption{(Left) Time (in seconds) it took to complete the simulation (with logarithmic scale on both axes and normalized by the number of days). (Right) Total number of bins collected during the simulation (normalized by the number of days).}
-    \label{fig:e93_logtime}
-    \label{fig:e93_ncols}
-\end{figure}\\
-Interestingly, the results seem to differ significantly from previous experiments when it comes to truck capacity efficiency (kg/km) and the amount of waste overflows. Compared to the results for the Gamma distribution, \textsc{gurobi} is no longer the most conservative algorithm with regards to the number of overflows and has an higher truck capacity efficiency. Also, the \textsc{policy\_lastminute} algorithm is extremely competitive in this scenario, achieving the best results in medium-sized graphs ($50 \leq b < 225)$.\\
-The runtime results follow the same pattern as in the previous experiments, with the \textsc{attention model} being the fastest algorithm, followed by the \textsc{policy\_regular} and the \textsc{policy\_lastminute}, with the slowest of all being \textsc{gurobi}.
+    \includegraphics[width=0.8\linewidth]{Images/Results/Generated/strategy_tradeoff_30d.png}
+    \caption{Efficiency and overflow events by selection strategy, ordered by
+    efficiency. Efficiency declines monotonically; overflow risk does not.}
+    \label{fig:strategy}
+\end{figure}
+
+\input{Tables/results_strategies}
+
+\subsubsection{Route Improvers}
+\label{sec:res-improvers}
+
+Because the two improvers were run across otherwise identical configurations,
+they can be compared pairwise rather than marginally: each of the 224 pairs in
+Table~\ref{tab:improvers30} is the same constructor, strategy, network and
+demand realisation, differing only in improver.
+
+In aggregate CLS wins, and comfortably: 202 of the 224 pairs, mean
+$+0.74$\,kg/km, on routes 304\,km shorter, at indistinguishable runtime. The
+mechanism is straightforward --- CLS can move a bin between vehicles, and
+Fast-TSP cannot, so CLS optimises the plan where Fast-TSP only optimises each
+route's internal order.
+
+The aggregate, however, conceals the more useful finding. Twenty-one of the 22
+CLS losses occur at $N=350$, and they belong to exactly three constructors:
+PSOMA (8, mean $-2.42$), SWC-TCF (8, $-2.02$) and HGS (6, $-1.46$). The losses
+are also substantially deeper than the wins, reaching $-3.3$\,kg/km against a
+typical win below $+1$ (Fig.~\ref{fig:improver}). The correct claim is therefore
+conditional: \emph{CLS dominates Fast-TSP except on the largest instances for
+those constructors that produce long routes, where global per-route reordering
+beats incremental descent.} This is consistent with the two designs --- CLS
+performs first-improvement descent whose cost grows with route length, while
+Fast-TSP solves each route's ordering in one shot. An operator choosing an
+improver should choose by instance size, not by the aggregate.
+
+Overflow counts tie on 181 of the 224 pairs, confirming directly that neither
+improver alters which bins were selected --- exactly as the pipeline's stage
+separation intends.
+
+\begin{figure}
+    \centering
+    \includegraphics[width=0.8\linewidth]{Images/Results/Generated/improver_delta_30d.png}
+    \caption{Per-pair efficiency difference, CLS minus Fast-TSP, sorted. The
+    losses are fewer but deeper than the wins, and all but one occur at
+    $N=350$.}
+    \label{fig:improver}
+\end{figure}
+
+\input{Tables/results_improvers}
+
+\subsubsection{Effect of the Planning Horizon}
+\label{sec:res-horizon}
+
+Table~\ref{tab:horizon} compares the 165 configurations observed at both
+horizons against themselves. Efficiency is essentially horizon-invariant and
+slightly improving: the mean paired change is $+0.26$\,kg/km, positive in 140 of
+165 pairs, with HGS the only constructor whose efficiency falls ($-0.47$). This
+supports the interpretation that efficiency is governed by route geometry, which
+a longer horizon does not change.
+
+Overflow counts grow, and the magnitude is informative: the median 90-day to
+30-day ratio lies between 2.4 and 3.3 for six of the seven constructors, against
+a horizon ratio of exactly 3. Overflow events therefore accumulate at an
+approximately constant \emph{rate} rather than compounding --- a longer horizon
+produces proportionally more failures, not disproportionately more. SWC-TCF is
+the exception at 5.6, degrading faster than linearly, consistent with its
+scaling exposure elsewhere in these results.
+
+Two cautions apply. First, this comparison is paired precisely because a
+cross-constructor comparison at 90 days is not available to us. Second, even the
+paired comparison is not fully unbiased: a configuration reached the 90-day
+stage because its 30-day result put it on the Pareto front, so the 30-day arm of
+each pair is conditioned on having been high, and regression to the mean works
+against the measured change. The direction of these results should be trusted;
+their magnitude should be read as conservative.
+
+\input{Tables/results_horizon}
+
+\subsubsection{Scenario Effects}
+
+The two generating processes produce markedly different regimes and should not
+be pooled. Gamma-3 yields 7.35\,kg/km mean efficiency against 4.83 for the
+Empirical process, and 15.0 mean overflow events against 5.9 --- it is simply a
+heavier load, generating more waste per bin-day, which makes collection more
+efficient per kilometre and service failure more likely at the same time. Any
+conclusion stated across both processes without qualification would be
+misleading, and we have stated results per process wherever the two disagree.
+
+Network size does not act monotonically on efficiency (5.97, 5.26 and
+6.99\,kg/km at $N = 100$, $170$ and $350$), because the two networks differ in
+bin density as well as in size and Figueira da Foz is the denser. It does act
+monotonically on cost: mean distance rises from 2{,}343 to 7{,}618\,km and mean
+runtime from 819 to 2{,}608\,s. Overflow events rise sharply at $N=350$ (21.6
+against 4.9 and 5.9), which is where every constructor's tail behaviour ---
+including the three degenerate runs of Sect.~\ref{sec:integrity} --- is
+concentrated.
+
+\input{Tables/results_excluded}
 
 \section{Conclusion and Future Work}
 Should write some text here after finishing up the Experimental Evaluation.
