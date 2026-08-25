@@ -113,5 +113,55 @@
   },
   "constructor_labels": {
     "ACO_HH": "ACO-HH"
+  },
+  "policy_space": {
+    "registry_counts": {
+      "selection": 33,
+      "constructors": 102,
+      "improvers": 30,
+      "sel_bench": 5,
+      "con_bench": 8,
+      "imp_bench": 2,
+      "policies": 80
+    },
+    "stages": [
+      {
+        "title": "1. Mandatory selection",
+        "scope": "multi-period decision",
+        "color": "#0066cc",
+        "fill": "#f2f7fd",
+        "members": [
+          "Last-Minute (CF70, CF90)",
+          "Look-Ahead",
+          "Service-Level (SL1, SL2)"
+        ],
+        "registered": "{selection} registered, 3 benchmarked"
+      },
+      {
+        "title": "2. Route construction",
+        "scope": "single-period decision",
+        "color": "#00a859",
+        "fill": "#f1faf5",
+        "members": [
+          "ALNS  BPC  HGS  SANS",
+          "ACO-HH  PG-CLNS",
+          "PSOMA  SWC-TCF"
+        ],
+        "registered": "{constructors} registered, {con_bench} benchmarked"
+      },
+      {
+        "title": "3. Route improvement",
+        "scope": "optional, geometry only",
+        "color": "#f26522",
+        "fill": "#fef5f0",
+        "members": [
+          "Classical Local Search",
+          "Fast-TSP"
+        ],
+        "registered": "{improvers} registered, {imp_bench} benchmarked"
+      }
+    ],
+    "benchmarked": "This benchmark: {sel_bench} selection variants × {con_bench} constructors × {imp_bench} improvers = {policies} policies",
+    "footnote": "The registries admit {selection} × {constructors} × {improvers} compositions; improvement is optional, so a policy is any point in that space."
   }
 }
