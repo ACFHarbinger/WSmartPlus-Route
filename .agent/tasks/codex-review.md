@@ -1,0 +1,73 @@
+# Brief — Codex / Chat (co-team-lead, reviewer)
+
+**Branch:** `feat/paper-results-and-website` · **Bus:** `.agent/bus/2026-08-25.md`
+
+You are the reviewer. Nothing in this effort is done until you have passed it.
+Post every finding to the bus under `### Codex — 2026-08-25 (topic)`.
+
+## R1 — Adversarially re-derive the numbers (highest priority, do first)
+
+I posted a set of quantitative claims in today's bus entry. Re-derive each one
+yourself from `public/global/simulation/simulation_summary.csv` (480 rows,
+30d) and `simulation_summary_90d.csv` (174 rows, 90d). **Do not read my code
+to do it — write your own.** Two independent derivations that agree are worth
+something; one derivation checked twice is not.
+
+Specifically confirm or refute:
+
+1. The 30-day grid is balanced at 60 runs per constructor with every
+   constructor x strategy cell filled; the 90-day grid is not (ALNS = 0 runs).
+2. `SWC-TCF / LA / Gamma-3 / N=350` has `days=15` and `kg≈37,065` where the
+   other seven constructors in that cell have `days∈[20,27]` and `kg≈70,300`
+   — i.e. it is a truncated run, not a policy result.
+3. With those two rows excluded, the per-constructor and per-strategy means
+   in the bus table are correct to the digits shown.
+4. CLS beats FTSP on 212 of 240 paired configurations, mean delta
+   +0.65 kg/km.
+5. The LM-CF90 → LM-CF70 → SL-SL1 → SL-SL2 ordering on kg/km is monotone.
+
+**Also look for outliers I did not find.** I found two by inspecting the cells
+I happened to aggregate. Sweep systematically: any run whose `days` is far
+below its horizon, any `km` more than ~2x its cell median, any `kg` far below
+its cell median. Truncated runs are the failure mode — find all of them.
+
+## R2 — Review the paper prose against the data
+
+Once I have pushed the rewritten Methodology and Results in
+`assets/papers/Simulation_Framework_for_the_MPVRP_with_Profits_in_Smart_Waste_Collection/paper.tex`:
+
+- Every numeric claim must trace to a CSV row or an aggregate over rows.
+  Flag anything that reads as plausible but is not derivable.
+- Every algorithm named in Methodology must exist in `logic/src/policies/`.
+  The mapping is in `.agent/reports/claude/policy_name_map.md` once I write
+  it — verify it rather than trusting it.
+- Check that no claim generalises across the Gamma-3 / Empirical boundary
+  without saying so. They are very different load regimes.
+- Check the 90-day claims are scoped to the constructors actually run at 90
+  days.
+
+## R3 — LaTeX correctness
+
+Pre-existing bugs to confirm fixed, plus anything new:
+
+- Two `\label`s inside one float (`fig:g31_logtime`/`fig:g31_ncols` and the
+  e93 pair) — both resolve to the same number. Must become separate floats or
+  a single label.
+- Bare `\ref{}` with no "Fig."/"Table" prefix throughout Results.
+- The Methodology sentence that dies mid-clause: *"which has the number of
+  days "*.
+- `paper.log` for undefined references and overfull boxes after each rebuild.
+
+## R4 — Review the other agents' diffs
+
+Agy (design) and Opencode (interactive/3D) are both editing `docs/website/`.
+Watch specifically for: the two of them redefining the same CSS custom
+properties, `App.tsx`/routing conflicts, any dependency added that is not in
+`docs/website/package.json`, and bundle-size regressions from 3D libraries.
+
+## Ground rules
+
+- Update `docs/moon/CHANGELOG.md` in the same commit as any fix you apply.
+- Never push to `main` (`.agent/AGENTS.md` §5.3).
+- If you disagree with me, say so on the bus with the evidence. Being the
+  co-lead means overruling the lead when the data says so.
