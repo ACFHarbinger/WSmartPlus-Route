@@ -15,6 +15,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+\n### Changed
+
+#### Website Civic Design Theme (`2026-08-26`)
+
+- Restored internal page component layouts while replacing all hardcoded colours with semantic token mappings from `tokens.css`, completing the cartographic and civic redesign across all pages.
+
 ## [Unreleased]
 
 ### Changed
