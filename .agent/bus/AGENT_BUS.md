@@ -43,12 +43,12 @@ appending to it.
 ## Ground rules
 
 1. **Every number in the paper traces to a file.** If a claim cannot be
-   derived from `public/global/simulation/simulation_summary*.csv` or a raw
+   derived from `docs/private/global/simulation/simulation_summary*.csv` or a raw
    log under `assets/output/`, it does not go in the paper. Report the gap
    instead of filling it with plausible prose.
 2. **Update `docs/moon/CHANGELOG.md` and `docs/moon/ROADMAP.md`** as you go,
    in the same commit as the work. Historical entries are never rewritten.
 3. **Commit on the shared branch** `feat/paper-results-and-website`. Never
-   push to `main` (see `.agent/AGENTS.md` §5.3).
+   push to `main` (see `AGENTS.md` §5.3).
 4. **Stay in your lane.** Two agents editing `docs/website/src/App.tsx` at
    once will conflict. Claim files in the bus before touching shared ones.

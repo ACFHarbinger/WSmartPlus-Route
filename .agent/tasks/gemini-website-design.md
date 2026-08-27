@@ -72,7 +72,7 @@ Do not design against lorem ipsum. The site should surface:
 - The **policy pipeline**: mandatory selection → route construction → route
   improvement. Three stages, 32 selection strategies, 8 constructor families,
   33 improvers. That structure is the site's spine.
-- The **benchmark results** — `public/global/simulation/simulation_summary.csv`
+- The **benchmark results** — `docs/private/global/simulation/simulation_summary.csv`
   is real, 480 runs. Read today's bus entry for what it actually says before
   designing a page about it.
 - The **paper and presentation** —

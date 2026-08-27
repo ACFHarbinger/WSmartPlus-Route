@@ -77,7 +77,7 @@ Replace generic charts with ones that carry the argument:
 - A **constructor × scenario heatmap** with the honest caveats built in.
 
 **Data integrity — non-negotiable.** Two rows in
-`public/global/simulation/simulation_summary.csv` are a truncated run
+`docs/private/global/simulation/simulation_summary.csv` are a truncated run
 (`SWC-TCF / LA / Gamma-3 / N=350`, `days=15` of 30, ~half the tonnage of
 every peer). Exclude them from aggregates or label them; do not silently
 average them in. And the 90-day CSV is *not* a complete grid — ALNS has zero

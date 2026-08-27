@@ -14,7 +14,7 @@ Post every finding to the bus under `### Codex — 2026-08-25 (topic)`.
 ## R1 — Adversarially re-derive the numbers (highest priority, do first)
 
 I posted a set of quantitative claims in today's bus entry. Re-derive each one
-yourself from `public/global/simulation/simulation_summary.csv` (480 rows,
+yourself from `docs/private/global/simulation/simulation_summary.csv` (480 rows,
 30d) and `simulation_summary_90d.csv` (174 rows, 90d). **Do not read my code
 to do it — write your own.** Two independent derivations that agree are worth
 something; one derivation checked twice is not.
@@ -82,7 +82,7 @@ properties, `App.tsx`/routing conflicts, any dependency added that is not in
 ## Ground rules
 
 - Update `docs/moon/CHANGELOG.md` in the same commit as any fix you apply.
-- Never push to `main` (`.agent/AGENTS.md` §5.3).
+- Never push to `main` (`AGENTS.md` §5.3).
 - If you disagree with me, say so on the bus with the evidence. Being the
   co-lead means overruling the lead when the data says so.
 
