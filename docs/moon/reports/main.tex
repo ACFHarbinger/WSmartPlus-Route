@@ -138,11 +138,11 @@
         \toprule
         \textbf{Category} & \textbf{Solution quality} & \textbf{Inference speed} & \textbf{Scalability ($N$)} \\
         \midrule
-        Autoregressive constructive & Medium--High & Fast & Medium ($\le 500$) \\
+        Autoregressive constructive & Medium-High & Fast & Medium ($\le 500$) \\
         Non-autoregressive constructive & Medium & Very fast & High \\
         Improvement / local search & High & Medium & High \\
-        Meta-heuristic augmented & High & Medium--Slow & High \\
-        Predict-once & Medium--High & Fast (1 neural call) & Very high \\
+        Meta-heuristic augmented & High & Medium-Slow & High \\
+        Predict-once & Medium-High & Fast (1 neural call) & Very high \\
         Predict-many & Very high & Slow (many neural calls) & High \\
         Active search / fine-tuning & Very high & Slow & Medium \\
         Multi-task generalist & Medium & Fast & Medium \\
@@ -243,7 +243,7 @@
         \midrule
         Preserving exact route partitions from parents & Generalized Partition Crossover (GPX), PIX \\
         Breaking strict time-window/spatial clusters & Time-Window Removal, Shaw Removal, Sector Removal \\
-        Bypassing strict topological adjacency limits & GENI Unstringing \& Stringing (Types I--IV) \\
+        Bypassing strict topological adjacency limits & GENI Unstringing \& Stringing (Types I-IV) \\
         Absolute escape from 3-opt/Or-opt local minima & Double Bridge 4-opt, Kick, Random 2-Opt Mutation \\
         Restoring topology with minimum fleet waste & Regret Insertion, Deep Insertion, Farthest Insertion \\
         \bottomrule
@@ -260,9 +260,9 @@
         \textbf{Operator Class} & \textbf{Primary Goal} & \textbf{Acceptance Tolerance} & \textbf{Complexity} & \textbf{Graph Impact} \\
         \midrule
         Crossover & Synthesis & Elitist / Generational & High & Massive \\
-        Destroy (Ruin) & Exploration & N/A (Yields partial state) & Low--Medium & Large subset \\
+        Destroy (Ruin) & Exploration & N/A (Yields partial state) & Low-Medium & Large subset \\
         Evolutionary Mutation & Diversity & Generational & Low & Localized \\
-        Improvement (Descent) & Exploitation & Strict ($\Delta f < 0$) & Medium--High & Edge / Sequence \\
+        Improvement (Descent) & Exploitation & Strict ($\Delta f < 0$) & Medium-High & Edge / Sequence \\
         Perturbation (Shaking) & Escape & Always Accepted & Low & Topological \\
         Recreate (Repair) & Feasibility & N/A (Follows Destroy) & Medium & Restorative \\
         \bottomrule
@@ -381,7 +381,7 @@
         \midrule
         Greedy \& Elitist & Low & Very High & None & VND, pure hill-climbing \\
         Thermodynamic & High & Medium & High & Simulated Annealing \\
-        Bounded-Deterioration& Medium & High & Low--Medium & Threshold Accepting, RRT \\
+        Bounded-Deterioration& Medium & High & Low-Medium & Threshold Accepting, RRT \\
         Memory \& History & Medium & High & Very Low & Adaptive local search, LAHC \\
         Multi-Objective & N/A & N/A & Low & Pareto front generation \\
         \bottomrule
@@ -399,7 +399,7 @@
         \toprule
         \textbf{Scope} & \textbf{Key Algorithms} & \textbf{Refinement Action} \\
         \midrule
-        \textbf{Node Insertion} & Cheapest / Regret-$k$ & Greedily or preemptively inserts unassigned nodes to balance marginal cost vs. opportunity cost. \\
+        \textbf{Node Insertion} & Cheapest / Regret-$k$ & Greedily or preemptively inserts unassigned nodes to balance marginal cost versus opportunity cost. \\
         \textbf{Intra-Route} & Steepest 2-Opt / DP & Optimizes the sequence within an isolated route (e.g., removing edge crosses or exact Held-Karp DP). \\
         \textbf{Inter-Route} & Cross-Exchange / Swap-Star & Swaps segments or nodes between different vehicle routes to balance load and spatial boundaries. \\
         \textbf{Trajectory Search} & VND / ILS / SA & Chained neighborhood explorations using deterministic descent or stochastic perturbations to escape local minima. \\
@@ -437,8 +437,8 @@
         \textbf{Category} & \textbf{Disruption} & \textbf{Cost per Move} & \textbf{Scope} & \textbf{Solver Dependency} \\
         \midrule
         Constructive Augmentation & Low & Low & Unassigned $\to$ Route & Pure Heuristic \\
-        Intra-Route Operators & Low & Low--Medium & Single Route & Pure Heuristic \\
-        Inter-Route Operators & Medium & Medium--High & Route to Route & Pure Heuristic \\
+        Intra-Route Operators & Low & Low-Medium & Single Route & Pure Heuristic \\
+        Inter-Route Operators & Medium & Medium-High & Route to Route & Pure Heuristic \\
         Large Neighborhood Search & High & High & Macroscopic & Pure Heuristic \\
         Exact Matheuristic Polish & Very Low & Very High & Route Pool & MILP Solver Required \\
         Neural Orchestrators & Adaptive & High (Train), Low (Run) & System-wide & GPU / Deep Learning \\
