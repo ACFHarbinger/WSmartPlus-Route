@@ -26,11 +26,11 @@
 Training data used for supervised learning models (stored as TensorDict `.td` files).
 Each entry contains normalised waste values in [0, 1] (divide by 100 to convert to kg/kg).
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/td_stats_comparison.png" alt="Waste Statistics Comparison" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/td_stats_comparison.png" alt="Waste Statistics Comparison" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 1:** *Mean, std, and skewness of training waste values per network size and distribution.*
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/td_waste_distributions.png" alt="Training Data Waste Distributions" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/td_waste_distributions.png" alt="Training Data Waste Distributions" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 2:** *Bar chart of mean and std waste fractions per network size.*
 
@@ -59,16 +59,16 @@ Each entry contains normalised waste values in [0, 1] (divide by 100 to convert 
 
 **Network sizes:** N = 350  **Distributions:** Empirical, Gamma-3  **Horizons:** 30 days, 90 days
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_stats_bar.png" alt="NPZ Statistics Bar Chart" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_stats_bar.png" alt="NPZ Statistics Bar Chart" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 3:** *Mean, median, std and max waste per city and distribution (30-day horizon).*
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_size_scaling.png" alt="Statistics vs Network Size" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_size_scaling.png" alt="Statistics vs Network Size" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 4:** *How mean waste, std, and skewness vary with network size — Rio Maior N=20…170 (lines) plus the Figueira da Foz N=350 reference point (diamonds).*
 
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_horizon_comparison.png" alt="Horizon Comparison" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_horizon_comparison.png" alt="Horizon Comparison" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 5:** *Comparison of horizon statistics across network sizes, including the N=350 reference point.*
 
@@ -89,16 +89,16 @@ Each entry contains normalised waste values in [0, 1] (divide by 100 to convert 
 
 **Network sizes:** N = 20, 50, 100, 170  **Distributions:** Empirical, Gamma-3  **Horizons:** 30 days, 90 days
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_stats_bar.png" alt="NPZ Statistics Bar Chart" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_stats_bar.png" alt="NPZ Statistics Bar Chart" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 6:** *Mean, median, std and max waste per city and distribution (30-day horizon).*
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_size_scaling.png" alt="Statistics vs Network Size" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_size_scaling.png" alt="Statistics vs Network Size" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 7:** *How mean waste, std, and skewness vary with network size — Rio Maior N=20…170 (lines) plus the Figueira da Foz N=350 reference point (diamonds).*
 
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_horizon_comparison.png" alt="Horizon Comparison" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_horizon_comparison.png" alt="Horizon Comparison" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 8:** *Comparison of horizon statistics across network sizes, including the N=350 reference point.*
 
@@ -125,19 +125,19 @@ Each entry contains normalised waste values in [0, 1] (divide by 100 to convert 
 
 ## 4. Waste Distribution Shapes
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_violin.png" alt="Waste Distribution Violin Plots" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_violin.png" alt="Waste Distribution Violin Plots" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 9:** *Violin plots of raw daily waste values (kg/bin/day) per network size and distribution, with embedded quartile markers.*
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_box.png" alt="Waste Distribution Box Plots" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_box.png" alt="Waste Distribution Box Plots" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 10:** *Box plots showing median, quartiles, interquartile range, outlier fences and outliers of raw waste values.*
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_hist_kde.png" alt="Waste Histograms with KDE" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_hist_kde.png" alt="Waste Histograms with KDE" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 11:** *Histograms with kernel density estimates of raw waste values per distribution — reveals modes and tail behaviour.*
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_extended_stats.png" alt="Extended Statistics" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_extended_stats.png" alt="Extended Statistics" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 12:** *Median, variance, interquartile range, minimum, outlier fences and mode per network size and distribution.*
 
@@ -165,7 +165,7 @@ Each entry contains normalised waste values in [0, 1] (divide by 100 to convert 
 
 ## 5. City Comparison
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_city_comparison.png" alt="City Comparison Overview" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_city_comparison.png" alt="City Comparison Overview" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 **Figure 13:** *Key statistics across cities and distributions.*
 
@@ -194,7 +194,7 @@ Each entry contains normalised waste values in [0, 1] (divide by 100 to convert 
 
 ## 6. TD vs NPZ Alignment
 
-<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="figures/datasets/npz_td_alignment.png" alt="Training (TD) vs Simulator (NPZ) Mean Waste Alignment" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
+<figure style="display:block;width:100%;margin:0.8em 0;padding:0;"><img src="../figures/datasets/npz_td_alignment.png" alt="Training (TD) vs Simulator (NPZ) Mean Waste Alignment" width="100%" style="width:100% !important;max-width:100% !important;height:auto !important;display:block !important;margin:0;" /></figure>
 
 *Comparison of mean waste levels between TD training data (normalised × 100) and NPZ simulator
 data, including the Figueira da Foz N=350 reference point. Close alignment validates that
@@ -211,7 +211,7 @@ training distribution matches simulation.*
 
 ## Interactive Charts
 
-- [NPZ Statistics — Mean vs Std Scatter](private/datasets/npz_stats_interactive.html)
-- [Waste Distribution by City and Network Size](private/datasets/waste_distribution_interactive.html)
-- [City & Network Comparison](private/datasets/city_network_comparison_interactive.html)
+- [NPZ Statistics — Mean vs Std Scatter](../html/datasets/npz_stats_interactive.html)
+- [Waste Distribution by City and Network Size](../html/datasets/waste_distribution_interactive.html)
+- [City & Network Comparison](../html/datasets/city_network_comparison_interactive.html)
 
