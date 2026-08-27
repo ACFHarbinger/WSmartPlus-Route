@@ -15,13 +15,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
-\n### Changed
+## [Unreleased]
+
+### Changed
+
+#### Paper Figure Framing and Pareto Disambiguation (`2026-08-27`)
+
+- Disambiguated constructor-level aggregate Pareto trade-off (`fig:pareto`) from the granular per-run policy trade-off (`fig:app-pareto`) in `paper.tex`, making explicit the difference between the integrity-filtered constructor means and the full-factorial scenario evaluation.
+- Clarified captions on strategy trade-off and Empirical scenario heatmaps to explicitly document data-integrity exclusions and caveats.
 
 #### Website Civic Design Theme (`2026-08-26`)
 
 - Restored internal page component layouts while replacing all hardcoded colours with semantic token mappings from `tokens.css`, completing the cartographic and civic redesign across all pages.
-
-## [Unreleased]
 
 ### Changed
 
