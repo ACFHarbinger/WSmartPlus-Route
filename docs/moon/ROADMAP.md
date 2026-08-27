@@ -3071,6 +3071,7 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 - [x] Simulation Protocol subsection stating paired demand realisations, sensing noise, the overflow/loss distinction and the single-vehicle single-depot restriction (2026-08-25)
 - [x] Conclusion and Future Work completed; Related Work now includes the multi-period profitable-routing gap and scopes NCO to framework capability rather than a benchmarked result (2026-08-25)
 - [x] Final publication edit: concise introduction/contributions, corrected route formulation, evidence-calibrated Results prose, six-author block and PDF metadata, citation records checked against original publication pages (2026-08-25)
+- [x] Final Experimental Evaluation and closing-section review: removed the unsupported CLS-dominance claim, restored integrity framing for raw granular figures, gathered Limitations/Future Work, corrected the exclusion and frontier arithmetic, and repaired the remaining BibTeX defects, including the Barnhart publication year (issue #50, 2026-08-27)
 - [x] Real side-by-side coordinate maps for Rio Maior–170 and Figueira da Foz–350 from the retained selected-bin maps over OpenStreetMap drive-network geometry; MDS layouts removed from the paper figure (2026-08-25)
 - [ ] `[Research]` Run a complete, replicated 90-day grid so cross-constructor and population-level horizon effects become estimable (see §I.3). Current paired values describe only policies selected on 30-day Pareto performance
 

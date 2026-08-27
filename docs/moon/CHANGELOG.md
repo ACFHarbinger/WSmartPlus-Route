@@ -19,6 +19,28 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### Paper Final Evidence and Citation Pass (`2026-08-27`)
+
+- Reworked Experimental Evaluation, Discussion, and Conclusion prose to remove
+  duplicated synthesis, causal language unsupported by the design, and the
+  contradictory claim that CLS dominates Fast-TSP. The granular raw figures now
+  carry an explicit integrity lead-in and no longer invite reconstruction of the
+  filtered marginal results.
+- Recomputed every retained closing-section quantity from the stored summary
+  CSVs. Corrected whole-cell exclusion from 23 to 21 additional peer runs and
+  replaced the claimed order-of-magnitude frontier increase with the supported
+  roughly sevenfold increase in distance per avoided overflow.
+- Gathered the study boundaries into a dedicated Limitations paragraph, moved
+  the sensing caveat into Simulation Protocol, separated Future Work, restored
+  LNCS `Sect.` references and en-dash compounds, and tightened the Discussion's
+  network-geometry and horizon explanations from mechanisms to testable
+  interpretations.
+- Completed the incomplete PSOMA and ACO-HH publication records and corrected
+  the Barnhart branch-and-price article from 1970 to its DOI-registered 1998
+  publication metadata. The rebuilt 30-page PDF has no undefined
+  citations or references, bibliography warnings, duplicate destinations,
+  overfull boxes, or LaTeX errors.
+
 #### Paper Figure Framing and Pareto Disambiguation (`2026-08-27`)
 
 - Disambiguated constructor-level aggregate Pareto trade-off (`fig:pareto`) from the granular per-run policy trade-off (`fig:app-pareto`) in `paper.tex`, making explicit the difference between the integrity-filtered constructor means and the full-factorial scenario evaluation.
