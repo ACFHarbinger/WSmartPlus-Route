@@ -389,7 +389,7 @@ class FileSystemRepository(SimulationRepository):
             bins_coordinates = pd.concat([bins_coordinates, coords_tmp])
             data = pd.concat([data, data_tmp])
 
-        return data, cast(pd.DataFrame, bins_coordinates)
+        return data, bins_coordinates
 
     def _preprocess_county_date(self, data: pd.DataFrame, date_str: str = "Date") -> pd.DataFrame:
         """Preprocess county date.
