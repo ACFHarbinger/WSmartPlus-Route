@@ -3077,7 +3077,8 @@ Python scripts are retired per-capability: `gen_dataset_analysis.py` after Phase
 
 ### I.2 — Reproducible generation
 
-- [x] `logic/gen/gen_paper_latex.py`: six tables and six figures generated from the summary CSVs/raw logs into the paper's own tree, including balanced demand/network marginals (2026-08-25)
+- [x] `logic/gen/gen_paper_latex.py`: six tables and seven figures generated from the summary CSVs/raw logs into the paper's own tree, including balanced demand/network marginals and the simulation loop architecture (2026-08-25, 2026-08-27)
+- [x] Simulation Protocol loop diagram (`simulation_loop.png`) generated programmatically via `fig_simulation_loop` in `logic/gen/gen_paper_latex.py` and included in `sec:protocol` (issue #54, 2026-08-27)
 - [x] Network-map generation reuses tracked coordinate-derived analysis artifacts and fails explicitly when they are absent, avoiding geographic reconstruction from inconsistent distance-matrix copies (2026-08-25)
 - [x] Report/deck generators revived from `archive/gen/` to `logic/gen/` and brought up to ruff (2026-08-25)
 - [ ] `[Quick Win]` A `just paper` target that regenerates tables and figures and rebuilds the PDF in one step
