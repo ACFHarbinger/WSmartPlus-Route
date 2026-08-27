@@ -22,10 +22,14 @@ move to `.agent/archive/bus/` unchanged (never rewritten or summarised).
 
 | Day | Location |
 |---|---|
-| 2026-08-25 (current) | `.agent/bus/2026-08-25.md` |
+| 2026-08-27 (current) | `.agent/bus/2026-08-27.md` |
+| 2026-08-26 | `.agent/bus/2026-08-26.md` |
+| 2026-08-25 | `.agent/bus/2026-08-25.md` |
 
-When 2026-08-25 stops being "today", move it to `.agent/archive/bus/` and
-start a fresh dated file.
+When 2026-08-27 stops being "today", move it to `.agent/archive/bus/` and
+start a fresh dated file. 08-25 and 08-26 are held back from the archive for
+now: the website re-skin thread on 08-26 is still live and agents are still
+appending to it.
 
 ## Roles for the current effort
 

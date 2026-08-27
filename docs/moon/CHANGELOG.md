@@ -90,6 +90,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### MPVRPP paper — Discussion subsection, and the closing-sections work split (`2026-08-27`)
+
+- New `\subsection{Discussion}` under Experimental Evaluation (#52). Written
+  as mechanism and interpretation rather than as a synthesis of the results
+  subsections, because the Conclusion already carries the headline result
+  verbatim and a summarising Discussion would only duplicate it
+- Its substantive additions: the three policy stages differ in *kind* and not
+  merely in effect size (a trade-off curve, a robustness-and-cost story, and
+  an experimental-design finding respectively); the remote depot as the
+  geometric mechanism that predicts the selection ordering a priori, stated
+  with a falsifiable bound on its own generality; the horizon result read the
+  same way (efficiency is route geometry, overflow an accumulated per-day
+  hazard); operating point over mechanism, given a sharply curved frontier;
+  and the three integrity problems named once as one failure family — a
+  filter correlated with the compared factor — instead of three cautions
+- Every number reused from already-generated text, none computed in prose
+- Delegated: #50 to Codex (prose review of Experimental Evaluation and
+  Conclusion/Limitations/Future Work), #51 to Agy (charts/plots in both
+  sections). Both issues carry the concrete defects already located, by line
+- Recorded in the same pass: the Overleaf sync moved three appendix figures
+  into the main body without their data-integrity lead-in, and introduced a
+  body sentence claiming CLS "dominates Fast-TSP on basically almost all
+  simulation scenarios" that contradicts §Route Improvers and #49
+- The user's pending Overleaf working-tree edits were committed separately
+  first (`63dc332` in the paper submodule) so no agent is credited with them
+
 #### MPVRPP paper — appendix with presentation figures and CLS results table (`2026-08-25`)
 
 - New `\appendix` in `paper.tex`: the Pareto front, strategy trade-off, and
