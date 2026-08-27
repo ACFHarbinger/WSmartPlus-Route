@@ -117,6 +117,31 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### MPVRPP paper — conference abstract restored as the version of record (`2026-08-27`)
+
+- The paper's abstract is now the one presented at conference, reproduced
+  verbatim from `assets/papers/Simulation-Framework-Abstract/main.tex` and
+  verified byte-identical after whitespace normalisation (#55)
+- A comment above `\begin{abstract}` records that it is the version of record
+  and that where it and the body disagree, the body moves — the failure mode
+  being a later pass quietly editing the abstract back toward the body
+- Carried the conference keyword list across via LNCS `\keywords`; the paper
+  had none before
+- The swap inverts a load-bearing claim: the replaced abstract ended "Learned
+  constructors share the framework interface but are not bench-marked here",
+  which set up both Related Work's "the present experiment does not benchmark
+  them" and Future Work's promise to exercise learned constructors against
+  this baseline. The abstract of record instead lists NCO among the algorithms
+  the paper adapts and benchmarks. Reconciliation delegated as #53, and it
+  moves the body, not the abstract
+- Delegated alongside it: #54 to Agy — a simulation-loop figure (`sec:protocol`
+  is the paper's core contribution and is entirely prose, while the abstract of
+  record makes the framework the headline contribution), plus the #51 figure
+  items the caption pass did not reach (house style across the two image sets,
+  colour-blind and greyscale safety, two text-only results)
+- Board hygiene: #50, #51 and #52 had never been added to project 31 —
+  `gh issue create --label` does not put anything on the board. Backfilled
+
 #### MPVRPP paper — Related Work restructured around exact and heuristic methods (`2026-08-27`)
 
 - Dropped `\subsection{Neural Combinatorial Optimization}`. It gave a whole
