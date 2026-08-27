@@ -124,6 +124,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### MPVRPP paper + abstract — build warnings cleared (`2026-08-27`)
+
+- **`caption` "Unknown document class"** — not cosmetic. `subcaption` pulls in
+  `caption`, which does not recognise `llncs` and therefore replaced the
+  class's caption format with its own for *every* caption in the document:
+  LNCS's bold label with period separator at `\small` ("**Fig. 1.**") had
+  become a plain label with a colon at `\normalsize` ("Fig. 1:"). Dropped
+  `subcaption` — it was used in one figure and nothing used `\subref` — and
+  rebuilt that figure from minipages with hand-set (a)/(b) panel labels
+- Caught only by building HEAD and the candidate *both from source* and
+  rasterising the same page; the committed `paper.pdf` was stale and still
+  showed the correct form, i.e. it failed in the reassuring direction. Do not
+  use a committed PDF as a formatting baseline in this repo
+- **`aliascnt` "The package is obsolete"** — raised by `llncs.cls` line 53,
+  so the call is Springer's. Filtered with `silence` before `\documentclass`
+  rather than patching a publisher's class. Not reproducible on this machine
+  (TeX Live here ships the 2018 aliascnt, which does not warn), so the filter
+  string was verified against a stub package emitting that exact message
+- **Abstract document** (`Simulation-Framework-Abstract`): `geometry`
+  over-specification in the h-direction (`paperwidth` + `inner` + `textwidth`
+  + `outer` fixes it three times over; dropped the redundant `textwidth`) and
+  `hyperref` draft mode (`[draft]` → `[hidelinks]`, which keeps the page
+  identical but lets hyperref emit metadata and anchors). Both lines sit in
+  the conference template's "do not modify" block, so the render was verified
+  pixel-identical at 150 dpi before and after rather than assumed
+
 #### MPVRPP paper — conference abstract restored as the version of record (`2026-08-27`)
 
 - The paper's abstract is now the one presented at conference, reproduced
