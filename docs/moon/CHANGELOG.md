@@ -117,6 +117,32 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Added
 
+#### MPVRPP paper — Related Work restructured around exact and heuristic methods (`2026-08-27`)
+
+- Dropped `\subsection{Neural Combinatorial Optimization}`. It gave a whole
+  heading to the one family this paper does not benchmark, while the two it
+  actually exercises had none
+- New untitled Related Work intro distinguishes the families by what each
+  guarantees against what it costs — exact, heuristic/meta-heuristic,
+  hyper-heuristic, matheuristic, machine-learning — and condenses NCO into it.
+  Written so as *not* to repeat the Introduction's existing family list: the
+  Introduction names them to motivate the paper, the Related Work intro
+  distinguishes them
+- New `\subsection{Exact Methods}` (compact vs decomposition lineages, and the
+  three developments that made branch-price-and-cut practical for routing) and
+  `\subsection{Heuristic Methods}` (trajectory / population / hyper-heuristic
+  levels, then the waste-collection-specific heuristic literature)
+- Ordering is intro → MPVRPP → Exact → Heuristic, putting the methods survey
+  adjacent to the Methodology that implements it. Each new subsection
+  forward-references `sec:constructors` rather than re-explaining ng-route
+  pricing or Farkas pricing — Related Work cites the literature's positions,
+  Methodology describes this paper's implementations
+- Deleting the NCO subsection would have silently dropped eight references,
+  which BibTeX does not warn about; all eight were carried into the condensed
+  mention and the cited-key set was diffed to confirm no loss (25 → 33)
+- Fixed `Ryan1981ANIP` in `mybibliography.bib`: its booktitle was jammed into
+  the title in capitals, which BibTeX flagged the moment the entry was cited
+
 #### MPVRPP paper — Discussion subsection, and the closing-sections work split (`2026-08-27`)
 
 - New `\subsection{Discussion}` under Experimental Evaluation (#52). Written
