@@ -1,3 +1,12 @@
+## markdown package (shell-escape / texlua bridge) byproducts:
+## main.tex needs `latexmk -pdf -shell-escape main.tex` -- these are
+## regenerated on every build, never hand-edited, and were mistakenly
+## committed once (commit c4ad155f8); untracked again here.
+*.luabridge.lua
+*.luabridge.err
+*.debug-extensions.json
+_markdown_*/
+
 ## Core latex/pdflatex auxiliary files:
 *.aux
 *.lof
