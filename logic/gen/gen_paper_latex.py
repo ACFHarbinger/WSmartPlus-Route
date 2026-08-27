@@ -643,6 +643,173 @@ def fig_policy_space(out_dir: Path, cfg: dict) -> None:
     savefig(fig, out_dir / "policy_configuration_space.png")
 
 
+def fig_simulation_loop(out_dir: Path, cfg: dict) -> None:
+    """
+    The multi-period daily simulation loop architecture, as a figure.
+
+    Visualises the daily cycle: stochastic waste accumulation, observation
+    asymmetry (noisy telemetry vs. uncorrupted ground-truth evaluation),
+    the three swappable policy stages, execution, and state carryover.
+    """
+    import matplotlib.patches as mpatches
+
+    fig, ax = plt.subplots(figsize=(9.8, 4.8))
+    ax.set_xlim(0, 1)
+    ax.set_ylim(0, 1)
+    ax.axis("off")
+
+    c_env_border = "#1f4e78"
+    c_env_fill = "#f0f4f8"
+    c_noise_border = "#d97706"
+    c_noise_fill = "#fffbeb"
+    c_policy_border = "#059669"
+    c_policy_fill = "#f0fdf4"
+    c_eval_border = "#b91c1c"
+    c_eval_fill = "#fef2f2"
+    c_text_dark = "#1e293b"
+
+    # Outer Day Container
+    day_box = mpatches.FancyBboxPatch(
+        (0.02, 0.04), 0.96, 0.92,
+        boxstyle="round,pad=0.015,rounding_size=0.02",
+        facecolor="#ffffff", edgecolor="#cbd5e1", linewidth=1.5, zorder=0
+    )
+    ax.add_patch(day_box)
+    ax.text(0.04, 0.92, "SIMULATED DAY CYCLE  (Day $t \\in \\{1, \\dots, H\\}$)", 
+            fontsize=9.5, fontweight="bold", color="#334155", zorder=1)
+
+    # 1. Environment & Accumulation Box
+    box_env = mpatches.FancyBboxPatch(
+        (0.04, 0.54), 0.26, 0.34,
+        boxstyle="round,pad=0.012,rounding_size=0.015",
+        facecolor=c_env_fill, edgecolor=c_env_border, linewidth=1.3, zorder=1
+    )
+    ax.add_patch(box_env)
+    ax.text(0.17, 0.84, "1. Waste Dynamics", ha="center", fontsize=9.2, fontweight="bold", color=c_env_border)
+    ax.text(0.17, 0.76, "True bin state $\\mathbf{f}_{t-1} \\in [0, C]^N$\n+ Daily demand $\\Delta \\mathbf{f}_t \\sim \\mathcal{D}$\n$\\Downarrow$\nTrue fill: $f_{i,t} = f_{i,t-1} + \\Delta f_{i,t}$",
+            ha="center", va="center", fontsize=7.6, color=c_text_dark, linespacing=1.3)
+    ax.text(0.17, 0.58, "Physical Ground Truth", ha="center", fontsize=7.0, fontweight="bold", color="#64748b")
+
+    # 2. Noisy Sensing Box (Asymmetry Highlight)
+    box_noise = mpatches.FancyBboxPatch(
+        (0.04, 0.12), 0.26, 0.34,
+        boxstyle="round,pad=0.012,rounding_size=0.015",
+        facecolor=c_noise_fill, edgecolor=c_noise_border, linewidth=1.3, zorder=1
+    )
+    ax.add_patch(box_noise)
+    ax.text(0.17, 0.42, "2. Sensed Telemetry", ha="center", fontsize=9.2, fontweight="bold", color=c_noise_border)
+    ax.text(0.17, 0.33, "IoT fill-level sensors add\nnoise $\\epsilon_{i,t} \\sim \\mathcal{N}(0, \\sigma^2)$:\n$\\tilde{f}_{i,t} = f_{i,t} + \\epsilon_{i,t}$",
+            ha="center", va="center", fontsize=7.8, color=c_text_dark, linespacing=1.3)
+    
+    # Asymmetry Callout Badge 1
+    ax.text(0.17, 0.18, "Observation Asymmetry:\nPolicies receive noisy $\\tilde{\\mathbf{f}}_t$\n(Ground truth $\\mathbf{f}_t$ is hidden)",
+            ha="center", va="center", fontsize=6.8, fontweight="bold", color="#92400e",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="#fef3c7", edgecolor="#f59e0b", linewidth=0.8))
+
+    # Arrow 1 -> 2
+    ax.annotate("", xy=(0.17, 0.47), xytext=(0.17, 0.53),
+                arrowprops=dict(arrowstyle="-|>", linewidth=1.4, color=c_noise_border))
+
+    # 3. Policy Pipeline Big Container (Middle)
+    box_policy_bg = mpatches.FancyBboxPatch(
+        (0.34, 0.12), 0.35, 0.76,
+        boxstyle="round,pad=0.015,rounding_size=0.015",
+        facecolor=c_policy_fill, edgecolor=c_policy_border, linewidth=1.4, zorder=1
+    )
+    ax.add_patch(box_policy_bg)
+    ax.text(0.515, 0.84, "3. Modular Policy Pipeline", ha="center", fontsize=9.6, fontweight="bold", color=c_policy_border)
+    ax.text(0.515, 0.80, "Three Independently Swappable Plugin Registries", ha="center", fontsize=7.0, style="italic", color="#047857")
+
+    # 3a. Stage 1: Mandatory Selection
+    box_p1 = mpatches.FancyBboxPatch(
+        (0.36, 0.58), 0.31, 0.18,
+        boxstyle="round,pad=0.01,rounding_size=0.012",
+        facecolor="#ffffff", edgecolor="#059669", linewidth=1.1, zorder=2
+    )
+    ax.add_patch(box_p1)
+    ax.text(0.515, 0.72, "Stage 1: Mandatory Selection", ha="center", fontsize=8.4, fontweight="bold", color="#065f46")
+    ax.text(0.515, 0.64, "Input: Sensed $\\tilde{\\mathbf{f}}_t$\nOutput: Mandatory subset $\\mathcal{M}_t \\subseteq V$\n(LM-CF70/90, Look-Ahead, SL1/SL2)",
+            ha="center", va="center", fontsize=7.2, color=c_text_dark, linespacing=1.2)
+
+    # 3b. Stage 2: Route Construction
+    box_p2 = mpatches.FancyBboxPatch(
+        (0.36, 0.36), 0.31, 0.18,
+        boxstyle="round,pad=0.01,rounding_size=0.012",
+        facecolor="#ffffff", edgecolor="#059669", linewidth=1.1, zorder=2
+    )
+    ax.add_patch(box_p2)
+    ax.text(0.515, 0.50, "Stage 2: Route Construction", ha="center", fontsize=8.4, fontweight="bold", color="#065f46")
+    ax.text(0.515, 0.42, "Input: $\\mathcal{M}_t$, optional candidates, dist $\\mathbf{D}$\nOutput: Feasible tour $R_t$ (cap $Q$)\n(BPC, HGS, PG-CLNS, ALNS, SANS...)",
+            ha="center", va="center", fontsize=7.2, color=c_text_dark, linespacing=1.2)
+
+    # 3c. Stage 3: Route Improvement
+    box_p3 = mpatches.FancyBboxPatch(
+        (0.36, 0.14), 0.31, 0.18,
+        boxstyle="round,pad=0.01,rounding_size=0.012",
+        facecolor="#ffffff", edgecolor="#059669", linewidth=1.1, zorder=2
+    )
+    ax.add_patch(box_p3)
+    ax.text(0.515, 0.28, "Stage 3: Route Improvement", ha="center", fontsize=8.4, fontweight="bold", color="#065f46")
+    ax.text(0.515, 0.20, "Input: Constructive route $R_t$\nOutput: Refined tour $R_t^*$\n(Classical Local Search, Fast-TSP)",
+            ha="center", va="center", fontsize=7.2, color=c_text_dark, linespacing=1.2)
+
+    # Internal pipeline arrows
+    ax.annotate("", xy=(0.515, 0.55), xytext=(0.515, 0.58),
+                arrowprops=dict(arrowstyle="-|>", linewidth=1.3, color="#059669"))
+    ax.annotate("", xy=(0.515, 0.33), xytext=(0.515, 0.36),
+                arrowprops=dict(arrowstyle="-|>", linewidth=1.3, color="#059669"))
+
+    # Arrow Sensing -> Stage 1
+    ax.annotate("", xy=(0.355, 0.67), xytext=(0.305, 0.30),
+                arrowprops=dict(arrowstyle="-|>", connectionstyle="arc3,rad=-0.25", linewidth=1.5, color=c_noise_border))
+
+    # 4. Route Execution Box (Top Right)
+    box_exec = mpatches.FancyBboxPatch(
+        (0.73, 0.54), 0.23, 0.34,
+        boxstyle="round,pad=0.012,rounding_size=0.015",
+        facecolor=c_env_fill, edgecolor=c_env_border, linewidth=1.3, zorder=1
+    )
+    ax.add_patch(box_exec)
+    ax.text(0.845, 0.84, "4. Route Execution", ha="center", fontsize=9.2, fontweight="bold", color=c_env_border)
+    ax.text(0.845, 0.71, "Vehicle traverses $R_t^*$\nEmpties visited bins:\n$f_{i,t} \\leftarrow 0 \\quad \\forall i \\in R_t^*$\nHauls load $\\leq Q$",
+            ha="center", va="center", fontsize=7.6, color=c_text_dark, linespacing=1.3)
+    ax.text(0.845, 0.58, "Physical Collection", ha="center", fontsize=7.0, fontweight="bold", color="#64748b")
+
+    # Arrow Policy -> Execution
+    ax.annotate("", xy=(0.725, 0.71), xytext=(0.675, 0.23),
+                arrowprops=dict(arrowstyle="-|>", connectionstyle="arc3,rad=-0.3", linewidth=1.5, color="#059669"))
+
+    # 5. Exact Accounting Box (Bottom Right)
+    box_eval = mpatches.FancyBboxPatch(
+        (0.73, 0.12), 0.23, 0.34,
+        boxstyle="round,pad=0.012,rounding_size=0.015",
+        facecolor=c_eval_fill, edgecolor=c_eval_border, linewidth=1.3, zorder=1
+    )
+    ax.add_patch(box_eval)
+    ax.text(0.845, 0.42, "5. Exact Accounting", ha="center", fontsize=9.2, fontweight="bold", color=c_eval_border)
+    ax.text(0.845, 0.33, "Evaluates true state $\\mathbf{f}_t$:\n• Overflows: $f_{i,t} \\geq C$\n• Loss: $\\max(0, f_{i,t} - C)$\n• Efficiency: kg / km",
+            ha="center", va="center", fontsize=7.4, color=c_text_dark, linespacing=1.2)
+    
+    # Asymmetry Callout Badge 2
+    ax.text(0.845, 0.18, "Evaluation Asymmetry:\nExact ground-truth audit\n(Uncorrupted by sensor noise)",
+            ha="center", va="center", fontsize=6.8, fontweight="bold", color="#991b1b",
+            bbox=dict(boxstyle="round,pad=0.3", facecolor="#fee2e2", edgecolor="#ef4444", linewidth=0.8))
+
+    # Arrow Execution -> Accounting
+    ax.annotate("", xy=(0.845, 0.47), xytext=(0.845, 0.53),
+                arrowprops=dict(arrowstyle="-|>", linewidth=1.4, color=c_eval_border))
+
+    # Loop back arrow: 5 -> Next Day State -> 1
+    ax.annotate("", xy=(0.04, 0.71), xytext=(0.725, 0.28),
+                arrowprops=dict(arrowstyle="-|>", connectionstyle="arc3,rad=0.35",
+                                linewidth=1.6, color="#475569", linestyle="--"))
+    ax.text(0.50, 0.065, "Next-Day State Transition: uncollected residual fill carries forward to Day $t+1$",
+            fontsize=7.4, style="italic", color="#475569", ha="center",
+            bbox=dict(boxstyle="round,pad=0.25", facecolor="#f8fafc", edgecolor="#cbd5e1"))
+
+    savefig(fig, out_dir / "simulation_loop.png")
+
+
 def fig_pareto(clean: pd.DataFrame, horizon: int, out: Path, colors: dict, cfg: dict) -> None:
     """kg/km against overflows, per constructor, with the non-dominated front drawn."""
     sub = clean[clean.horizon == horizon]
@@ -1077,6 +1244,7 @@ def main() -> None:
         args.figures_dir.mkdir(parents=True, exist_ok=True)
         print(f"Writing figures to {args.figures_dir}:")
         fig_policy_space(args.figures_dir, cfg)
+        fig_simulation_loop(args.figures_dir, cfg)
         fig_networks(args.figures_dir, cfg)
         fig_pareto(clean, horizon, args.figures_dir, colors, cfg)
         fig_strategy_tradeoff(clean, horizon, args.figures_dir, cfg)

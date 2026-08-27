@@ -17,6 +17,13 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ## [Unreleased]
 
+### Added
+
+#### Simulation Loop Architecture Diagram (`2026-08-27`)
+
+- Added programmatic simulation loop figure generator `fig_simulation_loop` in `logic/gen/gen_paper_latex.py`, emitting `simulation_loop.png` into `Images/Results/Generated/`.
+- Integrated `fig:sim_loop` into `Simulation Protocol` (`sec:protocol`) in `paper.tex`, illustrating the daily cycle: stochastic waste accumulation, observation asymmetry (noisy sensing $\tilde{\mathbf{f}}_t$ vs.\ exact ground-truth audit $\mathbf{f}_t$), modular three-stage policy pipeline from independent registries, physical execution, and multi-day state transition.
+
 ### Changed
 
 #### Paper Final Evidence and Citation Pass (`2026-08-27`)
