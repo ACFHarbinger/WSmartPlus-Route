@@ -26,6 +26,26 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Changed
 
+#### Paper Abstract/Body Reconciliation (`2026-08-27`)
+
+- Reconciled the manuscript body with the immutable conference abstract of
+  record without altering the abstract or funding text. The Introduction now
+  distinguishes the framework's registered classical/NCO adapter scope from
+  the classical-only experiment and states the mandatory-selection result
+  explicitly.
+- Verified all stored benchmark rows against both summary CSVs and raw-log
+  names: the 480 thirty-day runs and 174 selected ninety-day runs contain only
+  the eight reported classical constructors. Related Work now states that the
+  current results include no learned-solver observation, while retaining NCO as
+  a valid framework topic and keyword.
+- Defined mandatory selection as dynamic dispatch at the service-request level
+  and scoped the unified baseline to the complete thirty-day factorial design.
+  Future Work now calls for benchmarking the registered learned constructors
+  under that same controlled protocol.
+- Rebuilt the 34-page paper from source in an isolated directory. The build has
+  no undefined citations or references, BibTeX/package/class warnings,
+  duplicate destinations, overfull boxes, or LaTeX errors.
+
 #### Paper Final Evidence and Citation Pass (`2026-08-27`)
 
 - Reworked Experimental Evaluation, Discussion, and Conclusion prose to remove
