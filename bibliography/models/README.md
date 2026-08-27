@@ -1,12 +1,9 @@
 # bibliography/models — filename map
 
 One PDF per neural-model name used under `logic/src/models/core/`.
-Filenames are **not** a reliable title: two files in this folder currently
-contain a different paper than the name implies (issue #64). Do not swap
-those PDFs unattended; the replacement sources below are the intended
-citations for a human to fetch.
-
 Verified by opening the first page of each file (2026-08-27, #63/#64).
+On 2026-08-27 two namesake/wrong files were replaced from arXiv and the
+old copies archived under `_mismatched/`.
 
 | Filename | PDF actually contains | Intended reference for the code | Status |
 |---|---|---|---|
@@ -23,21 +20,20 @@ Verified by opening the first page of each file (2026-08-27, #63/#64).
 | `GLOP.pdf` | Ye et al., "GLOP: Learning Global Partition and Local Construction for Solving Large-scale Routing Problems in Real-time" | same | OK |
 | `MDAM.pdf` | Xin et al., "Multi-Decoder Attention Model with Embedding Glimpse for Solving Vehicle Routing Problems" | same | OK |
 | `PolyNet.pdf` | Hottung et al., "PolyNet: Learning Diverse Solution Strategies for Neural Combinatorial Optimization", ICLR 2025 | same | OK |
-| **`MATNet.pdf`** | **Tortora et al., "MATNet: Multi-Level Fusion Transformer-Based Model for Day-Ahead PV Generation Forecasting"** (IEEE Trans. Smart Grid) | Kwon, Choo, Yoon, Park, Park & Gwon, "Matrix Encoding Networks for Neural Combinatorial Optimization", NeurIPS 2021. [arXiv:2106.11113](https://arxiv.org/abs/2106.11113) | **WRONG PDF** — namesake |
-| **`NARGNN.pdf`** | **Li, Chen & Koltun, "Combinatorial Optimization with Graph Convolutional Networks and Guided Tree Search"** (arXiv:1810.10659) | Joshi, Laurent & Bresson, "An Efficient Graph Convolutional Network Technique for the Travelling Salesman Problem", 2019. [arXiv:1906.01227](https://arxiv.org/abs/1906.01227) | **WRONG PDF** |
+| `MATNet.pdf` | Kwon, Choo, Yoon, Park, Park & Gwon, "Matrix Encoding Networks for Neural Combinatorial Optimization", NeurIPS 2021. [arXiv:2106.11113](https://arxiv.org/abs/2106.11113) | same | OK (replaced 2026-08-27, #64). Previous file archived as `_mismatched/MATNet.Tortora-PV-forecasting.pdf` |
+| `NARGNN.pdf` | Joshi, Laurent & Bresson, "An Efficient Graph Convolutional Network Technique for the Travelling Salesman Problem", 2019. [arXiv:1906.01227](https://arxiv.org/abs/1906.01227) | same | OK (replaced 2026-08-27, #64). Previous file archived as `_mismatched/NARGNN.LiChenKoltun-GCN-tree-search.pdf` |
 
-## Why those two replacements
+## Why those two were replaced
 
-**MATNet.** `logic/src/models/core/matnet/` and `MixedScoreMHA` implement Kwon mixed-score attention over a cost matrix (row/col streams, `W_mat ⊙ M`). The file in this folder is a PV-forecasting transformer that happens to share the acronym.
+**MATNet.** `logic/src/models/core/matnet/` implements Kwon mixed-score attention. The previous file was a PV-forecasting transformer that shares the acronym.
 
-**NARGNN.** `logic/src/models/core/nargnn/` and `NARGNNEncoder` are an anisotropic/gated GNN that emits an \(N\times N\) edge heatmap, then a non-autoregressive decoder (greedy / sampling / beam). That is the Joshi et al. 2019 TSP-GCN heatmap line (`docs/modules/MODELS_MODULE.md` §3.3.1 even names the anisotropic gated graph conv). The file in this folder is Li/Chen/Koltun 2018 (vertex-inclusion GCN + guided tree search for SAT/MVC/MAXCUT). No tree search exists in our code.
+**NARGNN.** `NARGNNEncoder` is an anisotropic/gated GNN + edge heatmap (`MODELS_MODULE.md` §3.3.1). The previous file was Li/Chen/Koltun 2018 (vertex-inclusion GCN + guided tree search).
 
-## How to replace (human)
+## Replacements already applied (#64)
 
-```
-# from repo root, after confirming the arXiv PDFs
-curl -L -o bibliography/models/MATNet.pdf  https://arxiv.org/pdf/2106.11113
-curl -L -o bibliography/models/NARGNN.pdf https://arxiv.org/pdf/1906.01227
-```
+Fetched from arXiv on 2026-08-27 after the code-side identification in `MODEL_IMPLEMENTATION_ANALYSIS.md`. First pages verified:
 
-Then re-score both rows in `docs/moon/review/MODEL_IMPLEMENTATION_ANALYSIS.md` against the new files. Until that happens, the analysis scores MATNet 4/5 against Kwon (not against the PV paper) and NARGNN 2/5 against Li/Chen/Koltun.
+- `MATNet.pdf` → "Matrix Encoding Networks for Neural Combinatorial Optimization" (Kwon et al.)
+- `NARGNN.pdf` → "An Efficient Graph Convolutional Network Technique for the Travelling Salesman Problem" (Joshi, Laurent, Bresson)
+
+The previous files remain under `_mismatched/` so the namesake/wrong-paper incident is recoverable.
