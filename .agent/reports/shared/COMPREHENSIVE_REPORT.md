@@ -7,6 +7,16 @@
 > **Current verdict:** major revision; several experiment-description defects must be resolved before submission
 >
 > **Scope:** the research contribution, implemented framework, archived experiment, analysis pipeline, and manuscript *Simulation Framework for the MPVRP with Profits in Smart Waste Collection*
+>
+> **Ledger state (2026-08-28, after the second author round):** 49 items — 3 done/withdrawn, 5 partial, 41 untouched.
+>
+> - **RCP-002** and **RCP-005** are complete on the manuscript side; each leaves one non-text item (nothing, and the `gen_paper_latex.py` prose-constant generator, respectively).
+> - **RCP-001** now states a minimum-trips route-count rule, $K_d = \lceil \text{kg}_d/Q \rceil$, with measured figures; the inference still needs cross-referencing against the off-repository results database.
+> - **RCP-004** is time-blocked, not work-blocked: the selection lineage exists on a machine returning \~2026-09-04. **No rerun required.**
+> - **RCP-047** is held open deliberately — the unbound shift constant becomes live in the planned TTOP work.
+> - **RCP-003** withdrawn as a false positive.
+>
+> **The only work-blocked blockers left are the two figure defects, RCP-035 and RCP-036.** Tick the triage boxes in §13 as items close.
 
 ## 1. Purpose and editing protocol
 
@@ -39,11 +49,11 @@ Two papers are currently occupying one manuscript. **Paper A** is the experiment
 
 ### 2.1 Highest-priority actions
 
-1. Resolve and disclose the fleet semantics. Either reframe the archived study as an automatic/unbounded-route experiment or rerun with a verified one-vehicle limit. Add route-count, payload, and shift-feasibility telemetry.
-2. Make the Service-Level mathematics and code agree, disclose `confidence_factor: 0.84`, and regenerate affected results if the paper's square-root rule is intended.
-3. Replace the Fast-TSP subsection with the algorithm actually benchmarked, or rerun the intended DP hybrid.
-4. Reconstruct the exact rule that produced the 174-row 90-day sample. The tracked CSVs do not support the current literal “only Pareto-front configurations” statement.
-5. Recompute the headline selection-versus-constructor comparison on one common balanced slice. The printed ranges give about `2.77×`, not nearly `4×`.
+1. ~~Resolve and disclose the fleet semantics.~~ **Partly done (RCP-001).** The manuscript reframes the study as single-depot with an unbounded daily route count, the "one vehicle" claim is gone throughout, and §4.4 now *reports* route counts under a stated minimum-trips rule $K_d=\lceil \text{kg}_d/Q \rceil$ with measured figures (94.1% of the 9,642 collection days are single-trip; all multi-trip days are Figueira; max 3 trips). *Remaining:* that rule is an inference, not telemetry — cross-reference it against the off-repository results database (see item 4), and add route-count/payload/shift telemetry at source.
+2. ~~Make the Service-Level mathematics and code agree~~ **— done (RCP-002).** Eq. (4) matches the code; the contradictory conservatism clause is replaced by an explicit statement that the deviation term scales linearly and that SL2 therefore carries exactly twice SL1's margin; $z=0.84$ is disclosed; and a fill ratio $\hat{\rho}_{i,d}=\hat{w}_{i,d}/C_i$ now makes both selection rules dimensionally consistent with §2.1. Nothing outstanding. See §5.1.
+3. ~~Replace the Fast-TSP subsection~~ **— withdrawn (RCP-003 / RCP-048).** The manuscript description matches the executed path; `fast_tsp.find_tour` performs the exact DP internally. No action.
+4. ~~Reconstruct the exact rule that produced the 174-row 90-day sample.~~ **Time-blocked, not work-blocked (RCP-004).** The selection lineage exists in a results database and JSONL records on a machine returning \~2026-09-04. **No rerun is required.** Until then the manuscript must not assert literal 30-day Pareto membership.
+5. ~~Recompute the headline comparison~~ **— done (RCP-005).** The multiplier is dropped entirely: §5.3.2 now reports both ranges ($3.81$–$7.38$ vs $5.36$–$6.65$ kg/km) and states why no single ratio is given, since the marginals are balanced over different slices. All three companion errata are fixed. *Remaining (infrastructure):* `gen_paper_latex.py` still does not emit derived prose constants, which is the durable close condition for this class of defect.
 6. State clearly that the benchmark has one demand realization per cell and no learned-solver observations.
 7. Trace constructor objective, simulator reward, economic profit, kg/km, and overflow count; report the physical and economic constants with units and sources.
 8. Add an immutable experiment manifest and per-run completion/solver/fallback status.
@@ -92,7 +102,7 @@ The benchmark does not establish general stochastic superiority because there is
 | Selection spans a wider observed trade-off than constructor choice | Generated 30-day marginals | VERIFIED, magnitude misstated | Recompute on common slice; remove `4×` |
 | Classical constructors are benchmarked on real networks | 480 raw 30-day logs and summary rows | VERIFIED | State exact artifact snapshot and limits |
 | NCO is evaluated | No learned-solver rows | CONTRADICTED | Scope NCO to framework capability |
-| The experiment is single-vehicle | All 36 archived configs set `n_vehicles: 0`; code treats zero as automatic/unlimited | CONTRADICTED | Rerun or relabel operational setting |
+| ~~The experiment is single-vehicle~~ **(claim removed from the manuscript 2026-08-28)** | All 36 archived configs set `n_vehicles: 0`; code treats zero as automatic/unlimited. The paper now claims single-*depot* operation with an unbounded daily route count | RESOLVED IN TEXT; underlying provenance still OPEN | Relabelling done. Still add route-count/payload/shift telemetry; routes-per-day remains unrecoverable from the archive |
 | Only 30-day Pareto-front configurations reached 90 days | Current 30-/90-day CSV relationship does not reproduce this rule | CONTRADICTED AS WRITTEN | Recover selection script/snapshot or rewrite |
 | BPC observations represent an exact method | Archived BPC uses `exact_mode: false` and finite limits | CONTRADICTED AS AN EMPIRICAL CLAIM | Say time-limited BPC family; report gaps/status |
 | Empirical demand replays observed patterns | Independent per-bin empirical marginals | OVERSTATED | Say marginal empirical resampling |
@@ -114,7 +124,9 @@ The formal model is useful as a conceptual VRP-with-profits skeleton, but it is 
 
 ### 4.1 Fleet, capacity, trips, and shifts — publication blocker
 
-**VERIFIED.** Every one of the 36 tracked `assets/output/30days/**/hydra/pruned_config.yaml` files sets `sim.n_vehicles: 0`. The manuscript states at `paper.tex:694–698` that the experiment restricts every scenario to one vehicle and one depot. Current routing contracts interpret zero as no positive fleet limit or automatic/unlimited routing. Examples include `logic/src/interfaces/context/problem_context.py`, `logic/src/policies/route_construction/other_algorithms/capacitated_vehicle_routing_problem/cvrp.py`, and the unlimited split path in the HGS family.
+> **UPDATE 2026-08-28 (Claude) — the manuscript half of this blocker is closed.** The single-vehicle claim has been removed from `paper.tex` throughout, on the author's instruction and their confirmation that the runs used `n_vehicles = 0` and produced days with multiple routes. Five edits: §2.2 now introduces $K_d$ as an outcome of the daily decision rather than a bound, with a single per-route payload capacity $Q$ replacing the per-vehicle $Q_k$; §4.4's protocol bullet is retitled *"Dispatch is dynamic and single-depot, and the daily route count is unbounded"* and states that no fleet bound was imposed, that multi-route days occur, and that sequential trips by one vehicle and simultaneous routes by several are indistinguishable under an objective that prices distance but not vehicles; Limitations drops "single-vehicle" and adds that no plan is claimed executable by a given crew within a shift; Future Work reframes the item as *bounding* an unbounded operation rather than extending a single-vehicle one; and the three improver phrases "between vehicles" become "between routes". Rebuild is clean (0 errors, 0 overfull boxes; 34 → 36 pp., a float-reflow cost worth noting against RCP-015). **The evidence below stands unchanged and the non-text half of the item remains open** — no rerun was performed, and the telemetry gap in the third paragraph is untouched.
+
+**VERIFIED.** Every one of the 36 tracked `assets/output/30days/**/hydra/pruned_config.yaml` files sets `sim.n_vehicles: 0`. The manuscript stated, before the update above, that the experiment restricts every scenario to one vehicle and one depot. Current routing contracts interpret zero as no positive fleet limit or automatic/unlimited routing. Examples include `logic/src/interfaces/context/problem_context.py`, `logic/src/policies/route_construction/other_algorithms/capacitated_vehicle_routing_problem/cvrp.py`, and the unlimited split path in the HGS family.
 
 The daily logs reinforce the practical consequence. Across 4,800 stored Figueira da Foz day-results, 565 collect more than the physical 2,500 kg payload in a day. The maximum is 7,094.54 kg, requiring at least three capacity loads. This is compatible with several depot-separated routes under automatic fleet sizing, but not with one single-trip vehicle route. Rio Maior's stored maximum is 3,494.58 kg against its 3,500 kg payload.
 
@@ -191,18 +203,20 @@ Collection-time and speed constants exist (`COLLECTION_TIME_MINUTES = 3.0`, `VEH
 |---|---|---|---|
 | Service-Level | Projection uses `z σ √n_d` | Scalar and vector paths use `z σ n_d`; archived `z=0.84` is not reported | VERIFIED mismatch; choose rule, disclose value, rerun if changed |
 | Look-Ahead | Forward stochastic/look-ahead simulation; described as costly | Deterministic mean-rate projection with trigger synchronization and bundle expansion | VERIFIED mismatch; describe exact heuristic and remove unsupported cost claim |
-| Fast-TSP | Small routes use exact DP, larger routes randomized search | `FastTSPRouteImprover` calls `fast_tsp.find_tour` under a 30 s limit; DP logic is in a different class | VERIFIED mismatch; rewrite subsection or rerun intended method |
+| Fast-TSP | Small routes use exact DP, larger routes randomized search | `FastTSPRouteImprover` → `tsp.find_route` → `fast_tsp.find_tour` under a 30 s/route limit; the C++ core itself contains `EXACT_SOLUTION_THRESHOLD 20` (Held–Karp ≤20, 2-opt/3-opt local search above, duration-bounded) | ~~VERIFIED mismatch~~ → **withdrawn as mismatch (RCP-048)**: the paper's description matches the executed dependency exactly. Remaining nits: "small fixed budget" wording (30 s/route) and undocumented uint16-scaling contract (RCP-044); refactor row kept |
 | Gamma-3 | Means/variances described as kg/day | Generator produces percentage-point fill increments; patterns are tiled by bin index | VERIFIED mismatch; correct units and assignment mechanism |
 | Empirical demand | “Replays” observed patterns | Samples each bin's empirical marginal independently | VERIFIED overstatement; state lost temporal and cross-bin dependence |
 | Common random numbers | Prose emphasizes reseeding policy-days | Archived configs load a shared seed-42 NPZ; optimizer randomness has a separate policy/day seed path | VERIFIED for current code/config, historical trace incomplete; record hashes and RNG streams |
 | BPC | Exact-method family | `exact_mode: false`, finite 60 s limits, heuristic options/fallbacks; no certificates in summaries | VERIFIED qualification; do not imply observed optimality |
 | SWC-TCF | Monolithic exact two-commodity MIP | $O(V^2)$ arc variables ($>122,500$ arcs on FF350) hit Gurobi 60 s timeout; returns empty/depot route on truncation | VERIFIED failure mechanism; add explicit solver timeout status |
-| Fast-TSP (second check) | “Routes of up to roughly twenty stops are solved to optimality by dynamic programming; longer ones fall back to a randomized local search” | Archived `la_ftsp` configs set `methods: [fast_tsp]`. `FastTSPRouteImprover` calls `fast_tsp.find_tour` via `tsp.find_route`. Held-Karp DP lives in a *different* registered class, `DPRouteReoptRouteImprover`, which these configs do not invoke | VERIFIED (independent corroboration of RCP-003) |
+| Fast-TSP (second check) | “Routes of up to roughly twenty stops are solved to optimality by dynamic programming; longer ones fall back to a randomized local search” | Archived `la_ftsp` configs set `methods: [fast_tsp]`. `FastTSPRouteImprover` calls `fast_tsp.find_tour` via `tsp.find_route`. Held–Karp DP also lives inside the same dependency (v0.1.5 C++ core, threshold 20) — not only in `DPRouteReoptRouteImprover`, which these configs do not invoke | ~~VERIFIED~~ → **superseded (RCP-048)**: the paper's description is the dependency's own behavior; no mismatch. Residual: 30 s/route budget wording + uint16 contract documentation |
 | Constructor budgets | Unpublished | Every stored 30-day `pruned_config.yaml` inspected: constructor `time_limit: 60.0` s/day, improver `time_limit: 30.0` s; ACO-HH `n_ants: 10`, `max_iterations: 50`; BPC `exact_mode: false`, `max_bb_nodes: 2000` | VERIFIED; add a hyperparameter table |
 | PG-CLNS | “An original design — inspired by HVPL” | One prose paragraph; no pseudocode, complexity, parameter table, or ablation against ALNS. HVPL (Sun et al. 2023) is a location-routing algorithm with simultaneous pickup-delivery | OVERSTATED novelty; specify or demote |
 | Farkas-pricing citation | `Lin2017` | Lin, Ehrgott, Raith, *4OR* 15:331–357 (2017) is column generation for *multi-objective LP non-dominated sets*. It is not the reference for Farkas pricing of an infeasible RMP. Use Lübbecke–Desrosiers or Barnhart et al. 1998 (already cited, under the false key `BARNHART1970`) | VERIFIED wrong citation |
 
 The Service-Level mismatch is material. For SL2, the implementation's uncertainty term grows linearly with horizon rather than with the square root of horizon. A prose correction alone is legitimate only if the implemented rule was intended and can be defended. If the square-root aggregation is the intended statistical model, all affected rows must be regenerated. The printed equation has a further defect independent of the code: its threshold is written `≥ 100%` while the state definition makes $w_{i,d}$ an absolute mass in $[0, C_i]$ (paper.tex Eq. 6 vs. Sect. 2.1), so the rule as printed compares an absolute fill projection against a percentage. Whichever rule is adopted must normalize fill by $C_i$ — or compare against $C_i$ directly — consistently.
+
+**CORRECTION (2026-08-28 DeepSeek pass): the Fast-TSP row in this table is superseded.** The previously recorded wording (“DP logic is in a different class”; “rewrite subsection or rerun intended method”) is **not** supported by the dependency source. The paper's Fast-TSP sentence matches `shmulvad/fast-tsp` v0.1.5 exactly (threshold 20; exact DP at ≤20; randomized 2-opt/3-opt above; bounded by duration). The complaint that remains valid is narrower: the improver runs with a 30 s per-route budget (`ri_ftsp.yaml`), the “small fixed budget” wording is understated, and the library's uint16 contract vs. `SCALE=10000` should be documented (RCP-044). Keep the improver-compare-from-identical-tours directive (§6.3) — that is the substantive flaw.
 
 The Look-Ahead rule also needs a name that matches its behavior. Its trigger resembles a deterministic threshold-crossing projection, followed by synchronized collection of bins predicted to become critical within the same horizon. It is not a Monte Carlo policy and does not propagate sampled future states.
 
@@ -217,6 +231,55 @@ This is worth stating rather than hiding, because it *explains the paper's headl
 The SWC-TCF constructor directly implements the two-commodity flow formulation of Ramos et al. (2018). While it compactly models MTZ sub-tour elimination and capacity tracking without exponential lazy constraint generation, its size scales as $\mathcal{O}(V^2)$ continuous commodity flow variables ($u_{ij}, v_{ij}$) and $\mathcal{O}(V^2)$ binary routing variables ($x_{ij}$). 
 
 On Figueira da Foz ($N=350$), the formulation instantiates over $122,500$ potential directed arcs. Under Gamma-3 (higher daily arrival mass), the LP relaxation bound is weak, creating an immense branch-and-bound search tree. When Gurobi reached its 60 s wall-clock time limit without finding an integer-feasible incumbent, the wrapper returned an empty route. The simulation framework recorded this as a zero-collection day rather than raising an execution error or recording `SolverTimeout`, causing the cumulative 30%–86% tonnage shortfalls and 23,886 truncated overflow events identified in Table 6. Future solver wrappers must emit explicit solver termination status codes (`OPTIMAL`, `TIME_LIMIT`, `INFEASIBLE`, `FALLBACK_USED`).
+
+### 5.1 Verification of the author's fixes in `c9dc4e5` (RCP-002, RCP-005, RCP-047)
+
+Commit `c9dc4e5` ("Fixed RPC 002, 005, and 47 from the shared report") touches `paper.tex` in five places. Each edit was checked against the full scope of the ledger item it claimed to close. The finding of that audit was that **all three were improvements but none was complete**, and that two left a residual made *more* visible by the fix, because corrected text now sat beside uncorrected text contradicting it.
+
+> **STATUS 2026-08-28, after the follow-up pass.** Every residual identified below has since been closed in `paper.tex` except one infrastructure item, on the author's instruction. RCP-002 and RCP-005 are now **complete on the manuscript side**; RCP-047 is **held open deliberately** for the TTOP work. The residual analysis is retained in full because it records *why* each edit was needed and what the alternatives were — the audit trail is the point, not the status line. Each subsection carries its resolution inline.
+
+#### RCP-002 — Service-Level: equation corrected, three residuals
+
+✅ **Fixed.** Eq. (4) now reads `ŵ + n_d·μ̂ + z·σ̂·n_d ≥ 100%`. This matches `selection_service_level.py:63` and the vector path exactly. The paper and the executed code now agree on the projection rule, which was the core of the item.
+
+✅ **Residual 1 — CLOSED.** *(was: the sentence after the equation contradicts it)* The text still reads:
+
+> "…holding $z$ constant, so the two variants differ in how far ahead they look **and not in how conservative they are at a given distance**."
+
+That clause was only defensible under the √n form it replaced, where the margin grows sublinearly and the per-step conservatism is roughly preserved. Under the corrected linear-$n$ rule, SL2's safety margin is `2 × 0.84σ̂ = 1.68σ̂` against SL1's `0.84σ̂` — **exactly twice as conservative, not equally so.** Correcting the equation without correcting this sentence converts a defect into a visible self-contradiction on the same page. This is the single highest-value remaining edit in the commit's neighbourhood, and it is one sentence.
+
+✅ **Residual 2 — CLOSED.** *(was: `z` undisclosed)* The text still says only "where $z$ is a fixed safety coefficient". Its value is `confidence_factor: 0.84` in `logic/configs/policies/other/ms_service_level.yaml`. One of the three benchmarked selection strategies remains non-reproducible from the manuscript. (Rolls up into RCP-041's constants table.)
+
+✅ **Residual 3 — CLOSED.** *(was: unit mismatch)* The rule still compares against `100%` while §2.1 defines $w_{i,d}$ as an absolute mass in $[0, C_i]$. Either normalise by $C_i$ or compare against $C_i$. Tracked as RCP-021.
+
+**Resolved:** §4.1 now defines a sensed fill ratio $\hat{\rho}_{i,d}=\hat{w}_{i,d}/C_i \in [0,1]$ once, restates Last-Minute in ratio terms, and changes SL's threshold from `100%` to $C_i$. Both selection rules are now dimensionally consistent with §2.1, which also closes the Eq.-(6) half of RCP-021.
+
+**Resolved (Residuals 1 and 2):** the contradictory clause is gone. In its place the paper now states, explicitly, that the deviation term scales linearly rather than as $\sqrt{n_d}$; that this is deliberately conservative against an i.i.d.\ projection and robust to the positive serial correlation real accumulation shows; and that SL2 consequently carries **exactly twice** SL1's safety margin, so the two variants are two points on one conservatism dial rather than a controlled test of horizon length. $z = 0.84$ is disclosed with its 80%-one-sided-service-level interpretation. This is the disclosure the note below asked for, and it converts the linear form from an apparent typo into a stated modelling choice.
+
+*Note on direction:* the commit chose "correct the paper to match the code" over "correct the code to match the paper". That is a legitimate and cheap resolution, but it is a **substantive modelling decision**, not an erratum: the √n form is the statistically correct aggregation for a sum of $n$ i.i.d.\ increments, and the repository's own `selection_multi_day_prob.py:70` uses `np.sqrt(horizon_days)` for the same quantity. If the linear form is retained, the paper should say in one clause that the implemented rule scales the deviation term linearly and is therefore conservative relative to an i.i.d.\ projection — otherwise a reader with domain knowledge will read Eq. (4) as a typo. Open question 7 is now a disclosed-design question rather than a code-provenance question.
+
+#### RCP-005 — headline multiplier: corrected, two residuals
+
+✅ **Fixed.** "nearly four times" → "nearly three times". Measured value is **2.77×**, so "nearly three" is defensible (it rounds to 2.8 and is bounded above by 3). The false claim is gone.
+
+✅ **Residual 1 — CLOSED, by dropping the multiplier.** §7.1's recommendation was not merely to change the numeral: the selection range comes from an $n=400$ balanced slice and the constructor range from an $n=456$ slice, so *no* single multiplier over those two tables is a like-for-like statistic. Either recompute both ranges on one common slice or drop the multiplier and state the two ranges (3.57 vs 1.29 kg/km), which is checkable and sufficient for every downstream use.
+
+✅ **Residual 2 — CLOSED. All three companion errata are fixed** *(was: untouched)*, and they are the same class of defect: `paper.tex:810` "within 5%" (actual 5.26%), `paper.tex:811` "roughly a quarter of the HGS and PG-CLNS means" (a quarter of HGS, a third of PG-CLNS), `paper.tex:826` naming ACO-HH fastest at $N=350$ over a 1-second gap. Fixing the headline while leaving these meant the underlying cause — hand-typed derived numbers — was still live.
+
+**Resolved (Residuals 1 and 2).** The author's decision was to **drop the multiplier entirely** rather than re-round it, which is the stronger of the two options offered: §5.3.2 now reports both ranges ($3.81$–$7.38$ vs $5.36$–$6.65$ kg/km, i.e.\ $3.57$ against $1.29$) and states why no single ratio is given — the marginals are balanced over different slices, 80 runs per variant against 57 per constructor. The claim is now checkable from the two printed tables and immune to the slice objection. All three companion errata are fixed: `5.3\%` below BPC; "a quarter of the HGS mean and a third of the PG-CLNS mean"; and "ACO-HH and ALNS --- tied to within a second at 1,219 s". **One item remains and it is infrastructure, not text:** `gen_paper_latex.py` still does not emit derived prose constants, so nothing structurally prevents the next hand-typed number from drifting. That remains the durable close condition for this class of defect.
+
+#### RCP-047 — SANS shift constraint: qualified, one code residual
+
+✅ **Fixed.** The SANS paragraph now reads "specifically for smart waste collection, **without the shift time constraint**", which is the wording remedy RCP-028/RCP-047 asked for and correctly stops the manuscript from claiming the Jorge et al.\ method while running it unbound.
+
+✅ **Also now fixed (Claude, this pass).** RCP-047's second half — Future Work proposing shift constraints as though novel, while the cited SANS source is built around them — is closed: the Future Work paragraph now states that shift duration is central to Jorge et al.\ and frames the item as restoring an operational constraint rather than introducing one.
+
+🟡 **Residual — code, not paper; HELD OPEN by author decision.** `DEFAULT_SHIFT_DURATION = 390` is still loaded in constants and never bound by any of the eight reported constructors. **The author has elected to leave it in place**, because it becomes live in the planned TTOP work, where a per-trip shift-time budget joins the per-trip capacity constraint. That is a reasonable call, with one caveat worth recording: until TTOP lands it is dead configuration, and anyone reading the code should not assume it constrains the reported runs. Revisit when TTOP lands rather than deleting now.
+
+#### Two incidental edits in the same commit
+
+- **Fast-TSP "randomized" → "stochastic" local search.** Cosmetic, and unrelated to RCP-003 — which RCP-048 has since withdrawn as a false positive. No effect either way.
+- **SANS paragraph rewrapped** and one blank line removed before §3. No semantic change.
 
 ## 6. Archived experiment and statistical validity
 
@@ -252,6 +315,8 @@ The manuscript's own horizon accounting is internally consistent once reconstruc
 The current CLS-versus-Fast-TSP matching shares scenario and demand labels, but not fixed constructor output. Upstream stochastic constructors can choose different bins and tours. “CLS wins 202 of 224” therefore describes paired configurations, not a controlled route-improvement experiment. Store constructor tours once, apply both improvers to every identical route with controlled seeds, and compare node preservation, feasibility, distance change, runtime, and failures.
 
 **Editorial corollary: demote the section rather than defend it.** §5.3.3 currently spends roughly a page plus a figure on a comparison that the same section then withdraws ("the stored runs expose an experimental-design problem rather than an isolated improver effect"). Combined with RCP-003 — the benchmarked Fast-TSP is not the algorithm the manuscript describes — the subsection is presenting a `Δ = 0.74 kg/km` headline for a treatment that is both confounded *and* misidentified. The honest and stronger move for this submission is to compress it to a short subsection stating the design flaw, the misdescription, and what a controlled rerun would cost, and to let the recovered space serve the selection and constructor results, which *are* identified. This also contributes directly to the page budget (§10.3). Keep Fig. 7 — it is one of the two good figures in the paper (§11) and it visualises the confound honestly.
+
+**CORRECTION (2026-08-28 DeepSeek pass).** §6.3's reference to RCP-003 as "the benchmarked Fast-TSP is not the algorithm the manuscript describes" is retained as an editing directive, but its factual basis in RCP-003 must not be relied upon: RCP-003's claim that the DP/optimality logic is absent from the benchmarked path is **refuted**. The dependency `shmulvad/fast-tsp` v0.1.5 (C++ core, cloned and read) contains `#define EXACT_SOLUTION_THRESHOLD 20`; `find_tour` dispatches n ≤ 20 to `solve_tsp_exact` (bottom-up Held–Karp, O(2ⁿ·n²)) and n > 20 to `local_search` (greedy NN + double-bridge shuffle + 2-opt/3-opt, bounded by `duration_seconds`). `FastTSPRouteImprover` → `tsp.find_route` → `fast_tsp.find_tour(*SCALE)` is exactly the path that ran (la_ftsp configs, `methods: [fast_tsp]`, `time_limit: 30.0` per route). The paper's sentence "Routes of up to roughly twenty stops are solved to optimality by dynamic programming; longer ones fall back to a randomized local search within a small fixed budget" is **accurate verbatim**. The remaining faithful criticism of that subsection is the still-real confound (§6.3 first paragraph) plus the "small fixed budget" wording (30 s per route is the largest single improver cost; "fast" here means ≤20-node-exact, not cheap) — see RCP-044 for the uint16 contract wrinkle. RCP-003 is upgraded to RESOLVED in the sense of "no method-to-implementation mismatch"; with this, three of the five shared-round method fidelity claims (Fast-TSP, Pareto-front ALNS omission, RP-003-style claims) are corrected in favour of the paper.
 
 ### 6.4 Runtime
 
@@ -289,7 +354,7 @@ The durable solution is to generate derived prose constants from the same analys
 
 ### 7.2 Pareto presentation
 
-The constructor aggregate in the current Pareto figure includes ALNS as non-dominated, but the dashed frontier omits it and connects only PG-CLNS to BPC. Regenerate the front from a single dominance function used by tables, figures, website exports, and 90-day selection. Add uncertainty only after replicated seeds exist; until then, describe points as one-realization outcomes. The in-text Pareto-membership enumeration (paper.tex:820–823: PG-CLNS 5 of 6, PSOMA and HGS 3 each, BPC 2, ACO-HH and ALNS 1 each) sums to 15 and never states that SWC-TCF and SANS hold zero memberships; the sentence should enumerate all eight constructors so the total is checkable.
+**CORRECTION (DeepSeek, 2026-08-28).** The first sentence of this section is superseded: the constructor aggregate in the published Pareto figure **includes ALNS on the dashed frontier**. Regenerating through the generator's own `pareto_front` (membership exactly {BPC, PG-CLNS, ALNS}; draw order via `steps-post` BPC → PG-CLNS → ALNS) and pixel-cropping the published `pareto_30d.png` confirms the PG-CLNS→ALNS step is drawn. ALNS (5.9 ovf., 6.13 kg/km) is non-dominated and visible on the front. The earlier "omits it and connects only PG-CLNS to BPC" observation was a misread (both points sit at ~x=6.0 and the connecting segment is short). The generator and figure agree; there is no fig/table dominance-code divergence for this figure. What remains: the sensible long-term ask (one shared dominance function used everywhere) and the in-text enumeration nit below (RCP-020).
 
 ### 7.3 Interpretation that remains valuable
 
@@ -414,7 +479,7 @@ The table below is a **rendered-image audit**: every entry was checked by openin
 |---|---|---|---|
 | Strategy trade-off (`strategy_tradeoff_30d.png`, Fig. 6) | **BLOCKER** | Category labels do not merely overlap — they **overprint into illegibility**. The axis renders as `Last-Minute (CF90)Look-AheadLast-Minute (CF70)ervice-Level (SL1)ervice-Level (SL2)`: the leading `S` of *both* Service-Level labels is destroyed. This is the figure illustrating the paper's headline result. Separately, the dual-axis bars are independently scaled, so CF90's two bars render at identical height, visually asserting an equivalence between 7.38 kg/km and 14.9 overflows that means nothing | Use the short codes (CF90 / LA / CF70 / SL1 / SL2) already used everywhere else, or rotate 30°. Then redraw as a five-point connected scatter in the efficiency-vs-overflow plane — Fig. 4 already establishes that idiom for this exact trade-off, and it makes the monotonicity claim readable off the figure |
 | Simulation loop (`simulation_loop.png`, Fig. 2) | **BLOCKER** | Two defects. (a) Box 2 carries a **bold highlighted callout** reading *"Observation Asymmetry: Policies receive noisy f̃ₜ (Ground truth fₜ is hidden)"* and Stage 1 reads *"Input: Sensed f̃ₜ"* — the most emphatic elements in the figure assert the opposite of §4.2 (`paper.tex:682`), and the caption's parenthetical "(where, for this study, ε=0)" does not undo them. (b) The dashed next-day-transition arrow cuts diagonally across the whole diagram and **strikes through the Stage 1 and Stage 2 text**, partially obliterating "Input: Sensed f̃ₜ". (c) Notation drift: figure uses `f_{i,t}`, `H`, `𝒟`; body uses `w_{i,d}`, `D`, `P_i` — and `D` means *horizon* in the body but *demand distribution* in the figure | Redraw the observation box for ε=0; if the noise capability is worth showing, grey it as "supported, not exercised" rather than as the operative path. Reroute the arrow around or below the policy box. Unify on the body's notation |
-| Aggregate Pareto plot (`pareto_30d.png`, Fig. 4) | HIGH | Dashed front runs PG-CLNS → BPC and stops. **ALNS (5.9 ovf, 6.13 kg/km) is non-dominated** — it holds the minimum overflow count of all eight, and PG-CLNS (6.0, 6.31) does not dominate it. Correct front is ALNS → PG-CLNS → BPC. Text and figure therefore disagree: §5.3.1 credits ALNS with "the fewest mean overflows (5.9)" while the figure denies it frontier membership. Looks like a strict-inequality / tie-handling bug at the boundary | Use one tested dominance implementation shared by tables, figures, website exports, and 90-day selection |
+| Aggregate Pareto plot (`pareto_30d.png`, Fig. 4) | ~~HIGH~~ → **resolved** | ~~Dashed front runs PG-CLNS → BPC and stops; ALNS omitted~~ — **withdrawn.** Regenerated via the generator's own `pareto_front` (membership {BPC, PG-CLNS, ALNS}; steps-post order BPC → PG-CLNS → ALNS) + pixel crop of the published PNG: ALNS IS drawn, connected by a short vertical step under PG-CLNS (both points sit at x≈6.0). Text and figure agree. Remaining cosmetic issue: ALNS/HGS red-vs-red in the runtime figure (see RCP-039), not this one | Keep the shared-dominance-function engineering goal; no correctness fix needed here (RCP-042) |
 | Runtime/scaling (`runtime_scaling_30d.png`, Fig. 5) | HIGH | The log y-axis carries **exactly one labelled tick (10³)** — no value can be read off the plot at all. ALNS and HGS are two near-identical reds, not separable in plot or legend. For a figure titled "scaling", log-linear with three x-points cannot show a scaling exponent | Add minor-tick labels; recolour to a colorblind-safe palette; consider log-log so the exponent is readable |
 | Regional maps (`networks.png`, Fig. 3) | HIGH | (a) **No scale bar**, on two panels at explicitly different extents — while §5.4 invokes spatial density ("the two cities differ in spatial density as well as scale") with this figure as its only evidence. (b) **The depot is deliberately cropped out**, so the one figure that could substantiate the paper's central mechanism (depot ≈5× median inter-bin distance; §5.1, §5.6, and the whole future-work item at `paper.tex:1218`) removes the evidence. (c) Caption says "Google Maps (for Rio Maior) and OpenStreetMap (for Figueira da Foz)", but **both panel legends read "OSM roads"** and the credit line is "© OpenStreetMap contributors" — the caption conflates the *distance matrix* source (Google for Rio Maior) with the *drawn basemap* source (OSM for both). (d) Rio Maior is drawn at N=170 only, though the study uses both N=100 and N=170 there | Add scale bars; add a depot inset or broken-axis connector annotated with the 52.9 / 46.6 unit distances; separate coordinate / road-distance / basemap provenance in the caption; state the drawn N |
 | Policy configuration space (`policy_configuration_space.png`, Fig. 1) | MEDIUM | Caption claims the experiments "cross the **highlighted** subset exhaustively" — nothing is highlighted, and there is no visual distinction between the registry space and the benchmarked subset, which is the figure's only reason to exist. Three boxes listing names the adjacent prose already lists, with a large empty band at the top | Make the framework/benchmark contrast visible (grey the unexercised registry entries; show registered-vs-benchmarked counts) or cut the figure and recover a page |
@@ -449,48 +514,325 @@ The final citation pass should verify author order, title, venue, year, volume/i
 
 ## 13. Prioritized amendment ledger
 
-| ID | Severity | Status | Issue | Rerun likely? |
-|---|---|---|---|---:|
-| RCP-001 | BLOCKER | VERIFIED | `n_vehicles: 0` contradicts single-vehicle claim | Yes, unless scope is relabeled and defended |
-| RCP-002 | BLOCKER | VERIFIED | Service-Level equation differs from implementation | Yes if square-root rule is intended |
-| RCP-003 | BLOCKER | VERIFIED | Fast-TSP subsection describes another class | No if implementation is the intended treatment |
-| RCP-004 | BLOCKER | VERIFIED | 90-day tracked set is not reproducible as the claimed Pareto subset | Possibly; first recover selection lineage |
-| RCP-005 | HIGH | VERIFIED | Headline `4×` claim is inconsistent with published ranges | No; regenerate analysis/prose |
-| RCP-006 | HIGH | VERIFIED | One realization per factorial cell | Yes for population inference |
-| RCP-007 | HIGH | VERIFIED | Improver comparison does not hold constructor tours fixed | Yes |
-| RCP-008 | HIGH | VERIFIED | Look-Ahead and empirical-demand descriptions overstate implementation | No if code is intended |
-| RCP-009 | HIGH | VERIFIED | Gamma units and heterogeneity assignment are misstated | No if code is intended |
-| RCP-010 | HIGH | VERIFIED | Objective/KPI/constants trace is incomplete | Analysis and sensitivity rerun recommended |
-| RCP-011 | HIGH | VERIFIED | BPC configuration does not support empirical exactness claims | No; report status/gaps, or rerun exact mode |
-| RCP-012 | HIGH | VERIFIED | Experiment inputs and code/environment manifest are incomplete | Targeted artifact reconstruction |
-| RCP-013 | MEDIUM | VERIFIED | Figure defects and incorrect aggregate frontier | Regenerate figures |
-| RCP-014 | MEDIUM | CORROBORATED | Bibliographic metadata and domain coverage gaps | No |
-| RCP-015 | MEDIUM | VERIFIED | Paper is overlong and repetitive for likely proceedings format | No |
-| RCP-016 | HIGH | VERIFIED | Manuscript contains no code, data, or artifact availability statement (no repository URL or DOI anywhere in `paper.tex`) | No |
-| RCP-017 | MEDIUM | VERIFIED | Malformed `SLSL2` policy label in generated exclusion table (`tab:excluded`) — doubled prefix, generator naming defect visible in publication | Regenerate label |
-| RCP-018 | MEDIUM | VERIFIED | Paper states 174 90-day runs but horizon table pairs 165; the nine lost pairs are exactly the configs whose 30-day runs sit in integrity-excluded cells (§6.2), and the text never bridges the two numbers | No; add one sentence |
-| RCP-019 | MEDIUM | VERIFIED | Horizon prose cites median 90/30 overflow ratios (2.4–3.3) not shown in any table; mean-derived ratios span ≈2.8–3.6 and exceed the stated band for ACO-HH (3.59) and BPC (3.52) | Add median-ratio column or restate |
-| RCP-020 | LOW | VERIFIED | Pareto-membership enumeration omits SWC-TCF and SANS; sentence sums to 15 without stating the remaining constructors hold zero | No |
-| RCP-021 | LOW | VERIFIED | Formal-model gaps: Eq. (6) compares absolute fill against a `100%` threshold; fleet size $K$ never fixed to the experimental setting; overflow defined "at" capacity in Sect. 5.2 vs. "beyond" capacity in Sect. 4.4 | No |
-| RCP-022 | LOW | VERIFIED | Copy-editing: conclusion typos (`paper.tex:1172`, `:1188`), "unfeasible" (`:461`), brand-name drift (WSmartRoute+/WSmart Route+/WSmart-Route), US-letter PDF geometry, misdated bib keys, ~30 uncited bib entries | No |
-| RCP-023 | HIGH | VERIFIED | Mathematical decoupling: Routing objective $\mathcal{P}$ (Eq. 2) lacks an overflow penalty, making the single-period VRPP solver mathematically agnostic to future overflow risk without mandatory constraints | No; clarify theoretical basis in §2.2 & §4.3 |
-| RCP-024 | HIGH | VERIFIED | Silent MIP solver truncation: SWC-TCF timeout on $N=350$ emitted empty tour logged as 0-collection day rather than raising `SolverTimeout` | Yes; add solver status telemetry |
-| RCP-025 | MEDIUM | VERIFIED | Unexercised IoT sensor noise: Framework supports $\epsilon > 0$ and Fig. 2 prominently features it, but all 480 runs set `sim.noise_std = 0.0` | No; qualify diagram and scope claims |
-| RCP-026 | HIGH | VERIFIED | Lack of statistical seed replication ($R=1$): Single stochastic demand realization per cell prevents standard error computation and ANOVA/Wilcoxon hypothesis testing | Yes; replicate factorial design with $R \ge 5$ |
-| RCP-027 | HIGH | VERIFIED | kg/km ranking ≠ profit ranking for SWC-TCF / PSOMA / SANS on the 480-row CSV; profit and kg-lost are logged and never tabulated | No for a first correction (add columns); yes for any claim that constructors were ranked under \(\mathcal{P}\) |
-| RCP-028 | HIGH | VERIFIED | Jorge et al. (2022) SANS is run without binding shift duration; \(T_{\max}\) is proposed as future work | Yes if the paper wants to claim the Jorge 2022 method; no if the implementation is qualified |
-| RCP-029 | MEDIUM | VERIFIED | PG-CLNS “original design” is underspecified (no pseudocode, parameters, or ALNS ablation); HVPL inspiration is a different problem class | No if demoted; yes if kept as a claimed new algorithm |
-| RCP-030 | MEDIUM | VERIFIED | Constructor/improver search budgets unpublished (60 s + 30 s/day; ACO-HH 10 ants / 50 iterations; BPC `exact_mode: false`) | No; add a hyperparameter table from the pruned configs |
-| RCP-031 | MEDIUM | VERIFIED | Figueira empirical BPC binds at 2,500 kg; Gamma-3 BPC binds near 5,000 kg; several metaheuristics exceed both. Demand-process × capacity-unit interaction is unexamined | Analysis first; rerun if \(Q\) is confirmed inconsistent across processes |
-| RCP-032 | LOW | VERIFIED | Unused NCO architecture PDFs and AM training plots remain in the paper `Images/` tree and are not compiled | No; delete or use |
-| RCP-033 | MEDIUM | VERIFIED | No null-selection or must-collect-all cell, so the selection-vs-construction claim has no unforced / fully-forced anchors | Yes, even on one network |
-| RCP-034 | LOW | VERIFIED | `Lin2017` does not support the Farkas-pricing claim | No; replace the citation |
-| RCP-035 | BLOCKER | VERIFIED | Fig. 6 axis labels overprint into illegibility (`...Look-AheadLast-Minute (CF70)ervice-Level (SL1)...` — the leading `S` of both SL labels is destroyed). This is the figure for the headline result | No; regenerate with short codes and redraw as a scatter |
-| RCP-036 | BLOCKER | VERIFIED | Fig. 2 asserts the negation of §4.2 in a bold callout (*"Policies receive noisy f̃ₜ (Ground truth fₜ is hidden)"*) while all runs use ε=0; its transition arrow also strikes through the Stage 1/2 text | No; redraw the observation box and reroute the arrow |
-| RCP-037 | MEDIUM | VERIFIED | Look-Ahead's mandatory trigger is exactly Service-Level with `z=0, n_d=1`. Four of the five selection variants are one parameter family, not three independent mechanisms — this explains the monotone frontier and weakens "selection dominates construction" as currently framed | No; state the relationship. Interacts with RCP-033 |
-| RCP-038 | MEDIUM | VERIFIED | Fig. 9's two side-by-side panels use different x-scalings (symlog-with-0 vs plain log) and different y-ranges while inviting visual comparison; constructor identity is not encoded at all in the "higher-resolution" policy-level view | No; share axes or state the difference; encode constructor |
-| RCP-039 | LOW | VERIFIED | Colour-accessibility: Fig. 5 renders ALNS and HGS as two near-identical reds; Fig. 7 uses red/green as its only encoding | No; fix in `logic/gen/style/*.mplstyle` so website and deck exports inherit it |
-| RCP-040 | LOW | VERIFIED | Fig. 8's "three **representative** bins" states no selection criterion, and its post-hoc reconstruction ("re-simulated from the recovered daily increments") is never validated against stored output | No; state the rule and the check |
+| Triage | Meaning |
+|---|---|
+| ✅ **Done / void** | Fixed in paper, code, or artifact — or established as a false positive and withdrawn. |
+| 🟡 **Partial — needs review** | Part of the item is addressed; the remainder is named in the note beneath it. |
+| 🔴 **Untouched** | No action taken yet. |
+
+Tick exactly one box per item. Items are grouped by severity and keep their original numeric order within a group; `rerun:` carries the original ledger judgement on whether repair needs new simulation runs. Two entries (RCP-042, RCP-048) are bookkeeping records of withdrawn findings rather than work items, and are marked done by construction.
+
+### BLOCKER (5)
+
+- **RCP-001** · BLOCKER · VERIFIED · rerun: Yes, unless scope is relabeled and defended
+  `n_vehicles: 0` contradicts single-vehicle claim
+  > **2026-08-28 (Claude, two passes).** *Pass 1:* every single-vehicle claim removed from `paper.tex` — §2.2 makes $K_d$ an outcome with one per-route payload $Q$; §4.4 retitled to single-depot / unbounded-route; Limitations and Future Work rewritten; three "between vehicles" → "between routes". *Pass 2 (author decision):* the paper now **reports** the daily route count under a stated minimum-trips rule, $K_d=\lceil \text{kg}_d/Q \rceil$, justified by the remote-depot geometry (an extra depot return costs \~5× the median inter-bin leg, so splitting a carryable load is never profitable under Eq. (3)). Computed over all 14,400 archived day-results with the correct per-city payloads (`repository/base.py:134,138` — Rio Maior 3,500 kg, Figueira 2,500 kg): of 9,642 collection days, **94.1% single-trip, 5.8% two-trip, 0.1% three-trip; every multi-trip day is Figueira, and Rio Maior never exceeds one trip.** Max 7,094.5 kg → 3 trips. These figures are now in §4.4. *Still open:* the rule is an inference, not telemetry — it is a lower bound that assumes cost-rational splitting, so it cannot detect a constructor that split a load wastefully. To be cross-referenced against the off-repository results database and JSONL records when that machine returns (see RCP-004); route-count/payload/shift telemetry should still be added at source.
+  - [ ] ✅ Done / void
+  - [x] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
+
+- **RCP-002** · BLOCKER · VERIFIED · rerun: Yes if square-root rule is intended
+  Service-Level equation differs from implementation
+  > **2026-08-28 (author `c9dc4e5`, completed by Claude).** Eq. (4) matches the code (`z σ̂ n_d`). This pass closed all three residuals: (i) the contradictory clause "not in how conservative they are at a given distance" is **replaced** by an explicit two-paragraph statement that the deviation term scales linearly rather than as $\sqrt{n_d}$, that this is deliberately conservative relative to an i.i.d.\ projection and robust to positive serial correlation, and that SL2 therefore carries exactly twice SL1's margin — so the two variants are two points on one conservatism dial, not a controlled horizon test; (ii) **$z = 0.84$ is now disclosed** with its interpretation (80% one-sided service level); (iii) the unit mismatch is fixed — a sensed fill ratio $\hat{\rho}_{i,d}=\hat{w}_{i,d}/C_i$ is defined once in §4.1, LM's rule restated in ratio terms, and SL's threshold changed from `100%` to $C_i$, so both rules are dimensionally consistent with §2.1 (also closes the Eq.-(6) half of RCP-021). Paper rebuilds clean.
+  - [ ] ✅ Done / void
+  - [x] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
+
+- **RCP-004** · BLOCKER · VERIFIED · rerun: **No — provenance exists off-repository**
+  90-day tracked set is not reproducible as the claimed Pareto subset
+  > **2026-08-28 (author):** downgraded from blocking-unknown to **waiting on hardware**. The complete results — including a granular results database and JSONL run records that should carry the selection lineage — exist on a second machine currently out for repair, returning in roughly one week (\~2026-09-04). **No rerun is required; this item is time-blocked, not work-blocked.** On return, cross-reference the 29 carried policy definitions against that database and either (a) publish the derivation and restore the literal Pareto wording, or (b) keep the "performance-selected per run type" wording and cite the manifest. Until then the manuscript should not assert literal 30-day Pareto membership. Closes Open question 1 as *answerable*, not yet answered.
+  - [ ] ✅ Done / void
+  - [x] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
+
+- **RCP-035** · BLOCKER · VERIFIED · rerun: No; regenerate with short codes and redraw as a scatter
+  Fig. 6 axis labels overprint into illegibility (`...Look-AheadLast-Minute (CF70)ervice-Level (SL1)...` — the leading `S` of both SL labels is destroyed). This is the figure for the headline result
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-036** · BLOCKER · VERIFIED · rerun: No; redraw the observation box and reroute the arrow
+  Fig. 2 asserts the negation of §4.2 in a bold callout (*"Policies receive noisy f̃ₜ (Ground truth fₜ is hidden)"*) while all runs use ε=0; its transition arrow also strikes through the Stage 1/2 text
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+### HIGH (15)
+
+- **RCP-005** · HIGH · VERIFIED · rerun: No; regenerate analysis/prose
+  Headline `4×` claim is inconsistent with published ranges
+  > **2026-08-28 (author `c9dc4e5`, completed by Claude).** *Residual 1 closed by author decision:* the multiplier is **dropped entirely** rather than re-rounded. §5.3.2 now states both ranges (selection $3.81$–$7.38$, constructors $5.36$–$6.65$ kg/km; i.e.\ $3.57$ vs $1.29$ kg/km) and says explicitly why no single ratio is reported — the marginals are balanced over different slices (80 runs per variant vs 57 per constructor). This is checkable and immune to the slice objection. *Residual 2 closed:* all three companion errata fixed — "within 5%" → "$5.3\%$ below BPC"; "a quarter of the HGS and PG-CLNS means" → "a quarter of the HGS mean and a third of the PG-CLNS mean"; the $N=350$ runtime sentence now reads "ACO-HH and ALNS --- tied to within a second at 1,219 s". *Still open (infrastructure, not text):* `gen_paper_latex.py` still does not emit derived prose constants, so nothing prevents the next hand-typed number from drifting. That is the durable close condition.
+  - [ ] ✅ Done / void
+  - [x] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
+
+- **RCP-006** · HIGH · VERIFIED · rerun: Yes for population inference
+  One realization per factorial cell
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-007** · HIGH · VERIFIED · rerun: Yes
+  Improver comparison does not hold constructor tours fixed
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-008** · HIGH · VERIFIED · rerun: No if code is intended
+  Look-Ahead and empirical-demand descriptions overstate implementation
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-009** · HIGH · VERIFIED · rerun: No if code is intended
+  Gamma units and heterogeneity assignment are misstated
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-010** · HIGH · VERIFIED · rerun: Analysis and sensitivity rerun recommended
+  Objective/KPI/constants trace is incomplete
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-011** · HIGH · VERIFIED · rerun: No; report status/gaps, or rerun exact mode
+  BPC configuration does not support empirical exactness claims
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-012** · HIGH · VERIFIED · rerun: Targeted artifact reconstruction
+  Experiment inputs and code/environment manifest are incomplete
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-016** · HIGH · VERIFIED · rerun: No
+  Manuscript contains no code, data, or artifact availability statement (no repository URL or DOI anywhere in `paper.tex`)
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-023** · HIGH · VERIFIED · rerun: No; clarify theoretical basis in §2.2 & §4.3
+  Mathematical decoupling: Routing objective $\mathcal{P}$ (Eq. 2) lacks an overflow penalty, making the single-period VRPP solver mathematically agnostic to future overflow risk without mandatory constraints
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-024** · HIGH · VERIFIED · rerun: Yes; add solver status telemetry
+  Silent MIP solver truncation: SWC-TCF timeout on $N=350$ emitted empty tour logged as 0-collection day rather than raising `SolverTimeout`
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-026** · HIGH · VERIFIED · rerun: Yes; replicate factorial design with $R \ge 5$
+  Lack of statistical seed replication ($R=1$): Single stochastic demand realization per cell prevents standard error computation and ANOVA/Wilcoxon hypothesis testing
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-027** · HIGH · VERIFIED · rerun: No for a first correction (add columns); yes for any claim that constructors were ranked under \(\mathcal{P}\)
+  kg/km ranking ≠ profit ranking for SWC-TCF / PSOMA / SANS on the 480-row CSV; profit and kg-lost are logged and never tabulated
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-028** · HIGH · VERIFIED · rerun: Yes if the paper wants to claim the Jorge 2022 method; no if the implementation is qualified
+  Jorge et al. (2022) SANS is run without binding shift duration; \(T_{\max}\) is proposed as future work
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-041** · HIGH · VERIFIED · rerun: No; add a constants table with sources
+  The published objective coefficients are absent from the manuscript. Archived day-level logs pin `r_w = 0.5837` €/kg, `c_km = 1` €/km (plastic); `profit = 0.5837·kg − km` reproduces exactly. `paper.tex` never states them, nor physical Q (2,500/3,500 kg), density, or bin volume. A VRPP benchmark without economic coefficients is unreproducible
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+### MEDIUM (20)
+
+- **RCP-013** · MEDIUM · VERIFIED · rerun: Regenerate figures
+  Figure defects and incorrect aggregate frontier
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-014** · MEDIUM · CORROBORATED · rerun: No
+  Bibliographic metadata and domain coverage gaps
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-015** · MEDIUM · VERIFIED · rerun: No
+  Paper is overlong and repetitive for likely proceedings format
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-017** · MEDIUM · VERIFIED · rerun: Regenerate label
+  Malformed `SLSL2` policy label in generated exclusion table (`tab:excluded`) — doubled prefix, generator naming defect visible in publication
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-018** · MEDIUM · VERIFIED · rerun: No; add one sentence
+  Paper states 174 90-day runs but horizon table pairs 165; the nine lost pairs are exactly the configs whose 30-day runs sit in integrity-excluded cells (§6.2), and the text never bridges the two numbers
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-019** · MEDIUM · VERIFIED · rerun: Add median-ratio column or restate
+  Horizon prose cites median 90/30 overflow ratios (2.4–3.3) not shown in any table; mean-derived ratios span ≈2.8–3.6 and exceed the stated band for ACO-HH (3.59) and BPC (3.52)
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-025** · MEDIUM · VERIFIED · rerun: No; qualify diagram and scope claims
+  Unexercised IoT sensor noise: Framework supports $\epsilon > 0$ and Fig. 2 prominently features it, but all 480 runs set `sim.noise_std = 0.0`
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-029** · MEDIUM · VERIFIED · rerun: No if demoted; yes if kept as a claimed new algorithm
+  PG-CLNS “original design” is underspecified (no pseudocode, parameters, or ALNS ablation); HVPL inspiration is a different problem class
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-030** · MEDIUM · VERIFIED · rerun: No; add a hyperparameter table from the pruned configs
+  Constructor/improver search budgets unpublished (60 s + 30 s/day; ACO-HH 10 ants / 50 iterations; BPC `exact_mode: false`)
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-031** · MEDIUM · VERIFIED · rerun: Analysis first; rerun if \(Q\) is confirmed inconsistent across processes
+  Figueira empirical BPC binds at 2,500 kg; Gamma-3 BPC binds near 5,000 kg; several metaheuristics exceed both. Demand-process × capacity-unit interaction is unexamined
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-033** · MEDIUM · VERIFIED · rerun: Yes, even on one network
+  No null-selection or must-collect-all cell, so the selection-vs-construction claim has no unforced / fully-forced anchors
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-037** · MEDIUM · VERIFIED · rerun: No; state the relationship. Interacts with RCP-033
+  Look-Ahead's mandatory trigger is exactly Service-Level with `z=0, n_d=1`. Four of the five selection variants are one parameter family, not three independent mechanisms — this explains the monotone frontier and weakens "selection dominates construction" as currently framed
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-038** · MEDIUM · VERIFIED · rerun: No; share axes or state the difference; encode constructor
+  Fig. 9's two side-by-side panels use different x-scalings (symlog-with-0 vs plain log) and different y-ranges while inviting visual comparison; constructor identity is not encoded at all in the "higher-resolution" policy-level view
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-042** · MEDIUM · VERIFIED · rerun: Withdraw the ALNS-omission finding; keep the in-text membership-count nit (see RCP-020)
+  Claimed single-metre ordering of paper figure is **wrong in the inverse direction: Fig. 4's dashed front is correct.** Shared-round claim "front omits ALNS" is a false positive — regenerated through `gen_paper_latex.pareto_front` + pixel inspection: front = {BPC, PG-CLNS, ALNS}, drawn with steps-post and vertical link PG-CLNS→ALNS present. ALNS (5.9 ovf, 6.13) is non-dominated AND drawn
+  > **Bookkeeping entry, not an action item.** Records the withdrawal of the "Fig. 4 front omits ALNS" finding. Independently confirmed by the originating reviewer at 3× pixel zoom (§17): the vertical dashed link ALNS→PG-CLNS is present and the drawn front is correct.
+  - [x] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
+
+- **RCP-043** · MEDIUM · VERIFIED · rerun: Add hyperparameter table; relabel runtime as experiment throughput; equal-budget rerun if the runtime plane is kept
+  Runtime comparison is not equal-budget: all 8 constructors declare `time_limit: 60` s/day in the archived runs, but observed daily times exceed it unevenly (HGS up to 192 s/day, PG-CLNS up to 170 s/day, SANS up to 308 s/day, BPC up to 95 s/day). Configured limits are soft phase budgets, not wall-clock caps; reported "Time (s)" sums daily call times. At N=350 ACO-HH (1,218.65 s) and ALNS (1,219.65 s) are within ~1 s — the "from ACO-HH at 1,219 s" credit is a coin flip (see RCP-009's dead-heat row). "ACO-HH is fastest" is a claim about budget consumption, not algorithm speed
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-044** · MEDIUM · VERIFIED · rerun: Document dependency contract and platform assumption; optionally pre-scale to uint16
+  Fast-TSP `uint16` contract vs. scaling: `shmulvad/fast-tsp` v0.1.5 validates matrices against a 65,535 ceiling (`is_valid_dist_matrix`) while `find_route` scales road distances ×10\,000 (`SCALE`); FF350 values reach 642,572 — above the stated contract. On this Linux/x86-64 build `uint_fast16_t` is 8 bytes (verified: no wrap on a decisive 65,546-vs-100 synthetic edge case), but the contract is platform-dependent and should be documented in the artifact
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-046** · MEDIUM · VERIFIED · rerun: Rewrite protocol sentence to describe load-from-manifest + policy/day seed isolation, not per-policy waste regeneration
+  Simulator never reseeds its own demand RNG in the archived runs: `gen_dataset` with a fixed seed-42 and `n_samples: 1` is the only path. The paper's protocol prose ("re-seeds its waste generation per policy-and-day combination") overstates the mechanism — the archive loads pre-generated NPZ datasets (from `load_dataset:`), and `run_day` re-seeding affects only policy/local RNG. Behavioral claim (identical realization) is true and verified on-disk (fill histories identical across comparators); mechanism description is wrong
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-047** · MEDIUM · VERIFIED · rerun: Either bind and rerun, or qualify the implementation (merges with RCP-028 wording)
+  SANS's "shift duration" concept is unused yet the Jorge et al. 2022 source is explicitly a workload/shift-duration paper (see RCP-028); additionally `DEFAULT_SHIFT_DURATION = 390` is loaded in constants and never bound. Future work proposes shift constraints as if new — while the cited SANS source is built around them. Wording fix: "SANS without the Jorge 2022 shift constraint"
+  > **2026-08-28 (author `c9dc4e5` + Claude), deliberately held open.** Paper side is done: the SANS paragraph reads "without the shift time constraint", and Future Work now states shift duration is central to Jorge et al.\ rather than novel. *Held open by author decision:* `DEFAULT_SHIFT_DURATION = 390` stays loaded-and-unbound because it becomes live in the planned TTOP work, where a per-trip shift budget joins the per-trip capacity constraint. **It is currently dead configuration and should be treated as such by anyone reading the code** — do not assume it takes effect in the reported runs. Re-evaluate when TTOP lands rather than deleting now.
+  - [ ] ✅ Done / void
+  - [x] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
+
+- **RCP-048** · MEDIUM · VERIFIED · rerun: Remove the mismatch entry; keep the improver-from-identical-tours directive
+  Method-to-code fidelity pass found one of the shared-round mismatches to be a *false positive in the paper's favour*: Fast-TSP paper text matches `fast-tsp` v0.1.5 source exactly (threshold 20; exact Held–Karp DP; randomized 2-opt/3-opt local search above; time-bounded). The shared-round "DP lives in a different class" finding is withdrawn (see §5 rectification note)
+  > **Bookkeeping entry, not an action item.** Records the withdrawal of RCP-003.
+  - [x] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
+
+- **RCP-049** · MEDIUM · VERIFIED · rerun: Say "performance-selected per run type, derivation in versioned manifest" and document the derivation
+  90-day sample selection rule is documented in repo (`logic/configs/batch.yaml`: per-run-type constructor lists) and reproduces the stored 174 rows exactly, but the lists are NOT literal 30-day Pareto-front output under any recomputation (per-scenario row-level → 33 rows, 23 in sample; per-run-type aggregate → different sets). Claim "Only policy configurations that lay on the 30-day Pareto front were carried forward" is an unprovable restatement of manifest intent
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+### LOW (8)
+
+- **RCP-020** · LOW · VERIFIED · rerun: No
+  Pareto-membership enumeration omits SWC-TCF and SANS; sentence sums to 15 without stating the remaining constructors hold zero
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-021** · LOW · VERIFIED · rerun: No
+  Formal-model gaps: Eq. (6) compares absolute fill against a `100%` threshold; fleet size $K$ never fixed to the experimental setting; overflow defined "at" capacity in Sect. 5.2 vs. "beyond" capacity in Sect. 4.4
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-022** · LOW · VERIFIED · rerun: No
+  Copy-editing: conclusion typos (`paper.tex:1172`, `:1188`), "unfeasible" (`:461`), brand-name drift (WSmartRoute+/WSmart Route+/WSmart-Route), US-letter PDF geometry, misdated bib keys, ~30 uncited bib entries
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-032** · LOW · VERIFIED · rerun: No; delete or use
+  Unused NCO architecture PDFs and AM training plots remain in the paper `Images/` tree and are not compiled
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-034** · LOW · VERIFIED · rerun: No; replace the citation
+  `Lin2017` does not support the Farkas-pricing claim
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-039** · LOW · VERIFIED · rerun: No; fix in `logic/gen/style/*.mplstyle` so website and deck exports inherit it
+  Colour-accessibility: Fig. 5 renders ALNS and HGS as two near-identical reds; Fig. 7 uses red/green as its only encoding
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-040** · LOW · VERIFIED · rerun: No; state the rule and the check
+  Fig. 8's "three **representative** bins" states no selection criterion, and its post-hoc reconstruction ("re-simulated from the recovered daily increments") is never validated against stored output
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+- **RCP-045** · LOW · VERIFIED · rerun: Label the three metrics distinctly in the artifact and in any framework README
+  Reward-vs-profit third metric: `day_context.py` logs `reward = kg − overflows − km`, which is neither the constructor objective (revenue−cost) nor economic profit; present in every JSON `mean` block and imported into summaries. If the framework surface ever claims one "objective", this ambiguity must be resolved
+  - [ ] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [x] 🔴 Untouched
+
+### Withdrawn / superseded (1)
+
+- **RCP-003** · ~~BLOCKER~~ · ~~VERIFIED~~ → **basis withdrawn** · rerun: No if implementation is the intended treatment; keep the improver-control directive and document budgets
+  Fast-TSP subsection describes another class — **false positive.** `shmulvad/fast-tsp` v0.1.5 core contains `EXACT_SOLUTION_THRESHOLD 20`; the paper's description matches the executed path verbatim (see RCP-048). The improver comparison still lacks identical upstream tours, and the "small fixed budget" (30 s/route) + uint16-vs-SCALE contract need documentation
+  > **Withdrawn** (DeepSeek, corroborated by Claude). `fast_tsp.find_tour` performs the exact DP internally — the v0.1.5 package docstring states "For small problems, the exact solution is returned" — so the manuscript description matches the executed path and the "DP lives in a different class" reading was a false positive. The residual sub-items it mentions are tracked elsewhere: identical upstream tours under RCP-007, and the budget/`uint16` contract under RCP-030 and RCP-044.
+  - [x] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
+  - [ ] 🔴 Untouched
 
 ## 14. Recommended revision sequence
 
@@ -534,6 +876,11 @@ Primary sources used in this initial shared draft:
 - physical/economic conversion: `logic/src/pipeline/simulations/repository/base.py` and `bins/base.py`;
 - individual reviews: `.agent/reports/{chat,claude,gemini,grok,opencode}/`;
 - Grok log-level checks: `assets/output/30days/riomaior100_plastic/emp/la_cls/log_lookahead_bpc_custom_cls_1N.json` (profit identity), `.../figueiradafoz350_plastic/{emp,gamma3}/la_cls/log_lookahead_bpc_custom_cls_1N.json` and `.../gamma3/lm_cls/log_last_minute_cf90_{alns,psoma,pg_clns}_*.json` (daily mass vs payload), `.../emp/la_ftsp/hydra/pruned_config.yaml` (improver method `fast_tsp`);
+- DeepSeek third-party source verification: `shmulvad/fast-tsp` v0.1.5 cloned at the upstream GitHub head; `src/tsp.h` lines 20 (`#define EXACT_SOLUTION_THRESHOLD 20`) and 48–65 (`find_tour` dispatch), plus `src/main.cpp` pybind defs. Runtime probes: synthetic 4-node matrices (65,546 vs. 100) and real FF350 distance sub-matrices × SCALE=10000 verified the paper's improver text verbatim (RCP-044/048). Also `width.cpp` confirmed `uint_fast16_t` = 8 bytes on this build (no wrap), while `fast_tsp.is_valid_dist_matrix` states a 65,535 ceiling — the documented-vs-used capacity gap now recorded;
+- DeepSeek generator-level verification: `pareto_front` membership reproduced exactly via `gen_paper_latex` (ALNS included; steps-post draw order BPC → PG-CLNS → ALNS), and pixel inspection of the published `pareto_30d.png` crop (RCP-042); daily `time` arrays parsed from all eight constructs' FF350 gamma3 `log_lookahead_*_cls_1N.json` for the soft-budget observation (RCP-043);
+- DeepSeek coefficients trace: `logic/src/pipeline/simulations/repository/base.py:101–130` (revenue `0.65 × 898/1000 = 0.5837` €/kg plastic; expenses 1 €/km; payload 2,500/3,500 kg; density 20/19; bin volume 2.5 L), cross-checked against `bins/base.py:385` and day-JSON `profit = kg·r_w − km` identity (RCP-041); the `reward = kg − overflows − km` third metric from `day_context.py:635` (RCP-045);
+- DeepSeek 90-day rule reproduction: `logic/configs/batch.yaml` per-run-type constructor lists (36 run types = 6 run types × 6 scenarios; 102 policy-slots matching 174 stored rows after split by variant), tested against per-scenario row-level fronts (33 rows), per-run-type aggregate fronts, and filtered variants — none match the stated rule (RCP-049);
+- DeepSeek demand-path check: `gen_dataset.py` (fixed seed 42, n_samples 1, load-from-NPZ path in `initializing.py:414` and `bins/base.py`), plus on-disk fill-history equality across four comparators (`fill_history/*.xlsx` identical to 1e-6) — behavioral claim true, mechanism prose overstated (RCP-046).
 - Look-Ahead / Service-Level implementations: `logic/src/policies/mandatory_selection/selection_lookahead.py`, `selection_service_level.py`;
 - Fast-TSP vs DP improvers: `logic/src/policies/route_improvement/fast_tsp.py`, `dp_route_reopt.py`, `logic/src/policies/route_construction/other_algorithms/travelling_salesman_problem/tsp.py`;
 - Service-Level variant definitions: `logic/configs/policies/other/ms_service_level.yaml` (`service_level1: {confidence_factor: 0.84, horizon_days: 1}`, `service_level2: {..., horizon_days: 2}`), wired through `logic/src/pipeline/simulations/actions/node_selection.py:170` into `SelectionContext.horizon_days` (`logic/src/interfaces/context/selection_context.py:71`). This is the full trace establishing that SL1/SL2 differ only in `horizon_days` and that the linear-`n` σ term in `selection_service_level.py:63` is the code that produced the stored rows — there is no second path. Contrast `selection_multi_day_prob.py:70`, which uses `np.sqrt(horizon_days)` for the same quantity;
@@ -568,18 +915,28 @@ Primary sources used in this initial shared draft:
 - Raw daily JSON makes large collections look like one route because the logger removes internal depot markers. This draft does not claim that the original solver returned one over-capacity route. It claims the narrower verified facts: the experiment was configured without a positive fleet limit, daily mass can require multiple payloads, and route-count provenance is lost.
 - Prose quality: one review rated the writing A− overall, while this draft criticizes generated-sounding patterns. Both hold: the flagged patterns (caveat restatement, em-dash chains) are real but concentrated in Sects. 5.7 and 6, whereas the constructor descriptions in Sect. 4 (two-commodity intuition, HGS giant-tour/split decoding) are genuinely strong. The recommendation is targeted trimming of the repetitive sections, not a wholesale rewrite.
 - Figure assessment methodology differs across contributors: the opencode review could not render images, so its figure findings are caption- and metadata-derived (admitted outlier axis-extent, PNG table, raster DPI, dimensions). The visual findings (overlapping labels, incomplete Pareto line, map issues) rest on other reviewers' direct inspection. The two sources agree wherever they overlap.
+- **Pareto-front ALNS omission — WITHDRAWN (DeepSeek, 2026-08-28).** The claim that Fig. 4's dashed front omits non-dominated ALNS was reviewed against primary evidence: regenerating the figure through the generator's own `pareto_front` and pixel-inspecting the published PNG shows front = {BPC, PG-CLNS, ALNS} with the PG-CLNS→ALNS step drawn (steps-post). ALNS (5.9 ovf., 6.13 kg/km) is non-dominated and IS on the dashed line. The finding was a false positive: the generator and figure agree, and the in-text membership counts (PG-CLNS 5, PSOMA 3, HGS 3, BPC 2, ACO-HH 1, ALNS 1) also verify. §11's Fig. 4 row and the RCP-013 catch-all should be read as "regenerate for reds/hues only, front is correct". This is the second shared-round claim corrected in favour of the paper (see Fast-TSP, below).
+- **Fast-TSP mismatch — WITHDRAWN (DeepSeek, 2026-08-28).** RCP-003 asserted the paper describes a different class than the one actually benchmarked. Inspection of the dependency source (`shmulvad/fast-tsp` v0.1.5, C++ core) shows `EXACT_SOLUTION_THRESHOLD 20` inside `find_tour`: n ≤ 20 → `solve_tsp_exact` (bottom-up Held–Karp), n > 20 → `local_search` under duration budget. The paper's Fast-TSP sentence is accurate verbatim. The improver path (`FastTSPRouteImprover` → `tsp.find_route` → `fast_tsp.find_tour`) is the same dependency behavior the paper describes. What remains valid: the improver comparison is not controlled (tours not held fixed), the "small fixed budget" wording understates a 30 s/route budget, and the uint16-vs-SCALE contract should be documented (RCP-044). RCP-003 is reclassified to reflect the withdrawn basis; §6.3's editorial corollary stands on its own (confound + demotion), no longer on a misdescription.
+- **Runtime credit "ACO-HH fastest" (DeepSeek, 2026-08-28).** At N=350, ACO-HH 1,218.65 s vs. ALNS 1,219.65 s — a ~1 s dead heat; RCP-009's table row already records the four-way tie on "within 5%"/"quarter"/"fastest at N=350" wording. DeepSeek additionally verified the time-budget semantics: all constructors configure `time_limit: 60` s/day but observed daily times exceed it unevenly (HGS to 192 s, PG-CLNS to 170 s, SANS to 308 s), so the "Time (s)" column measures budget consumption, not an equal-wall-clock benchmark (RCP-043). This complements, rather than contradicts, the existing runtime row.
+- **A judgement call on §6.4's "20 concurrent workers".** A text reading of `sane_cpu_count`-style configs could treat the 20-core worker setting as intentional; the shared draft's standalone-benchmark criticism stands because contention is not measured, not because the setting is wrong. No disagreement recorded beyond keeping RCP-043's softer wording than the earlier "not clean standalone solver benchmarks" sentence.
 - One review initially repeated the manuscript's "nearly four times" claim; its independent table audit (§7.4) subsequently confirmed the 2.77× recomputation already recorded above. The arithmetic is now doubly verified.
 - An earlier Grok reading of concatenated `daily.tour` arrays treated each collection day as one over-capacity route. The disagreement entry above still holds: the logger strips internal depot markers, so route *count* is not recoverable from JSON. The payload-overshoot numbers (BPC empirical 2,500 kg exact; Gamma-3 BPC 4,999.6 kg; PSOMA/ALNS/PG-CLNS CF90 Gamma-3 ~7,060 kg) are daily *mass*, not proof of a single-trip solver output.
-- Grok independently corroborated RCP-003 (Fast-TSP): archived `la_ftsp` Hydra configs request `methods: [fast_tsp]`; `FastTSPRouteImprover` calls `fast_tsp.find_tour`; the paper's “DP up to ~20 stops” description is `DPRouteReoptRouteImprover`, a different class. Status remains VERIFIED.
+- Grok independently corroborated RCP-003 (Fast-TSP): archived `la_ftsp` Hydra configs request `methods: [fast_tsp]`; `FastTSPRouteImprover` calls `fast_tsp.find_tour`; the paper's “DP up to ~20 stops” description is `DPRouteReoptRouteImprover`, a different class. Status remains VERIFIED. **Update (DeepSeek, 2026-08-28): withdrawn on the central point** — the DP is not confined to `DPRouteReoptRouteImprover`; `fast_tsp` v0.1.5's own C++ core contains the `EXACT_SOLUTION_THRESHOLD 20` dispatch, so the paper's description matches the path that actually ran. The "configs use fast_tsp" half of the corroboration stands; the "describes another class" conclusion does not (RCP-048).
 - **Figure severity (Claude).** The existing entry above records that a text-oriented review rated figures highly while visual inspection disagreed. A full rendered-image pass now sharpens the disagreement in one direction: two figure defects are **submission blockers**, not medium-severity regenerate-later items. Fig. 6's labels are not "overlapping" but destroyed by overprinting, and Fig. 2 does not merely "emphasise" the noise path — it asserts in a bold callout the negation of §4.2. RCP-013 was the single MEDIUM catch-all for figure defects; RCP-035 and RCP-036 are split out at BLOCKER, and RCP-013 is left in place for the remainder. No prior finding is withdrawn.
 - **Service-Level provenance (Claude).** RCP-002 was recorded as a VERIFIED mismatch; an open thread was whether a second code path might have produced the stored SL rows, which would have changed the finding. That thread is now closed: `ms_service_level.yaml` → `node_selection.py:170` → `SelectionContext.horizon_days` → `selection_service_level.py:63` is the only path, SL1/SL2 differ solely in `horizon_days`, and the linear-`n` form is what ran. Open question 7 (linear vs square-root) remains a **design decision for the authors**, not an unresolved fact about the code. Quantified consequence for the ledger: at `n_d = 2` the implemented margin is `2 × 0.84σ̂ = 1.68σ̂` against the printed rule's `0.84√2 σ̂ = 1.188σ̂` — the SL2 that ran is ~41% more conservative than the SL2 the paper defines, and SL2 anchors the low-overflow end of the headline frontier.
+- **Fig. 4 ALNS omission — retracted by its author (Claude).** I originated the "the dashed front omits ALNS" finding and recorded it at HIGH in §11. **It was wrong, and I withdraw it.** DeepSeek's RCP-042 challenged it; I re-cropped the published PNG at 3× and the vertical dashed link ALNS → PG-CLNS is plainly present. The error was reading a short vertical segment lying on a gridline, at full-figure resolution, as absent. Two process notes worth keeping, because this is the only finding in the report that a reviewer *reversed* rather than refined: (i) rendered-image evidence is not self-validating — a null observation ("the line is not there") needs a zoom before it is asserted, whereas a positive one ("these glyphs overprint") does not, and I applied that standard unevenly across Figs. 4 and 6; (ii) the disagreement resolved correctly and quickly *because* RCP-042 cited a reproducible method (generator `pareto_front` membership plus a pixel crop) rather than a counter-assertion. The residual legibility point — the staircase is ambiguous at print size where it runs along a gridline — is real but cosmetic, and is now recorded as such rather than as a correctness defect.
 - **Selection-mechanism independence (Claude, new).** §3.1 and §4.1 present the three selection strategies as spanning a conceptual space ("one reactive, one statistical, one simulation-based"). RCP-037 shows LA's trigger is Service-Level at `z=0, n_d=1`, so four of the five *variants* are one parameter family. This does not contradict any recorded finding, but it qualifies the framing of the paper's headline result and strengthens the case for RCP-033's missing anchors. Flagged here rather than silently folded into §4.1 because it revises how an existing strength should be described.
+
+- **Method-fidelity rectifications (DeepSeek, 2026-08-28).** Two of the five shared-round method-fidelity mismatches are now withdrawn in the paper's favour after primary-artifact verification: (1) Fast-TSP (RCP-003) — the paper's text matches the dependency implementation exactly, threshold 20, exact DP ≤ 20, randomized local search above; (2) Pareto-front ALNS inclusion (§11/RCP-013) — the published dashed front does include ALNS. RCP-048 records the Fast-TSP withdrawal; RCP-042 records the Pareto withdrawal. The remaining verified mismatches (Service-Level linear-vs-√n, Look-Ahead "simulates forward", Gamma units kg/day vs %-points, Empirical "replays" vs marginal resampling, BPC "exact" wording) stand. One genuinely new material gap was added: **the paper never publishes the objective coefficients** (r_w = 0.5837 €/kg, c_km = 1 €/km verified in archived day logs; Q = 2,500/3,500 kg physical; density; bin volume) — RCP-041.
 
 ## 18. Changelog
 
 - **2026-08-28 — Codex:** Created the shared report; synthesized five independent manuscript reviews and direct code/config/data audits. Independently verified fleet-setting, capacity-day, 90-day membership, method-fidelity, and headline-arithmetic findings. Added evidence protocol, amendment ledger, roadmap, and open questions.
 - **2026-08-28 — opencode:** Added the independent arithmetic audit of every generated table (§7.4) — all counts, marginals, and derived means reproduce from the manuscript alone. Reconciled the 174→165 horizon-pair drop as integrity-excluded cells (§6.2). Flagged previously unrecorded manuscript defects: missing code-availability statement, `SLSL2` label bug, median-ratio verifiability gap, Pareto-enumeration omission, Eq. (6) unit mixing, specific typos, letter-size PDF, misdated bib keys and uncited entries. Extended the ledger (RCP-016–RCP-022), claim map, figure/citation tables, open questions, and disagreement log.
 - **2026-08-28 — Gemini (Agy):** Expanded mathematical formulation analysis in §4.3 with the decoupling of the single-period VRPP profit objective from multi-period overflow penalties (explaining why Selection dominates downstream routing). Added SWC-TCF $\mathcal{O}(V^2)$ quadratic complexity and Gurobi timeout truncation analysis in §5. Extended the claim map and amendment ledger with RCP-023 (objective decoupling), RCP-024 (silent MIP timeout truncation), RCP-025 (unexercised sensor noise), and RCP-026 ($R=1$ seed replication gap). Added open questions on solver fallback telemetry and sensor noise benchmarking.
+- **2026-08-28 — Claude (third pass, acting on author decisions):** Closed every residual from §5.1 in `paper.tex` except one infrastructure item. **RCP-002:** replaced the contradictory conservatism clause with an explicit statement that the deviation term scales linearly in $n_d$ (deliberately conservative against an i.i.d.\ projection, robust to positive serial correlation) and that SL2 therefore carries exactly twice SL1's margin — so SL1/SL2 are one conservatism dial, not a horizon test; disclosed $z=0.84$; and fixed the unit mismatch by defining a sensed fill ratio $\hat{\rho}_{i,d}=\hat{w}_{i,d}/C_i$ once in §4.1, restating Last-Minute in ratio terms and SL's threshold as $C_i$ (this also closes the Eq.-(6) half of RCP-021). **RCP-005:** dropped the multiplier entirely per author decision — §5.3.2 now prints both ranges and says why no ratio is given — and fixed all three companion errata. **RCP-001:** added the author's minimum-trips route-count rule $K_d=\lceil \text{kg}_d/Q \rceil$ to §4.4 with its remote-depot justification, and computed the distribution over all 14,400 archived day-results using the correct per-city payloads (Rio Maior 3,500 kg, Figueira 2,500 kg, from `repository/base.py:134,138`): 94.1% single-trip, 5.8% two-trip, 0.1% three-trip of 9,642 collection days, every multi-trip day at Figueira, max 7,094.5 kg → 3 trips. **RCP-037:** rewrote the Look-Ahead paragraph to state the deterministic mean-rate projection accurately, drop the unsupported per-decision cost claim, and record that LA's trigger is Service-Level at $z=0,n_d=1$. **RCP-004:** re-ticked partial and reclassified as time-blocked, not work-blocked — lineage exists off-repository, returning \~2026-09-04, no rerun needed. **RCP-047:** held open by author decision for the TTOP work, with a note that the constant is currently dead configuration. Paper rebuilds clean throughout (0 errors, 0 overfull boxes, 36 pp.).
+- **2026-08-28 — Claude (second pass):** Converted §13 from a table into a **clickable three-state triage ledger** (✅ done/void · 🟡 partial · 🔴 untouched) covering all 49 items, grouped by severity with a `Withdrawn / superseded` group so struck-through entries cannot be silently dropped; verified 49/49 IDs and 147 checkboxes survive the conversion. Added **§5.1**, a line-by-line verification of the author's `c9dc4e5` fixes: RCP-002, RCP-005 and RCP-047 are each genuine improvements but none is complete, and RCP-002's equation fix has left the following sentence ("not in how conservative they are at a given distance") contradicting the corrected rule on the same page — flagged as the highest-value one-sentence edit outstanding. Executed the **RCP-001** manuscript repair on the author's instruction (five edits removing every single-vehicle claim; clean rebuild) and updated §2.1, §3.3 and §4.1 to match, keeping the underlying telemetry gap open. **Retracted my own Fig. 4 "front omits ALNS" finding** after RCP-042 challenged it — re-cropped at 3× and the ALNS link is present; recorded the retraction and the process lesson in §17. Refreshed the header with a ledger state line.
 - **2026-08-28 — Claude:** Replaced §11 with a rendered-image figure audit (every PNG opened, not caption-inferred), adding severity grades and exact rendered evidence; split RCP-035 (Fig. 6 illegible labels) and RCP-036 (Fig. 2 contradicts §4.2) out of the RCP-013 catch-all at BLOCKER, and added RCP-038–RCP-040 (appendix panel-axis mismatch and unencoded constructor, colour-accessibility, Fig. 8 selection criterion). Added RCP-037: Look-Ahead's mandatory trigger is exactly Service-Level with `z=0, n_d=1`, so four of five selection variants are one parameter family — which explains the monotone frontier and qualifies the "selection dominates construction" framing (§5). Closed the provenance thread under RCP-002 by tracing the full SL1/SL2 wiring and quantifying the SL2 consequence (~41% more conservative than the printed rule). Pinned §7.1's three handwritten errata to source values and added an end-to-end raw-CSV→generator reproduction complementing opencode's manuscript-internal audit. Sharpened §10.3's page budget to the 28-page *body* count with a costed ~6-page cut. Added the editorial recommendation to demote §5.3.3 rather than defend it (§6.3). Extended the evidence index and disagreement log.
 - **2026-08-28 — Grok:** Promoted plastic \((r_w, c_{km})\) from “repository defaults” to VERIFIED-in-archive via the day-level profit identity in stored JSON. Documented kg/km vs profit constructor-rank divergence (RCP-027). Added the Jorge 2022 / unbound \(T_{\max}\) mismatch (RCP-028), PG-CLNS underspecification (RCP-029), unpublished search budgets (RCP-030), Empirical-vs-Gamma capacity-binding gap (RCP-031), leftover NCO image assets (RCP-032), and the missing null-selection / must-collect-all ablation (RCP-033). Independently corroborated Fast-TSP class mismatch (RCP-003) and the wrong Lin 2017 Farkas citation (RCP-034). Inserted the “two papers in one manuscript” framing in §2. Did not reopen the concatenated-tour-as-single-route claim; daily mass figures are recorded as mass, not as route counts.
+- **2026-08-28 — DeepSeek:** Full claim-to-artifact audit. Added the objective-coefficients gap (RCP-041), the Pareto-front false-positive withdrawal (RCP-042), the soft-budget runtime finding (RCP-043), the fast_tsp uint16-vs-SCALE contract (RCP-044), the reward-vs-profit third metric (RCP-045), the seed-mechanism overstatement (RCP-046), the Jorge/shift wording merge (RCP-047), the Fast-TSP method-fidelity withdrawal (RCP-048), and the batch.yaml 90-day rule reconstruction (RCP-049). Withdrew two prior figures/method findings — the ALNS omission on Fig. 4 and the Fast-TSP "different class" claim — with primary evidence (regenerated front via `pareto_front`; upstream C++ source). Confirmed independently: all six generated tables reproduce to the last digit (including 165-pair horizon accounting and 57-per-constructor counts), the profit identity in day logs, the 21-of-22 CLS-loss distribution, and the near-zero simulation-run seeded-process claim. Added the std-of-marginals correction to §7.1 and the §6.3/§5 rectification notes. Signed off on §7.4's audit and the "paper is overlong" assessment with the 28-body-page costed cut.
 
