@@ -35,6 +35,8 @@ The manuscript is not submission-ready. Several core descriptions do not match t
 
 The correct editorial stance is **major revision, not rejection**. The work's strongest ideas should survive a narrower and more exact paper. The authors should distinguish the evaluated classical benchmark from the framework's wider solver library, state the operational problem that was actually run, repair the claim-to-artifact lineage, and rerun only where text corrections cannot restore validity.
 
+Two papers are currently occupying one manuscript. **Paper A** is the experiment that was actually stored: eight classical constructors, five selection variants, two improvers, two demand processes, three network sizes, 480 thirty-day cells, 174 ninety-day cells, plastic bins in Rio Maior and Figueira da Foz. **Paper B** is the software claim in the title, abstract, keywords, and NCO-heavy related work: a general stochastic MPVRPP framework hosting learned solvers, noisy IoT sensing, and multi-vehicle dispatch. Paper B may be a fair description of the *repository*. It is not what the tables measure. The body already knows this — the introduction says the architectural scope is “broader than the experiment reported below,” and a later paragraph admits that every stored 30- and 90-day row uses a classical constructor — but that admission sits after a page of Pointer Networks, AM, POMO, and DIFUSCO. A reader of the abstract never hears it. Revision should publish Paper A, with Paper B as an explicitly scoped extensibility paragraph plus a versioned artifact.
+
 ### 2.1 Highest-priority actions
 
 1. Resolve and disclose the fleet semantics. Either reframe the archived study as an automatic/unbounded-route experiment or rerun with a verified one-vehicle limit. Add route-count, payload, and shift-feasibility telemetry.
@@ -48,12 +50,16 @@ The correct editorial stance is **major revision, not rejection**. The work's st
 9. Run the improvers against identical stored constructor tours before interpreting their difference causally.
 10. Tighten the paper substantially, repair the figures and bibliography, and move implementation catalogue material to an artifact or appendix.
 11. Add a code and data availability statement to the manuscript itself. The current text contains no repository URL, DOI, license, or availability statement of any kind — a near-disqualifying omission for a paper whose first contribution bullet is "a reproducible simulator".
+12. Publish constructor search budgets as they were run (60 s constructor / 30 s improver per day; ACO-HH 10 ants / 50 iterations; BPC `exact_mode: false`). “ACO-HH is the fastest” is otherwise a statement about a lightly budgeted search, not about ACO-HH.
+13. Either specify PG-CLNS to reimplementation standard (pseudocode, parameters, ablation vs plain ALNS) or demote the “original design” claim.
+14. Stop citing Jorge et al. (2022) SANS as the workload-aware method of that paper while running it with shift duration unloaded. Enforce \(T_{\max}\) or qualify the implementation.
+15. Add a null-selection cell (empty mandatory set) and a must-collect-all cell. The current “selection dominates construction” result compares five flavours of *forcing*, not forcing against not forcing.
 
 ## 3. Research contribution and boundaries
 
 ### 3.1 What is genuinely strong
 
-The three-stage policy abstraction is the clearest contribution. Waste-routing systems often bundle dispatch thresholds and spatial optimization into one named policy, making it impossible to tell whether a result comes from collection timing or route geometry. This framework exposes those decisions as separate interfaces and lets selection, construction, and improvement components be composed. The implemented day pipeline reflects that idea:
+The three-stage policy abstraction is the clearest contribution. Waste-routing systems often bundle dispatch thresholds and spatial optimization into one named policy, making it impossible to tell whether a result comes from collection timing or route geometry. This framework exposes those decisions as separate interfaces and lets selection, construction, and improvement components be composed. State, formally, that **construction is a myopic single-period VRPP and that the only multi-period intelligence in the reported policies sits in selection**. That sentence is currently implied. It should be theorem-like, because it is why selection dominates the tables. The implemented day pipeline reflects the split:
 
 `Fill → Mandatory Selection → Route Construction → Route Improvement → Collection → Logging`
 
@@ -94,6 +100,11 @@ The benchmark does not establish general stochastic superiority because there is
 | Routing solvers optimize overflow penalties directly | Objective Eq. (2) includes only collected revenue and distance cost; zero overflow penalty in VRPP layer | CONTRADICTED | Clarify that overflow prevention relies entirely on upstream mandatory selection constraints |
 | Smart bin observation noise is benchmarked | Simulator supports $\epsilon$, but all archived runs set `sim.noise_std: 0.0` | UNEXERCISED | Distinguish simulator noise capability from the zero-noise empirical benchmark |
 | SWC-TCF failures were handled gracefully | Monolithic MIP timed out on $N=350$ and returned an empty tour, logged as an executed 0-collection run | CONTRADICTED | Add explicit `SolverTimeout` telemetry and fallback handling |
+| Reported constructor ranking is the ranking under \(\mathcal{P}\) | Mean kg/km and mean profit order the bottom three constructors differently on the 480-row CSV (SWC-TCF ≻ PSOMA ≻ SANS on kg/km; SANS ≻ PSOMA ≻ SWC-TCF on profit) | VERIFIED | Tabulate profit; say kg/km is an *ex post* KPI |
+| Look-Ahead is computationally expensive because it simulates \(P_i\) | `selection_lookahead.py` is a deterministic mean-rate projection plus a bundling pass; no sampling from \(P_i\) | VERIFIED | Drop the cost claim; name the heuristic |
+| SANS in this benchmark is the Jorge et al. (2022) workload-aware method | Jorge 2022 is built around shift duration and workload balance; archived runs do not bind \(T_{\max}\) (`DEFAULT_SHIFT_DURATION = 390` min is loaded and unused) | CONTRADICTED AS AN EMPIRICAL CLAIM | Enforce shift or qualify the implementation |
+| PG-CLNS is a specified original constructor | One paragraph of metaphor (pheromone + per-individual LNS, “inspired by” HVPL); no pseudocode, parameters, or ablation vs ALNS | OVERSTATED | Specify or demote |
+| Plastic \((r_w, c_{km})\) used in the archived runs are the current repository defaults | Day-level `profit` in stored JSON satisfies \(0.5837\,\mathrm{€/kg}\cdot\mathrm{kg} - 1\,\mathrm{€/km}\cdot\mathrm{km}\) exactly | VERIFIED IN THE ARCHIVE | Cite from a versioned manifest, but the archived logs already pin these two numbers |
 
 ## 4. Operational problem and mathematical model
 
@@ -143,7 +154,34 @@ The routing solvers maximize net profit (collected revenue minus travel cost). T
 
 The *only* mechanism forcing the vehicle to visit critically full bins is the **Mandatory Selection stage**, which imposes hard equality constraints ($\sum_k \sum_t x_{i,t,k} = 1$) on the candidate graph. This mathematical structure proves why selection strategy choice drives the bulk of service-level variance: the routing constructors are fundamentally agnostic to future temporal overflow costs unless forced by upstream mandatory constraints.
 
-The paper must give the physical/economic constants and units. The current repository returns plastic revenue `0.65 × 898 / 1000 = 0.5837 €/kg`, distance expense `1 €/km`, a 2.5 m³ bin volume, densities of 19 and 20 kg/m³, and physical payloads of 3,500 kg in Rio Maior and 2,500 kg in Figueira da Foz before converting payload to percentage-fill units. Because code may have evolved since the stored runs, the final paper should cite values from a versioned experiment manifest, not merely today's defaults.
+The paper must give the physical/economic constants and units. The current repository returns plastic revenue `0.65 × 898 / 1000 = 0.5837 €/kg`, distance expense `1 €/km`, a 2.5 m³ bin volume, densities of 19 and 20 kg/m³, and physical payloads of 3,500 kg in Rio Maior and 2,500 kg in Figueira da Foz before converting payload to percentage-fill units.
+
+Those two economic coefficients are no longer merely today's defaults. **VERIFIED against archived logs.** In `assets/output/30days/riomaior100_plastic/emp/la_cls/log_lookahead_bpc_custom_cls_1N.json`, day 0 has `kg=190.0`, `km=96.167`, `profit=14.736`, `reward=93.833`. Then \(0.5837 \times 190 - 96.167 = 14.736\) and \(\mathrm{reward} = \mathrm{kg} - \mathrm{km}\). The same identity holds on later collection days of that file. So the stored 30-day experiment *did* use \(r_w = 0.5837\) €/kg and \(c_{km} = 1\) €/km for plastic, and the logged `reward` is kilogram-minus-kilometre, not profit and not overflow-penalized.
+
+The same 480-row summary also shows that **kg/km ranking is not profit ranking**. Constructor means on the unfiltered 30-day CSV:
+
+| Constructor | Mean kg/km rank | Mean profit rank |
+|---|---:|---:|
+| BPC | 1 | 1 |
+| PG-CLNS | 2 | 2 |
+| ACO-HH | 3 | 3 |
+| ALNS | 4 | 4 |
+| HGS | 5 | 5 |
+| SWC-TCF | 6 | **8** |
+| PSOMA | 7 | **7** |
+| SANS | 8 | **6** |
+
+The top five are stable. The bottom three swap. After the integrity filter the published constructor table still ranks SWC-TCF above PSOMA above SANS on kg/km; that order is an artefact of the KPI, not of \(\mathcal{P}\). Profit and kg-lost are already in the logs and are never tabulated. Tonnage is the quantity used to throw runs out; not showing it as a result is perverse.
+
+A nearby, independent point: the daily VRPP that constructors actually search is **myopic**. The only multi-period intelligence in the reported policies sits in mandatory selection. That is why Gemini's overflow-penalty decoupling is not just a curiosity — it is the mechanism of the headline result. Strengthening it requires an ablation the discussion already wants and the design does not contain: a **null-selection** cell (empty mandatory set; constructors free) and a **must-collect-all** cell. Without those, “selection dominates construction” is a comparison among five flavours of forcing, not a comparison of forcing against not forcing.
+
+### 4.4 Shift duration, Jorge et al. (2022), and “the same SANS”
+
+Jorge et al. (2022), *Computers & Operations Research* 137:105518 — co-authored by two of the present authors and implemented here as SANS — is a paper about **workload and maximum shift duration**. Its abstract reports profit gains *and* better compliance with shift duration and route-balance constraints relative to a real operator. The present experiment turns that method loose with `DEFAULT_SHIFT_DURATION = 390` minutes loaded in constants and **not binding** on the daily search. Future work then proposes “working-shift duration constraints (e.g., the Temporal Team Orienteering Problem…)” as if \(T_{\max}\) were a new idea rather than a constraint the same group already published and then dropped.
+
+This is distinct from the `n_vehicles: 0` blocker, but it compounds it. A 318-stop, 4,702 kg HGS day at Figueira da Foz / Gamma-3 / Look-Ahead (`log_lookahead_hgs_custom_oi_cls_1N.json`) is not a 6.5-hour plastic-collection shift, at 3 minutes/bin service time *before* driving. Either bind \(T_{\max}\) and rerun, or write “SANS without the Jorge 2022 shift constraint.”
+
+Collection-time and speed constants exist (`COLLECTION_TIME_MINUTES = 3.0`, `VEHICLE_SPEED_KMH = 40.0`) and are similarly unpublished. They matter only if they actually constrained the search; if they did not, say so.
 
 ## 5. Method-to-code fidelity
 
@@ -157,6 +195,10 @@ The paper must give the physical/economic constants and units. The current repos
 | Common random numbers | Prose emphasizes reseeding policy-days | Archived configs load a shared seed-42 NPZ; optimizer randomness has a separate policy/day seed path | VERIFIED for current code/config, historical trace incomplete; record hashes and RNG streams |
 | BPC | Exact-method family | `exact_mode: false`, finite 60 s limits, heuristic options/fallbacks; no certificates in summaries | VERIFIED qualification; do not imply observed optimality |
 | SWC-TCF | Monolithic exact two-commodity MIP | $O(V^2)$ arc variables ($>122,500$ arcs on FF350) hit Gurobi 60 s timeout; returns empty/depot route on truncation | VERIFIED failure mechanism; add explicit solver timeout status |
+| Fast-TSP (second check) | “Routes of up to roughly twenty stops are solved to optimality by dynamic programming; longer ones fall back to a randomized local search” | Archived `la_ftsp` configs set `methods: [fast_tsp]`. `FastTSPRouteImprover` calls `fast_tsp.find_tour` via `tsp.find_route`. Held-Karp DP lives in a *different* registered class, `DPRouteReoptRouteImprover`, which these configs do not invoke | VERIFIED (independent corroboration of RCP-003) |
+| Constructor budgets | Unpublished | Every stored 30-day `pruned_config.yaml` inspected: constructor `time_limit: 60.0` s/day, improver `time_limit: 30.0` s; ACO-HH `n_ants: 10`, `max_iterations: 50`; BPC `exact_mode: false`, `max_bb_nodes: 2000` | VERIFIED; add a hyperparameter table |
+| PG-CLNS | “An original design — inspired by HVPL” | One prose paragraph; no pseudocode, complexity, parameter table, or ablation against ALNS. HVPL (Sun et al. 2023) is a location-routing algorithm with simultaneous pickup-delivery | OVERSTATED novelty; specify or demote |
+| Farkas-pricing citation | `Lin2017` | Lin, Ehrgott, Raith, *4OR* 15:331–357 (2017) is column generation for *multi-objective LP non-dominated sets*. It is not the reference for Farkas pricing of an infeasible RMP. Use Lübbecke–Desrosiers or Barnhart et al. 1998 (already cited, under the false key `BARNHART1970`) | VERIFIED wrong citation |
 
 The Service-Level mismatch is material. For SL2, the implementation's uncertainty term grows linearly with horizon rather than with the square root of horizon. A prose correction alone is legitimate only if the implemented rule was intended and can be defended. If the square-root aggregation is the intended statistical model, all affected rows must be regenerated. The printed equation has a further defect independent of the code: its threshold is written `≥ 100%` while the state definition makes $w_{i,d}$ an absolute mass in $[0, C_i]$ (paper.tex Eq. 6 vs. Sect. 2.1), so the rule as printed compares an absolute fill projection against a percentage. Whichever rule is adopted must normalize fill by $C_i$ — or compare against $C_i$ directly — consistently.
 
@@ -233,7 +275,12 @@ The constructor aggregate in the current Pareto figure includes ALNS as non-domi
 
 The monotone movement of the selection variants across efficiency and service is operationally interesting. Later collection improves kg/km and reduces distance, while earlier collection reduces overflow. Remote depot legs plausibly strengthen this trade-off by imposing a fixed cost on each dispatch. That mechanism is plausible, not identified: a nearby-depot ablation and fixed-service-level comparison are needed before assigning causality.
 
-Constructor differences appear more consequential in runtime and tail failures than in central overflow counts. That is a useful finding if stated as descriptive evidence from the current grid.
+Constructor differences appear more consequential in runtime and tail failures than in central overflow counts. That is a useful finding if stated as descriptive evidence from the current grid. Runtime is also the only plane on which construction cleanly separates (4.5× at \(N=350\)). Lean on that harder: if a selection rule is already chosen, pick the constructor on the time–tail plane, not on mean kg/km.
+
+Two further results-audit items from the archived logs:
+
+- **Empirical vs Gamma-3 capacity binding is not the same observed object.** BPC at Figueira da Foz / Look-Ahead / CLS hits **exactly 2,500.0 kg** on several empirical collection days (physical truck payload, capacity binding). The same constructor at the same city under Gamma-3 hits **4,999.6 kg** — the percent-converted \(Q\) sitting on a 5,000 kg-shaped cap. ALNS / PG-CLNS / PSOMA CF90 Gamma-3 days go through even that, to 7,061–7,095 kg. Combined with RCP-009 (Gamma increments are percentage-point fill, not kg/day), this is a units-and-capacity question the paper must answer before pooling any constructor ranking across the two demand processes. Do not treat “Gamma-3 is a heavier load” as the whole story until daily mass is shown against the *same* \(Q\).
+- **Leftover Paper-B assets.** `Images/Architectures/` still contains AM / DDAM / TransGCN / AGC block PDFs, and `Images/Results/Training/` contains AM training-loss plots, none of which appear in the compiled paper. That is what an unevaluated NCO manuscript looks like on disk. Delete them from the paper tree or use them.
 
 ### 7.4 Independent arithmetic audit of the generated tables (opencode)
 
@@ -352,7 +399,7 @@ All cited keys currently resolve, but resolution is not the same as bibliographi
 
 - `WENTGES2006`, whose year and DOI metadata disagree;
 - incomplete or malformed Lysgaard metadata;
-- `Lin2017`, which may not support the Farkas-pricing claim for which it is cited;
+- `Lin2017`, cited for Farkas pricing of an infeasible RMP (`paper.tex:460–461`). The paper is Lin, Ehrgott, Raith, “Integrating column generation in a method to compute a discrete representation of the non-dominated set of multi-objective linear programmes,” *4OR* 15:331–357 (2017). **VERIFIED wrong citation** for that proposition. Use Lübbecke–Desrosiers or Barnhart et al. 1998;
 - legacy key `BARNHART1970` for a 1998 publication;
 - doubled or malformed DOI rendering, including the Sun entry;
 - generic export keys that make maintenance harder;
@@ -393,6 +440,14 @@ The final citation pass should verify author order, title, venue, year, volume/i
 | RCP-024 | HIGH | VERIFIED | Silent MIP solver truncation: SWC-TCF timeout on $N=350$ emitted empty tour logged as 0-collection day rather than raising `SolverTimeout` | Yes; add solver status telemetry |
 | RCP-025 | MEDIUM | VERIFIED | Unexercised IoT sensor noise: Framework supports $\epsilon > 0$ and Fig. 2 prominently features it, but all 480 runs set `sim.noise_std = 0.0` | No; qualify diagram and scope claims |
 | RCP-026 | HIGH | VERIFIED | Lack of statistical seed replication ($R=1$): Single stochastic demand realization per cell prevents standard error computation and ANOVA/Wilcoxon hypothesis testing | Yes; replicate factorial design with $R \ge 5$ |
+| RCP-027 | HIGH | VERIFIED | kg/km ranking ≠ profit ranking for SWC-TCF / PSOMA / SANS on the 480-row CSV; profit and kg-lost are logged and never tabulated | No for a first correction (add columns); yes for any claim that constructors were ranked under \(\mathcal{P}\) |
+| RCP-028 | HIGH | VERIFIED | Jorge et al. (2022) SANS is run without binding shift duration; \(T_{\max}\) is proposed as future work | Yes if the paper wants to claim the Jorge 2022 method; no if the implementation is qualified |
+| RCP-029 | MEDIUM | VERIFIED | PG-CLNS “original design” is underspecified (no pseudocode, parameters, or ALNS ablation); HVPL inspiration is a different problem class | No if demoted; yes if kept as a claimed new algorithm |
+| RCP-030 | MEDIUM | VERIFIED | Constructor/improver search budgets unpublished (60 s + 30 s/day; ACO-HH 10 ants / 50 iterations; BPC `exact_mode: false`) | No; add a hyperparameter table from the pruned configs |
+| RCP-031 | MEDIUM | VERIFIED | Figueira empirical BPC binds at 2,500 kg; Gamma-3 BPC binds near 5,000 kg; several metaheuristics exceed both. Demand-process × capacity-unit interaction is unexamined | Analysis first; rerun if \(Q\) is confirmed inconsistent across processes |
+| RCP-032 | LOW | VERIFIED | Unused NCO architecture PDFs and AM training plots remain in the paper `Images/` tree and are not compiled | No; delete or use |
+| RCP-033 | MEDIUM | VERIFIED | No null-selection or must-collect-all cell, so the selection-vs-construction claim has no unforced / fully-forced anchors | Yes, even on one network |
+| RCP-034 | LOW | VERIFIED | `Lin2017` does not support the Farkas-pricing claim | No; replace the citation |
 
 ## 14. Recommended revision sequence
 
@@ -410,14 +465,17 @@ The final citation pass should verify author order, title, venue, year, volume/i
 3. Rerun controlled improver comparisons from identical constructor outputs.
 4. If single-vehicle operation is central, rerun with an asserted positive fleet limit and a realistic shift/trip model.
 5. Run isolated runtime measurements and a nearby-depot ablation.
+6. Add a null-selection cell and a must-collect-all cell, even on \(N=100\) only (RCP-033).
+7. If SANS is still advertised as Jorge et al. (2022), bind shift duration; otherwise qualify the implementation (RCP-028).
+8. Audit daily collected mass against physical \(Q\) per city and demand process before any pooled constructor ranking (RCP-031).
 
 ### Phase C — rewrite and release
 
 1. Narrow the abstract and introduction to evaluated evidence.
 2. Correct the formulation, methods, constants, and horizon protocol.
-3. Regenerate every table and figure from one audited analysis path.
-4. Shorten the manuscript and repair citations/accessibility.
-5. Publish a versioned artifact with one end-to-end command and expected hashes.
+3. Regenerate every table and figure from one audited analysis path. Add profit and kg-lost columns; generate the “2.8×” factor as a prose constant so it cannot drift again.
+4. Shorten the manuscript and repair citations/accessibility. Specify or demote PG-CLNS; delete unused NCO architecture figures from the paper tree.
+5. Publish a versioned artifact with one end-to-end command and expected hashes, plus the hyperparameter table taken from the frozen pruned configs (60 s / 30 s, ACO-HH 10/50, BPC `exact_mode: false`).
 
 ## 15. Evidence index
 
@@ -431,7 +489,10 @@ Primary sources used in this initial shared draft:
 - simulator: `logic/src/pipeline/simulations/`;
 - policy stages: `logic/src/policies/mandatory_selection/`, `route_construction/`, and `route_improvement/`;
 - physical/economic conversion: `logic/src/pipeline/simulations/repository/base.py` and `bins/base.py`;
-- individual reviews: `.agent/reports/{chat,claude,gemini,grok,opencode}/`.
+- individual reviews: `.agent/reports/{chat,claude,gemini,grok,opencode}/`;
+- Grok log-level checks: `assets/output/30days/riomaior100_plastic/emp/la_cls/log_lookahead_bpc_custom_cls_1N.json` (profit identity), `.../figueiradafoz350_plastic/{emp,gamma3}/la_cls/log_lookahead_bpc_custom_cls_1N.json` and `.../gamma3/lm_cls/log_last_minute_cf90_{alns,psoma,pg_clns}_*.json` (daily mass vs payload), `.../emp/la_ftsp/hydra/pruned_config.yaml` (improver method `fast_tsp`);
+- Look-Ahead / Service-Level implementations: `logic/src/policies/mandatory_selection/selection_lookahead.py`, `selection_service_level.py`;
+- Fast-TSP vs DP improvers: `logic/src/policies/route_improvement/fast_tsp.py`, `dp_route_reopt.py`, `logic/src/policies/route_construction/other_algorithms/travelling_salesman_problem/tsp.py`.
 
 ## 16. Open questions
 
@@ -448,21 +509,27 @@ Primary sources used in this initial shared draft:
 11. Were the horizon prose's median 90/30 overflow ratios (2.4–3.3) computed from per-configuration data behind the table, and can a median-ratio column be added so the claim is checkable (RCP-019)?
 12. Why did Gurobi return an empty route upon timeout for SWC-TCF on $N=350$ without the simulator flagging a fallback or execution error?
 13. Can a targeted noise ablation experiment ($\sigma \in \{0.05, 0.15, 0.25\}$) be run to validate the Look-Ahead and Service-Level heuristics under realistic IoT sensor degradation?
+14. Why does BPC bind at 2,500 kg on Figueira empirical days and near 5,000 kg on Figueira Gamma-3 days? Is that the intended \(Q\), a units bug in the Gamma generator, or both (RCP-031)?
+15. Was PG-CLNS meant as a citable new algorithm, or as a registered hybrid LNS in the constructor panel? The text claims originality; the specification does not support a methods contribution (RCP-029).
+16. Did any constructor in the archived commit actually consume `DEFAULT_SHIFT_DURATION`, or was shift always a no-op for the eight reported methods?
 
 ## 17. Disagreement log
 
 - An earlier review repeated the manuscript's “nearly four times” claim. Direct arithmetic from the published tables gives `2.77×`, and the slices differ. This draft uses the verified arithmetic.
 - Figure quality was rated highly by one text-oriented review. Direct visual inspection found overlapping labels, an incomplete Pareto line, source ambiguity in maps, and inconsistent appendix styling. This draft follows the visual evidence.
-- One review proposed constants `r=1`, `c=0.1`, and `Q=100`. The current repository trace instead yields `0.5837 €/kg`, `1 €/km`, and physical payloads of 3,500/2,500 kg converted internally to fill-percentage units. Because the archived commit is missing, this draft labels current values as repository defaults, not proven historical values.
+- One review proposed constants `r=1`, `c=0.1`, and `Q=100`. The current repository trace instead yields `0.5837 €/kg`, `1 €/km`, and physical payloads of 3,500/2,500 kg converted internally to fill-percentage units. A subsequent Grok check against *archived* day-level JSON (`log_lookahead_bpc_custom_cls_1N.json`, Rio Maior 100 / Empirical / LA / CLS) reproduces `profit = 0.5837·kg − km` and `reward = kg − km` to the stored decimals. **Update:** \(r_w\) and \(c_{km}\) for plastic are VERIFIED in the archived 30-day logs, not merely today's defaults. Physical \(Q\) and the percent-unit conversion remain repository-traced; the Empirical-vs-Gamma daily-mass gap (2,500 kg vs ~5,000 kg on the same BPC/Figueira cell) is still OPEN as to cause (RCP-031).
 - Earlier bus discussion treated the 90-day design as an intentional Pareto selection. Direct reconstruction from the tracked CSVs shows that the literal selection rule does not reproduce. This draft preserves the broader outcome-conditioned-sample warning while reopening its exact provenance.
 - Raw daily JSON makes large collections look like one route because the logger removes internal depot markers. This draft does not claim that the original solver returned one over-capacity route. It claims the narrower verified facts: the experiment was configured without a positive fleet limit, daily mass can require multiple payloads, and route-count provenance is lost.
 - Prose quality: one review rated the writing A− overall, while this draft criticizes generated-sounding patterns. Both hold: the flagged patterns (caveat restatement, em-dash chains) are real but concentrated in Sects. 5.7 and 6, whereas the constructor descriptions in Sect. 4 (two-commodity intuition, HGS giant-tour/split decoding) are genuinely strong. The recommendation is targeted trimming of the repetitive sections, not a wholesale rewrite.
 - Figure assessment methodology differs across contributors: the opencode review could not render images, so its figure findings are caption- and metadata-derived (admitted outlier axis-extent, PNG table, raster DPI, dimensions). The visual findings (overlapping labels, incomplete Pareto line, map issues) rest on other reviewers' direct inspection. The two sources agree wherever they overlap.
 - One review initially repeated the manuscript's "nearly four times" claim; its independent table audit (§7.4) subsequently confirmed the 2.77× recomputation already recorded above. The arithmetic is now doubly verified.
+- An earlier Grok reading of concatenated `daily.tour` arrays treated each collection day as one over-capacity route. The disagreement entry above still holds: the logger strips internal depot markers, so route *count* is not recoverable from JSON. The payload-overshoot numbers (BPC empirical 2,500 kg exact; Gamma-3 BPC 4,999.6 kg; PSOMA/ALNS/PG-CLNS CF90 Gamma-3 ~7,060 kg) are daily *mass*, not proof of a single-trip solver output.
+- Grok independently corroborated RCP-003 (Fast-TSP): archived `la_ftsp` Hydra configs request `methods: [fast_tsp]`; `FastTSPRouteImprover` calls `fast_tsp.find_tour`; the paper's “DP up to ~20 stops” description is `DPRouteReoptRouteImprover`, a different class. Status remains VERIFIED.
 
 ## 18. Changelog
 
 - **2026-08-28 — Codex:** Created the shared report; synthesized five independent manuscript reviews and direct code/config/data audits. Independently verified fleet-setting, capacity-day, 90-day membership, method-fidelity, and headline-arithmetic findings. Added evidence protocol, amendment ledger, roadmap, and open questions.
 - **2026-08-28 — opencode:** Added the independent arithmetic audit of every generated table (§7.4) — all counts, marginals, and derived means reproduce from the manuscript alone. Reconciled the 174→165 horizon-pair drop as integrity-excluded cells (§6.2). Flagged previously unrecorded manuscript defects: missing code-availability statement, `SLSL2` label bug, median-ratio verifiability gap, Pareto-enumeration omission, Eq. (6) unit mixing, specific typos, letter-size PDF, misdated bib keys and uncited entries. Extended the ledger (RCP-016–RCP-022), claim map, figure/citation tables, open questions, and disagreement log.
 - **2026-08-28 — Gemini (Agy):** Expanded mathematical formulation analysis in §4.3 with the decoupling of the single-period VRPP profit objective from multi-period overflow penalties (explaining why Selection dominates downstream routing). Added SWC-TCF $\mathcal{O}(V^2)$ quadratic complexity and Gurobi timeout truncation analysis in §5. Extended the claim map and amendment ledger with RCP-023 (objective decoupling), RCP-024 (silent MIP timeout truncation), RCP-025 (unexercised sensor noise), and RCP-026 ($R=1$ seed replication gap). Added open questions on solver fallback telemetry and sensor noise benchmarking.
+- **2026-08-28 — Grok:** Promoted plastic \((r_w, c_{km})\) from “repository defaults” to VERIFIED-in-archive via the day-level profit identity in stored JSON. Documented kg/km vs profit constructor-rank divergence (RCP-027). Added the Jorge 2022 / unbound \(T_{\max}\) mismatch (RCP-028), PG-CLNS underspecification (RCP-029), unpublished search budgets (RCP-030), Empirical-vs-Gamma capacity-binding gap (RCP-031), leftover NCO image assets (RCP-032), and the missing null-selection / must-collect-all ablation (RCP-033). Independently corroborated Fast-TSP class mismatch (RCP-003) and the wrong Lin 2017 Farkas citation (RCP-034). Inserted the “two papers in one manuscript” framing in §2. Did not reopen the concatenated-tour-as-single-route claim; daily mass figures are recorded as mass, not as route counts.
 
