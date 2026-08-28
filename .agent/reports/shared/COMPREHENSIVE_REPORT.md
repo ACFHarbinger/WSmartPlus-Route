@@ -91,6 +91,9 @@ The benchmark does not establish general stochastic superiority because there is
 | Gamma parameters are in kg/day | Generator output is percentage-point fill | CONTRADICTED | Correct units and show mass conversion |
 | Generated tables are internally consistent | Independent recomputation of every count and derived mean from the manuscript alone (§7.4) | VERIFIED | Keep; extend generation to derived prose constants so handwritten claims cannot drift |
 | Manuscript states its code/artifact availability | No repository URL, DOI, or availability statement anywhere in `paper.tex` | CONTRADICTED | Add availability statement tied to a versioned release |
+| Routing solvers optimize overflow penalties directly | Objective Eq. (2) includes only collected revenue and distance cost; zero overflow penalty in VRPP layer | CONTRADICTED | Clarify that overflow prevention relies entirely on upstream mandatory selection constraints |
+| Smart bin observation noise is benchmarked | Simulator supports $\epsilon$, but all archived runs set `sim.noise_std: 0.0` | UNEXERCISED | Distinguish simulator noise capability from the zero-noise empirical benchmark |
+| SWC-TCF failures were handled gracefully | Monolithic MIP timed out on $N=350$ and returned an empty tour, logged as an executed 0-collection run | CONTRADICTED | Add explicit `SolverTimeout` telemetry and fallback handling |
 
 ## 4. Operational problem and mathematical model
 
@@ -129,6 +132,17 @@ The paper's optimization model maximizes monetary profit, while the main experim
 - economic profit: material revenue minus distance expense;
 - reported research outcomes: kg/km, overflow events, distance, mass, runtime, and sometimes lost mass.
 
+#### Mathematical Decoupling of Single-Period Routing vs. Multi-Period Overflow Penalties (Gemini)
+
+A foundational mathematical property that explains the empirical dominance of the Selection stage over the Constructor stage is the **absence of an overflow penalty in the daily routing objective function**.
+
+In Equation (2) (`paper.tex:189`):
+$$\mathcal{P}(\mathcal{A}_d, \bm{w}_d) = r_w \sum_{v_i\in\mathcal{A}_{d,\cdot}}w_{i,d} - c_{km}\sum_{k=1}^{K}\sum_{t=0}^{T_{d,k}} \dist(a_{t,k},a_{t+1,k})$$
+
+The routing solvers maximize net profit (collected revenue minus travel cost). There is **no term penalizing unvisited bins that overflow** (e.g., $-\sum_{i \notin \mathcal{A}_d} c_{\text{ovf}} \mathbb{I}(w_{i,d} \ge C_i)$). Consequently, from the pure optimization perspective of the single-period route constructor, an overflowing bin located on a distant or isolated branch offers zero net incentive if the detour cost exceeds $r_w w_{i,d}$. 
+
+The *only* mechanism forcing the vehicle to visit critically full bins is the **Mandatory Selection stage**, which imposes hard equality constraints ($\sum_k \sum_t x_{i,t,k} = 1$) on the candidate graph. This mathematical structure proves why selection strategy choice drives the bulk of service-level variance: the routing constructors are fundamentally agnostic to future temporal overflow costs unless forced by upstream mandatory constraints.
+
 The paper must give the physical/economic constants and units. The current repository returns plastic revenue `0.65 × 898 / 1000 = 0.5837 €/kg`, distance expense `1 €/km`, a 2.5 m³ bin volume, densities of 19 and 20 kg/m³, and physical payloads of 3,500 kg in Rio Maior and 2,500 kg in Figueira da Foz before converting payload to percentage-fill units. Because code may have evolved since the stored runs, the final paper should cite values from a versioned experiment manifest, not merely today's defaults.
 
 ## 5. Method-to-code fidelity
@@ -142,10 +156,17 @@ The paper must give the physical/economic constants and units. The current repos
 | Empirical demand | “Replays” observed patterns | Samples each bin's empirical marginal independently | VERIFIED overstatement; state lost temporal and cross-bin dependence |
 | Common random numbers | Prose emphasizes reseeding policy-days | Archived configs load a shared seed-42 NPZ; optimizer randomness has a separate policy/day seed path | VERIFIED for current code/config, historical trace incomplete; record hashes and RNG streams |
 | BPC | Exact-method family | `exact_mode: false`, finite 60 s limits, heuristic options/fallbacks; no certificates in summaries | VERIFIED qualification; do not imply observed optimality |
+| SWC-TCF | Monolithic exact two-commodity MIP | $O(V^2)$ arc variables ($>122,500$ arcs on FF350) hit Gurobi 60 s timeout; returns empty/depot route on truncation | VERIFIED failure mechanism; add explicit solver timeout status |
 
 The Service-Level mismatch is material. For SL2, the implementation's uncertainty term grows linearly with horizon rather than with the square root of horizon. A prose correction alone is legitimate only if the implemented rule was intended and can be defended. If the square-root aggregation is the intended statistical model, all affected rows must be regenerated. The printed equation has a further defect independent of the code: its threshold is written `≥ 100%` while the state definition makes $w_{i,d}$ an absolute mass in $[0, C_i]$ (paper.tex Eq. 6 vs. Sect. 2.1), so the rule as printed compares an absolute fill projection against a percentage. Whichever rule is adopted must normalize fill by $C_i$ — or compare against $C_i$ directly — consistently.
 
 The Look-Ahead rule also needs a name that matches its behavior. Its trigger resembles a deterministic threshold-crossing projection, followed by synchronized collection of bins predicted to become critical within the same horizon. It is not a Monte Carlo policy and does not propagate sampled future states.
+
+#### Monolithic MIP Complexity and SWC-TCF Truncation Failure (Gemini)
+
+The SWC-TCF constructor directly implements the two-commodity flow formulation of Ramos et al. (2018). While it compactly models MTZ sub-tour elimination and capacity tracking without exponential lazy constraint generation, its size scales as $\mathcal{O}(V^2)$ continuous commodity flow variables ($u_{ij}, v_{ij}$) and $\mathcal{O}(V^2)$ binary routing variables ($x_{ij}$). 
+
+On Figueira da Foz ($N=350$), the formulation instantiates over $122,500$ potential directed arcs. Under Gamma-3 (higher daily arrival mass), the LP relaxation bound is weak, creating an immense branch-and-bound search tree. When Gurobi reached its 60 s wall-clock time limit without finding an integer-feasible incumbent, the wrapper returned an empty route. The simulation framework recorded this as a zero-collection day rather than raising an execution error or recording `SolverTimeout`, causing the cumulative 30%–86% tonnage shortfalls and 23,886 truncated overflow events identified in Table 6. Future solver wrappers must emit explicit solver termination status codes (`OPTIMAL`, `TIME_LIMIT`, `INFEASIBLE`, `FALLBACK_USED`).
 
 ## 6. Archived experiment and statistical validity
 
@@ -368,6 +389,10 @@ The final citation pass should verify author order, title, venue, year, volume/i
 | RCP-020 | LOW | VERIFIED | Pareto-membership enumeration omits SWC-TCF and SANS; sentence sums to 15 without stating the remaining constructors hold zero | No |
 | RCP-021 | LOW | VERIFIED | Formal-model gaps: Eq. (6) compares absolute fill against a `100%` threshold; fleet size $K$ never fixed to the experimental setting; overflow defined "at" capacity in Sect. 5.2 vs. "beyond" capacity in Sect. 4.4 | No |
 | RCP-022 | LOW | VERIFIED | Copy-editing: conclusion typos (`paper.tex:1172`, `:1188`), "unfeasible" (`:461`), brand-name drift (WSmartRoute+/WSmart Route+/WSmart-Route), US-letter PDF geometry, misdated bib keys, ~30 uncited bib entries | No |
+| RCP-023 | HIGH | VERIFIED | Mathematical decoupling: Routing objective $\mathcal{P}$ (Eq. 2) lacks an overflow penalty, making the single-period VRPP solver mathematically agnostic to future overflow risk without mandatory constraints | No; clarify theoretical basis in §2.2 & §4.3 |
+| RCP-024 | HIGH | VERIFIED | Silent MIP solver truncation: SWC-TCF timeout on $N=350$ emitted empty tour logged as 0-collection day rather than raising `SolverTimeout` | Yes; add solver status telemetry |
+| RCP-025 | MEDIUM | VERIFIED | Unexercised IoT sensor noise: Framework supports $\epsilon > 0$ and Fig. 2 prominently features it, but all 480 runs set `sim.noise_std = 0.0` | No; qualify diagram and scope claims |
+| RCP-026 | HIGH | VERIFIED | Lack of statistical seed replication ($R=1$): Single stochastic demand realization per cell prevents standard error computation and ANOVA/Wilcoxon hypothesis testing | Yes; replicate factorial design with $R \ge 5$ |
 
 ## 14. Recommended revision sequence
 
@@ -421,6 +446,8 @@ Primary sources used in this initial shared draft:
 9. Which physical/economic parameter sources support revenue, density, payload, bin volume, and distance cost?
 10. What is the target venue and hard page limit?
 11. Were the horizon prose's median 90/30 overflow ratios (2.4–3.3) computed from per-configuration data behind the table, and can a median-ratio column be added so the claim is checkable (RCP-019)?
+12. Why did Gurobi return an empty route upon timeout for SWC-TCF on $N=350$ without the simulator flagging a fallback or execution error?
+13. Can a targeted noise ablation experiment ($\sigma \in \{0.05, 0.15, 0.25\}$) be run to validate the Look-Ahead and Service-Level heuristics under realistic IoT sensor degradation?
 
 ## 17. Disagreement log
 
@@ -437,3 +464,5 @@ Primary sources used in this initial shared draft:
 
 - **2026-08-28 — Codex:** Created the shared report; synthesized five independent manuscript reviews and direct code/config/data audits. Independently verified fleet-setting, capacity-day, 90-day membership, method-fidelity, and headline-arithmetic findings. Added evidence protocol, amendment ledger, roadmap, and open questions.
 - **2026-08-28 — opencode:** Added the independent arithmetic audit of every generated table (§7.4) — all counts, marginals, and derived means reproduce from the manuscript alone. Reconciled the 174→165 horizon-pair drop as integrity-excluded cells (§6.2). Flagged previously unrecorded manuscript defects: missing code-availability statement, `SLSL2` label bug, median-ratio verifiability gap, Pareto-enumeration omission, Eq. (6) unit mixing, specific typos, letter-size PDF, misdated bib keys and uncited entries. Extended the ledger (RCP-016–RCP-022), claim map, figure/citation tables, open questions, and disagreement log.
+- **2026-08-28 — Gemini (Agy):** Expanded mathematical formulation analysis in §4.3 with the decoupling of the single-period VRPP profit objective from multi-period overflow penalties (explaining why Selection dominates downstream routing). Added SWC-TCF $\mathcal{O}(V^2)$ quadratic complexity and Gurobi timeout truncation analysis in §5. Extended the claim map and amendment ledger with RCP-023 (objective decoupling), RCP-024 (silent MIP timeout truncation), RCP-025 (unexercised sensor noise), and RCP-026 ($R=1$ seed replication gap). Added open questions on solver fallback telemetry and sensor noise benchmarking.
+
