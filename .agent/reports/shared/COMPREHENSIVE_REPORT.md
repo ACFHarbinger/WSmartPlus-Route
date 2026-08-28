@@ -47,6 +47,7 @@ The correct editorial stance is **major revision, not rejection**. The work's st
 8. Add an immutable experiment manifest and per-run completion/solver/fallback status.
 9. Run the improvers against identical stored constructor tours before interpreting their difference causally.
 10. Tighten the paper substantially, repair the figures and bibliography, and move implementation catalogue material to an artifact or appendix.
+11. Add a code and data availability statement to the manuscript itself. The current text contains no repository URL, DOI, license, or availability statement of any kind — a near-disqualifying omission for a paper whose first contribution bullet is "a reproducible simulator".
 
 ## 3. Research contribution and boundaries
 
@@ -88,6 +89,8 @@ The benchmark does not establish general stochastic superiority because there is
 | BPC observations represent an exact method | Archived BPC uses `exact_mode: false` and finite limits | CONTRADICTED AS AN EMPIRICAL CLAIM | Say time-limited BPC family; report gaps/status |
 | Empirical demand replays observed patterns | Independent per-bin empirical marginals | OVERSTATED | Say marginal empirical resampling |
 | Gamma parameters are in kg/day | Generator output is percentage-point fill | CONTRADICTED | Correct units and show mass conversion |
+| Generated tables are internally consistent | Independent recomputation of every count and derived mean from the manuscript alone (§7.4) | VERIFIED | Keep; extend generation to derived prose constants so handwritten claims cannot drift |
+| Manuscript states its code/artifact availability | No repository URL, DOI, or availability statement anywhere in `paper.tex` | CONTRADICTED | Add availability statement tied to a versioned release |
 
 ## 4. Operational problem and mathematical model
 
@@ -140,7 +143,7 @@ The paper must give the physical/economic constants and units. The current repos
 | Common random numbers | Prose emphasizes reseeding policy-days | Archived configs load a shared seed-42 NPZ; optimizer randomness has a separate policy/day seed path | VERIFIED for current code/config, historical trace incomplete; record hashes and RNG streams |
 | BPC | Exact-method family | `exact_mode: false`, finite 60 s limits, heuristic options/fallbacks; no certificates in summaries | VERIFIED qualification; do not imply observed optimality |
 
-The Service-Level mismatch is material. For SL2, the implementation's uncertainty term grows linearly with horizon rather than with the square root of horizon. A prose correction alone is legitimate only if the implemented rule was intended and can be defended. If the square-root aggregation is the intended statistical model, all affected rows must be regenerated.
+The Service-Level mismatch is material. For SL2, the implementation's uncertainty term grows linearly with horizon rather than with the square root of horizon. A prose correction alone is legitimate only if the implemented rule was intended and can be defended. If the square-root aggregation is the intended statistical model, all affected rows must be regenerated. The printed equation has a further defect independent of the code: its threshold is written `≥ 100%` while the state definition makes $w_{i,d}$ an absolute mass in $[0, C_i]$ (paper.tex Eq. 6 vs. Sect. 2.1), so the rule as printed compares an absolute fill projection against a percentage. Whichever rule is adopted must normalize fill by $C_i$ — or compare against $C_i$ directly — consistently.
 
 The Look-Ahead rule also needs a name that matches its behavior. Its trigger resembles a deterministic threshold-crossing projection, followed by synchronized collection of bins predicted to become critical within the same horizon. It is not a Monte Carlo policy and does not propagate sampled future states.
 
@@ -170,6 +173,8 @@ The 480 rows are factorial cells, not independent stochastic replications. Every
 Recomputing row-level non-dominance within each of the six 30-day scenarios yields 33 Pareto rows, of which only 23 appear in the 90-day set. Aggregating each policy definition over all six scenarios yields 13 non-dominated policies; only 10 are in the 29-policy carry-forward set, while 19 carried policies are dominated under that definition and three non-dominated policies are omitted. Thus neither the per-scenario row-level rule nor the global policy-aggregate rule reproduces “only policy configurations that lay on the 30-day Pareto front were carried forward.”
 
 This does not prove that the original selection was arbitrary. It may have used an earlier summary snapshot, another objective, another aggregation, or a constructor-level expansion rule. No tracked selection manifest currently shows which. Until the exact rule is recovered, the paper should call this a performance-selected 90-day subset without claiming literal Pareto membership. The within-configuration 30-versus-90 contrasts remain descriptive for selected configurations, but selection on the 30-day outcome can induce regression-to-the-mean effects and does not estimate a population horizon effect.
+
+The manuscript's own horizon accounting is internally consistent once reconstructed: it announces 174 90-day runs (paper.tex:777) but its horizon table pairs only 165 configurations (paper.tex:951). The nine lost pairs decompose by constructor as BPC −3, PG-CLNS −2, ACO-HH −2, PSOMA −1, SWC-TCF −1 (HGS and SANS unchanged) — exactly the configuration set whose 30-day runs sit in the integrity-excluded FF350/Γ3 cells. The paper never bridges the two numbers; one sentence would (RCP-018).
 
 ### 6.3 Improver comparison
 
@@ -201,13 +206,32 @@ Other handwritten comparisons need a generated assertion or prose-value test. Re
 
 ### 7.2 Pareto presentation
 
-The constructor aggregate in the current Pareto figure includes ALNS as non-dominated, but the dashed frontier omits it and connects only PG-CLNS to BPC. Regenerate the front from a single dominance function used by tables, figures, website exports, and 90-day selection. Add uncertainty only after replicated seeds exist; until then, describe points as one-realization outcomes.
+The constructor aggregate in the current Pareto figure includes ALNS as non-dominated, but the dashed frontier omits it and connects only PG-CLNS to BPC. Regenerate the front from a single dominance function used by tables, figures, website exports, and 90-day selection. Add uncertainty only after replicated seeds exist; until then, describe points as one-realization outcomes. The in-text Pareto-membership enumeration (paper.tex:820–823: PG-CLNS 5 of 6, PSOMA and HGS 3 each, BPC 2, ACO-HH and ALNS 1 each) sums to 15 and never states that SWC-TCF and SANS hold zero memberships; the sentence should enumerate all eight constructors so the total is checkable.
 
 ### 7.3 Interpretation that remains valuable
 
 The monotone movement of the selection variants across efficiency and service is operationally interesting. Later collection improves kg/km and reduces distance, while earlier collection reduces overflow. Remote depot legs plausibly strengthen this trade-off by imposing a fixed cost on each dispatch. That mechanism is plausible, not identified: a nearby-depot ablation and fixed-service-level comparison are needed before assigning causality.
 
 Constructor differences appear more consequential in runtime and tail failures than in central overflow counts. That is a useful finding if stated as descriptive evidence from the current grid.
+
+### 7.4 Independent arithmetic audit of the generated tables (opencode)
+
+A second pass recomputed the accounting of every generated table from the manuscript and `Tables/*.tex` alone, without consulting the archived CSVs. Every check reproduces exactly:
+
+| Quantity | Derivation | Result |
+|---|---|---|
+| 456 runs, 57 per constructor | 480 − (3 degenerate 30-day cells × 8 constructors); 456/8 = 57 | ✅ |
+| Selection marginal n = 80 per variant | 96 constructor×improver×scenario slices; whole-cell exclusion leaves LA absent from FF350/Γ3 (both improver slices) and SL2 partially absent, so all 16 FF350/Γ3 slices fail the all-five-variants test → 80 per variant (400 runs) | ✅ |
+| 224 improver pairs | 240 constructor×selection×scenario pairs − 8 LA pairs (both improvers excluded) − 8 SL2 pairs (FTSP excluded) | ✅ |
+| Scenario marginals n = 216 and 136 | demand: 240 config×network units − 24 lacking one process; network: 160 config×process units − 24 lacking FF350 under Γ3 | ✅ |
+| Horizon table pair total | 28+57+12+40+11+12+5 = 165 | ✅ |
+| "+0.26 kg/km" paired horizon mean | Σ(pairs × per-constructor Δ)/165 = 42.31/165 = 0.256 from the table's own rounded cells | ✅ |
+| "roughly seven times" per-overflow contrast | (751 km / 2.2 events) / (456 km / 9.4 events) = 341 / 48.5 = 7.0, from table deltas | ✅ |
+| 4.5× runtime spread at N=350 | 5,451 / 1,219 = 4.47 | ✅ |
+| Gamma-3 moments | αβ and αβ² for (α, β) ∈ {1,3}×{8,6} reproduce all four means (8, 6, 24, 18) and variances (64, 36, 192, 108) | ✅ |
+| Improver Δ row | 6.39 − 5.65 = 0.74 kg/km; 4,358 − 4,662 = −304 km | ✅ |
+
+Two conclusions follow. First, the generated numerics are internally consistent to the last digit: every defect catalogued in this report lives in handwritten prose, method descriptions, or claim-to-artifact lineage — never in the generated cells. This is direct evidence that the `gen_paper_latex.py` discipline works, and it should be extended to derived prose constants (§7.1) so that literal claims like "nearly four times" cannot survive a regeneration. Second, mean-derived 90/30 overflow ratios computed from the horizon table's own columns are ACO-HH 3.59, BPC 3.52, HGS 2.78, PG-CLNS 3.26, PSOMA 3.17, SANS 3.11, SWC-TCF 5.82. The prose's "between 2.4 and 3.3" cites medians the table does not show, and two constructors' mean ratios already exceed the stated band (RCP-019).
 
 ## 8. Codebase assessment
 
@@ -282,7 +306,7 @@ The conclusion is repetitive and stylistically weaker. Replace the long future-w
 
 ### 10.4 Writing
 
-The main prose is generally competent but sometimes sounds generated: contrast templates such as “not X but Y,” repeated caveat restatements, long em-dash chains, inflated adjectives, and abstract nouns in place of direct verbs. Prefer short factual sentences and state each limitation once at the point where it constrains a claim. Standardize names (`WSmart+ Route`, `MPVRPP`, `SL1`, `SL2`, `Fast-TSP`) and correct the remaining conclusion grammar and typographical errors.
+The main prose is generally competent but sometimes sounds generated: contrast templates such as “not X but Y,” repeated caveat restatements, long em-dash chains, inflated adjectives, and abstract nouns in place of direct verbs. Prefer short factual sentences and state each limitation once at the point where it constrains a claim. Standardize names (`WSmartRoute+` in the body vs. `WSmart Route+` in the acknowledgments vs. `WSmart-Route` in the repository) and correct the remaining conclusion grammar and typographical errors. Specific line-anchored corrections: `paper.tex:1172` “on difference temporal horizons” → “different”; `paper.tex:1188` “a upstream phase” → “an upstream phase”; `paper.tex:461` “unfeasible” → “infeasible”. The LaTeX build itself is clean — no undefined references and no overfull boxes in `paper.log` — but the PDF is produced on US letter, where LNCS production expects the class's own page geometry.
 
 ## 11. Figures, tables, and accessibility
 
@@ -296,8 +320,10 @@ The main prose is generally competent but sometimes sounds generated: contrast t
 | Runtime/scaling | Sparse log ticks and similar colors impede reading | Add useful ticks, direct labels, and colorblind-safe encodings |
 | Appendix heatmaps | Useful but visually detached from main-paper style | Regenerate with shared typography and palettes |
 | Appendix full table | Rasterized text is not searchable or accessible | Generate vector/PDF or LaTeX; never hand-edit `Tables/` |
+| Appendix policy-level Pareto | Its own caption admits the excluded degenerate run (≈2,168 overflows) sets the Gamma-3 panel's horizontal axis extent | Clip the axis, use a log scale, or draw the excluded point as an off-scale annotation |
+| Fill-trajectory figure | Honest caption (“re-simulated from the recovered daily increments”); the single-bin, fixed-increment view is the clearest mechanism illustration in the paper | Keep; add the same view for a Service-Level variant to show how the projection rule times collection |
 
-Every figure caption should state the population/slice, horizon, exclusion rule, aggregation, and whether uncertainty is available. Maps should distinguish coordinate source, road-distance source, and basemap source.
+Every figure caption should state the population/slice, horizon, exclusion rule, aggregation, and whether uncertainty is available. Maps should distinguish coordinate source, road-distance source, and basemap source. Main-text figures are raster PNGs of 857–1425 px width (≈200 DPI at `\linewidth`); export vector PDF from the plotting pipeline. The appendix CLS table image is 3060×1116 px and cannot be searched, screen-read, or restyled.
 
 ## 12. Citations and scholarly positioning
 
@@ -309,6 +335,9 @@ All cited keys currently resolve, but resolution is not the same as bibliographi
 - legacy key `BARNHART1970` for a 1998 publication;
 - doubled or malformed DOI rendering, including the Sun entry;
 - generic export keys that make maintenance harder;
+- `ma2024learning`, cited in text as 2024, is a NeurIPS 2023 paper (key year disagrees with venue year);
+- `Kool2018AttentionLT` keys 2018 but the venue is ICLR 2019;
+- roughly thirty bib entries are never cited (e.g. `vaswani2017attention`, `wu2019graph`, `kingma2014adam`, `Paszke2017AutomaticDI`, `sutton1999policy`, `williams1992simple`), and several entries carry full abstracts — maintenance hazards for the next revision;
 - ambiguous Google Maps/OpenStreetMap attribution and licensing.
 
 The final citation pass should verify author order, title, venue, year, volume/issue/pages, DOI, and the exact proposition supported. Add primary literature for inventory routing, periodic routing, team orienteering/prize-collecting routing, stochastic waste collection, and reproducible simulation benchmarking. Do not cite an implementation survey where the underlying algorithm paper is available.
@@ -332,6 +361,13 @@ The final citation pass should verify author order, title, venue, year, volume/i
 | RCP-013 | MEDIUM | VERIFIED | Figure defects and incorrect aggregate frontier | Regenerate figures |
 | RCP-014 | MEDIUM | CORROBORATED | Bibliographic metadata and domain coverage gaps | No |
 | RCP-015 | MEDIUM | VERIFIED | Paper is overlong and repetitive for likely proceedings format | No |
+| RCP-016 | HIGH | VERIFIED | Manuscript contains no code, data, or artifact availability statement (no repository URL or DOI anywhere in `paper.tex`) | No |
+| RCP-017 | MEDIUM | VERIFIED | Malformed `SLSL2` policy label in generated exclusion table (`tab:excluded`) — doubled prefix, generator naming defect visible in publication | Regenerate label |
+| RCP-018 | MEDIUM | VERIFIED | Paper states 174 90-day runs but horizon table pairs 165; the nine lost pairs are exactly the configs whose 30-day runs sit in integrity-excluded cells (§6.2), and the text never bridges the two numbers | No; add one sentence |
+| RCP-019 | MEDIUM | VERIFIED | Horizon prose cites median 90/30 overflow ratios (2.4–3.3) not shown in any table; mean-derived ratios span ≈2.8–3.6 and exceed the stated band for ACO-HH (3.59) and BPC (3.52) | Add median-ratio column or restate |
+| RCP-020 | LOW | VERIFIED | Pareto-membership enumeration omits SWC-TCF and SANS; sentence sums to 15 without stating the remaining constructors hold zero | No |
+| RCP-021 | LOW | VERIFIED | Formal-model gaps: Eq. (6) compares absolute fill against a `100%` threshold; fleet size $K$ never fixed to the experimental setting; overflow defined "at" capacity in Sect. 5.2 vs. "beyond" capacity in Sect. 4.4 | No |
+| RCP-022 | LOW | VERIFIED | Copy-editing: conclusion typos (`paper.tex:1172`, `:1188`), "unfeasible" (`:461`), brand-name drift (WSmartRoute+/WSmart Route+/WSmart-Route), US-letter PDF geometry, misdated bib keys, ~30 uncited bib entries | No |
 
 ## 14. Recommended revision sequence
 
@@ -384,6 +420,7 @@ Primary sources used in this initial shared draft:
 8. Was the intended improver `FastTSPRouteImprover` or `DPRouteReoptRouteImprover`?
 9. Which physical/economic parameter sources support revenue, density, payload, bin volume, and distance cost?
 10. What is the target venue and hard page limit?
+11. Were the horizon prose's median 90/30 overflow ratios (2.4–3.3) computed from per-configuration data behind the table, and can a median-ratio column be added so the claim is checkable (RCP-019)?
 
 ## 17. Disagreement log
 
@@ -392,7 +429,11 @@ Primary sources used in this initial shared draft:
 - One review proposed constants `r=1`, `c=0.1`, and `Q=100`. The current repository trace instead yields `0.5837 €/kg`, `1 €/km`, and physical payloads of 3,500/2,500 kg converted internally to fill-percentage units. Because the archived commit is missing, this draft labels current values as repository defaults, not proven historical values.
 - Earlier bus discussion treated the 90-day design as an intentional Pareto selection. Direct reconstruction from the tracked CSVs shows that the literal selection rule does not reproduce. This draft preserves the broader outcome-conditioned-sample warning while reopening its exact provenance.
 - Raw daily JSON makes large collections look like one route because the logger removes internal depot markers. This draft does not claim that the original solver returned one over-capacity route. It claims the narrower verified facts: the experiment was configured without a positive fleet limit, daily mass can require multiple payloads, and route-count provenance is lost.
+- Prose quality: one review rated the writing A− overall, while this draft criticizes generated-sounding patterns. Both hold: the flagged patterns (caveat restatement, em-dash chains) are real but concentrated in Sects. 5.7 and 6, whereas the constructor descriptions in Sect. 4 (two-commodity intuition, HGS giant-tour/split decoding) are genuinely strong. The recommendation is targeted trimming of the repetitive sections, not a wholesale rewrite.
+- Figure assessment methodology differs across contributors: the opencode review could not render images, so its figure findings are caption- and metadata-derived (admitted outlier axis-extent, PNG table, raster DPI, dimensions). The visual findings (overlapping labels, incomplete Pareto line, map issues) rest on other reviewers' direct inspection. The two sources agree wherever they overlap.
+- One review initially repeated the manuscript's "nearly four times" claim; its independent table audit (§7.4) subsequently confirmed the 2.77× recomputation already recorded above. The arithmetic is now doubly verified.
 
 ## 18. Changelog
 
 - **2026-08-28 — Codex:** Created the shared report; synthesized five independent manuscript reviews and direct code/config/data audits. Independently verified fleet-setting, capacity-day, 90-day membership, method-fidelity, and headline-arithmetic findings. Added evidence protocol, amendment ledger, roadmap, and open questions.
+- **2026-08-28 — opencode:** Added the independent arithmetic audit of every generated table (§7.4) — all counts, marginals, and derived means reproduce from the manuscript alone. Reconciled the 174→165 horizon-pair drop as integrity-excluded cells (§6.2). Flagged previously unrecorded manuscript defects: missing code-availability statement, `SLSL2` label bug, median-ratio verifiability gap, Pareto-enumeration omission, Eq. (6) unit mixing, specific typos, letter-size PDF, misdated bib keys and uncited entries. Extended the ledger (RCP-016–RCP-022), claim map, figure/citation tables, open questions, and disagreement log.
