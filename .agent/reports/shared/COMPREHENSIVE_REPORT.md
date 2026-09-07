@@ -532,8 +532,8 @@ Tick exactly one box per item. Items are grouped by severity and keep their orig
 - **RCP-002** · BLOCKER · VERIFIED · rerun: Yes if square-root rule is intended
   Service-Level equation differs from implementation
   > **CLOSED 2026-08-28 (author `c9dc4e5` + Claude).** Eq. (4) matches the executed code (`z σ̂ n_d`), and all three residuals are closed in `paper.tex`: the contradictory conservatism clause is replaced by an explicit statement that the deviation term scales linearly rather than as $\sqrt{n_d}$ — deliberately conservative against an i.i.d.\ projection, robust to the positive serial correlation real accumulation shows — and that SL2 therefore carries **exactly twice** SL1's margin, so SL1/SL2 are two points on one conservatism dial rather than a controlled horizon test; $z = 0.84$ is disclosed with its 80%-one-sided-service-level reading; and the unit mismatch is fixed by defining a sensed fill ratio $\hat{\rho}_{i,d}=\hat{w}_{i,d}/C_i$ once in §4.1, restating Last-Minute in ratio terms and SL's threshold as $C_i$ (which also closes the Eq.-(6) half of RCP-021). Nothing outstanding. See §5.1.
-  - [ ] ✅ Done / void
-  - [x] 🟡 Partial — needs review
+  - [x] ✅ Done / void
+  - [ ] 🟡 Partial — needs review
   - [ ] 🔴 Untouched
 
 - **RCP-004** · BLOCKER · VERIFIED · rerun: **No — provenance exists off-repository**
