@@ -219,7 +219,7 @@ During the in-depth audit of `paper.tex` and generated files, the following mino
 
 ### Phase 3: Long-Term Scientific Roadmap
 - [ ] **Integrate Trained NCO Models (AM, POMO, Sym-NCO)**: Evaluate trained attention models on the 30-day simulation using the existing `AttentionModelPolicy` adapter to fulfill the NCO research vision.
-- [ ] **Temporal Team Orienteering Problem (TTOP)**: Benchmark multi-vehicle fleets with working shift time limits ($T_{\max}$) and variable driver speeds using the newly implemented dual-constraint engine.
+- [ ] **Capacitated Team Orienteering Problem (CTOP)**: Benchmark multi-vehicle fleets with working shift time limits ($T_{\max}$) and variable driver speeds using the newly implemented dual-constraint engine.
 
 ---
 

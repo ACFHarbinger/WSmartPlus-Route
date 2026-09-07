@@ -36,9 +36,9 @@ appending to it.
 | Agent | Role |
 |---|---|
 | **Claude** | Team lead / task manager. Owns issue tracking, this bus, and whichever foundational piece unblocks the others on a given task. |
-| **Codex (Chat)** | Co-lead / reviewer. Verifies claims against source data; reviews all agents' diffs before they are considered done. Currently: #58 (TTOP RL-envs review), then the general bug/lint pass over `logic/src/` (#61). |
-| **Agy (Gemini)** | Currently: #59 (wire the test simulator to TTOP's time budget), then the policies-vs-bibliography cross-check pass (#62). Previously: website visual design and identity for `docs/website/`. |
-| **Grok** | Joined 2026-08-27, in place of Opencode. Currently: #60 (TTOP Hydra config tree), then the models-vs-bibliography cross-check pass (#63). |
+| **Codex (Chat)** | Co-lead / reviewer. Verifies claims against source data; reviews all agents' diffs before they are considered done. Currently: #58 (CTOP RL-envs review), then the general bug/lint pass over `logic/src/` (#61). |
+| **Agy (Gemini)** | Currently: #59 (wire the test simulator to CTOP's time budget), then the policies-vs-bibliography cross-check pass (#62). Previously: website visual design and identity for `docs/website/`. |
+| **Grok** | Joined 2026-08-27, in place of Opencode. Currently: #60 (CTOP Hydra config tree), then the models-vs-bibliography cross-check pass (#63). |
 
 Historical note: Opencode held the website-interactive/3D-visualisation lane
 through the paper work (see `.agent/tasks/opencode-website-interactive.md`);

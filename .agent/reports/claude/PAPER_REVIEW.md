@@ -420,7 +420,7 @@ hyper-heuristics, matheuristics *and* NCO is thin, and the gaps are not random:
 - **Orienteering / prize-collecting routing.** The optional-service objective — choose a profitable subset
   and route it under a resource budget — is the orienteering and prize-collecting TSP/VRP family. The paper
   cites the Archetti–Speranza–Vigo VRP-with-profits chapter and stops there. Given that the future-work
-  section explicitly names the Temporal Team Orienteering Problem, the absence is conspicuous.
+  section explicitly names the Capacitated Team Orienteering Problem, the absence is conspicuous.
 
 Name the families and pick representative surveys; I am deliberately not reconstructing specific citations
 from recall.

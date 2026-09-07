@@ -213,7 +213,7 @@ That one tour is not a plausible shift:
 - Physical truck payload in `get_area_params` is **2,500 kg** (Figueira plastic) and **3,500 kg** (Rio Maior plastic).
 - BPC on Figueira *empirical* sits on 2,500 kg exactly on several days (capacity binding, good). BPC on Figueira *Gamma-3* sits on **4,999.6 kg** (the percent-converted \(Q\) used as if it were kilograms). ALNS / PG-CLNS / PSOMA go through even that inflated cap.
 
-Jorge et al. (2022) — co-authored by two of the present authors, implemented here as SANS — is a paper *about workload and shift duration*. The present experiment turns that method loose with no \(T_{\max}\). Future work then proposes “working-shift duration constraints (e.g., the Temporal Team Orienteering Problem…)” as if this were a new idea rather than a constraint the authors already published and then dropped.
+Jorge et al. (2022) — co-authored by two of the present authors, implemented here as SANS — is a paper *about workload and shift duration*. The present experiment turns that method loose with no \(T_{\max}\). Future work then proposes “working-shift duration constraints (e.g., the Capacitated Team Orienteering Problem…)” as if this were a new idea rather than a constraint the authors already published and then dropped.
 
 Collection time in the constants file is 3 minutes/bin. 318 stops × 3 min = 15.9 hours of service *before driving*. Calling this “single-vehicle operation” is true only in the degenerate sense that the decoder emitted one sequence.
 
@@ -265,7 +265,7 @@ What is present: Hess et al. 2024 (waste routing survey), Ramos et al. 2018 (two
 What is almost absent, and should not be:
 
 - **Inventory Routing** (Bell, Federgruen, Coelho–Cordeau–Laporte). Multi-period, inventory at nodes, routing, optional visits: that *is* this problem with a waste-flavoured inventory. Calling it MPVRPP without locating it next to IRP will read, to an EJOR referee, as not knowing the neighbourhood.
-- **Team Orienteering / Profitable Tour / PCTSP** beyond one handbook chapter. The daily problem with a shift would be a capacitated TOP. The authors know this — future work names TTOP — and still do not review it.
+- **Team Orienteering / Profitable Tour / PCTSP** beyond one handbook chapter. The daily problem with a shift would be a capacitated TOP. The authors know this — future work names CTOP — and still do not review it.
 - **Periodic VRP.** Different coupling (visit patterns rather than inventory), but it is the other standard multi-period routing family.
 - **Operational waste-collection constraints** that Jorge 2022 treated as first-class (shift, balance) and this paper deleted.
 
@@ -359,7 +359,7 @@ Then the prose falls apart:
 
 - “simulations to be run on difference temporal horizons”
 - “the simulator is being built to accommodate” (present continuous: is the contribution finished?)
-- a 12-line future-work sentence that concatenates ablations, multi-vehicle, sensor noise, adaptive selection, TTOP, learning-based models, matheuristics, timeout telemetry, and nearby-depot topologies with one “as well as”
+- a 12-line future-work sentence that concatenates ablations, multi-vehicle, sensor noise, adaptive selection, CTOP, learning-based models, matheuristics, timeout telemetry, and nearby-depot topologies with one “as well as”
 
 Limitations, as a list of facts, are good. As a list of *consequences for the claims*, they could be sharper: “therefore we do not claim (i) a ranking of constructors at 90 days, (ii) a causal improver effect, (iii) robustness to sensor noise, (iv) validity for in-town depots, (v) validity for multi-vehicle shifts.”
 
