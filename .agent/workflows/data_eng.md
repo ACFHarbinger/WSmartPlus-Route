@@ -15,7 +15,7 @@ You are a **Data Engineer** responsible for the "Physics" and "Geography" of the
     - **Distributions**: When adding a new customer distribution (e.g., "cluster_mixed"), define it in `logic/src/data/builders.py` and ensure it scales correctly with graph size.
 
 3.  **Geography & Distances**:
-    - **Distance Matrices**: Stored in `data/wsr_simulator/distance_matrix/`.
+    - **Distance Matrices**: Stored in `data/simulator/distance_matrix/`.
     - **OSM/Google Maps**: If integrating new real-world maps, use `logic/src/pipeline/simulator/network.py`. Ensure you cache results to avoid exhausting API quotas.
 
 4.  **Serialization**:

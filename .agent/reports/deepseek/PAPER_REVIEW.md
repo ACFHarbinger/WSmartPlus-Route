@@ -120,7 +120,7 @@ The paper defines profit P (maximized by every constructor) and then reports *kg
 
 ### 4.11 No availability statement anywhere
 
-`paper.tex` contains no repository URL, no code/data section, no DOI, no license. For a paper whose first contribution bullet is "A reproducible simulator" — and whose demand-vector NPZ inputs are **not tracked** (the datasets referenced by every config live in a gitignored `data/wsr_simulator/` tree, absent from checkout) — this is near-disqualifying. The 90-day raw logs are also untracked (only the parsed summary CSV survives). Add a versioned release with the base+submodule commits, checksums for demand/NPZ/road matrices, fully resolved Hydra configs, and one canonical reproduction command with expected row counts.
+`paper.tex` contains no repository URL, no code/data section, no DOI, no license. For a paper whose first contribution bullet is "A reproducible simulator" — and whose demand-vector NPZ inputs are **not tracked** (the datasets referenced by every config live in a gitignored `data/simulator/` tree, absent from checkout) — this is near-disqualifying. The 90-day raw logs are also untracked (only the parsed summary CSV survives). Add a versioned release with the base+submodule commits, checksums for demand/NPZ/road matrices, fully resolved Hydra configs, and one canonical reproduction command with expected row counts.
 
 ### 4.12 Two figures are blockers on their own
 

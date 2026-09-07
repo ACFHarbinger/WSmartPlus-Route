@@ -283,7 +283,7 @@ That clause was only defensible under the √n form it replaced, where the margi
 
 ### 6.1 What is stored
 
-The tracked summaries contain 480 rows at 30 days and 174 rows at 90 days. The 30-day file has 60 rows for each of eight constructors. All 174 90-day configuration keys have a corresponding 30-day key. The archive contains 480 raw 30-day JSON logs and 36 pruned configurations. The source seed-42 demand NPZ files referenced by those configurations are not tracked under the ignored `data/wsr_simulator/` tree, so a clean checkout cannot reproduce the stochastic inputs from the paper artifact alone.
+The tracked summaries contain 480 rows at 30 days and 174 rows at 90 days. The 30-day file has 60 rows for each of eight constructors. All 174 90-day configuration keys have a corresponding 30-day key. The archive contains 480 raw 30-day JSON logs and 36 pruned configurations. The source seed-42 demand NPZ files referenced by those configurations are not tracked under the ignored `data/simulator/` tree, so a clean checkout cannot reproduce the stochastic inputs from the paper artifact alone.
 
 The 480 rows are factorial cells, not independent stochastic replications. Every archived configuration has `n_samples: 1` and seed 42. The paper can describe paired outcomes for this one realization, but it cannot estimate sampling uncertainty, interaction stability, or probabilities of superiority.
 

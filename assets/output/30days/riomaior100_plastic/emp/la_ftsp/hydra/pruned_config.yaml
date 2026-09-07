@@ -37,7 +37,7 @@ sim:
     edge_method: null
     focus_graph: graphs_${sim.graph.num_loc}V_1N_${sim.graph.waste_type}.json
     focus_size: null
-    load_dataset: data/wsr_simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.graph.n_days}_N${sim.graph.n_samples}_seed42.npz
+    load_dataset: data/simulator/datasets/${sim.graph.area}${sim.graph.num_loc}_${sim.data_distribution}_wsr${sim.graph.n_days}_N${sim.graph.n_samples}_seed42.npz
     n_samples: 1
     start_day: 0
     n_days: 30
