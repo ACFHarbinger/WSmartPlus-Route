@@ -90,7 +90,7 @@ METRICS: List[str] = [
     "kg/km",  # Efficiency ratio (maximize)
     "reward",  # Reward function (maximize)
     "profit",  # Net profit (maximize, primary objective)
-    "time",  # Elapsed time for policy execution (minimize)
+    "time",  # Policy time in s: mandatory selection + route construction + route improvement, summed over days (minimize)
 ]
 
 # Extended simulation metrics (add temporal metadata)

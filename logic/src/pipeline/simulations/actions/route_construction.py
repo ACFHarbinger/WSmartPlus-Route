@@ -186,7 +186,7 @@ class RouteConstructionAction(SimulationAction):
             context["tour"] = tour
             context["cost"] = raw_km
             context["extra_output"] = extra_output
-            context["time"] = elapsed_time
+            context["time"] = elapsed_time  # construction only; run_day replaces it with the full policy time
             # Preserve updated multi-day state for the next simulation day
             context["multi_day_context"] = updated_multi_day
 

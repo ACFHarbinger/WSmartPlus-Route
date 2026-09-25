@@ -19,6 +19,7 @@ from __future__ import annotations
 import os
 import random
 import re
+import time
 import zlib
 from collections.abc import Mapping
 from dataclasses import dataclass, fields
@@ -712,7 +713,17 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
         LogAction(),
     ]
 
+    # The day's "time" is the full policy: mandatory selection + route construction
+    # + route improvement (owner ruling DS-15). Simulator work (filling, collection,
+    # logging) is excluded; the sample time is the sum of these daily times.
+    policy_actions = (MandatorySelectionAction, RouteConstructionAction, RouteImprovementAction)
+    policy_time = 0.0
     for command in commands:
+        if isinstance(command, LogAction):
+            context["time"] = policy_time
+        start = time.perf_counter()
         command.execute(cast(Dict[str, Any], context))
+        if isinstance(command, policy_actions):
+            policy_time += time.perf_counter() - start
 
     return context
