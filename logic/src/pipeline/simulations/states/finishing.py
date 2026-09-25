@@ -64,6 +64,9 @@ class FinishingState(SimState):
         assert ctx.bins is not None
 
         ctx.execution_time = time.perf_counter() - ctx.tic
+        # Sample "time" = total policy time (selection + construction + improvement)
+        # summed over the days, not the wall clock of the whole day loop (DS-15).
+        policy_time = float(np.sum(ctx.daily_log.get("time", []))) if ctx.daily_log else 0.0
 
         lg = [
             np.sum(ctx.bins.inoverflow),
@@ -74,7 +77,7 @@ class FinishingState(SimState):
             (np.sum(ctx.bins.collected) / ctx.bins.travel if ctx.bins.travel > 0 else 0.0),
             np.sum(ctx.bins.collected) - np.sum(ctx.bins.inoverflow) - ctx.bins.travel,
             ctx.bins.profit,
-            ctx.execution_time,
+            policy_time,
             ctx.bins.ndays,
         ]
 
