@@ -245,8 +245,9 @@ class RolloutBaseline(Baseline):
             # We can't actually rollout without env, so return original
             return dataset
 
-        # Use provided policy or fallback to baseline_policy
-        p = policy if policy is not None else self.baseline_policy
+        # Baseline values must come from the frozen baseline policy; the live policy
+        # passed by prepare_epoch is only a fallback before setup() has run.
+        p = self.baseline_policy if self.baseline_policy is not None else policy
         if p is None:
             return dataset
 

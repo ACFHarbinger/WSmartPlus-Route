@@ -24,7 +24,7 @@ from logic.src.pipeline.rl.common.epoch import apply_time_step, prepare_epoch, r
 from logic.src.pipeline.rl.common.pbrs_wrapper import PBRSShaper
 from logic.src.tracking.logging.pylogger import get_pylogger
 
-from .data import DataMixin
+from .data import DataMixin, _task_env_cfg
 from .optimization import OptimizationMixin
 from .steps import StepMixin
 
@@ -192,11 +192,14 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
         if self.baseline_type is None:
             self.baseline_type = "rollout"
 
-        # Use baseline_type and other hparams to get the baseline object
-        baseline = get_baseline(self.baseline_type, self.policy, **self.hparams)  # type: ignore[arg-type]
+        # cfg.rl (exp_beta, bl_warmup_epochs, ...) reaches __init__ through **kwargs, which
+        # save_hyperparameters nests under hparams["kwargs"]; lift it next to the named params.
+        bl_kwargs = {k: v for k, v in self.hparams.items() if k != "kwargs"}
+        bl_kwargs.update(self.hparams.get("kwargs", {}) or {})
+        baseline = get_baseline(self.baseline_type, self.policy, **bl_kwargs)  # type: ignore[arg-type]
 
         # Handle warmup
-        warmup_epochs = self.hparams.get("bl_warmup_epochs", 0)
+        warmup_epochs = int(bl_kwargs.get("bl_warmup_epochs", 0) or 0)
         if warmup_epochs > 0:
             baseline = WarmupBaseline(baseline, warmup_epochs)
 
@@ -283,7 +286,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
             and self.current_epoch < self.trainer.max_epochs - 1
             and hasattr(self.env, "generator")
         ):
-            _graph = getattr(getattr(self.cfg, "env", None), "graph", None)
+            _graph = getattr(_task_env_cfg(self.cfg), "graph", None)
             n_samples = int(getattr(_graph, "n_samples", 1) or 1)
             new_dataset = regenerate_dataset(self.env, n_samples)
             if new_dataset is not None:
