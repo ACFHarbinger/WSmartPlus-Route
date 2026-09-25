@@ -258,8 +258,8 @@ def column_generation_loop(  # noqa: C901
                         master,
                         pricing_solver,
                         branching_constraints,  # type: ignore[arg-type]
-                        farkas,
                         timeout=_rem_t,
+                        farkas_duals=farkas,
                     )
                     # If the pricer timed out, it cannot certify that no improving
                     # column exists. Track consecutive timeouts and bail out of CG
@@ -291,6 +291,11 @@ def column_generation_loop(  # noqa: C901
                         "Phase I complete — LP feasibility restored (GRB.OPTIMAL). "
                         "Switching to Phase II (profit maximization)."
                     )
+                    # The duals in hand are Phase I duals (all objectives were 0), so
+                    # pricing with them finds nothing and would end CG at the warm-start
+                    # columns. Re-solve the LP under the Phase II objective first.
+                    _inner_iter += 1
+                    continue
 
             except Exception as e:
                 if "Farkas pricing failed" in str(e):
@@ -319,6 +324,7 @@ def column_generation_loop(  # noqa: C901
                 optimality_gap=optimality_gap,
                 rc_tolerance=rc_tolerance,
                 timeout=_rem_t,
+                exact_mode=exact_mode,
             )
             # Consecutive RCSPP timeout detection.
             # A timed-out pricer returns partial results — it cannot certify
@@ -336,6 +342,20 @@ def column_generation_loop(  # noqa: C901
                     break
             else:
                 consecutive_pricing_timeouts = 0
+
+            if added == 0 and not exact_mode:
+                # Heuristic pricing (truncated neighbourhoods) cannot prove that no
+                # improving column exists; confirm with one exact pass before converging.
+                added, pricing_exhausted = solve_pricing_step(
+                    master,
+                    pricing_solver,
+                    branching_constraints,
+                    max_routes=max(max_routes_per_pricing, 50),
+                    optimality_gap=optimality_gap,
+                    rc_tolerance=rc_tolerance,
+                    timeout=_rem_t,
+                    exact_mode=True,
+                )
 
             if added == 0:
                 if smoothing_recovery:
@@ -473,6 +493,11 @@ def column_generation_loop(  # noqa: C901
 
     # One final LP solve to get consistent obj_val / route_vals after any cuts/columns
     obj_val, route_vals = master.solve_lp_relaxation()  # type: ignore[assignment]
+    if obj_val is None:
+        # Non-optimal final LP (typically the time limit): no valid bound for this
+        # node. Report it as timed out so the engine stops and returns its best plan.
+        timed_out = True
+        obj_val = -float("inf")
 
     # Warn only when the iteration cap truncated an unconverged loop
     if not converged and not timed_out and _iteration == max_cg_iterations - 1:

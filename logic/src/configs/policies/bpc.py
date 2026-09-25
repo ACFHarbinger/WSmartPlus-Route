@@ -96,7 +96,7 @@ class BPCConfig:
     enable_comb_cuts: bool = False
     cut_orthogonality_threshold: float = 0.8
     use_spatial_partitioning: bool = False
-    enable_strong_branching_heuristic: bool = True
+    enable_strong_branching_heuristic: bool = False  # see policy_bpc.yaml
     enable_column_pool_deduplication: bool = True
     enable_hybrid_search: bool = False
     rc_tolerance: float = 1e-5

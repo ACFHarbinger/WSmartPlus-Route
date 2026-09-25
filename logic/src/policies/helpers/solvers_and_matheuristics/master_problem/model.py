@@ -236,6 +236,11 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
         self.lambda_vars = []
         if initial_routes is not None:
             self.routes = initial_routes
+        # add_route() de-duplicates against these signatures. Routes buffered before
+        # the build may have been replaced above; a stale signature would make the
+        # master reject a column pricing keeps returning, and column generation would
+        # stop with an understated bound.
+        self._route_signatures = {tuple(r.nodes) for r in self.routes}
 
         for idx, route in enumerate(self.routes):
             var = self.model.addVar(obj=route.profit, vtype=GRB.BINARY, name=f"route_{idx}")
@@ -308,8 +313,10 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             return self._handle_infeasibility()
 
         if status != GRB.OPTIMAL:
+            # Not a bound: returning 0.0 with no route values was read as a valid LP
+            # value and as an (empty) integer solution. Callers treat None as failure.
             logger.warning(f"LP solve returned non-optimal status {status}.")
-            return 0.0, {}
+            return None, {}  # type: ignore[return-value]
 
         obj_value = self.model.ObjVal
         try:
@@ -332,22 +339,25 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
             Tuple of (-inf, {}) and populates self.farkas_duals.
         """
         try:
+            # Pricing looks for columns with positive Farkas weight (sum of these values
+            # over the column's nodes). Gurobi's FarkasDual has the opposite sign here: a
+            # mandatory node with no usable column gets -1, so negate the ray once.
             farkas_node_duals: Dict[Union[int, str], float] = {}
             for node in range(1, self.n_nodes + 1):
                 constr = self.model.getConstrByName(f"coverage_{node}")
                 if constr is not None:
-                    farkas_node_duals[node] = constr.FarkasDual
+                    farkas_node_duals[node] = -constr.FarkasDual
 
             if self.vehicle_limit is not None:
                 constr = self.model.getConstrByName("vehicle_limit")
                 if constr is not None:
-                    farkas_node_duals["vehicle_limit"] = constr.FarkasDual
+                    farkas_node_duals["vehicle_limit"] = -constr.FarkasDual
 
             self.farkas_duals = {
                 "node_duals": farkas_node_duals,
-                "rcc_duals": {s: c.FarkasDual for s, c in self.active_capacity_cuts.items()},
-                "sri_duals": {s: c.FarkasDual for s, c in self.active_sri_cuts.items()},
-                "edge_clique_duals": {e: c[0].FarkasDual for e, c in self.active_edge_clique_cuts.items()},
+                "rcc_duals": {s: -c.FarkasDual for s, c in self.active_capacity_cuts.items()},
+                "sri_duals": {s: -c.FarkasDual for s, c in self.active_sri_cuts.items()},
+                "edge_clique_duals": {e: -c[0].FarkasDual for e, c in self.active_edge_clique_cuts.items()},
             }
             return -float("inf"), {}
         except AttributeError:

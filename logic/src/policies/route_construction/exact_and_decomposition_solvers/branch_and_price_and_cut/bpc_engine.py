@@ -476,7 +476,9 @@ def run_bpc(  # noqa: C901
     if optional_local and params.profit_aware_operators:
         try:
             opt_seed_routes = greedy_profit_insertion(
-                [r for r in initial_routes_nodes],  # start from mandatory routes
+                # Copies: the operator inserts into these lists in place, and the
+                # mandatory columns built above hold the originals as Route.nodes.
+                [list(r) for r in initial_routes_nodes],
                 optional_local,
                 red_dist,
                 red_wastes,
@@ -606,8 +608,12 @@ def run_bpc(  # noqa: C901
         # If the Lagrangian bound is dominated by the current incumbent,
         # the node is pruned without ever calling _column_generation_loop.
         # ---------------------------------------------------------------
+        # The subgradient bound relaxes a single-vehicle orienteering problem, so it
+        # bounds one route. It is scaled by the fleet size below and skipped for an
+        # unlimited fleet, where no finite multiple is valid.
         if (
             params.lr_pre_pruning
+            and master.vehicle_limit is not None
             and bb_tree.best_integer_solution is not None
             and (params.lr_pre_pruning_depth_limit < 0 or current_node.depth <= params.lr_pre_pruning_depth_limit)
         ):
@@ -638,6 +644,7 @@ def run_bpc(  # noqa: C901
                     recorder=recorder,
                 )
 
+                _lr_ub = _lr_ub * master.vehicle_limit
                 _gap_threshold = bb_tree.best_integer_solution * (1.0 + params.optimality_gap)
 
                 if _lr_ub <= _gap_threshold:
@@ -969,11 +976,22 @@ def run_bpc(  # noqa: C901
 
     # 6. Extract best integer solution
     if bb_tree.best_integer_node is None:
-        # No integer solution found — return mandatory-only greedy routes
-        fallback_profit = 0.0
-        for r_nodes in initial_routes_nodes:
-            fallback_profit += pricing_solver._compute_route_details(r_nodes).profit
-        return initial_routes_nodes, fallback_profit
+        # No integer node was reached (e.g. the time limit hit during the root).
+        # Return the best plan available: the mandatory-only greedy routes, or the
+        # restricted master solved as an IP over every column generated so far,
+        # whichever is more profitable. (The greedy list alone is empty whenever no
+        # bin is mandatory, which reported a 0 km / 0 kg day.)
+        fallback_routes = [list(r) for r in initial_routes_nodes]
+        fallback_profit = sum(pricing_solver._compute_route_details(r).profit for r in fallback_routes)
+        try:
+            _apply_branching_to_master(master, [], branching_strategy_name)
+            master.model.Params.TimeLimit = max(1.0, min(10.0, 0.1 * time_limit if time_limit > 0 else 10.0))
+            ip_obj, ip_routes = master.solve_ip()
+            if ip_routes and ip_obj > fallback_profit + 1e-9:
+                fallback_routes, fallback_profit = [list(r.nodes) for r in ip_routes], float(ip_obj)
+        except Exception as exc:  # the greedy plan is still valid
+            logger.warning(f"Restricted-master IP fallback failed: {exc}")
+        return fallback_routes, fallback_profit
 
     # Reconstruct solution from best node
     best_node = bb_tree.best_integer_node

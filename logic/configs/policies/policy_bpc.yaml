@@ -19,8 +19,7 @@
 #       (Poggi, Viana, Uchoa 2010).
 #     - ng_neighborhood_size: 12 — practical ceiling before label explosion;
 #       combined with DSSR this approximates elementary pricing well.
-#     - enable_strong_branching_heuristic: true — with 300s the Phase 1/2
-#       LP evaluation cost amortises over the deeper tree.
+#     - enable_strong_branching_heuristic: false — disabled, see the key below.
 #     - lr_pre_pruning: true — at 300s the subgradient pass at root pays off
 #       by providing a tight LR bound that prunes subtrees before CG starts.
 #     - exact_mode: false — Wentges smoothing dramatically accelerates CG
@@ -232,10 +231,12 @@ bpc:
       # Coordinate-based arc-set partitioning. Disabled — the default
       # flow-sorted median split is already well-balanced for most instances.
 
-    - enable_strong_branching_heuristic: true
-      # Phase 1 restricted LP evaluation of top branching candidates.
-      # With 300s the per-candidate LP solve cost (< 0.5s each) is worth
-      # the 20–40% reduction in B&B node count it typically delivers.
+    - enable_strong_branching_heuristic: false
+      # Disabled: the restricted-master lookahead (arc and node-visitation
+      # candidates) re-solves the live master in place, and with it the search
+      # returned suboptimal plans on brute-force-checked instances (e.g. 19.16
+      # vs 19.96). B&B without it matched every checked optimum. Keep off until
+      # the lookahead works on a copy of the master.
 
     - strong_branching_size: 5
       # Evaluate top 5 candidates in Phase 1, pick best 2 for Phase 2.
