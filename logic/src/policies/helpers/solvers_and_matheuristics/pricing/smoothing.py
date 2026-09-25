@@ -133,6 +133,7 @@ def solve_farkas_pricing_step(
     branching_constraints: Optional[List[AnyBranchingConstraint]] = None,
     max_routes: int = 5,
     timeout: Optional[float] = None,
+    farkas_duals: Optional[Dict[str, Any]] = None,
 ) -> Tuple[int, bool]:
     """Generate columns that restore LP feasibility (Phase I / Farkas pricing).
 
@@ -159,8 +160,9 @@ def solve_farkas_pricing_step(
 
     _FARKAS_TOL: float = 1e-6
 
-    # For Farkas pricing, get the raw duals (master switches internally via phase)
-    dual_info = master.get_reduced_cost_coefficients()
+    # Use the Farkas ray of the infeasible LP (master.farkas_duals); the regular
+    # dual accessor still holds the previous optimal LP's duals.
+    dual_info = farkas_duals or getattr(master, "farkas_duals", None) or master.get_reduced_cost_coefficients()
     farkas_duals: Dict[int, float] = dual_info.get("node_duals", {})
     rcc_duals: Dict = dual_info.get("rcc_duals", {})
 
@@ -185,12 +187,19 @@ def solve_farkas_pricing_step(
         "sri_duals": {},
         "edge_clique_duals": {},
     }
+    # Branching constraints must reach the RCSPP here too: otherwise it proposes
+    # columns the node forbids, the master rejects them as duplicates, and a
+    # feasible node is declared infeasible.
     routes = pricing_solver.solve(
         dual_values=farkas_dual_dict,
         max_routes=max_routes,
+        branching_constraints=branching_constraints,
         forced_nodes=forced_nodes,
         rf_conflicts=rf_conflicts,
         is_farkas=True,
+        # Truncated neighbourhoods can drop every arc a branch still allows, which
+        # would declare a feasible node infeasible; feasibility pricing is exact.
+        exact_mode=True,
         timeout=timeout,
     )
 
@@ -220,6 +229,7 @@ def solve_pricing_step(
     timeout: Optional[float] = None,
     use_dssr: bool = False,
     dssr_max_iters: int = 8,
+    exact_mode: bool = False,
 ) -> Tuple[int, bool]:
     """Generate profitable columns for Phase II column generation.
 
@@ -237,6 +247,7 @@ def solve_pricing_step(
         timeout:               Per-call wall-clock limit.
         use_dssr:              Whether to wrap the RCSPP with DSSR.
         dssr_max_iters:        Maximum DSSR refinement iterations.
+        exact_mode:            Forwarded to the RCSPP (disables neighbourhood truncation).
 
     Returns:
         (n_added, pricing_exhausted)
@@ -272,23 +283,23 @@ def solve_pricing_step(
                 else:
                     required_successors[bc.u] = bc.v
 
-    # Note: arc-level fixing tracked in pricing_solver._forbidden_arcs is
-    # injected via the branching_constraints pathway in the full CG loop.
-
-    # solve_kwargs built below after dual_dict is assembled
-
-    # Build the composite dual dict that solve() accepts as a single arg
+    # Pricing must see every dual the master produces (vehicle limit, edge-clique,
+    # LCI, multistar, ...) and the branching constraints of this node. Without the
+    # constraints it regenerates columns the node forbids; the master rejects them as
+    # duplicates and CG stops early with a wrong node bound.
     dual_dict: Dict[str, Any] = {
+        **dual_info,
         "node_duals": node_duals,
         "rcc_duals": rcc_duals,
         "sri_duals": sri_duals,
-        "edge_clique_duals": {},
     }
     solver_kwargs = dict(
         dual_values=dual_dict,
         max_routes=max_routes,
+        branching_constraints=branching_constraints,
         forced_nodes=forced_nodes,
         rf_conflicts=rf_conflicts,
+        exact_mode=exact_mode,
         timeout=timeout,
     )
 

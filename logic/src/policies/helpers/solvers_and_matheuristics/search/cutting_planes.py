@@ -251,8 +251,12 @@ class RoundedCapacityCutEngine(CuttingPlaneEngine):
             if isinstance(ineq, CapacityCut):
                 node_set = list(ineq.node_set)
 
-                # For Set Packing, add cut with boundary relaxation
-                # The master problem handles the y_i visitation tracking
+                # The RCC  sum crossings(S) >= 2*ceil(q(S)/Q)  assumes every node of S is
+                # served. In the VRPP optional bins may be skipped, so the cut is valid
+                # only when S consists of mandatory bins (it removed the optimum on a
+                # 5-node instance where the best plan serves 2 of the 5 bins).
+                if not set(node_set) <= set(master.mandatory_nodes):
+                    continue
                 if master.add_capacity_cut(node_set, ineq.rhs):
                     added_cuts += 1
             elif isinstance(ineq, PCSubtourEliminationCut):
@@ -947,6 +951,12 @@ class PhysicalCapacityLCIEngine(CuttingPlaneEngine):
         """
         if master.model is None or not master.lambda_vars:
             return 0
+        # These lifted cover inequalities treat the vehicle capacity Q as one global
+        # knapsack, which is valid only for a single vehicle. With several routes a
+        # cover can legitimately be visited in full, so the cut would remove optimal
+        # solutions (3-node case: 17 instead of 25).
+        if getattr(master, "vehicle_limit", None) != 1:
+            return 0
 
         Q = self.v_model.capacity
         y_vals = master.get_node_visitation()
@@ -1156,7 +1166,10 @@ class SaturatedArcLCIEngine(CuttingPlaneEngine):
                 break
 
             cover_indices = arc_to_routes[arc]
-            if not cover_indices:
+            # With unit arc weights and capacity 1, a cover needs at least two routes
+            # (sum of weights > capacity). A single route at full flow is feasible, and
+            # the "cover" cut for it would read lambda_k <= 0 and forbid the route.
+            if len(cover_indices) < 2:
                 continue
 
             # 3. Basic cover: all routes using this arc form a cover (sum > capacity = 1)

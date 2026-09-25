@@ -594,6 +594,10 @@ class RCSPPSolver:
                     rf_separate.add(pair)
                 else:
                     rf_together.add(pair)
+            elif hasattr(c, "forced") and hasattr(c, "node") and not c.forced:
+                # y_v = 0 branch: no column may visit v. The master disables existing
+                # columns through v; pricing must not regenerate them.
+                forbidden.update((u, c.node) for u in range(self.n_nodes + 1) if u != c.node)
         return frozenset(forbidden), req_succ, req_pred, rf_separate, rf_together
 
     def _label_correcting_algorithm(  # noqa: C901
@@ -820,7 +824,9 @@ class RCSPPSolver:
         next_node = self.depot
 
         # Base transition costs
-        cost = self.cost_matrix[current_node, next_node] * self.C
+        # Farkas pricing measures feasibility only: travel costs are 0 on every arc,
+        # including the return to the depot (as in _extend_label).
+        cost = 0.0 if self.is_farkas else self.cost_matrix[current_node, next_node] * self.C
         rc_delta = -cost
 
         # 1. RCC Duals (Boundary check)
@@ -893,7 +899,9 @@ class RCSPPSolver:
             revenue = sum(self.wastes.get(n, 0.0) for n in nodes) * self.R
 
         waste = sum(self.wastes.get(n, 0.0) for n in nodes)
-        return Route(nodes, cost, revenue, waste, set(nodes))
+        # Own the node list: callers reuse and mutate theirs (e.g. insertion operators),
+        # which would otherwise change a column's nodes but not its cost/revenue.
+        return Route(list(nodes), cost, revenue, waste, set(nodes))
 
     def _extend_label(  # noqa: C901
         self,

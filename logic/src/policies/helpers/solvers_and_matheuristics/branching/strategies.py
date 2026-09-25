@@ -262,6 +262,11 @@ class MultiEdgePartitionBranching:
                 d_cand = path1[pos]
                 nxt1, nxt2 = path1[pos + 1], path2[pos + 1]
                 if nxt1 != nxt2:
+                    # The depot is left once per route, so forbidding complementary sets
+                    # of depot arcs would exclude every multi-route solution that uses
+                    # arcs from both sets. Divergence is valid only at a customer node.
+                    if d_cand == 0:
+                        break
                     divergence_d = d_cand
                     arc_p1 = (d_cand, nxt1)
                     arc_p2 = (d_cand, nxt2)
@@ -324,7 +329,8 @@ class MultiEdgePartitionBranching:
                 node_out_flows.setdefault(u, {}).setdefault(v, 0.0)
                 node_out_flows[u][v] += lam
 
-        div_candidates = [d for d, flows in node_out_flows.items() if len(flows) >= 2]
+        # Customers only (see the depot note above).
+        div_candidates = [d for d, flows in node_out_flows.items() if d != 0 and len(flows) >= 2]
         if not div_candidates:
             return None
 
@@ -354,7 +360,9 @@ class MultiEdgePartitionBranching:
         arc_set_1_fb: Set[Tuple[int, int]] = {(d, v) for v in s1_nodes_fb}
         v1 = v_sorted_fb[0]
 
-        if node_coords is not None:
+        # Spatial grouping needs a coordinate for every node; an empty coordinate map
+        # arrives as a 1-row array, so fall back to the flow-based split otherwise.
+        if node_coords is not None and len(node_coords) > max(node_universe_fb | {d}):
             d_coord = np.array(node_coords[d])
             v1_coord = np.array(node_coords[v1])
             vec_v1 = v1_coord - d_coord
