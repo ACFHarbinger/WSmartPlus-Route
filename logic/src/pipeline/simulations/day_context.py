@@ -262,6 +262,24 @@ def resolve_policy_display_name(policy: Any, sim_cfg: Any) -> Tuple[str, str]:
     return pol_id_orig, display_name
 
 
+def policy_result_key(policy: Any, sim: Any) -> str:
+    """Key a policy's results are stored and looked up under.
+
+    This is the slug of the display name, the same string used for ``ctx.pol_name``,
+    the ``log_<key>_<N>N.json`` file name and the realtime jsonl. The expander id
+    (``get_pol_name``) differs from it (e.g. ``..._emp`` vs ``..._none``) and must not
+    be used for lookups.
+
+    Args:
+        policy: Entry of ``sim.full_policies``.
+        sim: Simulation config.
+
+    Returns:
+        The result key.
+    """
+    return to_slug(resolve_policy_display_name(policy, sim)[1])
+
+
 def to_slug(name: str) -> str:
     """Converts a display name to a safe slug string for IDs and filenames.
 

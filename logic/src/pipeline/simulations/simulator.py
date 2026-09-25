@@ -59,7 +59,7 @@ from logic.src.tracking.logging.log_utils import (
     update_policy_log_section,
 )
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
-from logic.src.utils.infrastructure.setup_sims import get_pol_name
+from logic.src.pipeline.simulations.day_context import policy_result_key
 
 try:
     import logic.src.tracking as wst
@@ -257,7 +257,7 @@ def single_simulation(
         context = SimulationContext(cfg, device, indices, sample_id, pol_id, model_weights_path, variables_dict)
         res: Optional[Dict[str, Any]] = context.run()
 
-        pol_name = get_pol_name(policies[pol_id])
+        pol_name = policy_result_key(policies[pol_id], sim)
         # Aggregate execution result
         if res and "success" in res and res["success"] and pol_name in res:
             # If successful, extract the policy name to return the correct dictionary key
@@ -277,7 +277,11 @@ def single_simulation(
         if hasattr(sys.stderr, "filename"):
             print(f"Detailed traceback available in: {sys.stderr.filename}", file=sys.__stderr__ or sys.stderr)
 
-        return {"policy": "unknown", "sample_id": sample_id, "error": str(e), "success": False}
+        try:
+            pol_label = policy_result_key(policies[pol_id], sim)
+        except Exception:
+            pol_label = f"policy #{pol_id}"
+        return {"policy": pol_label, "sample_id": sample_id, "error": str(e), "success": False}
 
 
 # Internal counter for display
