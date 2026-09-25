@@ -58,8 +58,10 @@ def expand_policy_configs(cfg: Config) -> None:  # noqa: C901
 
         cfg_path = _resolve_policy_cfg_path(pol_name)
         variants, variant_name = _extract_variants(pol_name, cfg_path)
+        base_overrides = custom_overrides
 
         for prefix, suffix, custom_cfg in variants:
+            custom_overrides = copy.deepcopy(base_overrides)
             middle_name = pol_name.replace("policy_", "")
             # Only append variant name if it's not already in the middle_name
             if variant_name and variant_name.lower() != "default" and variant_name.lower() not in middle_name.lower():
@@ -128,11 +130,47 @@ def expand_policy_configs(cfg: Config) -> None:  # noqa: C901
                                 custom_overrides = merged_overrides
                             final_cfg.update(custom_overrides)
 
+            # Pin this variant's mandatory selection / acceptance criteria everywhere in the
+            # stored config (including nested 'custom' lists) so naming and the daily
+            # actions see exactly one variant instead of the unexpanded {file: [all]} form.
+            _pin_variant_selection(final_cfg, custom_cfg)
+
             policies.append(full_name)
             config_path[full_name] = final_cfg
 
     sim.full_policies = policies
     sim.config_path = config_path
+
+
+
+def _pin_variant_selection(obj: Any, var_cfg: Any) -> None:
+    """Recursively overwrite selection/acceptance entries with the variant-specific ones.
+
+    ``var_cfg`` (from :func:`_extract_variants`) carries ``mandatory_selection`` /
+    ``acceptance_criteria`` already reduced to a single ``[{file: variant}]`` entry.
+
+    Args:
+        obj: Policy configuration (nested dicts / lists) to update in place.
+        var_cfg: Variant configuration providing the pinned values.
+    """
+    if not isinstance(var_cfg, dict):
+        return
+    pinned = {k: var_cfg[k] for k in ("mandatory_selection", "acceptance_criteria") if var_cfg.get(k)}
+    if not pinned:
+        return
+
+    def _walk(node: Any) -> None:
+        if isinstance(node, dict):
+            for key, value in pinned.items():
+                if key in node:
+                    node[key] = copy.deepcopy(value)
+            for value in node.values():
+                _walk(value)
+        elif isinstance(node, list):
+            for item in node:
+                _walk(item)
+
+    _walk(obj)
 
 
 def _resolve_policy_cfg_path(pol_name: str) -> str:

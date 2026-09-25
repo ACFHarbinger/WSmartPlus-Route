@@ -246,6 +246,7 @@ def _eval_dataset(
         return_results=True,
         samples=beam_width,
         softmax_temperature=softmax_temp,
+        device=device,
         **eval_kwargs,
     )
 

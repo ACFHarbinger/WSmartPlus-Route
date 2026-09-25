@@ -189,6 +189,100 @@ class BaseProblem:
         td = env.reset(td_reset)
         return TensorDictStateWrapper(td, env_name, env=env)
 
+    @classmethod
+    def make_dataset(
+        cls,
+        filename: Optional[str] = None,
+        num_samples: Optional[int] = None,
+        offset: int = 0,
+        **kwargs: Any,
+    ) -> "torch.utils.data.Dataset":
+        """Build an evaluation dataset of problem instances.
+
+        Supported sources:
+
+        - ``.npz`` simulator datasets written by ``gen_data`` (keys ``locs``,
+          ``depot``, ``waste`` with shape ``[samples, days, nodes]`` and
+          ``max_waste``): every (sample, day) pair becomes one instance and
+          fill levels are normalised by ``max_waste``.
+        - ``.td`` / ``.pt`` TensorDict datasets written by the training pipeline.
+        - ``.pkl`` pickles holding either a list of instance dicts / tuples
+          ``(depot, locs, waste)`` or a dict of arrays.
+        - no filename: ``num_samples`` random instances from the environment
+          generator (``size`` selects the number of nodes).
+
+        Args:
+            filename: Dataset path (relative paths are resolved against the project root).
+            num_samples: Number of instances to keep (``None`` keeps everything after ``offset``).
+            offset: Number of leading instances to skip.
+            kwargs: Extra options; ``size`` is used when generating instances.
+
+        Returns:
+            A map-style dataset whose items are plain ``{key: tensor}`` dicts.
+        """
+        import os
+        import pickle
+
+        import numpy as np
+
+        from logic.src.constants import ROOT_DIR
+
+        def _to_tensor(v: Any) -> torch.Tensor:
+            return v.float() if torch.is_tensor(v) else torch.as_tensor(np.asarray(v), dtype=torch.float32)
+
+        if filename is None:
+            n = int(num_samples or 1)
+            env = get_env(cls.NAME, num_loc=int(kwargs.get("size") or 20), batch_size=torch.Size([n]))
+            td = env.generator(n) if hasattr(env, "generator") else env.reset()
+            data = {k: _to_tensor(v) for k, v in td.items() if torch.is_tensor(v)}
+            return _InstanceDataset(data)
+
+        path = filename if os.path.isabs(filename) or os.path.exists(filename) else os.path.join(ROOT_DIR, filename)
+        if not os.path.exists(path):
+            raise FileNotFoundError(f"Dataset not found: {filename}")
+        ext = os.path.splitext(path)[1].lower()
+
+        data: Dict[str, torch.Tensor]
+        if ext == ".npz":
+            raw = dict(np.load(path, allow_pickle=True))
+            locs = _to_tensor(raw["locs"])  # [S, N, 2]
+            depot = _to_tensor(raw["depot"])  # [S, 2]
+            waste = _to_tensor(raw["waste"])  # [S, D, N] or [S, N]
+            if waste.dim() == 2:
+                waste = waste.unsqueeze(1)
+            n_samples, n_days = waste.shape[0], waste.shape[1]
+            max_waste = _to_tensor(raw["max_waste"]) if "max_waste" in raw else torch.ones(n_samples)
+            waste = waste / max_waste.view(-1, 1, 1).clamp_min(1e-9)
+            data = {
+                "locs": locs.unsqueeze(1).expand(-1, n_days, -1, -1).reshape(n_samples * n_days, *locs.shape[1:]),
+                "depot": depot.unsqueeze(1).expand(-1, n_days, -1).reshape(n_samples * n_days, -1),
+                "waste": waste.reshape(n_samples * n_days, -1),
+            }
+        elif ext in (".td", ".pt"):
+            td = torch.load(path, weights_only=False)
+            data = {k: _to_tensor(v) for k, v in td.items() if torch.is_tensor(v)}
+        elif ext == ".pkl":
+            with open(path, "rb") as fh:
+                obj = pickle.load(fh)
+            if isinstance(obj, dict):
+                data = {k: _to_tensor(v) for k, v in obj.items()}
+            else:
+                rows = []
+                for inst in obj:
+                    if isinstance(inst, dict):
+                        rows.append({cls._map_key(k): _to_tensor(v) for k, v in inst.items()})
+                    else:  # legacy tuple layout: (depot, locs, waste, ...)
+                        depot_i, locs_i, waste_i = inst[0], inst[1], inst[2]
+                        rows.append({"depot": _to_tensor(depot_i), "locs": _to_tensor(locs_i), "waste": _to_tensor(waste_i)})
+                data = {k: torch.stack([r[k] for r in rows]) for k in rows[0]}
+        else:
+            raise ValueError(f"Unsupported dataset format '{ext}' (expected .npz, .td, .pt or .pkl)")
+
+        total = next(iter(data.values())).shape[0]
+        end = total if num_samples is None else min(total, offset + int(num_samples))
+        data = {k: v[offset:end] for k, v in data.items()}
+        return _InstanceDataset(data)
+
     @staticmethod
     def _get_batch_info(input_data: Any) -> tuple[int, torch.device]:
         """Extract batch size and device from input data.
@@ -286,3 +380,17 @@ class BaseProblem:
                 td["capacity"] = torch.full((bs,), cap, device=td.device)
             elif env_name in ["wcvrp", "cwcvrp", "sdwcvrp", "scwcvrp"]:
                 td["capacity"] = torch.ones(bs, device=td.device)
+
+
+class _InstanceDataset(torch.utils.data.Dataset):
+    """Map-style dataset over a dict of equally sized tensors (items are plain dicts)."""
+
+    def __init__(self, data: Dict[str, torch.Tensor]):
+        self.data = data
+        self._n = next(iter(data.values())).shape[0] if data else 0
+
+    def __len__(self) -> int:
+        return self._n
+
+    def __getitem__(self, index: int) -> Dict[str, torch.Tensor]:
+        return {k: v[index] for k, v in self.data.items()}
