@@ -8,7 +8,7 @@ Attributes:
     create_selector_from_config: Function to instantiate selectors from configuration.
 
 Example:
-    >>> selector = get_vectorized_selector("last_minute", threshold=0.8)
+    >>> selector = get_vectorized_selector("last_minute", threshold=80)
 """
 
 from __future__ import annotations
@@ -180,7 +180,7 @@ def _get_strategy_params(strategy: str, params: Dict[str, Any]) -> Dict[str, Any
         return params.get(key, default)
 
     mappings: Dict[str, Any] = {
-        "last_minute": {"threshold": _get("threshold", 0.7)},
+        "last_minute": {"threshold": _get("threshold", 70.0)},  # percent
         "regular": {"frequency": _get("frequency", 3)},
         "lookahead": {"current_collection_day": _get("current_collection_day", 0)},
         "revenue": {

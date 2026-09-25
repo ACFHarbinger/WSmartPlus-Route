@@ -106,7 +106,7 @@ train:
         current_collection_day: 0
 
       last_minute:
-        threshold: 0.25 # ~25% of nodes (top fill-level quartile); forces ~25 bins per instance
+        threshold: 25 # Fill level in percent (same unit as ms_last_minute.yaml cf70/cf90)
 
       regular:
         frequency: 3
