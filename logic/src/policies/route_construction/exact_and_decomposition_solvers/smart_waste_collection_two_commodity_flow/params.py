@@ -73,3 +73,8 @@ class SWCTCFParams:
             Dict[str, Any]: Dictionary of parameter values.
         """
         return {f.name: getattr(self, f.name) for f in fields(self)}
+
+
+# Arcs longer than this are dropped from every SWC-TCF backend. Distance matrices
+# are in km (data/network/file.py loads them without rescaling).
+MAX_ARC_DISTANCE_KM = 6000.0

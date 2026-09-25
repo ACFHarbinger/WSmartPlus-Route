@@ -134,7 +134,7 @@ class SWCTCFPolicy(BaseRoutingPolicy):
             binsids=binsids,
             mandatory_nodes=mandatory_nodes,
             number_vehicles=kwargs.get("number_vehicles", 1),
-            time_limit=int(params.time_limit),
+            time_limit=float(params.time_limit),  # int() turned sub-second budgets into "no limit"
             framework=params.framework,
             optimizer=params.engine,
             seed=int(seed) if seed is not None else 42,

@@ -15,6 +15,8 @@ import numpy as np
 import pyomo.environ as pyo
 from numpy.typing import NDArray
 
+from .params import MAX_ARC_DISTANCE_KM
+
 
 def _run_pyomo_tcf_optimizer(  # noqa: C901
     bins: NDArray[np.float64],
@@ -33,7 +35,7 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     Args:
         bins (NDArray[np.float64]): Array of bin fill levels.
         distance_matrix (List[List[float]]): Distance matrix between nodes.
-        values (Dict[str, float]): Problem parameters (Omega, delta, psi, Q, R, B, C, V).
+        values (Dict[str, float]): Problem parameters (Omega, psi, Q, R, C; percent fill units).
         binsids (List[int]): Global identifiers for bins.
         mandatory_nodes (List[int]): IDs of bins that must be collected.
         number_vehicles (int): Maximum number of vehicles.
@@ -46,8 +48,8 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
         Tuple[List[int], float, float]: (route, profit, cost)
     """
     # 1. Parameter Extraction
-    Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
-    Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
+    Omega, psi = values["Omega"], values["psi"]
+    Q, R, C = values["Q"], values["R"], values["C"]
 
     n_bins = len(bins)
     nodes = list(range(n_bins + 1))
@@ -55,14 +57,16 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     nodes_real = [i for i in nodes if i != idx_deposito]
 
     enchimentos = np.insert(bins, 0, 0.0)
-    S_dict = {i: (enchimentos[i] / 100.0) * B * V for i in nodes}
+    # Percent fill, as in gurobi.py: the adapter passes Q in percent points and R in
+    # EUR per percent point, so a kg conversion here mixed unit systems.
+    S_dict = {i: float(enchimentos[i]) for i in nodes}
 
     pure_binsids = binsids[1:] if len(binsids) == n_bins + 1 else binsids
     criticos_dict = {0: False}
     for i, bin_id in enumerate(pure_binsids, 1):
         criticos_dict[i] = bin_id in mandatory_nodes
 
-    max_dist = 6000
+    max_dist = MAX_ARC_DISTANCE_KM
 
     # 2. Pyomo Model Initialization
     model = pyo.ConcreteModel(name="SWC_TCF_Pyomo")
@@ -82,7 +86,8 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
         """
         return i != j and distance_matrix[i][j] <= max_dist
 
-    model.A = pyo.Set(within=model.V * model.V, filter=valid_arcs_rule)
+    # A filter-only set is never enumerated (it stayed empty); give it the candidates.
+    model.A = pyo.Set(within=model.V * model.V, initialize=[(i, j) for i in nodes for j in nodes], filter=valid_arcs_rule)
 
     # Variables
     model.x = pyo.Var(model.A, within=pyo.Binary)
@@ -183,17 +188,10 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     model.route_out = pyo.Constraint(model.V_real, rule=route_out_rule)
 
     # Mandatory & Pre-assignments
-    critical_nodes = [i for i in nodes_real if criticos_dict[i]]
-    if critical_nodes:
-        min_visits = len(critical_nodes) - len(nodes_real) * delta
-        model.mandatory_coverage = pyo.Constraint(expr=sum(model.g[i] for i in critical_nodes) >= min_visits)
-
     model.forced_visits = pyo.ConstraintList()
     for i in nodes_real:
         if criticos_dict[i] or enchimentos[i] >= psi * 100:
             model.forced_visits.add(model.g[i] == 1)
-        elif enchimentos[i] < 10 and not criticos_dict[i]:
-            model.g[i].setub(0)
 
     # 4. Objective Function
     def obj_rule(m):
@@ -208,11 +206,11 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
         if dual_values:
             pi_0 = dual_values.get(0, 0.0)
             profit = sum((R * S_dict[i] - dual_values.get(i, 0.0)) * m.g[i] for i in m.V_real)
-            cost = 0.5 * C * sum(m.x[i, j] * distance_matrix[i][j] for i, j in m.A)
+            cost = C * sum(m.x[i, j] * distance_matrix[i][j] for i, j in m.A)
             return profit - cost - (pi_0 * m.k_var)
         else:
             profit = R * sum(S_dict[i] * m.g[i] for i in m.V_real)
-            cost = 0.5 * C * sum(m.x[i, j] * distance_matrix[i][j] for i, j in m.A)
+            cost = C * sum(m.x[i, j] * distance_matrix[i][j] for i, j in m.A)
             return profit - cost - (Omega * m.k_var)
 
     model.obj = pyo.Objective(rule=obj_rule, sense=pyo.maximize)
@@ -232,12 +230,24 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
     elif solver_id == "scip":
         opt.options["limits/time"] = time_limit
 
-    results = opt.solve(model, tee=False)
+    def _has_solution(res) -> bool:
+        tc = res.solver.termination_condition
+        return pyo.check_optimal_termination(res) or (
+            tc in (pyo.TerminationCondition.maxTimeLimit, pyo.TerminationCondition.feasible)
+            and res.solver.status != pyo.SolverStatus.error
+        )
+
+    results = opt.solve(model, tee=False, load_solutions=False)
+    if results.solver.termination_condition == pyo.TerminationCondition.infeasible and len(model.forced_visits) > 0:
+        print(f"[WARN] Pyomo TCF: {len(model.forced_visits)} forced visits are infeasible together; re-solving without forcing.")
+        model.forced_visits.deactivate()
+        results = opt.solve(model, tee=False, load_solutions=False)
+    if results.solver.termination_condition == pyo.TerminationCondition.infeasible:
+        raise RuntimeError(f"SWC-TCF model is infeasible (Pyomo/{solver_id}).")
 
     # 6. Parse Results
-    if (
-        pyo.check_optimal_termination(results) or pyo.check_optimal_termination(results) is False
-    ):  # Checks for Feasible too
+    if _has_solution(results):
+        model.solutions.load_from(results)
         id_map = {0: 0}
         for i, bin_id in enumerate(pure_binsids, 1):
             id_map[i] = bin_id

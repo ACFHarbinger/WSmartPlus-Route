@@ -39,30 +39,20 @@
 swc_tcf:
   gurobi:
     # ---------------------------------------------------------------------
-    # Objective Function Weights
+    # Objective and forcing parameters (see gurobi.py / ortools_wrapper.py)
     # ---------------------------------------------------------------------
+    # Maximize  R * sum_i fill_i * g_i  -  C * sum_ij d_ij * x_ij  -  Omega * k
+    #   fill_i in percent, R in EUR per percent point and C in EUR per km (both
+    #   set by the routing adapter), k = number of vehicles used.
     - Omega: 0.1
-    # Penalty weight for overtime (exceeding max route duration)
-    # Range: 0.0-1.0 (0 = no penalty, 1 = strong penalty)
-    # Higher Omega → tighter adherence to time windows/route length limits
-    # Recommendation: 0.1 for soft constraints, 0.5 for strict enforcement
-
-    - delta: 0
-    # Bonus reward for visiting mandatory nodes
-    # Range: 0-100 (0 = no bonus, 100 = strong incentive)
-    # delta=0 → all nodes treated equally (standard SWC-TCF)
-    # delta>0 → mandatory_selection nodes receive extra profit delta
-    # Use case: Prioritize high-fill bins in waste collection
+    # Fixed cost per vehicle (route) used, in EUR.
 
     - psi: 1
-    # Travel cost scaling factor
-    # Range: 0.1-10.0 (0.1 = cheap travel, 10.0 = expensive travel)
-    # psi=1 → standard cost (distance × fuel_rate)
-    # psi=2 → double travel cost (favor fewer, longer routes)
-    # Trade-off: Higher psi → visit fewer nodes but higher profit/node
+    # Fill fraction at or above which a bin is forced into the plan (g_i = 1),
+    # in addition to the mandatory bins. psi=1 forces only bins at 100 %.
+    # If forcing makes the model infeasible (e.g. more forced waste than the
+    # fleet can carry), the solver retries once without forcing and logs it.
 
-    # Objective = Σ profit - psi * Σ cost - Omega * Σ overtime + delta * Σ mandatory_selection
-    # Gurobi maximizes this combined objective
     # ---------------------------------------------------------------------
     # Solver Backend
     # ---------------------------------------------------------------------
@@ -84,8 +74,7 @@ swc_tcf:
     #   1. ms_lookahead.yaml: Bins predicted to overflow soon
     #   2. ms_service_level.yaml: Statistical service level ≥84%
     #
-    # mandatory nodes receive bonus profit (delta) and stricter constraints
-    # See: docs/MUST_GO_STRATEGIES.md for detailed comparison
+    # Mandatory bins are forced into the plan (g_i = 1).
 
     # ---------------------------------------------------------------------
     # Runtime Control
@@ -120,20 +109,11 @@ swc_tcf:
     # To override: Modify logic/src/policies/smart_waste_collection_two_commodity_flow/gurobi.py
 
     # ---------------------------------------------------------------------
-    # MIP Formulation Details
+    # MIP Formulation (two-commodity flow)
     # ---------------------------------------------------------------------
-    # Decision Variables:
-    #   - x[i,j] ∈ {0,1}: Binary, 1 if edge (i,j) is traversed
-    #   - y[i] ∈ {0,1}: Binary, 1 if node i is visited
-    #   - u[i] ∈ ℝ+: Continuous, subtour elimination (MTZ formulation)
-    #
-    # Constraints:
-    #   - Flow conservation: Σ x[i,j] = Σ x[j,i] for all j
-    #   - Visit once: Σ x[i,j] ≤ 1 for all i (if y[i]=1)
-    #   - Capacity: Σ waste[i] * y[i] ≤ vehicle_capacity
-    #   - Subtour elimination: u[i] - u[j] + n*x[i,j] ≤ n-1
-    #   - mandatory: y[i] = 1 for all i in mandatory_selection set
-    #
-    # Objective:
-    #   Maximize: Σ profit[i]*y[i] - psi*Σ cost[i,j]*x[i,j] - Omega*overtime + delta*Σ y[mandatory_selection]
+    # Variables: x_ij (arc used), g_i (bin visited), f_ij / h_ij (load / free
+    # capacity on arc ij), k (vehicles). Arcs longer than 6000 km are dropped.
+    # Constraints: f_ij + h_ij = Q x_ij; per-bin flow balances of f and h equal
+    # fill_i * g_i; depot balances; one in- and one out-arc per visited bin;
+    # k depot departures and returns, k <= number of vehicles; forced bins g_i = 1.
 # =============================================================================
