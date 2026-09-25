@@ -299,16 +299,23 @@ class GlimpseDecoder(nn.Module):
                     curr_mask = curr_mask.squeeze(1)
                 assert not curr_mask.gather(1, selected.unsqueeze(-1)).any(), "Selected masked node"
         elif strategy == "sampling":
-            selected = torch.multinomial(probs, 1, generator=self.generator).squeeze(1)
+            # The generator is created at construction time; follow the model when it
+            # is moved to another device (torch.multinomial requires matching devices).
+            if self.generator.device.type != probs.device.type:
+                self.generator = torch.Generator(device=probs.device).manual_seed(self.seed)
 
-            # Mask handling for sampling loop check
             curr_mask = mask  # type: ignore[assignment]
             if curr_mask is not None and curr_mask.dim() == 3:
                 curr_mask = curr_mask.squeeze(1)
 
             if curr_mask is not None:
-                while curr_mask.gather(1, selected.unsqueeze(-1)).any():
-                    selected = torch.multinomial(probs, 1, generator=self.generator).squeeze(1)
+                # Draw once from the valid actions only. Rows whose valid actions carry no
+                # probability mass fall back to a uniform draw over the valid actions.
+                valid = ~curr_mask.bool()
+                probs = probs.masked_fill(~valid, 0.0)
+                row_mass = probs.sum(-1, keepdim=True)
+                probs = torch.where(row_mass > 0, probs, valid.to(probs.dtype))
+            selected = torch.multinomial(probs, 1, generator=self.generator).squeeze(1)
         else:
             raise ValueError(f"Unknown decoding strategy: {strategy}")
 
