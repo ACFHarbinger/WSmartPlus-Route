@@ -257,24 +257,10 @@ def improved_simulated_annealing(  # noqa: C901
             if time.perf_counter() - start_time > time_limit:
                 break
 
-            # --- 3. NEIGHBOR SELECTION ---
-            # Using copy inside helper to avoid mutating current state before accept
-            new_solution, op = _select_neighbor(
-                current_solution,
-                removed_bins,
-                data,
-                vehicle_capacity,
-                id_to_index,
-                stocks,
-                mandatory_bins,
-                distance_matrix,
-                rng=rng,
-            )
+            # --- 3/4. NEIGHBOR SELECTION AND EVALUATION ---
+            # (A first _select_neighbor call here produced a neighbour that was always
+            # discarded in favour of the operator applied below.)
 
-            if new_solution is None:
-                continue
-
-            # --- 4. EVALUATION ---
             candidate_removed_bins = copy.deepcopy(removed_bins)
             route_ops = [
                 "2opt",

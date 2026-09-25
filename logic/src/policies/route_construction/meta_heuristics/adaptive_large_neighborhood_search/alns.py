@@ -668,8 +668,11 @@ class ALNSSolver:
         current_profit = best_profit
 
         # Dynamic T_start calibration (Ropke & Pisinger 2006, Section 3.5)
-        if self.params.start_temp == 0.0 and best_profit > 0:
-            delta = self.params.start_temp_control * best_profit
+        if self.params.start_temp == 0.0:
+            # Calibrate from |profit| (fallback 1.0): non-positive initial profits
+            # used to skip calibration and leave T = 0, i.e. pure hill-climbing.
+            scale = abs(best_profit) if abs(best_profit) > 1e-9 else 1.0
+            delta = self.params.start_temp_control * scale
             t_start = delta / np.log(2.0)
 
             # Inject dynamically calculated temperature into the acceptance criterion

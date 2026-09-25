@@ -150,7 +150,7 @@ def update_biased_fitness(
     for i, ind in enumerate(population):
         ind.rank_diversity = i + 1
 
-    diversity_weight = 1.0 - (nb_elite / pop_size)
+    diversity_weight = max(0.0, 1.0 - (nb_elite / pop_size))  # negative when pop_size < nb_elite
     for ind in population:
         ind.fitness = ind.rank_profit + diversity_weight * ind.rank_diversity
 

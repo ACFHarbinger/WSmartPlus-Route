@@ -42,14 +42,16 @@ from .two_opt import solve_tsp_2opt
 
 def find_route(C, to_collect, time_limit=2.0, seed=42, engine="fast_tsp"):
     """
-    Find route using fast_tsp or custom solver.
+    Find a TSP route through the depot and ``to_collect`` with fast_tsp.
 
     Args:
-        C: Description of C.
-        to_collect: Description of to_collect.
-        time_limit: Description of time_limit.
-        seed: Description of seed.
-        engine: Description of engine.
+        C: Distance matrix (km).
+        to_collect: Bin indices to visit.
+        time_limit: fast_tsp search budget in seconds.
+        seed: Accepted for API compatibility but not used: fast-tsp 0.1.5's
+            find_tour has no seed and its time-budgeted search is not repeatable
+            (different tours across runs on the same input).
+        engine: Only "fast_tsp" is available in this export.
 
     Returns:
         List[int]: Tour starting and ending at depot. Format: [0, node1, node2, ..., 0]

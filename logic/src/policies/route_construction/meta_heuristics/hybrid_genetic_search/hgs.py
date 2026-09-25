@@ -643,6 +643,9 @@ class HGSSolver:
                 self._feas_inv = {}
                 self._infeas_inv = {}
                 self._offspring_feasibility = []
+                # _adjust_penalties reads these too; stale pre-restart entries skewed it.
+                self._offspring_coverage = []
+                self._offspring_margin = []
                 pop_feasible, pop_infeasible = self._initialize_population(penalty_capacity)
                 it_no_improvement = 0
 
