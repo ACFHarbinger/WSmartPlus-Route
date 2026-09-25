@@ -49,7 +49,7 @@ from typing import Any, Dict, List, Optional, Set
 # Project root — packager.py lives at ci/, one level below the repo root.
 # ---------------------------------------------------------------------------
 PROJECT_ROOT = Path(__file__).resolve().parent.parent  # WSmart-Route/
-PRUNE_SCRIPT = PROJECT_ROOT / "logic" / "src" / "utils" / "package" / "prune_codebase.py"
+PRUNE_SCRIPT = PROJECT_ROOT / "logic" / "package" / "prune_codebase.py"
 SPEC_FILE = PROJECT_ROOT / "ci" / "simulator.spec"
 CONFIG_FILE = PROJECT_ROOT / "ci" / "export_config.json"
 LOGIC_SRC = PROJECT_ROOT / "logic" / "src"
