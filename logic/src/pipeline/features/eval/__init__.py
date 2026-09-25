@@ -129,8 +129,10 @@ def run_evaluate_model(cfg: Config, sinks: Optional[List[Any]] = None) -> None:
                 run.__exit__(None, None, None)
                 return
 
-            if not isinstance(datasets, (list, tuple)):
+            if isinstance(datasets, str):
                 datasets = [datasets]
+            else:  # list / tuple / OmegaConf ListConfig
+                datasets = [str(d) for d in datasets]
 
             for dataset_path in datasets:
                 temp = ev.decoding.temperature if ev.decoding else 1.0
