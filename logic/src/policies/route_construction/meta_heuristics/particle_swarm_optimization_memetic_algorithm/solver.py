@@ -272,7 +272,8 @@ class PSOMASolver:
         """
         for i, op in enumerate(self.operators):
             best_pf, _, _, _ = self._sa_search(op)
-            self.rewards[i] = abs(self.gbest_profit - best_pf) / self.metropolis_steps
+            # Only improvements earn reward, as in the main loop (abs() rewarded worsening).
+            self.rewards[i] = max(0.0, best_pf - self.gbest_profit) / self.metropolis_steps
         self._update_probabilities()
 
     def _non_training_phase(self) -> None:

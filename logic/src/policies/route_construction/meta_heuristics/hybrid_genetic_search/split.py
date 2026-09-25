@@ -301,11 +301,20 @@ class LinearSplit:
             Tuple[List[List[int]], float]: Decoded routes and total profit.
         """
         K = self.max_vehicles
+        # Layer 0 = no route yet. In the VRPP optional bins before the first route may
+        # be skipped (the unlimited split allows the same), so V_0[j] = 0 while
+        # nodes 1..j are all optional; without this every plan had to include node 1.
         V_prev = [-float("inf")] * (n + 1)
         V_prev[0] = 0.0
+        if self.vrpp:
+            for j in range(1, n + 1):
+                if nodes[j - 1] in self.mandatory_nodes:
+                    break
+                V_prev[j] = 0.0
 
         P = [[-1] * (n + 1) for _ in range(K + 1)]
-        best_profit = -float("inf")
+        # Zero routes is a valid plan when every bin is optional.
+        best_profit = V_prev[n]
         best_k = 0
 
         C_cost = self.C
@@ -389,9 +398,13 @@ class LinearSplit:
         k = k_opt
 
         while curr > 0:
-            # k exhausted — remaining positions must all be leading skips
-            # recorded in layer 1 (the last active layer)
-            prev = P[k][curr] if k > 0 else P[1][curr]
+            if k == 0:
+                # Remaining positions precede the first route: they must be optional.
+                if self.vrpp and all(nodes[i] not in self.mandatory_nodes for i in range(curr)):
+                    curr = 0
+                    break
+                return [], -float("inf")
+            prev = P[k][curr]
 
             if prev == -1:
                 return [], -float("inf")
