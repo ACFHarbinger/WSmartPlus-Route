@@ -125,18 +125,30 @@ class StepMixin:
         elif "fill_history" in td.keys():
             selector_kwargs["waste_history"] = td["fill_history"]
 
+        # Vectorized selectors treat column 0 as the depot. The TensorDict waste is
+        # customer-only [B, num_loc], so prepend a depot column (fill 0) to the fill
+        # levels and per-node statistics before selecting.
+        num_loc = getattr(self.env, "num_loc", None)
+        if num_loc is None and hasattr(self.env, "generator"):
+            num_loc = getattr(self.env.generator, "num_loc", None)
+        if num_loc is not None and fill_levels.shape[-1] == num_loc:
+
+            def _with_depot(t: torch.Tensor) -> torch.Tensor:
+                return torch.cat([torch.zeros_like(t[..., :1]), t], dim=-1)
+
+            fill_levels = _with_depot(fill_levels)
+            for key in ("accumulation_rates", "std_deviations"):
+                val = selector_kwargs.get(key)
+                if torch.is_tensor(val) and val.shape[-1] == num_loc:
+                    selector_kwargs[key] = _with_depot(val)
+
         mandatory_mask = self.mandatory_selector.select(fill_levels, **selector_kwargs)
 
         # Collapse any extra dimensions — output must be 2D [B, num_loc].
         while mandatory_mask.dim() > 2:
             mandatory_mask = mandatory_mask.any(dim=1)
 
-        # Prepend a depot column (depot is never mandatory) so the mask aligns
-        # with the N+1 node layout used inside the environment.
-        num_loc = getattr(self.env, "num_loc", None)
-        if num_loc is None and hasattr(self.env, "generator"):
-            num_loc = getattr(self.env.generator, "num_loc", None)
-
+        # The mask already has the depot column when it was prepended above.
         if num_loc is not None and mandatory_mask.shape[-1] == num_loc:
             depot_col = torch.zeros(mandatory_mask.shape[0], 1, dtype=torch.bool, device=mandatory_mask.device)
             mandatory_mask = torch.cat([depot_col, mandatory_mask], dim=-1)

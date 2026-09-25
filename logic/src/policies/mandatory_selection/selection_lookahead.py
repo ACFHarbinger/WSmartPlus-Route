@@ -182,7 +182,8 @@ class LookaheadSelection(IMandatorySelectionStrategy):
                 continue
             else:
                 for j in range(current_collection_day + 1, next_collection_day):
-                    if current_fill_levels[i] + j * accumulation_rates[i] >= MAX_CAPACITY_PERCENT:
+                    # Accumulation counts the days from today, matching the vectorized selector.
+                    if current_fill_levels[i] + (j - current_collection_day) * accumulation_rates[i] >= MAX_CAPACITY_PERCENT:
                         mandatory_bins.append(i)
                         break
         return mandatory_bins

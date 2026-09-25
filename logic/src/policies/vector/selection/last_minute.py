@@ -7,7 +7,7 @@ Attributes:
     LastMinuteSelector: Threshold-based reactive selection policy.
 
 Example:
-    >>> selector = LastMinuteSelector(threshold=0.8)
+    >>> selector = LastMinuteSelector(threshold=80)
     >>> mask = selector.select(fill_levels)
 """
 
@@ -31,11 +31,13 @@ class LastMinuteSelector(VectorizedSelector):
         threshold: Default fill level threshold for selection.
     """
 
-    def __init__(self, threshold: float = 0.7) -> None:
+    def __init__(self, threshold: float = 70.0) -> None:
         """Initialize the last-minute selector.
 
         Args:
-            threshold: Fill level threshold in [0, 1].
+            threshold: Fill level threshold in percent (0-100), the same unit as the
+                simulator's ms_last_minute.yaml (cf70 -> 70). Fill levels passed to
+                ``select`` are fractions in [0, 1].
         """
         self.threshold = threshold
 
@@ -56,7 +58,7 @@ class LastMinuteSelector(VectorizedSelector):
             torch.Tensor: Boolean mask [B, N] where True indicates collection.
         """
         thresh = threshold if threshold is not None else self.threshold
-        mandatory = fill_levels >= thresh
+        mandatory = fill_levels >= float(thresh) / 100.0  # percent threshold vs fraction fills
 
         # Depot (index 0) is never mandatory
         mandatory = mandatory.clone()
