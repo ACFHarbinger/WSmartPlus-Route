@@ -9,6 +9,7 @@ Example:
 
 import contextlib
 import random
+from collections.abc import Sequence
 from typing import Any, List, Optional
 
 import numpy as np
@@ -66,8 +67,8 @@ def run_evaluate_model(cfg: Config, sinks: Optional[List[Any]] = None) -> None:
     bw = ev.decoding.beam_width if ev.decoding else None
     if bw is None:
         beam_widths = [0]
-    elif isinstance(bw, (list, tuple)):
-        beam_widths = list(bw)
+    elif isinstance(bw, Sequence) and not isinstance(bw, str):  # list, tuple or OmegaConf ListConfig
+        beam_widths = [int(w) for w in bw]
     else:
         beam_widths = [bw]
 

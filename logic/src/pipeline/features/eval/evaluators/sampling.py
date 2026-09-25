@@ -43,7 +43,8 @@ class SamplingEval(EvalBase):
             kwargs (Any): Description of kwargs.
         """
         super().__init__(env, progress, **kwargs)
-        self.samples = samples
+        # A width of 0 means "beam search off" in the eval config; sampling still needs one draw.
+        self.samples = max(1, int(samples))
 
     def __call__(self, policy: Any, data_loader: DataLoader, return_results: bool = False, **kwargs) -> dict:
         """call  .
