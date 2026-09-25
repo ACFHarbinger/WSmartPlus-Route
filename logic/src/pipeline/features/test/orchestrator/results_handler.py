@@ -16,7 +16,7 @@ from typing import Any, Dict, List, Optional, Tuple
 import logic.src.constants as udef
 from logic.src.configs import Config
 from logic.src.tracking.logging.log_utils import output_stats
-from logic.src.utils.infrastructure.setup_sims import get_pol_name
+from logic.src.pipeline.simulations.day_context import policy_result_key
 
 try:
     from logic.src.tracking.core.run import get_active_run
@@ -63,7 +63,7 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
     """
     sim = cfg.sim
     policies = sim.full_policies
-    policy_names = [get_pol_name(p) for p in policies]
+    policy_names = [policy_result_key(p, sim) for p in policies]
 
     if sim.graph.n_samples > 1:
         if sim.resume:
@@ -87,11 +87,9 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
             log_std: Dict[str, Any] = {}
             log_full: Dict[str, List[List[float]]] = defaultdict(list)
 
-            # Extract list from Manager objects
+            # Values are multiprocessing ListProxy objects in parallel runs, not lists.
             for key, val in log_tmp.items():
-                val_obj: object = val
-                if isinstance(val_obj, list):
-                    log_full[key].extend(val_obj)
+                log_full[key].extend(list(val))
 
             for pol_name in policy_names:
                 if log_full[pol_name]:

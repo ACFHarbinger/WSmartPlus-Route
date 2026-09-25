@@ -223,17 +223,20 @@ def load_simulation_dataset(filename: str) -> Dict[str, np.ndarray]:
 
 
 def load_grid_base(
-    indices: Union[np.ndarray, List[int]],
+    indices: Union[np.ndarray, List[int], None],
     area: Optional[str] = None,
     data_dir: Optional[str] = None,
+    ids: Optional[List[Any]] = None,
 ) -> GridBase:
     """
     Loads grid base data from simulation files.
 
     Args:
-        indices: List of indices to load.
+        indices: Row positions in the area's out_info file (ignored when ``ids`` is given).
         area: Geographic area name.
         data_dir: Directory containing the simulation data.
+        ids: Bin IDs to load, in node order. Use this for the routed graph so the
+            fill rates line up with the distance-matrix nodes.
 
     Returns:
         GridBase object.
@@ -248,8 +251,13 @@ def load_grid_base(
     src_area = area.translate(str.maketrans("", "", "-_ ")).lower() if area is not None else ""
     src_area = COUNTY_ALIASES.get(src_area, src_area)
 
-    waste_csv = f"out_rate_crude[{src_area}].csv"
-    info_csv = f"out_info[{src_area}].csv"
+    # Use the same rate/info pair the simulator repository builds the routed graph from
+    # (repository/filesystem.py): Rio Maior routes from the "old_" files, whose bins the
+    # newer out_rate_crude file only partly covers.
+    if src_area == "riomaior":
+        waste_csv, info_csv = f"old_out_crude_rate[{src_area}].csv", f"old_out_info[{src_area}].csv"
+    else:
+        waste_csv, info_csv = f"out_rate_crude[{src_area}].csv", f"out_info[{src_area}].csv"
 
     # Handle nested list of indices (list of lists)
     if isinstance(indices, list) and len(indices) > 0 and isinstance(indices[0], list):
@@ -257,7 +265,9 @@ def load_grid_base(
 
     # Read info file to map indices to IDs
     info_path = os.path.join(data_dir, "coordinates", info_csv)
-    if os.path.exists(info_path):
+    if ids is not None:
+        real_ids = list(ids)
+    elif os.path.exists(info_path):
         info_df = pd.read_csv(info_path)
         # Heuristic: if all indices are within bounds of info_df, treat them as indices
         try:

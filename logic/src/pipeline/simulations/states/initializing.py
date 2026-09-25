@@ -19,7 +19,7 @@ import os
 import random
 from datetime import datetime
 from pathlib import Path
-from typing import TYPE_CHECKING, Any, Optional, Tuple
+from typing import TYPE_CHECKING, Any, List, Optional, Tuple
 
 import numpy as np
 import torch
@@ -41,6 +41,7 @@ from logic.src.pipeline.simulations.states.running import RunningState
 from logic.src.tracking.logging.log_utils import setup_system_logger
 from logic.src.tracking.logging.logger_writer import setup_logger_redirection
 from logic.src.utils.configs.config_loader import load_config
+from logic.src.utils.data.loader import load_grid_base
 from logic.src.utils.infrastructure.setup_env import setup_env
 from logic.src.utils.infrastructure.setup_manager import setup_hrl_manager
 from logic.src.utils.infrastructure.setup_sims import get_graph_config
@@ -49,6 +50,11 @@ from logic.src.utils.infrastructure.setup_worker import setup_model
 if TYPE_CHECKING:
     from logic.src.pipeline.simulations.states.base.base import SimulationContext
 
+
+
+def routed_bin_ids(coords: Any) -> List[Any]:
+    """Bin IDs of the routed graph in node order (row 0 of ``coords`` is the depot)."""
+    return coords["ID"].iloc[1:].tolist()
 
 class InitializingState(SimState):
     """State handles the initialization of simulation data (graph, models, etc.).
@@ -443,10 +449,16 @@ class InitializingState(SimState):
                 gamma_option = 0
             ctx.bins.set_gamma_distribution(option=gamma_option)  # type: ignore[attr-defined]
         else:
+            # Empirical fills must describe the routed bins: build the grid from the IDs
+            # of the processed coordinates (node order), not from out_info row positions.
+            grid = None
+            if data_dist == "emp" and ctx.coords is not None and "ID" in getattr(ctx.coords, "columns", []):
+                grid = load_grid_base(None, graph.area, ctx.data_dir, ids=routed_bin_ids(ctx.coords))
             ctx.bins = Bins(
                 graph.num_loc,
                 ctx.data_dir,
                 data_dist,
+                grid=grid,
                 area=graph.area,
                 waste_type=graph.waste_type,
                 waste_file=getattr(graph, "load_dataset", None),

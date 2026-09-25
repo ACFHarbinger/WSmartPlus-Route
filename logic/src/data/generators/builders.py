@@ -400,7 +400,8 @@ class VRPInstanceBuilder:
             grid = None
             if self._distribution == "emp":
                 data_dir = get_path_until_string(self._focus_graph, "wsr_simulator")
-                grid = load_grid_base(idx, self._area, data_dir)
+                # node_ids row 0 is the depot; the grid must follow the focus graph's bins.
+                grid = load_grid_base(idx, self._area, data_dir, ids=list(node_ids.iloc[1:]))
         else:
             grid = None
             idx = np.array(range(self._problem_size))
