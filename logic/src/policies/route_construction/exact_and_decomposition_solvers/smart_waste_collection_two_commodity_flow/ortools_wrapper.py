@@ -15,6 +15,8 @@ import numpy as np
 from numpy.typing import NDArray
 from ortools.linear_solver import pywraplp
 
+from .params import MAX_ARC_DISTANCE_KM
+
 
 def _run_ortools_tcf_optimizer(  # noqa: C901
     bins: NDArray[np.float64],
@@ -33,7 +35,7 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
     Args:
         bins (NDArray[np.float64]): Array of bin fill levels.
         distance_matrix (List[List[float]]): Distance matrix between nodes.
-        values (Dict[str, float]): Problem parameters (Omega, delta, psi, Q, R, B, C, V).
+        values (Dict[str, float]): Problem parameters (Omega, psi, Q, R, C; percent fill units).
         binsids (List[int]): Global identifiers for bins.
         mandatory_nodes (List[int]): IDs of bins that must be collected.
         number_vehicles (int): Maximum number of vehicles.
@@ -65,11 +67,11 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
     # If using HiGHS, you may need to rely on the C++ API or check the specific
     # OR-Tools version documentation for HiGHS parameter routing.
 
-    solver.SetTimeLimit(time_limit * 1000)  # OR-Tools expects milliseconds
+    solver.SetTimeLimit(int(float(time_limit) * 1000))  # OR-Tools expects milliseconds
 
     # 1. Parameter Extraction
-    Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
-    Q, R, B, C, V = values["Q"], values["R"], values["B"], values["C"], values["V"]
+    Omega, psi = values["Omega"], values["psi"]
+    Q, R, C = values["Q"], values["R"], values["C"]
 
     n_bins = len(bins)
     nodes = list(range(n_bins + 1))
@@ -77,7 +79,9 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
     nodes_real = [i for i in nodes if i != idx_deposito]
 
     enchimentos = np.insert(bins, 0, 0.0)
-    S_dict = {i: (enchimentos[i] / 100.0) * B * V for i in nodes}
+    # Percent fill, as in gurobi.py: the adapter passes Q in percent points and R in
+    # EUR per percent point, so a kg conversion here mixed unit systems.
+    S_dict = {i: float(enchimentos[i]) for i in nodes}
 
     # Criticos Mapping
     pure_binsids = binsids[1:] if len(binsids) == n_bins + 1 else binsids
@@ -85,8 +89,7 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
     for i, bin_id in enumerate(pure_binsids, 1):
         criticos_dict[i] = bin_id in mandatory_nodes
 
-    max_dist = 6000
-    valid_arcs = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
+    valid_arcs = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= MAX_ARC_DISTANCE_KM]
 
     # 2. Variable Definitions
     x = {}  # Arc selection (binary)
@@ -137,16 +140,7 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
         solver.Add(solver.Sum(x[j, k] for k in nodes if (j, k) in valid_arcs) == g[j])
 
     # Mandatory & Pre-assignments
-    critical_nodes = [i for i in nodes_real if criticos_dict[i]]
-    if critical_nodes:
-        min_visits = len(critical_nodes) - len(nodes_real) * delta
-        solver.Add(solver.Sum(g[i] for i in critical_nodes) >= min_visits)
-
-    for i in nodes_real:
-        if criticos_dict[i] or enchimentos[i] >= psi * 100:
-            solver.Add(g[i] == 1)
-        elif enchimentos[i] < 10 and not criticos_dict[i]:
-            solver.Add(g[i] == 0)
+    forced = [solver.Add(g[i] == 1) for i in nodes_real if criticos_dict[i] or enchimentos[i] >= psi * 100]
 
     # 4. Objective Function
     objective = solver.Objective()
@@ -156,20 +150,27 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
         for i in nodes_real:
             objective.SetCoefficient(g[i], R * S_dict[i] - dual_values.get(i, 0.0))
         for i, j in valid_arcs:
-            objective.SetCoefficient(x[i, j], -0.5 * C * distance_matrix[i][j])
+            objective.SetCoefficient(x[i, j], -C * distance_matrix[i][j])
         objective.SetCoefficient(k_var, -pi_0)
     else:
         # Standard objective
         for i in nodes_real:
             objective.SetCoefficient(g[i], R * S_dict[i])
         for i, j in valid_arcs:
-            objective.SetCoefficient(x[i, j], -0.5 * C * distance_matrix[i][j])
+            objective.SetCoefficient(x[i, j], -C * distance_matrix[i][j])
         objective.SetCoefficient(k_var, -Omega)
 
     objective.SetMaximization()
 
     # 5. Optimization & Parsing
     status = solver.Solve()
+    if status == pywraplp.Solver.INFEASIBLE and forced:
+        print(f"[WARN] OR-Tools TCF: {len(forced)} forced visits are infeasible together; re-solving without forcing.")
+        for ct in forced:
+            ct.SetBounds(-solver.infinity(), solver.infinity())
+        status = solver.Solve()
+    if status == pywraplp.Solver.INFEASIBLE:
+        raise RuntimeError("SWC-TCF model is infeasible (OR-Tools).")
 
     if status in [pywraplp.Solver.OPTIMAL, pywraplp.Solver.FEASIBLE]:
         id_map = {0: 0}

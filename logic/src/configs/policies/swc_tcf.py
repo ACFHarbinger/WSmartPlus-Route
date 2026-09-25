@@ -9,8 +9,6 @@ Example:
     >>> config = SWCTCFConfig()
     >>> config.Omega
     0.1
-    >>> config.delta
-    0.0
     >>> config.psi
     1.0
     >>> config.time_limit
@@ -39,9 +37,8 @@ class SWCTCFConfig:
     """Configuration for Smart Waste Collection - Two-Commodity Flow (SWC-TCF) policy.
 
     Attributes:
-        Omega: Profit weight parameter.
-        delta: Distance weight parameter.
-        psi: Penalty parameter.
+        Omega: Fixed cost per vehicle used (EUR).
+        psi: Fill fraction at or above which a bin is forced into the plan.
         time_limit: Maximum time in seconds for the solver.
         engine: Solver engine to use ('gurobi', 'scip', 'highs', or 'cplex').
         framework: Solver framework to use ('ortools', 'pyomo').
@@ -50,7 +47,6 @@ class SWCTCFConfig:
     """
 
     Omega: float = 0.1
-    delta: float = 0.0
     psi: float = 1.0
     time_limit: float = 600.0
     seed: Optional[int] = None

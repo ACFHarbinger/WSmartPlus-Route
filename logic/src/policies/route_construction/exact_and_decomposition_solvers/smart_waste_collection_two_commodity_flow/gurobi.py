@@ -18,6 +18,8 @@ from numpy.typing import NDArray
 
 from logic.src.constants.routing import HEURISTICS_RATIO, MIP_GAP, NODEFILE_START_GB
 
+from .params import MAX_ARC_DISTANCE_KM
+
 
 def _run_gurobi_optimizer(  # noqa: C901
     bins: NDArray[np.float64],
@@ -37,7 +39,7 @@ def _run_gurobi_optimizer(  # noqa: C901
         bins (NDArray[np.float64]): Array of bin fill levels.
         distance_matrix (List[List[float]]): Distance matrix between nodes.
         env (Optional[gp.Env]): Gurobi environment.
-        values (Dict[str, float]): Problem parameters (Omega, delta, psi, Q, R, B, C, V).
+        values (Dict[str, float]): Problem parameters (Omega, psi, Q, R, B, C, V).
         binsids (List[int]): Global identifiers for bins.
         mandatory (List[int]): IDs of bins that must be collected.
         number_vehicles (int): Maximum number of vehicles.
@@ -51,7 +53,7 @@ def _run_gurobi_optimizer(  # noqa: C901
             - profit: The total profit of the solution.
             - cost: The total travel cost of the solution.
     """
-    Omega, delta, psi = values["Omega"], values["delta"], values["psi"]
+    Omega, psi = values["Omega"], values["psi"]
     Q, R, _B, C, _V = values["Q"], values["R"], values["B"], values["C"], values["V"]
 
     n_bins = len(bins)
@@ -70,9 +72,9 @@ def _run_gurobi_optimizer(  # noqa: C901
     for i, bin_id in enumerate(pure_binsids, 1):
         criticos_dict[i] = bin_id in mandatory
 
-    # Use a high distance limit or remove it to prevent artificial infeasibility
-    max_dist = 6000000.0  # 6000 KM
-    pares_viaveis = [(i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= max_dist]
+    pares_viaveis = [
+        (i, j) for i in nodes for j in nodes if i != j and distance_matrix[i][j] <= MAX_ARC_DISTANCE_KM
+    ]
 
     mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
     mdl.Params.Seed = seed
@@ -132,14 +134,11 @@ def _run_gurobi_optimizer(  # noqa: C901
         if (j, idx_deposito) in x:
             mdl.addConstr(x[j, idx_deposito] <= g[j])
 
-    mdl.addConstr(
-        quicksum(g[i] for i in nodes_real if criticos_dict[i])
-        >= len([i for i in nodes_real if criticos_dict[i]]) - len(nodes_real) * delta
-    )
-
-    for i in nodes_real:
-        if criticos_dict[i] or enchimentos[i] >= psi * 100:
-            mdl.addConstr(g[i] == 1)
+    forced = [
+        mdl.addConstr(g[i] == 1, name=f"forced_{i}")
+        for i in nodes_real
+        if criticos_dict[i] or enchimentos[i] >= psi * 100
+    ]
 
     for j in nodes_real:
         mdl.addConstr(quicksum(x[i, j] for i in nodes if (i, j) in x) == g[j])
@@ -154,7 +153,7 @@ def _run_gurobi_optimizer(  # noqa: C901
         pi_0 = dual_values.get(idx_deposito, 0.0)
         mdl.setObjective(
             quicksum((R * S_dict[i] - dual_values.get(i, 0.0)) * g[i] for i in nodes_real)
-            - 0.5 * C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
+            - C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
             - pi_0 * k_var,
             GRB.MAXIMIZE,
         )
@@ -162,7 +161,7 @@ def _run_gurobi_optimizer(  # noqa: C901
         # Standard Objective
         mdl.setObjective(
             R * quicksum(S_dict[i] * g[i] for i in nodes_real)
-            - 0.5 * C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
+            - C * quicksum(x[i, j] * distance_matrix[i][j] for i, j in pares_viaveis)
             - Omega * k_var,
             GRB.MAXIMIZE,
         )
@@ -183,15 +182,25 @@ def _run_gurobi_optimizer(  # noqa: C901
         mdl.setParam("MIPGap", MIP_GAP)
 
     if time_limit > 0:
-        mdl.Params.TimeLimit = time_limit
+        mdl.Params.TimeLimit = float(time_limit)
 
     contentores_coletados = []
     profit = 0.0
     cost = 0.0
     mdl.optimize()
+    if mdl.Status in (GRB.INFEASIBLE, GRB.INF_OR_UNBD) and forced:
+        # Forcing every mandatory / over-psi bin can exceed the fleet's capacity.
+        # Collect what is feasible instead of returning an empty day.
+        print(f"[WARN][VRPP-Gurobi] {len(forced)} forced visits are infeasible together; re-solving without forcing.")
+        mdl.remove(forced)
+        mdl.optimize()
+    if mdl.Status in (GRB.INFEASIBLE, GRB.INF_OR_UNBD):
+        raise RuntimeError(f"SWC-TCF model is infeasible (Gurobi status {mdl.Status}).")
+    if mdl.SolCount == 0:
+        print(f"[WARN][VRPP-Gurobi] No solution found (status {mdl.Status}); the day collects nothing.")
     if mdl.SolCount > 0:
         id_map = {0: 0}
-        for i, bin_id in enumerate(binsids, 1):
+        for i, bin_id in enumerate(pure_binsids, 1):
             id_map[i] = bin_id
         arcos_ativos = [(i, j) for (i, j) in x.keys() if i != j and x[i, j].X > 0.5]
 
