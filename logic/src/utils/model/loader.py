@@ -19,7 +19,6 @@ import os
 import re
 from typing import Any, Dict, Optional, Tuple, Type, cast
 
-import torch
 from omegaconf import OmegaConf
 from torch import nn
 
@@ -31,9 +30,15 @@ from logic.src.models.subnets.factories.ggac import GGACComponentFactory
 from logic.src.models.subnets.factories.mlp import MLPComponentFactory
 from logic.src.models.subnets.factories.tgc import TGCComponentFactory
 
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
+
 from .checkpoint_utils import torch_load_cpu
 from .config_utils import load_args
 from .problem_factory import load_problem
+
+
+_UNUSED_LEGACY_KEYS = ("context_embedder.project_step_context.",)
 
 
 def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[str, Any]]:
@@ -90,6 +95,26 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
 
     # Use TemporalAttentionModel only for 'tam', otherwise AttentionModel
     model_class = TemporalAttentionModel if args.get("model") == "tam" else AttentionModel
+    # AttentionModel reads normalization/activation only from the structured configs;
+    # the flat kwargs below are kept for older call sites but are not consumed.
+    norm_config = NormalizationConfig(
+        norm_type=args["normalization"],
+        epsilon=args["epsilon_alpha"],
+        learn_affine=args["learn_affine"],
+        track_stats=args["track_stats"],
+        momentum=args["momentum_beta"],
+        n_groups=args["gnorm_groups"],
+        k_lrnorm=args["lrnorm_k"],
+    )
+    activation_config = ActivationConfig(
+        name=args["activation"],
+        param=args["af_param"],
+        threshold=args["af_threshold"],
+        replacement_value=args["af_replacement"],
+        n_params=args["af_nparams"],
+        range=list(args["af_urange"]),
+    )
+
     model = model_class(
         args["embed_dim"],
         args["hidden_dim"],
@@ -99,6 +124,8 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         args["n_encode_sublayers"],
         args["n_decode_layers"],
         n_heads=args["n_heads"],
+        norm_config=norm_config,
+        activation_config=activation_config,
         normalization=args["normalization"],
         norm_learn_affine=args["learn_affine"],
         norm_track_stats=args["track_stats"],
@@ -151,22 +178,25 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
                     break
             loaded_state_dict[k] = v
     else:
-        loaded_state_dict = {}
+        raise ValueError(f"Unsupported checkpoint layout in {model_filename}: expected a 'model' or 'state_dict' entry.")
+    if not loaded_state_dict:
+        raise ValueError(f"Checkpoint {model_filename} contains no model parameters.")
 
-    model.load_state_dict(loaded_state_dict, strict=False)
-
-    # When loading from a PL checkpoint the new policy lacks context_embedder.project_step_context
-    # (it folds that projection into the decoder).  Initialise it as a near-identity: pass the node
-    # embedding through unchanged and ignore the trailing capacity scalar.
-    if "state_dict" in data and "context_embedder.project_step_context.weight" not in loaded_state_dict:
-        psc = model.context_embedder.project_step_context
-        if isinstance(psc, nn.Linear):
-            embed_dim = psc.out_features
-            with torch.no_grad():
-                psc.weight.zero_()
-                psc.weight[:, :embed_dim] = torch.eye(embed_dim)  # identity on node-emb dims
-                if psc.bias is not None:
-                    psc.bias.zero_()
+    result = model.load_state_dict(loaded_state_dict, strict=False)
+    # PL checkpoints of AttentionModelPolicy have no weights for the legacy model's
+    # context_embedder.project_step_context, which the decode path never uses (the
+    # glimpse decoder owns its own context embedding). Anything else must match.
+    missing = [k for k in result.missing_keys if not k.startswith(_UNUSED_LEGACY_KEYS)]
+    if missing or result.unexpected_keys:
+        msg = (
+            f"Checkpoint {model_filename} does not match the model: "
+            f"missing={missing[:10]} unexpected={list(result.unexpected_keys)[:10]}"
+        )
+        # Strictness is verified for AttentionModel checkpoints; other model classes
+        # (e.g. TAM) may carry layout differences, so only warn for them.
+        if model_class is AttentionModel:
+            raise ValueError(msg)
+        print(f"  [!] {msg}")
 
     rel_model_filename = model_filename.replace(os.path.expanduser("~"), "~")
     print("  [*] Loaded model from {}".format(rel_model_filename))

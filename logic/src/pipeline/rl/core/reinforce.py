@@ -100,7 +100,13 @@ class REINFORCE(RL4COLitModule):
         else:
             baseline_val = self.baseline.eval(td, reward, env=env)
 
-        # Advantage
+        # Advantage. Dataset-wrapped baselines (rollout) arrive as [B, 1]; subtracting
+        # that from a [B] reward would broadcast to [B, B], so align shapes first.
+        baseline_val = torch.as_tensor(baseline_val, dtype=reward.dtype, device=reward.device)
+        if baseline_val.numel() == reward.numel():
+            baseline_val = baseline_val.reshape(reward.shape)
+        elif baseline_val.numel() != 1:
+            raise ValueError(f"Baseline shape {tuple(baseline_val.shape)} does not match reward {tuple(reward.shape)}")
         advantage = reward - baseline_val
 
         # Policy gradient loss

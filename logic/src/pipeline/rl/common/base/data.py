@@ -36,12 +36,25 @@ def _cfg_get(obj: Any, key: str, default: Any = None) -> Any:
     return getattr(obj, key, default)
 
 
+def _task_env_cfg(cfg: Any) -> Any:
+    """Return the env config of the active task (``cfg.<task>.env``), else ``cfg.env``.
+
+    The root config has no top-level ``env``; curriculum stages write the stage
+    graph into ``cfg.train.env.graph`` (see ``features/train/engine.py``).
+    """
+    if cfg is None:
+        return None
+    task_cfg = getattr(cfg, str(getattr(cfg, "task", "train") or "train"), None)
+    env_cfg = getattr(task_cfg, "env", None) if task_cfg is not None else None
+    return env_cfg if env_cfg is not None else getattr(cfg, "env", None)
+
+
 def _get_eval_graphs(cfg: Any) -> list:
-    """Return cfg.env.eval_graphs as a list, or [] if absent/empty."""
+    """Return the active task's env.eval_graphs as a list, or [] if absent/empty."""
     if cfg is None:
         return []
     try:
-        env_cfg = getattr(cfg, "env", None)
+        env_cfg = _task_env_cfg(cfg)
         if env_cfg is None:
             return []
         eval_graphs = getattr(env_cfg, "eval_graphs", None)
@@ -64,7 +77,7 @@ def _create_eval_env_and_gen(cfg: Any, eval_graph: Any) -> tuple:
     """
     from logic.src.envs import get_env
 
-    env_cfg = getattr(cfg, "env", None)
+    env_cfg = _task_env_cfg(cfg)
     env_name = str(_cfg_get(env_cfg, "name", "vrpp") or "vrpp")
     env_graph = _cfg_get(env_cfg, "graph", None)
     train_cfg = getattr(cfg, "train", None)
@@ -181,7 +194,7 @@ class DataMixin:
                 gen = gen.to("cpu")
 
             # Safely resolve training dataset size from config (cfg may be None in tests)
-            _cfg_env = getattr(self.cfg, "env", None)
+            _cfg_env = _task_env_cfg(self.cfg)
             _cfg_graph = _cfg_get(_cfg_env, "graph", None)
             n_train = int(_cfg_get(_cfg_graph, "n_samples", 10))
 
@@ -260,7 +273,7 @@ class DataMixin:
                 self.val_datasets = None
                 self.eval_envs = None
                 # env.graph is injected by _build_stage_config; safe fallback when absent.
-                env_graph_cfg = _cfg_get(getattr(self.cfg, "env", None), "graph", None)
+                env_graph_cfg = _cfg_get(_task_env_cfg(self.cfg), "graph", None)
                 n_val = int(_cfg_get(env_graph_cfg, "n_samples", 512))
                 if self.val_dataset_path is not None:
                     if self.local_rank == 0:

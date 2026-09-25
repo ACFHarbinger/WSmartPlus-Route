@@ -60,8 +60,8 @@ from logic.src.configs import Config
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.features.eval.evaluate import evaluate_policy, get_automatic_batch_size
 from logic.src.utils.data.loader import save_dataset
-from logic.src.utils.functions import move_to
 from logic.src.utils.model.loader import load_model
+from logic.src.utils.functions import move_to
 
 mp = torch.multiprocessing.get_context("spawn")
 
@@ -258,12 +258,14 @@ def _eval_dataset(
         first_batch = move_to(next(iter(dataloader)), device)
         maybe_log_eval_attention_heatmaps(model, first_batch, cfg, output_subdir="eval_attention")
 
-    costs_best = eval_results["rewards"]
+    # Evaluators return rewards (VRPP: profit, higher is better); problem.get_costs and
+    # the reported "cost" use the opposite sign.
+    rewards_best = eval_results["rewards"]
     sequences_best = eval_results["sequences"].cpu().numpy()
     duration_per_batch = eval_results["duration"] / len(dataloader)
 
     results: List[Dict[str, Any]] = []
-    for i, (seq, cost) in enumerate(zip(sequences_best, costs_best, strict=False)):
+    for i, (seq, reward) in enumerate(zip(sequences_best, rewards_best, strict=False)):
         if seq is not None:
             if model.problem.NAME in ("cvrpp", "cwcvrp", "sdwcvrp"):
                 seq = np.trim_zeros(seq).tolist() + [0]
@@ -302,16 +304,21 @@ def _eval_dataset(
                 "overflows": torch.tensor(0.0),
             }
 
-        results.append(
-            {
-                "cost": float(cost),
-                "seq": seq,
-                "duration": duration_per_batch,
-                "km": c_dict["length"].item(),
-                "kg": c_dict["waste"].item() * 100,
-                "overflows": c_dict["overflows"].item(),
-            }
-        )
+        result = {
+            "cost": -float(reward),
+            "reward": float(reward),
+            "seq": seq,
+            "duration": duration_per_batch,
+            "km": c_dict["length"].item(),
+            "kg": c_dict["waste"].item() * 100,
+            "overflows": c_dict["overflows"].item(),
+        }
+        # Additive KPI: only present when the problem tracks it (e.g. ctop's
+        # "time" key from get_costs), so this stays plug-and-play for future
+        # problem-specific KPIs without a fixed schema here.
+        if "time" in c_dict:
+            result["time"] = c_dict["time"].item()
+        results.append(result)
     return results
 
 
