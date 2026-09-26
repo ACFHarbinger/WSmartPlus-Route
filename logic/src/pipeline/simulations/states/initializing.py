@@ -26,7 +26,7 @@ import torch
 from loguru import logger
 
 from logic.src.constants.paths import CONFIGS_DIR
-from logic.src.constants import DAY_METRICS
+from logic.src.constants import DAY_METRICS, ROOT_DIR  # noqa: F401  (ROOT_DIR: test patch point)
 from logic.src.data.processor import (
     process_data,
     process_model_data,

@@ -20,7 +20,7 @@ import numpy as np
 
 from logic.src.constants.paths import CONFIGS_DIR
 from logic.src.configs import MandatorySelectionConfig
-from logic.src.constants import MAX_CAPACITY_PERCENT
+from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR  # noqa: F401  (ROOT_DIR: test patch point)
 from logic.src.interfaces import IBinContainer, ITraversable
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection import MandatorySelectionFactory, SelectionContext
