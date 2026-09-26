@@ -44,6 +44,9 @@ def _find_key(d: Any, target_key: str) -> Any:
     return None
 
 
+_EXPANDED_KEYS = ("mandatory_selection", "route_improvement", "acceptance_criteria", "acceptance_criterion")
+
+
 def _flatten_config(cfg: Any) -> dict:  # noqa: C901
     """
     Helper to flatten nested configuration structures (e.g. hgs.custom -> list of dicts).
@@ -80,11 +83,17 @@ def _flatten_config(cfg: Any) -> dict:  # noqa: C901
         flat = dict(curr)
         # Iterate over all keys and flatten if value is a list of dicts
         for _k, v in list(flat.items()):
-            if isinstance(v, (list, tuple)) or (not isinstance(v, (str, dict)) and hasattr(v, "__iter__")):
+            if isinstance(v, (list, tuple)) or (not isinstance(v, (str, Mapping)) and hasattr(v, "__iter__")):
                 primitive_list = []
                 for item in v:
                     if hasattr(item, "items"):
-                        flat.update(dict(item))
+                        for sub_k, sub_v in dict(item).items():
+                            # Keep the variant-specific selection/improvement/acceptance entries that
+                            # the policy expander already resolved at the top level; nested 'custom'
+                            # blocks still carry the unexpanded {file: [all variants]} form.
+                            if sub_k in _EXPANDED_KEYS and sub_k in flat:
+                                continue
+                            flat[sub_k] = sub_v
                     else:
                         primitive_list.append(item)
                 if primitive_list:

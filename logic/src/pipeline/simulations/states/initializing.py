@@ -248,7 +248,7 @@ class InitializingState(SimState):
         """
         # If policy config was not correctly loaded in __init__ (common when passing paths in config_path)
         # we re-link it here from the correctly loaded context config registry.
-        if not ctx.pol_cfg and ctx.pol_id_orig in ctx.config:  # pyrefly: ignore [not-iterable]
+        if (not ctx.pol_cfg or not isinstance(ctx.pol_cfg, dict)) and ctx.pol_id_orig in ctx.config:  # pyrefly: ignore [not-iterable]
             ctx.pol_cfg = ctx.config[ctx.pol_id_orig]  # pyrefly: ignore [unsupported-operation]
 
         model_name = ""
