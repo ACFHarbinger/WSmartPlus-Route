@@ -1,0 +1,108 @@
+// WSmart+ Route — PSOMA (Particle Swarm Optimisation Memetic Algorithm) flowchart
+// Source of truth: logic/src/policies/route_construction/meta_heuristics/particle_swarm_optimization_memetic_algorithm/
+// Render: dot -Tpdf psoma_flowchart.dot -o psoma_flowchart.pdf
+digraph PSOMA {
+    graph [rankdir=TB, fontname="Helvetica", fontsize=11, labelloc=t, labeljust=l,
+           label=<<B>PSOMA — Particle Swarm Optimisation Memetic Algorithm</B><BR/><FONT POINT-SIZE="9">Continuous PSO over positions X ∈ [x_min, x_max]ⁿ, decoded by the Ranked-Order-Value rule into a giant tour and by Linear Split into routes; the global best is intensified by a simulated-annealing search whose neighbourhood operator (swap / insert / inverse) is chosen adaptively from EMA rewards. Objective: maximise profit = R·Σ waste − C·Σ distance.</FONT>>,
+           nodesep=0.35, ranksep=0.45, compound=true, newrank=true, splines=spline, pad=0.3];
+    node  [fontname="Helvetica", fontsize=9, shape=box, style="rounded,filled", fillcolor="#FFFFFF", color="#444444", margin="0.12,0.06"];
+    edge  [fontname="Helvetica", fontsize=8, color="#555555", arrowsize=0.7];
+
+    start [label="START\nRouteConstructionAction → PSOMAPolicy.execute(context)", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+    end   [label="END\ntour · profit · km", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+
+    subgraph cluster_adapter {
+        label=<<B>0. Policy adapter</B> — PSOMAPolicy (registered as "psoma")>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        a_q [label="mandatory bins empty\n(and not vrpp) ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_empty [label="return tour [0, 0]"];
+        a_params [label="Load capacity, R, C · sub-problem (all bins if vrpp)\nPSOMAParams: pop_size 20, ω 1.0, c₁ 2.0, c₂ 2.0, max_iterations 200,\nX ∈ [0, 4], V ∈ [−4, 4], L = 30 (stagnation), T₀ 3.0, λ_cooling 0.9,\ntime_limit 60 s, seed, acceptance_criterion (required)"];
+        a_solve [label="PSOMASolver(dist, wastes, capacity, R, C,\nparams, mandatory).solve()", shape=box3d, fillcolor="#E8E8E8"];
+        a_map [label="map local routes → global tour · km on full matrix"];
+        a_q -> a_empty [label="yes"]; a_q -> a_params [label="no"];
+        a_params -> a_solve -> a_map;
+    }
+    start -> a_q; a_empty -> end; a_map -> end;
+
+    subgraph cluster_init {
+        label=<<B>1. Solver set-up</B>>; style="filled,rounded"; fillcolor="#EEF5EE"; color="#7FA87F";
+        i_split [label="LinearSplit decoder (profit-aware, capacity-feasible routes)"];
+        i_ops [label="SA operators = [swap, insert, inverse] on the giant tour\nprobabilities = [⅓, ⅓, ⅓] · rewards = 0\nmetropolis_steps = n·(n − 1)"];
+        i_bias [label="biased distance matrix (μ = 10): pulls profitable nodes closer\nfor surrogate move evaluation"];
+        i_split -> i_ops -> i_bias;
+    }
+    a_solve -> i_split [lhead=cluster_init, style=dashed, label="expands to"];
+
+    subgraph cluster_main {
+        label=<<B>2. Main loop</B> — PSOMASolver.solve()>; style="filled,rounded"; fillcolor="#FFF8EC"; color="#D9A441";
+        m_swarm [label="INIT SWARM: pop_size particles\nX ~ U[x_min, x_max]ⁿ, V ~ U[v_min, v_max]ⁿ\ntour = ROV(X) (argsort) → routes, profit = split(tour)\npbest = self · gbest = best particle", shape=hexagon, fillcolor="#FFE0B2"];
+        m_setup [label="criterion.setup(gbest_profit)"];
+        m_train [label="TRAINING PHASE: for each operator op:\nbest_pf = sa_search(op)  (see 3.)\nreward[op] = |gbest − best_pf| / metropolis_steps\nprobabilities ∝ max(ε = 0.05, reward)", shape=hexagon, fillcolor="#FFE0B2"];
+        m_iter [label="for iteration in 1..max_iterations:", shape=hexagon, fillcolor="#FFE0B2"];
+        m_time_q [label="elapsed > time_limit ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_pso [label="PSO EXPLORATION — for each particle p:\nV = ω·V + c₁·r₁⊙(pbest_X − X) + c₂·r₂⊙(gbest_X − X), clip to [v_min, v_max]\nX = clip(X + V, x_min, x_max)\ntour = ROV(X) · routes, profit = split(tour)", shape=hexagon, fillcolor="#FFE0B2"];
+        m_pbest_q [label="profit > pbest_profit ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_pbest [label="pbest ← (X, tour, mapping, profit)"];
+        m_gbest_q [label="profit > gbest_profit ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_gbest [label="gbest ← (X, tour, mapping, routes, profit)"];
+        m_nt [label="NON-TRAINING PHASE (memetic intensification):\nop ~ probabilities · best_pf = sa_search(op)  (see 3.)\nΔη = max(0, best_pf − gbest_before) / metropolis_steps\nreward[op] ← 0.5·reward[op] + 0.5·Δη · renormalise probabilities"];
+        m_step [label="criterion.step(...)  (temperature cooling)"];
+        m_stag_q [label="gbest improved this iteration ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_stag0 [label="stagnation = 0"];
+        m_stag1 [label="stagnation += 1"];
+        m_L_q [label="stagnation ≥ L ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_ret [label="return gbest_routes, gbest_profit, cost(gbest_routes)"];
+
+        m_swarm -> m_setup -> m_train -> m_iter -> m_time_q;
+        m_time_q -> m_ret [label="yes"]; m_time_q -> m_pso [label="no"];
+        m_pso -> m_pbest_q;
+        m_pbest_q -> m_pbest [label="yes"]; m_pbest_q -> m_gbest_q [label="no"]; m_pbest -> m_gbest_q;
+        m_gbest_q -> m_gbest [label="yes"]; m_gbest_q -> m_nt [label="no (all particles done)"]; m_gbest -> m_nt;
+        m_nt -> m_step -> m_stag_q;
+        m_stag_q -> m_stag0 [label="yes"]; m_stag_q -> m_stag1 [label="no"];
+        m_stag0 -> m_iter [style=dashed, label="next"];
+        m_stag1 -> m_L_q;
+        m_L_q -> m_ret [label="yes (break)"];
+        m_L_q -> m_iter [label="no", style=dashed];
+        m_iter -> m_ret [label="exhausted"];
+    }
+    i_bias -> m_swarm [ltail=cluster_init];
+    m_ret -> a_map [style=dashed];
+
+    subgraph cluster_sa {
+        label=<<B>3. SA search on the global best</B> — _sa_search(operator)>; style="filled,rounded"; fillcolor="#F3EEF8"; color="#8E6BB0";
+        s_init [label="current = best = gbest (tour, X, mapping, profit, routes)"];
+        s_loop [label="for step in 1..metropolis_steps:", shape=hexagon, fillcolor="#FFE0B2"];
+        s_move [label="new_tour, new_X, new_mapping, Δdist = operator(current)\nswap: exchange two positions · insert: move one node · inverse: reverse a segment\n(X entries permuted consistently; Δdist is an O(1) surrogate on the biased matrix)"];
+        s_sur_q [label="Δdist > 0 (longer) and\ncriterion rejects −Δdist ?", shape=diamond, fillcolor="#FFF3B0"];
+        s_skip [label="reject early — skip the O(n²) split"];
+        s_split [label="new_routes, new_pf = split(new_tour)  (lazy decode)"];
+        s_acc_q [label="criterion.accept(current_pf, new_pf) ?", shape=diamond, fillcolor="#FFF3B0"];
+        s_acc [label="current ← new"];
+        s_best_q [label="current_pf > best_pf ?", shape=diamond, fillcolor="#FFF3B0"];
+        s_best [label="best ← current"];
+        s_g_q [label="best_pf > gbest_profit ?", shape=diamond, fillcolor="#FFF3B0"];
+        s_g [label="gbest ← best"];
+        s_ret [label="return best_pf, best_X, best_tour, best_routes"];
+        s_init -> s_loop -> s_move -> s_sur_q;
+        s_sur_q -> s_skip [label="yes"]; s_skip -> s_loop [style=dashed];
+        s_sur_q -> s_split [label="no"];
+        s_split -> s_acc_q;
+        s_acc_q -> s_acc [label="yes"]; s_acc_q -> s_loop [label="no", style=dashed];
+        s_acc -> s_best_q;
+        s_best_q -> s_best [label="yes"]; s_best_q -> s_loop [label="no", style=dashed];
+        s_best -> s_g_q;
+        s_g_q -> s_g [label="yes"]; s_g_q -> s_loop [label="no", style=dashed];
+        s_g -> s_loop [style=dashed];
+        s_loop -> s_ret [label="done"];
+    }
+    m_train -> s_init [lhead=cluster_sa, style=dashed, color="#8E6BB0"];
+    m_nt -> s_init [lhead=cluster_sa, style=dashed, color="#8E6BB0", label="expands to"];
+
+    subgraph cluster_decode {
+        label=<<B>4. Genotype → phenotype</B>>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        d_rov [label="ROV rule: mapping = argsort(X) · giant_tour = clients[mapping]\n(smallest position value visited first)"];
+        d_split [label="LinearSplit.split(giant_tour): optimal cut of the sequence into\ncapacity-feasible routes maximising R·waste − C·distance;\nunprofitable non-mandatory nodes may be skipped (VRPP)"];
+        d_rov -> d_split;
+    }
+    m_pso -> d_rov [style=dashed, color="#9AA5B1"];
+}

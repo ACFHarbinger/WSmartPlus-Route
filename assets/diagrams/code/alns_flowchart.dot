@@ -1,0 +1,93 @@
+// WSmart+ Route — ALNS (Adaptive Large Neighbourhood Search) flowchart
+// Source of truth: logic/src/policies/route_construction/meta_heuristics/adaptive_large_neighborhood_search/
+// Render: dot -Tpdf alns_flowchart.dot -o alns_flowchart.pdf
+digraph ALNS {
+    graph [rankdir=TB, fontname="Helvetica", fontsize=11, labelloc=t, labeljust=l,
+           label=<<B>ALNS — Adaptive Large Neighbourhood Search (Ropke &amp; Pisinger 2006)</B><BR/><FONT POINT-SIZE="9">Destroy q nodes, repair with an insertion heuristic, accept via a pluggable criterion (default simulated annealing), and learn operator weights per segment from scores σ₁/σ₂/σ₃. Objective: maximise profit = R·Σ waste − C·Σ distance under capacity and mandatory coverage.</FONT>>,
+           nodesep=0.35, ranksep=0.45, compound=true, newrank=true, splines=spline, pad=0.3];
+    node  [fontname="Helvetica", fontsize=9, shape=box, style="rounded,filled", fillcolor="#FFFFFF", color="#444444", margin="0.12,0.06"];
+    edge  [fontname="Helvetica", fontsize=8, color="#555555", arrowsize=0.7];
+
+    start [label="START\nRouteConstructionAction → ALNSPolicy.execute(context)", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+    end   [label="END\ntour · profit · km", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+
+    subgraph cluster_adapter {
+        label=<<B>0. Policy adapter &amp; dispatcher</B> — ALNSPolicy ("alns") → run_alns()>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        a_q [label="mandatory bins empty\n(and not vrpp) ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_empty [label="return tour [0, 0]"];
+        a_params [label="Load capacity, R, C · build sub-problem (all bins if vrpp)\nALNSParams.from_config: time_limit 60 s, max_iterations 5000,\nstart_temp 0 (dynamic), cooling 0.995, reaction_factor 0.1,\nsegment_size 100, ξ 0.4, min_removal 4, cap 100, noise 0.025,\nregret_pool regret234, σ₁ 33 / σ₂ 9 / σ₃ 13, acceptance criterion"];
+        a_engine_q [label="engine / variant ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_pkg [label="run_alns_package()\n(alns PyPI library)", fillcolor="#E8E8E8"];
+        a_ort [label="run_alns_ortools()\n(OR-Tools guided local search)", fillcolor="#E8E8E8"];
+        a_custom [label="ALNSSolver(dist, wastes, capacity, R, C,\nparams, mandatory, recorder).solve()", shape=box3d, fillcolor="#E8E8E8"];
+        a_map [label="map local routes → global tour · km on full matrix"];
+        a_q -> a_empty [label="yes"]; a_q -> a_params [label="no"];
+        a_params -> a_engine_q;
+        a_engine_q -> a_pkg [label="package"]; a_engine_q -> a_ort [label="ortools"]; a_engine_q -> a_custom [label="custom (default)"];
+        a_pkg -> a_map; a_ort -> a_map; a_custom -> a_map;
+    }
+    start -> a_q; a_empty -> end; a_map -> end;
+
+    subgraph cluster_init {
+        label=<<B>1. Solver initialisation</B> — ALNSSolver.__init__>; style="filled,rounded"; fillcolor="#EEF5EE"; color="#7FA87F";
+        i_destroy [label="DESTROY registry (core): RandomRemoval · WorstRemoval(p) · ShawRemoval(p_shaw)\nextended_operators adds: StringRemoval · ClusterRemoval · NeighborRemoval\n(profit-aware variants when profit_aware_operators)", shape=cylinder, fillcolor="#DCEBF7"];
+        i_repair [label="REPAIR registry: Greedy, Regret-2 (+ Regret-3, Regret-4 for regret234)\n+ Savings; each noise-capable op expanded into Clean and Noisy slots\n(profit-aware variants when profit_aware_operators)", shape=cylinder, fillcolor="#DCEBF7"];
+        i_w [label="weights = 1.0 per slot · scores = 0 · counts = 0\nweight_decay = 1 − r · learning_rate = r · visited_solutions = ∅"];
+        i_acc [label="acceptance_criterion from params\n(default factory: 'bmc' Boltzmann Monte-Carlo / SA,\ninitial_temp, alpha = cooling_rate, seed)"];
+        i_destroy -> i_repair -> i_w -> i_acc;
+    }
+    a_custom -> i_destroy [lhead=cluster_init, style=dashed, label="expands to"];
+
+    subgraph cluster_main {
+        label=<<B>2. Main loop</B> — ALNSSolver.solve(initial_solution)>; style="filled,rounded"; fillcolor="#FFF8EC"; color="#D9A441";
+        m_init [label="current = initial_solution or build_greedy_routes()\nbest = current · profit = R·Σ waste − C·km"];
+        m_temp_q [label="start_temp == 0 and\nbest_profit > 0 ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_temp [label="dynamic T₀: accept a start_temp_control (5 %) worse\nsolution with probability 0.5 → T₀ = −0.05·profit / ln 0.5\ncriterion.set_temperature(T₀)"];
+        m_setup [label="visited ← {hash(best)} · criterion.setup(current_profit)"];
+        m_iter [label="for it in 0..max_iterations−1:", shape=hexagon, fillcolor="#FFE0B2"];
+        m_time_q [label="elapsed > time_limit ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_dr [label="new_routes, d_idx, r_idx = destroy + repair  (see 3.)"];
+        m_eval [label="new_profit = R·Σ waste(new) − C·km(new)\nis_new = hash(new) ∉ visited · visited ← visited ∪ {hash}"];
+        m_acc [label="accept, _ = criterion.accept(current_profit, new_profit,\nf_best, iteration, max_iterations)\n(SA: always if better, else exp(Δ/T))"];
+        m_best_q [label="new_profit > best_profit ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_s1 [label="best ← new · score = σ₁ (33)"];
+        m_s23_q [label="accepted and is_new ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_s2 [label="score = σ₂ (9) if new > current\nelse σ₃ (13)"];
+        m_s0 [label="score = 0"];
+        m_acc_q [label="accepted ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_move [label="current ← new"];
+        m_w [label="scores[d], scores[r] += score · counts += 1"];
+        m_seg_q [label="(it+1) mod segment_size == 0 ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_seg [label="END OF SEGMENT (Eq. 4.1):\nw_i ← (1 − r)·w_i + r · π_i / θ_i  for used ops\nreset scores & counts"];
+        m_step [label="criterion.step(...)  (SA: T ← α·T)\n_viz_record(iteration, weights, profits, acceptance state)"];
+        m_ret [label="return best_routes, best_profit, best_cost"];
+
+        m_init -> m_temp_q;
+        m_temp_q -> m_temp [label="yes"]; m_temp_q -> m_setup [label="no"]; m_temp -> m_setup;
+        m_setup -> m_iter -> m_time_q;
+        m_time_q -> m_ret [label="yes"]; m_time_q -> m_dr [label="no"];
+        m_dr -> m_eval -> m_acc -> m_best_q;
+        m_best_q -> m_s1 [label="yes"]; m_best_q -> m_s23_q [label="no"];
+        m_s23_q -> m_s2 [label="yes"]; m_s23_q -> m_s0 [label="no"];
+        m_s1 -> m_acc_q; m_s2 -> m_acc_q; m_s0 -> m_acc_q;
+        m_acc_q -> m_move [label="yes"]; m_acc_q -> m_w [label="no"]; m_move -> m_w;
+        m_w -> m_seg_q;
+        m_seg_q -> m_seg [label="yes"]; m_seg_q -> m_step [label="no"]; m_seg -> m_step;
+        m_step -> m_iter [style=dashed, label="next"];
+        m_iter -> m_ret [label="exhausted"];
+    }
+    i_acc -> m_init [ltail=cluster_init];
+    m_ret -> a_map [style=dashed];
+
+    subgraph cluster_dr {
+        label=<<B>3. Destroy &amp; repair step</B> — _select_and_apply_operators(current)>; style="filled,rounded"; fillcolor="#F3EEF8"; color="#8E6BB0";
+        d_sel [label="roulette-wheel: d_idx ~ destroy_weights, r_idx ~ repair_weights"];
+        d_q [label="q = n_remove ~ U[ min(n_current, 4),\nmax(lower, min(100, ⌊ξ · n⌋)) ]"];
+        d_noise [label="noise = U(−η·d_max, +η·d_max) if selected repair slot is Noisy, else 0"];
+        d_destroy [label="DESTROY: partial, removed = destroy_op(copy(current), q)\nRandom: uniform picks · Worst: highest saving, randomised by p\nShaw: relatedness (distance, load), randomised by p_shaw\nString / Cluster / Neighbor: spatially contiguous removals"];
+        d_repair [label="REPAIR: new = repair_op(partial, removed, noise)\nGreedy: cheapest insertion · Regret-k: max (kth best − best) first\nSavings: Clarke-Wright merge · mandatory nodes always inserted;\noptional nodes only if profitable (VRPP); capacity respected"];
+        d_ret [label="return new_routes, d_idx, r_idx"];
+        d_sel -> d_q -> d_noise -> d_destroy -> d_repair -> d_ret;
+    }
+    m_dr -> d_sel [lhead=cluster_dr, style=dashed, color="#8E6BB0", label="expands to"];
+}

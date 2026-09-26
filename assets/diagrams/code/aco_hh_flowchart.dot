@@ -1,0 +1,98 @@
+// WSmart+ Route — ACO-HH (Ant Colony Optimisation Hyper-Heuristic) flowchart
+// Source of truth: logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/
+// Render: dot -Tpdf aco_hh_flowchart.dot -o aco_hh_flowchart.pdf
+digraph ACOHH {
+    graph [rankdir=TB, fontname="Helvetica", fontsize=11, labelloc=t, labeljust=l,
+           label=<<B>ACO-HH — Ant Colony Optimisation Hyper-Heuristic (Chen et al. 2007 scheme)</B><BR/><FONT POINT-SIZE="9">Ants walk a graph whose vertices are low-level operators, not customers. Pheromone τ[i][j] and visibility η[i][j] live on operator→operator transitions; each journey is an operator sequence applied to the ant's current routing solution. Objective minimised: routing cost + pv · (# capacity-violating routes), with strategic oscillation of pv.</FONT>>,
+           nodesep=0.35, ranksep=0.45, compound=true, newrank=true, splines=spline, pad=0.3];
+    node  [fontname="Helvetica", fontsize=9, shape=box, style="rounded,filled", fillcolor="#FFFFFF", color="#444444", margin="0.12,0.06"];
+    edge  [fontname="Helvetica", fontsize=8, color="#555555", arrowsize=0.7];
+
+    start [label="START\nRouteConstructionAction → HyperACOPolicy.execute(context)", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+    end   [label="END\ntour · profit · km", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+
+    subgraph cluster_adapter {
+        label=<<B>0. Policy adapter</B> — HyperACOPolicy (registered as "aco_hh")>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        a_q [label="mandatory bins empty\n(and not vrpp) ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_empty [label="return tour [0, 0]"];
+        a_params [label="Load capacity, R, C · HyperACOParams from config\n(n_ants=10, α=1, β=2, ρ=0.5, τ₀=1, max_iterations=50,\ntime_limit=30 s, stagnation_limit=10, elitism_ratio, operators, seed)"];
+        a_sub [label="Sub-problem: vrpp → all bins with mandatory list,\nelse [depot]+mandatory only", shape=cylinder, fillcolor="#DCEBF7"];
+        a_init [label="initial_routes = build_greedy_routes(dist, wastes,\ncapacity, R, C, mandatory, rng)"];
+        a_solve [label="HyperHeuristicACO(dist, wastes, capacity, R, C,\nparams, initial_routes, mandatory).solve()", shape=box3d, fillcolor="#E8E8E8"];
+        a_map [label="map local routes → global tour · km on full matrix"];
+        a_q -> a_empty [label="yes"]; a_q -> a_params [label="no"];
+        a_params -> a_sub -> a_init -> a_solve -> a_map;
+    }
+    start -> a_q; a_empty -> end; a_map -> end;
+
+    subgraph cluster_init {
+        label=<<B>1. Solver initialisation</B>>; style="filled,rounded"; fillcolor="#EEF5EE"; color="#7FA87F";
+        i_ops [label="Operator vertices (HYPER_OPERATORS):\n2opt_intra · 3opt_intra · 2opt_star · swap · swap_star · relocate\nperturb · kick · shaw_removal · string_removal · random_removal\nsequence_length = n_operators", shape=cylinder, fillcolor="#DCEBF7"];
+        i_tau [label="τ = full((n_ops+1) × n_ops, τ₀)  (row n_ops = virtual start)\nη = ones(...) · edge_count = zeros(...)"];
+        i_pv [label="Strategic oscillation: initial_pv = initial cost / 100\npv = initial_pv · Z = 1 % of initial cost (dynamic-λ scale)"];
+        i_ops -> i_tau -> i_pv;
+    }
+    a_solve -> i_ops [lhead=cluster_init, style=dashed, label="expands to"];
+
+    subgraph cluster_main {
+        label=<<B>2. Main loop</B> — HyperHeuristicACO.solve()>; style="filled,rounded"; fillcolor="#FFF8EC"; color="#D9A441";
+        m_best [label="best = initial solution · best_obj = f(best)\nant_solutions[k] = copy(initial) for k in 1..n_ants"];
+        m_place [label="Uniform placement: ant k starts on operator vertex k mod n_ops\napply that starting operator once to each ant's solution"];
+        m_iter [label="for iteration in 1..max_iterations:", shape=hexagon, fillcolor="#FFE0B2"];
+        m_time_q [label="elapsed > time_limit ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_ants [label="for each ant k:\n  start_obj = f(S_k)\n  S_k, sequence, η_updates, end_vertex = build_solution(S_k, position_k)  (see 3.)\n  position_k = end_vertex · accumulate η_updates", shape=hexagon, fillcolor="#FFE0B2"];
+        m_sort [label="sort ant results by final objective (ascending)\niter_best = first"];
+        m_imp_q [label="iter_best_obj < best_obj ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_upd [label="best ← iter_best\nELITISM: the ⌈n_ants · elitism_ratio⌉ worst ants\nare reset to best (ratio 1 = all ants sync, paper behaviour)"];
+        m_keep [label="ants keep their own solutions"];
+        m_osc [label="STRATEGIC OSCILLATION\nimproved → stagnation = 0, pv = initial_pv\nelse stagnation += 1; if ≥ stagnation_limit: pv ← pv / 2\n(pv < initial_pv relaxes capacity to ∞ during operator application)"];
+        m_evap [label="Evaporate: τ ← (1 − ρ) · τ"];
+        m_dep [label="Deposit for each ant with journey improvement I_k > 0:\nΔτ = Q + I_k / |sequence|\nadd Δτ along virtual-start → op₁ → op₂ → … → op_L"];
+        m_eta [label="Visibility: η ← eta_decay · η + Σ_k η_updates_k"];
+        m_ret [label="return best_routes, revenue − cost, cost / C"];
+
+        m_best -> m_place -> m_iter -> m_time_q;
+        m_time_q -> m_ret [label="yes"];
+        m_time_q -> m_ants [label="no"];
+        m_ants -> m_sort -> m_imp_q;
+        m_imp_q -> m_upd [label="yes"]; m_imp_q -> m_keep [label="no"];
+        m_upd -> m_osc; m_keep -> m_osc;
+        m_osc -> m_evap -> m_dep -> m_eta;
+        m_eta -> m_iter [style=dashed, label="next iteration"];
+        m_iter -> m_ret [label="exhausted"];
+    }
+    i_pv -> m_best [ltail=cluster_init];
+    m_ret -> a_map [style=dashed];
+
+    subgraph cluster_journey {
+        label=<<B>3. One ant journey</B> — build_solution(base_solution, start_vertex)>; style="filled,rounded"; fillcolor="#F3EEF8"; color="#8E6BB0";
+        j_seq [label="SELECT SEQUENCE (AS proportional rule), L = n_ops steps:\np(i→j) = τ[i][j]^α · η[i][j]^β / Σ_j' (…)\nsample next vertex, append operator, move on\n→ sequence, end_vertex"];
+        j_ctx [label="effective_capacity = ∞ if pv < initial_pv else capacity\nctx = HyperOperatorContext(routes, capacity, granular structures,\nSWAP* cache only if 'swap_star' in sequence)"];
+        j_loop [label="for op in sequence:", shape=hexagon, fillcolor="#FFE0B2"];
+        j_apply [label="obj_before = f(ctx.routes) · t₀\nop(ctx)  (first-improvement move, ≤ max_attempts)\nobj_after = f(ctx.routes) · execution_time"];
+        j_lam_q [label="use_dynamic_lambda ?", shape=diamond, fillcolor="#FFF3B0"];
+        j_lam_dyn [label="Z ← EMA of |improvement|\nλ = exp(clip(improvement / Z, −10, 10))"];
+        j_lam_fix [label="λ = lambda_val ^ improvement"];
+        j_eta [label="edge_count[prev][op] += 1\nη_updates[prev][op] += λ / ((exec_time + 1e-3) · edge_count)\nprev = op"];
+        j_ret [label="return ctx.routes, sequence, η_updates, end_vertex"];
+        j_seq -> j_ctx -> j_loop -> j_apply -> j_lam_q;
+        j_lam_q -> j_lam_dyn [label="yes"]; j_lam_q -> j_lam_fix [label="no"];
+        j_lam_dyn -> j_eta; j_lam_fix -> j_eta;
+        j_eta -> j_loop [style=dashed, label="next op"];
+        j_loop -> j_ret [label="done"];
+    }
+    m_ants -> j_seq [lhead=cluster_journey, style=dashed, color="#8E6BB0", label="per ant"];
+
+    subgraph cluster_obj {
+        label=<<B>4. Objective</B> — _evaluate_objective(routes)>; style="filled,rounded"; fillcolor="#EEF5EE"; color="#7FA87F";
+        o_f [label="f(routes) = C · Σ route distance (depot → … → depot)\n+ pv · #{routes with load > capacity}\n(minimised; revenue is fixed once the node set is fixed,\nremoval operators change it via unvisited pool)"];
+    }
+    j_apply -> o_f [style=dashed, color="#7FA87F"];
+
+    subgraph cluster_construct {
+        label=<<B>5. construct(nodes)</B> — from-scratch variant used by hyper-heuristic callers>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        c_boot [label="Bootstrap: pick one insertion heuristic uniformly at random\n(greedy, blinks, nearest, farthest, savings, regret-2/3/4, deep, GENI, B&B-LDS;\nprofit-aware variants if profit_aware_operators) and insert all nodes into []"];
+        c_walk [label="place one ant on a random operator vertex\nroutes = build_solution(bootstrapped, start)  (see 3.)"];
+        c_boot -> c_walk;
+    }
+}

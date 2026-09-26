@@ -1,0 +1,105 @@
+// WSmart+ Route — SANS (Simulated Annealing Neighbourhood Search) flowchart
+// Source of truth: logic/src/policies/route_construction/meta_heuristics/simulated_annealing_neighborhood_search/
+// Render: dot -Tpdf sans_flowchart.dot -o sans_flowchart.pdf
+digraph SANS {
+    graph [rankdir=TB, fontname="Helvetica", fontsize=11, labelloc=t, labeljust=l,
+           label=<<B>SANS — Simulated Annealing Neighbourhood Search (engines "new" and "og")</B><BR/><FONT POINT-SIZE="9">Single-vehicle profit-maximising SA over a set of routes plus a pool of removed bins. The "new" engine runs geometric-cooling SA with 18 route/add operators and re-heating; the legacy "og" (LAC) engine runs a fixed-iteration annealing over 19 random move/swap procedures followed by uncrossing, local-search refinement and rebalancing.</FONT>>,
+           nodesep=0.35, ranksep=0.45, compound=true, newrank=true, splines=spline, pad=0.3];
+    node  [fontname="Helvetica", fontsize=9, shape=box, style="rounded,filled", fillcolor="#FFFFFF", color="#444444", margin="0.12,0.06"];
+    edge  [fontname="Helvetica", fontsize=8, color="#555555", arrowsize=0.7];
+
+    start [label="START\nRouteConstructionAction → SANSPolicy.execute(context)", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+    end   [label="END\ntour · km · profit", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+
+    subgraph cluster_adapter {
+        label=<<B>0. Policy adapter</B> — SANSPolicy (registered as "sans"), execute() overrides the base flow>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        a_params [label="SANSParams.from_config: engine 'new', T_init 75, iterations_per_T 5000,\nα 0.95, T_min 0.01, time_limit 60 s, perc_bins_can_overflow 0,\nV (bin volume), shift_duration 8 h, combination 'best', seed"];
+        a_q [label="mandatory bins empty ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_empty [label="return tour [0, 0]"];
+        a_data [label="Load Q (capacity), R, C, B (density) for area / waste type\nbuild DataFrame: #bin, Stock = bins.c, Accum_Rate = bins.means (+ depot row 0)", shape=cylinder, fillcolor="#DCEBF7"];
+        a_engine_q [label="params.engine ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_params -> a_q;
+        a_q -> a_empty [label="yes"]; a_q -> a_data [label="no"];
+        a_data -> a_engine_q;
+    }
+    start -> a_params; a_empty -> end;
+
+    // ------------------------------------------------------------------
+    subgraph cluster_new {
+        label=<<B>1. Engine "new"</B> — execute_new() → improved_simulated_annealing()>; style="filled,rounded"; fillcolor="#FFF8EC"; color="#D9A441";
+        n_init [label="compute_initial_solution(data, coords, dist, Q):\nzone-based nearest-neighbour construction (3 longitude zones),\nfill until capacity → routes; take route 0"];
+        n_mand [label="insert every mandatory bin missing from the route at position 1"];
+        n_state [label="current = routes with only known ids; missing bins → removed_bins pool\nstocks{bin → fill %} · profit = compute_profit(current)  (see 3.)\nbest = current · T = T_init · no_improvement = 0"];
+        n_T [label="while T > T_min:", shape=hexagon, fillcolor="#FFE0B2"];
+        n_time_q [label="elapsed > time_limit ?", shape=diamond, fillcolor="#FFF3B0"];
+        n_inner [label="for _ in 1..iterations_per_T:", shape=hexagon, fillcolor="#FFE0B2"];
+        n_ops [label="valid ops = ROUTE ops (if any route):\n2opt · move · swap · remove · insert · move_n_random · move_n_consec\nswap_n_random · swap_n_consec · remove_n_bins · remove_n_bins_consec\nrelocate · cross · or-opt\n+ ADD ops (if removed_bins non-empty): add_n_bins · add_n_bins_consec\nadd_route_removed · add_route_removed_consec"];
+        n_apply [label="op ~ uniform(valid ops)\nnew = apply_operator(op, copy(current), copy(removed_bins), …)\ndrop routes with ≤ 2 nodes"];
+        n_eval [label="new_profit = compute_profit(new) · Δ = new_profit − current_profit"];
+        n_acc_q [label="Δ > 0  or  rand < exp(Δ / T) ?", shape=diamond, fillcolor="#FFF3B0"];
+        n_acc [label="current ← new · removed_bins ← candidate pool"];
+        n_best_q [label="current_profit > best_profit ?", shape=diamond, fillcolor="#FFF3B0"];
+        n_best [label="best ← current · no_improvement = 0"];
+        n_noimp [label="no_improvement += 1"];
+        n_cool [label="T ← α · T · recorder.record(T, best, current)"];
+        n_reheat_q [label="no_improvement > 500 ?", shape=diamond, fillcolor="#FFF3B0"];
+        n_reheat [label="RE-HEAT: T = T_init · no_improvement = 0"];
+        n_post [label="best = routes with > 2 nodes\nuncross_arcs_in_sans_routes(best) (2-opt uncrossing)"];
+        n_ret [label="tour = best[0] · return tour, distance, profit"];
+
+        n_init -> n_mand -> n_state -> n_T -> n_time_q;
+        n_time_q -> n_post [label="yes"]; n_time_q -> n_inner [label="no"];
+        n_inner -> n_ops -> n_apply -> n_eval -> n_acc_q;
+        n_acc_q -> n_acc [label="yes"]; n_acc_q -> n_noimp [label="no"];
+        n_acc -> n_best_q;
+        n_best_q -> n_best [label="yes"]; n_best_q -> n_noimp [label="no"];
+        n_best -> n_inner [style=dashed]; n_noimp -> n_inner [style=dashed, label="next move"];
+        n_inner -> n_cool [label="done"];
+        n_cool -> n_reheat_q;
+        n_reheat_q -> n_reheat [label="yes"]; n_reheat_q -> n_T [label="no", style=dashed];
+        n_reheat -> n_T [style=dashed];
+        n_T -> n_post [label="T ≤ T_min"];
+        n_post -> n_ret;
+    }
+    a_engine_q -> n_init [label="new (default)", lhead=cluster_new];
+    n_ret -> end;
+
+    // ------------------------------------------------------------------
+    subgraph cluster_og {
+        label=<<B>2. Engine "og"</B> — execute_og() → find_solutions() (legacy Look-Ahead Collection)>; style="filled,rounded"; fillcolor="#EEF5EE"; color="#7FA87F";
+        g_vals [label="values = {Q, R, B, C, V, shift_duration, perc_bins_can_overflow}\npoints = create_points(data, coords) · combination = DEFAULT_COMBINATION\n[iterations 500, T_initial 75, T_param 0.95, p_vehicle, p_load 0.095, p_route_diff, p_shift]"];
+        g_init [label="find_initial_solution(): zone-based construction with overflow prediction\nuncross_arcs_in_routes(initial, points)"];
+        g_loop [label="run_annealing_loop — for i in 1..iterations:", shape=hexagon, fillcolor="#FFE0B2"];
+        g_ls [label="local_search(): pick one of 19 random procedures\nMove/Swap 1 or 2 routes · Move/Swap n (random / consecutive) in 1 or 2 routes\nRemove n bins (random / consecutive) · Add route (random / consecutive)\nAdd route with removed bins · Rearrange part of a route"];
+        g_eval [label="profit = compute_profit(candidate)\nstatus = check_bins_overflowing_feasibility(perc_bins_can_overflow)\ncheck_solution_admissibility"];
+        g_pass_q [label="status == pass ?", shape=diamond, fillcolor="#FFF3B0"];
+        g_delta_q [label="Δ = profit − previous ≥ 0 ?", shape=diamond, fillcolor="#FFF3B0"];
+        g_keep [label="keep candidate (Δ = 0 → update removed-bins bookkeeping)"];
+        g_sa_q [label="T = T_initial / i^T_param\nexp(Δ / T) ≥ U(0,1) ?", shape=diamond, fillcolor="#FFF3B0"];
+        g_roll [label="rollback removed bins"];
+        g_time_q [label="elapsed > time_limit ?", shape=diamond, fillcolor="#FFF3B0"];
+        g_refine [label="refine_solution(): repeat\nuncross → local_search_2 (deterministic best move) →\nuncross → local_search_reversed"];
+        g_rebal [label="rebalance_solution(): redistribute load / re-insert removed bins\n→ final routes, profit, removed bins"];
+        g_ret [label="tour = routes[0] · cost = km · profit = Σ fill·R − cost·C\n(any exception → tour [0, 0])"];
+
+        g_vals -> g_init -> g_loop -> g_ls -> g_eval -> g_pass_q;
+        g_pass_q -> g_delta_q [label="yes"]; g_pass_q -> g_roll [label="no"];
+        g_delta_q -> g_keep [label="yes"]; g_delta_q -> g_sa_q [label="no"];
+        g_sa_q -> g_keep [label="accept"]; g_sa_q -> g_roll [label="reject"];
+        g_keep -> g_time_q; g_roll -> g_time_q;
+        g_time_q -> g_refine [label="yes"];
+        g_time_q -> g_loop [label="no", style=dashed];
+        g_loop -> g_refine [label="iterations done"];
+        g_refine -> g_rebal -> g_ret;
+    }
+    a_engine_q -> g_vals [label="og", lhead=cluster_og];
+    g_ret -> end;
+
+    // ------------------------------------------------------------------
+    subgraph cluster_profit {
+        label=<<B>3. Objective</B> — compute_profit(solution)>; style="filled,rounded"; fillcolor="#F3EEF8"; color="#8E6BB0";
+        p_f [label="cost = C · Σ route distance\nkg per bin = stock % · V · density / 100, counted only while cumulative load ≤ Q\nrevenue = R · Σ kg collected\npenalty = PENALTY_MANDATORY_NODES_MISSED · #{mandatory not collected}\nprofit = revenue − cost − penalty"];
+    }
+    n_eval -> p_f [style=dashed, color="#8E6BB0"];
+    g_eval -> p_f [style=dashed, color="#8E6BB0"];
+}

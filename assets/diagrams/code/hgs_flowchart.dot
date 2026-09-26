@@ -1,0 +1,114 @@
+// WSmart+ Route — HGS (Hybrid Genetic Search) flowchart
+// Source of truth: logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/, logic/src/policies/helpers/local_search/local_search_hgs.py
+// Render: dot -Tpdf hgs_flowchart.dot -o hgs_flowchart.pdf
+digraph HGS {
+    graph [rankdir=TB, fontname="Helvetica", fontsize=11, labelloc=t, labeljust=l,
+           label=<<B>HGS — Hybrid Genetic Search (Vidal 2022, Algorithm 1) with VRPP adaptations</B><BR/><FONT POINT-SIZE="9">Giant-tour genotype decoded by a profit-aware Linear Split; dual feasible / infeasible sub-populations; RP-GPX crossover; education by granular local search (SWAP*, 2-opt*, relocate…); biased fitness = profit rank + diversity rank; adaptive capacity penalty. Objective: maximise profit = R·Σ waste − C·Σ distance.</FONT>>,
+           nodesep=0.35, ranksep=0.45, compound=true, newrank=true, splines=spline, pad=0.3];
+    node  [fontname="Helvetica", fontsize=9, shape=box, style="rounded,filled", fillcolor="#FFFFFF", color="#444444", margin="0.12,0.06"];
+    edge  [fontname="Helvetica", fontsize=8, color="#555555", arrowsize=0.7];
+
+    start [label="START\nRouteConstructionAction → HGSPolicy.execute(context)", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+    end   [label="END\ntour · profit · km", shape=ellipse, style="filled", fillcolor="#2F4858", fontcolor="white"];
+
+    subgraph cluster_adapter {
+        label=<<B>0. Policy adapter &amp; dispatcher</B> — HGSPolicy ("hgs") → run_hgs()>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        a_q [label="mandatory bins empty\n(and not vrpp) ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_empty [label="return tour [0, 0]"];
+        a_params [label="Load capacity, R, C · sub-problem (all bins if vrpp)\nHGSParams: time_limit 60 s, restart_timer, μ=25, λ=40 offspring,\nnb_elite 4, nb_close 5, nb_granular 20, target_feasible 0.2,\nn_iterations_no_improvement 20000, penalty 1.0 (×1.2 / ×0.85),\ncrossover_rate 1.0, repair_probability 0.5, max_vehicles, seed"];
+        a_engine_q [label="engine ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_pyvrp [label="solve_pyvrp()\n(PyVRP HGS)", fillcolor="#E8E8E8"];
+        a_tiny_q [label="≤ 2 nodes\n(depot + 1 bin) ?", shape=diamond, fillcolor="#FFF3B0"];
+        a_tiny [label="trivial answer:\n[[1]] if it fits, else []"];
+        a_solve [label="HGSSolver(dist, wastes, capacity, R, C, params,\nmandatory, x/y coords).solve()", shape=box3d, fillcolor="#E8E8E8"];
+        a_map [label="map local routes → global tour · km on full matrix"];
+        a_q -> a_empty [label="yes"]; a_q -> a_params [label="no"];
+        a_params -> a_engine_q;
+        a_engine_q -> a_pyvrp [label="pyvrp"]; a_engine_q -> a_tiny_q [label="custom"];
+        a_tiny_q -> a_tiny [label="yes"]; a_tiny_q -> a_solve [label="no"];
+        a_pyvrp -> a_map; a_tiny -> a_map; a_solve -> a_map;
+    }
+    start -> a_q; a_empty -> end; a_map -> end;
+
+    subgraph cluster_init {
+        label=<<B>1. Solver set-up</B>>; style="filled,rounded"; fillcolor="#EEF5EE"; color="#7FA87F";
+        i_split [label="LinearSplit(dist, wastes, capacity, R, C, mandatory, max_vehicles)\nO(n) Bellman split with profit objective (see 5.)"];
+        i_ls [label="HGSLocalSearch: granular neighbour lists (nb_granular nearest)\nmoves: relocate · swap · SWAP* · 2-opt · 2-opt* · Or-opt · cross\n+ optional 3-opt, cross-exchange, λ-interchange, ejection chains"];
+        i_split -> i_ls;
+    }
+    a_solve -> i_split [lhead=cluster_init, style=dashed, label="expands to"];
+
+    subgraph cluster_main {
+        label=<<B>2. Main loop</B> — HGSSolver.solve()>; style="filled,rounded"; fillcolor="#FFF8EC"; color="#D9A441";
+        m_pop [label="INITIALISE POPULATION: 4μ random giant tours\nevaluate → LS educate → evaluate\ninsert into feasible / infeasible sub-population by capacity violation", shape=hexagon, fillcolor="#FFE0B2"];
+        m_best0 [label="best = max profit in feasible pop (or none)\nit = 0 · it_no_improvement = 0 · penalty = initial"];
+        m_loop [label="while True:", shape=hexagon, fillcolor="#FFE0B2"];
+        m_stop_q [label="time_limit reached\nor (no time limit and\nit_no_improvement ≥ n_iterations_no_improvement) ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_restart_q [label="time-limited and\nit_no_improvement ≥ restart_timer ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_restart [label="RESTART: reset penalty & caches,\nre-initialise population, it_no_improvement = 0"];
+        m_size_q [label="|feasible| + |infeasible| < 2 ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_child [label="it += 1 · it_no_improvement += 1\nchild = generate_offspring()  (see 3.)"];
+        m_insert [label="insert_and_repair(child)  (see 4.)"];
+        m_imp_q [label="child feasible and\nprofit > best ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_imp [label="best ← child · it_no_improvement = 0"];
+        m_trim_q [label="a sub-population reached\nμ + λ individuals ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_trim [label="SURVIVOR SELECTION (trim to μ):\nupdate biased fitness; repeatedly remove a clone\n(broken-pairs distance 0) else the worst-fitness individual"];
+        m_pen_q [label="it mod 100 == 0 ?", shape=diamond, fillcolor="#FFF3B0"];
+        m_pen [label="ADAPT PENALTY\nCVRP: feasible ratio vs target_feasible ± 0.05 → ×0.85 / ×1.2\nVRPP: offspring coverage & profit margin signals → ×0.85 / ×1.2 / ×√1.2,\nclamped to [min, max]"];
+        m_viz [label="criterion.step(...) · _viz_record(it, best, child, pop size)", shape=parallelogram, fillcolor="#EDE7F6"];
+        m_ret [label="return best feasible (routes, profit, cost)\nor best of both pops if no feasible found"];
+
+        m_pop -> m_best0 -> m_loop -> m_stop_q;
+        m_stop_q -> m_ret [label="yes"]; m_stop_q -> m_restart_q [label="no"];
+        m_restart_q -> m_restart [label="yes"]; m_restart_q -> m_size_q [label="no"]; m_restart -> m_size_q;
+        m_size_q -> m_ret [label="yes"]; m_size_q -> m_child [label="no"];
+        m_child -> m_insert -> m_imp_q;
+        m_imp_q -> m_imp [label="yes"]; m_imp_q -> m_trim_q [label="no"]; m_imp -> m_trim_q;
+        m_trim_q -> m_trim [label="yes"]; m_trim_q -> m_pen_q [label="no"]; m_trim -> m_pen_q;
+        m_pen_q -> m_pen [label="yes"]; m_pen_q -> m_viz [label="no"]; m_pen -> m_viz;
+        m_viz -> m_loop [style=dashed, label="next"];
+    }
+    i_ls -> m_pop [ltail=cluster_init];
+    m_ret -> a_map [style=dashed];
+
+    subgraph cluster_offspring {
+        label=<<B>3. Offspring generation</B> — _generate_offspring()>; style="filled,rounded"; fillcolor="#F3EEF8"; color="#8E6BB0";
+        o_par [label="PARENT SELECTION: two binary tournaments over the union\nof both sub-populations (lower biased fitness wins)"];
+        o_x_q [label="rand < crossover_rate ?", shape=diamond, fillcolor="#FFF3B0"];
+        o_gpx [label="RP-GPX crossover (route-based profit-aware Generalized Partition):\nphysical edges of p1 ∪ p2 → uncommon-edge components →\ninherit best component per partition → pack remaining nodes\n(mandatory always kept, capacity respected)"];
+        o_clone [label="child = clone of p1 (mutation-only step)"];
+        o_eval1 [label="evaluate(child): active sequence → Split → routes,\nprofit, cost, revenue, capacity violation, penalised cost"];
+        o_ls [label="EDUCATE: child = HGSLocalSearch.optimize(child)\nfirst-improvement over granular (u, v) pairs until no move improves\npenalised profit; may insert unvisited profitable nodes or drop unprofitable ones;\ngiant tour rebuilt with unvisited nodes interleaved proportionally"];
+        o_eval2 [label="evaluate(child) again → return child"];
+        o_par -> o_x_q;
+        o_x_q -> o_gpx [label="yes"]; o_x_q -> o_clone [label="no"];
+        o_gpx -> o_eval1; o_clone -> o_eval1;
+        o_eval1 -> o_ls -> o_eval2;
+    }
+    m_child -> o_par [lhead=cluster_offspring, style=dashed, color="#8E6BB0", label="expands to"];
+
+    subgraph cluster_insert {
+        label=<<B>4. Insertion &amp; repair</B> — _insert_and_repair(child)>; style="filled,rounded"; fillcolor="#EEF5EE"; color="#7FA87F";
+        n_ins [label="insert child into feasible or infeasible sub-population\n(by its own capacity violation) · record offspring signals\n(feasibility, coverage, margin) for penalty adaptation"];
+        n_rep_q [label="not vrpp and child infeasible\nand rand < repair_probability ?", shape=diamond, fillcolor="#FFF3B0"];
+        n_rep [label="REPAIR: re-evaluate with penalty × 10 → LS educate →\nre-evaluate with normal penalty → insert repaired copy"];
+        n_ins -> n_rep_q;
+        n_rep_q -> n_rep [label="yes"];
+    }
+    m_insert -> n_ins [lhead=cluster_insert, style=dashed, color="#7FA87F", label="expands to"];
+
+    subgraph cluster_split {
+        label=<<B>5. Decoding</B> — evaluate() + LinearSplit.split(active_sequence)>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        s_active [label="active sequence = giant-tour order restricted to nodes\nin current routes (or, first time, nodes with R·w ≥ C·(d₀ᵢ + dᵢ₀) or mandatory)"];
+        s_dp [label="prefix sums of load, revenue, distance\nmax_vehicles = 0 → unlimited split (monotone deque, O(n))\nelse limited split (k-vehicle DP) · fallback greedy split if infeasible"];
+        s_out [label="routes, profit → cost, revenue, capacity violation,\nis_feasible, penalised cost = cost + penalty · violation"];
+        s_active -> s_dp -> s_out;
+    }
+    o_eval1 -> s_active [lhead=cluster_split, style=dashed, color="#9AA5B1"];
+
+    subgraph cluster_fitness {
+        label=<<B>6. Biased fitness</B> — update_biased_fitness(pop, nb_elite, nb_close)>; style="filled,rounded"; fillcolor="#F4F6F8"; color="#9AA5B1";
+        f_rank [label="rank_profit: sort by penalised profit (desc)\nrank_diversity: mean broken-pairs distance to nb_close nearest (desc)\nfitness = rank_profit + (1 − nb_elite / |pop|) · rank_diversity  (lower is better)"];
+    }
+    m_trim -> f_rank [style=dashed, color="#9AA5B1"];
+}
