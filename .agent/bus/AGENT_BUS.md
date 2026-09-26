@@ -34,7 +34,13 @@ start a fresh dated file. 08-25 and 08-26 are held back from the archive for
 now: the website re-skin thread on 08-26 is still live and agents are still
 appending to it.
 
-## Roles for the current effort (2026-09-26: logic review on `main`)
+## Current effort (2026-09-26, second thread: paper update, Phase 1 proposals)
+
+Report of record: `.agent/cache/paper_update_2026-09-26.md`. Brief (lanes inside):
+`.agent/tasks/paper-update-2026-09-26.md`. Target: `paper.tex` in the paper submodule (upstream `399d22c`).
+The notation follows `temp/mpvrpp_beamer.pdf` except that `S_i` becomes `w_i`; the algorithms follow the code on `main`.
+
+## Roles for the logic review (2026-09-26, lanes reported; consolidation pending)
 
 Report of record: `.agent/cache/logic_review_2026-09-26.md`. Briefs:
 `.agent/tasks/logic-review-2026-09-26-common.md` + `.agent/tasks/<agent>-logic-review-2026-09-26.md`.
