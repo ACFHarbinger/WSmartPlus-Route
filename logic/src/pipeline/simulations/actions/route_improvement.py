@@ -17,6 +17,7 @@ from typing import Any, Dict
 
 from loguru import logger
 
+from logic.src.constants import ROOT_DIR  # noqa: F401  (ROOT_DIR: test patch point)
 from logic.src.constants.paths import CONFIGS_DIR
 from logic.src.configs import RouteImprovingConfig
 from logic.src.interfaces import ITraversable
