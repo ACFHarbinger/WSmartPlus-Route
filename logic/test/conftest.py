@@ -262,11 +262,13 @@ def session_cleanup():
             except Exception:
                 pass
 
-    # Clean up generated folders in assets/output/ (excluding the tracked 30days folder)
+    # Clean up generated folders in assets/output/ (excluding the tracked folders:
+    # 30days and the notebook dashboards/analytics results)
     output_dir = project_root / "assets" / "output"
+    tracked_output = {"30days", "notebooks"}
     if output_dir.exists():
         for item in output_dir.iterdir():
-            if item.name != "30days":
+            if item.name not in tracked_output:
                 try:
                     if item.is_dir():
                         shutil.rmtree(item)
