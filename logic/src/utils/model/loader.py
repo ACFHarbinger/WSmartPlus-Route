@@ -112,7 +112,8 @@ def load_model(path: str, epoch: Optional[int] = None) -> Tuple[nn.Module, Dict[
         threshold=args["af_threshold"],
         replacement_value=args["af_replacement"],
         n_params=args["af_nparams"],
-        range=list(args["af_urange"]),
+        # Older configs store a single number here; ActivationConfig expects [low, high].
+        range=list(args["af_urange"]) if isinstance(args["af_urange"], (list, tuple)) else ActivationConfig().range,
     )
 
     model = model_class(
