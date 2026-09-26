@@ -39,11 +39,11 @@ Attributes:
 
 Example:
     >>> from configs.policies.other.mandatory_selection import MandatorySelectionConfig
-    >>> config = MandatorySelectionConfig(method='last_minute', last_minute=LastMinuteSelectionConfig(threshold=0.8))
+    >>> config = MandatorySelectionConfig(method='last_minute', last_minute=LastMinuteSelectionConfig(threshold=80))
     >>> config.method
     'last_minute'
     >>> config.last_minute.threshold
-    0.8
+    80
 """
 
 from dataclasses import dataclass, field
@@ -55,10 +55,11 @@ class LastMinuteSelectionConfig:
     """Configuration for threshold-based last-minute selection.
 
     Attributes:
-        threshold: Threshold for last-minute selection.
+        threshold: Fill level in percent (0-100) at or above which a bin is mandatory
+            (one unit for the simulator and the vectorized selector).
     """
 
-    threshold: float = 0.7
+    threshold: float = 70.0
 
 
 @dataclass

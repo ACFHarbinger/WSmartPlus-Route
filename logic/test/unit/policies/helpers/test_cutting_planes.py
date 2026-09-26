@@ -88,6 +88,8 @@ def test_rounded_capacity_cut_engine(base_vrpp_model: VRPPModel) -> None:
     master.get_node_visitation.return_value = {1: 1.0, 2: 1.0}
     master.add_capacity_cut.return_value = True
     master.add_sec_cut.return_value = True
+    # RCCs are valid only for sets of mandatory bins (optional bins may be skipped).
+    master.mandatory_nodes = {1, 2}
 
     # We can inject specific cuts into separate_fractional
     cap_cut = CapacityCut(node_set={1, 2}, total_demand=30.0, capacity=40.0, violation=0.5)
@@ -99,6 +101,13 @@ def test_rounded_capacity_cut_engine(base_vrpp_model: VRPPModel) -> None:
         assert added == 2
         master.add_capacity_cut.assert_called_with([1, 2], 2.0)
         master.add_sec_cut.assert_called_with([1, 2], 2.0, cut_name="2.1", global_cut=True, node_i=-1, node_j=-1)
+
+    # An RCC over optional bins is skipped; the PC-SEC is still added.
+    master.mandatory_nodes = set()
+    master.add_capacity_cut.reset_mock()
+    with patch.object(sep_engine, "separate_fractional", return_value=[cap_cut, sec_cut]):
+        assert engine.separate_and_add_cuts(master, 10) == 1
+        master.add_capacity_cut.assert_not_called()
 
 def test_subset_row_cut_engine(base_vrpp_model: VRPPModel) -> None:
     engine = SubsetRowCutEngine(base_vrpp_model)

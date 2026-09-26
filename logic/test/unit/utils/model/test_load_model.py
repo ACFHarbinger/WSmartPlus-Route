@@ -1,9 +1,10 @@
-
-
 import json
+from types import SimpleNamespace
 from unittest.mock import MagicMock, patch
 
 import pytest
+import torch
+
 from logic.src.utils.model.loader import load_model
 
 pytestmark = [pytest.mark.unit, pytest.mark.fast]
@@ -61,11 +62,19 @@ class TestLoadModel:
 
         mock_problem = MagicMock()
         mock_load_problem.return_value = mock_problem
-        mock_torch_load.return_value = {"model": {}}
+        mock_torch_load.return_value = {"model": {"encoder.dummy": torch.zeros(1)}}
+        match = SimpleNamespace(missing_keys=[], unexpected_keys=[])
 
-        with patch("os.listdir", return_value=["epoch-10.pt"]):
+        with patch("os.listdir", return_value=["epoch-10.pt"]), patch(
+            "logic.src.models.AttentionModel.load_state_dict", return_value=match
+        ):
             model, args = load_model(str(model_dir))
 
         assert model is not None
         assert args == mock_load_args.return_value
         assert mock_torch_load.called
+
+        # An empty checkpoint used to load a randomly initialised model silently.
+        mock_torch_load.return_value = {"model": {}}
+        with patch("os.listdir", return_value=["epoch-10.pt"]), pytest.raises(ValueError, match="no model parameters"):
+            load_model(str(model_dir))

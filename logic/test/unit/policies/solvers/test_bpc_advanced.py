@@ -17,39 +17,45 @@ pytestmark = [pytest.mark.unit, pytest.mark.fast]
 
 
 def test_polar_angle_partitioning():
-    """Verify that spatial branching correctly partitions arcs by polar angle."""
-    # Node 0 (Depot) at (0, 0)
-    # Node 1 at (1, 1) -> angle pi/4  (0.78 rad)
-    # Node 2 at (-1, 1) -> angle 3pi/4 (2.35 rad)
-    # Node 3 at (0, 1) -> angle pi/2  (1.57 rad)
+    """Divergence branching partitions the outgoing arcs of a customer node.
 
+    Routes [1, 2] and [1, 3] share node 1 and diverge there (arcs (1, 2) vs
+    (1, 3)). The two forbidden arc sets must be disjoint and together cover
+    every outgoing arc of node 1, so no solution is lost from both children.
+    """
     node_coords = {
         0: (0.0, 0.0),
         1: (1.0, 1.0),
         2: (-1.0, 1.0),
-        3: (0.0, 1.0)
+        3: (0.0, 1.0),
     }
-
-    # Arcs: (0, 1), (0, 2), (0, 3)
-    r1 = Route(nodes=[1], cost=10, revenue=20, load=10, node_coverage={1})
-    r2 = Route(nodes=[2], cost=10, revenue=20, load=10, node_coverage={2})
-    r3 = Route(nodes=[3], cost=10, revenue=20, load=10, node_coverage={3})
-
-    routes = [r1, r2, r3]
-    lambdas = [0.34, 0.33, 0.33]
-    route_values = {i: lambdas[i] for i in range(len(lambdas))}
+    r1 = Route(nodes=[1, 2], cost=10, revenue=20, load=10, node_coverage={1, 2})
+    r2 = Route(nodes=[1, 3], cost=10, revenue=20, load=10, node_coverage={1, 3})
+    route_values = {0: 0.5, 1: 0.5}
 
     brancher = MultiEdgePartitionBranching()
-    res = brancher.find_divergence_node(routes, route_values, node_coords=cast(np.ndarray, node_coords))
+    res = brancher.find_divergence_node([r1, r2], route_values, node_coords=cast(np.ndarray, node_coords), n_nodes=3)
     assert res is not None
-    d, set1, set2, strength = res
+    d, set1, set2, _strength = res
+    assert d == 1
+    assert not set(set1) & set(set2)
+    assert set(set1) | set(set2) == {(1, 0), (1, 2), (1, 3)}
+    assert {(1, 2), (1, 3)} - set(set1) and {(1, 2), (1, 3)} - set(set2)  # the two paths are split
 
-    assert d == 0
-    # Arcs sorted by angle: (0, 1) [0.78], (0, 3) [1.57], (0, 2) [2.35]
-    # If using median, (0, 1) and (0, 3) are in one set, (0, 2) in another.
-    assert (0, 1) in set1 or (0, 1) in set2
-    assert (0, 2) in set1 or (0, 2) in set2
-    assert (0, 1) != (0, 2)
+
+def test_divergence_never_at_depot():
+    """Single-customer routes only diverge at the depot, which a multi-route
+    solution leaves several times; divergence branching must not branch there."""
+    node_coords = {0: (0.0, 0.0), 1: (1.0, 1.0), 2: (-1.0, 1.0), 3: (0.0, 1.0)}
+    routes = [
+        Route(nodes=[1], cost=10, revenue=20, load=10, node_coverage={1}),
+        Route(nodes=[2], cost=10, revenue=20, load=10, node_coverage={2}),
+        Route(nodes=[3], cost=10, revenue=20, load=10, node_coverage={3}),
+    ]
+    route_values = {0: 0.34, 1: 0.33, 2: 0.33}
+    res = MultiEdgePartitionBranching().find_divergence_node(routes, route_values, node_coords=cast(np.ndarray, node_coords))
+    assert res is None
+
 
 def test_sri_dual_penalties():
     """Verify that SRI duals are correctly applied and tracked in RCSPP labels.
