@@ -716,14 +716,16 @@ def run_day(context: SimulationDayContext) -> SimulationDayContext:
     # The day's "time" is the full policy: mandatory selection + route construction
     # + route improvement (owner ruling DS-15). Simulator work (filling, collection,
     # logging) is excluded; the sample time is the sum of these daily times.
-    policy_actions = (MandatorySelectionAction, RouteConstructionAction, RouteImprovementAction)
+    # (Marked by position rather than isinstance so the actions can be mocked.)
+    policy_steps = {1, 2, 3}  # MandatorySelection, RouteConstruction, RouteImprovement
+    log_step = len(commands) - 1  # LogAction
     policy_time = 0.0
-    for command in commands:
-        if isinstance(command, LogAction):
+    for step, command in enumerate(commands):
+        if step == log_step:
             context["time"] = policy_time
         start = time.perf_counter()
         command.execute(cast(Dict[str, Any], context))
-        if isinstance(command, policy_actions):
+        if step in policy_steps:
             policy_time += time.perf_counter() - start
 
     return context

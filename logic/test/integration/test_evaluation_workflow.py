@@ -8,6 +8,8 @@ import pytest
 import torch
 from logic.src.configs import Config
 from logic.src.configs.envs.graph import GraphConfig
+from logic.src.configs.models.activation_function import ActivationConfig
+from logic.src.configs.models.normalization import NormalizationConfig
 from logic.src.envs.problems import VRPP
 from logic.src.models.core.attention_model import AttentionModel
 from logic.src.models.subnets.factories.attention import AttentionComponentFactory
@@ -75,6 +77,10 @@ def temp_eval_setup(tmp_path):
         n_heads=2,
         normalization="batch",
         activation_function="relu",
+        # AttentionModel reads only the structured configs; match args.json so the
+        # checkpoint and the loader-rebuilt model agree (batch norm with running stats).
+        norm_config=NormalizationConfig(norm_type="batch", track_stats=True, epsilon=1e-5, momentum=0.1),
+        activation_config=ActivationConfig(name="relu", param=1.0, threshold=20),
     )
 
     # Save args.json
