@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.route.two_opt_star
 src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.route.three_opt_intra
 src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.route.two_opt_intra
-src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.route.two_opt_star
 src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.route.swap_star
 ```
 

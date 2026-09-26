@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.pipeline.features.test.config.expand_policy_configs
     :summary:
     ```
+* - {py:obj}`_pin_variant_selection <src.pipeline.features.test.config._pin_variant_selection>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.config._pin_variant_selection
+    :summary:
+    ```
 * - {py:obj}`_resolve_policy_cfg_path <src.pipeline.features.test.config._resolve_policy_cfg_path>`
   - ```{autodoc2-docstring} src.pipeline.features.test.config._resolve_policy_cfg_path
     :summary:
@@ -55,6 +59,13 @@
 :canonical: src.pipeline.features.test.config.expand_policy_configs
 
 ```{autodoc2-docstring} src.pipeline.features.test.config.expand_policy_configs
+```
+````
+
+````{py:function} _pin_variant_selection(obj: typing.Any, var_cfg: typing.Any) -> None
+:canonical: src.pipeline.features.test.config._pin_variant_selection
+
+```{autodoc2-docstring} src.pipeline.features.test.config._pin_variant_selection
 ```
 ````
 

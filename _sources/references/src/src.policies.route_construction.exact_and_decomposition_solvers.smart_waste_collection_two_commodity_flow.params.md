@@ -21,6 +21,18 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`MAX_ARC_DISTANCE_KM <src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.MAX_ARC_DISTANCE_KM>`
+  - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.MAX_ARC_DISTANCE_KM
+    :summary:
+    ```
+````
+
 ### API
 
 `````{py:class} SWCTCFParams
@@ -91,3 +103,13 @@
 ````
 
 `````
+
+````{py:data} MAX_ARC_DISTANCE_KM
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.MAX_ARC_DISTANCE_KM
+:value: >
+   6000.0
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.MAX_ARC_DISTANCE_KM
+```
+
+````

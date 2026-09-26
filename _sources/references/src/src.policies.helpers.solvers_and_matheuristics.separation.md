@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.solvers_and_matheuristics.separation.engine
 src.policies.helpers.solvers_and_matheuristics.separation.inequality
+src.policies.helpers.solvers_and_matheuristics.separation.engine
 ```
 
 ## Package Contents

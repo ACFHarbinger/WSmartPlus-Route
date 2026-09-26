@@ -149,7 +149,7 @@
 :canonical: src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig.threshold
 :type: float
 :value: >
-   0.7
+   70.0
 
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.LastMinuteSelectionConfig.threshold
 ```

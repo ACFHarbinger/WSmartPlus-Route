@@ -47,6 +47,10 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.resolve_policy_display_name
     :summary:
     ```
+* - {py:obj}`policy_result_key <src.pipeline.simulations.day_context.policy_result_key>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.policy_result_key
+    :summary:
+    ```
 * - {py:obj}`to_slug <src.pipeline.simulations.day_context.to_slug>`
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.to_slug
     :summary:
@@ -103,6 +107,13 @@
 :canonical: src.pipeline.simulations.day_context.resolve_policy_display_name
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.resolve_policy_display_name
+```
+````
+
+````{py:function} policy_result_key(policy: typing.Any, sim: typing.Any) -> str
+:canonical: src.pipeline.simulations.day_context.policy_result_key
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.policy_result_key
 ```
 ````
 
@@ -497,6 +508,72 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
+````{py:attribute} problem
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.problem
+:type: str
+:value: >
+   'vrpp'
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.problem
+```
+
+````
+
+````{py:attribute} shift_hours
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.shift_hours
+:type: float
+:value: >
+   7.0
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.shift_hours
+```
+
+````
+
+````{py:attribute} time_matrix
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.time_matrix
+:type: typing.Optional[numpy.ndarray]
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.time_matrix
+```
+
+````
+
+````{py:attribute} avg_speed_kmh
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.avg_speed_kmh
+:type: float
+:value: >
+   35.0
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.avg_speed_kmh
+```
+
+````
+
+````{py:attribute} service_time_h
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.service_time_h
+:type: float
+:value: >
+   None
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.service_time_h
+```
+
+````
+
+````{py:attribute} vehicle_capacity
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.vehicle_capacity
+:type: float
+:value: >
+   100.0
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.vehicle_capacity
+```
+
+````
+
 ````{py:attribute} daily_log
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.daily_log
 :type: typing.Optional[typing.Dict[str, typing.Any]]
@@ -662,6 +739,17 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
+````{py:attribute} time_spent
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.time_spent
+:type: float
+:value: >
+   0.0
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.time_spent
+```
+
+````
+
 ````{py:property} field_names
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.field_names
 
@@ -735,7 +823,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 ```
 ````
 
-````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float, time: float, mandatory_nodes: typing.Optional[typing.List[int]] = None) -> typing.Dict[str, typing.Union[int, float, typing.List[typing.Union[int, str]]]]
+````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float, time: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, time_spent: typing.Optional[float] = None) -> typing.Dict[str, typing.Union[int, float, typing.List[typing.Union[int, str]]]]
 :canonical: src.pipeline.simulations.day_context.get_daily_results
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_daily_results

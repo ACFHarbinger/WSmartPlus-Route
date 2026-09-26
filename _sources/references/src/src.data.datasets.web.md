@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.data.datasets.web.dashboard_crawler
 src.data.datasets.web.html_sim_dataset
+src.data.datasets.web.dashboard_crawler
 ```
 
 ## Package Contents

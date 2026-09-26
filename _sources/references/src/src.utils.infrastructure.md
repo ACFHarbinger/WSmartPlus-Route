@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
+src.utils.infrastructure.setup_env
 src.utils.infrastructure.setup_worker
 src.utils.infrastructure.setup_sims
-src.utils.infrastructure.setup_env
 src.utils.infrastructure.setup_manager
 ```
 

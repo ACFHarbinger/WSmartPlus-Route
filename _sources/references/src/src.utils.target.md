@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.target.ri_updater
 src.utils.target.ms_updater
+src.utils.target.ri_updater
 ```
 
 ## Package Contents

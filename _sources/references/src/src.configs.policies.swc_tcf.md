@@ -40,17 +40,6 @@
 
 ````
 
-````{py:attribute} delta
-:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.delta
-:type: float
-:value: >
-   0.0
-
-```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.delta
-```
-
-````
-
 ````{py:attribute} psi
 :canonical: src.configs.policies.swc_tcf.SWCTCFConfig.psi
 :type: float

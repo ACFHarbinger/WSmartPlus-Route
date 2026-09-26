@@ -73,6 +73,39 @@
 
 ````
 
+````{py:attribute} shift_hours
+:canonical: src.configs.envs.env.EnvConfig.shift_hours
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.shift_hours
+```
+
+````
+
+````{py:attribute} avg_speed_kmh
+:canonical: src.configs.envs.env.EnvConfig.avg_speed_kmh
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.avg_speed_kmh
+```
+
+````
+
+````{py:attribute} service_time_h
+:canonical: src.configs.envs.env.EnvConfig.service_time_h
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.envs.env.EnvConfig.service_time_h
+```
+
+````
+
 ````{py:attribute} data_distribution
 :canonical: src.configs.envs.env.EnvConfig.data_distribution
 :type: typing.Optional[str]

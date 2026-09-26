@@ -14,8 +14,8 @@
 :maxdepth: 1
 
 src.policies.vector.hgs_core.crossover
-src.policies.vector.hgs_core.evaluation
 src.policies.vector.hgs_core.population
+src.policies.vector.hgs_core.evaluation
 ```
 
 ## Package Contents

@@ -15,8 +15,8 @@
 
 src.models.subnets.embeddings.edges.cvrpp
 src.models.subnets.embeddings.edges.wcvrp
-src.models.subnets.embeddings.edges.none
 src.models.subnets.embeddings.edges.tsp
+src.models.subnets.embeddings.edges.none
 src.models.subnets.embeddings.edges.base
 ```
 

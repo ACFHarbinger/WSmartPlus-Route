@@ -14,10 +14,10 @@
 :maxdepth: 1
 
 src.utils.model.problem_factory
-src.utils.model.export_onnx
 src.utils.model.checkpoint_utils
 src.utils.model.processing
 src.utils.model.config_utils
+src.utils.model.export_onnx
 src.utils.model.loader
 ```
 

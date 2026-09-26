@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.params
 src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco
+src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.params
 ```
 
 ## Package Contents

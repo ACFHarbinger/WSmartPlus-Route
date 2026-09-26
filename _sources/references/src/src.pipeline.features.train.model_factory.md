@@ -14,11 +14,11 @@
 :maxdepth: 1
 
 src.pipeline.features.train.model_factory.constructive
-src.pipeline.features.train.model_factory.builder
-src.pipeline.features.train.model_factory.imitation
-src.pipeline.features.train.model_factory.ppo
 src.pipeline.features.train.model_factory.registry
 src.pipeline.features.train.model_factory.hrl
+src.pipeline.features.train.model_factory.builder
+src.pipeline.features.train.model_factory.ppo
+src.pipeline.features.train.model_factory.imitation
 ```
 
 ## Package Contents

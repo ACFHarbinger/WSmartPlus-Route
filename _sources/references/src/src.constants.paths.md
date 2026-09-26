@@ -9,16 +9,24 @@
 
 ## Module Contents
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_frozen_root <src.constants.paths._frozen_root>`
+  - ```{autodoc2-docstring} src.constants.paths._frozen_root
+    :summary:
+    ```
+````
+
 ### Data
 
 ````{list-table}
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`parts <src.constants.paths.parts>`
-  - ```{autodoc2-docstring} src.constants.paths.parts
-    :summary:
-    ```
 * - {py:obj}`ROOT_DIR <src.constants.paths.ROOT_DIR>`
   - ```{autodoc2-docstring} src.constants.paths.ROOT_DIR
     :summary:
@@ -35,15 +43,11 @@
 
 ### API
 
-````{py:data} parts
-:canonical: src.constants.paths.parts
-:type: tuple[str, ...]
-:value: >
-   None
+````{py:function} _frozen_root() -> pathlib.Path
+:canonical: src.constants.paths._frozen_root
 
-```{autodoc2-docstring} src.constants.paths.parts
+```{autodoc2-docstring} src.constants.paths._frozen_root
 ```
-
 ````
 
 ````{py:data} ROOT_DIR

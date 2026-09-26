@@ -14,9 +14,9 @@
 :maxdepth: 1
 
 src.models.common.autoregressive.constructive
-src.models.common.autoregressive.decoder
 src.models.common.autoregressive.policy
 src.models.common.autoregressive.encoder
+src.models.common.autoregressive.decoder
 ```
 
 ## Package Contents

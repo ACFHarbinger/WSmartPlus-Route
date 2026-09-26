@@ -31,6 +31,10 @@
   - ```{autodoc2-docstring} src.pipeline.rl.common.base.data._cfg_get
     :summary:
     ```
+* - {py:obj}`_task_env_cfg <src.pipeline.rl.common.base.data._task_env_cfg>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.base.data._task_env_cfg
+    :summary:
+    ```
 * - {py:obj}`_get_eval_graphs <src.pipeline.rl.common.base.data._get_eval_graphs>`
   - ```{autodoc2-docstring} src.pipeline.rl.common.base.data._get_eval_graphs
     :summary:
@@ -69,6 +73,13 @@
 :canonical: src.pipeline.rl.common.base.data._cfg_get
 
 ```{autodoc2-docstring} src.pipeline.rl.common.base.data._cfg_get
+```
+````
+
+````{py:function} _task_env_cfg(cfg: typing.Any) -> typing.Any
+:canonical: src.pipeline.rl.common.base.data._task_env_cfg
+
+```{autodoc2-docstring} src.pipeline.rl.common.base.data._task_env_cfg
 ```
 ````
 

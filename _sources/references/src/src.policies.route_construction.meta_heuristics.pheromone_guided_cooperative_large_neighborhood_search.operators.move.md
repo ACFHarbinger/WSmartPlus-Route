@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.move.relocate
 src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.move.swap
+src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.move.relocate
 ```
 
 ## Package Contents

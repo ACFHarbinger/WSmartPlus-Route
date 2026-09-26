@@ -275,7 +275,7 @@
 :canonical: src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic
 :type: bool
 :value: >
-   True
+   False
 
 ```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic
 ```

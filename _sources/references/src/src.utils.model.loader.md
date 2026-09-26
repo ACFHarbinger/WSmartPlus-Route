@@ -33,7 +33,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_UNUSED_LEGACY_KEYS <src.utils.model.loader._UNUSED_LEGACY_KEYS>`
+  - ```{autodoc2-docstring} src.utils.model.loader._UNUSED_LEGACY_KEYS
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} _UNUSED_LEGACY_KEYS
+:canonical: src.utils.model.loader._UNUSED_LEGACY_KEYS
+:value: >
+   ('context_embedder.project_step_context.',)
+
+```{autodoc2-docstring} src.utils.model.loader._UNUSED_LEGACY_KEYS
+```
+
+````
 
 ````{py:function} load_model(path: str, epoch: typing.Optional[int] = None) -> typing.Tuple[torch.nn.Module, typing.Dict[str, typing.Any]]
 :canonical: src.utils.model.loader.load_model

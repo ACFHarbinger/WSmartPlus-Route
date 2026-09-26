@@ -15,8 +15,8 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`run_wsr_simulator_test <src.pipeline.features.test.engine.run_wsr_simulator_test>`
-  - ```{autodoc2-docstring} src.pipeline.features.test.engine.run_wsr_simulator_test
+* - {py:obj}`run_simulator_test <src.pipeline.features.test.engine.run_simulator_test>`
+  - ```{autodoc2-docstring} src.pipeline.features.test.engine.run_simulator_test
     :summary:
     ```
 * - {py:obj}`_validate_sim_config <src.pipeline.features.test.engine._validate_sim_config>`
@@ -65,10 +65,10 @@
 
 ````
 
-````{py:function} run_wsr_simulator_test(cfg: logic.src.configs.Config, sinks: typing.Optional[typing.List[typing.Any]] = None) -> None
-:canonical: src.pipeline.features.test.engine.run_wsr_simulator_test
+````{py:function} run_simulator_test(cfg: logic.src.configs.Config, sinks: typing.Optional[typing.List[typing.Any]] = None) -> None
+:canonical: src.pipeline.features.test.engine.run_simulator_test
 
-```{autodoc2-docstring} src.pipeline.features.test.engine.run_wsr_simulator_test
+```{autodoc2-docstring} src.pipeline.features.test.engine.run_simulator_test
 ```
 ````
 

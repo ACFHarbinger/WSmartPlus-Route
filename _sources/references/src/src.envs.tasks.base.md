@@ -19,6 +19,10 @@
   - ```{autodoc2-docstring} src.envs.tasks.base.BaseProblem
     :summary:
     ```
+* - {py:obj}`_InstanceDataset <src.envs.tasks.base._InstanceDataset>`
+  - ```{autodoc2-docstring} src.envs.tasks.base._InstanceDataset
+    :summary:
+    ```
 ````
 
 ### API
@@ -76,6 +80,15 @@
 
 ````
 
+````{py:method} make_dataset(filename: typing.Optional[str] = None, num_samples: typing.Optional[int] = None, offset: int = 0, **kwargs: typing.Any) -> torch.utils.data.Dataset
+:canonical: src.envs.tasks.base.BaseProblem.make_dataset
+:classmethod:
+
+```{autodoc2-docstring} src.envs.tasks.base.BaseProblem.make_dataset
+```
+
+````
+
 ````{py:method} _get_batch_info(input_data: typing.Any) -> tuple[int, torch.device]
 :canonical: src.envs.tasks.base.BaseProblem._get_batch_info
 :staticmethod:
@@ -117,6 +130,38 @@
 :staticmethod:
 
 ```{autodoc2-docstring} src.envs.tasks.base.BaseProblem._ensure_required_keys
+```
+
+````
+
+`````
+
+`````{py:class} _InstanceDataset(data: typing.Dict[str, torch.Tensor])
+:canonical: src.envs.tasks.base._InstanceDataset
+
+Bases: {py:obj}`torch.utils.data.Dataset`
+
+```{autodoc2-docstring} src.envs.tasks.base._InstanceDataset
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.envs.tasks.base._InstanceDataset.__init__
+```
+
+````{py:method} __len__() -> int
+:canonical: src.envs.tasks.base._InstanceDataset.__len__
+
+```{autodoc2-docstring} src.envs.tasks.base._InstanceDataset.__len__
+```
+
+````
+
+````{py:method} __getitem__(index: int) -> typing.Dict[str, torch.Tensor]
+:canonical: src.envs.tasks.base._InstanceDataset.__getitem__
+
+```{autodoc2-docstring} src.envs.tasks.base._InstanceDataset.__getitem__
 ```
 
 ````

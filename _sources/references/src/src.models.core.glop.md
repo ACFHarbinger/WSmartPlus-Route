@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.core.glop.model
 src.models.core.glop.policy
+src.models.core.glop.model
 ```
 
 ## Package Contents

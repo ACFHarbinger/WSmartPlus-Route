@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.encoders.ggac.attention_gated_convolution_layer
 src.models.subnets.encoders.ggac.encoder
+src.models.subnets.encoders.ggac.attention_gated_convolution_layer
 ```
 
 ## Package Contents

@@ -13,9 +13,9 @@
 :titlesonly:
 :maxdepth: 3
 
+src.policies.helpers.reinforcement_learning.features
 src.policies.helpers.reinforcement_learning.agents
 src.policies.helpers.reinforcement_learning.reward
-src.policies.helpers.reinforcement_learning.features
 ```
 
 ## Submodules

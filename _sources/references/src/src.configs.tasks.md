@@ -13,14 +13,14 @@
 :titlesonly:
 :maxdepth: 1
 
-src.configs.tasks.batch
-src.configs.tasks.hpo
-src.configs.tasks.data
 src.configs.tasks.hpo_sim
+src.configs.tasks.eval
 src.configs.tasks.meta_rl
 src.configs.tasks.sim
-src.configs.tasks.eval
+src.configs.tasks.batch
+src.configs.tasks.hpo
 src.configs.tasks.train
+src.configs.tasks.data
 ```
 
 ## Package Contents

@@ -67,4 +67,13 @@ Bases: {py:obj}`abc.ABC`
 
 ````
 
+````{py:method} get_temporal_params(coords: typing.Optional[pandas.DataFrame] = None, distance_matrix: typing.Optional[numpy.ndarray] = None, tm_filepath: typing.Optional[str] = None, shift_hours: float = 7.0, avg_speed_kmh: float = 35.0, service_time_h: float = 1.5 / 60.0, time_unit: str = 'seconds') -> typing.Tuple[float, typing.Union[float, numpy.ndarray], float]
+:canonical: src.pipeline.simulations.repository.base.SimulationRepository.get_temporal_params
+:staticmethod:
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.base.SimulationRepository.get_temporal_params
+```
+
+````
+
 `````

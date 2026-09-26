@@ -71,6 +71,16 @@ Bases: {py:obj}`enum.Enum`
 
 ````
 
+````{py:attribute} TIME_BUDGET
+:canonical: src.enums.environment_tags.EnvironmentTag.TIME_BUDGET
+:value: >
+   'auto(...)'
+
+```{autodoc2-docstring} src.enums.environment_tags.EnvironmentTag.TIME_BUDGET
+```
+
+````
+
 ````{py:attribute} MULTI_DEPOT
 :canonical: src.enums.environment_tags.EnvironmentTag.MULTI_DEPOT
 :value: >

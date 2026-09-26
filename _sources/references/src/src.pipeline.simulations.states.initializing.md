@@ -21,7 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`routed_bin_ids <src.pipeline.simulations.states.initializing.routed_bin_ids>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.states.initializing.routed_bin_ids
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:function} routed_bin_ids(coords: typing.Any) -> typing.List[typing.Any]
+:canonical: src.pipeline.simulations.states.initializing.routed_bin_ids
+
+```{autodoc2-docstring} src.pipeline.simulations.states.initializing.routed_bin_ids
+```
+````
 
 `````{py:class} InitializingState
 :canonical: src.pipeline.simulations.states.initializing.InitializingState

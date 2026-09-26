@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} LastMinuteSelector(threshold: float = 0.7)
+`````{py:class} LastMinuteSelector(threshold: float = 70.0)
 :canonical: src.policies.vector.selection.last_minute.LastMinuteSelector
 
 Bases: {py:obj}`src.policies.vector.selection.base.VectorizedSelector`

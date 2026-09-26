@@ -94,14 +94,14 @@
 ```
 ````
 
-````{py:function} solve_farkas_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, timeout: typing.Optional[float] = None) -> typing.Tuple[int, bool]
+````{py:function} solve_farkas_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, timeout: typing.Optional[float] = None, farkas_duals: typing.Optional[typing.Dict[str, typing.Any]] = None) -> typing.Tuple[int, bool]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.solve_farkas_pricing_step
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.solve_farkas_pricing_step
 ```
 ````
 
-````{py:function} solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, timeout: typing.Optional[float] = None, use_dssr: bool = False, dssr_max_iters: int = 8) -> typing.Tuple[int, bool]
+````{py:function} solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, timeout: typing.Optional[float] = None, use_dssr: bool = False, dssr_max_iters: int = 8, exact_mode: bool = False) -> typing.Tuple[int, bool]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.solve_pricing_step
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.solve_pricing_step

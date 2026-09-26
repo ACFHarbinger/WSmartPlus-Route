@@ -13,16 +13,16 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.functions.tensors
-src.utils.functions.boolmask
-src.utils.functions.math
-src.utils.functions.lexsort
 src.utils.functions.parallel
-src.utils.functions.monkey_patch
-src.utils.functions.sampling
+src.utils.functions.math
 src.utils.functions.rl
+src.utils.functions.sampling
+src.utils.functions.tensors
+src.utils.functions.lexsort
 src.utils.functions.problem
+src.utils.functions.boolmask
 src.utils.functions.path
+src.utils.functions.monkey_patch
 ```
 
 ## Package Contents

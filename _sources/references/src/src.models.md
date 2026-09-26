@@ -14,9 +14,9 @@
 :maxdepth: 3
 
 src.models.subnets
-src.models.common
 src.models.core
 src.models.meta
+src.models.common
 ```
 
 ## Package Contents

@@ -50,6 +50,10 @@ src.pipeline.simulations.repository.base
   - ```{autodoc2-docstring} src.pipeline.simulations.repository.load_area_and_waste_type_params
     :summary:
     ```
+* - {py:obj}`load_temporal_params <src.pipeline.simulations.repository.load_temporal_params>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.repository.load_temporal_params
+    :summary:
+    ```
 ````
 
 ### Data
@@ -119,6 +123,13 @@ src.pipeline.simulations.repository.base
 :canonical: src.pipeline.simulations.repository.load_area_and_waste_type_params
 
 ```{autodoc2-docstring} src.pipeline.simulations.repository.load_area_and_waste_type_params
+```
+````
+
+````{py:function} load_temporal_params(**kwargs)
+:canonical: src.pipeline.simulations.repository.load_temporal_params
+
+```{autodoc2-docstring} src.pipeline.simulations.repository.load_temporal_params
 ```
 ````
 

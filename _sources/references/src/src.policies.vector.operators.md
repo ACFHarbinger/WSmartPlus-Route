@@ -13,11 +13,11 @@
 :titlesonly:
 :maxdepth: 3
 
-src.policies.vector.operators.move
-src.policies.vector.operators.repair
-src.policies.vector.operators.exchange
 src.policies.vector.operators.unstringing
+src.policies.vector.operators.repair
+src.policies.vector.operators.move
 src.policies.vector.operators.destroy
+src.policies.vector.operators.exchange
 src.policies.vector.operators.route
 ```
 

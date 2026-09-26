@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.route_construction.matheuristics.kernel_search.params
 src.policies.route_construction.matheuristics.kernel_search.solver
+src.policies.route_construction.matheuristics.kernel_search.params
 src.policies.route_construction.matheuristics.kernel_search.policy_ks
 ```
 

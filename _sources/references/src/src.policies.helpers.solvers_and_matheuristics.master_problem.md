@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.solvers_and_matheuristics.master_problem.pool
 src.policies.helpers.solvers_and_matheuristics.master_problem.model
+src.policies.helpers.solvers_and_matheuristics.master_problem.pool
 src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support
 src.policies.helpers.solvers_and_matheuristics.master_problem.constraints
 ```

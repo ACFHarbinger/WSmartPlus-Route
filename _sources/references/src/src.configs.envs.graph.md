@@ -95,6 +95,28 @@
 
 ````
 
+````{py:attribute} tm_filepath
+:canonical: src.configs.envs.graph.GraphConfig.tm_filepath
+:type: typing.Optional[str]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.tm_filepath
+```
+
+````
+
+````{py:attribute} time_matrix_unit
+:canonical: src.configs.envs.graph.GraphConfig.time_matrix_unit
+:type: str
+:value: >
+   'seconds'
+
+```{autodoc2-docstring} src.configs.envs.graph.GraphConfig.time_matrix_unit
+```
+
+````
+
 ````{py:attribute} save_updated_dm
 :canonical: src.configs.envs.graph.GraphConfig.save_updated_dm
 :type: typing.Optional[str]

@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.simulations.hpo.hpo_reports
-src.pipeline.simulations.hpo.search_spaces
 src.pipeline.simulations.hpo.hpo_handler
+src.pipeline.simulations.hpo.search_spaces
+src.pipeline.simulations.hpo.hpo_reports
 src.pipeline.simulations.hpo.base
 ```

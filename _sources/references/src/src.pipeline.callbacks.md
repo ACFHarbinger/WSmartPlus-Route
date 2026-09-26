@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 3
 
-src.pipeline.callbacks.simulation
 src.pipeline.callbacks.pytorch
+src.pipeline.callbacks.simulation
 ```
 
 ## Package Contents
@@ -36,7 +36,7 @@ src.pipeline.callbacks.pytorch
 ````{py:data} __all__
 :canonical: src.pipeline.callbacks.__all__
 :value: >
-   ['AttentionHeatmapCallback', 'TrainingDisplayCallback', 'HpoHealthMetricsCallback', 'TrainingHealthC...
+   ['AttentionHeatmapCallback', 'GPUMemoryMonitor', 'TrainingDisplayCallback', 'HpoHealthMetricsCallbac...
 
 ```{autodoc2-docstring} src.pipeline.callbacks.__all__
 ```

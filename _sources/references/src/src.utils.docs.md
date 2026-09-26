@@ -13,7 +13,7 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.docs.check_google_style
-src.utils.docs.check_docstrings
 src.utils.docs.add_docstrings_batch
+src.utils.docs.check_docstrings
+src.utils.docs.check_google_style
 ```

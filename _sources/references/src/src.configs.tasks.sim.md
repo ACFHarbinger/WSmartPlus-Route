@@ -73,6 +73,39 @@
 
 ````
 
+````{py:attribute} shift_hours
+:canonical: src.configs.tasks.sim.SimConfig.shift_hours
+:type: float
+:value: >
+   7.0
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.shift_hours
+```
+
+````
+
+````{py:attribute} avg_speed_kmh
+:canonical: src.configs.tasks.sim.SimConfig.avg_speed_kmh
+:type: float
+:value: >
+   35.0
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.avg_speed_kmh
+```
+
+````
+
+````{py:attribute} service_time_h
+:canonical: src.configs.tasks.sim.SimConfig.service_time_h
+:type: float
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.service_time_h
+```
+
+````
+
 ````{py:attribute} days
 :canonical: src.configs.tasks.sim.SimConfig.days
 :type: int

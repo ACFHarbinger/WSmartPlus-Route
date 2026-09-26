@@ -37,6 +37,18 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_EXPANDED_KEYS <src.pipeline.simulations.actions.base._EXPANDED_KEYS>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.actions.base._EXPANDED_KEYS
+    :summary:
+    ```
+````
+
 ### API
 
 ````{py:function} _find_key(d: typing.Any, target_key: str) -> typing.Any
@@ -44,6 +56,16 @@
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.base._find_key
 ```
+````
+
+````{py:data} _EXPANDED_KEYS
+:canonical: src.pipeline.simulations.actions.base._EXPANDED_KEYS
+:value: >
+   ('mandatory_selection', 'route_improvement', 'acceptance_criteria', 'acceptance_criterion')
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.base._EXPANDED_KEYS
+```
+
 ````
 
 ````{py:function} _flatten_config(cfg: typing.Any) -> dict

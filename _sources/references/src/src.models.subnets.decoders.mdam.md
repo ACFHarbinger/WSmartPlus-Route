@@ -13,8 +13,8 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.decoders.mdam.decoder
 src.models.subnets.decoders.mdam.attention
+src.models.subnets.decoders.mdam.decoder
 src.models.subnets.decoders.mdam.path
 ```
 

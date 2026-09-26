@@ -13,20 +13,20 @@
 :titlesonly:
 :maxdepth: 3
 
-src.utils.functions
-src.utils.decoding
-src.utils.infrastructure
-src.utils.target
 src.utils.graph
+src.utils.policy
 src.utils.actions
-src.utils.data
+src.utils.decoding
+src.utils.model
+src.utils.input
 src.utils.output
 src.utils.tasks
-src.utils.policy
+src.utils.plotting
 src.utils.security
-src.utils.model
+src.utils.data
+src.utils.infrastructure
+src.utils.functions
+src.utils.target
 src.utils.docs
-src.utils.input
 src.utils.configs
-src.utils.expo
 ```

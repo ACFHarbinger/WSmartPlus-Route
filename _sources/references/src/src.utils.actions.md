@@ -13,10 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.utils.actions.probabilistic
 src.utils.actions.distance
-src.utils.actions.tensor
+src.utils.actions.probabilistic
 src.utils.actions.pomo
+src.utils.actions.tensor
 src.utils.actions.graph
 ```
 

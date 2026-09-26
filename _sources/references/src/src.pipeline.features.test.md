@@ -24,8 +24,8 @@ src.pipeline.features.test.orchestrator
 
 src.pipeline.features.test.zenml_sim_pipeline
 src.pipeline.features.test.config
-src.pipeline.features.test.engine
 src.pipeline.features.test.validation
+src.pipeline.features.test.engine
 ```
 
 ## Package Contents
@@ -47,7 +47,7 @@ src.pipeline.features.test.validation
 ````{py:data} __all__
 :canonical: src.pipeline.features.test.__all__
 :value: >
-   ['run_wsr_simulator_test', 'simulator_testing']
+   ['run_simulator_test', 'simulator_testing']
 
 ```{autodoc2-docstring} src.pipeline.features.test.__all__
 ```
