@@ -47,7 +47,7 @@ Commit under review: `1aa00c09c` on `main`. Report only; Claude implements after
 | **Grok** | B | Simulator day loop, actions/states, parallel runner, result writers, `main.py`, controllers. |
 | **Agy (Gemini)** | C | Attention Model vs Kool et al. §3, subnets/embeddings, `utils/model/loader.py`, Neural Agent. |
 | **Kimi** | D | BPC, SWC-TCF, ACO-HH vs their papers; `helpers/solvers_and_matheuristics`. |
-| **Qwen** | E | ALNS, HGS, PG-CLNS, PSOMA, SANS vs their papers; operator duplication map. |
+| **Qwen** | E | ALNS, HGS, PG-CLNS (vs HVPL), PSOMA, SANS vs their papers; operator duplication map. |
 | **Cursor** | F | Selectors, `fast_tsp`, `bmc`/`oi`, policy base classes/factory/registry, `interfaces`, `envs`, `data`, `constants`. |
 | **Mistral** | G | Whole-tree reachability/dead code, duplication clusters, config consistency, dependencies. |
 

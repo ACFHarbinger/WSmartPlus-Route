@@ -20,9 +20,25 @@ From `bibliography/policies/`:
   `hgs` reaches ruin-and-recreate code.
 - **PSOMA:** `Particle_Swarm_Optimization_Memetic_Algorithm.pdf`.
 - **SANS:** `Simulated_Annealing_Neighborhood_Search.pdf`.
-- **PG-CLNS:** there is no dedicated PDF. Find the citation in its
-  docstrings. If there is none, compare it against the ALNS paper plus the
-  pheromone (ACO) components, and file a P row for the missing reference.
+- **PG-CLNS:** it has no paper of its own. The owner confirmed on 2026-09-26
+  that it is inspired by the HVPL route constructor, so the main reference is
+  `Hybrid_Volleyball_Premier_League.pdf`, with `Volleyball_Premier_League.pdf`
+  for the base VPL. Map PG-CLNS's components onto HVPL's:
+  - the league/team population;
+  - the season schedule;
+  - the coaching, substitution and learning phases;
+  - the promotion and relegation steps;
+  - the hybrid local search.
+
+  Classify every departure from HVPL using the §1 classes. The ALNS paper
+  (adaptive destroy/repair) and the ant-colony components (the pheromone
+  guidance, cf. `Hyper-Heuristic_Ant_Colony_Optimization.pdf` and
+  `K-Sparse Ant Colony Optimization.pdf`) are secondary references. Read them
+  to understand the parts HVPL does not explain. Compare the code against the
+  in-tree HVPL/VPL implementations
+  (`meta_heuristics/{hybrid_volleyball_premier_league,volleyball_premier_league}`)
+  for duplicated logic, which goes in M rows. File a P row if the PG-CLNS
+  docstrings do not cite HVPL.
 
 From `bibliography/operators/`, the operator papers for the operators these
 five policies actually call:
