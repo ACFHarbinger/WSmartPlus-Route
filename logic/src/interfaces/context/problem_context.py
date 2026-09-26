@@ -34,11 +34,14 @@ Example:
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import TYPE_CHECKING, Any, Dict, List, Optional
 
 import numpy as np
 
-from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
+# Annotation-only: a runtime import makes interfaces -> simulator -> datasets ->
+# interfaces a cycle when the simulator repository is imported first (workers).
+if TYPE_CHECKING:
+    from logic.src.pipeline.simulations.bins.prediction import ScenarioTree
 
 
 @dataclass(frozen=True)
