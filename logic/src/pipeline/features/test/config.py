@@ -185,7 +185,7 @@ def _resolve_policy_cfg_path(pol_name: str) -> str:
     Returns:
         Configuration file path.
     """
-    canonical = os.path.join(udef.ROOT_DIR, "logic", "configs", "policies")
+    canonical = os.path.join(udef.CONFIGS_DIR, "policies")
     custom = os.environ.get("WSR_POLICY_CONFIG_DIR", "")
     # Search custom dir first (contains job-specific patched copies), then canonical.
     search_dirs = [d for d in [custom, canonical] if d]

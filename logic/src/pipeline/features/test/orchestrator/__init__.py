@@ -29,6 +29,7 @@ from omegaconf import OmegaConf
 
 import logic.src.constants as udef
 import logic.src.tracking as wst
+from logic.src.constants.paths import CONFIGS_DIR
 from logic.src.configs import Config
 from logic.src.pipeline.callbacks import PolicySummaryCallback
 
@@ -80,7 +81,7 @@ def _expand_other_ref(ref_dict: dict, root_dir: str) -> dict:
 
     result = {}
     for yaml_path, keys in ref_dict.items():
-        full_path = os.path.join(root_dir, "logic", "configs", "policies", yaml_path)
+        full_path = os.path.join(CONFIGS_DIR, "policies", yaml_path)
         if not os.path.exists(full_path):
             return ref_dict  # Keep original if file not found
         with open(full_path) as f:

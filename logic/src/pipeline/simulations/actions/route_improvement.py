@@ -17,8 +17,8 @@ from typing import Any, Dict
 
 from loguru import logger
 
+from logic.src.constants.paths import CONFIGS_DIR
 from logic.src.configs import RouteImprovingConfig
-from logic.src.constants import ROOT_DIR
 from logic.src.interfaces import ITraversable
 from logic.src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp import get_route_cost
 from logic.src.policies.route_improvement import RouteImproverFactory
@@ -132,7 +132,7 @@ class RouteImprovementAction(SimulationAction):
                         except Exception:
                             pass
                     variant_val = str(variant_val) if variant_val is not None else ""
-                    fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", file_key)
+                    fpath = os.path.join(CONFIGS_DIR, "policies", file_key)
                     try:
                         cfg = load_config(fpath)
                         if "config" in cfg and len(cfg) == 1:
@@ -166,7 +166,7 @@ class RouteImprovementAction(SimulationAction):
                         logger.warning(f"Error loading route_improvement config {file_key}: {e}")
                         return []
         elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
-            fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item)
+            fpath = os.path.join(CONFIGS_DIR, "policies", item)
             try:
                 cfg = load_config(fpath)
                 if "config" in cfg and len(cfg) == 1:

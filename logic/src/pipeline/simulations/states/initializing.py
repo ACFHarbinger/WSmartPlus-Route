@@ -25,7 +25,8 @@ import numpy as np
 import torch
 from loguru import logger
 
-from logic.src.constants import DAY_METRICS, ROOT_DIR
+from logic.src.constants.paths import CONFIGS_DIR
+from logic.src.constants import DAY_METRICS
 from logic.src.data.processor import (
     process_data,
     process_model_data,
@@ -185,7 +186,7 @@ class InitializingState(SimState):
         if isinstance(ctx.pol_cfg, dict) and "model" in ctx.pol_cfg:
             model_name = ctx.pol_cfg["model"].get("name", "").lower()
 
-        neural_cfg_path = os.path.join(ROOT_DIR, "logic", "configs", "policies", "policy_neural.yaml")
+        neural_cfg_path = os.path.join(CONFIGS_DIR, "policies", "policy_neural.yaml")
         pol_parts = ctx.pol_name.lower().replace("_", " ").replace("-", " ").split()
         is_neural = any(kw in pol_parts for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]) or any(
             kw in model_name for kw in ["na", "amgat", "am", "ptr", "ddam", "transgcn"]

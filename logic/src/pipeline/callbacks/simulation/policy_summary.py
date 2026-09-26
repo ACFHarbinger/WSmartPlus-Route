@@ -22,7 +22,7 @@ from rich.console import Console
 from rich.table import Table
 
 from logic.src.configs import Config, MandatorySelectionConfig
-from logic.src.constants import ROOT_DIR
+from logic.src.constants import CONFIGS_DIR
 from logic.src.interfaces import ITraversable
 from logic.src.pipeline.simulations.actions.base import _flatten_config
 from logic.src.tracking.logging.logger_writer import LoggerWriter
@@ -192,7 +192,7 @@ class PolicySummaryCallback:
                         except Exception:
                             raw_val = ""
                     variant_val = str(raw_val) if raw_val is not None else ""
-                    fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", first_key)
+                    fpath = os.path.join(CONFIGS_DIR, "policies", first_key)
                     try:
                         cfg = load_config(fpath)
                         if variant_val and variant_val in cfg:
@@ -330,7 +330,7 @@ class PolicySummaryCallback:
                             except Exception:
                                 pass
                         variant_val = str(variant_val) if variant_val else ""
-                        fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", file_key)
+                        fpath = os.path.join(CONFIGS_DIR, "policies", file_key)
                         if os.path.exists(fpath):
                             try:
                                 ri_cfg = load_config(fpath)
@@ -356,7 +356,7 @@ class PolicySummaryCallback:
                 steps.append(str(next(iter(item_dict.keys()))))
             elif isinstance(item_obj, str):
                 if item_obj.endswith(".yaml") or item_obj.endswith(".xml"):
-                    fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item_obj)
+                    fpath = os.path.join(CONFIGS_DIR, "policies", item_obj)
                     if os.path.exists(fpath):
                         try:
                             ri_cfg = load_config(fpath)
@@ -424,7 +424,7 @@ class PolicySummaryCallback:
                             except Exception:
                                 pass
                         variant_val = str(variant_val) if variant_val else ""
-                        fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", file_key)
+                        fpath = os.path.join(CONFIGS_DIR, "policies", file_key)
                         if os.path.exists(fpath):
                             try:
                                 ac_cfg = load_config(fpath)
