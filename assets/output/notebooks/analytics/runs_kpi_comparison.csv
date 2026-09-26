@@ -1,9 +1,0 @@
-Algoritmo,Fonte,Rota Id,No contentores recolhidos pela rota,No Contentores MustGo,No Contentores MustGo-LookAhead,No Contentores opcionais,Total No. Contentores nao visitados (sem cobertura),Lucro (Euros),Total distancia (km),Total peso recolhido (kg),Racio (km/Ton),Cap_Usada%,Tempo de viagem (h),Tempo Paragem (h)
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260805_114519_05-08-2026,1,174,27,15,132,318,3109.88,116.32,3226.2,36.05,92.18,n/d,n/d
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260805_114519_05-08-2026,2,143,36,26,81,349,3369.56,128.04,3497.6,36.61,99.93,n/d,n/d
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260805_114519_05-08-2026,3,172,26,17,129,320,3254.1,198.5,3452.6,57.49,98.65,n/d,n/d
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260805_114519_05-08-2026,Total,489,89,58,342,3,9733.54,442.86,10176.4,43.52,96.92,n/d,n/d
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260909_094116_09.09.2026,1,175,29,23,123,317,3220.47,148.33,3368.8,44.03,96.25,n/d,n/d
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260909_094116_09.09.2026,2,157,42,24,91,335,3305.38,173.22,3478.6,49.8,99.39,n/d,n/d
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260909_094116_09.09.2026,3,158,43,27,88,334,3311.35,134.05,3445.4,38.91,98.44,n/d,n/d
-Lookahead + PG-CLNS,dashboard_wsmartroute_7_20260909_094116_09.09.2026,Total,490,114,74,302,2,9837.2,455.6,10292.8,44.26,98.03,n/d,n/d
