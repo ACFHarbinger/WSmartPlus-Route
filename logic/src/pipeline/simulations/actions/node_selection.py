@@ -18,8 +18,9 @@ from typing import Any, Dict, List, cast
 
 import numpy as np
 
+from logic.src.constants.paths import CONFIGS_DIR
 from logic.src.configs import MandatorySelectionConfig
-from logic.src.constants import MAX_CAPACITY_PERCENT, ROOT_DIR
+from logic.src.constants import MAX_CAPACITY_PERCENT
 from logic.src.interfaces import IBinContainer, ITraversable
 from logic.src.interfaces.context.search_context import SearchContext
 from logic.src.policies.mandatory_selection import MandatorySelectionFactory, SelectionContext
@@ -278,7 +279,7 @@ class MandatorySelectionAction(SimulationAction):
             key = next(iter(item_dict))
             val = item_dict[key]
             if isinstance(key, str) and isinstance(val, str) and (key.endswith(".yaml") or key.endswith(".xml")):
-                fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", key)
+                fpath = os.path.join(CONFIGS_DIR, "policies", key)
                 cfg = load_config(fpath)
                 if "config" in cfg and len(cfg) == 1:
                     cfg = cfg["config"]
@@ -304,7 +305,7 @@ class MandatorySelectionAction(SimulationAction):
                         strategies.append({"name": k, "params": v if isinstance(v, (dict, ITraversable)) else {}})
             return strategies
         elif isinstance(item, str) and (item.endswith(".xml") or item.endswith(".yaml")):
-            fpath = os.path.join(ROOT_DIR, "logic", "configs", "policies", item)
+            fpath = os.path.join(CONFIGS_DIR, "policies", item)
             cfg = load_config(fpath)
             if "config" in cfg and len(cfg) == 1:
                 cfg = cfg["config"]

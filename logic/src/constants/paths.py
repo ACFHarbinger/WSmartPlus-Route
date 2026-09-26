@@ -44,19 +44,30 @@ import os
 import sys
 from pathlib import Path
 
-# Dynamic root directory resolution
-# Searches upward from cwd for project root marker ("WSmart-Route" or "WSmartPlus-Route")
+def _frozen_root() -> Path:
+    """Project root for a PyInstaller build.
+
+    The bundle unpacks code to sys._MEIPASS, but data/simulator and the outputs
+    (assets/, logs) belong to the user's working folder: $WSMART_ROUTE_ROOT if set,
+    else the current directory when it holds data/, else the executable's folder.
+    """
+    env_root = os.environ.get("WSMART_ROUTE_ROOT")
+    if env_root:
+        return Path(env_root).expanduser().absolute()
+    if (Path.cwd() / "data").is_dir():
+        return Path.cwd().absolute()
+    return Path(sys.executable).parent.absolute()
+
+
+# Dynamic root directory resolution: the directory that contains logic/.
 if getattr(sys, "frozen", False):
-    path: Path = Path(sys._MEIPASS)  # Current working directory
+    root_dir = _frozen_root()
 else:
-    path: Path = Path(__file__).parent.absolute()  # Current working directory
-
-
-parts: tuple[str, ...] = path.parts  # Split path into components
-try:
-    root_dir = Path(*parts[: parts.index("logic")]).absolute()
-except ValueError:
-    root_dir = Path(*parts[:-3]).absolute()
+    parts: tuple[str, ...] = Path(__file__).parent.absolute().parts
+    try:
+        root_dir = Path(*parts[: parts.index("logic")]).absolute()
+    except ValueError:
+        root_dir = Path(*parts[:-3]).absolute()
 
 # Project root directory (absolute path)
 # Example: /home/user/Repositories/WSmart-Route

@@ -489,3 +489,7 @@ app/cypress/screenshots/
 app/cypress/videos/
 app/cypress/downloads/
 app/coverage/
+
+# Packaged exports
+/dist/
+/build/
