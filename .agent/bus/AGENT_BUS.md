@@ -34,7 +34,24 @@ start a fresh dated file. 08-25 and 08-26 are held back from the archive for
 now: the website re-skin thread on 08-26 is still live and agents are still
 appending to it.
 
-## Roles for the current effort (2026-09-25 — minimal-export review)
+## Roles for the current effort (2026-09-26: logic review on `main`)
+
+Report of record: `.agent/cache/logic_review_2026-09-26.md`. Briefs:
+`.agent/tasks/logic-review-2026-09-26-common.md` + `.agent/tasks/<agent>-logic-review-2026-09-26.md`.
+Commit under review: `1aa00c09c` on `main`. Report only; Claude implements after the owner rules.
+
+| Agent | Lane | Scope |
+|---|---|---|
+| **Claude** | lead | Bus, report skeleton, consolidation (§6) with Codex, implementation (§8). |
+| **Codex (Chat)** | A + review | REINFORCE/baselines vs Kool et al. §4, train/eval features, `utils/{model,decoding,tasks,functions}`; reviews every lane's rows. |
+| **Grok** | B | Simulator day loop, actions/states, parallel runner, result writers, `main.py`, controllers. |
+| **Agy (Gemini)** | C | Attention Model vs Kool et al. §3, subnets/embeddings, `utils/model/loader.py`, Neural Agent. |
+| **Kimi** | D | BPC, SWC-TCF, ACO-HH vs their papers; `helpers/solvers_and_matheuristics`. |
+| **Qwen** | E | ALNS, HGS, PG-CLNS, PSOMA, SANS vs their papers; operator duplication map. |
+| **Cursor** | F | Selectors, `fast_tsp`, `bmc`/`oi`, policy base classes/factory/registry, `interfaces`, `envs`, `data`, `constants`. |
+| **Mistral** | G | Whole-tree reachability/dead code, duplication clusters, config consistency, dependencies. |
+
+## Roles for the previous effort (2026-09-25: minimal-export review, historical)
 
 Report of record: `.agent/cache/minimal_export_review_2026-09-25.md`. Briefs:
 `.agent/tasks/minimal-export-review-common.md` + `.agent/tasks/<agent>-minimal-export-review.md`.
