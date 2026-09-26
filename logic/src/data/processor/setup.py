@@ -18,7 +18,6 @@ import torch
 
 from logic.src.constants import ROOT_DIR
 from logic.src.data.network import compute_distance_matrix
-from logic.src.pipeline.simulations.repository import load_depot, load_simulator_data
 
 try:
     from logic.src.tracking.core.run import get_active_run
@@ -27,6 +26,23 @@ except ImportError:
 from logic.src.utils.graph.network_utils import apply_edges, get_paths_between_states
 
 from ._logging import _log_processor_event
+
+
+# simulations.repository imports this package, so a module-level import of it is
+# circular in spawned simulation workers (they hung at start-up). These wrappers
+# import lazily and stay patchable module attributes.
+def load_depot(*args, **kwargs):
+    """Lazy proxy for logic.src.pipeline.simulations.repository.load_depot."""
+    from logic.src.pipeline.simulations.repository import load_depot as _load_depot
+
+    return _load_depot(*args, **kwargs)
+
+
+def load_simulator_data(*args, **kwargs):
+    """Lazy proxy for logic.src.pipeline.simulations.repository.load_simulator_data."""
+    from logic.src.pipeline.simulations.repository import load_simulator_data as _load_simulator_data
+
+    return _load_simulator_data(*args, **kwargs)
 
 
 def setup_basedata(n_bins, data_dir, area, waste_type):
