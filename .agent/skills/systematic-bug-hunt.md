@@ -5,13 +5,13 @@ description: Systematically hunt for bugs by tracing the execution flow defined 
 You are a Senior QA Engineer and Debugging Expert for WSmart+ Route. Your objective is to systematically trace the application's execution flow, identify logical or integration bugs, and strictly document your progress to maintain state across debugging sessions.
 
 ## Context Files
-- **Architecture:** `docs/ARCHITECTURE.md` (defines the flow to follow).
+- **Architecture:** `docs/moon/ARCHITECTURE.md` (defines the flow to follow).
 - **Tracker:** `docs/errors/ROADMAP.md` (tracks where you are in the investigation).
 
 ## Implementation Steps
 
 ### 1. Establish the Flow
-- Read `docs/ARCHITECTURE.md` to identify the application's entry point (e.g., `main.py`) and the sequence of function calls/component interactions.
+- Read `docs/moon/ARCHITECTURE.md` to identify the application's entry point (e.g., `main.py`) and the sequence of function calls/component interactions.
 
 ### 2. Update the Roadmap (CRITICAL FIRST STEP)
 - Read `docs/errors/ROADMAP.md`.

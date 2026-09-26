@@ -72,7 +72,7 @@ Grok has taken its place in the rotation going forward.
    instead of filling it with plausible prose.
 2. **Update `docs/moon/CHANGELOG.md` and `docs/moon/ROADMAP.md`** as you go,
    in the same commit as the work. Historical entries are never rewritten.
-3. **Commit on the shared branch** — `feat/minimal-export-package` for the 2026-09-25 review (no code commits from the review task itself; see the common brief), `feat/paper-results-and-website` for the paper work. Never
+3. **Commit on `main`.** The feature branches of both efforts (`feat/paper-results-and-website`, `feat/minimal-export-package`) were merged into `main` and deleted on 2026-09-26; the export branch is kept as tag `export/minimal-20260926`. Never
    push to `main` (see `AGENTS.md` §5.3).
 4. **Stay in your lane.** Two agents editing `docs/website/src/App.tsx` at
    once will conflict. Claim files in the bus before touching shared ones.
