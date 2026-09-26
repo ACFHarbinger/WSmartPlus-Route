@@ -297,6 +297,7 @@ class AttentionModel(DecodingMixin, nn.Module):
         """
         self.encoder = component_factory.create_encoder(
             embed_dim=self.embed_dim,
+            feed_forward_hidden=self.hidden_dim,  # the factory default (512) ignored hidden_dim
             n_layers=n_encode_layers,
             n_sublayers=n_encode_sublayers,
             norm_config=norm_config,
