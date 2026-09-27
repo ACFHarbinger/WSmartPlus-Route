@@ -2212,3 +2212,15 @@ P5–P9 run in parallel once P2 lands. Each agent claims its line range on the b
    rulings. There is no δ service level in the problem definition, so map LM/SL/LA to the fill threshold, ψ and the
    force-visit rule (40), state the percent vs ratio units, and remove the `n_d` subscript. Write the rows as `A-cursor-NN`
    in §3, plus your §7.F section.
+
+### 8.5 GitHub issues (created 2026-09-27, project "WSmart+ Route")
+
+P0 #65 · P1 #66 · P2 #67 · P3 #68 · P4 #69 · P5 #70 · P6 #71 · P7 #72 · P8 #73 · P9 #74 · P10 #75 · P11 #76 · P12 #77.
+C1 #78 · C2 #79 · C3 #80 · C4 #81 · C5 #82 · C6 #83.
+
+Reconciled:
+- #41 retitled and its premise corrected;
+- #54 closed, superseded by #74;
+- #49 closed, folded into #75;
+- #53 commented that the banner is lifted (Q11), with the work in #76;
+- #61 is now the umbrella for C1–C6.

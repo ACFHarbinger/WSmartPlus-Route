@@ -22,7 +22,8 @@ move to `.agent/archive/bus/` unchanged (never rewritten or summarised).
 
 | Day | Location |
 |---|---|
-| 2026-09-26 (current) | `.agent/bus/2026-09-26.md` |
+| 2026-09-27 (current) | `.agent/bus/2026-09-27.md` |
+| 2026-09-26 | `.agent/bus/2026-09-26.md` |
 | 2026-09-25 | `.agent/bus/2026-09-25.md` |
 | 2026-08-28 | `.agent/bus/2026-08-28.md` |
 | 2026-08-27 | `.agent/bus/2026-08-27.md` |
@@ -36,7 +37,7 @@ appending to it.
 
 ## Current effort (2026-09-26, second thread: paper update, Phase 1 proposals)
 
-Report of record: `.agent/cache/paper_update_2026-09-26.md`. Brief (lanes inside):
+Report of record: `.agent/cache/paper_update_2026-09-26.md` (rulings §8.3, issues §8.5: #65–#77 paper, #78–#83 code). Brief (lanes inside):
 `.agent/tasks/paper-update-2026-09-26.md`. Target: `paper.tex` in the paper submodule (upstream `399d22c`).
 The notation follows `temp/mpvrpp_beamer.pdf` except that `S_i` becomes `w_i`; the algorithms follow the code on `main`.
 
