@@ -1,0 +1,107 @@
+diff --git a/paper.tex b/paper.tex
+index 356d1286becb5205bb94a4d8edf43641a6babf19..cd47536a958cf056cbae7b856feb436213767c30 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -742,33 +742,45 @@ away from.
+ 
+ \subsection{Route Improvers}
+ 
+-Both improvers take a constructed route plan and refine it, and neither is
+-designed to change which bins were selected.
++Both improvers refine a constructed route plan without intentionally changing
++which bins are served. The descriptions below refer to the reviewed
++implementation; historical source revisions remain pending recovery of the
++run records.
+ 
+ \paragraph{Classical Local Search (CLS).}
+-Variable-neighborhood descent over a fixed toolbox ordered from cheapest to
+-most expensive to evaluate: relocate a bin, swap two bins, reverse a segment
+-(2-opt), relocate a chain of two or three consecutive bins (Or-opt), exchange
+-route tails between two routes, exchange bins between routes with re-optimized
+-placement, and finally full three- and four-bin reordering. Whenever any move
+-succeeds the search restarts from the cheapest neighborhood rather than
+-continuing, and it terminates at a local optimum with respect to every move in
+-the toolbox.
+-
+-One property matters for interpreting the results: every CLS move is scored
+-purely by its effect on travel distance. Capacity is enforced as a feasibility
+-check, but collected revenue never enters the accept/reject decision, so CLS
+-optimizes distance and not profit. It can, however, move a bin from one route to
+-another, and so can change how a day's collection is split across trips.
++CLS applies variable-neighborhood descent using relocate, swap, 2-opt,
++Or-opt chains of length two and three, inter-route tail exchange, swap-star,
++and intra-route three- and four-edge reconnections, in that order. After an
++accepted move, the search restarts at the first operator. The archived
++configuration specifies 1{,}000 outer iterations; the implementation stops
++at this cap or when one pass finds no improvement. The higher-order
++operators sample additional breakpoints, so termination is not a certificate
++of local optimality over all moves in these neighborhoods. An exception
++inside the search loop also terminates it, returning the original input
++tour rather than the partially improved plan.
++
++CLS scores moves by travel distance, with capacity checked when evaluating
++moves. For fixed collected quantities, positive transport cost and no
++per-vehicle charge, as in the reported profit accounting, reducing distance
++also increases daily profit: the revenue term is constant. CLS does not
++optimize which bins to collect. It can transfer bins between routes,
++changing how the served set is partitioned across trips.
+ 
+ \paragraph{Fast-TSP.}
+-A narrower operation: holding each route's bin assignment fixed, find the best
+-visiting order within it. Routes of up to roughly twenty stops are solved to
+-optimality by dynamic programming; longer ones fall back to a stochastic local
+-search within a small fixed budget. Fast-TSP cannot move a bin between routes,
+-drop a bin, or account for revenue. It solves each route's ordering globally,
+-whereas CLS improves the plan incrementally. Sect.~\ref{sec:res-improvers}
+-compares configurations using the two improvers.
++Fast-TSP reorders each depot-to-depot route independently while holding its
++assigned bins fixed. The wrapper includes the depot in the distance
++submatrix and rounds scaled distances to integers. The nominal scaling
++factor is 10{,}000; the revised wrapper reduces it when necessary to keep
++integer distances within the library's 16-bit range, and retains the input
++order if the library call fails. These safeguards apply to future runs.
++The library uses exact dynamic programming for small instances and
++time-budgeted stochastic search for larger ones. Exactness applies to the
++integer-distance problem; global optimality is not claimed for every route.
++The archived configuration specifies a 30-second search budget per route,
++not per daily plan. Fast-TSP cannot transfer bins between routes or change
++the collected set. Its library call exposes no seed parameter, so the
++wrapper's seed argument does not make the stochastic search repeatable.
++Sect.~\ref{sec:res-improvers} compares configurations using the two improvers.
+ 
+ \subsection{Simulation Protocol}\label{sec:protocol}
+ 
+@@ -946,7 +958,8 @@ Sect.~\ref{sec:res-horizon} instead pairs each configuration against
+ \emph{itself} across the two horizons.
+ 
+ We report five measures.\ \emph{Efficiency} (kg/km) is collected waste per
+-kilometer driven and is the primary operational objective.\ \emph{Overflow
++kilometer driven and is our primary reported efficiency metric. The routing
++optimization objective is daily profit, which is distinct from this ratio.\ \emph{Overflow
+ events} counts bin-days on which a bin was at capacity, and \emph{kilograms
+ lost} the waste discarded as a result; the two are related but distinct, since a
+ single bin left uncollected keeps losing waste every subsequent day.
+@@ -1080,12 +1093,17 @@ restricted to the slices in which all five variants ran, 80 runs each.
+ 
+ \subsubsection{Route Improvers}\label{sec:res-improvers}
+ 
+-The two improvers can be matched by configuration: each of the 224 pairs in
+-Table~\ref{tab:improvers30} has the same constructor, strategy, network and
+-demand realization, with a different configured improver. This controls the
+-scenario mix, but it is not a controlled treatment comparison. Collected
+-tonnage or bin count differs in many pairs, showing that stochastic upstream
+-construction did not reproduce the same input route for both improvers.
++The two improvers are compared on 224 integrity-filtered pairs at the
++30-day horizon (Table~\ref{tab:improvers30}), rather than the 240 pairs in
++the unfiltered factorial design. We apply the tonnage-shortfall filter of
++Sect.~\ref{sec:integrity}, remove the affected scenario/selection/improver
++cells for every constructor, and retain only configurations observed with
++both improvers. Each pair has the same constructor, selection variant,
++network and demand realization, with a different configured improver.
++This controls the scenario mix, but it is not a controlled treatment
++comparison. Collected tonnage or bin count differs in many pairs, showing
++that upstream construction did not supply the same input route to both
++improvers.
+ 
+ In aggregate, configurations using CLS have higher efficiency than their
+ matched-demand Fast-TSP counterparts (Table~\ref{tab:improvers30}). CLS has a

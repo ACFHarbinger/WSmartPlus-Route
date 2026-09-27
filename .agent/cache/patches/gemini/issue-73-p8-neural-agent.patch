@@ -1,0 +1,83 @@
+diff --git a/Images/Architectures/README.md b/Images/Architectures/README.md
+new file mode 100644
+index 0000000..70b8121
+--- /dev/null
++++ b/Images/Architectures/README.md
+@@ -0,0 +1,25 @@
++# Architectural Diagrams & Neural Training Assets
++
++This directory and associated directories contain diagrams and preliminary evaluation assets for neural network architectures developed within the WSmart+ Route framework:
++
++- **Architecture diagrams (`Images/Architectures/`, 9 files):**
++  - `AM-Architecture.pdf`: Standard Attention Model (Kool et al., 2019) encoder-decoder architecture.
++  - `Attention-Block.pdf`: Multi-Head Attention and Feed-Forward sublayer structure.
++  - `DDAM-Architecture.pdf`: Deep Decoder Attention Model architecture.
++  - `Deep-Decoder.png`: High-resolution render of the deep decoder stack.
++  - `AMGC-Architecture.pdf`: Attention Model with Graph Convolutional layers.
++  - `AGC-Block.pdf`: Adaptive Graph Convolution sublayer component.
++  - `TransGCN-Architecture.pdf`: Transformer + Graph Convolutional Network hybrid architecture.
++  - `GraphConv-Block.pdf`: Graph convolutional layer block diagram.
++  - `All-Blocks.pdf`: Composite diagram of modular network layers.
++
++- **Preliminary neural training and comparison plots (5 files):**
++  - `Images/Results/Training/am_cost20.png`: Cost trajectory during synthetic 20-node training.
++  - `Images/Results/Training/am_loss20.png`: Actor loss curve during synthetic 20-node training.
++  - `Images/Results/am_comp.png`: Efficiency comparison across 20-node Attention Model variants.
++  - `Images/Results/comp_temp_op20.png`: Temperature and sampling comparison across instances.
++  - `Images/next_models.png`: Conceptual roadmap of planned neural routing models.
++
++## Exclusion Rationale (Owner Ruling Q15)
++
++In accordance with project steering ruling **Q15**, these 14 assets are excluded from `paper.tex`. The current paper focuses strictly on establishing empirical baselines across classical exact and heuristic constructors on real municipal waste collection networks. These neural architecture diagrams and preliminary synthetic training plots are preserved here for a subsequent journal publication dedicated to neural combinatorial optimization and multi-scale routing architectures.
+diff --git a/paper.tex b/paper.tex
+index 356d128..9860151 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -261,10 +261,12 @@ or unsupervised objectives, and differ materially in inference cost and in
+ generalization beyond their training
+ sizes~\cite{joshi2020learning,wu2024neural}. WSmart Route+ registers learned
+ constructors and improvers through the same interfaces as the classical ones.
+-Those adapters place NCO within the framework's algorithmic scope. Every stored
+-30- and 90-day benchmark row, however, uses one of the eight classical
+-constructors in Sect.~\ref{sec:constructors}, so the reported results contain no
+-learned-solver observation.
++Those adapters place NCO within the framework's algorithmic scope. Learned
++constructors are excluded from the reported benchmark due to poor results on
++orienteering-type problems, including the VRPP, where routing and subset
++selection interact, pending changes to their training regimen and architecture
++(Sect.~\ref{sec:constructors}); every stored 30- and 90-day benchmark row
++therefore uses one of the eight classical constructors.
+ 
+ The two families this study does exercise are the exact and the heuristic
+ ones, and the two subsections that follow the problem statement review each in
+@@ -740,6 +742,30 @@ mechanism that periodically relaxes the capacity penalty when the search
+ stagnates, letting it revisit inclusion decisions it would otherwise be trapped
+ away from.
+ 
++\subsubsection{Learned Methods}
++
++\paragraph{Attention Model Policy (Neural Agent).}
++The framework provides an Attention Model adapter~\cite{Kool2019AttentionModel}
++for learned constructive routing, exposing neural policies through the same
++single-period constructor interface as the classical algorithms. It operates on
++normalized sensor fill levels scaled to the unit interval and decodes visits
++sequentially. The implementation adapts the baseline architecture of Kool et
++al.~\cite{Kool2019AttentionModel}: decoder queries omit static global graph
++pooling, driving the step context by the current node embedding and unvisited
++waste, while pointing logits are computed via multi-head dot products scaled by
++the square root of the head dimension and averaged across heads before applying
++tanh clipping with a clipping magnitude of 10. Dynamic action masking enforces
++mandatory selection by excluding the depot until every node in the mandatory
++set $\mathcal{M}^t$ has been visited, and masks visited as well as
++nonpositive-waste optional bins; it does not enforce vehicle capacity. Decoding
++proceeds either greedily or by temperature-controlled sampling.
++
++The learned model is excluded from the reported benchmark because of poor results
++on orienteering-type problems, including the VRPP, where routing and subset
++selection interact. Changes to its training regimen and architecture are
++pending. The reported municipal benchmark therefore evaluates only the eight
++classical constructors.
++
+ \subsection{Route Improvers}
+ 
+ Both improvers take a constructed route plan and refine it, and neither is

@@ -1,0 +1,204 @@
+diff --git a/paper.tex b/paper.tex
+index bf34d3b..b73333d 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -778,24 +778,41 @@ bins whose collected value would not repay the detour.
+ \subsubsection{Exact Methods}
+ 
+ \paragraph{Smart Waste Collection: Two-Commodity Flow (SWC-TCF).}
+-A direct implementation of the waste-collection formulation of Ramos et
+-al.~\cite{RAMOS2018146}, written as a single monolithic mixed-integer program
+-and handed to a general-purpose solver. Its core device is to track two
+-quantities on every arc simultaneously: waste collected so far and residual
+-capacity. Their sum equals vehicle capacity on every used arc. This constraint
+-family enforces capacity and eliminates sub-tours at once, where a conventional 
+-formulation needs two separate families.
+-
+-Unlike the other constructors, SWC-TCF needs no VRPP retrofit: the source
+-formulation already treats ``is bin $i$ visited'' as a first-class binary, with
+-the objective trading collection revenue against travel cost and a per-vehicle
+-usage penalty directly. Bins flagged mandatory, or already critically full, are
+-forced into the solution regardless.
+-
+-Its main limitation is scale. The model grows roughly quadratically in the number of
+-candidate bins and there is no decomposition to keep the working problem small,
+-making it the constructor most vulnerable to instance-size blow-up. The largest
+-scenario exhibits this vulnerability
++SWC-TCF hands a monolithic mixed-integer program to a general-purpose
++solver: the two-commodity flow formulation of
++Sect.~\ref{sec:mpvrpp}, itself derived from the waste-collection model of
++Ramos et al.~\cite{RAMOS2018146} and the two-commodity device of Baldacci et
++al.~\cite{Baldacci2004TwoCommodity}, restated on directed arcs. The shipped
++model keeps one depot (the copy $n{+}1$ is folded away), places one arc
++binary $x_{ij}$ per ordered pair, priced at the directed kilometre $d_{ij}$
++actually driven, and carries the two commodities as separate arc flows: $f$
++(the load) and $h$ (the residual capacity), coupled by
++$f_{ij} + h_{ij} = Q\,x_{ij}$. Flow conservation at the bins, not the
++coupling alone, is what eliminates sub-tours; disconnected cycles of
++zero-demand bins are excluded by the degree constraints. The visit binary
++$g_i$ is first-class, so the objective $R \sum_i w_i g_i - C \sum_{i,j}
++d_{ij} x_{ij} - \Omega k$ trades revenue against travel and a per-vehicle
++charge directly, with no retrofit beyond the profitable-subset objective.
++
++Two adaptations matter for reproduction. First, the source model's
++overflow-count constraint is not implemented: the service level enters
++through the bins released by mandatory selection, and every bin whose sensed
++fill reaches $\psi E_i$ is forced ($g_i = 1$); in the reported configurations
++$\psi = 1$, so only full bins are forced beyond the mandatory set, and if the
++forced set itself is infeasible for the fleet the solver retries once
++without forcing. Second, the model is solved in percent of bin capacity, with
++revenue and payload rescaled accordingly, and arcs longer than
++$6{,}000$\,km are dropped before solving. The saved configurations use the
++native Gurobi backend with a 60\,s time limit, a $1\%$ MIP gap, and
++$\Omega = 0.1$\,€ per vehicle inside the optimisation; the benchmark's
++reported profit carries no per-vehicle term ($\Omega = 0$ in the accounting
++of Sect.~\ref{sec:protocol}). On a timeout the solver returns its best
++incumbent.
++
++Its main limitation is scale. The model grows with the square of the
++candidate bins and there is no decomposition to keep the working problem
++small, making it the constructor most vulnerable to instance-size blow-up.
++The largest scenario exhibits this vulnerability
+ (Sect.~\ref{sec:integrity}).
+ 
+ \paragraph{Branch-Price-and-Cut (BPC).}
+@@ -804,31 +821,46 @@ a route-selection linear program in which each column represents a complete
+ candidate route. A pricing subproblem generates promising routes on demand,
+ avoiding enumeration of the full route set.
+ Pricing solves a resource-constrained shortest-path problem whose arc costs
+-incorporate the master problem's current duals, so a route is only generated 
+-if it could improve the incumbent. Because an exact elementary path search is 
+-intractable at this scale, the pricing works with near-elementary paths through 
+-the ng-route linear programming relaxation method~\cite{BALDACCI2011}, which relaxes 
+-the Set Partitioning Problem (SPP) formulation by allowing sub-tours outside of 
+-the ng-neighborhoods associated with each node, and it generates the initial columns 
+-(while the Restricted Master Problem --- RMP --- is unfeasible) by using Farkas 
++incorporate the master problem's current duals, so a route is only generated
++if it could improve the incumbent. Because an exact elementary path search is
++intractable at this scale, the pricing works with near-elementary paths through
++the ng-route linear programming relaxation method~\cite{BALDACCI2011}, which relaxes
++the Set Partitioning Problem (SPP) formulation by allowing sub-tours outside of
++the ng-neighborhoods associated with each node, and it generates the initial columns
++(while the Restricted Master Problem --- RMP --- is unfeasible) by using Farkas
+ pricing~\cite{Lin2017}, in order to guarantee the eventual feasibility of the RMP\@.
+ 
+ Three mechanisms together give BPC its profitable-subset behavior. Coverage
+-constraints are \emph{at most once} for optional bins and \emph{exactly once} 
+-for mandatory ones; the pricing subproblem maximizes profit rather than 
+-minimizing distance, so route extension stops naturally once a detour costs 
+-more than  the waste it collects; and branching resolves the visit/no-visit 
+-decision for a bin \emph{before} it branches on arcs, settling the question a 
+-classical always-cover formulation never has to ask. Beyond the base formulation, 
+-lifted cover inequalities~\cite{Gu1999LiftedCI} on saturated arcs are separated, 
+-following the reference methodology, together with VRPP-specific minimum-cut, 
+-triangle-clique and node-profit inequality families.
+-
+-Both exact methods run under a per-run time budget in these experiments. Neither
+-is run to certified optimality on the larger instances, and both have a
+-documented non-exact fallback on timeout: BPC returns a greedily constructed
+-plan, SWC-TCF its best incumbent. Their results should be read as ``best
+-solution found within budget'', not as proven optima.
++constraints are \emph{at most once} for optional bins and \emph{exactly once}
++for mandatory ones; the pricing subproblem maximizes profit rather than
++minimizing distance, so route extension stops naturally once a detour costs
++more than  the waste it collects; and branching resolves the visit/no-visit
++decision first, through hierarchical node-visitation branching, and only then
++branches on arcs by the divergence rule. Beyond the base formulation,
++lifted cover inequalities~\cite{Gu1999LiftedCI} on saturated arcs are separated,
++following the reference methodology, with their duals entering pricing as
++arc-cost adjustments; rounded-capacity, subset-row, multi-star and
++edge-clique separation is also wired, while the minimum-cut, triangle-clique
++and node-profit engines are inert in the reviewed revision (they are
++constructed but never add a cut). The saved configurations use depth-first
++search, at most $2{,}000$ branch nodes, ng-neighbourhoods of size $12$, a
++$15$\,s pricing timeout, at most $50$ routes per pricing round, and at most
++$150$ column-generation iterations; they also enable a strong-branching
++heuristic subsequently found to produce suboptimal plans
++(Sect.~\ref{sec:integrity}). What the archived executable did with these
++switches is pending recovery of the run records
++(Sect.~\ref{sec:integrity}).
++
++Both exact methods run under a configured per-run budget in these
++experiments ($60$\,s of search; an additional short solve may follow).
++Neither is run to certified optimality: the BPC engine additionally stops
++once its optimality gap falls below $0.5\%$, or $1\%$ under early
++termination. If the search ends with no integer-feasible node, BPC falls
++back to the better of the mandatory-only greedy warm start and the
++integer-restricted restricted master over the columns generated so far;
++otherwise it returns the best integer node. SWC-TCF returns its best
++incumbent. Their results should be read as ``best solution found within
++budget'', not as proven optima.
+ 
+ \subsubsection{Meta-Heuristics}
+ 
+@@ -953,23 +985,53 @@ solution. The next operator is drawn with probability
+     p_{sh} = \frac{{[\phi_{sh}]}^{\alpha}{[\eta_{sh}]}^{\beta}}
+                   {\sum_{k \in \mathcal{H}} {[\phi_{sk}]}^{\alpha}{[\eta_{sk}]}^{\beta}},
+ \end{equation}
+-where $\phi_{sh}$ is the pheromone on the transition from state $s$ to heuristic
+-$h$, $\eta_{sh}$ is heuristic information about $h$'s likely efficacy, and
+-$\alpha,\beta$ weight the two. If a completed walk improved the solution,
+-pheromone is deposited along every transition it used, so operator
+-\emph{sequences} that work well together are reinforced rather than merely
+-individually good operators; a faster-adapting efficiency signal that accounts
+-for each operator's runtime modulates selection on a shorter timescale, and all
+-pheromone evaporates so that stale sequences fade.
+-
+-Two separate portfolios are involved: construction heuristics (greedy,
+-nearest- and farthest-insertion, regret-based, each with a profit-aware variant)
+-used once to build the initial solution, and the modification operators the ant
+-colony actually searches over. Inclusion decisions are handled by the
+-profit-aware variants throughout, supplemented by a strategic-oscillation
+-mechanism that periodically relaxes the capacity penalty when the search
+-stagnates, letting it revisit inclusion decisions it would otherwise be trapped
+-away from.
++where $\phi_{sh}$ is the pheromone on the transition from state $s$ to
++heuristic $h$ (Chen et al.\ write $\tau_{ij}$; we use $\phi$ to avoid the
++clash with the horizon length $\tau$), $\eta_{sh}$ is heuristic information
++about $h$'s likely efficacy, and $\alpha,\beta$ weight the two. A walk is
++evaluated when it completes: if it improved the solution, a deposit
++$\Delta\phi = Q_{\mathrm{dep}} + I_k / L_k$ is laid along the transitions it
++used, so operator \emph{sequences} that work well together are reinforced
++rather than merely individually good operators; the first transition of a
++journey was deposited on a virtual row that selection never read, so the
++opening hop of an improving walk went unreinforced in the reviewed
++implementation (corrected since). Pheromone evaporates at rate
++$r_{\mathrm{evap}}$ per iteration, $\phi \leftarrow (1 - r_{\mathrm{evap}})\,
++\phi$ before depositing; with the archived $r_{\mathrm{evap}} = 0.5$ this
++coincides numerically with the retention convention of Chen et al.\
++($\phi \leftarrow 0.5\,\phi$). A faster-adapting visibility signal modulates
++selection on a shorter timescale: each operator's improvement contribution,
++$\lambda^{I}$ in the paper-faithful form or a running-mean-normalised
++exponential in the shipped default, is accumulated per transition and
++normalised by that transition's usage count. The implementation under which
++the archived runs executed divided this signal by each operator's wall-clock
++runtime instead; because that runtime is not seed-controlled, runs with the
++same seed could differ, a defect since corrected
++(Sect.~\ref{sec:integrity}).
++
++Two sets are involved. The initial solution is built once per day by a
++single profit-aware greedy construction with a per-run seed, and the colony
++searches transitions over eleven modification operators (relocate, swap,
++2-opt, Or-opt chains, swap*, string and Shaw removals, perturbation, and
++their profit-aware variants); the saved keys that would restrict the
++operator set or shorten journeys were not honoured, so every run uses all
++eleven operators and journeys of length eleven. The search objective that
++ranks solutions is the routing cost plus a capacity penalty that is halved
++each time the search stagnates and restored on improvement --- there is no
++revenue term in it, so which bins are worth collecting is decided by the
++profit-aware operators, not by the objective; the oscillating penalty lets
++the search revisit inclusion decisions it would otherwise be trapped away
++from. In the archived implementation the penalty could relax the capacity
++bound altogether once halved below its initial value, and the returned plan
++was the penalised-objective incumbent without a final capacity re-check, so
++an over-capacity route could be returned and executed; this is corrected
++since, and flagged in Sect.~\ref{sec:integrity}. The saved configurations
++use ten ants, $\alpha = 1$, $\beta = 2$, initial pheromone $\phi_0 = 1$,
++$r_{\mathrm{evap}} = 0.5$, deposit constant $Q_{\mathrm{dep}} = 1.0$ (the
++saved $0.9$ never reached the solver), elitism ratio $0.5$, a stagnation
++limit of ten, at most $50$ iterations, and a $60$\,s budget; which of these
++the archived executable effectively applied is pending recovery of the run
++records.
+ 
+ \subsection{Route Improvers}
+ 

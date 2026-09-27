@@ -1,0 +1,502 @@
+diff --git a/mybibliography.bib b/mybibliography.bib
+index a0d9a4c..18f40fe 100644
+--- a/mybibliography.bib
++++ b/mybibliography.bib
+@@ -883,3 +883,14 @@
+ }
+ 
+ % --- smart waste collection methods ----------------------------------------
++
++@article{Baldacci2004TwoCommodity,
++  author  = {Baldacci, Roberto and Hadjiconstantinou, Eleni and Mingozzi, Aristide},
++  title   = {An exact algorithm for the capacitated vehicle routing problem
++             based on a two-commodity network flow formulation},
++  journal = {Operations Research},
++  volume  = {52},
++  number  = {5},
++  pages   = {723--738},
++  year    = {2004}
++}
+diff --git a/paper.tex b/paper.tex
+index 356d128..bf34d3b 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -361,73 +361,304 @@ and the same selection and improvement stages as every other.
+ 
+ 
+ \section{Problem Definition}\label{sec:problem}
+-\subsection{Problem State and Dynamics}
+-Let $\mathcal{G}=(\mathcal{V},\mathcal{E})$ be a complete graph with depot
+-$v_0$ and bins $\mathcal{V}\setminus\{v_0\}$. Bin $i$ has location
+-$\vec{l}_i\in\mathbb{R}^2$, capacity $C_i$, and waste level
+-$w_{i,d}\in[0,C_i]$ on day $d$. The system state is
+-$\vec{w}_d={[w_{1,d},\ldots,w_{V,d}]}^\top$.
+-
+-Daily accumulation $\delta_{i,d}\sim P_i$ is bin-specific and stochastic. If
+-bin $i$ is collected on day $d$, the next day's level contains only the next
+-increment; otherwise accumulation continues to capacity:
++
++This section defines the Multi-Period Vehicle Routing Problem with Profits
++(MPVRPP) that the benchmark addresses. It extends the single-period Smart
++Waste Collection Routing Problem of Ramos et al.~\cite{RAMOS2018146} from one
++decision period to a horizon $T=\{1,\dots,\tau\}$, and it does so on the
++road network as it is actually driven: every distance $d_{ij}$ is a directed
++road kilometre, priced in the direction travelled.
++The source model is stated on an undirected network; the formulation below is
++written on directed arcs, which is both what the benchmark data provides and
++what the implemented constructors solve.
++
++\subsection{Problem Description}\label{sec:prob-desc}
++
++A single depot serves a set $I_b=\{1,\dots,n\}$ of sensor-equipped bins over
++the periods of a planning horizon. Every morning the sensors transmit the
++fill level of each bin, converted from volume to mass by the waste density
++$B$, producing the reading $w_i$; a daily accumulation $a_i$ (kg per period)
++is estimated from the sensor history. Identical vehicles of capacity $Q$
++leave the depot, collect, and return to it. Every kilogram collected earns
++$R$ and every kilometre driven costs $C$; a per-vehicle charge $\Omega$
++penalises fleet usage in the reference model.
++
++The operational evidence motivating dynamic collection is the case recorded
++by Ramos et al.~\cite{RAMOS2018146}: on a 226-bin, 30-day deployment, about
++10\% of the bins visited on a route were empty (peaking at 38\% on one day),
++about 66\% of recorded fills were at or below half capacity, vehicles ran at
++57\% utilisation, and the collection ratio stood at 15.5\,kg/km. Sensor
++information changes the question from \emph{which fixed route to repeat} to
++two coupled decisions: \emph{which} bins to visit, if any, and \emph{in what
++sequence}, on each day and for each vehicle. The service level is expressed
++by a maximum overflow threshold $\psi$, the fill fraction of $E_i$ at which a
++bin's continued overflow becomes unacceptable and a visit is forced.
++
++\subsection{Assumptions}\label{sec:prob-assumptions}
++
++The formulation inherits the following from the reference
++model~\cite{RAMOS2018146}: (A1) a homogeneous fleet of capacity $Q$ based at
++a single depot; (A2) a complete network with one cost per directed arc (the
++source model is undirected, with Euclidean distances adjusted by a correction
++factor in its case study); (A3) transport cost linear in distance; (A4) no
++time windows, shift limits, or intermediate disposal visits; (A5) at most one
++route per vehicle per period; (A6) a single waste stream; (A7) a constant
++density $B$ common to all bins; (A8) the reading $w_i$ is known exactly at
++the start of each period --- the only uncertainty is in the accumulation,
++which enters the model as an expected value; (A9) a visit empties the bin;
++(A10) service times are not modelled. The multi-period extension adds:
++(A11) the model is deterministic --- it knows the state evolves but assumes
++it evolves exactly as expected (the simulator of
++Sect.~\ref{sec:protocol} replaces $a_i$ by independent draws); and (A12) the
++horizon is finite and the stock left after period $\tau$ carries a residual
++value $\rho$ per kilogram ($\rho = 0$ throughout this paper). Two further
++assumptions support the collection bound $\bar U_i$ used below: the initial
++reading satisfies $w_i \le \psi E_i + \max_{t\in T} a_i^{t}$ (in particular
++$w_i \le E_i$ suffices when $\psi = 1$, as in all experiments), and the
++force-visit rule of \eqref{eq:force} is in force.
++
++\subsection{Notation}\label{sec:prob-notation}
++
++Table~\ref{tab:notation} collects the sets, parameters, and decision
++variables. The depot appears twice: node $0$ is the start depot and node
++$n{+}1$ a copy of it, so that each route is a path from $0$ to $n{+}1$ with
++$d_{i,n+1} := d_{i0}$; the edge $\{0,n{+}1\}$ is not used. The results
++sections write $N$ for the number of bins in a network instance; $N = n$.
++
++\begin{table}[htbp]
++\centering
++\caption{Notation of the MPVRPP.}\label{tab:notation}
++\footnotesize
++\setlength{\tabcolsep}{4pt}
++\begin{tabular}{@{}ll@{}}
++\toprule
++\textbf{Symbol} & \textbf{Definition} \\
++\midrule
++\multicolumn{2}{@{}l}{\emph{Sets}}\\
++$I$, $I_b$ & nodes $\{0,1,\dots,n{+}1\}$; bins $I_b = I\setminus\{0,n{+}1\}$ \\
++$T$, $\tau$, $t$ & periods $\{1,\dots,\tau\}$; index $t$ \\
++$\mathcal{M}^t \subseteq I_b$ & bins released by mandatory selection in $t$ \\
++\multicolumn{2}{@{}l}{\emph{Parameters (per period unless noted)}}\\
++$Q$ & vehicle capacity (kg) \\
++$E_i$ & capacity of bin $i$ (kg) \\
++$w_i$ & waste in bin $i$ read by the sensor at the start of the horizon (kg) \\
++$a_i$, $a_i^t$ & expected daily accumulation in $i$ (kg); its period-$t$ value \\
++$B$ & waste density converting the sensor reading to mass (kg/m\textsuperscript{3}) \\
++$d_{ij}$ & directed distance from $i$ to $j$ (km) \\
++$R$, $C$ & revenue per kg collected (€/kg); transport cost per km (€/km) \\
++$\Omega$ & charge per vehicle used (€) \\
++$\psi$ & force-visit threshold, as a fraction of $E_i$ \\
++$\bar U_i$ & collection bound $\psi E_i + \max_{t\in T} a_i^{t}$ (kg) \\
++$K^{\max}$ & vehicles available per period \\
++$\rho$ & residual value of the terminal stock (€/kg) \\
++\multicolumn{2}{@{}l}{\emph{Decision variables}}\\
++$x_{ij}^{t}\in\{0,1\}$ & arc $(i,j)$ traversed in period $t$ \\
++$f_{ij}^{t}, h_{ij}^{t}\in\mathbb{R}_+$ & load flow, residual-capacity flow on $(i,j)$ \\
++$g_i^{t}\in\{0,1\}$ & bin $i$ visited in period $t$ \\
++$k^{t}\in\mathbb{Z}_+$ & vehicles used in period $t$ \\
++$q_i^{t}\in\mathbb{R}_+$ & waste collected from $i$ in period $t$ (kg) \\
++$w_i^{t}\in\mathbb{R}_+$ & waste in $i$ at the start of period $t$ (kg), $w_i^{1} = w_i$ \\
++$o_i^{t}\in\{0,1\}$ & $i$ reaches capacity at the end of period $t$ (definitional) \\
++\bottomrule
++\end{tabular}
++\end{table}
++
++\subsection{The Single-Period Source Model}\label{sec:swcrp}
++
++Ramos et al.~\cite{RAMOS2018146} select bins and routes jointly by making the
++visit binary $g_i$ first-class and charging a per-vehicle penalty $\Omega$.
++Their routing core is the two-commodity network flow formulation of Baldacci
++et al.~\cite{Baldacci2004TwoCommodity}: a load commodity and a residual
++(empty-space) commodity travel the network simultaneously, and their coupling
++$y_{ij} + y_{ji} = Q\,x_{ij}$ enforces vehicle capacity and eliminates
++sub-tours in a single constraint family, replacing the separate capacity and
++sub-tour-elimination families of compact models. The single-period objective
++trades collection revenue against travel cost and the vehicle charge:
++\[
++    \max\; P = R \sum_{i \in I_b} w_i g_i
++    - \Bigl( C \sum_{i \in I} \sum_{j \neq i} x_{ij}\, d_{ij} + k\,\Omega \Bigr),
++\]
++subject to the flow core, conditional degree constraints (two edges at a
++visited bin, none at an unvisited one), and a service level consisting of two
++devices: a share $\delta$ of bins may be left in overflow, enforced by
++counting the bins whose end-of-day content will reach capacity,
++$H = \bigl|\{i \in I_b : w_i + a_i \ge E_i\}\bigr|$, and capping the number of
++them left uncollected; and the threshold rule $g_i = 1$ for every bin with
++$w_i \ge \psi E_i$, the only mechanism that introduces memory between days.
++Two readings of the printed model deserve note: the count cap is consistent
++with the published scenario results only in the $\ge$ direction, and the
++right-hand side of the degree constraint reads $2g_j$ at the quantified node
++$j$; both are the present authors' critical readings, not the source text.
++Operationally, the source approach runs this model day by day: a trigger
++defers the route while $H$ stays within the allowed share, and the state is
++carried between executions outside the optimisation.
++
++This paper's problem definition keeps the visit binary, the per-vehicle
++charge, and the threshold rule. It does not adopt the share-of-bins service
++level: the multi-period model below records overflows at capacity but neither
++caps their number nor triggers on a counting set, so that no share parameter
++appears in the problem and the temporal trade-off is carried entirely by the
++state and the objective.
++
++\subsection{The Multi-Period Model}\label{sec:mpvrpp}
++
++The extension carries four changes, all ours: the horizon $T$; the state
++$w_i^{t}$ replacing the parameter $w_i$; the collected quantity $q_i^{t}$
++replacing the product of state and visit binary, linearised exactly; and
++overflow recording tied to the evolving state. Consistently with the
++simulator (Sect.~\ref{sec:protocol}), each period processes the arrival
++first, records overflows on the post-arrival state, and then collects.
++
++\paragraph{State, overflow, and collection.}
++At the start of period $t$ bin $i$ holds $w_i^{t}$; the arrival $a_i^{t}$
++raises it to $w_i^{t} + a_i^{t}$. Reaching capacity is recorded on that
++post-arrival state, before collection, by the overflow indicator
+ \begin{equation}
+-    w_{i, d+1} =
+-    \begin{cases}
+-        \delta_{i, d+1} & \text{if } v_i \in \mathcal{A}_d \\
+-        \min(w_{i, d} + \delta_{i, d+1}, C_i) & \text{if } v_i \notin \mathcal{A}_d
+-    \end{cases}
++    o_i^{t} = \mathbf{1}\bigl\{ w_i^{t} + a_i^{t} \ge E_i \bigr\},
++    \qquad i \in I_b,
++    \label{eq:overflow}
+ \end{equation}
+-
+-\subsection{Optimization Objective}
+-
+-On day $d$, the policy produces a set of $K_d$ routes. The route count is not
+-fixed in advance: it is whatever the policy needs to serve its chosen bins under
+-the capacity constraint below. Route $k$ visits $T_{d,k}$ bins and starts and
+-ends at $v_0$:
++which is a reporting identity, evaluated on the solution, not a cap on the
++number of bins allowed to overflow; it is exactly the convention under which
++the simulator counts overflows. The collected amount is the post-arrival
++content of a visited bin, $q_i^{t} = (w_i^{t} + a_i^{t})\, g_i^{t}$. With
++$\bar U_i = \psi E_i + \max_{t \in T} a_i^{t}$, the system
+ \begin{equation}
+-    \mathcal{A}_{d,k}=(a_{0,k},a_{1,k},\ldots,a_{T_{d,k},k},a_{T_{d,k}+1,k}),
+-    \qquad a_{0,k}=a_{T_{d,k}+1,k}=v_0.
++    q_i^{t} \le w_i^{t} + a_i^{t}, \qquad
++    q_i^{t} \le \bar U_i\, g_i^{t}, \qquad
++    q_i^{t} \ge w_i^{t} + a_i^{t} - \bar U_i (1 - g_i^{t}), \qquad
++    q_i^{t} \ge 0
++    \label{eq:collect}
++\end{equation}
++pins $q_i^{t}$ exactly and restores the model to MILP. The bound is valid
++under the assumptions of Sect.~\ref{sec:prob-assumptions}: an unvisited bin
++obeying the force-visit rule \eqref{eq:force} holds at most $\psi E_i$ at
++the start of a period, so both the post-arrival content and the next opening
++state are at most $\bar U_i$. The closing state, which opens the next period
++--- and, for $t = \tau$, the terminal stock on which $\rho$ acts --- is
++\begin{equation}
++    w_i^{t+1} = w_i^{t} + a_i^{t} - q_i^{t},
++    \qquad i \in I_b,\ t \in T.
++    \label{eq:transition}
++\end{equation}
++A bin whose post-arrival content exceeds the threshold must be visited:
++\begin{equation}
++    w_i^{t} + a_i^{t} - \psi E_i \le \bar U_i\, g_i^{t},
++    \qquad i \in I_b,\ t \in T.
++    \label{eq:force}
+ \end{equation}
+ 
+-Let $\mathcal{A}_{d,\cdot}$ denote the union of non-depot visits. The daily
+-problem is
+-
++\paragraph{Routing.}
++Each period is routed on the directed two-commodity core. The load commodity
++enters a served bin, the residual commodity leaves it, their sum on an arc
++equals the capacity of a used vehicle, and the copy depot closes the two
++paths:
++\begin{align}
++    \sum_{j \neq i} \bigl( f_{ij}^{t} - f_{ji}^{t} \bigr) &= q_i^{t},
++        & & i \in I_b, \label{eq:flow-load}\\
++    \sum_{j \neq i} \bigl( h_{ji}^{t} - h_{ij}^{t} \bigr) &= q_i^{t},
++        & & i \in I_b, \label{eq:flow-res}\\
++    \sum_{j \in I_b} f_{j,n+1}^{t} &= \sum_{i \in I_b} q_i^{t}, &
++    \sum_{j \in I_b} f_{0j}^{t} &= 0, \label{eq:flow-depot-load}\\
++    \sum_{j \in I_b} h_{n+1,j}^{t} &= Q k^{t} - \sum_{i \in I_b} q_i^{t}, &
++    \sum_{i \in I_b} h_{i0}^{t} &= Q k^{t}, \label{eq:flow-depot-res}\\
++    f_{ij}^{t} + h_{ij}^{t} &= Q\, x_{ij}^{t}, & & i, j \in I,\ i \neq j. \label{eq:flow-coupling}
++\end{align}
++Visited bins have one incoming and one outgoing arc, the real depot dispatches
++and receives exactly $k^{t}$ arcs, and the fleet is capped:
++\begin{align}
++    \sum_{i \neq j} x_{ij}^{t} = g_j^{t}, \qquad
++    \sum_{k \neq j} x_{jk}^{t} = g_j^{t}, & & & j \in I_b, \label{eq:degree}\\
++    \sum_{j \in I_b} x_{0j}^{t} = k^{t}, \qquad
++    \sum_{i \in I_b} x_{i,n+1}^{t} = k^{t}, & & & \label{eq:depot-degree}\\
++    k^{t} &\le K^{\max}. & & \label{eq:fleet}
++\end{align}
++Equation~\eqref{eq:depot-degree} counts vehicles by their depot arcs; an
++earlier version of this extension printed the undirected form with right-hand
++side $2k^{t}$, which is inconsistent with the split-depot path convention ---
++the correction, like the extension itself, is ours. Together with
++\eqref{eq:flow-load}--\eqref{eq:flow-coupling}, the coupling bounds every
++carried load by $Q$ and rules out sub-tours.
++
++\paragraph{Objective.}
++The MPVRPP maximises the profit accumulated over the horizon plus the value
++of the stock left in the bins:
++\begin{equation}
++    \max\; Z = \sum_{t \in T}\Biggl[\, R \sum_{i \in I_b} q_i^{t}
++    - C \sum_{i \in I} \sum_{j \neq i} d_{ij}\, x_{ij}^{t}
++    - \Omega\, k^{t} \Biggr]
++    + \rho \sum_{i \in I_b} w_i^{\tau+1},
++    \label{eq:mpvrpp}
++\end{equation}
++subject to \eqref{eq:overflow}--\eqref{eq:fleet} and the variable domains of
++Table~\ref{tab:notation}. A period with no route is represented by
++$k^{t} = 0$, $g_i^{t} = 0$, and $x_{ij}^{t} = 0$ for all $i,j$, so the
++decision not to dispatch is part of the model rather than an external rule.
++
++\paragraph{Size and limitations.}
++The model grows linearly in $\tau$: a directed instance on $n$ bins has
++$(n{+}2)(n{+}1)$ arc binaries per period --- $123{,}552$ at $n = 350$, or
++about $3.7 \times 10^{6}$ over a 30-period horizon before the flow variables
++are counted --- which is why the full model is a reference object rather than
++a solution method at the benchmark sizes, and why the evaluation proceeds by
++simulation over decomposed policies. Like the single-period source, the
++reference model does not track lost mass: content above $E_i$ transits into
++$w_i^{t+1}$ and is recorded by \eqref{eq:overflow}, but no mass is discarded
++and no cleanup cost is charged. The simulator applies the complementary
++convention: the displayed level is capped at $E_i$ and the discarded mass
++$\ell_i^{t}$ is recorded, as defined in Sect.~\ref{sec:protocol}.
++
++\subsection{Terminal Value of the Horizon Stock}\label{sec:terminal}
++
++With zero terminal value, stock left after the horizon earns no residual
++revenue. Profitable collections and visits required by the force-visit rule
++can still occur on the last day. In the deterministic no-loss formulation,
++setting the residual price equal to the collection revenue makes collection
++revenue plus residual value constant by mass conservation; the remaining
++optimisation minimises transport and vehicle costs subject to the retained
++constraints. This identity does not generally hold for the simulator, where
++discarded mass depends on the policy. The reported experiments use zero
++terminal value ($\rho = 0$).
++
++\subsection{From the Model to the Policy}\label{sec:daily}
++
++The full model is out of direct reach at benchmark sizes, and future
++accumulation is unknown in practice. Each period is therefore addressed day
++by day. On period $t$, a plan
++$\mathcal{R}^t = \{\mathcal{R}_1^t, \ldots, \mathcal{R}_{k^t}^t\}$ of routes
++\begin{equation*}
++    \mathcal{R}_k^t = \bigl( v_{k,0}^t, v_{k,1}^t, \ldots, v_{k,m_k^t}^t, v_{k,m_k^t+1}^t \bigr),
++    \qquad v_{k,0}^t = 0, \quad v_{k,m_k^t+1}^t = n{+}1, \quad
++    v_{k,p}^t \in I_b \ \ \forall\, 1 \le p \le m_k^t,
++\end{equation*}
++with pairwise distinct non-depot visits, maximises the daily profit
+ \begin{equation}
+ \begin{aligned}
+-    \textrm{maximize} \quad & \mathcal{P}(\mathcal{A}_d, \bm{w}_d) = r_w \sum_{v_i\in\mathcal{A}_{d,\cdot}}w_{i,d}
+-    -c_{km}\sum_{k=1}^{K}\sum_{t=0}^{T_{d,k}}
+-    \dist(a_{t,k},a_{t+1,k}) \label{eq:profit_function}\\
++    \textrm{maximise} \quad & \mathcal{P}(\mathcal{R}^t, \bm{w}^t) = R \sum_{i \in I(\mathcal{R}^t)} \bigl( w_i^{t} + a_i^{t} \bigr)
++    - C \sum_{k=1}^{k^t} \sum_{p=0}^{m_k^t} d_{v_{k,p}^{t}, v_{k,p+1}^{t}} - \Omega\, k^t \label{eq:profit_function}\\
+     \textrm{subject to} \quad
+-    & a_{t,k}\neq a_{t',k'} \quad
+-      \forall (t,k)\neq(t',k'),\ 1\leq t\leq T_{d,k},\ 1\leq t'\leq T_{d,k'},\\
+-    & \sum_{t=1}^{T_{d,k}}w_{a_{t,k},d}\leq Q
+-      \quad \forall k\in\{1,\ldots,K_d\}.
++    & \mathcal{M}^t \subseteq I(\mathcal{R}^t), \qquad
++      \textstyle\sum_{p=1}^{m_k^t} \bigl( w_{v_{k,p}^t}^{t} + a_{v_{k,p}^t}^{t} \bigr) \le Q
++      \quad \forall k \in \{1, \dots, k^t\},
+ \end{aligned}
+ \end{equation}
+-Here $r_w$ is revenue per kilogram, $c_{km}$ is travel cost per kilometer, and $Q$
+-is the per-route payload capacity. Each route is one capacity-feasible depot-to-depot
+-trip; the formulation bounds the load of every route but does not bound how many
+-routes a day may contain, so $K_d$ is an outcome of the daily decision rather than a
+-parameter of it. Sect.~\ref{sec:protocol} states how this was configured in the
+-reported experiment. Optional service distinguishes the VRPP from the classical
+-VRP\@: the policy chooses a profitable subset as well as its routes~\cite{Archetti2014VRPProfits}.
+-Eq.~\eqref{eq:profit_function} contains no term penalizing an unvisited bin that
+-overflows: a distant bin's marginal revenue $r_w w_{i,d}$ can be lower than the
+-detour cost required to reach it, in which case a route constructor solving this
+-objective alone has no incentive to serve it. The only mechanism that forces a
+-critically full bin into a route is the upstream mandatory set $\mathcal{M}_d$
+-Sect.~\ref{sec:methodology}; Sect.~\ref{sec:discussion} returns to this point as
+-the structural reason selection strategy, not route construction, sets the bulk of
+-the observed overflow-service range.
+-
+-Because each collection changes the next state, policy $\bm{\pi}$ maximizes
+-expected cumulative profit over the horizon:
+-\begin{equation}
+-    \max_{\bm{\pi}} \mathbb{E} \left[ \sum_{d=1}^D \mathcal{P}_d(\mathcal{A}_{d,\cdot}, \bm{w}_d) \right],
+-\end{equation}
+-where $\mathcal{P}_d$ is defined in~\eqref{eq:profit_function}.
+-
++where $I(\mathcal{R}^t)$ is the set of bins visited by the plan, and the
++policy maximises the expected sum of daily profits over the horizon. The
++decomposition into mandatory selection, route construction, and route
++improvement mirrors the structure of the model rather than being an
++implementation convenience: mandatory selection supplies $\mathcal{M}^t$,
++realising the force-visit rule \eqref{eq:force} and any further bins the
++dispatch policy releases; route construction decides the free visit binaries
++$g_i^t$ and the routing core under the profit objective; route improvement
++refines the ordering and the partition of the served set without changing
++which bins are served. Eq.~\eqref{eq:profit_function} contains no term
++penalising an unvisited bin that overflows: a distant bin's marginal revenue
++can be lower than the detour cost required to reach it, in which case a route
++constructor solving this objective alone has no incentive to serve it. The
++only mechanism that places such a bin in a route is the upstream mandatory
++set; Sect.~\ref{sec:discussion} returns to this point as the structural
++reason selection strategy, not route construction, sets the bulk of the
++observed overflow-service range.
+ 
+ \section{Methodology}\label{sec:methodology}
+ 
+@@ -1485,4 +1716,116 @@ than the main-text tables and figures.
+ \end{figure}
+ \end{landscape}
+ 
++
++\section{Appendix: A Worked Four-Bin Example}\label{app:example}
++
++This appendix works the MPVRPP on a small instance, obtained by exhaustive
++enumeration, to make concrete the two decisions a single-period model cannot
++take: waiting for a remote cluster to fill before driving to it, and leaving
++a nearly full bin unvisited on a day its detour does not pay. All modelling
++choices are the authors' own.
++
++\paragraph{Instance.}
++Four bins, three periods: $\tau = 3$, $I_b = \{1,2,3,4\}$, $E_i = 300$\,kg,
++$Q = 600$\,kg, $K^{\max} = 2$, $R = 0.0952$\,€/kg, $C = 1$\,€/km,
++$\Omega = 0.1$\,€, $\psi = 1$. Initial readings and per-period arrivals are
++\[
++\bm{w}^{1} = (150, 60, 200, 90), \qquad
++\bm{a} = (60, 20, 70, 25) \ \text{kg/period}.
++\]
++Bins~3 and~4 form a remote cluster that only repays the trip jointly; bin~1
++fills fast and sits close to the depot. Distances (km) are:
++\begin{center}\footnotesize
++\begin{tabular}{@{}l|ccccc@{}}
++\toprule
++ & $0$ & $1$ & $2$ & $3$ & $4$ \\
++\midrule
++$0$ & --- & 2.2 & 3.2 & 9.1 & 9.8 \\
++$1$ & 2.2 & --- & 2.2 & 7.0 & 7.7 \\
++$2$ & 3.2 & 2.2 & --- & 6.3 & 10.0 \\
++$3$ & 9.1 & 7.0 & 6.3 & --- & 2.2 \\
++$4$ & 9.8 & 7.7 & 10.0 & 2.2 & --- \\
++\bottomrule
++\end{tabular}
++\end{center}
++The first eight entries reproduce the values printed in the source
++presentation of this instance; the remaining two complete them so that the
++optima below are exact.
++
++\paragraph{Two trajectories.}
++Each period admits at most 16 actions (the visit subsets that respect the
++force-visit rule \eqref{eq:force} and route capacity, using at most two
++routes); the enumeration covers 2{,}688 admissible trajectories. The
++\emph{myopic} trajectory solves the daily problem
++\eqref{eq:profit_function} each morning with no look-ahead. The
++\emph{horizon} trajectory is the unique optimum of
++\eqref{eq:mpvrpp} with $\rho = 0$, and remains the unique optimum when
++$\rho = R$.
++
++\begin{table}[htbp]
++\centering
++\caption{Two trajectories of the four-bin instance, period by period.
++Post-arrival content in parentheses; $q$ in kg, km per period, $k$ vehicles,
++$P$ in €. Overflows $o_i^{t}=1$ are recorded on the post-arrival state per
++\eqref{eq:overflow}.}\label{tab:example-traj}
++\footnotesize
++\setlength{\tabcolsep}{4pt}
++\begin{tabular}{@{}llllrrrr@{}}
++\toprule
++Policy & $t$ & $\bm{w}^{t}$ (post-arr.) & visit $S^t$ & $q$ & km & $k$ & $P$ \\
++\midrule
++Myopic & 1 & $(150,60,200,90)$ {\small$\to$} $(210,80,270,115)$ & $\{1,2,3,4\}$ & 675 & 25.9 & 2 & 38.16 \\
++       & 2 & $(0,0,0,0)$ {\small$\to$} $(60,20,70,25)$ & $\{1\}$ & 60 & 4.4 & 1 & 1.21 \\
++       & 3 & $(0,20,70,25)$ {\small$\to$} $(60,40,140,50)$ & $\{1,2,3,4\}$ & 290 & 21.6 & 1 & 5.91 \\
++\midrule
++Horizon & 1 & $(150,60,200,90)$ {\small$\to$} $(210,80,270,115)$ & $\emptyset$ & 0 & 0.0 & 0 & 0.00 \\
++        & 2 & $(210,80,270,115)$ {\small$\to$} $(270,100,340,140)$ & $\{2,3,4\}$ & 580 & 21.5 & 1 & 33.62 \\
++        & 3 & $(270,0,0,0)$ {\small$\to$} $(330,20,70,25)$ & $\{1\}$ & 330 & 4.4 & 1 & 26.92 \\
++\bottomrule
++\end{tabular}
++\end{table}
++
++On day~1 the myopic policy serves everyone: each bin pays its own detour
++that day, and the remote cluster is visited at light load. The horizon
++optimum declines 38.16\,€ of immediate profit and waits: by day~2 the same
++bins carry 580\,kg, the cluster pays one 21.5\,km trip instead of two, and
++on day~3 the fast bin, now forced by rule~\eqref{eq:force} at 330\,kg, is
++collected alone. The waiting trajectory records two overflow events --- the
++remote bin reaching 340\,kg on day~2 and the fast bin 330\,kg on day~3 ---
++which \eqref{eq:overflow} counts but the objective does not penalise; the
++myopic trajectory records none.
++
++\begin{table}[htbp]
++\centering
++\caption{Indicators of the two trajectories. The horizon columns are the
++unique optimum under both $\rho = 0$ and $\rho = R$; the last two lines
++evaluate each trajectory under the respective terminal value.}\label{tab:example-ind}
++\footnotesize
++\setlength{\tabcolsep}{4pt}
++\begin{tabular}{@{}lrrr@{}}
++\toprule
++Indicator & Myopic & Horizon & Change \\
++\midrule
++Collected mass (kg) & 1{,}025 & 910 & $-11.2\%$ \\
++Distance (km) & 51.9 & 25.9 & $-50.1\%$ \\
++Vehicle-periods used & 4 & 2 & $-50.0\%$ \\
++Collection ratio (kg/km) & 19.75 & 35.13 & $+77.9\%$ \\
++Overflow events recorded & 0 & 2 & --- \\
++Horizon profit, $\rho = 0$ (€) & 45.28 & 60.53 & $+33.7\%$ \\
++Horizon objective, $\rho = R$ (€) & 46.23 & 61.48 & $+32.9\%$ \\
++\bottomrule
++\end{tabular}
++\end{table}
++
++The central reading is that the optimum collects \emph{less} mass and earns
++\emph{more} money: the profit does not come from collecting more, but from
++collecting when each kilogram pays a larger share of the route --- exactly
++the kg/km ratio that the reference article uses as its efficiency indicator.
++With $\rho = 0$ part of the horizon advantage is deferral (115\,kg of stock
++is retained versus none); the $\rho = R$ column prices retained mass at the
++revenue rate, and the advantage stands, so it is not an artefact of the
++finite horizon. Four bins and three periods illustrate the mechanism; they
++do not measure the gain on a real network.
++
++
+ \end{document}

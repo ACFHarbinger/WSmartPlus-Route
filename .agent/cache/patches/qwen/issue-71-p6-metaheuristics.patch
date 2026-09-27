@@ -1,0 +1,146 @@
+diff --git a/paper.tex b/paper.tex
+index 356d128..e6e9d0b 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -603,21 +603,23 @@ solution found within budget'', not as proven optima.
+ 
+ \paragraph{Adaptive Large Neighborhood Search (ALNS).}
+ A trajectory method, introduced by~\cite{RopkePisinger2006ALNS},
+-that maintains one incumbent and repeatedly destroys and repairs part of it. 
+-Its adaptivity is in operator choice: it holds a portfolio of destroy operators 
+-(random removal, worst removal, and Shaw removal, which removes a set of mutually 
+-related bins so that repair has the freedom to place them jointly) and repair 
+-operators (greedy insertion and regret-$k$ insertion, optionally with randomized 
+-noise on insertion costs), and re-weights them by recent success. Operator $i$ 
++that maintains one incumbent and repeatedly destroys and repairs part of it.
++Its adaptivity is in operator choice: it holds a portfolio of destroy operators
++(random removal, worst removal, and Shaw removal, which removes a set of mutually
++related bins so that repair has the freedom to place them jointly) and repair
++operators (greedy insertion and regret-$k$ insertion, optionally with randomized
++noise on insertion costs), and re-weights them by recent success. Operator $i$
+ is drawn by roulette wheel from weights updated every $\varphi$ iterations:
+ \begin{equation}
+-    w_{i,t+1} = \lambda w_{i,t} + (1-\lambda)\frac{\pi_i}{\theta_i},
++    \omega_{i,j+1} = (1-r)\,\omega_{i,j} + r\,\frac{\pi_i}{\theta_i},
+ \end{equation}
+-where $\lambda \in [0,1]$ is a decay factor, $\pi_i$ the score accumulated by
+-operator $i$ during the segment, and $\theta_i$ its usage count. Candidates are
++where $r \in [0,1]$ is the reaction factor, $\pi_i$ the score accumulated by
++operator $i$ during the segment, and $\theta_i$ its usage count; operators not
++selected during a segment retain their previous weight unchanged. Candidates are
+ accepted by a simulated-annealing rule, so the trajectory can escape local
+ optima. The profitable-subset decision falls out of repair: a removed bin for
+ which no insertion position yields positive marginal profit is simply left out.
++The archived configuration uses $r = 0.1$ and $\varphi = 100$.
+ 
+ \paragraph{Hybrid Genetic Search (HGS).}
+ A memetic algorithm following Vidal~\cite{VIDAL2022105643}, and the population
+@@ -630,16 +632,21 @@ profit. Skipped bins remain in the genotype, so their relative position survives
+ into later generations in case a subsequent mutation makes them worth collecting
+ again.
+ 
+-Two sub-populations are maintained, one feasible and one infeasible-but-penalized, 
++Two sub-populations are maintained, one feasible and one infeasible-but-penalized,
+ so that promising infeasible individuals survive long enough to be repaired.
+-Each generation selects two parents by a tournament biased toward both fitness
+-and diversity, recombines them, and educates the offspring by local search over
++Each generation selects two parents by binary tournament from the combined
++sub-populations, recombines them by route-based profit-aware generalized
++partition crossover (RP-GPX), and educates the offspring by local search over
+ relocate, 2-opt and the algorithm's signature \textsc{swap*} move.
+-Fitness combines the profit function $\mathcal{P}(\mathcal{R}^t, \bm{w}^t)$ with a
+-diversity contribution $D(\mathcal{R}^t)$:
++Fitness is rank-based and computed within each sub-population:
+ \begin{equation}
+-    F(\mathcal{R}^t, \bm{w}^t) = \mathcal{P}(\mathcal{R}^t, \bm{w}^t) + \left(1 - \frac{|P_{feas}|}{|P|}\right) \cdot D(\mathcal{R}^t).
++    F(k) = \mathrm{rank}_{\mathrm{cost}}(k) + \max\!\left(0,\,1 - \frac{|P_{\mathrm{elite}}|}{|P|}\right) \cdot \mathrm{rank}_{\mathrm{div}}(k),
+ \end{equation}
++where $\mathrm{rank}_{\mathrm{cost}}$ ranks individuals by penalized profit
++(descending) and $\mathrm{rank}_{\mathrm{div}}$ ranks by mean broken-pairs
++distance to the $|P_{\mathrm{close}}|$ nearest neighbors (descending);
++lower fitness is better. The archived configuration uses minimum sub-population
++size $\mu = 25$, $|P_{\mathrm{elite}}| = 4$ and $|P_{\mathrm{close}}| = 5$.
+ 
+ \paragraph{Simulated Annealing Neighborhood Search (SANS).}
+ An implementation of the hybrid published by Jorge et al.~\cite{jorge2022hybrid} 
+@@ -649,9 +656,13 @@ and accepts a worsening move of magnitude $\Delta$ with probability $\exp(-\Delt
+ under a cooling temperature $T$. It combines this rule with a purpose-built move
+ library: single-bin relocation and swapping within and between routes, batched
+ relocation and swapping of both random and contiguous bin groups, segment
+-reversal, and route-segment crossover. Moves are sampled uniformly rather 
+-than adaptively, which is the substantive difference from ALNS\@: SANS steers 
++reversal, and route-segment crossover. Moves are sampled uniformly rather
++than adaptively, which is the substantive difference from ALNS\@: SANS steers
+ entirely through acceptance, never down-weighting an unproductive operator.
++A reheating mechanism resets the temperature to $T_0$ when the number of
++consecutive non-improving temperature blocks exceeds 500. The archived
++configuration uses $T_0 = 75$, $\alpha = 0.95$, and up to 5{,}000 neighbor
++evaluations per temperature block.
+ 
+ The profitable-subset decision is folded into the neighborhood search itself.
+ Bins can be moved into a removed pool and reconsidered for reinsertion later, so
+@@ -662,25 +673,29 @@ reversed, followed by a final pass over the removed pool. Reversing the sweep
+ can reach moves hidden by the first order.
+ 
+ \paragraph{Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS).}
+-An original design --- inspired by the Hybrid Volleyball Premier League (HVPL) 
++An original design --- inspired by the Hybrid Volleyball Premier League (HVPL)
+ algorithm first introduced in~\cite{Sun2023HVPL} --- which combines population-level
+-route construction with per-individual refinement. Construction is ant-colony-based, 
+-with pheromone deposited on \emph{edges} of the bin graph, so that road segments 
+-appearing in good solutions are more likely to be chosen again; only the global 
+-best solution deposits into the shared trail each round, keeping the signal focused, 
+-while a temporary within-round penalty discourages ants from reusing edges another 
+-ant has just taken. Refinement is large neighborhood search, run independently on 
+-every member of the population with its own adaptive destroy/repair weighting.
+-
+-The two levels adapt on different objects and at different scopes: 
+-pheromone is edge-based and population-wide, operator weights are move-based 
+-and per individual. Each round constructs a solution population based on the 
+-current trail, refines every member, updates the trail from the round's best, 
+-and regenerates the weakest fraction of the population under the updated field. 
+-Profitability is screened at insertion in both phases, as in ALNS\@.
+-
+-Because every member is refined every round, total runtime scales with population 
+-size times refinement depth times rounds; on non-trivial instances the algorithm 
++route construction with per-round refinement. Construction is ant-colony-based,
++with pheromone deposited on \emph{edges} of the bin graph, so that road segments
++appearing in good solutions are more likely to be chosen again; only the global
++best solution deposits into the shared trail each round, keeping the signal focused,
++while a temporary within-round penalty discourages ants from reusing edges another
++ant has just taken. Refinement is large neighborhood search, applied to every
++member of the population through a single shared adaptive solver whose
++destroy/repair weights are updated across all members.
++
++The two levels adapt on different objects and at different scopes:
++pheromone is edge-based and population-wide, while the LNS operator weights are
++move-based and shared across the population. Each round constructs a solution
++population based on the current trail, refines every member, updates the trail
++from the round's best, and regenerates the weakest fraction of the population
++under the updated field. Profitability is screened at insertion in both phases,
++as in ALNS\@. The archived configuration uses a population of 10, a replacement
++fraction of 0.2, and 50 outer iterations within a configured 60\,s CPU-time
++budget.
++
++Because every member is refined every round, total runtime scales with population
++size times refinement depth times rounds; on non-trivial instances the algorithm
+ is typically stopped by its time budget rather than by convergence.
+ 
+ \paragraph{Particle Swarm Optimization Memetic Algorithm (PSOMA).}
+@@ -697,12 +712,14 @@ and the swarm's best. Sorting the updated values yields the discrete tour.
+ The resulting giant tour is split into routes by the same profit-aware dynamic 
+ program HGS uses (see above), which is likewise where PSOMA decides which bins to skip.
+ 
+-The memetic component refines the swarm's incumbent once per iteration by a
++The memetic component refines the swarm's global incumbent once per iteration by a
+ simulated-annealing local search over swap, relocate and segment-reversal moves,
+ adaptively favoring whichever move type has recently been productive. A
+ secondary heuristic biases the local search's cost estimates so that pairs of
+ profitable bins appear closer together, steering cheap moves toward retaining
+-valuable bins without paying for a full route decode.
++valuable bins without paying for a full route decode. The archived configuration
++uses inertia $\omega = 1.0$, cognitive and social coefficients $c_1 = c_2 = 2.0$,
++and a swarm of 20 particles.
+ 
+ \subsubsection{Hyper-Heuristics}
+ 
