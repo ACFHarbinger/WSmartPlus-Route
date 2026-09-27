@@ -1,0 +1,183 @@
+diff --git a/Tables/results_excluded.tex b/Tables/results_excluded.tex
+index 4cf8a60..d4aa9ac 100644
+--- a/Tables/results_excluded.tex
++++ b/Tables/results_excluded.tex
+@@ -22,7 +22,7 @@
+ \setlength{\tabcolsep}{4pt}
+ \begin{tabular}{lllrrrr}
+ \toprule
+-Constructor & \multicolumn{1}{c}{$H$} & \multicolumn{1}{c}{Scenario} & \multicolumn{1}{c}{Policy} & \multicolumn{1}{c}{kg} & \multicolumn{1}{c}{Short.} & \multicolumn{1}{c}{Ovf.} \\
++Constructor & \multicolumn{1}{c}{$\tau$} & \multicolumn{1}{c}{Scenario} & \multicolumn{1}{c}{Policy} & \multicolumn{1}{c}{kg} & \multicolumn{1}{c}{Short.} & \multicolumn{1}{c}{Ovf.} \\
+ \midrule
+ SWC-TCF & 90 & FF 350 & Gamma-3/LA/FTSP & 31,164 & 86\% & 23,886 \\
+ SWC-TCF & 30 & FF 350 & Gamma-3/LA/FTSP & 37,065 & 47\% & 2,166 \\
+@@ -33,7 +33,7 @@ SWC-TCF & 30 & FF 350 & Gamma-3/SLSL2/FTSP & 51,086 & 30\% & 757 \\
+ 
+ \vspace{0.4em}
+ \begin{minipage}{\linewidth}
+-\footnotesize $H$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Within a scenario every constructor collects from the same waste realisation, so collected tonnage is comparable by construction. These runs fell more than 20\% below their scenario median and did not complete; their overflow counts measure truncation, not policy behaviour.
++\footnotesize $\tau$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Within a scenario every constructor collects from the same waste realisation, so collected tonnage is comparable by construction. These runs fell more than 20\% below their scenario median and did not complete; their overflow counts measure truncation, not policy behaviour.
+ \end{minipage}
+ 
+ \end{table}
+diff --git a/paper.tex b/paper.tex
+index 766ac5a..356d128 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -461,7 +461,7 @@ spanning exact methods, meta-heuristics and hyper-heuristics, and two route impr
+ 
+ \subsection{Mandatory Selection Strategies}
+ 
+-All three strategies decide from the \emph{sensed} fill signal $\hat{w}_{i,d}$,
++All three strategies decide from the \emph{sensed} fill signal $\hat{w}_i^t$,
+ which in the runs reported here equals the true level because sensing noise was
+ disabled (Sect.~\ref{sec:protocol}); none of them ever reads the simulator's
+ internal state directly. All three must estimate whatever they need about
+@@ -469,7 +469,7 @@ accumulation from the history the simulation has produced so far, and neither th
+ generating distribution nor its parameters are ever revealed to them. Two of the
+ rules are stated below in terms of the sensed fill \emph{ratio}
+ \begin{equation}
+-    \hat{\rho}_{i,d} \;=\; \hat{w}_{i,d}/C_i \;\in\; [0,1],
++    \hat{\rho}_i^t \;=\; \hat{w}_i^t/E_i \;\in\; [0,1],
+ \end{equation}
+ so that thresholds expressed as percentages are comparable across bins of
+ different capacity. The three were chosen to span the conceptual space rather
+@@ -481,8 +481,8 @@ First proposed in~\cite{de2024data}, Last-Minute is the reactive baseline: a
+ bin becomes mandatory
+ when its sensed fill level crosses a fixed critical-fill (CF) threshold, judged in
+ complete isolation from every other bin and from any estimate of how fast it is filling. 
+-Formally, bin $i$ is mandatory on day $d$ iff $\hat{\rho}_{i,d} \geq \text{CF}$, for
+-sensed fill ratio $\hat{\rho}_{i,d}$ and threshold $\text{CF}$. We tested
++Formally, bin $i$ is mandatory on day $t$ iff $\hat{\rho}_i^t \geq \text{CF}$, for
++sensed fill ratio $\hat{\rho}_i^t$ and threshold $\text{CF}$. We tested
+ $\text{CF} = 0.7$ (CF70) and $\text{CF} = 0.9$ (CF90). The threshold is the only knob, and it trades overflow risk 
+ against visit frequency directly, with no model connecting the two.
+ 
+@@ -490,23 +490,23 @@ against visit frequency directly, with no model connecting the two.
+ A statistical rule that projects forward rather than reacting. For each bin it
+ maintains online estimates of the mean daily accumulation $\hat{\mu}_i$ and its
+ standard deviation $\hat{\sigma}_i$ from the days observed so far, and flags bin
+-$i$ as mandatory when a conservative projection of its fill $n_d$ days ahead
++$i$ as mandatory when a conservative projection of its fill $n$ days ahead
+ already exceeds capacity:
+ \begin{equation}
+-    \hat{w}_{i,d} + n_d\hat{\mu}_i + z\,n_d\hat{\sigma}_i \;\geq\; C_i ,
++    \hat{w}_i^t + n\hat{\mu}_i + z\,n\hat{\sigma}_i \;\geq\; E_i ,
+ \end{equation}
+ where $z = 0.84$ is a fixed safety coefficient, chosen as the standard-normal
+ quantile for an $80\%$ one-sided service level. We test projection horizons
+-$n_d=1$ (SL1) and $n_d=2$ (SL2), holding $z$ constant.
++$n=1$ (SL1) and $n=2$ (SL2), holding $z$ constant.
+ 
+ Two properties of this rule shape the results and are worth stating plainly.
+-First, the deviation term scales \emph{linearly} in $n_d$ rather than as
+-$\sqrt{n_d}$. Under independent daily increments $\sqrt{n_d}$ would be the
++First, the deviation term scales \emph{linearly} in $n$ rather than as
++$\sqrt{n}$. Under independent daily increments $\sqrt{n}$ would be the
+ matching aggregation, so the implemented rule is deliberately conservative
+ relative to an i.i.d.\ projection; it is also robust to the positive serial
+-correlation that real accumulation exhibits, which $\sqrt{n_d}$ would understate.
++correlation that real accumulation exhibits, which $\sqrt{n}$ would understate.
+ Second, and consequently, the two variants do not hold conservatism fixed:
+-because both the drift and the deviation terms scale with $n_d$, SL2 carries
++because both the drift and the deviation terms scale with $n$, SL2 carries
+ exactly twice SL1's safety margin, so it looks further ahead \emph{and} demands a
+ larger buffer. SL1 and SL2 should therefore be read as two points on a single
+ conservatism dial, not as a controlled test of horizon length alone. Note also
+@@ -524,8 +524,8 @@ a Monte Carlo simulation --- no future state is sampled --- so its per-decision
+ cost is closer to a closed form than the day-by-day phrasing suggests.
+ 
+ Its mandatory trigger is worth relating to the previous rule. Making a bin
+-mandatory when $\hat{w}_{i,d} + \hat{\mu}_i \geq C_i$ is exactly the
+-Service-Level rule at $z = 0$ and $n_d = 1$: Look-Ahead is the zero-buffer,
++mandatory when $\hat{w}_i^t + \hat{\mu}_i \geq E_i$ is exactly the
++Service-Level rule at $z = 0$ and $n = 1$: Look-Ahead is the zero-buffer,
+ one-day member of the same projection family, and LM's ratio threshold, which
+ carries no $\hat{\mu}_i$ or $\hat{\sigma}_i$ term, is the only genuinely different
+ mechanism in the grid. Three of the five tested variants (LA, SL1, SL2) therefore
+@@ -635,10 +635,10 @@ so that promising infeasible individuals survive long enough to be repaired.
+ Each generation selects two parents by a tournament biased toward both fitness
+ and diversity, recombines them, and educates the offspring by local search over
+ relocate, 2-opt and the algorithm's signature \textsc{swap*} move.
+-Fitness combines the profit function $\mathcal{P}(\mathcal{A}_d, \bm{w}_d)$ with a
+-diversity contribution $D(\mathcal{A}_d)$:
++Fitness combines the profit function $\mathcal{P}(\mathcal{R}^t, \bm{w}^t)$ with a
++diversity contribution $D(\mathcal{R}^t)$:
+ \begin{equation}
+-    F(\mathcal{A}_d, \bm{w}_d) = \mathcal{P}(\mathcal{A}_d, \bm{w}_d) + \left(1 - \frac{|P_{feas}|}{|P|}\right) \cdot D(\mathcal{A}_d).
++    F(\mathcal{R}^t, \bm{w}^t) = \mathcal{P}(\mathcal{R}^t, \bm{w}^t) + \left(1 - \frac{|P_{feas}|}{|P|}\right) \cdot D(\mathcal{R}^t).
+ \end{equation}
+ 
+ \paragraph{Simulated Annealing Neighborhood Search (SANS).}
+@@ -719,10 +719,10 @@ modification to the operator it selects.
+ An ant walks this operator graph, applying each move it steps onto to the working
+ solution. The next operator is drawn with probability
+ \begin{equation}
+-    p_{sh} = \frac{{[\tau_{sh}]}^{\alpha}{[\eta_{sh}]}^{\beta}}
+-                  {\sum_{k \in \mathcal{H}} {[\tau_{sk}]}^{\alpha}{[\eta_{sk}]}^{\beta}},
++    p_{sh} = \frac{{[\phi_{sh}]}^{\alpha}{[\eta_{sh}]}^{\beta}}
++                  {\sum_{k \in \mathcal{H}} {[\phi_{sk}]}^{\alpha}{[\eta_{sk}]}^{\beta}},
+ \end{equation}
+-where $\tau_{sh}$ is the pheromone on the transition from state $s$ to heuristic
++where $\phi_{sh}$ is the pheromone on the transition from state $s$ to heuristic
+ $h$, $\eta_{sh}$ is heuristic information about $h$'s likely efficacy, and
+ $\alpha,\beta$ weight the two. If a completed walk improved the solution,
+ pheromone is deposited along every transition it used, so operator
+@@ -819,11 +819,11 @@ increment until collection. Overflow counts and kilograms lost are therefore
+ related but distinct measures of service failure.
+ 
+ \emph{Dispatch is dynamic and single-depot, and the daily route count is
+-unbounded.} The mandatory set is recomputed from the sensed state each day. Every
++unbounded ($k^t \le K^{\max}$ with $K^{\max} = \infty$ in this experiment).} The mandatory set is recomputed from the sensed state each day. Every
+ scenario uses one depot, but no fleet bound was imposed: a constructor could
+ return as many capacity-feasible depot-to-depot routes as a day's collection
+ required. We therefore report the daily route count as the minimum number of
+-payload-feasible trips, $K_d = \lceil (\text{kg collected on day } d)/Q \rceil$.
++payload-feasible trips, $k^t = \lceil (\text{kg collected on day } t)/Q \rceil$.
+ The remote-depot geometry makes this tight in practice: an additional return to
+ the depot costs roughly five times the median inter-bin leg
+ (Sect.~\ref{sec:experiments}), so splitting a load that one trip could carry is never
+@@ -833,7 +833,7 @@ $9{,}642$ collection days in the 30-day archive are single-trip days, $5.8\%$
+ need two trips and $0.1\%$ need three; every multi-trip day occurs at Figueira da
+ Foz, whose $2{,}500$\,kg payload is the smaller of the two, while Rio Maior's
+ $3{,}500$\,kg payload is never exceeded. Because the objective prices distance
+-but not vehicles, $K_d$ sequential trips by one vehicle and $K_d$ simultaneous
++but not vehicles, $k^t$ sequential trips by one vehicle and $k^t$ simultaneous
+ routes by several are the same object here; separating them requires an explicit
+ fleet bound and a shift-duration constraint, neither of which this experiment
+ imposes. Both are supported by the simulator, as is multi-depot dispatch, but are
+@@ -869,13 +869,13 @@ separate from the cartographic basemap.
+ \end{figure}
+ 
+ Each bin has a physical capacity of $2.5\,\mathrm{m^3}$. Converting the sensed
+-fill ratio $\hat{\rho}_{i,d}\in[0,1]$ (Sect.~\ref{sec:methodology}) to mass uses
++fill ratio $\hat{\rho}_i^t\in[0,1]$ (Sect.~\ref{sec:methodology}) to mass uses
+ a loose, uncompacted material density of $19\,\mathrm{kg/m^3}$ at Rio Maior and
+ $20\,\mathrm{kg/m^3}$ at Figueira da Foz, giving per-route payload capacities $Q$
+ of $3{,}500\,\mathrm{kg}$ and $2{,}500\,\mathrm{kg}$ respectively. The two
+-coefficients of Eq.~\eqref{eq:profit_function} are $r_w = 0.5837$~€/kg for
++coefficients of Eq.~\eqref{eq:profit_function} are $R = 0.5837$~€/kg for
+ plastic --- a $65\%$ recovered-material share of a €898/tonne reference market
+-price --- and $c_{km} = 1$~€/km. Every archived daily log matches these values
++price --- and $C = 1$~€/km. Every archived daily log matches these values
+ exactly: a stored day collecting $190.0$\,kg over $96.167$\,km reports
+ $\mathrm{profit} = 14.736$, and $0.5837 \times 190.0 - 96.167 = 14.736$ to three
+ decimals.
+@@ -891,7 +891,7 @@ parametric model against real observations:
+           and 108) with different presets assigned to different groups of
+           bins, so accumulation behavior varies across the network and not
+           merely in scale. The increment is drawn in the same $[0,100]$
+-          fill-percentage units as $\hat{\rho}_{i,d}$ and converted to mass
++          fill-percentage units as $\hat{\rho}_i^t$ and converted to mass
+           only when reporting collected tonnage (Sect.~\ref{sec:experiments});
+     \item \textbf{Empirical}, sampling each bin's own historical daily-fill
+           record independently, drawn from measurements collected by the
+@@ -1277,7 +1277,7 @@ it contains no overflow penalty. A route constructor solving that objective in
+ isolation is therefore indifferent to an overflowing bin whose detour cost
+ exceeds its marginal revenue, and the only reason any of the eight benchmarked
+ constructors visits such a bin at all is that mandatory selection already placed
+-it in $\mathcal{M}_d$. Overflow avoidance is thus entirely upstream of route
++it in $\mathcal{M}^t$. Overflow avoidance is thus entirely upstream of route
+ construction by design, not by an empirical accident of these eight methods, which
+ is also why the five selection variants --- two raw-threshold rules and three
+ points on one conservatism family (Sect.~\ref{sec:methodology}) --- trace a clean
