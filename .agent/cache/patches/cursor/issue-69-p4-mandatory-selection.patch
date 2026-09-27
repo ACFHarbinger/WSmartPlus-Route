@@ -1,0 +1,191 @@
+diff --git a/paper.tex b/paper.tex
+index a45ce5e..a457670 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -694,79 +694,123 @@ spanning exact methods, meta-heuristics and hyper-heuristics, and two route impr
+ 
+ \subsection{Mandatory Selection Strategies}
+ 
+-All three strategies decide from the \emph{sensed} fill signal $\hat{w}_i^t$,
+-which in the runs reported here equals the true level because sensing noise was
+-disabled (Sect.~\ref{sec:protocol}); none of them ever reads the simulator's
+-internal state directly. All three must estimate whatever they need about
+-accumulation from the history the simulation has produced so far, and neither the
+-generating distribution nor its parameters are ever revealed to them. Two of the
+-rules are stated below in terms of the sensed fill \emph{ratio}
++All three strategies decide from the sensed fill $\hat{w}_i^t$, which in
++the runs reported here equals the true opening level $w_i^t$ because
++sensing noise was disabled (Sect.~\ref{sec:protocol}). They never
++observe the generating distribution or its parameters. Mean and
++standard-deviation estimates $\hat{\mu}_i$ and $\hat{\sigma}_i$ are
++maintained online from the increments seen so far; no precomputed
++statistics file is supplied. Each strategy returns a mandatory set
++$\mathcal{M}^t$. Every constructor must visit that set
++(Sect.~\ref{sec:constructors}): that is the policy-side realisation of
++the force-visit rule~\eqref{eq:force}. The model's threshold $\psi$ is
++a different symbol. In the archived SWC-TCF configuration $\psi = 1$,
++so that constructor additionally forces any bin already at capacity;
++the other constructors have no $\psi$ of their own. None of the three
++strategies implements the source article's overflow-share $\delta$,
++which Sect.~\ref{sec:swcrp} records as a feature of Ramos et
++al.~\cite{RAMOS2018146} and which is not part of this paper's problem
++definition.
++
++The implementation stores fill as a percentage of capacity. Two of the
++rules below are written with the equivalent ratio
+ \begin{equation}
+-    \hat{\rho}_i^t \;=\; \hat{w}_i^t/E_i \;\in\; [0,1],
++    \hat{\rho}_i^t \;=\; \hat{w}_i^t / E_i \;\in\; [0,1],
+ \end{equation}
+-so that thresholds expressed as percentages are comparable across bins of
+-different capacity. The three were chosen to span the conceptual space rather
+-than to be exhaustive: one reactive, one statistical, and one that projects
+-forward to a collection date.
++so that a last-minute cut of $70$~percent is $\mathrm{CF}=0.70$.
++Last-Minute compares the stored percent against $70$ or $90$ directly;
++it does not divide a kilogram reading by $E_i$. The three strategies
++span the conceptual space rather than exhausting it: one reactive, one
++statistical, and one that projects forward to a collection date.
+ 
+ \paragraph{Last-Minute (LM).}
+-First proposed in~\cite{de2024data}, Last-Minute is the reactive baseline: a
+-bin becomes mandatory
+-when its sensed fill level crosses a fixed critical-fill (CF) threshold, judged in
+-complete isolation from every other bin and from any estimate of how fast it is filling. 
+-Formally, bin $i$ is mandatory on day $t$ iff $\hat{\rho}_i^t \geq \text{CF}$, for
+-sensed fill ratio $\hat{\rho}_i^t$ and threshold $\text{CF}$. We tested
+-$\text{CF} = 0.7$ (CF70) and $\text{CF} = 0.9$ (CF90). The threshold is the only knob, and it trades overflow risk 
+-against visit frequency directly, with no model connecting the two.
++First proposed in~\cite{de2024data}, Last-Minute is the reactive
++baseline and the counterpart of the fixed-threshold rule in the limited
++approach of Ramos et al.~\cite{RAMOS2018146} (their case study used
++$80\%$ of capacity). A bin becomes mandatory when its sensed fill
++crosses a critical-fill threshold, in isolation from every other bin
++and from any estimate of how fast it is filling. Formally
++\begin{equation}
++    i \in \mathcal{M}^t \iff \hat{\rho}_i^t \;\ge\; \mathrm{CF},
++\end{equation}
++with $\mathrm{CF}\in\{0.70,0.90\}$ (CF70 and CF90). The implementation
++compares the stored percent against $70$ and $90$ and uses
++$\ge$, not a strict inequality. This $\mathrm{CF}$ is not the model's
++$\psi$: $\psi$ is the force-visit threshold
++inside~\eqref{eq:force} and, in the archived SWC-TCF runs, equals $1$.
++The threshold is the only knob, and it trades overflow risk against
++visit frequency directly.
+ 
+ \paragraph{Service-Level (SL).}
+-A statistical rule that projects forward rather than reacting. For each bin it
+-maintains online estimates of the mean daily accumulation $\hat{\mu}_i$ and its
+-standard deviation $\hat{\sigma}_i$ from the days observed so far, and flags bin
+-$i$ as mandatory when a conservative projection of its fill $n$ days ahead
+-already exceeds capacity:
++A statistical rule that projects forward rather than reacting. The name
++does not refer to the overflow-share $\delta$ of
++Sect.~\ref{sec:swcrp}. For each bin the simulator maintains online
++estimates of the mean daily increment $\hat{\mu}_i$ and its standard
++deviation $\hat{\sigma}_i$ from the days observed so far, and flags
++bin $i$ as mandatory when a conservative projection $n$ days ahead
++already meets capacity:
+ \begin{equation}
+-    \hat{w}_i^t + n\hat{\mu}_i + z\,n\hat{\sigma}_i \;\geq\; E_i ,
++    100\,\hat{\rho}_i^t + n\hat{\mu}_i + z\,n\hat{\sigma}_i \;\ge\; 100,
+ \end{equation}
+-where $z = 0.84$ is a fixed safety coefficient, chosen as the standard-normal
+-quantile for an $80\%$ one-sided service level. We test projection horizons
+-$n=1$ (SL1) and $n=2$ (SL2), holding $z$ constant.
+-
+-Two properties of this rule shape the results and are worth stating plainly.
+-First, the deviation term scales \emph{linearly} in $n$ rather than as
+-$\sqrt{n}$. Under independent daily increments $\sqrt{n}$ would be the
+-matching aggregation, so the implemented rule is deliberately conservative
+-relative to an i.i.d.\ projection; it is also robust to the positive serial
+-correlation that real accumulation exhibits, which $\sqrt{n}$ would understate.
+-Second, and consequently, the two variants do not hold conservatism fixed:
+-because both the drift and the deviation terms scale with $n$, SL2 carries
+-exactly twice SL1's safety margin, so it looks further ahead \emph{and} demands a
+-larger buffer. SL1 and SL2 should therefore be read as two points on a single
+-conservatism dial, not as a controlled test of horizon length alone. Note also
+-that $\hat{\mu}_i$, $\hat{\sigma}_i$ are cold-start estimates that are least
+-reliable early in a horizon.
++where $\hat{\mu}_i$ and $\hat{\sigma}_i$ are in fill-percentage points
++per day, $z = 0.84$ is the archived safety coefficient (the
++standard-normal quantile for an $80\%$ one-sided bound), and
++$n\in\{1,2\}$ is the archived projection depth (SL1 and SL2). The
++kilogram form
++$\hat{w}_i^t + n\hat{\mu}_i^{\mathrm{kg}} + z n
++\hat{\sigma}_i^{\mathrm{kg}} \ge E_i$ is the same statement after
++scaling the increments by $E_i/100$. The depth $n$ is a per-strategy
++constant, not a period index.
++
++Two properties of this rule shape the results and are worth stating
++plainly. First, the deviation term scales \emph{linearly} in $n$ rather
++than as $\sqrt{n}$. Under independent daily increments $\sqrt{n}$ would
++be the matching aggregation, so the implemented rule is deliberately
++conservative relative to an i.i.d.\ projection; it is also robust to
++the positive serial correlation that real accumulation exhibits, which
++$\sqrt{n}$ would understate. Second, and consequently, the two variants
++do not hold conservatism fixed: because both the drift and the
++deviation terms scale with $n$, SL2 carries exactly twice SL1's safety
++margin, so it looks further ahead \emph{and} demands a larger buffer.
++SL1 and SL2 should therefore be read as two points on a single
++conservatism dial, not as a controlled test of horizon length alone.
++Note also that $\hat{\mu}_i$, $\hat{\sigma}_i$ are cold-start estimates
++that are least reliable early in a horizon.
+ 
+ \paragraph{Look-Ahead (LA).}
+-Introduced alongside SANS in~\cite{jorge2022hybrid}, Look-Ahead assumes no
+-parametric demand distribution: it uses only the running mean estimate
+-$\hat{\mu}_i$. It projects each bin's level forward day by day at that mean rate
+-to find the last day before its projected overflow, and makes the bin mandatory
+-then; bins whose projected collection dates coincide are released together, which
+-bundles collections onto fewer days. The projection is deterministic rather than
+-a Monte Carlo simulation --- no future state is sampled --- so its per-decision
+-cost is closer to a closed form than the day-by-day phrasing suggests.
+-
+-Its mandatory trigger is worth relating to the previous rule. Making a bin
+-mandatory when $\hat{w}_i^t + \hat{\mu}_i \geq E_i$ is exactly the
+-Service-Level rule at $z = 0$ and $n = 1$: Look-Ahead is the zero-buffer,
+-one-day member of the same projection family, and LM's ratio threshold, which
+-carries no $\hat{\mu}_i$ or $\hat{\sigma}_i$ term, is the only genuinely different
+-mechanism in the grid. Three of the five tested variants (LA, SL1, SL2) therefore
+-trace one conservatism dial, which is why the frontier orders monotonically in
+-Sect.~\ref{sec:res-strategies}; that ordering is a property of this family, plus
+-LM's two threshold settings bracketing it, and not a general result about
+-selection rules. Look-Ahead has no threshold variant, so it contributes fewer
+-configurations than LM or SL to the experimental grid.
++Introduced alongside SANS in~\cite{jorge2022hybrid}, Look-Ahead uses
++only the running mean $\hat{\mu}_i$. It has two steps.
++
++\emph{Seed.} After the day's fill has already been applied, bin $i$
++enters $\mathcal{M}^t$ when
++\begin{equation}
++    100\,\hat{\rho}_i^t + \hat{\mu}_i \;\ge\; 100.
++\end{equation}
++That seed is exactly the Service-Level rule at $z = 0$ and $n = 1$:
++the bin is predicted to reach capacity after one more mean increment
++(tomorrow, not today). No learned fill predictor is used; the
++projection is the linear running mean.
++
++\emph{Bundle.} If the seed set is nonempty, those bins are notionally
++emptied and the earliest day on which any of them would overflow
++again from empty is the next collection day $t^{\star}$. Every other
++bin whose projected fill would meet capacity \emph{before}
++$t^{\star}$ is added to $\mathcal{M}^t$. If the seed is empty, the
++mandatory set is empty: Look-Ahead never forces a visit on a quiet
++day. The projection is indexed from the current day.
++
++The seed-only identity with SL at $z = 0$, $n = 1$ must not be read as
++``Look-Ahead is that rule''. The bundling step is extra, and it is why
++Look-Ahead can release a larger set than the one-day zero-buffer
++projection. Last-Minute, which carries no $\hat{\mu}_i$ or
++$\hat{\sigma}_i$ term, is the only genuinely different mechanism in
++the grid. Three of the five tested variants (LA, SL1, SL2) therefore
++trace one conservatism dial, which is why the frontier orders
++monotonically in Sect.~\ref{sec:res-strategies}; that ordering is a
++property of this family, plus LM's two threshold settings bracketing
++it, and not a general result about selection rules. Look-Ahead has no
++threshold variant, so it contributes fewer configurations than LM or
++SL to the experimental grid.
+ 
+ \subsection{Route Constructors}\label{sec:constructors}
+ 

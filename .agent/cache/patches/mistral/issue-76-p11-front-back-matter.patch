@@ -1,0 +1,108 @@
+diff --git a/mybibliography.bib b/mybibliography.bib
+index 18f40fe..4afeba7 100644
+--- a/mybibliography.bib
++++ b/mybibliography.bib
+@@ -872,7 +872,15 @@
+ 
+ % --- profitable and multi-period routing -----------------------------------
+ 
+-@article{Mes2014InventoryRouting,
++@incollection{Mes2012SimulationAssessment,
++  author    = {Mes, Martijn},
++  title     = {Using Simulation to Assess the Opportunities of Dynamic Waste Collection},
++  booktitle = {Discrete Event Simulations -- Development and Applications},
++  publisher = {InTech},
++  year      = {2012}
++}
++
++@article{Mes2014InventoryRouting},
+   author  = {Mes, Martijn and Schutten, Marco and P{\'e}rez Rivera, Arturo},
+   title   = {Inventory Routing for Dynamic Waste Collection},
+   journal = {Waste Management},
+diff --git a/paper.tex b/paper.tex
+index a45ce5e..ae42af5 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -70,10 +70,10 @@ CEGIST, Instituto Superior T\'ecnico, Universidade de Lisboa, Lisboa, Portugal\\
+ \maketitle              % typeset the header of the contribution
+ 
+ % ---------------------------------------------------------------------------
+-% ABSTRACT OF RECORD. This text is reproduced verbatim from the abstract
+-% presented at conference; see assets/papers/Simulation-Framework-Abstract/
+-% (main.tex). Do not edit it to track changes in the body of the paper --
+-% where the two disagree, the body is what moves. See GitHub issue #53.
++% Abstract updated in WSmart-Route#76 (P11). Owner ruling Q11/Q16 lifted the
++% conference-abstract freeze of #53: the benchmark scope now matches the body
++% -- eight classical constructors; NCO is a framework capability, not a
++% benchmarked solver (I-gemini-02) -- and the formulation is stated (P3).
+ % ---------------------------------------------------------------------------
+ \begin{abstract}
+ Urban waste collection is a critical municipal service with profound
+@@ -84,16 +84,22 @@ monitoring enables dynamic routing, allowing vehicles to visit only bins that
+ require immediate service or are profitable to collect, modeled as a Vehicle
+ Routing Problem with Profits (VRPP). This must be performed over multiple
+ periods, where routes in each period affect subsequent periods, forming a
+-Multi-Period VRPP (MPVRPP). Due to scale and temporal dependencies, adapting
+-CVRP solvers is challenging, and progress is hindered by the lack of
+-standardized multi-period evaluation environments. To address this, we propose
+-a Python simulation framework for MPVRPP and a methodology to adapt CVRP
+-algorithms, including Hybrid Genetic Search (HGS), Adaptive Large Neighborhood
+-Search (ALNS), and Neural Combinatorial Optimization (NCO). Adaptations include
+-profit-aware repair operators and dynamic dispatch heuristics. An extensive
+-benchmark evaluates the solvers, establishing a unified baseline and
+-demonstrating the framework as a testbed for future research in dynamic,
+-multi-period waste collection routing.
++Multi-Period VRPP (MPVRPP). We formalize the MPVRPP by extending the
++single-period smart waste collection routing problem to a planning horizon,
++on a two-commodity flow routing core, with the daily decision decomposed
++into mandatory bin selection, route construction, and route improvement.
++Due to scale and temporal dependencies, adapting CVRP solvers is
++challenging, and progress is hindered by the lack of standardized
++multi-period evaluation environments. To address this, we propose a Python
++simulation framework for MPVRPP and a modular methodology to adapt routing
++algorithms across exact, meta-heuristic, and neural combinatorial
++optimization (NCO) families. Adaptations include profit-aware repair
++operators, genetic route splitting, and dynamic dispatch heuristics. An
++extensive benchmark evaluates eight classical solvers across exact,
++meta-heuristic, and hyper-heuristic paradigms on real municipal networks,
++establishing a unified baseline and demonstrating the framework as an
++extensible testbed for future research in dynamic, multi-period waste
++collection routing.
+ 
+ \keywords{Multi-Period Vehicle Routing Problem \and Smart Waste Collection
+ \and Simulation Framework \and Neural Combinatorial Optimization \and
+@@ -167,7 +173,7 @@ routing~\cite{Coelho2014InventoryRouting} and team
+ orienteering~\cite{Chao1996TeamOrienteering}, which multi-period profitable
+ routing brings together~\cite{Zhang2013MPVRPProfit}, and it has been treated for
+ waste as reverse inventory routing over sensor-equipped
+-containers~\cite{Mes2014InventoryRouting}, whose authors already observe that
++containers~\cite{Mes2012SimulationAssessment,Mes2014InventoryRouting}, whose authors already observe that
+ bin selection dominates routing as networks grow denser.\\
+ 
+ Two obstacles separate that formulation from usable evidence about how to solve
+@@ -180,7 +186,7 @@ two methods solve the same problem and what can be shared is the accumulation
+ sequence rather than the instance; overflow and lost mass, moreover, appear only
+ when routes are executed against the realised bin state. Simulation is therefore
+ the instrument the problem requires, and has served as such
+-before~\cite{Johansson2006Dynamic,Faccio2011RealTime,Mes2014InventoryRouting},
++before~\cite{Johansson2006Dynamic,Faccio2011RealTime,Mes2012SimulationAssessment,Mes2014InventoryRouting},
+ but each simulator was built for its own study. Methods have meanwhile
+ advanced~\cite{jorge2022hybrid,RAMOS2018146,lopes2023efficient,de2024data} and
+ surveys agree on the open themes~\cite{hess2024waste}, yet most work embeds bin
+@@ -303,10 +309,12 @@ the search to a general-purpose solver. Their difficulty is structural:
+ capacity and sub-tour elimination ordinarily require separate constraint
+ families, and the sub-tour family is exponential in the number of nodes.
+ Flow-based formulations sidestep that enumeration by tracking commodities along
+-arcs, and the two-commodity variant Ramos et al.~\cite{RAMOS2018146} developed
+-for smart waste collection --- the formulation this work implements
+-(Sect.~\ref{sec:constructors}) --- makes the visit decision a first-class
+-binary, which is what a profitable-routing objective needs. What compact models
++arcs; the two-commodity device of Baldacci
++et al.~\cite{Baldacci2004TwoCommodity}, which Ramos et
++al.~\cite{RAMOS2018146} developed for smart waste collection --- the
++formulation this work implements (Sect.~\ref{sec:constructors}) --- makes the
++visit decision a first-class binary, which is what a profitable-routing
++objective needs. What compact models
+ do not have is any mechanism for keeping the working problem small as the
+ candidate set grows, and that, rather than any modeling deficiency, bounds the
+ instance sizes at which they stay usable.

@@ -1,0 +1,338 @@
+diff --git a/Evidence/P10-provenance.md b/Evidence/P10-provenance.md
+new file mode 100644
+index 0000000000000000000000000000000000000000..e3345dacb3093c7c0e9bb27e770b612deee325d0
+--- /dev/null
++++ b/Evidence/P10-provenance.md
+@@ -0,0 +1,70 @@
++# Results provenance evidence (P10 / WSmart-Route issue 75)
++
++This ledger accompanies the paper's Implementation Provenance subsection.
++It documents read-only checks of archived results, not corrected experimental
++outcomes. No simulator runs were performed for P10. Original run records on
++another machine are pending recovery; rerun scope remains deferred (owner Q8).
++
++Paper edit base: `5ae3dd7` in the paper repository.
++Code inspected for this pass: WSmart-Route `19e099415e5c15dec79a788eb34e92f699071429`.
++Paths below refer to the **WSmart-Route project root**, except this ledger's
++path and the paper's `Tables/` files. Files under `.agent/cache/` are local
++review artifacts; they are not asserted to be publicly hosted or a complete
++historical execution manifest. Recovering that manifest remains open.
++
++## Evidence index
++
++| Paper caveat | Proposal | Reproducer / evidence | Checked result and limit |
++|---|---|---|---|
++| 90-day carry-forward rule (Design, Horizon, Limitations, appendix caption) | R-codex-01 | `.agent/cache/tools/codex_paper_audit_20260926.py`, `selection_membership`; `logic/gen/json/paper_latex_config.json` horizon note; `docs/private/global/simulation/simulation_summary.csv` and `simulation_summary_90d.csv` | Strict nondominance within each `(city,N,dist)` scenario, maximize kg/km and minimize overflow, retaining ties: 33 raw 30-day front configurations; 23 followed, 10 not followed; 151 of 174 follow-ups are off that front. This disproves that precise front-only interpretation, not every possible undocumented selection rule. |
++| Archived versus full policy time (Design, runtime caption, Provenance) | R-codex-02 | Same audit, `timing`; JSON logs under `assets/output/30days/`; `logic/src/pipeline/simulations/day_context.py::run_day`, `states/finishing.py`; timing-definition history in `.agent/cache/minimal_export_review_2026-09-25.md` DS-15 | All 480 archived sample times differ from sums of old daily times; delta 1.93486–89.86310 s. Old sample clock includes simulation work; old daily clock covers construction. Revised clock sums selection, construction and improvement only. Old daily sums cannot reconstruct revised full policy time. |
++| CF90/CF70 mirroring exposure | R-codex-03 | Same audit, `cf_mirrors`; `assets/output/30days/**/log_last_minute_cf{70,90}_*.json`; earlier defect B-claude-01 in `.agent/cache/minimal_export_review_2026-09-25.md` | Twelve paired logs per constructor; zero pairs with identical daily kg/ncol/overflows for PSOMA or SANS (also zero for the other constructors). This does not prove historical parameter fidelity. |
++| BPC strong branching and correctness | R-codex-04 | All 36 `assets/output/30days/**/hydra/pruned_config.yaml`; example `riomaior100_plastic/gamma3/lm_cls/hydra/pruned_config.yaml:214`; `.agent/cache/logic_review_2026-09-26.md` B-kimi-35; earlier report D1/DS-22–26 | All 36 saved configs enable strong branching. The documented defective lookahead and subsequent pricing/bound/branching corrections prevent an archive-level exactness certificate. Tiny-instance verification of corrected code does not retroactively validate these runs. |
++| HGS limited-split exposure | R-codex-05 | `dc70b8e7a` (HGS split corrections); saved configs above; `logic/src/policies/route_construction/meta_heuristics/hybrid_genetic_search/{params.py,hgs.py,split.py}`; prior report's retraction of the original split diagnosis | Saved `sim.n_vehicles=0`; no saved HGS `max_vehicles` key in those pruned configs. Current default is zero/unlimited, but historical resolution is pending. Only the limited path is implicated by that particular defect; do not assume every HGS row is affected. |
++| Improver interpretation and stochastic seeding | R-codex-06, Q9 | Same audit, `improvers`; `logic/gen/gen_paper_latex.py::improver_pairs`; Fast-TSP wrapper `logic/src/policies/route_construction/other_algorithms/travelling_salesman_problem/tsp.py`; `logic/src/pipeline/simulations/day_context.py::run_day`; PSOMA correction `8c94333ed`, seed-key correction `a7090db21` | 224 integrity-filtered pairs, 202 positive CLS efficiency differences, 22 negative, 181 overflow ties; raw join has 240 pairs. Simulator explicitly reseeds NumPy/Python/torch per policy/day, so PSOMA's former global draws alone did not make those runs unseeded. Its standalone local-seed defect and changes to the policy seed key are separate issues. Fast-TSP has no effective seed argument. |
++| ACO-HH and capacity execution | R-kimi-01 | `.agent/cache/logic_review_2026-09-26.md` B-kimi-44–49; pre/post correction `b2ce30f66`; `logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/{hyper_aco.py,policy_aco_hh.py}`; capacity-execution correction `4c7a76b34` | Pre-correction elapsed-time visibility and capacity relaxation are risks; current toy witnesses do not identify which historical plans were infeasible. Current code's all-11-operator path is not proof of the historical executable. New non-CTOP splitting and trip telemetry apply only to future runs. Archived Q is 3,500/2,500 kg; the interim percent-unit interpretation was retracted. |
++| No neural rows | R-gemini-01 | `.agent/cache/tools/codex_late_rows_review_20260927.py`; both summary CSVs | 30-day: 60 rows each for eight classical constructors. 90-day: BPC60, PG-CLNS42, ACO_HH30, HGS12, PSOMA12, SANS12, SWC-TCF6 =174. Zero neural rows. Insulation is from neural-only defects, not every shared utility defect. |
++| Table reproducibility and raw-log lineage | I-codex-02 | `logic/gen/gen_paper_latex.py --tables-only`; first audit, `lineage_30`, `lineage_90`; both summary CSVs and 30-day JSON logs | All six numerical tables regenerate from the summaries. 480 one-to-one 30-day log matches on ten summary metrics at rtol1e-10/atol1e-8. Local `assets/output/90days/` is absent. Numeric agreement does not prove historical code correctness or validate every presentation-sourced graphic. |
++
++## Read-only reproduction
++
++Run from the WSmart-Route project root in an environment with the table
++script's dependencies. The existing review environment used for this check is
++`~/.cache/wsr-main-venv/bin/python`; dependency installation and simulation
++execution are not part of these commands.
++
++```bash
++OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 ~/.cache/wsr-main-venv/bin/python .agent/cache/tools/codex_paper_audit_20260926.py
++OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 ~/.cache/wsr-main-venv/bin/python .agent/cache/tools/codex_late_rows_review_20260927.py
++OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 ~/.cache/wsr-main-venv/bin/python logic/gen/gen_paper_latex.py --tables-only --tables-dir ~/.cache/wsr-review/codex-paper-p10-audit/Tables --figures-dir ~/.cache/wsr-review/codex-paper-p10-audit/Figures
++```
++
++The first script writes `audit.json`, `trip_counts.json`, `cf_mirrors.csv`,
++`timing.csv`, and `90d_not_on_30d_front.csv` beneath
++`~/.cache/wsr-review/codex-paper-audit/`. The second writes
++`.agent/cache/codex_late_rows_review_20260927.json`. Its four-bin witness is
++unrelated to the P10 benchmark caveats; the updated paper example is separate.
++Neither command runs a policy or simulator. Preserve the input summaries/logs
++before any future corrected run replaces output files.
++
++The table reproduction compares numerical content. Template comments and
++exclusion-footnote wording may differ across revisions; do not treat those as
++changed experimental measurements. P10 changes only the horizon-table footnote, regenerated from the companion
++`logic/gen/json/paper_latex_config.json` patch; numerical cells and images are
++unchanged. Apply that companion patch before running the table-generation
++command above, so regeneration preserves the corrected footnote.
++
++## Deferred verification
++
++Recover the historical source/dependency revisions, resolved per-run configs,
++selection manifest, saved demand datasets and 90-day raw logs. Then determine
++which paths actually ran, validate route feasibility and timing scope, and
++choose affected comparisons for reruns. No new optimality, repeatability or
++capacity-feasibility certificate is asserted for the archived results.
++
++## Input and audit-script fingerprints (SHA-256)
++
++- `docs/private/global/simulation/simulation_summary.csv`: `498660eca8c4e315891f43f2967453173ffb0480186e5c98e07cbf75fa41d78d`
++- `docs/private/global/simulation/simulation_summary_90d.csv`: `47d59d0f02054f6fd9f47f88583c04a1a65fe14e5a16a1b4970be222a8dd8c87`
++- `.agent/cache/tools/codex_paper_audit_20260926.py`: `dd4971dfccd6376987329cd06813fc44e11685fb8fa87293b09571f2cc7f9b9c`
++- `.agent/cache/tools/codex_late_rows_review_20260927.py`: `4870b5cae4337b9a8d5e933702f10cdbba1b2188c275150a06148be54ce795b4`
+diff --git a/Tables/results_horizon.tex b/Tables/results_horizon.tex
+index 7ad0f91d3dfa367cc4d96e083a34f4e43e7db400..5a52a9896c9abf3c630982a37cf605aed133c657 100644
+--- a/Tables/results_horizon.tex
++++ b/Tables/results_horizon.tex
+@@ -36,7 +36,7 @@ SWC-TCF & 5 & 5.83 & 6.33 & 4.4 & 25.6 \\
+ 
+ \vspace{0.4em}
+ \begin{minipage}{\linewidth}
+-\footnotesize Only configurations on the 30-day Pareto front were re-run at 90 days, so the 90-day sample is conditioned on 30-day performance. Constructors are therefore compared against themselves across horizons and never against each other at 90 days. The paired values describe this selected subset and do not estimate a horizon effect for the full factorial design.
++\footnotesize The 90-day archive is a selected, non-factorial subset; its selection rule is pending recovery of the run records, and Pareto-only carry-forward is not established (Sect.~\ref{sec:provenance}). Configurations are compared against themselves across horizons, not used to rank constructors at 90 days. The paired values describe this selected subset and do not estimate a horizon effect for the full factorial design.
+ \end{minipage}
+ 
+ \end{table}
+diff --git a/paper.tex b/paper.tex
+index a45ce5ee779bc32ca22e6f6d506a6921a3079d9b..6c1870f44ff8d80d0ada4822e69d651b9156199c 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -1311,15 +1311,16 @@ scenario (Sect.~\ref{sec:protocol}), the marginal mean of any one stage is a
+ genuine like-for-like comparison rather than a comparison confounded by which 
+ scenarios that stage happened to be run in.
+ 
+-The 90-day design is \emph{not} a factorial replication of this, and the
+-distinction is important enough to state before any 90-day number is read. Only
+-policy configurations that lay on the 30-day Pareto front were carried forward,
+-producing 174 runs. Each constructor's 90-day rows are therefore the scenarios
+-in which it had already performed well at 30 days, and a cross-constructor
+-comparison at 90 days would compare each constructor against a different,
+-self-favoring subset. We report no such comparison. The horizon analysis in
+-Sect.~\ref{sec:res-horizon} instead pairs each configuration against
+-\emph{itself} across the two horizons.
++The 90-day archive contains 174 runs on a selected, non-factorial subset.
++The available summaries do not reproduce the asserted rule that only
++scenario-specific 30-day Pareto-front configurations were carried forward.
++Using efficiency and overflow count to recompute those fronts, with ties
++retained, only 23 of the 174 follow-up configurations are on their scenario's
++raw 30-day front; 151 are not. The original selection rule and run records
++are pending recovery (Sect.~\ref{sec:provenance}). We therefore do not rank
++constructors across the differently composed 90-day subsets. The horizon
++analysis in Sect.~\ref{sec:res-horizon} pairs each configuration against
++\emph{itself}, conditional on its inclusion in the archive.
+ 
+ We report five measures.\ \emph{Efficiency} (kg/km) is collected waste per
+ kilometer driven and is our primary reported efficiency metric. The routing
+@@ -1327,7 +1328,11 @@ optimization objective is daily profit, which is distinct from this ratio.\ \emp
+ events} counts bin-days on which a bin was at capacity, and \emph{kilograms
+ lost} the waste discarded as a result; the two are related but distinct, since a
+ single bin left uncollected keeps losing waste every subsequent day.
+-\emph{Distance} and \emph{runtime} measure operational and computational cost.
++\emph{Distance} measures travel cost. All reported \emph{runtime} values
++retain the archived sample-level elapsed-time convention, including
++simulation overhead. They are not the revised sum of daily selection,
++construction and improvement times defined in Sect.~\ref{sec:protocol};
++Sect.~\ref{sec:provenance} documents that distinction.
+ Means are reported alongside medians because a single extreme scenario can move
+ a mean substantially at this sample size (Sect.~\ref{sec:integrity}).
+ 
+@@ -1346,9 +1351,11 @@ an unspecified population of algorithms.
+ Table~\ref{tab:constructors30} reports per-constructor performance, and
+ Fig.~\ref{fig:pareto} places the constructors in the efficiency/service plane.
+ 
+-BPC attains the highest mean efficiency (6.65\,kg/km) on the shortest mean
+-routes (4{,}018\,km), although its time limit prevents an optimality certificate
+-at these sizes. ALNS achieves the fewest mean
++In the archive, BPC attains the highest mean efficiency (6.65\,kg/km)
++on the shortest mean routes (4{,}018\,km). These are descriptive outcomes,
++not an optimality certificate: the archived strong-branching configuration
++and subsequent solver corrections require the qualification in
++Sect.~\ref{sec:provenance}, independently of the time limit. ALNS achieves the fewest mean
+ overflows (5.9) and PG-CLNS is the strongest all-round compromise, second on
+ efficiency and second on overflows. ACO-HH ranks third on efficiency, $5.3\%$
+ below BPC, and is the fastest constructor at 589\,s mean runtime, roughly a
+@@ -1385,8 +1392,10 @@ SANS all require more wall-clock time per run at this scale.
+ \begin{figure}
+     \centering
+     \includegraphics[width=0.8\linewidth]{Images/Results/Generated/runtime_scaling_30d.png}
+-    \caption{Mean runtime against network size. The exact BPC solver is
+-    mid-pack; three meta-heuristics cost more per run than it does.}\label{fig:scaling}
++    \caption{Mean archived sample elapsed time against network size,
++    including simulation overhead rather than the revised policy-only clock
++    (Sect.~\ref{sec:provenance}). BPC is mid-pack; three meta-heuristics
++    cost more per run than it does.}\label{fig:scaling}
+ \end{figure}
+ 
+ \subsubsection{Mandatory Selection Strategies}\label{sec:res-strategies}
+@@ -1486,7 +1495,12 @@ identify it.
+ 
+ Overflow counts tie on 181 of the 224 pairs. The remaining differences are
+ further evidence that the stored experiment did not hold every upstream outcome
+-fixed across improvers.
++fixed across improvers. Fast-TSP's stochastic search also lacks an
++effective seed parameter. PSOMA's former global NumPy draws alone do not
++establish non-repeatability of these simulator runs: the simulator reseeded
++global random state per policy and day. The distinction between standalone
++solver seeding and simulator seeding is recorded in
++Sect.~\ref{sec:provenance}.
+ 
+ \begin{figure}
+     \centering
+@@ -1515,13 +1529,15 @@ The observed overflow counts therefore grow approximately in proportion to the
+ horizon for these six constructors. SWC-TCF is the exception at 5.6, consistent
+ with its scaling exposure elsewhere in these results.
+ 
+-Two qualifications govern this comparison. It is paired because a
+-cross-constructor comparison at 90 days is not available. Pairing also does
+-not undo selection into the 90-day sample: every configuration was carried
+-forward because of its 30-day Pareto performance on the scenario. The table 
+-therefore describes the selected configurations only. With one realization 
+-per configuration, we cannot estimate the selection effect or claim that 
+-the observed direction would hold over the full factorial design.
++Two qualifications govern this comparison. Pairing controls the
++configuration being compared, but does not remove selection into the
++90-day archive. Its selection rule and the historical solver configurations
++are pending recovery of the run records (Sect.~\ref{sec:provenance}); the
++subset must not be described as verified Pareto-only sampling. With one
++realization per configuration, these results describe the matched subset
++rather than a population-level horizon effect. In particular, exposure of
++HGS to its subsequently corrected limited-fleet split path must be resolved
++before attributing its negative mean change to horizon length.
+ 
+ \input{Tables/results_horizon}
+ 
+@@ -1636,10 +1652,77 @@ averaging its rivals over those scenarios too. We therefore dropped the affected
+ The same reasoning applies to every other marginal comparison in a form that is easy to miss. Dropping a scenario cell removes all constructors together, but it removes only \emph{one} selection variant and \emph{one} improver, since those
+ identify the cell. Marginal tables over those stages are therefore additionally
+ restricted to the slices in which every level of the compared stage actually
+-ran. All tables and figures in this section were generated from the simulation
+-output by an automated tool that applies these rules centrally. The prose is
+-checked against the same output, while generation prevents the principal
+-summaries from drifting through manual transcription.
++ran. The six numerical tables reproduce from the archived summaries using
++the centralized filtering and balancing rules. Regeneration checks
++transcription and aggregation, not the validity of historical runs under
++the corrected implementations. Presentation-sourced graphics retain the
++separate raw-data caveats in their captions.
++
++\subsection{Implementation Provenance}\label{sec:provenance}
++
++The following checks distinguish archived observations from results that a
++corrected implementation might produce. Their file-level evidence and
++reproduction commands are recorded with the paper source.\footnote{See
++\path{Evidence/P10-provenance.md}, which maps each check below to the
++project's summary CSVs, archived logs/configurations, code revisions and
++read-only audit scripts.}
++The original executable revisions, resolved run settings and 90-day raw
++logs are pending recovery of the run records. Decisions on retaining or
++rerunning affected comparisons are deferred until those records are
++available; no corrected-run outcomes are substituted here.
++
++\paragraph{Archive and selection checks.}
++All 480 rows of the 30-day summary match the available raw logs on the ten
++recorded summary metrics. The six tables reproduce numerically from the
++summary CSVs, but the 90-day raw logs were not available for this check.
++The scenario-specific raw 30-day fronts contain 33 configurations, of
++which 23 occur in the 90-day archive. This accounts for the 151 off-front
++follow-ups noted above without reconstructing the original selection
++manifest. The later CF90-to-CF70 selector-mirroring defect likewise does
++not establish exact duplication in these archived outputs: none of the
++12 CF70/CF90 log pairs for either PSOMA or SANS has identical daily
++collected mass, collection count and overflow count. Historical parameter
++resolution remains to be checked; absence of duplicate outputs is not a
++proof that every parameter was applied correctly.
++
++\paragraph{Timing and randomness.}
++For all 480 archived 30-day samples, stored sample time differs from the
++sum of stored daily times, by approximately 1.93--89.86\,s. The old daily
++clock covered construction rather than the revised full policy, so summing
++it cannot recover the new timing definition. Timing columns and rankings
++here retain the archived clock. Fast-TSP's unseeded stochastic search and
++the former elapsed-time signal in ACO-HH limit seed-based repeatability.
++PSOMA formerly used global NumPy state, but the simulator explicitly
++reseeded that state per policy and day; the standalone solver's incomplete
++local-seed control is therefore not evidence that the archived simulator
++runs lacked seeding. Subsequent changes to the policy seed key can change
++future reruns even when the supplied simulation seed is unchanged.
++
++\paragraph{Solver-version exposure.}
++All 36 available 30-day pruned configurations enable BPC strong branching,
++a path subsequently identified as capable of returning suboptimal plans.
++Corrections to pricing, bounds and branching mean its archived comparisons
++cannot certify the revised solver. HGS exposure is more conditional: the
++corrected defect concerns limited-fleet splitting. The saved configuration
++sets no simulation fleet cap but does not record the HGS-specific
++\texttt{max\_vehicles} parameter; its historical resolution must be checked
++before declaring that path exposed or excluding HGS results on that basis.
++ACO-HH's pre-correction capacity relaxation could return an over-capacity
++incumbent, and the reviewed pre-correction implementation used all eleven registered
++operators despite the saved subset setting. These findings motivate
++historical path and route-feasibility checks; they do not by themselves
++prove which archived routes were infeasible. The revised simulator splits
++non-CTOP routes at capacity and records per-trip loads. That safeguard
++applies to future runs; the archived runs executed routes as returned.
++
++\paragraph{Scope of the comparisons.}
++The 224 integrity-filtered improver pairs remain descriptive comparisons
++of complete policy configurations, with neither identical input plans nor
++repeated independent stochastic trials established. Neither summary CSV
++contains a neural-constructor row. Neural-only adapter or Attention Model
++defects therefore do not require recalculation of these eight-constructor
++benchmark tables. These scope limits, together with the pending provenance
++checks, also apply to the interpretation of the results below.
+ 
+ \subsection{Discussion}\label{sec:discussion}
+ 
+@@ -1704,7 +1787,7 @@ avoided overflow rises roughly sevenfold toward its service-intensive end. The
+ design does not hold mechanisms at a fixed service level, so a waste collection operator must instead value a missed collection in regulatory, sanitary, and reputational terms. 
+ 
+ % One methodological hazard appears in three forms. The
+-% $90$-day sample was conditioned on $30$-day Pareto membership, an outcome variable.
++% The selection rule for the non-factorial 90-day sample is pending recovery.
+ % The degenerate runs are all SWC-TCF's, so excluding only them would have
+ % averaged that constructor over the scenarios where it survived while retaining
+ % those scenarios for its rivals. Dropping a scenario cell removes every
+@@ -1757,21 +1840,25 @@ construction.
+ The experiment covered two remote-depot Portuguese networks, one waste stream (plastic),
+ and single-depot operation with an unbounded daily route count, with one stored
+ demand realization per configuration. Because no fleet bound and no shift-duration
+-constraint were imposed (Sect.~\ref{sec:protocol}), the results describe a
+-capacity-constrained but otherwise unconstrained daily operation; they do not
+-establish that any reported plan is executable by a given number of vehicles
+-within a working shift. This study also did not explore the uncertainty that comes from 
++constraint were imposed (Sect.~\ref{sec:protocol}), the archive does not establish that a reported plan is executable by a
++given number of vehicles within a working shift. Nor does it certify
++per-trip capacity feasibility: the route-accounting discrepancy and the
++future-only capacity safeguard are discussed in
++Sects.~\ref{sec:protocol} and~\ref{sec:provenance}. This study also did not explore the uncertainty that comes from
+ the difference between noisy bin fill sensor readings and the actual bin fill values 
+ the drivers check once they arrive at the location, although the data provided does 
+ include both sensor and driver readings for one of the regions (i.e., Rio Maior) 
+ and the simulator is being built to accommodate different sources of noise --- like 
+ Gaussian noise --- being present in the bin fill data that is given as input 
+-to the routing policies. Four SWC-TCF runs failed at the largest, heavier-load 
+-setting; whole-cell exclusion prevented those failures from favoring 
+-any constructor or policy stage, but removed that setting from the
+-corresponding marginals. The improver comparison does not hold constructor
+-output fixed, and the $90$-day follow-up is conditioned on $30$-day Pareto
+-membership. It therefore supports neither a causal improver effect nor a
++to the routing policies. Four SWC-TCF runs had anomalously low collected tonnage at the largest,
++heavier-load setting; whole-cell exclusion prevented their removal from
++favoring any constructor or policy stage, but removed that setting from
++the corresponding marginals. This does not establish a solver crash or
++premature termination. The improver comparison does not hold constructor
++output fixed, and the selection rule for the non-factorial $90$-day
++follow-up is pending recovery of the run records
++(Sect.~\ref{sec:provenance}). It therefore supports neither a causal
++improver effect nor a
+ cross-constructor ranking or population-level horizon effect at $90$ days.
+ 
+ %\paragraph{Future work.}
+@@ -1845,9 +1932,10 @@ than the main-text tables and figures.
+         \\[2ex]
+         {\small (b) Efficiency (kg/km)}
+     \end{minipage}
+-    \caption{Policy $\times$ scenario heatmaps, 90-day horizon, restricted to
+-    the 30-day Pareto-front policies carried forward to this horizon
+-    (Sect.~\ref{sec:experiments}). Panel~(a) is overflow count, panel~(b) is
++    \caption{Policy $\times$ scenario heatmaps for the selected 90-day
++    archive. Its selection rule is pending recovery of the run records;
++    Pareto-only carry-forward is not established
++    (Sect.~\ref{sec:provenance}). Panel~(a) is overflow count, panel~(b) is
+     efficiency. Rows are full policy
+     configurations (selection variant $\cdot$ constructor $\cdot$ improver);
+     columns are network/demand-process scenarios.\ \emph{Caveat:} the

@@ -2819,3 +2819,130 @@ Reconciled:
 - #49 closed, folded into #75;
 - #53 commented that the banner is lifted (Q11), with the work in #76;
 - #61 is now the umbrella for C1–C6.
+
+### 8.6 Codex — P12 / #77 full-diff review (2026-09-27)
+
+**Range:** paper `399d22c..3ea8cc02f9c8cf79bf6477f08f36325f72cdfd1b` (all 13
+changed paths and full resulting manuscript). Code snapshot `961acd78c`.
+**Verdict:** changes required before accepting the paper diff. The following
+findings are addressed by the delivered P12 patches, except the explicitly
+retained modelling/provenance distinctions. Shared submodule not edited.
+Locations below refer to section/label anchors at the reviewed base.
+
+1. **HIGH — directed routing equations forbid positive collection.**
+   `eq:flow-depot-res` reverses h-flow depot indices while coupling puts h on
+   the used directed arc. Summing balances forces total q=0 (proof and
+   one-bin witness in `Evidence/P12-review.md` / `check_formulation.py`).
+   Correct h directions; forbid arcs into 0, out of n+1 and directly 0→n+1.
+   Correct prose about increasing load/decreasing residual and copy depot.
+2. **HIGH — false subtour guarantee.** `sec:mpvrpp` and SWC-TCF paragraph:
+   degree constraints permit disconnected zero-demand cycles. Add explicit
+   connectivity cuts to the reference model; state that the code lacks
+   those cuts. Do not attribute them to the archived solver. Positive-load
+   cycle exclusion comes from conservation plus coupling, not coupling alone.
+3. **HIGH — invalid first-period collection bound.** `eq:collect`:
+   w=110, psi E=100, a=10 satisfies the old initial assumption but produces
+   120>U=110. Use max(initial post-arrival content, psi E+max arrival), state
+   w^1=w explicitly and prove the subsequent-state bound. Keep overflow as
+   a post-solution identity outside the MILP constraint list.
+4. **HIGH — appendix terminal-value arithmetic and optimum are wrong.**
+   Kimi's enumerator uses sum(dictionary) instead of sum(values), giving a
+   constant EUR0.952 terminal value. Independent integer enumeration retains
+   2,688 feasible visit-set trajectories and rho=0 optimum60.532. Myopic
+   rho=R objective45.28; the displayed waiting trajectory71.48 (+57.9%);
+   true rho=R optimum79.18, serving {1,3} on day1 only, terminal mass545kg.
+   Remove the same-optimum claim and provide both reproducible scripts in
+   the paper's Evidence directory. Uniqueness means visit-set trajectory,
+   not route orientations on a symmetric matrix.
+5. **MEDIUM — appendix distance provenance and interpretation.** Slide28
+   visibly prints d04=10.0; matrix uses9.8. It retains seven, not eight,
+   printed pairs. Keep the existing full matrix but explicitly call it an
+   illustrative modification, with d14=7.7 and d24=10 supplied here. Bin3
+   can individually repay a trip on day1; remove “only jointly” and “each
+   bin pays its own detour” overstatements. Day2's580kg refers to {2,3,4},
+   not the whole day1 set.
+6. **MEDIUM — requested visit-set rename and symbol collisions.** Rename
+   appendix `S^t` to existing canonical `I(\mathcal{R}^t)` (no new dialect).
+   Use nu for selector projection depth, keeping n for bin count; Runs for
+   table sample counts; vartheta for SANS temperature, keeping T for periods;
+   u for HGS individual index and configured elite/close counts explicitly.
+7. **MEDIUM — contradictory state timing and overflow notation.** P9 still
+   says the model fills after collection; selector opener and loop figure
+   equate post-arrival input with opening w^t. Align text/figure with P3,
+   define capped decision level and ell=max(0,w+a-E), and give the simulator
+   transition w_next=w+a-ell-q. o_i^t is an indicator, not an aggregate count.
+   Clarify lost mass only on positive-arrival days and separate E=2.5B from Q.
+8. **MEDIUM — force-threshold equality is not the same rule everywhere.**
+   `eq:force` enforces >psi E, permitting non-service at equality; current
+   SWC-TCF code forces >=. State this distinction explicitly, retaining the
+   reference inequality. Q14 overflow remains >=E exactly. Do not introduce
+   an epsilon that excludes a continuous interval. **For owner/Hector:**
+   exact equivalence of force rules would require a further model decision;
+   P12 does not silently claim it.
+9. **MEDIUM — source recap doubles undirected travel cost.** Ramos2018
+   equation11 has0.5 C sum_ij x_ij d_ij. Restore that factor only in the
+   undirected source recap and explain it; directed MPVRPP/SWC code keep C.
+10. **MEDIUM — algorithm fidelity.** SANS reheats after >500 non-improving
+    neighbor evaluations, checked at a block boundary, not after500 blocks.
+    PG-CLNS reinforcement is global best (the text contradicted itself).
+    BPC negative reduced cost improves the restricted-master relaxation,
+    not necessarily the integer incumbent; remove the raw-profit local
+    extension-stopping claim. ALNS segment100 is a current default, not a
+    recorded archive parameter. SWC solves a related single-period model,
+    not the full MPVRPP. Historical ACO behavior qualified as reviewed
+    pre-correction code rather than a recovered executable.
+11. **MEDIUM — unsupported causal/structural claims.** Intro/model bridge/
+    discussion said only mandatory selection can force an unprofitable
+    full bin; SWC's own psi backstop contradicts that. Daily heuristics
+    target, rather than solve, the full expected-profit problem. LA bundling
+    does not prove a monotone conservatism dial or the observed frontier.
+    Preserve descriptive results; remove unsupported universal guarantees.
+12. **MEDIUM — provenance overclaims survive P10.** Discussion still says
+    90-day selection was by30-day performance; Table excluded footnote
+    asserts all logs reach horizon despite missing90-day raw logs, then
+    labels full-bin outcomes “not policy behaviour”. Correct text and
+    generator string; recovery remains pending and Q8 reruns deferred.
+13. **MEDIUM — bibliography correctness beyond resolving keys.** P1 left
+    `@article{Mes2014InventoryRouting},` malformed; fix fields being skipped.
+    P11's Mes2012 book/publisher are wrong: publisher verifies *Use Cases
+    of Discrete Event Simulation*, Springer, pp277–307, DOI
+    [10.1007/978-3-642-28777-0_13](https://link.springer.com/chapter/10.1007/978-3-642-28777-0_13).
+    Baldacci metadata confirmed with INFORMS. Do not preserve incorrect
+    metadata merely because it appeared on the beamer.
+14. **LOW — cross-reference semantics.** Replace stale “two subsections
+    that follow the problem statement” with constructor label. Move the
+    balancing caveat's referent to the strategy table/aggregate figure,
+    not the single-bin illustration. Explain rho=0 applies to benchmark,
+    since the appendix also evaluates rho=R. Recheck all labels and citations
+    after added connectivity equation renumbers subsequent equations.
+
+**Evidence check:** re-ran the read-only archive audit and all six table
+reproductions. All480 30-day CSV rows still match logs on ten metrics; all
+six table numeric bodies unchanged. Q9 remains224 pairs; horizon165 pairs;
+90-day archive174 with151 off the reconstructed raw30-day fronts. No new
+simulations, no altered empirical results. The new appendix is a separate
+finite deterministic calculation, not an experimental rerun.
+
+**Ruling check:** Q1 basefile, Q2/Q4/Q5 symbols, Q3 lost-mass distinction,
+Q6 full model body, Q7 appendix, Q8 pending recovery, Q9 filtered pairs,
+Q10 no share cap, Q11/Q16 editable abstract, Q12 directed costs, Q13 depot
+count=k, Q14 inclusive pre-collection overflow, Q15 excluded neural figures,
+Q17 owner-provided AM rationale and Q20 owner-before-Hector PR sequence are
+retained. Later N→n ruling retained. Q19 venue/page budget remains unknown;
+no speculative cutting to a conference page count. Q18 selection lane
+integrated, with the fidelity corrections above.
+
+**Review limit:** numerical reproducibility is not proof of historical solver
+correctness, route feasibility, controlled improver treatment, or a replicated
+stochastic comparison. Missing manifests/datasets/90-day logs remain recovery
+work. Raw presentation-derived graphics retain caveats; no claim to reproduce
+all external cited studies. Full-diff review is complete, with fixes offered
+for application and a clean rebuild rather than an approval of the old diff.
+
+**Delivery and validation:** `.agent/cache/patches/codex/issue-77-p12-full-review.patch`
+plus `issue-77-p12-generator.patch`; handoff in `issue-77-p12-handoff.md`.
+Both apply checks pass. Patched LaTeX builds to51 pages (base50), with zero
+undefined references/citations, duplicate labels, overfull boxes, oversized
+floats or BibTeX warnings. Full-document render inspected, with detailed QA
+of corrected formulas, diagram and appendix. Patch whitespace check passes.
+No shared paper edits, simulator runs, commits or pushes.
