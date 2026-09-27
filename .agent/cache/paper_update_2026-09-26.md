@@ -2946,3 +2946,60 @@ undefined references/citations, duplicate labels, overfull boxes, oversized
 floats or BibTeX warnings. Full-document render inspected, with detailed QA
 of corrected formulas, diagram and appendix. Patch whitespace check passes.
 No shared paper edits, simulator runs, commits or pushes.
+
+## 9. Hector's feedback on `paper_versaoHector3.tex` (2026-09-27): triage (Claude)
+
+**Context.** Upstream `0ab1558`, "New changes by Hector", adds `paper_versaoHector2.tex` and `paper_versaoHector3.tex`.
+
+v3 renames the problem **MPTP (Multi-Period Profitable Tour Problem)**, including the title. It rewrites the abstract, the
+introduction, related work and §3, and adds a new appendix "Properties of the MPTP" with an exactness theorem, the daily
+decomposition, and the relation to Spinelli et al. (2025).
+
+v3 §3 uses **its own notation**: `N`, days `d`, `Cap_i`, `dist_ij`, plans `𝒜`, `w_{i,d}` with collect-then-arrive, **keeps δ** (at most
+⌊δN⌋ overflows), and counts overflow as `w_{i,d+1} > Cap_i`, untruncated. From Methodology on, v3 is the old `paper.tex` (`399d22c`) with
+one-line edits. **Hector's feedback targets that old second half**, most of which our PR branch (`3db8f17`) has already rewritten.
+
+Status: ✓ = already fixed on our branch; ◐ = partly; ✗ = open (text); ⚙ = needs code, data or regenerated figures; ? = owner decision.
+
+| # | Hector's point | Status on our branch | Next action |
+|---|---|---|---|
+| 1a | The demand seed must not depend on the policy; the increments are shared, not the levels | ✓ text: "paired on the arrival sequence, not on the bin levels" (P9). Code: arrivals are generated once per sample (`seed + sample_id`); the per-policy seed only drives the policy RNG (B-grok-01 fix) | Confirm that the wording names scenario/day/bin as the seed dependence |
+| 1b | SWC-TCF does not solve the same daily problem (vehicle penalty, its own ψ forcing); the Discussion's "only reason … is mandatory selection" is false for it | ◐ The SWC-TCF text now states ψ = 1 forcing and Ω = 0.1 (A-kimi-01), and the exact phrase is gone. Still need to check every "same daily problem"-type claim and the Discussion | **? D2: fix in code or assume in the text** |
+| 1c | "Overflow avoidance is entirely upstream" overstates: constructors affect overflow indirectly (ALNS 5.9 vs HGS 19.9) | ◐ The phrase is gone. Need to check that the Discussion says "no direct incentive" | ✗ wording |
+| 1d | Runtime measures the configured budgets (not stated); BPC fallback frequency unknown | ◐ The SWC-TCF 60 s and the BPC fallback rule are stated; the per-constructor budgets and the "4.5-fold" claim remain | ✗ state every budget from the archived configs; ⚙ the BPC fallback count is not in the archived logs, so say so (a count needs a rerun, C6) |
+| 1e | Single demand realisation and single algorithm seed per configuration | ◐ The improver caveat exists (R-codex-06) | ✗ one general sentence on algorithm seeds |
+| 2 | Kg lost promised but never reported | ✗ defined (ℓ) and in the metric list, but in no table | ⚙ add a kg-lost column (the CSV has `kg_lost`; generator change) **or** drop it from the list: ? D5 |
+| 2 | Route count: `K_d = ⌈kg/Q⌉` is a lower bound | ✓ stated as a payload lower bound (A-grok-04, R-codex-07) | none |
+| 2 | Aggregate efficiency: ratio of totals or mean of daily ratios? | ✓ total kg / total km (A-grok-02) | Check that the results section says so where the numbers appear |
+| 2 | 90 days: 174 runs, 165 pairs, "six of the seven constructors" | ◐ 174/165 and the selected subset are explained (P10). Need to check the "six of seven" wording and explain the 9 unpaired runs | ✗ |
+| 3 | LA "exactly" SL at z = 0, n = 1 | ✓ reworded: only the seed is that rule, and grouping adds bins (A-cursor-04) | none |
+| 3 | "LA has no threshold variant, so fewer configurations" | ✗ still at line ~841 | ✗ fix (strategy vs variant) |
+| 3 | SL linear-in-n justified by autocorrelation that the data do not have | ✗ still at line ~1349 | ✗ remove or reframe |
+| 3 | HGS fitness mixes € with unscaled diversity; P_feas undefined; ACO-HH "state s" undefined | ◐ HGS is rank-based (A-qwen-02). Need to check P_feas and the ACO-HH notation | ✗ |
+| 3 | PG-CLNS "an original design" is an unmentioned, unvalidated contribution | ✗ still "An original design" (line ~1020) | **? D4: claim it as a contribution (intro + validation), or present it as the authors' HVPL-inspired variant without novelty claims** |
+| 4 | Q wrongly presented as derived from the density | ✗ check the scenarios text; Q is a fleet parameter (3,500 / 2,500 kg), density gives the bin mass (2.5 m³ × 19 kg/m³ = 47.5 kg) | ✗ |
+| 4 | "52.9 against 8.6 units" | ✓ replaced by the directed medians in km (P9) | none |
+| 4 | Gamma-3: preset origin, "fitted" to what, frequency of increments above 100 % | ◐ the clip to [0, 100] is stated | ⚙ compute the exceedance frequency from the preset; ✗ explain the preset's origin |
+| 4 | Size and city are confounded; how were the 100/170 subsets chosen? | ✗ | ✗ state the confounding; **? D6 (owner): how the `graphs_100V/170V` subsets were selected** |
+| 4 | Matrix asymmetry versus assumption A1 | ◐ directed km are used in the runs (Q12); A1 in the model | ✗ one sentence linking the two |
+| 5 | Data Integrity comes after the results it filters | ✗ | ✗ move it before §5.3 |
+| 5 | "Four runs" mixes horizons (3 at 30 days + 1 at 90 days) | ◐ the table and footnote now separate them | ✗ say so explicitly in the text |
+| 5 | Granular Scenario Results show unfiltered figures | ✗ | ⚙ regenerate them filtered, or move them to the appendix |
+| 5 | Appendix A PNG table ("the project's results presentation") | ✗ | ✗ remove, or replace with a generated LaTeX table |
+| 5 | Variant names CF70 / LM-CF90 / LM70 / LM90 | ✗ (4 hits) | ✗ fix one form |
+| 5 | Loop figure uses f_t, t vs the paper's w, d | ◐ redrawn in our notation (w, t) | depends on D1 |
+| 5 | British/American spelling mixed | ✗ (kilometre 9 / kilometer 4, …) | **? D3: pick one** (v3 leans American) |
+| 5 | Conclusion: "markedly different", new driver readings, long future work | ✗ | ✗ soften; **? D7: drop the Rio Maior driver readings or introduce them earlier**; cut future work to 3 priorities |
+
+**Decisions needed (owner):**
+- **D1: base document and notation.** v3's first half (MPTP name, Hector's notation, δ kept, theorems, Spinelli positioning) versus our branch
+  (MPVRPP, beamer notation, no δ, overflow at 100 %, `n`). Options:
+  - (a) Hector's first half + our corrected second half, re-notated to Hector's symbols. This reverses rulings Q2/Q4/Q10/Q14/n.
+  - (b) Our branch, porting Hector's additions (the MPTP positioning table, the theorems, Spinelli, the new figure) into our notation.
+  - (c) Agree a notation with Hector first.
+- **D2:** SWC-TCF, code or text (1b).
+- **D3:** spelling variant.
+- **D4:** PG-CLNS framing.
+- **D5:** kg lost, report or drop.
+- **D6:** how the 100/170-bin subsets were chosen.
+- **D7:** the driver readings in the Conclusion.
