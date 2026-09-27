@@ -3003,3 +3003,19 @@ Status: ✓ = already fixed on our branch; ◐ = partly; ✗ = open (text); ⚙ 
 - **D5:** kg lost, report or drop.
 - **D6:** how the 100/170-bin subsets were chosen.
 - **D7:** the driver readings in the Conclusion.
+
+### 9.1 Owner rulings on Hector's feedback (2026-09-27)
+
+- **D1 = (a).** Hector's v3 front half is the base: title, the **MPTP** name, abstract, introduction, related work, §3 and his notation,
+  δ kept in the model, and the "Properties of the MPTP" appendix. Our reviewed second half follows, re-notated to his symbols.
+  **Done: `7432e3d`** (base assembled, 53 pages, clean build) and **`9898e2f`** (instance labels back to `N=`). The previous model's
+  4-bin example is left out, because it was built on our old model; it can be re-notated if wanted. This supersedes Q2/Q4/Q10/Q14
+  and the `n` ruling for the paper's notation. The simulator metric is unchanged: overflow is counted at 100 %, and v3's
+  "Model and simulator" paragraph states how the two differ.
+- **D2:** SWC-TCF's differences (its own ψ = 1 forcing and Ω inside the optimisation) are **stated in the paper**, not changed in code.
+- **D3:** **American** spelling throughout.
+- **D4:** PG-CLNS is presented as an **HVPL-inspired variant, with little novelty claimed** (not a contribution in the introduction).
+- **D5:** **add a kg-lost column** to the results tables (generator change).
+- **D6:** the Rio Maior networks: **N = 100 are the 100 bins closest to the depot, and N = 170 the 170 farthest**. The two overlap heavily
+  because the area has only a little more than 170 bins, and the split guarantees that every bin appears in at least one network.
+- **D7:** **remove** the Rio Maior driver readings from the Conclusion.
