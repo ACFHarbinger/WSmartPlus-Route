@@ -89,6 +89,7 @@ It replaces the paper's subscript `,d` and `d = 1..D`.
 | N-grok-04 | `a_i^t` unit | Simulator `a_i^t` is the kilogram image of a fill-percentage draw, not the beamer's expected kg/day. A draw `u_i^t` from `P_i` is stored in percentage points of `E_i` and `a_i^t = (u_i^t/100) E_i`. The MILP keeps the beamer's expected `a_i` (slide 8, slide 34). Acceptance: §1 states both readings, and the scenarios section no longer identifies the Gamma percentage-point draw with a kg/day expectation. | `statistical_gamma.py:113` divides by 100; `gen_dataset.py:161` multiplies by `max_waste = 100`. Slide 8: `a_i` is expected kg/day. Slide 34: the formulation inserts that expectation. | Grok |
 | N-kimi-01 | route notation (replaces `𝒜_{d,k}`, `a_{t,k}`, `T_{d,k}`) | Route k in period t is an ordered sequence `$\mathcal{R}_k^t = (v_{k,0}^t, v_{k,1}^t, \ldots, v_{k,m_k^t}^t, v_{k,m_k^t+1}^t)$` with `$v_{k,0}^t = 0$` (real depot), `$v_{k,m_k^t+1}^t = n{+}1$` (depot copy), `$v_{k,p}^t \in I_b$` for `$1 \le p \le m_k^t$`, pairwise distinct across the day's routes; `$m_k^t$` = bins visited on route k in t (replaces `T_{d,k}`); plan `$\mathcal{R}^t = \{\mathcal{R}_1^t, \ldots, \mathcal{R}_{k^t}^t\}$` (replaces `𝒜_d`; route count `K_d`→`k^t` per N-mistral-10); non-depot visit union `$I(\mathcal{R}^t)$`. Travel term: `$\sum_{k=1}^{k^t} \sum_{p=0}^{m_k^t} d(v_{k,p}^t, v_{k,p+1}^t)$`. Symbols introduced: calligraphic `$\mathcal{R}$`, `$v_{k,p}^t$`, `$m_k^t$`, `$I_b$` [Q4]; removes `𝒜_{d,k}`, route-sense `a_{t,k}`, `T_{d,k}`; frees `a` (accumulation), `t` (period), `T` (period set). Calligraphic `$\mathcal{R}$` is print-distinct from revenue `$R$`; `$v_{k,p}^t$` reuses the paper's node letter as "node at position p" (per N-mistral-07's position-index note). Acceptance: `grep -nE "\\\\mathcal\{A\}\|a_\{t,k\}\|T_\{d,k\}" paper.tex` is empty after the §3/Methodology rewrites; the profit equation, HGS fitness (with A-qwen-02) and every caption use the new notation. Full old→new occurrence mapping in §7.D / N-kimi-01. | §1 table last row; beamer slides 6 (split depot) and 22 (node set); Hector draft `R_k=(0,v_1,\dots,v_{m_k},N{+}1)` at `paper_versaoHector1.tex:770-772` (his `R_k` collides with revenue `R` — rejected). | Kimi |
 | N-gemini-01 | `\bar{w}_i^t`, `m_{i,p}^t` | State normalization and action masking notation for constructive policies: normalized fill `\bar{w}_i^t = w_i^t / E_i \in [0, 1]` and dynamic action mask `$m_{i,p}^t \in \{0, 1\}$` at tour step `$p$` on day `$t$` (`$m_{0,p}^t = 0$` until `$\mathcal{M}^t \subseteq \{v_{k,1}^t, \dots, v_{k,p-1}^t\}$`). Symbols: `\bar{w}_i^t`, `m_{i,p}^t`. Acceptance: any formalization of learned constructive routing or action masking uses `\bar{w}_i^t` and `m_{i,p}^t`, consistent with the canonical table. | Neural constructors operate on normalized node features in `[0, 1]` (`policy_na.py:119`), and enforce mandatory selection `\mathcal{M}^t` via sequential action masking (`vrpp.py:116–125`). | Gemini |
+| N-cursor-01 | `CF` vs `ψ`; projection depth `n` | Keep two distinct thresholds. `CF` (paper) / `threshold` (code) is the Last-Minute selector cut: archived `70` and `90` **percent** of `E_i`, equivalent to the paper's ratios `0.70` and `0.90`. `ψ` is the model/constructor force-visit threshold of (40): archived SWC-TCF `psi: 1` (100% of `E_i`). Do not write `ψ = 0.7`. Confirm N-mistral-12: the SL projection depth is the constant `n ∈ {1,2}` (`horizon_days`), not a period index `n_d`. Confirm N-mistral-09: `\hatρ_{i,d}` → `\hatρ_i^t`. Acceptance: LM text uses `CF`/`τ` in percent or as an explicit ratio; `ψ` appears only as the (40)/SWC backstop; `n_d` is gone. | Beamer slides 10 (`M`, source study `M=0.8`) and 18 (`ψ` vs `δ`); `eoq.py:80–102`; `ms_last_minute.yaml:27,31`; archived `…/lm_cls/hydra/pruned_config.yaml:436` (`psi: 1`). Q10 drops `δ`; Q5 keeps `𝓜^t`. | Cursor |
 
 ## 2. Formulation and problem definition (§2 "Problem Definition" of the paper)
 
@@ -149,6 +150,10 @@ improvement. It is the bridge to §4 Methodology.
 | A-gemini-01 | paper.tex:544–748 (new paragraph in Sect. 4.2 Route Constructors) | The paper completely omits learned constructive solvers from Sect. 4.2, describing only the eight classical solvers, despite emphasizing NCO in the Abstract, Keywords, and Related Work. | `logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py:40–150` implements `NeuralAgentPolicy` (key `"na"`), wrapping `NeuralAgent` and an encoder-decoder Attention Model (`models/core/attention_model/`): (i) normalizes waste to $[0, 1]$ via $w_i^t / 100.0$ (`policy_na.py:119`); (ii) enforces mandatory selection $\mathcal{M}^t$ dynamically via `_get_action_mask`, masking depot return until all mandatory bins are visited; (iii) decodes autoregressively with multi-head attention glimpses and tanh clipping ($C=10$); (iv) supports greedy rollout or sampling. | Add paragraph in Route Constructors: Attention Model Policy (Neural Agent) operates on normalized state $\bar{\bm{w}}^t \in [0,1]^n$, embeds coordinates and waste via Graph Attention encoder, and autoregressively decodes visits via glimpse decoder with tanh clipping ($C=10$). Mandatory selection is enforced by masking depot return until $\mathcal{M}^t$ is fully served. State that learned models are withheld from municipal benchmark tables due to absence of multi-scale pre-trained weights for the real networks. Full replacement LaTeX in §7.C / A-gemini-01. Symbols: none new. Acceptance: Sect. 4.2 describes the Attention Model constructive adapter and its action masking. | Gemini | proposed |
 | A-gemini-02 | paper.tex:326–343 (Related Work / Appendix) | Cites Kool et al. (2019) generically as the Attention Model reference without detailing the architecture or the code's specific design variations. | Deviations from Kool et al. 2019: (i) Decoder query omits global graph context $\bar{h} = \frac{1}{n}\sum h_i$ (`subnets/decoders/glimpse/decoder.py:361,399`, `project_fixed_context` is dead code; P-gemini-01, D-gemini-01); (ii) Pointer attention uses multi-head dot products scaled by $\sqrt{d/M}$ averaged across heads (`logits.mean(dim=1)` in `one_to_many_logits`) rather than single-head scaled by $\sqrt{d}$ (P-gemini-02); (iii) `AttentionModelPolicy` ignores `normalization='layer'` from yaml due to kwarg swallowing (`gat/encoder.py:35–49`, B-gemini-01), defaulting to BatchNorm. | Replacement in §7.C / A-gemini-02: Document the implemented Attention Model query formulation (step context without global pooling), multi-head pointer scaling $\sqrt{d/M}$, and normalization layer defaults. Acceptance: text accurately characterizes the code's Attention Model architecture. | Gemini | proposed |
 | A-gemini-03 | paper.tex:339–342 and 889–963 | "Every stored 30- and 90-day benchmark row, however, uses one of the eight classical constructors in Sect. 4.2, so the reported results contain no learned-solver observation." No rationale is provided for why learned solvers were not exercised. | Beyond the lack of pre-trained checkpoint weights for 100/170/350-node municipal networks (`assets/model_weights/` absent), the simulation pipeline contains execution defects on the `na` path: (i) empty mandatory set returns `([0], 0, ...)` instead of `[0, 0]` (`simulation.py:76`, B-gemini-02, violating D3); (ii) revenue calculation multiplies percent `bins.c[n-1]` directly by `revenue_kg` without kg conversion and uses noisy sensor reading $c$ instead of $real\_c$ (`policy_na.py:145–146`, B-gemini-03); (iii) `running.py:178` injects 2-tuple `model_ls` causing `ValueError` in `policy_na.py:108` (expects 3-tuple); (iv) loader filter in `initializing.py:290–295` misses key `"na"`. | Replacement in §7.C / A-gemini-03: State the scope boundary: the framework provides execution wrappers for neural policies, but learned constructors are excluded from the benchmark because curriculum pre-training across 100–350 node heterogeneous topologies with non-stationary stochastic accumulation remains an open research challenge; the benchmark focuses on classical baselines. Acceptance: paper provides a scientifically grounded rationale for withholding NCO from municipal evaluation. | Gemini | proposed |
+| A-cursor-01 | paper.tex:468–483 (selection opener) | The opener states the sensed-fill contract and introduces `\hatρ_{i,d}=ŵ_{i,d}/C_i ∈ [0,1]` so that “thresholds expressed as percentages” are comparable. It never says that the three strategies compute `𝓜^t`, never maps that set to force-visit (40), and never says they do **not** implement Ramos `δ` or `H ≤ nδ`. | Code: selectors read `bins.c` (percent, `[0,100]`) and online `bins.means`/`bins.std` (`node_selection.py:71–79,155–161`; `bins/base.py:122–123,406–410`). Archived `noise_variance: 0.0` and `stats_filepath: null`. LM compares `current_fill >= threshold` in percent (`eoq.py:93–102`); it computes `fill_ratios` and never reads them (B-cursor-04). Constructors then force `𝓜^t`. SWC-TCF additionally forces fill `≥ ψ·100` with archived `ψ=1` (`gurobi.py:137–141`). No selector implements `δ` or the skip-the-day trigger. | Replacement in §7.F / A-cursor-01: `ŵ_i^t`, `\hatρ_i^t`, `E_i`, `𝓜^t` realises (40); percent vs ratio; no `δ`. Symbols: `\hatρ_i^t`, `𝓜^t`, `ψ`. | Cursor | proposed |
+| A-cursor-02 | paper.tex:485–493 (Last-Minute) | LM flags a bin iff `\hatρ_{i,d} ≥ CF` with `CF=0.7` (CF70) and `0.9` (CF90). No map to the beamer’s fill rule `M`, and `CF` is written only as a ratio. | Archived `threshold: 70` and `90` (`ms_last_minute.yaml:27,31`; every `lm_*` `pruned_config.yaml`). Comparison is `current_fill >= τ` in percent (`eoq.py:102`; `use_eoq_threshold` false). Source study `M=0.8` (slide 10). This `τ` is not `ψ`. | Replacement in §7.F / A-cursor-02. Symbols: `CF`/`τ` (percent), `𝓜^t`. | Cursor | proposed |
+| A-cursor-03 | paper.tex:495–520 (Service-Level) | SL projects `ŵ_{i,d} + n_d μ̂_i + z n_d σ̂_i ≥ C_i` with `z=0.84`, `n_d=1` (SL1) and `n_d=2` (SL2), and correctly says the deviation term is linear in `n_d`. The name “Service-Level” can be read as the beamer’s `δ`. | Shipped path: `predicted = current_fill + n·μ + z·n·σ ≥ 100` (`selection_service_level.py:58–67`), `z=context.threshold=0.84`, archived `horizon_days: 1` and `2`. `μ̂,σ̂` are Welford updates on percentage-point increments (`bins/base.py:406–410`). Typed `ServiceLevelSelectionConfig` drops `horizon_days` (B-cursor-01); the archived `{file: variant}` path kept `n=1,2`, so the paper’s SL1/SL2 are what ran. SL is not `δ`. | Replacement in §7.F / A-cursor-03: `n` not `n_d`; not `δ`; keep the linear-buffer paragraph. Symbols: `n`, `z`, `\hatμ_i`, `\hatσ_i`. | Cursor | proposed |
+| A-cursor-04 | paper.tex:522–542 (Look-Ahead + family) | LA “projects each bin’s level forward … to find the last day before its projected overflow” and “bins whose projected collection dates coincide are released together”. It then says `ŵ+μ̂≥C` “is exactly” SL at `z=0`, `n_d=1`, so LA is “the zero-buffer, one-day member of the same projection family”. | Two steps (`selection_lookahead.py:41–51,211–238`). Seed: `fill+rate ≥ 100` after today’s fill is already in `c` (overflows **tomorrow**). Bundle: empty the seed, take the earliest re-overflow day `t⋆`, add every other bin that would hit 100 **before** `t⋆`. Empty seed ⇒ empty `𝓜^t`. No GRF (yaml comment only, P-cursor-03). Archived `current_collection_day: 0`; day arithmetic is relative (DS-21). The seed identity with SL(`z=0,n=1`) is true; the bundling step is extra. | Replacement in §7.F / A-cursor-04. Symbols: `𝓜^t`, `n`, `z`. | Cursor | proposed |
 
 ## 4. Results that the code changes put at risk
 
@@ -711,6 +716,287 @@ captions.
 **Evidence:** `logic/gen/gen_paper_latex.py --tables-only`; all six generated tables reproduce numerical entries atpaper399d22c. Five match after whitespace normalization; scenarios differs only in comments. 480/480 30-day CSV rows match raw logs one-to-one on all 10 summarymetrics; 90-day raw logs absent.
 
 **Acceptance:** Add run manifest and machine-readable verification; distinguish regenerated table data from imported presentation graphics. Archive copies/hashes of inputs before a new run replaces anything.
+
+### Late-row review — Codex — 2026-09-27
+
+**Scope and verdict convention.** Reviewed all **37** requested rows: Kimi 13,
+Qwen 5, Grok 11, Gemini 8, against the owner rulings in §8.3. Source snapshot:
+`2b369acd5604cefde24a9fdc8f5eb159a6f44c33`. “Supported” means the scoped claim
+passes this technical review; it is not approval to merge. “Revise” means the
+listed correction is required before implementation. “Superseded” means the
+owner's ruling replaces the proposal. Original rows are preserved above.
+No simulator runs, paper edits, commits or issue mutations were performed.
+
+Read the full late-row replacement blocks, not only the ledger summaries.
+Re-read the relevant implementation and archived configuration. Rechecked slides
+28–30 visually. The read-only witness script
+`.agent/cache/tools/codex_late_rows_review_20260927.py` produces
+`.agent/cache/codex_late_rows_review_20260927.json`: actual constructor counts,
+the epsilon-boundary counterexample, directed/symmetric distance medians, and a
+feasible counterexample to carrying the old example's terminal-value comparison
+into the revised model as an optimum. Existing Codex archive audits remain the
+sources for the trip-count and truncation findings.
+
+**Rulings applied throughout:** Q1 uses `paper.tex`; Q2–Q5 settle `w_i^t`,
+`o_i^t`, `\ell_i^t`, `I_b`, `\mathcal M^t`; Q6 puts the full model in the body;
+Q7 includes a revalidated example in the appendix; Q8 says provenance is
+**pending recovery**, not unrecoverable, and defers reruns; Q9 retains the 224
+integrity-filtered improver pairs; Q10 removes the delta/counting mechanism from
+the problem definition; Q11/Q16 permit the abstract rewrite; Q12 keeps directed
+road distances; Q13 corrects depot degree; Q14 counts reaching capacity;
+Q15 reserves architecture/training figures for a future paper; Q17 supplies the
+AM exclusion reason; Q19 leaves page budget unknown; Q20 preserves owner then
+Hector review through the paper PR. Cursor's separate Q18 work is not duplicated.
+
+#### Kimi: 13 row verdicts
+
+| Row | Verdict | Evidence and required correction |
+|---|---|---|
+| N-kimi-01 | Supported with notation correction | Use the ordered route, position index and depot copy as proposed; Q4/Q5 are settled. Replace both `\dist(...)` and `d(...)` by the canonical directed cost `d_{v_{k,p}^t,v_{k,p+1}^t}`. Define the copy's inbound costs by `d_{i,n+1}=d_{i0}` and map logged depot 0 to the terminal copy. Quantify bin membership only for positions 1 through `m_k^t`; endpoints are not bins. The draft's standalone unqualified membership statement would otherwise include endpoints. |
+| F-kimi-01 | Revise before P3 | Q10 removes the share parameter, count cap, O/H trigger and all associated problem-definition prose; the source feature may be recapped once. Q6 requires the full routing core in the body, not the present placeholder or appendix recommendation. Q12 requires an explicit directed formulation or a clearly separated undirected source recap; do not price ordered directed arcs with the inherited one-half factor. Q14 needs the boundary/period corrections below. Remove the final assertion that registering independent stages identifies each stage's causal effect: the existing improver results do not hold upstream plans fixed (Q9). |
+| F-kimi-02 | Supported skeleton; revise mathematical carry-over | Keep one notation and one formulation. Drop automatic symmetrisation (Q12) and the appendix/page-limit premise (Q6/Q19). `\psi E_i+\max_t a_i^t` is not always “strictly tighter” than Hector's bound: equal at psi=1 and larger at psi>1. State the initial-state and force-visit assumptions needed for this bound. The 61,776 binary count is for undirected pairs of 352 nodes; a directed arc model has a different count (123,552 ordered distinct-node pairs before exclusions). Update complexity and proofs for the chosen arc set. The residual-value proof applies to no-loss mass conservation, not automatically to the capped simulator. |
+| F-kimi-03 | Supported under Q13 | For a split-depot route 0 to n+1, the real depot's incident departure count is one per route. Keep `\sum_{j\in I_b}x_{0j}^t=k^t`, with the appropriate directed-arc definition. Current SWC `gurobi.py:128–145` uses departure and arrival counts k on a single physical depot. Mark the correction as the authors' extension and include it in Hector's review. Do not retain the row's alternative “drop it”: Q13 explicitly chose the corrected equation. |
+| F-kimi-04 | Superseded by Q14; proposed implementation needs repair | Delete the two-convention replacement. Independently, its old “iff” and “0 in any optimal solution” claims are false: a one-sided big-M upper inequality permits o=1 below capacity whenever the cap permits it. The proposed Q14 epsilon pair excludes `(E_i-epsilon,E_i)` from a continuous state domain; witness below. Preserve the owner's at-capacity definition and make numerical resolution and period alignment explicit before claiming exact MILP equivalence. |
+| F-kimi-05 | Supported with scope correction | Q3 accepts lost mass. Distinguish the **multi-period no-loss reference extension** from capped simulator accounting, and remove stale `[Q3]`. Do not describe carrying stock into the next period as an inherited property of a single-period source. `bins/base.py:412–434` measures discarded excess, caps state and then counts full bins. Remove references to the deleted count-cap equation (39). |
+| F-kimi-06 | Revise | Delete “leaves the bins as full as … allow”: profitable collection can empty bins, and ties need not maximize terminal stock. Remove (39) and qualify the rho=R cost-minimization identity by deterministic no-loss mass conservation. With discarded mass, collection plus residual stock is total arrivals minus losses, hence not constant across policies. Keep rho=0 as the experiment convention; cyclic terminal control is an optional modelling variant, not a feature run in the benchmark. Replacement below. |
+| A-kimi-01 | Revise equivalence and objective wording | The source reading and directed implementation are related, but cannot be called mathematically equivalent without symmetric costs and matching service constraints. Q10 deliberately omits the source delta constraint. Re-read `.../smart_waste_collection_two_commodity_flow/gurobi.py:56–167`: two flows, forced visits at `fill >= psi*100`, directed objective, and fleet bound are present. Archived yaml at `.../gamma3/lm_cls/hydra/pruned_config.yaml:431–438` sets Omega=0.1, whereas reported simulator profit omits it. Preserve that distinction; do not let N-grok-01 set every solver's internal Omega to zero. The bare flow coupling does not alone prove subtour elimination: conservation is essential, and zero-demand disconnected cycles need separate consideration. |
+| A-kimi-02 | Revise timeout claim; support current mechanisms | `bpc_engine.py:978–1005` invokes the greedy-versus-restricted-master-IP fallback **only if no integer node was found**; otherwise it returns the best integer node. The proposed “on timeout it returns…” is too broad. This extra fallback solve receives a separate 1–10 s budget, so 60 s is a configured search budget, not a strict end-to-end bound. Cut/branch descriptions must be scoped to the reviewed revision; archived enable flags do not prove a separator executed historically. Retain R-codex-04's strong-branching caveat and Q8 pending provenance; do not certify the historical BPC implementation merely by calling it an exact method. |
+| A-kimi-03 | Revise notation and historical attribution; mechanisms supported | Current `hyper_aco.py:148–152,230,300–320,753–796` confirms all registered operators, journey length equal to their count, capacity relaxation to infinity, a virtual-row first deposit, and elapsed-time visibility. `policy_aco_hh.py:139–148` supplies the greedy start. Rename deposit Q (vehicle-capacity collision), evaporation rho (terminal-value collision), and initial tau_0 along with phi. State retention as `phi <- (1-r_evap) phi`, rather than calling `1-rho` the evaporation rate. The visibility numerator is conditional: lambda^I or the normalized exponential when dynamic lambda is enabled. Qualify archived execution by Q8; current code plus saved yaml is not historical executable proof. |
+| R-kimi-01 | Supported as risk; revise certainty | Keep ACO repeatability/capacity exposure and matched-rerun dependency. Replace “archived runs executed all eleven” by “the reviewed implementation executes all eleven; historical execution is pending recovery of the run records.” A current toy counterexample is not proof that an archived ACO route violated capacity. Preserve the archive-level trip discrepancy separately. Q8 defers reruns until records return. |
+| I-kimi-01 | Revise under Q10 | Keep the three-stage bridge, remove the smarter overflow-count trigger, and use equation labels rather than fixed slide numbers. State that selection supplies mandatory visits, construction chooses optional visits and routing, and improvement refines the served set's ordering/partition. Do not promise that this factorization alone identifies causal stage effects. |
+| I-kimi-02 | Accepted placement; block stale numerical claims | Q7 places the example in the appendix, but “reproduces the slide tables exactly” is no longer the acceptance criterion. Q10 removes delta=0, and Q14 changes the boundary rule. The rho=R line on slide 30 rescales the displayed trajectories; it does not prove they remain optimal for that different objective. The witness below achieves 79.28 euros under the revised no-count-cap rules, exceeding the displayed 71.48. Kimi must enumerate/revalidate the revised example and label evaluated trajectories versus separately optimized policies. No municipal simulator rerun is required for that four-bin check. |
+
+Code paths abbreviated above are under
+`logic/src/policies/route_construction/exact_and_decomposition_solvers/` for
+SWC/BPC and `.../hyper_heuristics/ant_colony_optimization_hyper_heuristic/` for ACO.
+
+#### Qwen: 5 row verdicts
+
+Paths below are under `logic/src/policies/route_construction/meta_heuristics/`.
+
+| Row | Verdict | Evidence and required correction |
+|---|---|---|
+| A-qwen-01 | Revise; algebra supported | `adaptive_large_neighborhood_search/alns.py:219,228–229,622–650` implements `(1-r) old + r score/count` for **used** operators only; an unused operator retains its weight. The original equation is equivalent with lambda=1-r, so this is parameterization clarity, not a behavioral bug. Avoid w (waste) for weights and define the segment index. Archived reaction_factor=0.1 is explicit; segment_size=100 is absent from that saved config and is a current/default-resolution claim pending Q8, not independently archived evidence. The title promises repair-count correction but the replacement does not provide one: remove that promise or audit the list. |
+| A-qwen-02 | Revise equation; main correction supported | `hybrid_genetic_search/hgs.py:397–421` dispatches RP-GPX; `evolution.py:105–153` ranks penalized profit and mean distance to up to the nearest configured neighbors. Fitness is computed **within each subpopulation**, with diversity coefficient `max(0,1-n_elite/pop_size)`; the draft omits the clamp and leaves P ambiguous with the combined parent pool. Lower fitness wins. Use an individual index distinct from route k; define new rank/population notation. Saved mu=25, nb_elite=4, nb_close=5 are confirmed. |
+| A-qwen-03 | Revise reheating trigger | `simulated_annealing_neighborhood_search/heuristics/sans.py:340–367` checks the counter **after a temperature block**, after cooling, and reheats only when it is **greater than** 500, then resets the counter. It does not reset immediately at the 500th failed neighbor. Saved T_init=75, alpha=0.95 and iterations_per_T=5000 are present. Use a temperature symbol distinct from period set T and describe “up to 5,000 evaluations per block,” subject to early/time exits. |
+| A-qwen-04 | Revise shared adaptation and clock | Keep the owner's “HVPL-inspired” description. `pheromone_guided_cooperative_large_neighborhood_search/pg_clns.py:90,125–131` reuses **one** coaching solver for every population member; `lns.py:125–126,199–213` keeps its adaptive operator weights on that solver. They are not per-individual weights. `pg_clns.py:101,118` checks CPU process time, so label the archived 60 s as a configured CPU-time budget with boundary checks, not a strict wall-time cap. Saved population=10, replacement=0.2, max_iterations=50 are supported. Rename replacement rho to avoid terminal-value rho. Comparing two local implementations does not establish every claimed absence from the original HVPL paper: keep the concise inspiration statement and positive description of the implemented loop. |
+| A-qwen-05 | Reject “each particle”; retain accurate original scope | `particle_swarm_optimization_memetic_algorithm/solver.py:167–191` updates every particle's PSO position, then calls `_non_training_phase()` once. Lines279–319 choose an operator and start SA from **gbest**, not each particle. Keep the original incumbent wording. Global NumPy calls are confirmed at169 and289, but `day_context.py:692–694` explicitly seeds global NumPy for each policy/day. State that the solver's local seed does not control all draws; do not infer that every historical simulator run was unseeded or nonrepeatable solely from these calls. Saved omega=1, c1=c2=2, pop_size=20 are confirmed. |
+
+Also correct Qwen's cross-lane statement that all five metaheuristics use only
+last-minute selection: the factorial archive includes LA, LM70, LM90, SL1 and SL2.
+Its declared read coverage was narrower than the common brief (not all paper
+lines/all slides visually). The verdicts here rest on independent source checks,
+not an assertion that the original lane satisfied every reading requirement.
+
+#### Grok: 11 row verdicts
+
+Simulation paths below are under `logic/src/pipeline/simulations/`.
+
+| Row | Verdict | Evidence and required correction |
+|---|---|---|
+| N-grok-01 | Supported for reported accounting only | `bins/base.py` collection profit and repository coefficients support no per-vehicle charge in **reported simulator profit**. Qualify “Omega=0 in the experiments”: saved SWC internal optimization uses Omega=0.1 (A-kimi-01). These are different objective/accounting conventions, not grounds to erase the saved value. |
+| N-grok-02 | Supported with unit qualification | `repository/base.py:114–139` gives volume 2.5, plastic densities 19/20 and capacities 47.5/50 kg per bin. The proposed m³ and kg/m³ interpretation is dimensionally consistent with the dataset/paper; source docstrings instead say L and kg/L. State the physical unit convention explicitly and correct misleading documentation in the code track; do not silently cite the docstring as evidence of m³. |
+| N-grok-03 | Supported as experiment scope | Archived sim.n_vehicles=0 is confirmed; `policy_bpc.py:106–111` maps nonpositive to no explicit cap, and SWC `gurobi.py:122–126` uses a bin-count bound. “No binding configured fleet cap” is more precise than a literal infinite integer variable. Do not generalize this into a proof that all returned routes are capacity feasible, or that the old HGS default is recovered. |
+| N-grok-04 | Supported; clarify deterministic versus realized arrivals | Percent increments convert to kg by E_i/100; `statistical_gamma.py:109–113` and `gen_dataset.py:154–161` confirm scales. Define the realized/expected distinction once. If u_i^t is printed, declare its units in the canonical notation or omit the auxiliary symbol; the instruction not to enter a newly printed symbol in the table conflicts with notation discipline. |
+| A-grok-01 | Revise observed-state sentence and provenance | Shared arrivals, not shared state levels, underpin pairing. `bins/base.py:412–434` adds arrivals to policy-dependent residual contents and copies the resulting true state when noise=0. Thus “the levels the policy sees are the stored sequence” is false. Saved configs point to a shared NPZ; generated samples use seed+sample_id (`initializing.py:466,492`). Distinguish loaded data from freshly generated samples, and say the actual archived dataset/source provenance is pending Q8. The remainder correctly distinguishes arrivals from collectible mass lost through overflow. |
+| A-grok-02 | Supported metric; require period mapping | Rechecked fill-before-selection order and the equality-to-100 test (`day_context.py:715–721`, `bins/base.py:412–437`), plus aggregate kg/km (`states/finishing.py:71–76`). Q14 agrees. Remove internal `[DS-16]` from paper prose. Because Kimi's transition is collect then arrival while this loop fills then collects, explicitly map the model's next decision state to the simulator's recorded bin-day; shared threshold semantics alone do not align day indices, initial fill or terminal counting. |
+| A-grok-03 | Supported with presentation cleanup | DS-15 times exactly steps1–3, while the archived sample clock has a different meaning. Keep the historical/current distinction and the VRPP shift-check no-op qualification. Remove internal `[DS-15]`; cite a protocol definition, not an agent decision ID. No archived runtime values change in this review. |
+| A-grok-04 | Supported discrepancy; qualify historical mechanism | The original payload lower-bound arithmetic and 565 inconsistent tour records remain verified. `actions/collection.py:46–93` recalculates directed travel and does not reject VRPP overcapacity. Phrase that as behavior of the reviewed implementation; historical logging/execution is pending Q8, so it is not yet proved that the historical writer preserved every route separator. Keep Omega distinction from N01 and avoid a blanket guarantee of multi-depot/shift support without the relevant configuration path. |
+| A-grok-05 | Revise medians and historical data claims | Q12 accepts directed km. Independent recomputation over **all ordered, off-diagonal inter-bin pairs** gives Rio 170 median 8.5875, Rio 100 8.7465, Figueira 350 10.56235 km. Grok's directed values correspond to a different pair selection; Rio100 rounds to **8.7**, not 8.8, under the all-directed-pairs definition. Outbound depot medians 53.1305/53.556/47.43405 are reproduced. Report the population used for each median. Gamma preset/scaling is confirmed, but current crude-file spans and current generator clipping do not prove the missing archived NPZ's generation window. Label them current source-file coverage pending Q8; remove the unsupported “tables used here span…” historical assertion. Do not introduce symmetrisation into the model as the benchmark convention. |
+| R-grok-01 | Supported; minor wording fix | Matches existing independently checked logs: all 30 days recorded, last **positive collection** day 16/16/22, overflow totals 2168/2166/757. Say “last collected on day…” rather than “stops on day…” to avoid ambiguity. The 90-day cell's 13 collection days do not identify termination. Q8 wording: raw records pending recovery. Preserve the filter and corresponding balanced-cell exclusions. |
+| I-grok-01 | Supported redraw requirements; revise Q10 rationale | Correct order, sensor setting and unsupported load guarantee as proposed; use t/tau, E_i, and the settled symbols. Q10 removes H/O from the problem, so do not justify the horizon rename by a live H-overflow-set collision. The horizon remains tau by convention. Visual implementation and render verification remain P9 work; this review does not certify an unproduced replacement figure. |
+
+#### Gemini: 8 row verdicts
+
+| Row | Verdict | Evidence and required correction |
+|---|---|---|
+| N-gemini-01 | Revise units, scope and mask convention | Normalized simulated mass w_i^t/E_i equals the adapter's percent/100 only for its capped sensor state; the no-loss reference model can exceed E_i. Do not identify canonical kg-valued w with a percent-valued code array. `envs/routing/vrpp.py:250–325` returns **True=available**; depot availability is0 while mandatory bins remain. The attention helper uses the opposite exclusion-mask convention. Distinguish those masks, define p, and restrict [0,1] to the capped simulator input. |
+| F-gemini-01 | Revise; no capacity-feasibility guarantee | Autoregressive factorization is a legitimate description, but the proposed notation introduces more than pi and m: the terminal step/count, history and features need definitions. A plan is a set of routes while the product is over one sequence; restrict it to the actual VRPP single-sequence adapter or specify a flattened sequence with separators. The depot is0 in code and n+1 only in mathematical route notation. Most importantly `_get_action_mask` has **no capacity test**; it masks visited/nonpositive optional bins and blocks depot pending mandatory bins. Remove “guarantees problem feasibility” and the capacity-violating-node claim. |
+| A-gemini-01 | Revise; combine with Q17 replacement below | Normalization and the pending-mandatory depot rule are supported. Remove the capacity implication, “fully integrated” guarantee and missing-checkpoint rationale; adapter execution defects remain C3 work. Do not use C=10 (transport-cost collision): call it a clipping magnitude of10 in prose. Describe the neural adapter as a framework capability, explicitly not a ninth benchmarked constructor. |
+| A-gemini-02 | Revise interpretation; architectural observations supported | `models/subnets/decoders/glimpse/decoder.py:361,399,429–464` computes cached graph context but omits it from the step query; `attention.py:62–99` averages head logits scaled by sqrt(head width). The current context embedder divides unvisited-waste sum by **total node count**, not count of remaining nodes (`embeddings/context/vrpp.py:194–201`); distinguish this from a conditional mean. BatchNorm/GELU defaults follow `encoders/common/encoder_base.py:93–94` and config defaults, but swallowed normalization is a known defect, not a justified “domain-specific refinement.” Write neutral implementation details and synchronize with C3's eventual fixes/checkpoint compatibility. Do not introduce d/M/C as unlisted collisions with distance, fill rule and transport cost. |
+| A-gemini-03 | Superseded by Q17 | Use the owner's explicit reason: poor results on orienteering-type problems, including VRPP, where subset selection and routing interact; training-regimen/architecture changes are pending. The proposed large-scale-curriculum or absent-weight explanation is not established by the cited execution bugs. Keep bugs in C3 and use the exact replacement below. |
+| R-gemini-01 | Supported no-NA exposure; correct erroneous counts/scope | Both CSVs contain zero neural rows. However the 90-day counts are **BPC 60, PG-CLNS 42, ACO_HH 30, HGS 12, PSOMA 12, SANS 12, SWC-TCF 6**, totaling 174. Seven constructors times 29 would be 203, not 174. Replace those counts. Scope insulation to neural-only paths in these eight-constructor benchmark tables; “any defect” and “zero published numbers” are too broad if shared utilities or other future results are included. No NA-driven rerun of these tables is indicated. |
+| I-gemini-01 | Superseded implementation choice by Q15/Q19 | Keep the files for a future paper and add the requested provenance/exclusion README. Do not offer an AM appendix figure or assert a known LNCS page limit. Its detailed inventory lists 9 architecture+2 training+3 other images, which is 14, not 13; inventory actual files when writing the README. No proof of a December 2024 provenance for every asset was supplied; don't invent dates for undocumented assets. |
+| I-gemini-02 | Supported scope correction; coordinate P11 | Q11/Q16 permit the abstract rewrite. State eight classical benchmark constructors and describe NCO as framework capability. Avoid implying the unvalidated adapter or changed code is already empirically validated. Its quoted old abstract says “methodology…including…NCO”, then “benchmark evaluates the solvers”; it does not literally say “evaluates the solvers, including”. Fix that description/grep acceptance test; evaluate the actual resulting abstract. |
+
+#### Required replacement fragments and mathematical checks
+
+These are reviewer amendments to the named rows, not edits to `paper.tex`.
+Keep original rows as history; implement the corrected versions through their
+existing P3/P5/P6/P8/P9 issues after P2.
+
+**Q14 / F-kimi-04:** retain the owner definition, but do not describe a positive
+epsilon as an exact encoding for arbitrary continuous mass. Write the metric
+unambiguously (no new symbols beyond the canonical table):
+
+```latex
+The overflow indicator records reaching capacity, including equality:
+\[
+ o_i^t = \mathbf{1}\!\left\{w_i^t-q_i^t+a_i^t\ge E_i\right\}.
+\]
+It is a reporting indicator, not a cap on the fraction of overflowing bins.
+```
+
+That expression is a **definition**, not itself a linearization. For the proposed
+pair, o=0 requires content<=E-epsilon and o=1 requires content>=E. With E=100,
+epsilon=0.01, content 99.995 is excluded by both branches. Since Q10 makes o
+purely definitional, evaluating the indicator after solving avoids imposing a
+spurious gap on feasible continuous states. If Kimi keeps a MILP binary, specify
+a justified mass lattice/resolution, epsilon in kg and a valid upper bound;
+otherwise explicitly call it a tolerance approximation. No arbitrary epsilon
+value is approved here. This preserves Q14's substantive rule and flags the
+numerical implementation question Claude assigned to Kimi. The force-visit
+inequality (40) also does not force g=1 at **exactly** w=psi E; reconcile its
+boundary with the code's >= comparison rather than asserting equivalence.
+
+**Temporal alignment:** with the displayed transition, the indicator above tests
+the next decision state's content. Grok's simulator counts on the state after
+arrival and before today's collection. P3/P9 must explicitly relate those
+periods, including the initial and final counted states. Threshold equality
+alone does not settle this order-of-events issue.
+
+**F-kimi-06 terminal text:** replace “Without a terminal term the optimum leaves
+the bins as full as (39)–(40) allow…” and the unqualified constant-revenue claim:
+
+```latex
+With zero terminal value, stock left after the horizon earns no residual
+revenue. Profitable collections and visits required by the force-visit rule
+can still occur on the last day. In the deterministic no-loss formulation,
+setting the residual price equal to the collection revenue makes collection
+revenue plus residual value constant by mass conservation; the remaining
+optimization minimizes transport and vehicle costs subject to the retained
+constraints. This identity does not generally hold for the simulator,
+where discarded mass depends on the policy. The reported experiments use
+zero terminal value.
+```
+
+**I-kimi-02 witness:** using only distances printed on slide 28, choose no visits
+on days 1–2 and visit bin3 alone on day 3. Start states are
+(150,60,200,90), (210,80,270,115), (270,100,340,140); final stock is
+(330,120,70,165). The day 3 load 340 is <=600, and the only start-of-period
+force-visit at threshold 300 is served. Under Q10, full bins at the next period
+are recorded, not prohibited. With rho=R=0.0952 and Omega=0.1, its objective is
+`0.0952*(340+685) - 2*9.1 - 0.1 = 79.28`, above slide 30's71.48. This is a
+**feasible improving witness**, not a replacement optimum or a full enumeration.
+Do not copy slide 29's assertion that (38)–(39) forces bin1's day 3 visit into the
+new model: (39) has been removed. Recompute the revised comparison.
+
+**A-qwen-01:** retain operator weights when unused, and qualify defaults.
+Reviewer notation suggestion (register with P2, not a second canonical table):
+`zeta_{h,j}` for weight of operator h in segment j; r reaction factor;
+pi_h score and theta_h usage. Replace the unconditional fraction by:
+
+```latex
+\[
+\zeta_{h,j+1}=
+\begin{cases}
+(1-r)\zeta_{h,j}+r\,\pi_h/\theta_h,&\theta_h>0,\\
+\zeta_{h,j},&\theta_h=0.
+\end{cases}
+\]
+```
+
+The archived reaction factor is 0.1. Segment length 100 is the reviewed default;
+resolve the historical default when Q8 records return. The old lambda expression
+is not wrong merely because it uses the complementary decay coefficient.
+
+**A-qwen-03:** replace “if no improvement is found for 500 consecutive iterations”:
+
+```latex
+After a temperature block and cooling, the implementation reheats to its
+initial temperature if the consecutive non-improvement counter exceeds 500,
+then resets that counter. The saved configuration specifies initial
+temperature 75, cooling multiplier 0.95 and up to 5,000 neighbor evaluations
+per temperature block, subject to the stopping conditions.
+```
+
+**A-qwen-04:** replace the per-individual weight and unqualified budget sentences:
+
+```latex
+Pheromone is edge-based and population-wide. One LNS solver refines the
+population members in sequence, carrying its adaptive operator weights
+between calls. The saved configuration uses ten members, replaces one fifth
+of the population, and permits at most 50 outer iterations. The reviewed
+implementation checks a 60-second CPU-time budget at outer-loop boundaries.
+```
+
+**A-qwen-05:** reject “refines each particle once per iteration”; retain:
+
+```latex
+The memetic component refines the swarm's global incumbent once per outer
+iteration by simulated-annealing search. The PSO velocity and operator
+selection draws use global NumPy state rather than only the solver-local
+random generator. The simulator reseeds that global state per policy and
+day; reproducibility therefore depends on the complete execution context,
+not merely on the solver's local seed.
+```
+
+**A-grok-01:** replace “the levels the policy sees are the stored sequence”:
+
+```latex
+Policies share the exogenous arrival sequence within a scenario. With zero
+sensor noise, each policy observes its own true post-arrival fill state,
+which also depends on its earlier collections and overflow losses.
+```
+
+**A-grok-05:** replacement numerical fragment, with no silent symmetrisation:
+
+```latex
+Distances are directed road kilometres. The median outbound depot-to-bin
+leg is 53.1, 53.6 and 47.4\,km for Rio Maior with 170 and 100 bins and
+Figueira da Foz with 350 bins, respectively. Taking all ordered pairs of
+distinct bins, the corresponding median inter-bin distances are 8.6, 8.7
+and 10.6\,km. These summaries retain directionality; symmetric matrices used
+for visualization are a separate transformation.
+```
+
+**A-gemini-01/03 and F-gemini-01:** replace the absent-weights/curriculum rationale
+and unqualified capacity guarantee. No new symbols are needed for this concise
+capability paragraph:
+
+```latex
+The framework also provides an Attention Model adapter for learned
+constructive routing. It scales sensor fill percentages to the unit interval
+and decodes visits sequentially. On the reviewed VRPP path, the action mask
+excludes visited and nonpositive-waste optional bins, permits pending
+mandatory bins, and blocks depot termination until those mandatory bins are
+served; it does not enforce vehicle capacity. The learned model is excluded
+from the reported benchmark because of poor results on orienteering-type
+problems, including VRPP, where routing and subset selection interact.
+Changes to its training regimen and/or architecture are pending. The reported
+municipal benchmark therefore contains only the eight classical constructors.
+```
+
+This is the owner's Q17 rationale, not an inference from missing checkpoints or
+an additional quantitative AM experiment. C3 adapter fixes remain separate.
+
+**R-gemini-01:** replace the erroneous 29-per-constructor inventory by the actual
+174-row breakdown above, and scope the conclusion:
+
+```latex
+Neither archived summary contains a neural-constructor row. The identified
+neural-only defects therefore do not require recalculation of the reported
+eight-constructor benchmark tables.
+```
+
+#### Handoff and acceptance gates
+
+- **P2/P3 (Mistral/Kimi):** settle directed arc/flow notation, the overflow numerical
+  convention and temporal mapping; remove delta/count-cap material from the problem;
+  include all required constraints in the body. Revalidate the appendix example.
+  Avoid w/T/Q/C/rho symbol collisions in algorithm descriptions.
+- **P5/P6 (Kimi/Qwen):** correct the BPC fallback condition, distinguish reviewed code
+  from archived execution, and use the corrected HGS/SANS/PG/PSOMA descriptions.
+- **P8/P11 (Gemini/Mistral):** use Q17 verbatim in substance, remove capacity/fully
+  integrated guarantees, correct CSV counts, and preserve the Q15 figure exclusion.
+- **P9 (Grok):** reconcile period indexing with P3, preserve directed km, distinguish
+  shared arrivals from observed states, and qualify archive provenance under Q8.
+- **P7/P10 (Codex):** still follow P2. Preserve 224 integrity-filtered pairs (Q9),
+  archive clock labels, and the owner's deferred recovery/rerun decision (Q8).
+
+All 37 requested rows now have a review verdict. This closes the **late-row review
+pass**, not the corrections, implementation, model verification or final paper review.
+
 
 ## 7.DS. DeepSeek — independent verifier — 2026-09-26
 
@@ -2088,6 +2374,315 @@ None with existing rows. The exclusion of NCO from the empirical tables is a con
 
 -- Gemini
 
+## 7.F. Cursor — lane F (Mandatory Selection) — 2026-09-27
+
+Read beamer slides 10, 17–19 and 32 as PDF pages (the dump garbles `S_i ≥ M`,
+`ψ E_i` and (16)–(18)); the dump was used only for the surrounding prose.
+Read `paper.tex:468–543` at `399d22c`, plus the `\hatρ` mentions at 878 and
+900. Code on `main` (`2b369acd5`): `selection_{last_minute,service_level,lookahead}.py`,
+`base/eoq.py:80–102`, `actions/node_selection.py:40–235`, `bins/base.py:122–123,390–410`,
+`ms_{last_minute,service_level,lookahead}.yaml`, the three vectorized selectors
+(parity only), and SWC-TCF `gurobi.py:137–141`. Archived values from
+`assets/output/30days/riomaior100_plastic/gamma3/{lm_cls,sl_ftsp,la_cls}/hydra/pruned_config.yaml`
+(`threshold: 70/90`, `confidence_factor: 0.84`, `horizon_days: 1/2`,
+`current_collection_day: 0`, `noise_variance: 0.0`, `stats_filepath: null`,
+`psi: 1`). No `paper.tex` edit, no simulator run, no commit.
+
+**IDs.** §1.b: N-cursor-01. §3: A-cursor-01..04. Confirms N-mistral-09/12
+and DeepSeek’s “Selection units” flag. Witness:
+`.agent/cache/tools/cursor_lane_f_ms_20260927.py`.
+
+**Ruling applied.** Q10: no `δ`, no `H`/`O`, no `H ≤ nδ` in the problem
+definition or in the selection text as something the code does. Kept: `ψ`
+and force-visit (40), realised by `𝓜^t`. Q5: `𝓜^t`. Q14: at-capacity is
+100% of `E_i`. Q2: `ŵ_i^t` / `w_i^t`.
+
+### A-cursor-01 — Opener: `𝓜^t` realises (40); percent vs ratio; no `δ`
+
+Location: paper.tex:468–483. Symbols: `\hat{w}_i^t`, `\hat{\rho}_i^t`,
+`E_i`, `\mathcal{M}^t`, `\psi`.
+
+**Exact old text:**
+
+```latex
+All three strategies decide from the \emph{sensed} fill signal $\hat{w}_{i,d}$,
+which in the runs reported here equals the true level because sensing noise was
+disabled (Sect.~\ref{sec:protocol}); none of them ever reads the simulator's
+internal state directly. All three must estimate whatever they need about
+accumulation from the history the simulation has produced so far, and neither the
+generating distribution nor its parameters are ever revealed to them. Two of the
+rules are stated below in terms of the sensed fill \emph{ratio}
+\begin{equation}
+    \hat{\rho}_{i,d} \;=\; \hat{w}_{i,d}/C_i \;\in\; [0,1],
+\end{equation}
+so that thresholds expressed as percentages are comparable across bins of
+different capacity. The three were chosen to span the conceptual space rather
+than to be exhaustive: one reactive, one statistical, and one that projects
+forward to a collection date.
+```
+
+**Replacement LaTeX:**
+
+```latex
+All three strategies decide from the sensed fill $\hat{w}_i^t$, which in
+the runs reported here equals the true level $w_i^t$ because sensing noise
+was disabled (Sect.~\ref{sec:protocol}); they read the sensor series
+\texttt{bins.c}, never the hidden true series. Accumulation statistics
+are estimated online from the increments observed so far. The generating
+distribution and its parameters are never revealed. Archived runs set
+\texttt{stats\_filepath} to null, so $\hat{\mu}_i$ and $\hat{\sigma}_i$
+start at zero and are updated by Welford's method from those increments
+(\texttt{bins/base.py}).
+
+Each strategy returns a mandatory set $\mathcal{M}^t$. Every constructor
+must visit $\mathcal{M}^t$ (Sect.~\ref{sec:constructors}). That is the
+policy-side realisation of the force-visit rule~\eqref{eq:psi}: the
+selector decides who is forced, and the constructor sets $g_i^t=1$ for
+$i\in\mathcal{M}^t$. The model's own threshold $\psi$ is a different
+symbol. In the archived SWC-TCF configuration $\psi=1$, so that
+constructor additionally forces any bin already at capacity; the other
+constructors have no $\psi$ of their own. None of the three strategies
+implements the source article's share-of-bins constraint $\delta$, nor
+the smarter skip-the-day trigger $H\le n\delta$ (beamer slides~16--19).
+Those remain a feature of Ramos et al.'s model and, by owner ruling, stay
+out of the problem definition.
+
+The code compares fill in percent of capacity, $\hat{w}_i^t$ stored as a
+value in $[0,100]$. The ratio
+\begin{equation}
+    \hat{\rho}_i^t \;=\; \hat{w}_i^t / E_i \;\in\; [0,1]
+\end{equation}
+is the equivalent dimensionless form: a last-minute cut of $70$~percent
+is $\mathrm{CF}=0.70$. Last-Minute never divides by a kilogram capacity
+--- it compares the stored percent against $70$ or $90$ directly. The
+three strategies span the conceptual space rather than exhausting it: one
+reactive, one statistical, and one that projects forward to a collection
+date.
+```
+
+**Evidence:** `node_selection.py:71–79,155–161`; `bins/base.py:122–123,406–410`;
+`eoq.py:80–102`; archived `pruned_config.yaml` `noise_variance: 0.0`,
+`stats_filepath: null`, `psi: 1`; `gurobi.py:137–141`; beamer slides 10,
+18, 32; Q10. DeepSeek §7.DS “Selection units”.
+
+**Acceptance:** The opener names `\mathcal{M}^t` as the output and as the
+policy-side of (40); it states the percent vs ratio units; it says the
+three strategies do not implement `δ` or `H\le n\delta`; `C_i` and
+`,d` are gone.
+
+### A-cursor-02 — Last-Minute: percent `70/90`, maps to `M`, not to `ψ`
+
+Location: paper.tex:485–493. Symbols: `\mathrm{CF}`/`\tau`, `\mathcal{M}^t`.
+
+**Exact old text:**
+
+```latex
+\paragraph{Last-Minute (LM).}
+First proposed in~\cite{de2024data}, Last-Minute is the reactive baseline: a
+bin becomes mandatory
+when its sensed fill level crosses a fixed critical-fill (CF) threshold, judged in
+complete isolation from every other bin and from any estimate of how fast it is filling.
+Formally, bin $i$ is mandatory on day $d$ iff $\hat{\rho}_{i,d} \geq \text{CF}$, for
+sensed fill ratio $\hat{\rho}_{i,d}$ and threshold $\text{CF}$. We tested
+$\text{CF} = 0.7$ (CF70) and $\text{CF} = 0.9$ (CF90). The threshold is the only knob, and it trades overflow risk
+against visit frequency directly, with no model connecting the two.
+```
+
+**Replacement LaTeX:**
+
+```latex
+\paragraph{Last-Minute (LM).}
+First proposed in~\cite{de2024data}, Last-Minute is the reactive
+baseline and the policy counterpart of the limited-approach fill rule
+$M$ (beamer slide~10). A bin becomes mandatory when its sensed fill
+crosses a fixed critical-fill threshold, in isolation from every other
+bin and from any estimate of how fast it is filling. The shipped
+comparison is
+\begin{equation}
+    i \in \mathcal{M}^t \iff 100\,\hat{\rho}_i^t \;\ge\; \tau,
+\end{equation}
+with $\tau\in\{70,90\}$ the archived \texttt{threshold} values of
+\texttt{ms\_last\_minute.yaml} (CF70 and CF90). Equivalently,
+$\hat{\rho}_i^t\ge 0.70$ or $0.90$. The operator is $\ge$, not a
+strict inequality. This $\tau$ is not the model's $\psi$: $\psi$ is the
+force-visit threshold inside~\eqref{eq:psi} and, in the archived
+SWC-TCF runs, equals $1$ (one hundred percent of $E_i$). The source
+study used $M=0.80$; we test $0.70$ and $0.90$. The threshold is the
+only knob, and it trades overflow risk against visit frequency
+directly.
+```
+
+**Evidence:** `eoq.py:97–102`; `ms_last_minute.yaml:25–31`;
+`LastMinuteSelectionConfig.threshold = 70.0` (percent);
+archived `lm_cls` `threshold: 70/90`; slide 10 (`S_i ≥ M E_i`,
+`M=0.8`). Witness: fill `[50,70,90]`, `τ=70` → `[F,T,T]`.
+
+**Acceptance:** LM states the percent unit and the ratio equivalent;
+maps to `M`; keeps `ψ` distinct; uses `\ge` and `\mathcal{M}^t`.
+
+### A-cursor-03 — Service-Level: `n` not `n_d`; `z=0.84`; not Ramos `δ`
+
+Location: paper.tex:495–520. Symbols: `n`, `z`, `\hat{\mu}_i`, `\hat{\sigma}_i`.
+
+**Exact old text:** the whole SL paragraph, including
+`\hat{w}_{i,d} + n_d\hat{\mu}_i + z\,n_d\hat{\sigma}_i \;\geq\; C_i`,
+`z=0.84`, `n_d=1` (SL1) and `n_d=2` (SL2), and the two-properties block
+that already defends the linear `n_d` buffer.
+
+**Replacement LaTeX:**
+
+```latex
+\paragraph{Service-Level (SL).}
+A statistical rule that projects forward rather than reacting. The name
+does not refer to the source article's overflow-share $\delta$. For each
+bin the simulator maintains online estimates of the mean daily increment
+$\hat{\mu}_i$ and its standard deviation $\hat{\sigma}_i$ from the days
+observed so far, and flags bin $i$ as mandatory when a conservative
+projection $n$ days ahead already meets capacity:
+\begin{equation}
+    100\,\hat{\rho}_i^t + n\hat{\mu}_i + z\,n\hat{\sigma}_i \;\ge\; 100,
+\end{equation}
+where $\hat{\mu}_i$ and $\hat{\sigma}_i$ are in fill-percentage points
+per day, $z=0.84$ is the archived \texttt{confidence\_factor} (the
+standard-normal quantile for an $80\%$ one-sided bound), and
+$n\in\{1,2\}$ is the archived \texttt{horizon\_days} (SL1 and SL2).
+The kilogram form
+$\hat{w}_i^t + n\hat{\mu}_i^{\mathrm{kg}} + z n \hat{\sigma}_i^{\mathrm{kg}}
+\ge E_i$ is equivalent after the linear map $a=(u/100)E_i$ of N-grok-04.
+The depth $n$ is a per-strategy constant, not a period index.
+
+Two properties of this rule shape the results and are worth stating
+plainly. First, the deviation term scales \emph{linearly} in $n$ rather
+than as $\sqrt{n}$. Under independent daily increments $\sqrt{n}$ would
+be the matching aggregation, so the implemented rule is deliberately
+conservative relative to an i.i.d.\ projection; it is also robust to
+the positive serial correlation that real accumulation exhibits, which
+$\sqrt{n}$ would understate. Second, and consequently, the two variants
+do not hold conservatism fixed: because both the drift and the
+deviation terms scale with $n$, SL2 carries exactly twice SL1's safety
+margin, so it looks further ahead \emph{and} demands a larger buffer.
+SL1 and SL2 should therefore be read as two points on a single
+conservatism dial, not as a controlled test of horizon length alone.
+Note also that $\hat{\mu}_i$, $\hat{\sigma}_i$ are cold-start estimates
+that are least reliable early in a horizon.
+```
+
+**Evidence:** `selection_service_level.py:55–67` (`context.threshold` is
+`z`, not a fill cut); `ms_service_level.yaml:29–37`; archived `sl_ftsp`
+block; `bins/base.py:406–410`; P-cursor-04 / owner keep-linear. Typed
+`ServiceLevelSelectionConfig` has no `horizon_days` (B-cursor-01); the
+archived yaml path is what ran (`n=1,2`), so the paper must not be
+rewritten to the typed fallback `3`.
+
+**Acceptance:** `n_d` is gone; the equation matches the percent code;
+one sentence says SL is not `δ`; the linear-buffer paragraph is kept.
+
+### A-cursor-04 — Look-Ahead: seed plus bundle, not merely SL at `z=0`, `n=1`
+
+Location: paper.tex:522–542. Symbols: `\mathcal{M}^t`, `n`, `z`.
+
+**Exact old text:** the whole LA paragraph plus the family/dial close,
+including “Making a bin mandatory when $\hat{w}_{i,d} + \hat{\mu}_i
+\geq C_i$ is exactly the Service-Level rule at $z = 0$ and $n_d = 1$”.
+
+**Replacement LaTeX:**
+
+```latex
+\paragraph{Look-Ahead (LA).}
+Introduced alongside SANS in~\cite{jorge2022hybrid}, Look-Ahead uses
+only the running mean $\hat{\mu}_i$. It has two steps.
+
+\emph{Seed.} After the day's fill has already been applied, bin $i$
+enters $\mathcal{M}^t$ when
+\begin{equation}
+    100\,\hat{\rho}_i^t + \hat{\mu}_i \;\ge\; 100.
+\end{equation}
+That seed is exactly the Service-Level rule at $z=0$ and $n=1$: the
+bin is predicted to reach capacity after one more mean increment
+(tomorrow, not today). The yaml comment that names a GRF predictor
+does not describe the shipped path; the projection is the linear
+running mean.
+
+\emph{Bundle.} If the seed set is nonempty, those bins are notionally
+emptied and the earliest day on which any of them would overflow
+again from empty is the next collection day $t^{\star}$. Every other
+bin whose projected fill would meet capacity \emph{before}
+$t^{\star}$ is added to $\mathcal{M}^t$. If the seed is empty, the
+mandatory set is empty: Look-Ahead never forces a visit on a quiet
+day. The archived configuration sets
+\texttt{current\_collection\_day}: $0$; the day arithmetic is
+relative.
+
+The seed-only identity with SL at $z=0$, $n=1$ must not be read as
+``Look-Ahead is that rule''. The bundling step is extra, and it is
+why Look-Ahead can release a larger set than the one-day zero-buffer
+projection. Last-Minute, which carries no $\hat{\mu}_i$ or
+$\hat{\sigma}_i$ term, is the only genuinely different mechanism in
+the grid. Three of the five tested variants (LA, SL1, SL2) therefore
+trace one conservatism dial, which is why the frontier orders
+monotonically in Sect.~\ref{sec:res-strategies}; that ordering is a
+property of this family, plus LM's two threshold settings bracketing
+it, and not a general result about selection rules. Look-Ahead has
+no threshold variant, so it contributes fewer configurations than LM
+or SL to the experimental grid.
+```
+
+**Evidence:** `selection_lookahead.py:41–51,183–188,211–238`;
+`ms_lookahead.yaml:6–25` (GRF in the comment only); archived `la_cls`
+`current_collection_day: 0`; vectorized twin
+`vector/selection/lookahead.py:10–16,90–162`; DS-21; P-cursor-03.
+Witness: fills `(80,40,95)`, rates `(25,20,10)` → seed `{0,2}`, bundle
+adds `{1}`; fills `(10,20)`, rates `(5,8)` → empty.
+
+**Acceptance:** The paragraph states both steps; the seed identity is
+qualified; no GRF; `n_d` is gone; a quiet day is empty.
+
+### Confirmations and cross-lane notes
+
+- **N-mistral-09/12:** confirmed. `\hatρ_{i,d}` → `\hatρ_i^t`; `n_d` is
+  the constant `horizon_days`, not a period index. Mechanical sweep can
+  apply those tokens; the semantics are in A-cursor-01..04.
+- **DeepSeek “Selection units”:** confirmed. `resolve_trigger_threshold`
+  compares percent to `70/90`; the paper’s `CF=0.7/0.9` is the equivalent
+  ratio and must be labelled as such.
+- **I-kimi-01 (caption, 460–466):** under Q10, drop “and the overflow
+  trigger of the smarter approach” from the proposed caption sentence.
+  Mandatory selection realises (40) via `\mathcal{M}^t`; it does not
+  implement `H\le nδ`. Same trim for F-kimi-01’s §3.7 bridge sentence
+  that still lets the smarter trigger determine the mandatory set
+  (Codex late-row review already flagged this for P3).
+- **A-kimi-01:** the SWC-TCF `ψ=1` backstop is the constructor-side
+  (40). A-cursor-01 names it once and does not rewrite that paragraph.
+- **A-gemini-01 / N-gemini-01:** agree that learned constructors enforce
+  `\mathcal{M}^t` by masking. Out of this lane’s text.
+- **Grok, paper.tex:878 and 900:** `\hatρ` is defined in `[0,1]` at 478
+  and then used as the name of a `[0,100]` increment at 900. After
+  A-cursor-01 the methodology definition is the ratio; the scenarios
+  sentence should say “percentage points of `E_i`” (N-grok-04), not
+  reuse `\hatρ` for both.
+- **B-cursor-01:** typed SL default `horizon_days=3` did not run in the
+  archive. Do not put `n=3` in the paper.
+- **B-cursor-04 / P-cursor-03:** `fill_ratios` unused; no GRF. Code-track
+  (C3 / C1). The paper text above already describes the shipped path.
+- **R-codex-03:** CF90 mirroring stays a provenance caveat, not a
+  selector-text change.
+
+### Disagreements
+
+None with Q10, Q14, DeepSeek’s units flag, or N-mistral-09/12. The
+current paper’s claim that Look-Ahead *is* SL at `z=0`, `n_d=1` is
+overstated: that identity is the seed only.
+
+### Not done
+
+- No `paper.tex` edit (Phase 1; implementation is #69 after P2).
+- No experiment rerun. Archived selector parameters are read from the
+  yaml that the logs recorded, not re-derived from daily masks.
+- EOQ threshold is implemented but `use_eoq_threshold` is false in the
+  archive; it stays out of the paper.
+
+-- Cursor
+
 ## 8. Consolidation → GitHub issues (Claude + Codex)
 
 ### Codex candidate grouping (not accepted issues)
@@ -2124,7 +2719,7 @@ so each issue quotes the **old text**, and line numbers are only hints.
 | P1 | **Build unblockers** (the only ruling-free work). Today `latexmk` exits 12 (10 duplicate bib entries, 79 undefined citations). Also the empty duplicated `\section{Related Work}` that holds `\label{sec:literature}`, and the typos. | I-mistral-01, I-mistral-03, I-mistral-04, I-mistral-05 | Mistral | P0 | V (build trial in a copy) |
 | P2 | **Notation sweep, one atomic issue** (split, two agents would write two dialects into one file). Excludes the lines P3 rewrites. | N-mistral-01..12 (+ folded N-deepseek-01/02), N-codex-01, N-kimi-01 (route notation), N-mistral-11 (pheromone `τ`→`φ`), N-gemini-01, N-grok-01..04 | Mistral | P1, Q2, Q4, Q5, Q10 | V (mechanical lists), U (N-kimi-01, N-gemini-01, N-grok-*) |
 | P3 | **Rewrite §3 Problem Definition and Formulation** (beamer models 2 → MPVRPP, terminal value, three-stage bridge; Hector's skeleton re-notated) | F-kimi-01..06, F-gemini-01, I-kimi-01 (caption), I-kimi-02 (appendix example, if Q7) | Kimi | P2 notation fixed, Q1, Q3, Q6, Q7, Q13, Q14 | U. Needs a Codex review pass first. |
-| P4 | **Mandatory Selection text (gap)**. Map LM/SL/LA to the beamer's `M`, `δ`, `ψ`, `H ≤ nδ` and (40); state the percent vs ratio unit (`eoq.py:80–102`, `ms_last_minute.yaml` `threshold: 70/90`); `\hat\rho`, `n_d`→`n`, `z`. | none yet. Seeds: DeepSeek §7.DS "Selection units", N-mistral-09/12. | **Cursor, rerun of the lane** (or reassign: Q18) | P2 | none |
+| P4 | **Mandatory Selection text**. Map LM/SL/LA to fill threshold / `M`, `ψ` and (40); no `δ` / no `H ≤ nδ` (Q10); percent vs ratio (`eoq.py:80–102`, `ms_last_minute.yaml` `threshold: 70/90`); `\hatρ`, `n` not `n_d`, `z`. | N-cursor-01, A-cursor-01..04 (§7.F). Seeds used: DeepSeek §7.DS "Selection units", N-mistral-09/12. | **Cursor** (Q18 rerun filed 2026-09-27) | P2 | none |
 | P5 | **Exact and hyper-heuristic constructors** | A-kimi-01 (SWC-TCF), A-kimi-02 (BPC), A-kimi-03 (ACO-HH) | Kimi | P2 | U |
 | P6 | **Meta-heuristics** (ALNS weights/regret slots, HGS RP-GPX + rank fitness, SANS reheating, PG-CLNS as a simplified HVPL-inspired ACO+LNS, PSOMA RNG) | A-qwen-01..05 | Qwen | P2 | S (A-qwen-02), otherwise U |
 | P7 | **Improvers and the objective ratio** (CLS iteration cap and the `except → return tour` path, distance≡profit for fixed service, Fast-TSP qualifications) | A-codex-01..03, I-codex-01 | Codex | P2, Q9 | V |

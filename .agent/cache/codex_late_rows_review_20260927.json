@@ -1,0 +1,125 @@
+{
+  "simulation_summary.csv": {
+    "rows": 480,
+    "constructors": {
+      "ACO_HH": 60,
+      "ALNS": 60,
+      "BPC": 60,
+      "HGS": 60,
+      "PG-CLNS": 60,
+      "PSOMA": 60,
+      "SANS": 60,
+      "SWC-TCF": 60
+    }
+  },
+  "simulation_summary_90d.csv": {
+    "rows": 174,
+    "constructors": {
+      "BPC": 60,
+      "PG-CLNS": 42,
+      "ACO_HH": 30,
+      "SWC-TCF": 6,
+      "HGS": 12,
+      "SANS": 12,
+      "PSOMA": 12
+    }
+  },
+  "epsilon_pair": {
+    "capacity": 100.0,
+    "epsilon": 0.01,
+    "cases": [
+      {
+        "content": 99.99,
+        "allowed_binary_values": [
+          0
+        ]
+      },
+      {
+        "content": 99.995,
+        "allowed_binary_values": []
+      },
+      {
+        "content": 100.0,
+        "allowed_binary_values": [
+          1
+        ]
+      },
+      {
+        "content": 100.01,
+        "allowed_binary_values": [
+          1
+        ]
+      }
+    ]
+  },
+  "old_overflow_single_inequality": {
+    "content": 99,
+    "o1_is_feasible": true
+  },
+  "slide_example_Q10_rho_equals_R_witness": {
+    "trajectory": [
+      {
+        "day": 1,
+        "start_mass": [
+          150,
+          60,
+          200,
+          90
+        ],
+        "served_bins": [],
+        "kg": 0
+      },
+      {
+        "day": 2,
+        "start_mass": [
+          210,
+          80,
+          270,
+          115
+        ],
+        "served_bins": [],
+        "kg": 0
+      },
+      {
+        "day": 3,
+        "start_mass": [
+          270,
+          100,
+          340,
+          140
+        ],
+        "served_bins": [
+          3
+        ],
+        "kg": 340
+      }
+    ],
+    "terminal_mass": [
+      330,
+      120,
+      70,
+      165
+    ],
+    "objective": 79.28000000000002,
+    "old_slide_rescored_trajectory": 71.48,
+    "meaning": "Feasible improving witness, not a claim of global optimality."
+  },
+  "data/simulator/distance_matrix/submatrix/gmaps_distmat170_plastic[riomaior].csv": {
+    "directed_depot_outbound_median": 53.1305,
+    "directed_interbin_median": 8.587499999999999,
+    "symmetric_depot_median": 52.92875,
+    "symmetric_interbin_median": 8.587
+  },
+  "data/simulator/distance_matrix/submatrix/gmaps_distmat100_plastic[riomaior].csv": {
+    "directed_depot_outbound_median": 53.556,
+    "directed_interbin_median": 8.746500000000001,
+    "symmetric_depot_median": 53.351,
+    "symmetric_interbin_median": 8.753
+  },
+  "assets/output/30days/figueiradafoz350_plastic/gamma3/lm_ftsp/osm_distmat.csv": {
+    "directed_depot_outbound_median": 47.43405,
+    "directed_interbin_median": 10.56235,
+    "symmetric_depot_median": 46.551024999999996,
+    "symmetric_interbin_median": 10.5548
+  }
+}

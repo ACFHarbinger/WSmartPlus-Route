@@ -1,0 +1,410 @@
+diff --git a/mybibliography.bib b/mybibliography.bib
+index 492922f..a0d9a4c 100644
+--- a/mybibliography.bib
++++ b/mybibliography.bib
+@@ -848,21 +848,6 @@
+ % Page range not confirmed. The second author appears as Alina-Gabriela
+ % M{\"u}ller in some records and as Alina G. Dragomir in others; the latter is
+ % used here, following the publisher and RePEc records.
+-@article{hess2024waste,
+-  author  = {Hess, Christina and Dragomir, Alina G. and Doerner, Karl F. and
+-             Vigo, Daniele},
+-  title   = {Waste Collection Routing: A Survey on Problems and Methods},
+-  journal = {Central European Journal of Operations Research},
+-  volume  = {32},
+-  number  = {2},
+-  year    = {2024},
+-  doi     = {10.1007/s10100-023-00892-y}
+-}
+-
+-% --- fill-driven collection, demonstrated on deployed systems --------------
+-
+-% Discrete-event simulation of fill-level-driven scheduling and routing over
+-% 3,300 sensor-equipped recycling containers in Malmoe.
+ @article{Johansson2006Dynamic,
+   author  = {Johansson, Ola M.},
+   title   = {The Effect of Dynamic Scheduling and Routing in a Solid Waste
+@@ -887,68 +872,6 @@
+ 
+ % --- profitable and multi-period routing -----------------------------------
+ 
+-@incollection{Archetti2014VRPProfits,
+-  author    = {Archetti, Claudia and Speranza, M. Grazia and Vigo, Daniele},
+-  title     = {Vehicle Routing Problems with Profits},
+-  booktitle = {Vehicle Routing: Problems, Methods, and Applications},
+-  editor    = {Toth, Paolo and Vigo, Daniele},
+-  edition   = {2},
+-  series    = {MOS-SIAM Series on Optimization},
+-  volume    = {18},
+-  chapter   = {10},
+-  pages     = {273--297},
+-  publisher = {SIAM},
+-  address   = {Philadelphia, PA},
+-  year      = {2014},
+-  doi       = {10.1137/1.9781611973594.ch10}
+-}
+-
+-% Chapter 4 of the volume. Page range not confirmed.
+-@incollection{Francis2008PeriodicVRP,
+-  author    = {Francis, Peter M. and Smilowitz, Karen R. and Tzur, Michal},
+-  title     = {The Period Vehicle Routing Problem and Its Extensions},
+-  booktitle = {The Vehicle Routing Problem: Latest Advances and New
+-               Challenges},
+-  editor    = {Golden, Bruce and Raghavan, S. and Wasil, Edward},
+-  series    = {Operations Research/Computer Science Interfaces Series},
+-  volume    = {43},
+-  chapter   = {4},
+-  publisher = {Springer US},
+-  address   = {Boston, MA},
+-  year      = {2008}
+-}
+-
+-@article{Coelho2014InventoryRouting,
+-  author  = {Coelho, Leandro C. and Cordeau, Jean-Fran{\c{c}}ois and
+-             Laporte, Gilbert},
+-  title   = {Thirty Years of Inventory Routing},
+-  journal = {Transportation Science},
+-  volume  = {48},
+-  number  = {1},
+-  pages   = {1--19},
+-  year    = {2014},
+-  doi     = {10.1287/trsc.2013.0472}
+-}
+-
+-% Not to be confused with the companion paper by the same three authors in the
+-% same issue, "A fast and effective heuristic for the orienteering problem",
+-% EJOR 88(3), 475--489.
+-@article{Chao1996TeamOrienteering,
+-  author  = {Chao, I-Ming and Golden, Bruce L. and Wasil, Edward A.},
+-  title   = {The Team Orienteering Problem},
+-  journal = {European Journal of Operational Research},
+-  volume  = {88},
+-  number  = {3},
+-  pages   = {464--474},
+-  year    = {1996},
+-  doi     = {10.1016/0377-2217(94)00289-4}
+-}
+-
+-% Reverse inventory routing over sensor-equipped underground containers, with
+-% policy parameters tuned by simulation combined with optimal learning. The
+-% closest structural antecedent of the problem studied here, and the source of
+-% the prior observation that container selection dominates routing in denser
+-% networks.
+ @article{Mes2014InventoryRouting,
+   author  = {Mes, Martijn and Schutten, Marco and P{\'e}rez Rivera, Arturo},
+   title   = {Inventory Routing for Dynamic Waste Collection},
+@@ -960,67 +883,3 @@
+ }
+ 
+ % --- smart waste collection methods ----------------------------------------
+-
+-@article{RAMOS2018146,
+-  author  = {Ramos, T{\^a}nia Rodrigues Pereira and de Morais, Carolina Soares
+-             and Barbosa-P{\'o}voa, Ana Paula},
+-  title   = {The Smart Waste Collection Routing Problem: Alternative
+-             Operational Management Approaches},
+-  journal = {Expert Systems with Applications},
+-  volume  = {103},
+-  pages   = {146--158},
+-  year    = {2018},
+-  doi     = {10.1016/j.eswa.2018.03.001}
+-}
+-
+-@article{jorge2022hybrid,
+-  author  = {Jorge, Diana and Antunes, Ant{\'o}nio Pais and
+-             Ramos, T{\^a}nia Rodrigues Pereira and
+-             Barbosa-P{\'o}voa, Ana Paula},
+-  title   = {A Hybrid Metaheuristic for Smart Waste Collection Problems with
+-             Workload Concerns},
+-  journal = {Computers \& Operations Research},
+-  volume  = {137},
+-  pages   = {105518},
+-  year    = {2022}
+-}
+-
+-@article{lopes2023efficient,
+-  author  = {Lopes, Manuel and Ramos, T{\^a}nia Rodrigues Pereira},
+-  title   = {Efficient Sensor Placement and Online Scheduling of Bin
+-             Collection},
+-  journal = {Computers \& Operations Research},
+-  volume  = {151},
+-  pages   = {106113},
+-  year    = {2023}
+-}
+-
+-@article{de2024data,
+-  author  = {de Morais, Carolina Soares and
+-             Ramos, T{\^a}nia Rodrigues Pereira and Lopes, Manuel and
+-             Barbosa-P{\'o}voa, Ana Paula},
+-  title   = {A Data-Driven Optimization Approach to Plan Smart Waste
+-             Collection Operations},
+-  journal = {International Transactions in Operational Research},
+-  volume  = {31},
+-  number  = {4},
+-  pages   = {2178--2208},
+-  year    = {2024}
+-}
+-
+-% --- research practice -----------------------------------------------------
+-
+-@article{Kendall2016GoodLabPractice,
+-  author  = {Kendall, Graham and Bai, Ruibin and B{\l}azewicz, Jacek and
+-             De Causmaecker, Patrick and Gendreau, Michel and John, Robert and
+-             Li, Jiawei and McCollum, Barry and Pesch, Erwin and Qu, Rong and
+-             Sabar, Nasser and Vanden Berghe, Greet and Yee, Angelina},
+-  title   = {Good Laboratory Practice for Optimization Research},
+-  journal = {Journal of the Operational Research Society},
+-  volume  = {67},
+-  number  = {4},
+-  pages   = {676--689},
+-  year    = {2016},
+-  doi     = {10.1057/jors.2015.77}
+-}
+-
+diff --git a/paper.tex b/paper.tex
+index 09b10fb..766ac5a 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -226,81 +226,6 @@ applied; and Section~\ref{sec:conclusions} what the design leaves open.
+ \section{Related Work}
+ \label{sec:literature}
+ 
+-
+-
+-
+-
+-\section{Problem Definition}\label{sec:problem}
+-\subsection{Problem State and Dynamics}
+-Let $\mathcal{G}=(\mathcal{V},\mathcal{E})$ be a complete graph with depot
+-$v_0$ and bins $\mathcal{V}\setminus\{v_0\}$. Bin $i$ has location
+-$\vec{l}_i\in\mathbb{R}^2$, capacity $C_i$, and waste level
+-$w_{i,d}\in[0,C_i]$ on day $d$. The system state is
+-$\vec{w}_d={[w_{1,d},\ldots,w_{V,d}]}^\top$.
+-
+-Daily accumulation $\delta_{i,d}\sim P_i$ is bin-specific and stochastic. If
+-bin $i$ is collected on day $d$, the next day's level contains only the next
+-increment; otherwise accumulation continues to capacity:
+-\begin{equation}
+-    w_{i, d+1} =
+-    \begin{cases}
+-        \delta_{i, d+1} & \text{if } v_i \in \mathcal{A}_d \\
+-        \min(w_{i, d} + \delta_{i, d+1}, C_i) & \text{if } v_i \notin \mathcal{A}_d
+-    \end{cases}
+-\end{equation}
+-
+-\subsection{Optimization Objective}
+-
+-On day $d$, the policy produces a set of $K_d$ routes. The route count is not
+-fixed in advance: it is whatever the policy needs to serve its chosen bins under
+-the capacity constraint below. Route $k$ visits $T_{d,k}$ bins and starts and
+-ends at $v_0$:
+-\begin{equation}
+-    \mathcal{A}_{d,k}=(a_{0,k},a_{1,k},\ldots,a_{T_{d,k},k},a_{T_{d,k}+1,k}),
+-    \qquad a_{0,k}=a_{T_{d,k}+1,k}=v_0.
+-\end{equation}
+-
+-Let $\mathcal{A}_{d,\cdot}$ denote the union of non-depot visits. The daily
+-problem is
+-
+-\begin{equation}
+-\begin{aligned}
+-    \textrm{maximize} \quad & \mathcal{P}(\mathcal{A}_d, \bm{w}_d) = r_w \sum_{v_i\in\mathcal{A}_{d,\cdot}}w_{i,d}
+-    -c_{km}\sum_{k=1}^{K}\sum_{t=0}^{T_{d,k}}
+-    \dist(a_{t,k},a_{t+1,k}) \label{eq:profit_function}\\
+-    \textrm{subject to} \quad
+-    & a_{t,k}\neq a_{t',k'} \quad
+-      \forall (t,k)\neq(t',k'),\ 1\leq t\leq T_{d,k},\ 1\leq t'\leq T_{d,k'},\\
+-    & \sum_{t=1}^{T_{d,k}}w_{a_{t,k},d}\leq Q
+-      \quad \forall k\in\{1,\ldots,K_d\}.
+-\end{aligned}
+-\end{equation}
+-Here $r_w$ is revenue per kilogram, $c_{km}$ is travel cost per kilometer, and $Q$
+-is the per-route payload capacity. Each route is one capacity-feasible depot-to-depot
+-trip; the formulation bounds the load of every route but does not bound how many
+-routes a day may contain, so $K_d$ is an outcome of the daily decision rather than a
+-parameter of it. Sect.~\ref{sec:protocol} states how this was configured in the
+-reported experiment. Optional service distinguishes the VRPP from the classical
+-VRP\@: the policy chooses a profitable subset as well as its routes~\cite{Archetti2014VRPProfits}.
+-Eq.~\eqref{eq:profit_function} contains no term penalizing an unvisited bin that
+-overflows: a distant bin's marginal revenue $r_w w_{i,d}$ can be lower than the
+-detour cost required to reach it, in which case a route constructor solving this
+-objective alone has no incentive to serve it. The only mechanism that forces a
+-critically full bin into a route is the upstream mandatory set $\mathcal{M}_d$
+-Sect.~\ref{sec:methodology}; Sect.~\ref{sec:discussion} returns to this point as
+-the structural reason selection strategy, not route construction, sets the bulk of
+-the observed overflow-service range.
+-
+-Because each collection changes the next state, policy $\bm{\pi}$ maximizes
+-expected cumulative profit over the horizon:
+-\begin{equation}
+-    \max_{\bm{\pi}} \mathbb{E} \left[ \sum_{d=1}^D \mathcal{P}_d(\mathcal{A}_{d,\cdot}, \bm{w}_d) \right],
+-\end{equation}
+-where $\mathcal{P}_d$ is defined in~\eqref{eq:profit_function}.
+-
+-
+-\section{Related Work}
+-
+ Methods for combinatorial routing problems separate along what they guarantee
+ against what they cost to run.\ \emph{Exact} methods --- mixed-integer
+ programming formulations solved by branch-and-bound, and decomposition schemes
+@@ -435,6 +360,75 @@ Jorge et al.\ is implemented here as one of the eight benchmark constructors
+ and the same selection and improvement stages as every other.
+ 
+ 
++\section{Problem Definition}\label{sec:problem}
++\subsection{Problem State and Dynamics}
++Let $\mathcal{G}=(\mathcal{V},\mathcal{E})$ be a complete graph with depot
++$v_0$ and bins $\mathcal{V}\setminus\{v_0\}$. Bin $i$ has location
++$\vec{l}_i\in\mathbb{R}^2$, capacity $C_i$, and waste level
++$w_{i,d}\in[0,C_i]$ on day $d$. The system state is
++$\vec{w}_d={[w_{1,d},\ldots,w_{V,d}]}^\top$.
++
++Daily accumulation $\delta_{i,d}\sim P_i$ is bin-specific and stochastic. If
++bin $i$ is collected on day $d$, the next day's level contains only the next
++increment; otherwise accumulation continues to capacity:
++\begin{equation}
++    w_{i, d+1} =
++    \begin{cases}
++        \delta_{i, d+1} & \text{if } v_i \in \mathcal{A}_d \\
++        \min(w_{i, d} + \delta_{i, d+1}, C_i) & \text{if } v_i \notin \mathcal{A}_d
++    \end{cases}
++\end{equation}
++
++\subsection{Optimization Objective}
++
++On day $d$, the policy produces a set of $K_d$ routes. The route count is not
++fixed in advance: it is whatever the policy needs to serve its chosen bins under
++the capacity constraint below. Route $k$ visits $T_{d,k}$ bins and starts and
++ends at $v_0$:
++\begin{equation}
++    \mathcal{A}_{d,k}=(a_{0,k},a_{1,k},\ldots,a_{T_{d,k},k},a_{T_{d,k}+1,k}),
++    \qquad a_{0,k}=a_{T_{d,k}+1,k}=v_0.
++\end{equation}
++
++Let $\mathcal{A}_{d,\cdot}$ denote the union of non-depot visits. The daily
++problem is
++
++\begin{equation}
++\begin{aligned}
++    \textrm{maximize} \quad & \mathcal{P}(\mathcal{A}_d, \bm{w}_d) = r_w \sum_{v_i\in\mathcal{A}_{d,\cdot}}w_{i,d}
++    -c_{km}\sum_{k=1}^{K}\sum_{t=0}^{T_{d,k}}
++    \dist(a_{t,k},a_{t+1,k}) \label{eq:profit_function}\\
++    \textrm{subject to} \quad
++    & a_{t,k}\neq a_{t',k'} \quad
++      \forall (t,k)\neq(t',k'),\ 1\leq t\leq T_{d,k},\ 1\leq t'\leq T_{d,k'},\\
++    & \sum_{t=1}^{T_{d,k}}w_{a_{t,k},d}\leq Q
++      \quad \forall k\in\{1,\ldots,K_d\}.
++\end{aligned}
++\end{equation}
++Here $r_w$ is revenue per kilogram, $c_{km}$ is travel cost per kilometer, and $Q$
++is the per-route payload capacity. Each route is one capacity-feasible depot-to-depot
++trip; the formulation bounds the load of every route but does not bound how many
++routes a day may contain, so $K_d$ is an outcome of the daily decision rather than a
++parameter of it. Sect.~\ref{sec:protocol} states how this was configured in the
++reported experiment. Optional service distinguishes the VRPP from the classical
++VRP\@: the policy chooses a profitable subset as well as its routes~\cite{Archetti2014VRPProfits}.
++Eq.~\eqref{eq:profit_function} contains no term penalizing an unvisited bin that
++overflows: a distant bin's marginal revenue $r_w w_{i,d}$ can be lower than the
++detour cost required to reach it, in which case a route constructor solving this
++objective alone has no incentive to serve it. The only mechanism that forces a
++critically full bin into a route is the upstream mandatory set $\mathcal{M}_d$
++Sect.~\ref{sec:methodology}; Sect.~\ref{sec:discussion} returns to this point as
++the structural reason selection strategy, not route construction, sets the bulk of
++the observed overflow-service range.
++
++Because each collection changes the next state, policy $\bm{\pi}$ maximizes
++expected cumulative profit over the horizon:
++\begin{equation}
++    \max_{\bm{\pi}} \mathbb{E} \left[ \sum_{d=1}^D \mathcal{P}_d(\mathcal{A}_{d,\cdot}, \bm{w}_d) \right],
++\end{equation}
++where $\mathcal{P}_d$ is defined in~\eqref{eq:profit_function}.
++
++
+ \section{Methodology}\label{sec:methodology}
+ 
+ A WSmart Route+ policy composes three independent stages, each drawn from its
+@@ -461,7 +455,7 @@ spanning exact methods, meta-heuristics and hyper-heuristics, and two route impr
+     \centering
+     \includegraphics[width=1.0\linewidth]{Images/Results/Generated/policy_configuration_space.png}
+     \caption{The policy configuration space. A policy is one choice from each
+-    of the three stages; the experiments in Sect.~\ref{sec:eval} cross the
++    of the three stages; the experiments in Sect.~\ref{sec:experiments} cross the
+     highlighted subset exhaustively.}\label{fig:pol_config}
+ \end{figure}
+ 
+@@ -832,7 +826,7 @@ required. We therefore report the daily route count as the minimum number of
+ payload-feasible trips, $K_d = \lceil (\text{kg collected on day } d)/Q \rceil$.
+ The remote-depot geometry makes this tight in practice: an additional return to
+ the depot costs roughly five times the median inter-bin leg
+-(Sect.~\ref{sec:eval}), so splitting a load that one trip could carry is never
++(Sect.~\ref{sec:experiments}), so splitting a load that one trip could carry is never
+ profitable under the objective of Eq.~\eqref{eq:profit_function}, and a
+ cost-minimising constructor will not do it. On this accounting $94.1\%$ of the
+ $9{,}642$ collection days in the 30-day archive are single-trip days, $5.8\%$
+@@ -898,7 +892,7 @@ parametric model against real observations:
+           bins, so accumulation behavior varies across the network and not
+           merely in scale. The increment is drawn in the same $[0,100]$
+           fill-percentage units as $\hat{\rho}_{i,d}$ and converted to mass
+-          only when reporting collected tonnage (Sect.~\ref{sec:eval});
++          only when reporting collected tonnage (Sect.~\ref{sec:experiments});
+     \item \textbf{Empirical}, sampling each bin's own historical daily-fill
+           record independently, drawn from measurements collected by the
+           WSmart Bin Analysis module between 2021--01--12 and 2023--10--23.
+@@ -1210,7 +1204,7 @@ and improvers within a single scenario.
+     Look-Ahead/Figueira-da-Foz/Gamma-3 marker in the right panel includes the
+     degenerate SWC-TCF run (Table~\ref{tab:excluded}) alongside the seven
+     completed constructors, inflating its overflow count relative to the
+-    balanced treatment in Sect.~\ref{sec:eval}.}\label{fig:app-strategy}
++    balanced treatment in Sect.~\ref{sec:experiments}.}\label{fig:app-strategy}
+ \end{figure}
+ 
+ \begin{figure}[p]
+@@ -1263,7 +1257,7 @@ summaries from drifting through manual transcription.
+ Read together, the three policy stages support different kinds of findings and
+ decisions. The five bin selection variants are consistently placed on every reported
+ measure and none dominates on all outcomes. This stage therefore yields a clear
+-trade-off curve given by the Paretto front, and the decision it informs is a valuation: what a prevented
++trade-off curve given by the Pareto front, and the decision it informs is a valuation: what a prevented
+ overflow is worth in kilometers driven. Route construction yields something
+ different. Seven of the eight constructors share a median of $4.0$ overflow
+ events, so the spread in their means, $5.9$ to $19.9$, describes tail severity
+@@ -1352,9 +1346,9 @@ them to be obligated to visit the selected bins.
+ The WSmart Route+ simulator makes the temporal state of smart waste collection part of the
+ benchmark, be it during the selection of the bins to be visited on a given day during the 
+ execution of the mandatory selection strategies and route constructors, as well as by enabling 
+-simulations to be run on difference temporal horizons. Its three-stage policy model
++simulations to be run on different temporal horizons. Its three-stage policy model
+ separates the decision to collect from the decisions that construct and refine a
+-route, while common waste deposition distribution sampling make comparisons within a scenario
++route, while common waste deposition distribution sampling makes comparisons within a scenario
+ attributable to the full configured policy. Across the tested design, mandatory
+ selection spans a wider observed efficiency-service range than route
+ construction. Constructor choice remains important for runtime and overflow
+@@ -1438,7 +1432,7 @@ relevant to the content of this article.
+ This appendix reproduces one figure and one table from the project's
+ results presentation, at the 30- and 90-day horizons. They give a second,
+ higher-resolution view of the same experiment discussed in
+-Sect.~\ref{sec:eval}, aggregated and grouped differently
++Sect.~\ref{sec:experiments}, aggregated and grouped differently
+ than the main-text tables and figures.
+ 
+ \begin{landscape}
+@@ -1464,7 +1458,7 @@ than the main-text tables and figures.
+     \end{minipage}
+     \caption{Policy $\times$ scenario heatmaps, 90-day horizon, restricted to
+     the 30-day Pareto-front policies carried forward to this horizon
+-    (Sect.~\ref{sec:eval}). Panel~(a) is overflow count, panel~(b) is
++    (Sect.~\ref{sec:experiments}). Panel~(a) is overflow count, panel~(b) is
+     efficiency. Rows are full policy
+     configurations (selection variant $\cdot$ constructor $\cdot$ improver);
+     columns are network/demand-process scenarios.\ \emph{Caveat:} the
+diff --git a/reference.bib b/reference.bib
+index a061ca1..c42c9b2 100644
+--- a/reference.bib
++++ b/reference.bib
+@@ -1,3 +1,5 @@
++% Consumed by paper_versaoHector1.tex and rascunho.tex only.
++% paper.tex uses mybibliography.bib -- do not merge the two files.
+ % ---------------------------------------------------------------------------
+ % mybibliography.bib  --  consolidated, September 2026.
+ %
