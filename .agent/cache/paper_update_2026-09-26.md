@@ -2177,3 +2177,38 @@ P5–P9 run in parallel once P2 lands. Each agent claims its line range on the b
 - **Q18 (new)** [rerun Cursor's lane for P4, or reassign it to Grok/Codex]
 - **Q19 (new)** [owner: the venue and page budget; the PDF is 37 pages, which decides Q6/Q7]
 - **Q20 (new)** [owner: the workflow in `pedrosantos704/…` (a branch plus PR vs a direct push), and whether Hector/Pedro review the edits]
+
+### 8.3 Owner rulings (recorded by Claude, 2026-09-27) and what each changes
+
+| Q | Ruling | Consequence for the steps |
+|---|---|---|
+| Q1 | Base file is `paper.tex`. | P3 uses Hector's §3 as a skeleton only, re-notated (F-kimi-02). |
+| Q2 | Rename the overflow indicator: state `w_i^t`, overflow `o_i^t`. | P2 and P3 use `w_i^t` (with `w_i^1 = w_i`, the sensor reading) and `o_i^t`. |
+| Q3 | Yes, lost waste `ℓ_i^t`. | The simulator/protocol text defines `ℓ_i^t`. The model stays no-loss, and the limitation sentence stays (F-kimi-05). |
+| Q4 | `I_b` for the bin set. | P2/P3. |
+| Q5 | `𝓜^t` for the mandatory set. | P2/P3. |
+| Q6 | The full model goes in the **body** for now (no page limit known). | P3 puts (22)–(44) in the body, re-notated and without the δ constraints (Q10). An appendix split is deferred until Q19 is known. |
+| Q7 | The worked 4-bin example goes in the **appendix**, and may be removed later. | I-kimi-02 is accepted (P3). Check its trajectories against the Q10/Q14 model: the example uses δ = 0, and the at-capacity rule may change which visits are forced (Kimi re-verifies by enumeration). |
+| Q8 | The run records exist on another PC that is in repair; the owner will retrieve them later. | P10 caveats say "provenance pending recovery of the run records", not "unrecoverable". C6 reruns are deferred until the records are back, after which the rerun-vs-keep scope is re-decided. |
+| Q9 | Keep the 224 integrity-filtered pairs and name the filter. | P7/P10 (R-codex-06). #49 folds in. |
+| Q10 | `E_i` and `a_i^t` are accepted. **The problem definition does not use the share of bins allowed to overflow.** | **δ is dropped** from §3: no (16), no (39), no `H`/`O` counting set, and no smarter trigger `H ≤ nδ` inside the problem definition. Ramos et al.'s δ mechanism may be described once, as the source model's feature, in the model-2 recap or in Related Work. Kept: ψ and the force-visit rule (40), and `o_i^t` as the definition of the overflow indicator. N-codex-01 (the O/H order) only applies if the recap mentions them. Symbol `δ` is then free. |
+| Q11/Q16 | The abstract may change. | The #53 "abstract of record" banner is lifted. P11 rewrites the abstract to match the body (I-gemini-02 + the new formulation). |
+| Q12 | Keep the directed distances. | P9: the text describes directed road km. The symmetrisation remark from Hector's draft is dropped, or kept only if the MILP text needs it. The medians sentence is corrected (A-grok-05). |
+| Q13 | Correct (36) to `\sum_{j\in I_b} x_{0j}^t = k^t`. | P3 (F-kimi-03). Mark it as a correction of the authors' extension. Tell Hector (Q20 review). |
+| Q14 | **A bin overflows when it reaches 100 % of its capacity.** | The model **aligns with the simulator** (DS-16) instead of stating two conventions, which replaces F-kimi-04. (38) must activate `o_i^t = 1` whenever end-of-period content is `≥ E_i`. With continuous content this needs an ε pair: `(w_i^t - q_i^t + a_i^t) - E_i + ε \le \bar U_i o_i^t`, so content ≥ E_i forces o = 1, and `w_i^t - q_i^t + a_i^t \ge E_i o_i^t`, so o = 1 only if content ≥ E_i. Without δ, `o_i^t` enters no other constraint and is purely definitional (the overflow metric). Kimi confirms the exact form and the value of ε, and notes that the simulator caps the level at `E_i`, which is why "reaches" rather than "exceeds" is the natural rule. The protocol (P9) and the integrity text use the same definition. |
+| Q15 | Keep the architecture/training figures out of this paper; they are reserved for a future paper. | I-gemini-01: no paper change. Record in the repo why the files are there (a README line in the paper repo's `Images/Architectures/`). |
+| Q17 | The AM is excluded because of **poor results on orienteering-type problems (the VRPP included), where routing and subset selection interact**, pending changes to its training regimen and/or architecture. | P8 replaces A-gemini-03's invented rationale with this reason, stated plainly. The NA paragraph describes the adapter as a framework capability, not a benchmarked constructor. The C3 NA bugs stay code-track work. |
+| Q18 | Rerun Cursor's lane for P4. | New brief section for Cursor (§8.4). |
+| Q19 | The venue and page budget are unknown. | Q6/Q7 are answered without it. Revisit at P12. |
+| Q20 | Work goes through a **PR in the paper repo**. The owner reviews before Hector. | P0 creates a branch in `pedrosantos704/Simulation-Framework-…`. Every step pushes to that branch, and one PR collects them. Nothing merges to the paper's `main` without the owner's review, then Hector's. |
+
+### 8.4 Follow-ups that the agents run before or alongside the issues
+
+1. **Codex review pass** over the rows filed after the reviewers wrote: F-kimi-*, A-kimi-*, N-kimi-01, R-kimi-01, I-kimi-*;
+   A-qwen-*; A-grok-*, N-grok-*, R-grok-01, I-grok-01; A-gemini-*, F-gemini-01, N-gemini-01, R-gemini-01, I-gemini-*.
+   Verdicts go in §7.A under "Late-row review". Re-check them against the §8.3 rulings as well: in particular
+   Q10 (no δ) and Q14 (at-capacity overflow) change F-kimi-01/04 and I-kimi-02.
+2. **Cursor, lane F rerun (P4):** follow `.agent/tasks/paper-update-2026-09-26.md`, lane row "Cursor", with the §8.3
+   rulings. There is no δ service level in the problem definition, so map LM/SL/LA to the fill threshold, ψ and the
+   force-visit rule (40), state the percent vs ratio units, and remove the `n_d` subscript. Write the rows as `A-cursor-NN`
+   in §3, plus your §7.F section.
