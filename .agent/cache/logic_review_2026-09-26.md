@@ -1361,3 +1361,117 @@ external data, network or a solver license. No source modifications by reviewer.
 - No shared source changes, production config edits, application commits or
   pushes. Revised patch hashes require re-review; this verdict does not extend
   to unseen future revisions.
+
+### 10.4 Revised patches: independent review (Codex, 2026-09-28)
+
+**Review gate: Gemini and Cursor ready; Kimi's requested changes accepted with
+licensed execution still to be independently verified; Grok, Qwen and Mistral
+require revisions.** This supersedes the pending-patch verdicts in 10.1–10.3
+for the exact versions below, without changing the historical findings.
+
+Base: `a323312b3`. All ten patch files apply sequentially without exclusions in
+`/tmp/wsr-codex-revision-review-20260928`. The ordered
+[SHA-256 manifest](patches/codex/revision-review-20260928/manifest.json)
+identifies the reviewed versions; all hashes were rechecked before publication.
+Qwen is reviewed as the original #80 operator patch, original #82 HMLNS patch,
+then the additive `issue-80-82-revision.patch`, not as a standalone revision.
+Shared production source and other agents' patches were not edited or applied.
+
+| Lane / pending delivery | Verdict and evidence |
+|---|---|
+| Gemini #80/#82 | **Ready.** Tensor-safe mandatory validation closes the crash; actual Neural Agent normalization, empty-return and revenue tests pass. DeepDecoder smoke tests pass. Explicit deferrals remain as in the handoff. |
+| Cursor #82 | **Ready.** Five profit tests now invoke `Bins.collect`, `_load_area_params` and `VRPP.get_costs`; the 190 kg / 96.167 km witness gives simulator profit 14.736 and distinguishes the training proxy. Five production selector tests also pass. |
+| Kimi #80 revision | **Requested changes accepted, licensed rerun outstanding here.** Deterministic mocked no-incumbent test passes. The delivered fleet witness requires at least two routes and compares a one-vehicle bound; adapter forwarding is tested. Three real-solver tests are environment-blocked here. Author reports 6/6 on a licensed tree; that is separate author evidence. |
+| Grok #80/#82 | **Hold #80; #82 has no additional finding.** Opening-row double counting is fixed, but the actual producer still supplies too few rows for the revised consumer. See R3. |
+| Qwen #80/#82 cumulative stack | **Hold.** Capacity seed rejection is fixed. Required operator parity and production temperature verification are still missing; see R4/R5. |
+| Mistral #82 | **Hold.** All five previously omitted updater tests are delivered and pass, but config inheritance removes live runtime contracts; see R1/R2. |
+
+#### Outstanding findings
+
+**R1 — HIGH: Mistral's EGH and LASM parameter refactor deletes methods still
+called by both pipelines.** The revised `ExactGuidedHeuristicParams` and
+`LASMPipelineParams` inherit config fields, but neither retains
+`stage_budgets`, `alns_iterations`, `bpc_ng_size`, `bpc_max_bb_nodes` or
+`as_alns_values_dict`. EGH `dispatcher.py:141` and LASM `dispatcher.py:262`
+call `stage_budgets()` at runtime; later stage calls need the other methods.
+The real EGH dispatcher now raises `AttributeError` before reaching a solver.
+Restore the runtime methods while sharing configuration fields, and test the
+runtime parameter/dispatcher interface. Registration and field-reader tests do
+not exercise this contract. Paths are under
+`logic/src/policies/route_construction/matheuristics/exact_guided_heuristic/`
+and `learning_matheuristic_algorithms/learning_allocated_sequential_matheuristic/`.
+
+**R2 — HIGH: Mistral's LASM defaults now leave two required lists as `None`.**
+The two overrides at revised LASM `params.py:33–34` preserve the old field
+*declarations*, but the deleted `__post_init__` used to materialize
+`lbbd_cut_families` and `rl_state_features`. Initialized instances therefore
+change from lists to `None`. `rl_controller.py:327` calls
+`list(params.rl_state_features)`; `stage_lbbd.py:633` uses membership on the
+cut-family value. Both require iterable values. Restore initialization/default
+factories and verify initialized instances and consumers. The handoff's
+“historical None overrides preserved” does not establish instance parity.
+[Reproducer](tools/codex_params_revision_repro_20260928.py) compares old/new
+instances and invokes the EGH dispatcher;
+[execution evidence](patches/codex/revision-review-20260928/params-revision-repro.log).
+
+**R3 — MEDIUM: Grok's stats-file last-day failure remains in the normal
+producer/consumer path.** Revised `Bins.load_filling` correctly treats row 0 as
+opening stock and day d as row d, requiring N+1 rows for N days. However,
+`states/initializing.py:464,490` constructs `Bins(n_days=graph.n_days)`;
+`bins/base.py:184` passes that unchanged to `GenerativeDataset`, and
+`data/datasets/simulation/gen_dataset.py:159` generates exactly N rows.
+Initialization attaches statistics afterward (`initializing.py:435–438`),
+while `states/running.py:93` runs through day N. A real two-day `Bins` instance
+with statistics produces shape `(2,2)` and fails on day 2, now with an explicit
+IndexError requesting three rows. The revision test injects N+1 rows manually,
+so it misses production setup. Wire generation/loading to supply opening state
+plus N increments, validate external samples up front, and test setup through
+the final day. [Reproducer](tools/codex_stats_revision_repro_20260928.py),
+[execution evidence](patches/codex/revision-review-20260928/stats-revision-repro.log).
+Simulator paths above are relative to `logic/src/pipeline/simulations/`;
+the dataset path is relative to `logic/src/`.
+
+**R4 — MEDIUM: Qwen's operator tests do not establish the required parity.**
+`test_pg_clns_operator_parity.py:50–59` calls the same shared random-removal
+implementation twice with the same seed; this checks determinism, not old/new
+parity. The cluster test at 73–80 checks only removal count, and the “directed”
+case at 189–204 uses a symmetric fixture. No test compares the deleted
+implementation to its replacement through PG-CLNS/local-search wiring.
+Cluster removal intentionally changes from nearest-neighbor/Shaw selection to
+MST partitioning; disclose that behavior change rather than claiming unchanged
+semantics. Add genuine old/new comparisons for unchanged operators, an
+asymmetric distance witness, and production adapter coverage. The overcapacity
+seed bug is closed: the original demand 20 / capacity 10 witness now rejects
+both greedy and regret seeds. The new capacity tests do distinguish the old
+shared helper, so this is a remaining parity gate, not rejection of that fix.
+
+**R5 — MEDIUM: Qwen's HMLNS calibration tests only exercise copied formulas.**
+`test_hmlns_temperature_calibration.py` imports NumPy/pytest and computes local
+temperature formulas; it never calls production ALNS or the HMLNS adapter.
+Those tests remain green if production calibration is reverted. Exercise the
+canonical solver through HMLNS wiring and capture the acceptance temperature
+for positive, zero, negative and tiny initial profits. No additional production
+calibration defect is asserted; the requested verification is absent.
+
+#### Closed findings and validation limits
+
+- Previous Gemini tensor-mask crash and missing robustness tests: closed.
+  Previous Qwen capacity defect: closed; parity gate remains open.
+  Previous Kimi timing-dependent test and weak fleet witness: addressed.
+  Previous Cursor copied-formula profit tests: replaced by production calls.
+  Previous Mistral missing updater tests: closed (five delivered, five passed).
+- Mistral #81's accidental data symlink and stale lock were corrected during
+  integration at `fc6506166`: the landed diff excludes the symlink and updates
+  `uv.lock`. Those old patch-packaging findings are not outstanding against
+  the current base.
+- Selected integrated tests: **63 passed, 5 environment-blocked failures**.
+  Three SWC tests fail Gurobi HostID/license validation; two simulator tests
+  cannot create multiprocessing manager sockets in the sandbox. Neither class
+  is counted as a demonstrated source regression or as a pass.
+  [Full focused-run log](patches/codex/revision-review-20260928/tests.log).
+- `compileall -q logic/src` passes. The concrete R1/R2/R3 reproducers were run
+  separately from pytest and demonstrate gaps in the selected passing tests.
+  No independent full-suite, GPU training or broad simulation result is claimed.
+- Independent reviewer rechecked Qwen/Kimi/Mistral; Codex reviewed
+  Gemini/Grok/Cursor, assembled the stack, ran tests and reproduced the runtime
+  failures. No source changes, application commits or pushes by this review.

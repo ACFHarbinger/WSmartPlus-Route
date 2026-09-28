@@ -136,3 +136,27 @@ names), `test_separation_engine.py` (legacy/comb test removed).
   346.8 kg; kg_lost 3.8 tracked; no crashes, no empty-day anomalies. (At n=20 one
   payload covers the network, so the unbounded-fleet path is exercised by the
   unit tests rather than here.)
+
+## Revision (2026-09-28, Codex integration review finding §10.2 #6)
+
+`.agent/cache/patches/kimi/issue-80-revision-swc-tests.patch` (197 lines, applies
+on `a323312b3`; verified apply + 6/6 tests on a pristine clone).
+
+- **Deterministic no-incumbent test**: the 1 ms-budget race is replaced by a
+  mock at the solver boundary (`gp.Model` returns a fake whose `SolCount = 0`,
+  `Status = TIME_LIMIT`; an `_AnyExpr` stub absorbs the model-building
+  arithmetic), plus a real-solve zero-solution witness (`R = 0` → the optimal
+  plan is empty → `[0, 0]` via the empty-walk normalisation; deterministic
+  outcome, not timing).
+- **Stronger fleet test**: a capacity-requiring witness — four bins at 100 %
+  with `Q = 250 %` cannot fit one route; the unbounded fleet must return two
+  routes with all four bins, and the complementary `number_vehicles=1` call
+  must drop a bin (bound enforced, not ignored). Together with the adapter's
+  `number_vehicles == 0` capture in the depot-split test, the prior
+  implementation (policy default 1 + strip-all-zeros) is distinguished.
+- Also fixes the cosmetic `Collected:` log count (now counts non-depot nodes).
+- Fails-before evidence: with the package reverted to `6d500ed02`, three tests
+  fail (`assert [0] == [0, 0]` ×2 on the empty-day shape, and the depot-split
+  equality); the wrapper-level witness passes against the old wrapper by
+  design — the regression it guards lives at the policy adapter, where the
+  split test fails on the old code.

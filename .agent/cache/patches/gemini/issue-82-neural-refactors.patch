@@ -175,7 +175,7 @@ index 616d812a8..c1a81c85e 100644
              if mask.dim() == 3:
                  mask = mask.squeeze(1)
 diff --git a/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py b/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py
-index 5825fb703..18c2074e7 100644
+index d4217d77c..95ff0a2d5 100644
 --- a/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py
 +++ b/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py
 @@ -13,7 +13,7 @@ Example:
@@ -187,7 +187,7 @@ index 5825fb703..18c2074e7 100644
  
  import torch
  
-@@ -58,6 +58,15 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
+@@ -58,6 +58,58 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
          super().__init__(config)
          self._params_logged = False
  
@@ -200,10 +200,53 @@ index 5825fb703..18c2074e7 100644
 +        """Return the config key for this policy."""
 +        return "na"
 +
++    def _validate_mandatory(self, mandatory: Any) -> Optional[Tuple[List[int], float, float]]:
++        """
++        Validate mandatory input. Returns early result [0, 0], 0.0, 0.0 if empty.
++
++        Handles None, lists, tuples, sets, and PyTorch tensors (integer ID tensors
++        and 1D/2D boolean mask tensors) without ambiguous truth-value errors.
++
++        Args:
++            mandatory: List, tuple, set, or Tensor of mandatory targets or mask.
++
++        Returns:
++            Optional tuple containing ([0, 0], 0.0, 0.0) if mandatory is explicitly empty, else None.
++        """
++        if mandatory is None:
++            return None
++
++        if isinstance(mandatory, torch.Tensor):
++            if mandatory.numel() == 0:
++                return [0, 0], 0.0, 0.0
++            if mandatory.dtype == torch.bool:
++                if not mandatory.any():
++                    return [0, 0], 0.0, 0.0
++                return None
++            else:
++                # Integer or other numeric tensor of IDs
++                if mandatory.numel() == 0:
++                    return [0, 0], 0.0, 0.0
++                return None
++
++        if isinstance(mandatory, (list, tuple, set)):
++            if len(mandatory) == 0:
++                return [0, 0], 0.0, 0.0
++            return None
++
++        # Fallback for other objects
++        try:
++            if not mandatory:
++                return [0, 0], 0.0, 0.0
++        except Exception:
++            pass
++
++        return None
++
      def execute(
          self, **kwargs: Any
      ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
-@@ -92,6 +101,12 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
+@@ -92,6 +144,12 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
                  - Optional[SearchContext]: Updated search context.
                  - Optional[MultiDayContext]: Updated multi-period context.
          """
@@ -216,7 +259,7 @@ index 5825fb703..18c2074e7 100644
          model_env = kwargs["model_env"]
          model_ls = kwargs["model_ls"]
          bins = kwargs["bins"]
-@@ -101,9 +116,11 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
+@@ -101,9 +159,11 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
          hrl_manager = kwargs.get("hrl_manager")
  
          # 1. Initialize type-safe Params
@@ -231,8 +274,32 @@ index 5825fb703..18c2074e7 100644
  
          model_data, graph, profit_vars = model_ls
          agent = NeuralAgent(model_env)
+@@ -142,16 +202,18 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
+ 
+         # Compute profit: collected revenue - travel cost
+         visited = {n for n in tour if n != 0}
+-        volume = getattr(bins, "volume", profit_vars.get("bin_volume", profit_vars.get("V", 1.0)) if profit_vars else 1.0)
+-        density = getattr(bins, "density", profit_vars.get("density", profit_vars.get("B", 1.0)) if profit_vars else 1.0)
++        volume = getattr(
++            bins, "volume", profit_vars.get("bin_volume", profit_vars.get("V", 1.0)) if profit_vars else 1.0
++        )
++        density = getattr(
++            bins, "density", profit_vars.get("density", profit_vars.get("B", 1.0)) if profit_vars else 1.0
++        )
+         revenue_kg = profit_vars.get("revenue_kg", profit_vars.get("R_kg", 1.0)) if profit_vars else 1.0
+         c_vals = getattr(bins, "real_c", bins.c)
+         if c_vals is None:
+             c_vals = bins.c
+         collected_kg = sum(
+-            (float(c_vals[n - 1]) / 100.0) * float(volume) * float(density)
+-            for n in visited
+-            if 1 <= n <= len(c_vals)
++            (float(c_vals[n - 1]) / 100.0) * float(volume) * float(density) for n in visited if 1 <= n <= len(c_vals)
+         )
+         collected_revenue = collected_kg * float(revenue_kg)
+         profit = collected_revenue - cost * params.cost_weight
 diff --git a/logic/test/unit/models/subnets/test_deep_decoder.py b/logic/test/unit/models/subnets/test_deep_decoder.py
-index 653bcb398..c456ab5b3 100644
+index 653bcb398..20213427b 100644
 --- a/logic/test/unit/models/subnets/test_deep_decoder.py
 +++ b/logic/test/unit/models/subnets/test_deep_decoder.py
 @@ -9,7 +9,6 @@ from logic.src.models.subnets.decoders.gat.decoder import DeepGATDecoder
@@ -252,7 +319,7 @@ index 653bcb398..c456ab5b3 100644
      state = MagicMock()
      # Mock current node (1 per batch)
      state.get_current_node.return_value = torch.zeros(batch, 1, dtype=torch.long)
-@@ -73,3 +70,27 @@ def test_deep_decoder_slicing():
+@@ -73,3 +70,30 @@ def test_deep_decoder_slicing():
      sliced = fixed[0:2]
      assert sliced.node_embeddings.shape == (2, 5, 16)
      assert sliced.context_node_projected.shape == (2, 1, 16)
@@ -260,23 +327,107 @@ index 653bcb398..c456ab5b3 100644
 +
 +def test_deep_decoder_policy_forward():
 +    """Verify DeepDecoderPolicy forward pass using inherited AttentionModelPolicy loop (M-gemini-02)."""
++    from unittest.mock import patch
++
 +    from logic.src.envs.routing.vrpp import VRPPEnv
 +    from logic.src.models.core.attention_model.deep_decoder_policy import DeepDecoderPolicy
 +
-+    env = VRPPEnv(num_loc=5)
-+    env.NAME = env.name
-+    td = env.reset(batch_size=[2])
++    with patch("logic.src.utils.data.loader.load_grid_base", side_effect=FileNotFoundError):
++        env = VRPPEnv(num_loc=5)
++        env.NAME = env.name
++        td = env.reset(batch_size=[2])
 +
-+    policy = DeepDecoderPolicy(
-+        env_name="vrpp",
-+        embed_dim=32,
-+        hidden_dim=32,
-+        n_encode_layers=1,
-+        n_decode_layers=1,
-+        n_heads=2,
-+    )
-+    out = policy(td, env, strategy="greedy")
-+    assert "actions" in out
-+    assert "reward" in out
-+    assert "log_likelihood" in out
-+    assert out["actions"].shape[0] == 2
++        policy = DeepDecoderPolicy(
++            env_name="vrpp",
++            embed_dim=32,
++            hidden_dim=32,
++            n_encode_layers=1,
++            n_decode_layers=1,
++            n_heads=2,
++        )
++        out = policy(td, env, strategy="greedy")
++        assert "actions" in out
++        assert "reward" in out
++        assert "log_likelihood" in out
++        assert out["actions"].shape[0] == 2
+diff --git a/logic/test/unit/policies/test_na_robustness.py b/logic/test/unit/policies/test_na_robustness.py
+index 4c702fb4d..e1a71d097 100644
+--- a/logic/test/unit/policies/test_na_robustness.py
++++ b/logic/test/unit/policies/test_na_robustness.py
+@@ -115,3 +115,76 @@ def test_b_gemini_03_revenue_units_and_ground_truth() -> None:
+         assert ret_tour == tour
+         assert ret_cost == cost
+         assert pytest.approx(ret_profit, 1e-4) == 130.0
++
++
++def test_validate_mandatory_empty_and_nonempty_cases() -> None:
++    """Verify _validate_mandatory handles None, lists, tuples, sets, and tensors
++
++    (both 1D/2D boolean masks and integer ID lists/tensors) without ambiguous
++    truth value errors (Codex Finding 10.2 #1 regression test).
++    """
++    policy = NeuralAgentPolicy()
++
++    # None returns None (not an empty constraint)
++    assert policy._validate_mandatory(None) is None
++
++    # Lists
++    assert policy._validate_mandatory([]) == ([0, 0], 0.0, 0.0)
++    assert policy._validate_mandatory([1, 2]) is None
++
++    # Tuples and sets
++    assert policy._validate_mandatory(()) == ([0, 0], 0.0, 0.0)
++    assert policy._validate_mandatory((1, 2)) is None
++    assert policy._validate_mandatory(set()) == ([0, 0], 0.0, 0.0)
++    assert policy._validate_mandatory({1, 2}) is None
++
++    # Integer tensors
++    assert policy._validate_mandatory(torch.tensor([], dtype=torch.long)) == ([0, 0], 0.0, 0.0)
++    assert policy._validate_mandatory(torch.tensor([1, 2], dtype=torch.long)) is None
++
++    # Boolean tensors (1D)
++    assert policy._validate_mandatory(torch.tensor([False, False, False])) == ([0, 0], 0.0, 0.0)
++    assert policy._validate_mandatory(torch.tensor([False, True, False])) is None
++
++    # Boolean tensors (2D)
++    assert policy._validate_mandatory(torch.tensor([[False, False, False]])) == ([0, 0], 0.0, 0.0)
++    assert policy._validate_mandatory(torch.tensor([[False, True, False]])) is None
++
++    # Empty 0-element tensor
++    assert policy._validate_mandatory(torch.tensor([])) == ([0, 0], 0.0, 0.0)
++
++
++def test_execute_multi_element_tensor_mask_no_ambiguous_boolean_crash() -> None:
++    """Verify that NeuralAgentPolicy.execute does not crash with
++
++    'Boolean value of Tensor with more than one value is ambiguous'
++    when passed a multi-element boolean tensor mask (Codex finding 10.2 #1).
++    """
++    policy = NeuralAgentPolicy()
++    mask = torch.tensor([[False, True, False]])
++
++    # Because mask has True at index 1, it is non-empty; validation returns None.
++    # Execution proceeds to model unpacking, raising KeyError('model_env'), NOT RuntimeError.
++    with pytest.raises(KeyError) as exc_info:
++        policy.execute(mandatory=mask)
++    assert "model_env" in str(exc_info.value)
++
++
++def test_execute_empty_tensor_mask_early_exit() -> None:
++    """Verify that NeuralAgentPolicy.execute returns early [0, 0] without error
++
++    when passed an empty list or an empty boolean tensor mask.
++    """
++    policy = NeuralAgentPolicy()
++
++    # Empty list
++    res_list = policy.execute(mandatory=[])
++    assert res_list[0] == [0, 0]
++    assert res_list[1] == 0.0
++    assert res_list[2] == 0.0
++
++    # Empty 2D boolean tensor mask
++    res_tensor = policy.execute(mandatory=torch.tensor([[False, False, False]]))
++    assert res_tensor[0] == [0, 0]
++    assert res_tensor[1] == 0.0
++    assert res_tensor[2] == 0.0

@@ -86,21 +86,75 @@ index 1df6483cb..72626a2ae 100644
              _log_sim_metrics(log, log_std)
              return log, log_std
 diff --git a/logic/src/pipeline/simulations/bins/base.py b/logic/src/pipeline/simulations/bins/base.py
-index 7eeeb64b5..3206a7a97 100644
+index 7eeeb64b5..965c543a3 100644
 --- a/logic/src/pipeline/simulations/bins/base.py
 +++ b/logic/src/pipeline/simulations/bins/base.py
-@@ -458,8 +458,12 @@ class Bins:
+@@ -88,6 +88,7 @@ class Bins:
+         n_days: int = 31,
+         n_samples: int = 1,
+         seed: Optional[int] = None,
++        start_with_fill: bool = False,
+     ):
+         """
+         Initializes the bin population with area-specific parameters.
+@@ -105,6 +106,9 @@ class Bins:
+             n_days: Total number of simulation days.
+             n_samples: Number of waste samples in the dataset.
+             seed: Random seed for reproducibility.
++            start_with_fill: When true, row 0 of a generated sample is the opening
++                level and is not a daily deposit. The generator then draws
++                ``n_days + 1`` rows so day ``n_days`` still has its own deposit.
+         """
+         assert sample_dist == "emp" or "gamma" in sample_dist
+         self.n = n
+@@ -123,7 +127,8 @@ class Bins:
+         self.std = np.zeros((n))
+         self.day_count = 0
+         self.square_diff = np.zeros((n))
+-        self.start_with_fill = False
++        self.start_with_fill = start_with_fill
++        self.n_days = n_days
+ 
+         self.lost = np.zeros((n))
+         self.distribution = sample_dist
+@@ -178,10 +183,14 @@ class Bins:
+                 self.waste_dataset = NumpyDictDataset.load(path, area=area, waste_type=waste_type)
+         else:
+             print("\n[INFO] Generating data...")
++            # Stats-file runs keep row 0 as the opening level. Draw one extra
++            # row so days 1..n_days deposit rows 1..n_days and the last day
++            # is inside the sample.
++            generated_days = n_days + 1 if start_with_fill else n_days
+             self.waste_dataset = GenerativeDataset(
+                 data_dir=data_dir,
+                 n_samples=n_samples,
+-                n_days=n_days,
++                n_days=generated_days,
+                 n_bins=n,
+                 distribution=sample_dist,
+                 noise_mean=noise_mean,
+@@ -458,8 +467,22 @@ class Bins:
          Returns:
              The processed filling tuple.
          """
 -        todaysfilling = self.waste_fills[day] if self.start_with_fill else self.waste_fills[day - 1]
 -        noisyfilling = self.noisy_waste_fills[day] if self.start_with_fill else self.noisy_waste_fills[day - 1]
-+        # Row 0 is the opening level when start_with_fill is set. The daily
-+        # increment is waste_fills[day - 1] either way, so a sample with one row
-+        # per simulated day is not indexed one past its last row.
-+        row = day - 1
-+        todaysfilling = self.waste_fills[row]
-+        noisyfilling = self.noisy_waste_fills[row]
++        if self.start_with_fill:
++            # Row 0 is the opening level copied by set_sample_waste. Day d
++            # deposits row d, so a horizon of n_days needs n_days + 1 rows.
++            # Indexing day - 1 here would deposit the opening observation again.
++            n_rows = len(self.waste_fills)
++            if day < 0 or day >= n_rows:
++                raise IndexError(
++                    f"stats-file waste sample has {n_rows} rows; day {day} needs row {day} "
++                    "because row 0 is the opening level and is not deposited again "
++                    f"(a {day}-day horizon needs {day + 1} rows)"
++                )
++            todaysfilling = self.waste_fills[day]
++            noisyfilling = self.noisy_waste_fills[day]
++        else:
++            todaysfilling = self.waste_fills[day - 1]
++            noisyfilling = self.noisy_waste_fills[day - 1]
          return self._process_filling(todaysfilling, noisyfilling)
  
      def __setDistribution(self, param1, param2):
@@ -248,6 +302,24 @@ index 9de059cb7..555d0bce1 100644
                  )
                  if res_log:
                      log.update(res_log)
+diff --git a/logic/src/pipeline/simulations/states/initializing.py b/logic/src/pipeline/simulations/states/initializing.py
+index 66b486558..b159507ae 100644
+--- a/logic/src/pipeline/simulations/states/initializing.py
++++ b/logic/src/pipeline/simulations/states/initializing.py
+@@ -464,6 +464,7 @@ class InitializingState(SimState):
+                 n_days=graph.n_days,
+                 n_samples=graph.n_samples,
+                 seed=ctx.cfg.sim.seed + ctx.sample_id,
++                start_with_fill=sim.stats_filepath is not None,
+             )
+             # Try to get gamma option from config (e.g., sim.data_distribution="gamma1" -> alpha=1)
+             try:
+@@ -490,4 +491,5 @@ class InitializingState(SimState):
+                 n_days=graph.n_days,
+                 n_samples=graph.n_samples,
+                 seed=ctx.cfg.sim.seed + ctx.sample_id,
++                start_with_fill=sim.stats_filepath is not None,
+             )
 diff --git a/logic/src/pipeline/simulations/states/running.py b/logic/src/pipeline/simulations/states/running.py
 index 2de8e3242..ac0caf7a6 100644
 --- a/logic/src/pipeline/simulations/states/running.py
@@ -328,10 +400,10 @@ index 2de8e3242..ac0caf7a6 100644
          return {}
 diff --git a/logic/test/unit/pipeline/simulations/test_simulator_robustness.py b/logic/test/unit/pipeline/simulations/test_simulator_robustness.py
 new file mode 100644
-index 000000000..a3ef3ef93
+index 000000000..7ad1ee446
 --- /dev/null
 +++ b/logic/test/unit/pipeline/simulations/test_simulator_robustness.py
-@@ -0,0 +1,278 @@
+@@ -0,0 +1,321 @@
 +"""Regression tests for simulator resume, failure, and naming bugs (issue 80)."""
 +
 +from unittest.mock import MagicMock, patch
@@ -344,6 +416,7 @@ index 000000000..a3ef3ef93
 +from logic.src.configs.tasks.sim import SimConfig
 +from logic.src.pipeline.features.test.orchestrator.parallel_runner import execute_and_monitor_tasks
 +from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
++from logic.src.pipeline.simulations.bins import Bins
 +from logic.src.pipeline.simulations.checkpoints import CheckpointError
 +from logic.src.pipeline.simulations.day_context import get_full_policy_name, policy_result_key
 +from logic.src.pipeline.simulations.simulator import sequential_simulations
@@ -453,20 +526,62 @@ index 000000000..a3ef3ef93
 +    assert "LOOKAHEAD_ALNS_BMC_FAST_TSP" in name
 +
 +
-+def test_start_with_fill_uses_last_row_on_the_last_day(basic_bins):
-+    """A sample with one row per day is addressable on day n_days."""
-+    n_days = 3
++def test_stats_file_horizon_keeps_opening_row_out_of_the_deposits(basic_bins):
++    """Row 0 is opening stock. Days 1..n deposit rows 1..n, once each.
++
++    Rows 10, 20, 30. Opening 10. Day 1 adds 20 (level 30). Day 2 adds 30
++    (level 60). The next day is past the sample and must not wrap onto row 0.
++    """
++    n_days = 2
 +    n_bins = basic_bins.n
-+    fills = np.arange(n_days * n_bins, dtype=float).reshape(n_days, n_bins)
++    rows = np.zeros((n_days + 1, n_bins), dtype=float)
++    rows[0] = 10.0
++    rows[1] = 20.0
++    rows[2] = 30.0
 +    basic_bins.start_with_fill = True
-+    basic_bins.waste_fills = fills
-+    basic_bins.noisy_waste_fills = fills.copy()
-+    basic_bins.real_c = fills[0].copy()
-+    basic_bins.c = fills[0].copy()
++    basic_bins.waste_fills = rows
++    basic_bins.noisy_waste_fills = rows.copy()
++    basic_bins.real_c = rows[0].copy()
++    basic_bins.c = rows[0].copy()
 +
-+    basic_bins.load_filling(n_days)
++    for day in range(1, n_days + 1):
++        basic_bins.load_filling(day)
 +
-+    assert np.array_equal(basic_bins.history[-1], fills[-1])
++    deposits = np.stack(basic_bins.history, axis=0)
++    assert np.array_equal(deposits, rows[1:])
++    assert np.array_equal(basic_bins.real_c, rows.sum(axis=0))
++    assert np.array_equal(basic_bins.c, rows.sum(axis=0))
++    assert basic_bins.real_c[0] == pytest.approx(60.0)
++    with pytest.raises(IndexError, match="opening level"):
++        basic_bins.load_filling(n_days + 1)
++
++
++def test_generated_stats_sample_includes_the_final_day(tmp_path, mock_bins_params_loader):
++    """A generated stats sample has an opening row plus one deposit per day."""
++    horizon = 4
++    bins = Bins(
++        n=3,
++        data_dir=str(tmp_path),
++        sample_dist="gamma",
++        area="riomaior",
++        waste_type="paper",
++        n_days=horizon,
++        n_samples=1,
++        seed=7,
++        start_with_fill=True,
++    )
++    waste = bins.waste_dataset[0]["waste"]
++    assert waste.shape[0] == horizon + 1
++
++    bins.set_sample_waste(0)
++    assert np.array_equal(bins.real_c, waste[0])
++
++    for day in range(1, horizon + 1):
++        bins.load_filling(day)
++
++    deposits = np.stack(bins.history, axis=0)
++    assert np.array_equal(deposits, waste[1:])
++    assert deposits.shape[0] == horizon
 +
 +
 +def test_failed_policy_is_not_an_all_zero_mean():

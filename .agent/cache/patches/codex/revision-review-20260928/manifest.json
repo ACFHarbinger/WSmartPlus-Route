@@ -1,0 +1,62 @@
+[
+  {
+    "path": "gemini/issue-80-neural-agent-robustness.patch",
+    "sha256": "a467d4e66c71c4fa82c256c653427877ab5c8554908c0f57aecd5afeb198a573",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "gemini/issue-82-neural-refactors.patch",
+    "sha256": "66d4a7b101905af2380b666d119ca71a61f653a951a88f9b9cffb413b8878177",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "grok/issue-80-simulator-robustness.patch",
+    "sha256": "726b202c4de53f9800f1762f7eb171475d4ac65150261491cfb325760d6d7348",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "grok/issue-82-simulator-refactors.patch",
+    "sha256": "e5caf732dcd88c2705a0beca64829ef6e669abccc8d917606ca1a205f26fcae8",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "cursor/issue-82-reward-selector-parity.patch",
+    "sha256": "2e148ec6f340401c02a36ee4472d22197692146637ec53d0bd100e20235a3edb",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "kimi/issue-80-revision-swc-tests.patch",
+    "sha256": "66fb65c7f05d94791238b3e39ac599bc23049bd2a6fca5aa10e430420765c679",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "mistral/issue-82-c5-config-refactors-revision.patch",
+    "sha256": "e2ad482733fae0f327386d812cdad030054d6e2089838b29afbaf641d7c6fa92",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "qwen/issue-80-m-qwen-01-pg-clns-operators.patch",
+    "sha256": "983e47cdf5a6eacbc753f129eae916f2ab38b8e6618c01690d34f9e302dd3b01",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "qwen/issue-82-m-qwen-03-hmlns-alns.patch",
+    "sha256": "7b695559ec8d337ceac82de816fef39716d7bd15b5eae9d1e481305928400b07",
+    "apply": 0,
+    "stderr": ""
+  },
+  {
+    "path": "qwen/issue-80-82-revision.patch",
+    "sha256": "ec91a296f8217213d4724879dbfbe503a2aa24ee2bafbca9475a812488ff968a",
+    "apply": 0,
+    "stderr": ""
+  }
+]

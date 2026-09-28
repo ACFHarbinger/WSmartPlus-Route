@@ -3069,3 +3069,13 @@ PG-CLNS capacity, stats-file row accounting and patch-packaging findings remain,
 plus missing regression/parity deliverables. Codex's isolated rollout redesign
 and greedy-helper patches are ready; see
 [handoff](patches/codex/issue-80-82-rollout-handoff.md).
+
+**Revised code-track review, 2026-09-28:** see
+[logic-review §10.4](logic_review_2026-09-26.md#104-revised-patches-independent-review-codex-2026-09-28).
+Gemini/Cursor are ready; Kimi's requested revisions are accepted with three
+licensed solver tests blocked in the reviewer environment. Hold Grok/Qwen/Mistral:
+EGH/LASM runtime contracts are lost, generated stats samples still fail on the
+final day, and Qwen's parity/calibration tests do not exercise the required
+comparisons/production paths. Prior tensor-mask, capacity, test-delivery and
+packaging findings are closed as detailed there. 63 selected tests passed;
+five environment-blocked failures are explicitly separated from code findings.

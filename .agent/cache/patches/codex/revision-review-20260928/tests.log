@@ -1,0 +1,434 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.19, pytest-9.0.3, pluggy-1.6.0
+rootdir: /tmp/wsr-codex-revision-review-20260928
+configfile: pyproject.toml
+plugins: anyio-4.13.0, hydra-core-1.3.2, hypothesis-6.152.1, mock-3.15.1, cov-7.1.0
+collected 68 items
+
+logic/test/unit/policies/test_na_robustness.py::test_b_gemini_01_normalization_forwarded_to_gat_encoder PASSED [  1%]
+logic/test/unit/policies/test_na_robustness.py::test_b_gemini_02_empty_mandatory_returns_depot_loop PASSED [  2%]
+logic/test/unit/policies/test_na_robustness.py::test_b_gemini_03_revenue_units_and_ground_truth PASSED [  4%]
+logic/test/unit/policies/test_na_robustness.py::test_validate_mandatory_empty_and_nonempty_cases PASSED [  5%]
+logic/test/unit/policies/test_na_robustness.py::test_execute_multi_element_tensor_mask_no_ambiguous_boolean_crash PASSED [  7%]
+logic/test/unit/policies/test_na_robustness.py::test_execute_empty_tensor_mask_early_exit PASSED [  8%]
+logic/test/unit/models/subnets/test_deep_decoder.py::test_deep_decoder_init PASSED [ 10%]
+logic/test/unit/models/subnets/test_deep_decoder.py::test_deep_decoder_precompute PASSED [ 11%]
+logic/test/unit/models/subnets/test_deep_decoder.py::test_deep_decoder_get_log_p PASSED [ 13%]
+logic/test/unit/models/subnets/test_deep_decoder.py::test_deep_decoder_slicing PASSED [ 14%]
+logic/test/unit/models/subnets/test_deep_decoder.py::test_deep_decoder_policy_forward PASSED [ 16%]
+logic/test/unit/policies/test_reward_profit_parity.py::test_bins_collect_uses_rio_maior_plastic_coefficients PASSED [ 17%]
+logic/test/unit/policies/test_reward_profit_parity.py::test_simulator_collect_and_policy_scaled_profit_agree PASSED [ 19%]
+logic/test/unit/policies/test_reward_profit_parity.py::test_training_get_costs_is_the_legacy_unit_proxy PASSED [ 20%]
+logic/test/unit/policies/test_reward_profit_parity.py::test_training_proxy_does_not_equal_bins_collect_on_the_same_numbers PASSED [ 22%]
+logic/test/unit/policies/test_reward_profit_parity.py::test_conversion_identity_through_collect_and_policy_helper PASSED [ 23%]
+logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py::test_last_minute_scalar_ids_match_vectorized_mask PASSED [ 25%]
+logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py::test_service_level_scalar_ids_match_vectorized_mask PASSED [ 26%]
+logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py::test_service_level_horizon_two_matches_when_both_are_set PASSED [ 27%]
+logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py::test_lookahead_seed_and_bundle_match PASSED [ 29%]
+logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py::test_lookahead_empty_seed_is_empty_on_both_sides PASSED [ 30%]
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_gurobi_no_incumbent_day_is_deterministic PASSED [ 32%]
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_gurobi_empty_optimal_plan_returns_d3_shape 
+-------------------------------- live log call ---------------------------------
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter Username
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter LicenseID to value 2805822
+FAILED                                                                   [ 33%]
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_gurobi_unbounded_fleet_serves_capacity_requiring_witness 
+-------------------------------- live log call ---------------------------------
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter Username
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter LicenseID to value 2805822
+FAILED                                                                   [ 35%]
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_policy_splits_depot_delimited_flat_route PASSED [ 36%]
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_typed_path_flattens_engine_nested_overrides PASSED [ 38%]
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_route_extraction_parity_across_backends Set parameter Username
+
+-------------------------------- live log call ---------------------------------
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter Username
+Set parameter LicenseID to value 2805822
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter LicenseID to value 2805822
+FAILED                                                                   [ 39%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_update_mandatory_selection_roundtrip PASSED [ 41%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_update_route_improvement_roundtrip PASSED [ 42%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_listing_helpers PASSED [ 44%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_unknown_key_raises PASSED [ 45%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_dry_run_does_not_write PASSED [ 47%]
+logic/test/unit/configs/test_config_fields_are_read.py::test_tracking_config_fields_are_all_read PASSED [ 48%]
+logic/test/unit/configs/test_config_fields_are_read.py::test_sa_config_fields_are_all_read PASSED [ 50%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestRandomRemovalParity::test_deterministic_with_seed PASSED [ 51%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestRandomRemovalParity::test_removes_correct_count PASSED [ 52%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestClusterRemovalParity::test_removes_at_least_one_node PASSED [ 54%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestWorstRemovalRandomization::test_randomized_with_p3 PASSED [ 55%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestCapacityChecks::test_greedy_profit_rejects_over_capacity PASSED [ 57%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestCapacityChecks::test_greedy_profit_accepts_within_capacity PASSED [ 58%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestCapacityChecks::test_mandatory_node_over_capacity_skipped PASSED [ 60%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestMandatoryNodeHandling::test_mandatory_node_inserted_even_if_unprofitable PASSED [ 61%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestMandatoryNodeHandling::test_optional_node_skipped_if_unprofitable PASSED [ 63%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestDirectedDistance::test_profit_insertion_uses_revenue_minus_cost PASSED [ 64%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestRegretInsertion::test_regret_profit_rejects_over_capacity PASSED [ 66%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_positive_profit PASSED [ 67%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_zero_profit PASSED [ 69%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_negative_profit PASSED [ 70%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_tiny_profit PASSED [ 72%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSBehaviorChange::test_old_behavior_would_skip_calibration PASSED [ 73%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSBehaviorChange::test_new_behavior_always_calibrates PASSED [ 75%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_pad_model_ls_is_a_three_tuple PASSED [ 76%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_resume_clock_adds_stored_elapsed PASSED [ 77%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_expanded_id_keeps_alns_constructor PASSED [ 79%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_unexpanded_display_name_stays_the_full_id PASSED [ 80%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_stats_file_horizon_keeps_opening_row_out_of_the_deposits PASSED [ 82%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_failed_policy_is_not_an_all_zero_mean PASSED [ 83%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_partial_samples_average_only_successes PASSED [ 85%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_sequential_checkpoint_error_is_recorded PASSED [ 86%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_sequential_unsuccessful_result_is_recorded PASSED [ 88%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_parallel_failure_keeps_sample_id PASSED [ 89%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_resume_filters_by_display_slug FAILED [ 91%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_any_failed_sample_exits_nonzero FAILED [ 92%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_scenario_tree_is_built_by_default PASSED [ 94%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_scenario_tree_skips_when_adapter_opts_out PASSED [ 95%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_finishing_writes_samples_and_daily_only PASSED [ 97%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_sequential_loop_does_not_write_mean PASSED [ 98%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_display_log_metrics_is_the_mean_writer PASSED [100%]
+
+=================================== FAILURES ===================================
+_______________ test_gurobi_empty_optimal_plan_returns_d3_shape ________________
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py:113: in test_gurobi_empty_optimal_plan_returns_d3_shape
+    route, profit, cost = _run_gurobi_optimizer(
+        bins       = array([10., 20., 30., 40., 50., 60., 70., 80.])
+        dist       = [[0.0, 6.4756625267531485, 6.667035809967572, 4.607090237262032, 6.7180117204074845, 3.2142969432025894, ...], [6.4756......], [3.2142969432025894, 7.7500271059781545, 9.100207437984006, 7.562733353341496, 9.712646063015153, 0.0, ...], ...]
+        values     = {'B': 1.0, 'C': 1.0, 'Omega': 0.1, 'Q': 100.0, ...}
+logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/gurobi.py:80: in _run_gurobi_optimizer
+    mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
+        C          = 1.0
+        Omega      = 0.1
+        Q          = 100.0
+        R          = 0.0
+        S_dict     = {0: 0.0, 1: 10.0, 2: 20.0, 3: 30.0, ...}
+        _B         = 1.0
+        _V         = 1.0
+        bin_id     = 8
+        bins       = array([10., 20., 30., 40., 50., 60., 70., 80.])
+        binsids    = [1, 2, 3, 4, 5, 6, ...]
+        criticos_dict = {0: False, 1: False, 2: False, 3: False, ...}
+        distance_matrix = [[0.0, 6.4756625267531485, 6.667035809967572, 4.607090237262032, 6.7180117204074845, 3.2142969432025894, ...], [6.4756......], [3.2142969432025894, 7.7500271059781545, 9.100207437984006, 7.562733353341496, 9.712646063015153, 0.0, ...], ...]
+        dual_values = None
+        enchimentos = array([ 0., 10., 20., 30., 40., 50., 60., 70., 80.])
+        env        = None
+        i          = 8
+        idx_deposito = 0
+        mandatory  = []
+        n_bins     = 8
+        nodes      = [0, 1, 2, 3, 4, 5, ...]
+        nodes_real = [1, 2, 3, 4, 5, 6, ...]
+        number_vehicles = 1
+        pares_viaveis = [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), ...]
+        psi        = 1
+        pure_binsids = [1, 2, 3, 4, 5, 6, ...]
+        seed       = 42
+        time_limit = 30
+        values     = {'B': 1.0, 'C': 1.0, 'Omega': 0.1, 'Q': 100.0, ...}
+src/gurobipy/_model.pyx:152: in gurobipy._model.Model.__init__
+    ???
+src/gurobipy/gurobi.pxi:40: in gurobipy._core.gurobi._getdefaultenv
+    ???
+src/gurobipy/env.pxi:112: in gurobipy._core.Env.__init__
+    ???
+E   gurobipy._exception.GurobiError: HostID mismatch (licensed to 16a79e9e, hostid is 0)
+----------------------------- Captured stdout call -----------------------------
+Set parameter Username
+Set parameter Username
+Set parameter LicenseID to value 2805822
+Set parameter LicenseID to value 2805822
+------------------------------ Captured log call -------------------------------
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter Username
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter LicenseID to value 2805822
+________ test_gurobi_unbounded_fleet_serves_capacity_requiring_witness _________
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py:141: in test_gurobi_unbounded_fleet_serves_capacity_requiring_witness
+    route, profit, _ = _run_gurobi_optimizer(
+        bins       = array([100., 100., 100., 100.])
+        coords     = array([[0.85649167, 2.36810507],
+       [8.01274465, 5.82162036],
+       [0.94128642, 4.3312694 ],
+       [4.79051298, 1.59738915],
+       [7.34577151, 1.1367202 ]])
+        dist       = [[0.0, 7.9459879570353245, 1.9649947484711563, 4.008806143482665, 6.605078467842274], [7.9459879570353245, 0.0, 7.2268...05315235, 0.0, 2.5964518188728065], [6.605078467842274, 4.732139335368252, 7.156994753456693, 2.5964518188728065, 0.0]]
+        rng        = Generator(PCG64) at 0x781DD3FDF5A0
+        values     = {'B': 1.0, 'C': 1.0, 'Omega': 0.1, 'Q': 250.0, ...}
+logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/gurobi.py:80: in _run_gurobi_optimizer
+    mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
+        C          = 1.0
+        Omega      = 0.1
+        Q          = 250.0
+        R          = 1.0
+        S_dict     = {0: 0.0, 1: 100.0, 2: 100.0, 3: 100.0, ...}
+        _B         = 1.0
+        _V         = 1.0
+        bin_id     = 14
+        bins       = array([100., 100., 100., 100.])
+        binsids    = [0, 11, 12, 13, 14]
+        criticos_dict = {0: False, 1: False, 2: False, 3: False, ...}
+        distance_matrix = [[0.0, 7.9459879570353245, 1.9649947484711563, 4.008806143482665, 6.605078467842274], [7.9459879570353245, 0.0, 7.2268...05315235, 0.0, 2.5964518188728065], [6.605078467842274, 4.732139335368252, 7.156994753456693, 2.5964518188728065, 0.0]]
+        dual_values = None
+        enchimentos = array([  0., 100., 100., 100., 100.])
+        env        = None
+        i          = 4
+        idx_deposito = 0
+        mandatory  = []
+        n_bins     = 4
+        nodes      = [0, 1, 2, 3, 4]
+        nodes_real = [1, 2, 3, 4]
+        number_vehicles = 0
+        pares_viaveis = [(0, 1), (0, 2), (0, 3), (0, 4), (1, 0), (1, 2), ...]
+        psi        = 1
+        pure_binsids = [11, 12, 13, 14]
+        seed       = 42
+        time_limit = 30
+        values     = {'B': 1.0, 'C': 1.0, 'Omega': 0.1, 'Q': 250.0, ...}
+src/gurobipy/_model.pyx:152: in gurobipy._model.Model.__init__
+    ???
+src/gurobipy/gurobi.pxi:40: in gurobipy._core.gurobi._getdefaultenv
+    ???
+src/gurobipy/env.pxi:112: in gurobipy._core.Env.__init__
+    ???
+E   gurobipy._exception.GurobiError: HostID mismatch (licensed to 16a79e9e, hostid is 0)
+----------------------------- Captured stdout call -----------------------------
+Set parameter Username
+Set parameter Username
+Set parameter LicenseID to value 2805822
+Set parameter LicenseID to value 2805822
+------------------------------ Captured log call -------------------------------
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter Username
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter LicenseID to value 2805822
+_________________ test_route_extraction_parity_across_backends _________________
+logic/test/unit/policies/solvers/test_swc_tcf_backends.py:286: in test_route_extraction_parity_across_backends
+    route, profit, _ = run_swc_tcf_optimizer(
+        bins       = array([10., 20., 30., 40., 50., 60., 70., 80.])
+        capsys     = <_pytest.capture.CaptureFixture object at 0x781dd3e56f80>
+        coords     = array([[6.25095467, 8.97213801],
+       [7.7568569 , 2.2520719 ],
+       [3.00166285, 8.73553445],
+       [0.05265305,...32427, 2.78425612],
+       [2.54869588, 4.45076306],
+       [5.04548259, 5.53497352],
+       [9.95500283, 7.92661919]])
+        dist       = [[0.0, 6.886728545946638, 3.257894804038724, 6.2447034208220895, 4.624449946803716, 6.975839908421885, ...], [6.886728... ...], [6.975839908421885, 4.756398930693595, 5.951347349402655, 6.1911238527659895, 5.291373635527068, 0.0, ...], ...]
+        framework  = 'gurobi'
+        optimizer  = 'gurobi'
+        results    = {}
+        rng        = Generator(PCG64) at 0x781DD3FDF680
+        run_swc_tcf_optimizer = <function run_swc_tcf_optimizer at 0x781dd51d2320>
+        values     = {'B': 1.0, 'C': 1.0, 'Omega': 0.1, 'Q': 250.0, ...}
+logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/dispatcher.py:115: in run_swc_tcf_optimizer
+    return _run_gurobi_optimizer(
+        bins       = array([10., 20., 30., 40., 50., 60., 70., 80.])
+        binsids    = [1, 2, 3, 4, 5, 6, ...]
+        distance_matrix = [[0.0, 6.886728545946638, 3.257894804038724, 6.2447034208220895, 4.624449946803716, 6.975839908421885, ...], [6.886728... ...], [6.975839908421885, 4.756398930693595, 5.951347349402655, 6.1911238527659895, 5.291373635527068, 0.0, ...], ...]
+        dual_values = None
+        framework  = 'gurobi'
+        mandatory_nodes = [2, 5]
+        number_vehicles = 0
+        optimizer  = 'gurobi'
+        seed       = 42
+        time_limit = 30
+        values     = {'B': 1.0, 'C': 1.0, 'Omega': 0.1, 'Q': 250.0, ...}
+logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/gurobi.py:80: in _run_gurobi_optimizer
+    mdl = gp.Model("VRPP", env=env) if env else gp.Model("VRPP")
+        C          = 1.0
+        Omega      = 0.1
+        Q          = 250.0
+        R          = 1.0
+        S_dict     = {0: 0.0, 1: 10.0, 2: 20.0, 3: 30.0, ...}
+        _B         = 1.0
+        _V         = 1.0
+        bin_id     = 8
+        bins       = array([10., 20., 30., 40., 50., 60., 70., 80.])
+        binsids    = [1, 2, 3, 4, 5, 6, ...]
+        criticos_dict = {0: False, 1: False, 2: True, 3: False, ...}
+        distance_matrix = [[0.0, 6.886728545946638, 3.257894804038724, 6.2447034208220895, 4.624449946803716, 6.975839908421885, ...], [6.886728... ...], [6.975839908421885, 4.756398930693595, 5.951347349402655, 6.1911238527659895, 5.291373635527068, 0.0, ...], ...]
+        dual_values = None
+        enchimentos = array([ 0., 10., 20., 30., 40., 50., 60., 70., 80.])
+        env        = None
+        i          = 8
+        idx_deposito = 0
+        mandatory  = [2, 5]
+        n_bins     = 8
+        nodes      = [0, 1, 2, 3, 4, 5, ...]
+        nodes_real = [1, 2, 3, 4, 5, 6, ...]
+        number_vehicles = 0
+        pares_viaveis = [(0, 1), (0, 2), (0, 3), (0, 4), (0, 5), (0, 6), ...]
+        psi        = 1.0
+        pure_binsids = [1, 2, 3, 4, 5, 6, ...]
+        seed       = 42
+        time_limit = 30
+        values     = {'B': 1.0, 'C': 1.0, 'Omega': 0.1, 'Q': 250.0, ...}
+src/gurobipy/_model.pyx:152: in gurobipy._model.Model.__init__
+    ???
+src/gurobipy/gurobi.pxi:40: in gurobipy._core.gurobi._getdefaultenv
+    ???
+src/gurobipy/env.pxi:112: in gurobipy._core.Env.__init__
+    ???
+E   gurobipy._exception.GurobiError: HostID mismatch (licensed to 16a79e9e, hostid is 0)
+----------------------------- Captured stdout call -----------------------------
+Set parameter Username
+Set parameter LicenseID to value 2805822
+------------------------------ Captured log call -------------------------------
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter Username
+2026-09-28 19:54:53 [    INFO] gurobipy: Set parameter LicenseID to value 2805822
+_____________________ test_resume_filters_by_display_slug ______________________
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py:272: in test_resume_filters_by_display_slug
+    simulator_testing(cfg, 20, torch.device("cpu"))
+        _finished  = <function test_resume_filters_by_display_slug.<locals>._finished at 0x781dd401a680>
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        mock_seq   = <MagicMock name='sequential_simulations' id='132069501077776'>
+        simulator_testing = <function simulator_testing at 0x781dd410eb00>
+        slug       = 'none_alns_none'
+logic/src/pipeline/features/test/orchestrator/__init__.py:202: in simulator_testing
+    manager = mp.Manager()
+        _shutdown_handler = <function simulator_testing.<locals>._shutdown_handler at 0x781de84764d0>
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        data_size  = 20
+        device     = device(type='cpu')
+        log_file   = '/tmp/wsr-codex-revision-review-20260928/logs/simulations/2026-09-28_19-54-54.log'
+        original_stderr = <_io.TextIOWrapper name="<_io.FileIO name=10 mode='rb+' closefd=True>" mode='r+' encoding='utf-8'>
+        policy_result_key = <function policy_result_key at 0x781de04fe440>
+        sim        = SimConfig(policies=['alns'], full_policies=['alns'], data_distribution='unif', problem='vrpp', shift_hours=7.0, avg_sp... gapik_file=None, stats_filepath=None, data_dir=None, run_name='run20260928_195454', policy_configs={}, config_path={})
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/context.py:57: in Manager
+    m.start()
+        SyncManager = <class 'multiprocessing.managers.SyncManager'>
+        m          = <multiprocessing.managers.SyncManager object at 0x781dd3b38730>
+        self       = <multiprocessing.context.DefaultContext object at 0x781e4890eb30>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py:566: in start
+    self._address = reader.recv()
+        ident      = '1'
+        initargs   = ()
+        initializer = None
+        reader     = <multiprocessing.connection.Connection object at 0x781dd3b38880>
+        self       = <multiprocessing.managers.SyncManager object at 0x781dd3b38730>
+        writer     = <multiprocessing.connection.Connection object at 0x781dd3b388b0>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:250: in recv
+    buf = self._recv_bytes()
+        self       = <multiprocessing.connection.Connection object at 0x781dd3b38880>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:414: in _recv_bytes
+    buf = self._recv(4)
+        maxsize    = None
+        self       = <multiprocessing.connection.Connection object at 0x781dd3b38880>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:383: in _recv
+    raise EOFError
+E   EOFError
+        buf        = <_io.BytesIO object at 0x781ed1aefec0>
+        chunk      = b''
+        handle     = 22
+        n          = 0
+        read       = <built-in function read>
+        remaining  = 4
+        self       = <multiprocessing.connection.Connection object at 0x781dd3b38880>
+        size       = 4
+----------------------------- Captured stdout call -----------------------------
+                          Simulation Policies Summary                           
+┏━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━┓
+┃     │                │        │ Selection      │ Route          │            ┃
+┃ Idx │ Policy Name    │ Engine │ Strategy       │ Improvement    │ Acceptance ┃
+┠─────┼────────────────┼────────┼────────────────┼────────────────┼────────────┨
+┃   1 │ None + ALNS +  │ CUSTOM │ None           │ None           │ None       ┃
+┃     │ None           │        │                │                │            ┃
+┗━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━┛
+
+
+----------------------------- Captured stderr call -----------------------------
+Logging simulation output to: /tmp/wsr-codex-revision-review-20260928/logs/simulations/2026-09-28_19-54-54.log
+Process SyncManager-1:
+Traceback (most recent call last):
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 591, in _run_server
+    server = cls._Server(registry, address, authkey, serializer)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 156, in __init__
+    self.listener = Listener(address=address, backlog=16)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 448, in __init__
+    self._listener = SocketListener(address, family, backlog)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 588, in __init__
+    self._socket.setsockopt(socket.SOL_SOCKET,
+PermissionError: [Errno 1] Operation not permitted
+_____________________ test_any_failed_sample_exits_nonzero _____________________
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py:290: in test_any_failed_sample_exits_nonzero
+    simulator_testing(cfg, 20, torch.device("cpu"))
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        excinfo    = <ExceptionInfo for raises contextmanager>
+        mock_seq   = <MagicMock name='sequential_simulations' id='132069500536576'>
+        simulator_testing = <function simulator_testing at 0x781dd410eb00>
+logic/src/pipeline/features/test/orchestrator/__init__.py:202: in simulator_testing
+    manager = mp.Manager()
+        _shutdown_handler = <function simulator_testing.<locals>._shutdown_handler at 0x781de84d6b90>
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        data_size  = 20
+        device     = device(type='cpu')
+        log_file   = '/tmp/wsr-codex-revision-review-20260928/logs/simulations/2026-09-28_19-54-54.log'
+        original_stderr = <_io.TextIOWrapper name="<_io.FileIO name=10 mode='rb+' closefd=True>" mode='r+' encoding='utf-8'>
+        policy_result_key = <function policy_result_key at 0x781de04fe440>
+        sim        = SimConfig(policies=['alns'], full_policies=['alns'], data_distribution='unif', problem='vrpp', shift_hours=7.0, avg_sp... gapik_file=None, stats_filepath=None, data_dir=None, run_name='run20260928_195454', policy_configs={}, config_path={})
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/context.py:57: in Manager
+    m.start()
+        SyncManager = <class 'multiprocessing.managers.SyncManager'>
+        m          = <multiprocessing.managers.SyncManager object at 0x781dd3ab3f40>
+        self       = <multiprocessing.context.DefaultContext object at 0x781e4890eb30>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py:566: in start
+    self._address = reader.recv()
+        ident      = '2'
+        initargs   = ()
+        initializer = None
+        reader     = <multiprocessing.connection.Connection object at 0x781dd3ab3a30>
+        self       = <multiprocessing.managers.SyncManager object at 0x781dd3ab3f40>
+        writer     = <multiprocessing.connection.Connection object at 0x781dd3ab3d00>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:250: in recv
+    buf = self._recv_bytes()
+        self       = <multiprocessing.connection.Connection object at 0x781dd3ab3a30>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:414: in _recv_bytes
+    buf = self._recv(4)
+        maxsize    = None
+        self       = <multiprocessing.connection.Connection object at 0x781dd3ab3a30>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:383: in _recv
+    raise EOFError
+E   EOFError
+        buf        = <_io.BytesIO object at 0x781dd39bb880>
+        chunk      = b''
+        handle     = 21
+        n          = 0
+        read       = <built-in function read>
+        remaining  = 4
+        self       = <multiprocessing.connection.Connection object at 0x781dd3ab3a30>
+        size       = 4
+----------------------------- Captured stdout call -----------------------------
+                          Simulation Policies Summary                           
+┏━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━┓
+┃     │                │        │ Selection      │ Route          │            ┃
+┃ Idx │ Policy Name    │ Engine │ Strategy       │ Improvement    │ Acceptance ┃
+┠─────┼────────────────┼────────┼────────────────┼────────────────┼────────────┨
+┃   1 │ None + ALNS +  │ CUSTOM │ None           │ None           │ None       ┃
+┃     │ None           │        │                │                │            ┃
+┗━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━┛
+
+
+----------------------------- Captured stderr call -----------------------------
+Logging simulation output to: /tmp/wsr-codex-revision-review-20260928/logs/simulations/2026-09-28_19-54-54.log
+Process SyncManager-2:
+Traceback (most recent call last):
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 591, in _run_server
+    server = cls._Server(registry, address, authkey, serializer)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 156, in __init__
+    self.listener = Listener(address=address, backlog=16)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 448, in __init__
+    self._listener = SocketListener(address, family, backlog)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 588, in __init__
+    self._socket.setsockopt(socket.SOL_SOCKET,
+PermissionError: [Errno 1] Operation not permitted
+=========================== short test summary info ============================
+FAILED logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_gurobi_empty_optimal_plan_returns_d3_shape - gurobipy._exception.GurobiError: HostID mismatch (licensed to 16a79e9e, hos...
+FAILED logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_gurobi_unbounded_fleet_serves_capacity_requiring_witness - gurobipy._exception.GurobiError: HostID mismatch (licensed to 16a79e9e, hos...
+FAILED logic/test/unit/policies/solvers/test_swc_tcf_backends.py::test_route_extraction_parity_across_backends - gurobipy._exception.GurobiError: HostID mismatch (licensed to 16a79e9e, hos...
+FAILED logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_resume_filters_by_display_slug - EOFError
+FAILED logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_any_failed_sample_exits_nonzero - EOFError
+========================= 5 failed, 63 passed in 2.32s =========================

@@ -1,0 +1,1317 @@
+diff --git a/.gitignore b/.gitignore
+index 78e32fcec..0c9531f1b 100644
+--- a/.gitignore
++++ b/.gitignore
+@@ -478,6 +478,7 @@ assets/tracking/tracking.db
+ 
+ # Logic to include
+ !logic/src/utils/target/
++!logic/test/unit/utils/target/
+ !logic/src/utils/validation/target/
+ !logic/src/pipeline/simulations/checkpoints/
+ 
+diff --git a/logic/controllers/cli/tgt_parser.py b/logic/controllers/cli/tgt_parser.py
+index 53e7a85c4..519eccccd 100644
+--- a/logic/controllers/cli/tgt_parser.py
++++ b/logic/controllers/cli/tgt_parser.py
+@@ -41,14 +41,12 @@ from __future__ import annotations
+ import argparse
+ import sys
+ 
+-from logic.src.utils.target.ms_updater import (
++from logic.src.utils.target.policy_link_updater import (
+     list_available_ms_strategies,
+-    list_strategy_keys,
+-    update_mandatory_selection,
+-)
+-from logic.src.utils.target.ri_updater import (
+     list_available_ri_improvers,
+     list_improver_keys,
++    list_strategy_keys,
++    update_mandatory_selection,
+     update_route_improvement,
+ )
+ 
+diff --git a/logic/src/policies/route_construction/learning_matheuristic_algorithms/learning_allocated_sequential_matheuristic/params.py b/logic/src/policies/route_construction/learning_matheuristic_algorithms/learning_allocated_sequential_matheuristic/params.py
+index d02d01a72..30b57d25a 100644
+--- a/logic/src/policies/route_construction/learning_matheuristic_algorithms/learning_allocated_sequential_matheuristic/params.py
++++ b/logic/src/policies/route_construction/learning_matheuristic_algorithms/learning_allocated_sequential_matheuristic/params.py
+@@ -1,38 +1,19 @@
+-r"""Configuration parameters for the LBBD → ALNS → BPC → RL → SP pipeline.
+-
+-Architecture overview
+----------------------
+-Stage 1  LBBD Master   — Knapsack-style MIP selects which customer nodes to visit.
+-                         Receives Benders cuts from Stage 2 and RL-adjusted cut
+-                         budgets from Stage 4.
+-Stage 2  LBBD Sub      — Routing subproblem solved per master selection.
+-                         Cut generation: no-good / optimality / Pareto-optimal
+-                         (Magnanti-Wang 1981) Benders cuts fed back to master.
+-Stage 3  ALNS          — Repairs and extends the LBBD incumbent using the
+-                         project's existing ALNSSolver with pool harvesting.
+-Stage 4  BPC           — Exact column generation with SP incumbent seeding.
+-Stage 5  RL controller — Online bandit (LinUCB) or offline PPO policy that
+-                         allocates time budgets across stages and selects
+-                         cut families, ng-sizes, and ALNS operator weights.
+-Stage 6  SP merge      — Set-Partitioning MIP over the global route pool.
+-
+-Quality / speed dial
+---------------------
+-A single ``alpha ∈ [0, 1]`` controls the default time allocation:
+-
+-    alpha = 0.0  →  LBBD + tiny ALNS only  (fastest, no BPC)
+-    alpha = 0.5  →  balanced               (default)
+-    alpha = 1.0  →  full BPC + ALNS + deep LBBD  (highest quality, slowest)
+-
+-The RL controller (when enabled) *overrides* the alpha-derived defaults
+-after collecting enough experience across instances.
+-
+-Attributes:
+-    LASMPipelineParams: Dataclass holding all solver configuration.
++"""Runtime parameters for the Learning Allocated Sequential Matheuristic (LASM).
++
++The config dataclass ``LASMPipelineConfig`` in
++``logic/src/configs/policies/lasm.py`` is the single field authority.
++``LASMPipelineParams`` is a thin subclass: it inherits every field and
++re-declares only ``lbbd_cut_families`` and ``rl_state_features`` whose
++constructor default is ``None``; the ``__post_init__`` below then
++materializes the pipeline's built-in lists exactly as before, so
++constructed instances are iterable exactly as before. The derived runtime
++members (``stage_budgets``, ``alns_iterations``, ``bpc_ng_size``,
++``bpc_max_bb_nodes``, ``as_alns_values_dict``) and the
++``from_config``/``to_dict`` helpers are kept verbatim from the original
++class.
+ 
+ Example:
+-    >>> p = LASMPipelineParams(alpha=0.5, time_limit=120.0)
+-    >>> budgets = p.stage_budgets()
++    >>> params = LASMPipelineParams(alpha=0.5, time_limit=120.0)
+ """
+ 
+ from __future__ import annotations
+@@ -40,188 +21,21 @@ from __future__ import annotations
+ from dataclasses import dataclass, fields
+ from typing import Any, Dict, List, Optional, Tuple
+ 
++from logic.src.configs.policies import LASMPipelineConfig
++
+ 
+ @dataclass
+-class LASMPipelineParams:
+-    """Configuration for the LBBD → ALNS → BPC → RL → SP pipeline.
+-
+-    Attributes:
+-    -----------
+-    alpha : float
+-        Quality/speed dial ∈ [0, 1].
+-    time_limit : float
+-        Total wall-clock budget in seconds.
+-    seed : int or None
+-        Global RNG seed.
+-
+-    LBBD master / sub
+-    -----------------
+-    lbbd_max_iterations : int
+-        Maximum outer Benders iterations (master–sub cycles).
+-    lbbd_master_time_frac : float
+-        Fraction of stage budget given to each master solve.
+-    lbbd_sub_solver : str
+-        Routing sub-solver: 'alns', 'bpc', or 'greedy'.
+-    lbbd_cut_families : list[str]
+-        Active Benders cut types: any combination of
+-        'nogood', 'optimality', 'pareto', 'combinatorial'.
+-    lbbd_pareto_eps : float
+-        Tolerance ε for Magnanti-Wang Pareto-optimal cut selection.
+-    lbbd_sub_time_frac : float
+-        Fraction of stage budget given to each sub-problem solve.
+-    lbbd_min_cover_ratio : float
+-        Minimum fraction of mandatory nodes the master must cover.
+-    lbbd_use_warm_cuts : bool
+-        If True, carry Benders cuts forward across RL episodes
+-        (cross-instance cut pool).
+-
+-    ALNS
+-    ----
+-    alns_max_iterations : int
+-        Hard iteration cap (0 = derive from alpha).
+-    alns_segment_size : int
+-        Ropke–Pisinger weight-update segment size.
+-    alns_reaction_factor : float
+-        Operator weight learning rate r.
+-    alns_cooling_rate : float
+-        SA temperature decay per iteration.
+-    alns_start_temp_control : float
+-        Acceptance probability at start temperature for w%-worse solutions.
+-    alns_sigma_1 / sigma_2 / sigma_3 : float
+-        Scoring constants for new-best / better / accepted-worse solutions.
+-    alns_xi : float
+-        Fraction of n for the removal upper-bound cap.
+-    alns_min_removal : int
+-        Minimum nodes removed per destroy step.
+-    alns_noise_factor : float
+-        Noise amplitude η for noisy repair operators.
+-    alns_worst_removal_randomness : float
+-        Randomness exponent p ≥ 1 for worst removal.
+-    alns_shaw_randomization : float
+-        Shaw relatedness randomisation factor.
+-    alns_regret_pool : str
+-        Regret variants: 'regret2', 'regret234', or 'regretAll'.
+-    alns_extended_operators : bool
+-        Add string/cluster/neighbor destroy operators.
+-    alns_profit_aware_operators : bool
+-        Use profit-aware operator variants.
+-    alns_vrpp : bool
+-        Allow insertion from full candidate pool.
+-    alns_engine : str
+-        ALNS backend ('custom', 'package', 'ortools').
+-
+-    BPC
+-    ---
+-    bpc_ng_size_min / bpc_ng_size_max : int
+-        ng-neighborhood size range, interpolated by alpha.
+-    bpc_max_bb_nodes_min / bpc_max_bb_nodes_max : int
+-        B&B node cap range, interpolated by alpha.
+-    bpc_cutting_planes : str
+-        Cut family ('rcc', 'saturated_arc_lci', 'all').
+-    bpc_branching_strategy : str
+-        Branching rule ('divergence', 'ryan_foster', 'edge').
+-    skip_bpc : bool
+-        Force-skip the BPC stage.
+-
+-    RL controller
+-    -------------
+-    rl_mode : str
+-        'online'   — LinUCB bandit, learns within a single run.
+-        'offline'  — Pretrained PPO policy loaded from rl_policy_path.
+-        'hybrid'   — Offline policy + online fine-tuning.
+-        'disabled' — No RL; use alpha-derived budgets only.
+-    rl_policy_path : str or None
+-        Path to a serialised PPO/offline policy (pickle or JSON).
+-    rl_exploration : float
+-        LinUCB exploration coefficient λ (δ in Li et al. 2010).
+-    rl_window : int
+-        Sliding-window size for non-stationary reward tracking.
+-        Set 0 to use all history (stationary assumption).
+-    rl_min_samples : int
+-        Minimum decisions before RL overrides alpha-derived budgets.
+-    rl_reward_shaping : str
+-        How profit improvement is shaped into a reward signal.
+-        'absolute'  — reward = Δprofit.
+-        'relative'  — reward = Δprofit / (|best_profit| + 1).
+-        'efficiency'— reward = Δprofit / Δtime.
+-    rl_state_features : list[str]
+-        Which instance features form the RL context vector.
+-        Options: 'n_nodes', 'fill_mean', 'fill_std', 'mandatory_ratio',
+-                 'lp_gap', 'pool_size', 'time_remaining', 'alpha',
+-                 'iter_count'.
+-    rl_action_space : str
+-        'budgets'   — action is a time-budget split across stages.
+-        'operators' — action is ALNS operator weight multipliers.
+-        'combined'  — both budgets and operator weights.
+-    rl_discount : float
+-        Discount factor γ for multi-step return (offline PPO only).
+-
+-    SP merge
+-    --------
+-    sp_pool_cap : int
+-        Maximum routes in the SP MIP.
+-    sp_mip_gap : float
+-        Relative MIP gap for early termination.
++class LASMPipelineParams(LASMPipelineConfig):
++    """Runtime parameters for the LASM pipeline.
++
++    Thin subclass of :class:`LASMPipelineConfig`. The two re-declared
++    fields keep the historical ``None`` constructor defaults; the
++    ``__post_init__`` below materializes the built-in family lists, so
++    constructed instances are iterable exactly as before.
+     """
+ 
+-    # ── Quality / speed dial ───────────────────────────────────────────────
+-    alpha: float = 0.5
+-    time_limit: float = 120.0
+-    seed: Optional[int] = None
+-
+-    # ── LBBD ──────────────────────────────────────────────────────────────
+-    lbbd_max_iterations: int = 20
+-    lbbd_master_time_frac: float = 0.15
+-    lbbd_sub_solver: str = "alns"  # 'alns' | 'bpc' | 'greedy'
+-    lbbd_cut_families: List[str] = None  # type: ignore[assignment]
+-    lbbd_pareto_eps: float = 1e-4
+-    lbbd_sub_time_frac: float = 0.70
+-    lbbd_min_cover_ratio: float = 1.0
+-    lbbd_use_warm_cuts: bool = False
+-
+-    # ── ALNS ──────────────────────────────────────────────────────────────
+-    alns_max_iterations: int = 0
+-    alns_segment_size: int = 100
+-    alns_reaction_factor: float = 0.1
+-    alns_cooling_rate: float = 0.995
+-    alns_start_temp_control: float = 0.05
+-    alns_sigma_1: float = 33.0
+-    alns_sigma_2: float = 9.0
+-    alns_sigma_3: float = 13.0
+-    alns_xi: float = 0.4
+-    alns_min_removal: int = 4
+-    alns_noise_factor: float = 0.025
+-    alns_worst_removal_randomness: float = 3.0
+-    alns_shaw_randomization: float = 6.0
+-    alns_regret_pool: str = "regret234"
+-    alns_extended_operators: bool = False
+-    alns_profit_aware_operators: bool = True
+-    alns_vrpp: bool = True
+-    alns_engine: str = "custom"
+-
+-    # ── BPC ───────────────────────────────────────────────────────────────
+-    bpc_ng_size_min: int = 8
+-    bpc_ng_size_max: int = 16
+-    bpc_max_bb_nodes_min: int = 200
+-    bpc_max_bb_nodes_max: int = 1000
+-    bpc_cutting_planes: str = "rcc"
+-    bpc_branching_strategy: str = "divergence"
+-    skip_bpc: bool = False
+-
+-    # ── RL controller ─────────────────────────────────────────────────────
+-    rl_mode: str = "online"  # 'online'|'offline'|'hybrid'|'disabled'
+-    rl_policy_path: Optional[str] = None
+-    rl_exploration: float = 1.0
+-    rl_window: int = 20
+-    rl_min_samples: int = 5
+-    rl_reward_shaping: str = "efficiency"
+-    rl_state_features: List[str] = None  # type: ignore[assignment]
+-    rl_action_space: str = "budgets"
+-    rl_discount: float = 0.99
+-
+-    # ── SP merge ──────────────────────────────────────────────────────────
+-    sp_pool_cap: int = 50_000
+-    sp_mip_gap: float = 1e-4
++    lbbd_cut_families: Optional[List[str]] = None
++    rl_state_features: Optional[List[str]] = None
+ 
+     def __post_init__(self) -> None:
+         """Post-initialization hook.
+diff --git a/logic/src/policies/route_construction/matheuristics/exact_guided_heuristic/params.py b/logic/src/policies/route_construction/matheuristics/exact_guided_heuristic/params.py
+index 9fccef3ac..f930db09a 100644
+--- a/logic/src/policies/route_construction/matheuristics/exact_guided_heuristic/params.py
++++ b/logic/src/policies/route_construction/matheuristics/exact_guided_heuristic/params.py
+@@ -1,134 +1,32 @@
+-r"""Configuration parameters for the TCF → ALNS → BPC → SP-merge pipeline.
++"""Runtime parameters for the Exact Guided Heuristic (TCF - ALNS - BPC - SP) pipeline.
+ 
+-The pipeline is controlled by a single quality/speed dial ``alpha ∈ [0, 1]``
+-that proportionally allocates the total time budget across the four stages:
+-
+-    alpha = 0.0  →  TCF + tiny ALNS only  (fastest, no BPC)
+-    alpha = 0.5  →  balanced              (default)
+-    alpha = 1.0  →  full BPC + large ALNS (highest quality, slowest)
+-
+-Stage budgets are computed as:
+-    τ_TCF  = T * max(0.05, 0.15 − 0.10 * α)
+-    τ_ALNS = T * (0.20  + 0.15 * α)
+-    τ_BPC  = T * (0.00  + 0.65 * α)
+-    τ_SP   = min(30, T * 0.05)              # always small
+-
+-All four values are then renormalized to sum to T.
+-
+-Attributes:
+-    ExactGuidedHeuristicParams: Dataclass for pipeline solver configuration.
++The config dataclass ``ExactGuidedHeuristicConfig`` in
++``logic/src/configs/policies/egh.py`` is the single field authority.
++``ExactGuidedHeuristicParams`` is a thin subclass that adds the derived
++runtime members (``stage_budgets``, ``alns_iterations``, ``bpc_ng_size``,
++``bpc_max_bb_nodes``, ``as_alns_values_dict``) plus the
++``from_config``/``to_dict`` helpers used by the dispatcher and the policy
++adapter; it declares no fields of its own.
+ 
+ Example:
+     >>> params = ExactGuidedHeuristicParams(alpha=0.5, time_limit=120.0)
+-    >>> budgets = params.stage_budgets()   # (τ_tcf, τ_alns, τ_bpc, τ_sp)
+ """
+ 
+ from __future__ import annotations
+ 
+ from dataclasses import dataclass, fields
+-from typing import Any, Dict, Optional, Tuple
++from typing import Any, Dict, Tuple
+ 
++from logic.src.configs.policies import ExactGuidedHeuristicConfig
+ 
+-@dataclass
+-class ExactGuidedHeuristicParams:
+-    """Configuration parameters for the TCF → ALNS → BPC → SP-merge pipeline.
+-
+-    Attributes:
+-        alpha: Quality/speed dial ∈ [0, 1].
+-            0.0 = TCF + tiny ALNS only (no BPC stage).
+-            0.5 = balanced (default).
+-            1.0 = full BPC + large ALNS (highest quality, slowest).
+-        time_limit: Total wall-clock budget in seconds.
+-        seed: Global RNG seed for reproducibility.
+-
+-        # ── ALNS overrides ─────────────────────────────────────────────────
+-        alns_max_iterations: Hard iteration cap for ALNS (overrides the
+-            alpha-derived default when set to a positive integer).
+-            Default 0 = derive from alpha: max(500, 2000 + 18000 * alpha).
+-        alns_segment_size: Weight-update segment size (Ropke & Pisinger 2006).
+-        alns_reaction_factor: Learning rate r for weight updates.
+-        alns_cooling_rate: SA temperature decay factor per iteration.
+-        alns_start_temp_control: 'w' parameter — accept a solution 'w*100 %'
+-            worse than current with probability 0.5 at start temperature.
+-        alns_sigma_1: Score awarded for a new global-best solution.
+-        alns_sigma_2: Score awarded for a better-than-current new solution.
+-        alns_sigma_3: Score awarded for an accepted worse new solution.
+-        alns_xi: Fraction of n for the removal upper-bound cap.
+-        alns_min_removal: Minimum nodes removed per destroy step.
+-        alns_noise_factor: Noise amplitude η for noisy repair operators.
+-        alns_worst_removal_randomness: Randomness exponent p ≥ 1 for worst removal.
+-        alns_shaw_randomization: Shaw randomisation factor p_shaw.
+-        alns_regret_pool: Which regret variants to use
+-            ('regret2', 'regret234', 'regretAll').
+-        alns_extended_operators: If True, add string/cluster/neighbor destroy
+-            operators (3 → 6 operators).
+-        alns_profit_aware_operators: If True, use profit-aware operator variants.
+-        alns_vrpp: If True, allow ALNS repair operators to insert nodes from the
+-            full candidate pool (not only the just-removed set).
+-        alns_engine: Which ALNS backend to use ('custom', 'package', 'ortools').
+-
+-        # ── BPC overrides ──────────────────────────────────────────────────
+-        bpc_ng_size_min: Minimum ng-neighborhood size (used when alpha=0).
+-        bpc_ng_size_max: Maximum ng-neighborhood size (used when alpha=1).
+-            Effective ng_size = bpc_ng_size_min + int(alpha *
+-                (bpc_ng_size_max − bpc_ng_size_min)).
+-        bpc_max_bb_nodes_min: Minimum B&B node cap (alpha=0).
+-        bpc_max_bb_nodes_max: Maximum B&B node cap (alpha=1).
+-        bpc_cutting_planes: Cut family for BPC ('rcc', 'saturated_arc_lci',
+-            'all', etc.).
+-        bpc_branching_strategy: Branching rule ('divergence', 'ryan_foster',
+-            'edge').
+-        skip_bpc: Force-skip the BPC stage regardless of alpha or time budget.
+-            Useful for very large instances or pure-heuristic runs.
+-
+-        # ── SP-merge overrides ─────────────────────────────────────────────
+-        sp_pool_cap: Maximum number of routes kept in the SP-merge MIP.
+-            If the collected pool exceeds this cap, the top-half by profit and
+-            a random sample of the rest are retained.
+-        sp_mip_gap: Relative gap at which the SP MIP is considered solved.
+-    """
+ 
+-    # ── Quality / speed dial ───────────────────────────────────────────────
+-    alpha: float = 0.5
+-    time_limit: float = 120.0
+-    seed: Optional[int] = None
+-
+-    # ── ALNS ──────────────────────────────────────────────────────────────
+-    alns_max_iterations: int = 0  # 0 = derived from alpha
+-    alns_segment_size: int = 100
+-    alns_reaction_factor: float = 0.1
+-    alns_cooling_rate: float = 0.995
+-    alns_start_temp_control: float = 0.05
+-    alns_sigma_1: float = 33.0
+-    alns_sigma_2: float = 9.0
+-    alns_sigma_3: float = 13.0
+-    alns_xi: float = 0.4
+-    alns_min_removal: int = 4
+-    alns_noise_factor: float = 0.025
+-    alns_worst_removal_randomness: float = 3.0
+-    alns_shaw_randomization: float = 6.0
+-    alns_regret_pool: str = "regret234"
+-    alns_extended_operators: bool = False
+-    alns_profit_aware_operators: bool = True
+-    alns_vrpp: bool = True
+-    alns_engine: str = "custom"
+-
+-    # ── BPC ───────────────────────────────────────────────────────────────
+-    bpc_ng_size_min: int = 8
+-    bpc_ng_size_max: int = 16
+-    bpc_max_bb_nodes_min: int = 200
+-    bpc_max_bb_nodes_max: int = 1000
+-    bpc_cutting_planes: str = "rcc"
+-    bpc_branching_strategy: str = "divergence"
+-    skip_bpc: bool = False
+-
+-    # ── SP merge ──────────────────────────────────────────────────────────
+-    sp_pool_cap: int = 50_000
+-    sp_mip_gap: float = 1e-4
++@dataclass
++class ExactGuidedHeuristicParams(ExactGuidedHeuristicConfig):
++    """Runtime parameters for the TCF - ALNS - BPC - SP-merge pipeline.
+ 
+-    # ------------------------------------------------------------------
+-    # Derived quantities
+-    # ------------------------------------------------------------------
++    Thin subclass of :class:`ExactGuidedHeuristicConfig`: every field and
++    default is inherited from the config dataclass.
++    """
+ 
+     def stage_budgets(self) -> Tuple[float, float, float, float]:
+         """Compute per-stage time budgets from alpha and total time_limit.
+diff --git a/logic/src/utils/target/__init__.py b/logic/src/utils/target/__init__.py
+index d5dfd6ae6..cb5f9e323 100644
+--- a/logic/src/utils/target/__init__.py
++++ b/logic/src/utils/target/__init__.py
+@@ -40,12 +40,12 @@ Attributes:
+     list_improver_keys: List top-level keys defined in an improver file.
+ """
+ 
+-from .ms_updater import (
++from .policy_link_updater import (
+     list_available_ms_strategies,
+     list_strategy_keys,
+     update_mandatory_selection,
+ )
+-from .ri_updater import (
++from .policy_link_updater import (
+     list_available_ri_improvers,
+     list_improver_keys,
+     update_route_improvement,
+diff --git a/logic/src/utils/target/ms_updater.py b/logic/src/utils/target/ms_updater.py
+deleted file mode 100644
+index 201814d0e..000000000
+--- a/logic/src/utils/target/ms_updater.py
++++ /dev/null
+@@ -1,177 +0,0 @@
+-"""Policy YAML mandatory-selection config updater.
+-
+-Batch-updates the ``mandatory_selection`` override in policy YAML files for
+-one or more route constructors.
+-
+-Quick start::
+-
+-    from logic.src.utils.target.ms_updater import update_mandatory_selection
+-
+-    update_mandatory_selection(
+-        constructors=["aco_hh", "alns", "bpc"],
+-        ms_yaml="ms_service_level",
+-        keys=["service_level1", "service_level2"],
+-    )
+-
+-CLI usage::
+-
+-    python -m logic.controllers.cli.tgt_parser ms \\
+-        --constructors aco_hh alns bpc \\
+-        --file ms_service_level \\
+-        --keys service_level1 service_level2
+-
+-Attributes:
+-    update_mandatory_selection: Update mandatory_selection in policy YAML files.
+-    list_available_ms_strategies: List available mandatory-selection strategy file stems.
+-    list_strategy_keys: List available keys within a strategy file.
+-"""
+-
+-from __future__ import annotations
+-
+-import os
+-import re
+-from typing import List, Tuple
+-
+-_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+-_DEFAULT_CONFIGS_DIR = os.path.normpath(os.path.join(_SCRIPT_DIR, "../../../configs/policies"))
+-
+-_MS_FIELD_RE = re.compile(r"(mandatory_selection:\s*)\{[^}]+\}")
+-
+-
+-def _resolve_stem(yaml_arg: str) -> str:
+-    """Normalise a yaml filename argument to a bare stem.
+-
+-    Args:
+-        yaml_arg: e.g. ``"ms_service_level"``, ``"ms_service_level.yaml"``,
+-            or ``"other/ms_service_level.yaml"``.
+-
+-    Returns:
+-        Bare stem, e.g. ``"ms_service_level"``.
+-    """
+-    name = os.path.basename(yaml_arg)
+-    if name.endswith(".yaml"):
+-        name = name[:-5]
+-    return name
+-
+-
+-def list_available_ms_strategies(configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
+-    """Return sorted list of available mandatory-selection strategy file stems.
+-
+-    Args:
+-        configs_dir: Path to the ``logic/configs/policies/`` directory.
+-
+-    Returns:
+-        Sorted list of file stems, e.g. ``["ms_last_minute", "ms_service_level", ...]``.
+-    """
+-    other_dir = os.path.join(configs_dir, "other")
+-    if not os.path.isdir(other_dir):
+-        return []
+-    return sorted(os.path.splitext(f)[0] for f in os.listdir(other_dir) if f.startswith("ms_") and f.endswith(".yaml"))
+-
+-
+-def list_strategy_keys(ms_yaml: str, configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
+-    """Return top-level keys defined in *ms_yaml*.
+-
+-    These are the valid values for the ``--keys`` argument.
+-
+-    Args:
+-        ms_yaml: Bare stem or filename of the strategy file.
+-        configs_dir: Path to the ``logic/configs/policies/`` directory.
+-
+-    Returns:
+-        List of top-level YAML keys found in the file.
+-    """
+-    stem = _resolve_stem(ms_yaml)
+-    path = os.path.join(configs_dir, "other", f"{stem}.yaml")
+-    if not os.path.isfile(path):
+-        return []
+-    keys: List[str] = []
+-    with open(path, "r", encoding="utf-8") as fh:
+-        for line in fh:
+-            stripped = line.rstrip()
+-            if stripped and not stripped.startswith(" ") and not stripped.startswith("#"):
+-                m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*):", stripped)
+-                if m:
+-                    keys.append(m.group(1))
+-    return keys
+-
+-
+-def update_mandatory_selection(
+-    constructors: List[str],
+-    ms_yaml: str,
+-    keys: List[str],
+-    configs_dir: str = _DEFAULT_CONFIGS_DIR,
+-    dry_run: bool = False,
+-    verbose: bool = True,
+-) -> List[Tuple[str, int]]:
+-    """Update ``mandatory_selection`` in policy YAML files for *constructors*.
+-
+-    Replaces every ``mandatory_selection: { ... }`` entry in the matching
+-    policy files with a new inline-dict value referencing *ms_yaml* and the
+-    given *keys*.
+-
+-    Args:
+-        constructors: Route constructor names, e.g. ``["aco_hh", "alns", "bpc"]``.
+-        ms_yaml: Bare stem of the strategy file, e.g. ``"ms_service_level"``.
+-        keys: Keys to select from the strategy file, e.g. ``["service_level1"]``.
+-        configs_dir: Path to the ``logic/configs/policies/`` directory.
+-        dry_run: When ``True`` no files are modified.
+-        verbose: Print per-file update summary.
+-
+-    Returns:
+-        List of ``(filepath, replacement_count)`` tuples for each modified file.
+-
+-    Raises:
+-        FileNotFoundError: If the strategy file does not exist.
+-        ValueError: If a requested key is not present in the strategy file.
+-    """
+-    stem = _resolve_stem(ms_yaml)
+-    ms_file_path = os.path.join(configs_dir, "other", f"{stem}.yaml")
+-    if not os.path.isfile(ms_file_path):
+-        raise FileNotFoundError(
+-            f"Mandatory-selection file not found: {ms_file_path}\n"
+-            f"Available: {list_available_ms_strategies(configs_dir)}"
+-        )
+-
+-    available_keys = list_strategy_keys(stem, configs_dir)
+-    for key in keys:
+-        if key not in available_keys:
+-            raise ValueError(f"Key '{key}' not found in {stem}.yaml. Available keys: {available_keys}")
+-
+-    keys_str = ", ".join(f'"{k}"' for k in keys)
+-    replacement = f'\\g<1>{{ "other/{stem}.yaml": [{keys_str}] }}'
+-
+-    modified: List[Tuple[str, int]] = []
+-
+-    for constructor in constructors:
+-        policy_file = os.path.join(configs_dir, f"policy_{constructor}.yaml")
+-        if not os.path.isfile(policy_file):
+-            if verbose:
+-                print(f"  [WARN] Policy file not found: {policy_file}")
+-            continue
+-
+-        with open(policy_file, "r", encoding="utf-8") as fh:
+-            content = fh.read()
+-
+-        new_content, count = _MS_FIELD_RE.subn(replacement, content)
+-
+-        if count == 0:
+-            if verbose:
+-                print(f"  [SKIP] No mandatory_selection {{...}} found in policy_{constructor}.yaml")
+-            continue
+-
+-        modified.append((policy_file, count))
+-
+-        if verbose:
+-            prefix = "[DRY RUN]" if dry_run else "[UPDATED]"
+-            print(f"  {prefix} policy_{constructor}.yaml — {count} occurrence(s) → {stem}: {keys}")
+-
+-        if not dry_run:
+-            with open(policy_file, "w", encoding="utf-8") as fh:
+-                fh.write(new_content)
+-
+-    if verbose:
+-        status = "Would update" if dry_run else "Updated"
+-        print(f"\n{status} {len(modified)} policy file(s).")
+-
+-    return modified
+diff --git a/logic/src/utils/target/policy_link_updater.py b/logic/src/utils/target/policy_link_updater.py
+new file mode 100644
+index 000000000..3b34774b4
+--- /dev/null
++++ b/logic/src/utils/target/policy_link_updater.py
+@@ -0,0 +1,233 @@
++"""Policy YAML config-override updater.
++
++One parameterised implementation of the batch updater that rewrites the
++``mandatory_selection`` or ``route_improvement`` inline override in policy
++YAML files for one or more route constructors. The two public sides keep
++their historical names:
++
++- ``update_mandatory_selection`` / ``list_available_ms_strategies`` /
++  ``list_strategy_keys`` (files prefixed ``ms_``);
++- ``update_route_improvement`` / ``list_available_ri_improvers`` /
++  ``list_improver_keys`` (files prefixed ``ri_``).
++
++Quick start::
++
++    from logic.src.utils.target.policy_link_updater import (
++        update_mandatory_selection,
++        update_route_improvement,
++    )
++
++    update_mandatory_selection(
++        constructors=["aco_hh", "alns", "bpc"],
++        ms_yaml="ms_service_level",
++        keys=["service_level1", "service_level2"],
++    )
++
++    update_route_improvement(
++        constructors=["aco_hh", "alns", "bpc"],
++        ri_yaml="ri_ftsp",
++        keys=["ftsp"],
++    )
++"""
++
++from __future__ import annotations
++
++import os
++import re
++from typing import List, Tuple
++
++_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
++_DEFAULT_CONFIGS_DIR = os.path.normpath(os.path.join(_SCRIPT_DIR, "../../../configs/policies"))
++
++
++def _resolve_stem(yaml_arg: str) -> str:
++    """Normalize a yaml filename argument to a bare stem.
++
++    Args:
++        yaml_arg: e.g. ``"ms_service_level"``, ``"ms_service_level.yaml"``,
++            or ``"other/ms_service_level.yaml"``.
++
++    Returns:
++        Bare stem, e.g. ``"ms_service_level"``.
++    """
++    name = os.path.basename(yaml_arg)
++    if name.endswith(".yaml"):
++        name = name[:-5]
++    return name
++
++
++def _field_re(field_label: str) -> re.Pattern:
++    return re.compile(rf"({field_label}:\s*)\{{[^}}]+\}}")
++
++
++def _list_available(configs_dir: str, file_prefix: str) -> List[str]:
++    """Return the sorted stems of the ``<prefix>*.yaml`` strategy files."""
++    other_dir = os.path.join(configs_dir, "other")
++    if not os.path.isdir(other_dir):
++        return []
++    return sorted(
++        os.path.splitext(f)[0]
++        for f in os.listdir(other_dir)
++        if f.startswith(file_prefix) and f.endswith(".yaml")
++    )
++
++
++def _list_keys(yaml_stem: str, configs_dir: str) -> List[str]:
++    """Return the top-level keys defined in the strategy file *yaml_stem*."""
++    path = os.path.join(configs_dir, "other", f"{yaml_stem}.yaml")
++    if not os.path.isfile(path):
++        return []
++    keys: List[str] = []
++    with open(path, "r", encoding="utf-8") as fh:
++        for line in fh:
++            stripped = line.rstrip()
++            if stripped and not stripped.startswith(" ") and not stripped.startswith("#"):
++                m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*):", stripped)
++                if m:
++                    keys.append(m.group(1))
++    return keys
++
++
++def _update(
++    field_label: str,
++    file_prefix: str,
++    constructors: List[str],
++    yaml_stem_arg: str,
++    keys: List[str],
++    configs_dir: str,
++    dry_run: bool,
++    verbose: bool,
++    missing_file_noun: str,
++) -> List[Tuple[str, int]]:
++    """Replace every ``<field_label>: { ... }`` entry in the policy files of
++    *constructors* with an inline dict referencing the strategy file and
++    *keys*.
++
++    Returns:
++        List of ``(filepath, replacement_count)`` tuples for each modified file.
++
++    Raises:
++        FileNotFoundError: If the strategy file does not exist.
++        ValueError: If a requested key is not present in the strategy file.
++    """
++    stem = _resolve_stem(yaml_stem_arg)
++    strategy_path = os.path.join(configs_dir, "other", f"{stem}.yaml")
++    if not os.path.isfile(strategy_path):
++        raise FileNotFoundError(
++            f"{missing_file_noun} not found: {strategy_path}\n"
++            f"Available: {_list_available(configs_dir, file_prefix)}"
++        )
++
++    available_keys = _list_keys(stem, configs_dir)
++    for key in keys:
++        if key not in available_keys:
++            raise ValueError(f"Key '{key}' not found in {stem}.yaml. Available keys: {available_keys}")
++
++    keys_str = ", ".join(f'"{k}"' for k in keys)
++    replacement = f'\\g<1>{{ "other/{stem}.yaml": [{keys_str}] }}'
++
++    modified: List[Tuple[str, int]] = []
++    pattern = _field_re(field_label)
++
++    for constructor in constructors:
++        policy_file = os.path.join(configs_dir, f"policy_{constructor}.yaml")
++        if not os.path.isfile(policy_file):
++            if verbose:
++                print(f"  [WARN] Policy file not found: {policy_file}")
++            continue
++
++        with open(policy_file, "r", encoding="utf-8") as fh:
++            content = fh.read()
++
++        new_content, count = pattern.subn(replacement, content)
++
++        if count == 0:
++            if verbose:
++                print(f"  [SKIP] No {field_label} {{...}} found in policy_{constructor}.yaml")
++            continue
++
++        modified.append((policy_file, count))
++
++        if verbose:
++            prefix = "[DRY RUN]" if dry_run else "[UPDATED]"
++            print(f"  {prefix} policy_{constructor}.yaml — {count} occurrence(s) → {stem}: {keys}")
++
++        if not dry_run:
++            with open(policy_file, "w", encoding="utf-8") as fh:
++                fh.write(new_content)
++
++    if verbose:
++        status = "Would update" if dry_run else "Updated"
++        print(f"\n{status} {len(modified)} policy file(s).")
++
++    return modified
++
++
++# --- mandatory selection (files prefixed ``ms_``) ----------------------------
++
++
++def list_available_ms_strategies(configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
++    """Return the sorted stems of the available mandatory-selection files."""
++    return _list_available(configs_dir, "ms_")
++
++
++def list_strategy_keys(ms_yaml: str, configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
++    """Return the top-level keys defined in *ms_yaml*."""
++    return _list_keys(_resolve_stem(ms_yaml), configs_dir)
++
++
++def update_mandatory_selection(
++    constructors: List[str],
++    ms_yaml: str,
++    keys: List[str],
++    configs_dir: str = _DEFAULT_CONFIGS_DIR,
++    dry_run: bool = False,
++    verbose: bool = True,
++) -> List[Tuple[str, int]]:
++    """Update ``mandatory_selection`` in the policy YAML files of *constructors*."""
++    return _update(
++        field_label="mandatory_selection",
++        file_prefix="ms_",
++        constructors=constructors,
++        yaml_stem_arg=ms_yaml,
++        keys=keys,
++        configs_dir=configs_dir,
++        dry_run=dry_run,
++        verbose=verbose,
++        missing_file_noun="Mandatory-selection file",
++    )
++
++
++# --- route improvement (files prefixed ``ri_``) ------------------------------
++
++
++def list_available_ri_improvers(configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
++    """Return the sorted stems of the available route-improver files."""
++    return _list_available(configs_dir, "ri_")
++
++
++def list_improver_keys(ri_yaml: str, configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
++    """Return the top-level keys defined in *ri_yaml*."""
++    return _list_keys(_resolve_stem(ri_yaml), configs_dir)
++
++
++def update_route_improvement(
++    constructors: List[str],
++    ri_yaml: str,
++    keys: List[str],
++    configs_dir: str = _DEFAULT_CONFIGS_DIR,
++    dry_run: bool = False,
++    verbose: bool = True,
++) -> List[Tuple[str, int]]:
++    """Update ``route_improvement`` in the policy YAML files of *constructors*."""
++    return _update(
++        field_label="route_improvement",
++        file_prefix="ri_",
++        constructors=constructors,
++        yaml_stem_arg=ri_yaml,
++        keys=keys,
++        configs_dir=configs_dir,
++        dry_run=dry_run,
++        verbose=verbose,
++        missing_file_noun="Route-improver file",
++    )
+diff --git a/logic/src/utils/target/ri_updater.py b/logic/src/utils/target/ri_updater.py
+deleted file mode 100644
+index b25768cdd..000000000
+--- a/logic/src/utils/target/ri_updater.py
++++ /dev/null
+@@ -1,177 +0,0 @@
+-"""Policy YAML route-improvement config updater.
+-
+-Batch-updates the ``route_improvement`` override in policy YAML files for
+-one or more route constructors.
+-
+-Quick start::
+-
+-    from logic.src.utils.target.ri_updater import update_route_improvement
+-
+-    update_route_improvement(
+-        constructors=["aco_hh", "alns", "bpc"],
+-        ri_yaml="ri_ftsp",
+-        keys=["ftsp"],
+-    )
+-
+-CLI usage::
+-
+-    python -m logic.controllers.cli.tgt_parser ri \\
+-        --constructors aco_hh alns bpc \\
+-        --file ri_ftsp \\
+-        --keys ftsp
+-
+-Attributes:
+-    update_route_improvement: Update route_improvement in policy YAML files.
+-    list_available_ri_improvers: List available route-improver file stems.
+-    list_improver_keys: List available keys within an improver file.
+-"""
+-
+-from __future__ import annotations
+-
+-import os
+-import re
+-from typing import List, Tuple
+-
+-_SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
+-_DEFAULT_CONFIGS_DIR = os.path.normpath(os.path.join(_SCRIPT_DIR, "../../../configs/policies"))
+-
+-_RI_FIELD_RE = re.compile(r"(route_improvement:\s*)\{[^}]+\}")
+-
+-
+-def _resolve_stem(yaml_arg: str) -> str:
+-    """Normalise a yaml filename argument to a bare stem.
+-
+-    Args:
+-        yaml_arg: e.g. ``"ri_ftsp"``, ``"ri_ftsp.yaml"``,
+-            or ``"other/ri_ftsp.yaml"``.
+-
+-    Returns:
+-        Bare stem, e.g. ``"ri_ftsp"``.
+-    """
+-    name = os.path.basename(yaml_arg)
+-    if name.endswith(".yaml"):
+-        name = name[:-5]
+-    return name
+-
+-
+-def list_available_ri_improvers(configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
+-    """Return sorted list of available route-improver file stems.
+-
+-    Args:
+-        configs_dir: Path to the ``logic/configs/policies/`` directory.
+-
+-    Returns:
+-        Sorted list of file stems, e.g. ``["ri_cls", "ri_ftsp", "ri_rls", ...]``.
+-    """
+-    other_dir = os.path.join(configs_dir, "other")
+-    if not os.path.isdir(other_dir):
+-        return []
+-    return sorted(os.path.splitext(f)[0] for f in os.listdir(other_dir) if f.startswith("ri_") and f.endswith(".yaml"))
+-
+-
+-def list_improver_keys(ri_yaml: str, configs_dir: str = _DEFAULT_CONFIGS_DIR) -> List[str]:
+-    """Return top-level keys defined in *ri_yaml*.
+-
+-    These are the valid values for the ``--keys`` argument.
+-
+-    Args:
+-        ri_yaml: Bare stem or filename of the improver file.
+-        configs_dir: Path to the ``logic/configs/policies/`` directory.
+-
+-    Returns:
+-        List of top-level YAML keys found in the file.
+-    """
+-    stem = _resolve_stem(ri_yaml)
+-    path = os.path.join(configs_dir, "other", f"{stem}.yaml")
+-    if not os.path.isfile(path):
+-        return []
+-    keys: List[str] = []
+-    with open(path, "r", encoding="utf-8") as fh:
+-        for line in fh:
+-            stripped = line.rstrip()
+-            if stripped and not stripped.startswith(" ") and not stripped.startswith("#"):
+-                m = re.match(r"^([A-Za-z_][A-Za-z0-9_]*):", stripped)
+-                if m:
+-                    keys.append(m.group(1))
+-    return keys
+-
+-
+-def update_route_improvement(
+-    constructors: List[str],
+-    ri_yaml: str,
+-    keys: List[str],
+-    configs_dir: str = _DEFAULT_CONFIGS_DIR,
+-    dry_run: bool = False,
+-    verbose: bool = True,
+-) -> List[Tuple[str, int]]:
+-    """Update ``route_improvement`` in policy YAML files for *constructors*.
+-
+-    Replaces every ``route_improvement: { ... }`` entry in the matching
+-    policy files with a new inline-dict value referencing *ri_yaml* and the
+-    given *keys*.  Entries using an empty list (``route_improvement: []``)
+-    are intentionally left unchanged.
+-
+-    Args:
+-        constructors: Route constructor names, e.g. ``["aco_hh", "alns", "bpc"]``.
+-        ri_yaml: Bare stem of the improver file, e.g. ``"ri_ftsp"``.
+-        keys: Keys to select from the improver file, e.g. ``["ftsp"]``.
+-        configs_dir: Path to the ``logic/configs/policies/`` directory.
+-        dry_run: When ``True`` no files are modified.
+-        verbose: Print per-file update summary.
+-
+-    Returns:
+-        List of ``(filepath, replacement_count)`` tuples for each modified file.
+-
+-    Raises:
+-        FileNotFoundError: If the improver file does not exist.
+-        ValueError: If a requested key is not present in the improver file.
+-    """
+-    stem = _resolve_stem(ri_yaml)
+-    ri_file_path = os.path.join(configs_dir, "other", f"{stem}.yaml")
+-    if not os.path.isfile(ri_file_path):
+-        raise FileNotFoundError(
+-            f"Route-improver file not found: {ri_file_path}\nAvailable: {list_available_ri_improvers(configs_dir)}"
+-        )
+-
+-    available_keys = list_improver_keys(stem, configs_dir)
+-    for key in keys:
+-        if key not in available_keys:
+-            raise ValueError(f"Key '{key}' not found in {stem}.yaml. Available keys: {available_keys}")
+-
+-    keys_str = ", ".join(f'"{k}"' for k in keys)
+-    replacement = f'\\g<1>{{ "other/{stem}.yaml": [{keys_str}] }}'
+-
+-    modified: List[Tuple[str, int]] = []
+-
+-    for constructor in constructors:
+-        policy_file = os.path.join(configs_dir, f"policy_{constructor}.yaml")
+-        if not os.path.isfile(policy_file):
+-            if verbose:
+-                print(f"  [WARN] Policy file not found: {policy_file}")
+-            continue
+-
+-        with open(policy_file, "r", encoding="utf-8") as fh:
+-            content = fh.read()
+-
+-        new_content, count = _RI_FIELD_RE.subn(replacement, content)
+-
+-        if count == 0:
+-            if verbose:
+-                print(f"  [SKIP] No route_improvement {{...}} found in policy_{constructor}.yaml")
+-            continue
+-
+-        modified.append((policy_file, count))
+-
+-        if verbose:
+-            prefix = "[DRY RUN]" if dry_run else "[UPDATED]"
+-            print(f"  {prefix} policy_{constructor}.yaml — {count} occurrence(s) → {stem}: {keys}")
+-
+-        if not dry_run:
+-            with open(policy_file, "w", encoding="utf-8") as fh:
+-                fh.write(new_content)
+-
+-    if verbose:
+-        status = "Would update" if dry_run else "Updated"
+-        print(f"\n{status} {len(modified)} policy file(s).")
+-
+-    return modified
+diff --git a/logic/test/unit/policies/test_egh_lasm_params_runtime.py b/logic/test/unit/policies/test_egh_lasm_params_runtime.py
+new file mode 100644
+index 000000000..1b565456d
+--- /dev/null
++++ b/logic/test/unit/policies/test_egh_lasm_params_runtime.py
+@@ -0,0 +1,117 @@
++"""Runtime contract tests for the EGH/LASM params classes (M-mistral-02 revision).
++
++The #82 refactor made ``ExactGuidedHeuristicParams`` and
++``LASMPipelineParams`` thin subclasses of their config dataclasses. The
++first delivery dropped the derived runtime members that live between the
++field block and ``from_config`` (``stage_budgets``, ``alns_iterations``,
++``bpc_ng_size``, ``bpc_max_bb_nodes``, ``as_alns_values_dict``) and LASM's
++``__post_init__`` — the EGH dispatcher failed before reaching a solver and
++LASM's iterable consumers received ``None``. These tests pin every one of
++those runtime contracts to the *actual* dispatch paths, so the regression
++cannot recur silently.
++"""
++
++import pytest
++
++from logic.src.configs.policies import ExactGuidedHeuristicConfig, LASMPipelineConfig
++from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic import dispatcher as egh_dispatcher
++from logic.src.policies.route_construction.matheuristics.exact_guided_heuristic.params import (
++    ExactGuidedHeuristicParams,
++)
++from logic.src.policies.route_construction.learning_matheuristic_algorithms.learning_allocated_sequential_matheuristic.params import (
++    LASMPipelineParams,
++)
++
++
++# ---------------------------------------------------------------- EGH
++
++
++def test_egh_stage_budgets_sums_to_time_limit():
++    p = ExactGuidedHeuristicParams(alpha=0.5, time_limit=120.0)
++    budgets = p.stage_budgets()
++    assert len(budgets) == 4
++    assert all(b > 0 for b in budgets)
++    assert pytest.approx(sum(budgets)) == p.time_limit
++
++
++def test_egh_derived_scalars():
++    p = ExactGuidedHeuristicParams(alpha=1.0, time_limit=60.0)
++    assert isinstance(p.alns_iterations(), int) and p.alns_iterations() > 0
++    assert p.bpc_ng_size() >= p.bpc_ng_size_min
++    assert p.bpc_max_bb_nodes() >= p.bpc_max_bb_nodes_min
++
++
++def test_egh_as_alns_values_dict_shape():
++    p = ExactGuidedHeuristicParams()
++    values = p.as_alns_values_dict()
++    assert isinstance(values, dict)
++    assert values["engine"] == p.alns_engine
++    assert values["max_iterations"] == p.alns_iterations()
++    assert values["cooling_rate"] == p.alns_cooling_rate
++
++
++def test_egh_dispatcher_builds_alns_params():
++    """The dispatcher's first step for the ALNS stage: it consumes
++    ``as_alns_values_dict()`` through ``_build_alns_params`` — the exact
++    call that failed before this revision restored the members."""
++    p = ExactGuidedHeuristicParams(alpha=0.5, time_limit=30.0)
++    alns_params = egh_dispatcher._build_alns_params(p, time_limit=7.5)
++    assert alns_params.time_limit == 7.5
++    assert alns_params.max_iterations == p.alns_iterations()
++
++
++def test_egh_from_config_object_roundtrip():
++    cfg = ExactGuidedHeuristicConfig(alpha=0.25, time_limit=45.0)
++    p = ExactGuidedHeuristicParams.from_config(cfg)
++    assert isinstance(p, ExactGuidedHeuristicParams)
++    assert p.alpha == 0.25 and p.time_limit == 45.0
++    assert p.stage_budgets() is not None
++
++
++# ---------------------------------------------------------------- LASM
++
++
++def test_lasm_post_init_materializes_lists():
++    p = LASMPipelineParams()
++    assert p.lbbd_cut_families == ["nogood", "optimality", "pareto"]
++    assert p.rl_state_features is not None
++    assert "n_nodes" in p.rl_state_features and "fill_mean" in p.rl_state_features
++
++
++def test_lasm_lists_are_iterable():
++    """Codex's runtime regression: with __post_init__ dropped, consumers
++    iterating these fields received None."""
++    p = LASMPipelineParams()
++    families = [f for f in p.lbbd_cut_families]
++    features = [f for f in p.rl_state_features]
++    assert len(families) == 3
++    assert len(features) >= 5
++
++
++def test_lasm_explicit_lists_are_kept():
++    p = LASMPipelineParams(
++        lbbd_cut_families=["nogood"],
++        rl_state_features=["alpha"],
++    )
++    assert p.lbbd_cut_families == ["nogood"]
++    assert p.rl_state_features == ["alpha"]
++
++
++def test_lasm_stage_budgets_and_alns_dict():
++    p = LASMPipelineParams(alpha=0.5, time_limit=100.0)
++    budgets = p.stage_budgets()
++    assert len(budgets) == 5
++    assert all(b >= 0 for b in budgets)
++    assert pytest.approx(sum(budgets)) == p.time_limit
++    values = p.as_alns_values_dict()
++    assert isinstance(values, dict)
++    assert values["max_iterations"] == p.alns_iterations()
++
++
++def test_lasm_from_config_object_roundtrip():
++    cfg = LASMPipelineConfig(alpha=0.5, time_limit=50.0)
++    p = LASMPipelineParams.from_config(cfg)
++    assert isinstance(p, LASMPipelineParams)
++    assert p.alpha == 0.5
++    # __post_init__ ran during construction
++    assert p.lbbd_cut_families is not None
+diff --git a/logic/test/unit/utils/target/test_policy_link_updater.py b/logic/test/unit/utils/target/test_policy_link_updater.py
+new file mode 100644
+index 000000000..dfd6f80bd
+--- /dev/null
++++ b/logic/test/unit/utils/target/test_policy_link_updater.py
+@@ -0,0 +1,118 @@
++"""Round-trip tests for the merged policy-link updater (M-mistral-01).
++
++Writes a synthetic ``logic/configs/policies`` tree in a tmp_path, runs both
++public sides of :mod:`logic.src.utils.target.policy_link_updater` against
++it, and asserts the rewritten override text. These tests are the
++precondition the refactor row set before the two updater modules were
++merged: no test covered them before.
++"""
++
++import os
++from pathlib import Path
++
++from logic.src.utils.target.policy_link_updater import (
++    list_available_ms_strategies,
++    list_available_ri_improvers,
++    list_improver_keys,
++    list_strategy_keys,
++    update_mandatory_selection,
++    update_route_improvement,
++)
++
++POLICY_YAML = """name: test_constructor
++mandatory_selection: { "other/ms_last_minute.yaml": ["old_key"] }
++route_improvement: { "other/ri_cls.yaml": ["old_key"] }
++other_key: 1
++"""
++
++MS_YAML = "last_minute_cf70:\n  threshold: 70\nlast_minute_cf90:\n  threshold: 90\n"
++RI_YAML = "ftsp:\n  time_limit: 30\ncls:\n  iterations: 1000\n"
++
++
++def _make_tree(tmp_path: Path) -> str:
++    configs = tmp_path / "configs" / "policies"
++    other = configs / "other"
++    other.mkdir(parents=True)
++    (other / "ms_last_minute.yaml").write_text(MS_YAML, encoding="utf-8")
++    (other / "ri_ftsp.yaml").write_text(RI_YAML, encoding="utf-8")
++    (configs / "policy_testc.yaml").write_text(POLICY_YAML, encoding="utf-8")
++    return str(configs)
++
++
++def test_update_mandatory_selection_roundtrip(tmp_path):
++    configs = _make_tree(tmp_path)
++    modified = update_mandatory_selection(
++        constructors=["testc"],
++        ms_yaml="ms_last_minute",
++        keys=["last_minute_cf70", "last_minute_cf90"],
++        configs_dir=configs,
++        verbose=False,
++    )
++    assert len(modified) == 1
++    filepath, count = modified[0]
++    assert count == 1
++    assert os.path.basename(filepath) == "policy_testc.yaml"
++    content = Path(filepath).read_text(encoding="utf-8")
++    assert (
++        'mandatory_selection: { "other/ms_last_minute.yaml": ["last_minute_cf70", "last_minute_cf90"] }'
++        in content
++    )
++    # the unrelated override is untouched
++    assert 'route_improvement: { "other/ri_cls.yaml": ["old_key"] }' in content
++
++
++def test_update_route_improvement_roundtrip(tmp_path):
++    configs = _make_tree(tmp_path)
++    modified = update_route_improvement(
++        constructors=["testc"],
++        ri_yaml="ri_ftsp",
++        keys=["ftsp"],
++        configs_dir=configs,
++        verbose=False,
++    )
++    assert len(modified) == 1
++    content = Path(modified[0][0]).read_text(encoding="utf-8")
++    assert 'route_improvement: { "other/ri_ftsp.yaml": ["ftsp"] }' in content
++    assert 'mandatory_selection: { "other/ms_last_minute.yaml": ["old_key"] }' in content
++
++
++def test_listing_helpers(tmp_path):
++    configs = _make_tree(tmp_path)
++    assert list_available_ms_strategies(configs) == ["ms_last_minute"]
++    assert list_available_ri_improvers(configs) == ["ri_ftsp"]
++    assert set(list_strategy_keys("ms_last_minute", configs)) == {
++        "last_minute_cf70",
++        "last_minute_cf90",
++    }
++    assert list_improver_keys("ri_ftsp.yaml", configs) == ["ftsp", "cls"]
++
++
++def test_unknown_key_raises(tmp_path):
++    configs = _make_tree(tmp_path)
++    try:
++        update_mandatory_selection(
++            constructors=["testc"],
++            ms_yaml="ms_last_minute",
++            keys=["missing_key"],
++            configs_dir=configs,
++            verbose=False,
++        )
++    except ValueError as exc:
++        assert "missing_key" in str(exc)
++    else:
++        raise AssertionError("expected ValueError for unknown key")
++
++
++def test_dry_run_does_not_write(tmp_path):
++    configs = _make_tree(tmp_path)
++    modified = update_mandatory_selection(
++        constructors=["testc"],
++        ms_yaml="ms_last_minute",
++        keys=["last_minute_cf70"],
++        configs_dir=configs,
++        dry_run=True,
++        verbose=False,
++    )
++    assert len(modified) == 1
++    content = (Path(configs) / "policy_testc.yaml").read_text(encoding="utf-8")
++    assert '["old_key"]' in content

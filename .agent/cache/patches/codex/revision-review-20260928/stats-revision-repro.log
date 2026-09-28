@@ -1,0 +1,6 @@
+/home/pkhunter/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-nhiisk10 because there was an issue with the default path (/home/pkhunter/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+
+[INFO] Generating data...
+Configured horizon=2; generated shape= (2, 2)
+FINAL DAY FAILURE: stats-file waste sample has 2 rows; day 2 needs row 2 because row 0 is the opening level and is not deposited again (a 2-day horizon needs 3 rows)
