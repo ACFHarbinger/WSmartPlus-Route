@@ -1,0 +1,10 @@
+...                                                                      [100%]
+=============================== warnings summary ===============================
+test_codex_helper_before.py::test_batch_dataset_parity_with_partial_last_batch[ModernPolicy]
+test_codex_helper_before.py::test_batch_dataset_parity_with_partial_last_batch[LegacyPolicy]
+test_codex_helper_before.py::test_modern_requires_environment_but_legacy_batch_does_not
+  /home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch/cuda/__init__.py:1112: UserWarning: Can't initialize NVML
+    raw_cnt = _raw_device_count_nvml()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 3 warnings in 6.19s

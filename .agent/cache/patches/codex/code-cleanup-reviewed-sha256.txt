@@ -1,0 +1,17 @@
+ed33b6e00101d517446a86260da2a168a27fbf2a19aba072580a2ea67cb8a711  .agent/cache/patches/codex/issue-80-rollout-comparison.patch
+06b64ac9c82de85674356d0573b465156b65641dd0f49325c5fa93e799f3572f  .agent/cache/patches/codex/issue-82-rollout-greedy-helper.patch
+4a04d782113eef09cdb2d163ec8623d781f51c099ceba157cb92c6190246303c  .agent/cache/patches/grok/issue-80-simulator-robustness.patch
+e5caf732dcd88c2705a0beca64829ef6e669abccc8d917606ca1a205f26fcae8  .agent/cache/patches/grok/issue-82-simulator-refactors.patch
+bee767092a52f1129ca5c32ffce46958078bc381fa49996fbb52f5d6dd80301a  .agent/cache/patches/gemini/issue-80-neural-agent-robustness.patch
+b99de27c2e55f0e4efa2377656fc205a9ab75e5443ac4bc5843bfce398893486  .agent/cache/patches/gemini/issue-81-dead-layers.patch
+ef94365ac8d7398b7ffedf0297cc6cdca8cdfe139fe012d9f3390e9b5494c447  .agent/cache/patches/gemini/issue-82-neural-refactors.patch
+18a1cbb3be66ca897363019d9f0157836fdd52bed5ffdcbf3057db47356f4dea  .agent/cache/patches/kimi/issue-81-bpc-dead-code.patch
+d2df08d17bef0e3c7abbf8fc934af17e3968a7fa6d459deb3c0b0c412d08f2dc  .agent/cache/patches/kimi/issue-80-bpc-aco-swc-fixes.patch
+983e47cdf5a6eacbc753f129eae916f2ab38b8e6618c01690d34f9e302dd3b01  .agent/cache/patches/qwen/issue-80-m-qwen-01-pg-clns-operators.patch
+968cfe5c32c48c3fb11940b5a900fd413a21897d473250a8de6341d8a0f807e9  .agent/cache/patches/qwen/issue-81-d-qwen-01-sans-opt.patch
+7b695559ec8d337ceac82de816fef39716d7bd15b5eae9d1e481305928400b07  .agent/cache/patches/qwen/issue-82-m-qwen-03-hmlns-alns.patch
+25e10cfb23e2867c4dd9e4c09e92f0228e10cacb3ce19a7d7a65a7d42174a435  .agent/cache/patches/cursor/issue-80-bmc-oi-docstrings.patch
+fbe2c9f770d98e2073eb27b48d6f7d57630c9cfc783d5d212ccda929344657e0  .agent/cache/patches/cursor/issue-82-reward-selector-parity.patch
+944735f637ab5287e4d1ddc0913808224edd5c4ea3bd093ac73ac501da46e739  .agent/cache/patches/mistral/issue-81-c4-dead-code.patch
+c69fef70c53e2b34475704c60b159d2dfbd534cde7a985e09eb81fef7e397edb  .agent/cache/patches/mistral/issue-80-c3-config-knobs.patch
+d2a00f5fc0e84508b561fe3c957b1d5366442a011fa7be948b31f92422bda206  .agent/cache/patches/mistral/issue-82-c5-config-refactors.patch

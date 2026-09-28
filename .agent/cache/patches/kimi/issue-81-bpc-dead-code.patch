@@ -1,0 +1,1925 @@
+diff --git a/logic/configs/policies/policy_bpc.yaml b/logic/configs/policies/policy_bpc.yaml
+index b0880921e..af0e910ce 100644
+--- a/logic/configs/policies/policy_bpc.yaml
++++ b/logic/configs/policies/policy_bpc.yaml
+@@ -14,17 +14,14 @@
+ #   Key decisions vs. the 60s YAML:
+ #     - cg_at_root_only: FALSE — re-pricing at non-root nodes is mandatory
+ #       for tight bounds when B&B has time to explore the tree.
+-#     - cutting_planes: "all" — Min-Cut + Triangle Clique + limited-memory
+-#       rank-1 SRI are the decisive cuts for VRPP integrality gap closure
+-#       (Poggi, Viana, Uchoa 2010).
++#     - cutting_planes: "all" — lifted cover + rounded-capacity + subset-row
++#       (limited-memory rank-1) are the decisive cuts for VRPP integrality gap
++#       closure (Poggi, Viana, Uchoa 2010).
+ #     - ng_neighborhood_size: 12 — practical ceiling before label explosion;
+ #       combined with DSSR this approximates elementary pricing well.
+ #     - enable_strong_branching_heuristic: false — disabled, see the key below.
+ #     - lr_pre_pruning: true — at 300s the subgradient pass at root pays off
+ #       by providing a tight LR bound that prunes subtrees before CG starts.
+-#     - exact_mode: false — Wentges smoothing dramatically accelerates CG
+-#       convergence; disabling it for "exactness" costs more than it gains
+-#       at 100 nodes within any finite time budget.
+ # =============================================================================
+ 
+ bpc:
+@@ -95,9 +92,6 @@ bpc:
+       # Allow up to 150 CG iterations per node. With 300s and cg_at_root_only
+       # false, non-root nodes get smaller budgets but deeper convergence.
+ 
+-    - max_cut_iterations: 10
+-      # 10 separation rounds per CG convergence — more rounds = tighter LP.
+-
+     - max_cuts_per_iteration: 10
+       # Up to 10 cuts per round. Combined with cut_orthogonality_threshold
+       # this adds diverse, non-redundant cuts efficiently.
+@@ -167,40 +161,6 @@ bpc:
+       # For true exact ESPPRC, set false — but intractable at 100 nodes.
+ 
+     - ng_neighborhood_size: 12
+-      # Practical ceiling before label count explodes. At 12, combined with
+-      # DSSR, the relaxation is tight enough that non-elementary optimal
+-      # solutions are extremely rare on VRPP instances.
+-
+-    - rcspp_timeout: 15.0
+-      # 15s per pricing call. With 300s total and cg_at_root_only=false,
+-      # we can afford longer exact pricing calls that return more diverse
+-      # columns. Heuristic pricing still runs first (< 0.1s).
+-
+-    - rcspp_max_labels: 2000000
+-      # 2M label cap. At Python speed (~10k labels/s) this gives ~200s of
+-      # exact DP — the 15s timeout fires first on 100-node instances,
+-      # but the cap prevents OOM if label density is higher than expected.
+-
+-    # -------------------------------------------------------------------------
+-    # DSSR — Decremental State-Space Relaxation
+-    # -------------------------------------------------------------------------
+-    - enable_dssr: true
+-      # Wrap exact RCSPP with DSSR (Righini & Salani 2008). Iteratively adds
+-      # revisited vertices to ng-memory until returned paths are elementary.
+-      # The decisive pricing improvement for TOP/VRPP (Keshtkaran et al. 2016).
+-
+-    - dssr_max_iters: 8
+-      # Up to 8 refinement iterations. In practice convergence happens in 2–4;
+-      # 8 is the safety ceiling without excessive overhead.
+-
+-    # -------------------------------------------------------------------------
+-    # Reduced-Cost Arc Fixing
+-    # -------------------------------------------------------------------------
+-    - enable_reduced_cost_arc_fixing: true
+-      # Eliminate arcs from the pricing graph whose min reduced cost exceeds
+-      # the LP-incumbent gap (Irnich et al. 2010). Typically removes 20–40%
+-      # of arcs after a few B&B nodes, cascading into faster labeling.
+-
+     # -------------------------------------------------------------------------
+     # Advanced Cutting Plane Controls
+     # -------------------------------------------------------------------------
+@@ -227,10 +187,6 @@ bpc:
+     # -------------------------------------------------------------------------
+     # B&B Search and Branching Controls
+     # -------------------------------------------------------------------------
+-    - use_spatial_partitioning: false
+-      # Coordinate-based arc-set partitioning. Disabled — the default
+-      # flow-sorted median split is already well-balanced for most instances.
+-
+     - enable_strong_branching_heuristic: false
+       # Disabled: the restricted-master lookahead (arc and node-visitation
+       # candidates) re-solves the live master in place, and with it the search
+@@ -246,19 +202,14 @@ bpc:
+       # Periodically remove duplicate columns (same node set, different order).
+       # Keeps the master LP size manageable without losing dual information.
+ 
+-    - enable_hybrid_search: false
+-      # Hybrid DFS/BFS. Keep false — pure DFS is better for basis reuse
+-      # in the presence of cg_at_root_only=false.
+-
+     - rc_tolerance: 1e-6
+       # Very tight reduced-cost acceptance threshold. With 300s we can afford
+       # to accept nearly any improving column; 1e-6 filters only numerical
+       # noise while 1e-5 may miss near-zero-RC columns near optimality.
+ 
+     - exact_mode: false
+-      # Keep Wentges dual smoothing active. Disabling it (exact_mode=true)
+-      # is theoretically purer but convergence is 2–5× slower in practice.
+-      # The smoothing recovery phase still guarantees exact bounds.
++      # Heuristic stops (optimality_gap / early_termination_gap) remain active;
++      # exact_mode additionally pins ng-neighborhoods and timing guards.
+ 
+     - prefer_shorter_path_dfs: true
+       # DFS child ordering per Barnhart §3.2: explore the branch that keeps
+diff --git a/logic/src/configs/policies/bpc.py b/logic/src/configs/policies/bpc.py
+index 90600b6a0..85a762ff7 100644
+--- a/logic/src/configs/policies/bpc.py
++++ b/logic/src/configs/policies/bpc.py
+@@ -33,7 +33,6 @@ class BPCConfig:
+         cutting_planes: Cutting plane family ('rcc', 'sri', 'lci', or 'all').
+         branching_strategy: Branching rule ('ryan_foster', 'edge', or 'divergence').
+         max_cg_iterations: Maximum iterations for column generation loop.
+-        max_cut_iterations: Maximum iterations for cutting plane loop per CG iteration.
+         max_cuts_per_iteration: Maximum cuts to add per iteration.
+         max_routes_per_pricing: Maximum routes to add per pricing call.
+         max_bb_nodes: Maximum nodes to explore in the B&B tree.
+@@ -44,10 +43,8 @@ class BPCConfig:
+         enable_heuristic_rcc_separation: Whether to enable (heuristic) fractional RCC separation.
+         enable_comb_cuts: Whether to enable heuristic comb inequalities.
+         cut_orthogonality_threshold: Cosine similarity ceiling for cut filtering.
+-        use_spatial_partitioning: Whether to use spatial partitioning for branching.
+         enable_strong_branching_heuristic: Whether to enable heuristic strong branching.
+         enable_column_pool_deduplication: Whether to enable column pool deduplication.
+-        enable_hybrid_search: Whether to enable hybrid DFS/BFS search.
+         rc_tolerance: Minimum reduced cost to accept a new column.
+         exact_mode: Whether to enable strict exact management.
+         strong_branching_size: Number of candidates for strong branching.
+@@ -84,7 +81,6 @@ class BPCConfig:
+     cutting_planes: str = "rcc"
+     branching_strategy: str = "divergence"
+     max_cg_iterations: int = 50
+-    max_cut_iterations: int = 5
+     max_cuts_per_iteration: int = 5
+     max_routes_per_pricing: int = 5
+     max_bb_nodes: int = 1000
+@@ -95,10 +91,8 @@ class BPCConfig:
+     enable_heuristic_rcc_separation: bool = True
+     enable_comb_cuts: bool = False
+     cut_orthogonality_threshold: float = 0.8
+-    use_spatial_partitioning: bool = False
+     enable_strong_branching_heuristic: bool = False  # see policy_bpc.yaml
+     enable_column_pool_deduplication: bool = True
+-    enable_hybrid_search: bool = False
+     rc_tolerance: float = 1e-5
+     exact_mode: bool = False
+     strong_branching_size: int = 5
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/constraints.py b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/constraints.py
+index f856e6428..f2320c305 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/constraints.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/constraints.py
+@@ -321,9 +321,8 @@ class VRPPMasterProblemConstraintsMixin:
+         name = f"multistar_{abs(hash(node_set))}"
+         constr = self.model.addConstr(lhs <= 0.0, name=name)
+         self.active_multistar_cuts[node_set] = constr
+-        # Archive so descendant B&B nodes replay the cut with freshly recomputed
+-        # coefficients (route indices shift across nodes — pool.apply_to_master
+-        # handles the recomputation via wastes / capacity).
++        # Archive centrally; the cut persists across B&B nodes through the single
++        # shared master object, which is never rebuilt mid-search.
+         self.global_cut_pool.add_cut("multistar", (node_set, coefficients))
+         self.model.update()
+         return True
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/model.py b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/model.py
+index b6f5a13cb..cb56327f1 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/model.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/model.py
+@@ -155,12 +155,6 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
+         self.vehicle_limit = vehicle_limit
+         self.global_cut_pool = global_cut_pool or GlobalCutPool()
+ 
+-        # BIG_M Calculation for potential fallbacks
+-        max_single_node_revenue = max(self.wastes.values(), default=0.0) * self.R
+-        min_demand = max(1.0, min((w for w in self.wastes.values() if w > 0), default=1.0))
+-        max_nodes_per_route = max(1, int(self.capacity / min_demand))
+-        max_route_profit = max_single_node_revenue * min(max_nodes_per_route, self.n_nodes)
+-        self.BIG_M = max(1000.0, 10.0 * max_route_profit)
+ 
+         self.model: Optional[gp.Model] = None
+         self.routes: List[Route] = []
+@@ -195,17 +189,10 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
+         self.dual_edge_clique_cuts: Dict[Tuple[int, int], float] = {}
+         self.dual_multistar_cuts: Dict[FrozenSet[int], float] = {}
+ 
+-        # Dual stabilization configurations
+-        self.dual_smoothing_alpha: float = 0.5
+-        self.prev_dual_node_coverage: Dict[int, float] = {}
+-        self.prev_dual_vehicle_limit: float = 0.0
+-        self.prev_dual_capacity_cuts: Dict[FrozenSet[int], float] = {}
+-        self.prev_dual_sri_cuts: Dict[FrozenSet[int], float] = {}
+         self.farkas_duals: Dict[str, Dict[Any, float]] = {}
+ 
+         self.column_deletion_enabled: bool = True
+         self.strict_set_partitioning: bool = True
+-        self.enable_dual_smoothing: bool = False
+ 
+     def build_model(self, initial_routes: Optional[List[Route]] = None) -> None:
+         """
+@@ -401,35 +388,6 @@ class VRPPMasterProblem(VRPPMasterProblemConstraintsMixin, VRPPMasterProblemSupp
+         # Multistar: ≤ 0 constraint in a MAX LP → dual Pi ≥ 0.
+         self.dual_multistar_cuts = {s: max(0.0, c.Pi) for s, c in self.active_multistar_cuts.items()}
+ 
+-        if self.enable_dual_smoothing:
+-            self._apply_dual_smoothing()
+-
+-    def _apply_dual_smoothing(self) -> None:
+-        """Apply Exponential Dual Smoothing to stabilize CG price signals.
+-
+-        pi_smoothed = alpha * pi_current + (1 - alpha) * pi_prev
+-
+-        WARNING: Smoothing modifies self.dual_node_coverage in-place.
+-        When active, the duals passed to pricing are NOT the true LP duals.
+-        This means:
+-        - The Lagrangian upper bound (obj_val + K * max_rc) is not valid.
+-        - CG convergence (added == 0) does not prove LP optimality.
+-        Only enable this flag when running in heuristic (non-exact) mode.
+-
+-        Reference:
+-            Wentges (1997), Guyenne et al. (1994).
+-        """
+-
+-        alpha = self.dual_smoothing_alpha
+-        for node, val in self.dual_node_coverage.items():
+-            prev = self.prev_dual_node_coverage.get(node, val)
+-            self.dual_node_coverage[node] = alpha * val + (1.0 - alpha) * prev
+-        self.prev_dual_node_coverage = self.dual_node_coverage.copy()
+-
+-        prev_limit = self.prev_dual_vehicle_limit
+-        self.dual_vehicle_limit = alpha * self.dual_vehicle_limit + (1.0 - alpha) * prev_limit
+-        self.prev_dual_vehicle_limit = self.dual_vehicle_limit
+-
+     def solve_ip(self) -> Tuple[float, List[Route]]:
+         """Solve the integer programme at the current B&B node.
+ 
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/pool.py b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/pool.py
+index 543c620c6..db740194b 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/pool.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/pool.py
+@@ -2,9 +2,14 @@
+ Global Cut Pool for Branch-and-Price-and-Cut.
+ 
+ Attributes:
+-    CutInfo: Metadata describing a generated valid inequality.
+     GlobalCutPool: Centralized repository for globally valid inequalities.
+ 
++Cuts are archived centrally as they are discovered; persistence across B&B
++nodes is provided by the single shared master object, which is never rebuilt
++mid-search. There is deliberately no replay path: re-injecting pooled cuts into
++a rebuilt master was planned but never wired, and the archival half above is
++what the engines actually use (e.g. SRI coefficient vectors at separation).
++
+ Example:
+     >>> pool = GlobalCutPool()
+     >>> pool.add_cut("rcc", (frozenset({1, 2}), 2.0))
+@@ -12,29 +17,10 @@ Example:
+ 
+ from __future__ import annotations
+ 
+-from dataclasses import dataclass
+ from typing import TYPE_CHECKING, Any, Dict, FrozenSet, Optional, Set, Tuple
+ 
+ if TYPE_CHECKING:
+-    from .problem_support import MasterProblemSupport
+-
+-
+-@dataclass
+-class CutInfo:
+-    """
+-    Metadata describing a generated valid inequality.
+-
+-    Attributes:
+-        type (str): Type of cut (e.g., 'rcc', 'sec', 'sri', 'lci').
+-        data (Any): Cut-specific data (node-set, RHS, lifting coeffs, etc.).
+-        active (bool): Whether the cut is active.
+-        violation (float): The violation amount of the cut.
+-    """
+-
+-    type: str  # e.g., 'rcc', 'sec', 'sri', 'lci'
+-    data: Any  # node-set, RHS, lifting coeffs, etc.
+-    active: bool = True
+-    violation: float = 0.0
++    pass
+ 
+ 
+ class GlobalCutPool:
+@@ -146,95 +132,3 @@ class GlobalCutPool:
+             node_set, coefficients = data
+             # Only keep/update if this is a new or more restrictive cut for the same S.
+             self.multistar_cuts[node_set] = coefficients
+-
+-    def _inject_multistar_cut(self, master: MasterProblemSupport) -> bool:
+-        """Inject multistar cuts into the master problem.
+-
+-        Args:
+-            master: MasterProblem instance to receive the cuts.
+-
+-        Returns:
+-            True if the cut was successfully applied, False otherwise.
+-        """
+-        # Re-inject Multistar cuts.  Coefficients are recomputed from current route pool
+-        # because route indices shift across B&B nodes (column deletion/addition).
+-        cut_added = False
+-        if hasattr(master, "add_multistar_cut") and self.multistar_cuts:
+-            for node_set, _stale_coeffs in self.multistar_cuts.items():
+-                S = set(node_set)
+-                Q = master.capacity  # type: ignore[attr-defined]
+-                new_coeffs: Dict[int, float] = {}
+-                for idx, route in enumerate(master.routes):  # type: ignore[union-attr]
+-                    path = [0] + route.nodes + [0]
+-                    k_cross = 0
+-                    k_adj = 0.0
+-                    k_visit = sum(master.wastes.get(n, 0.0) for n in route.nodes if n in S)  # type: ignore[attr-defined]
+-                    for p in range(len(path) - 1):
+-                        u, v = path[p], path[p + 1]
+-                        u_in, v_in = u in S, v in S
+-                        if u_in != v_in:
+-                            k_cross += 1
+-                            if u_in and v != 0 and not v_in:
+-                                k_adj += master.wastes.get(v, 0.0)  # type: ignore[attr-defined]
+-                            elif v_in and u != 0 and not u_in:
+-                                k_adj += master.wastes.get(u, 0.0)  # type: ignore[attr-defined]
+-                    a_k = k_cross - (2.0 / Q) * k_visit - (2.0 / Q) * k_adj
+-                    if abs(a_k) > 1e-6:
+-                        new_coeffs[idx] = -a_k
+-                if new_coeffs and master.add_multistar_cut(list(S), new_coeffs):
+-                    cut_added = True
+-        return cut_added
+-
+-    def apply_to_master(self, master: MasterProblemSupport) -> int:
+-        """Inject all pooled global cuts into a fresh Master Problem instance.
+-
+-        Typically called when entering a new B&B node to tighten the root relaxation.
+-
+-        Args:
+-            master: MasterProblem instance to receive the cuts.
+-
+-        Returns:
+-            Number of cuts successfully applied.
+-        """
+-
+-        added = 0
+-        # RCC: replay with the stored (correct) RHS, not a hard-coded value.
+-        for node_set, rhs in self.rcc_cuts.items():
+-            if master.add_capacity_cut(list(node_set), rhs=rhs, _skip_pool=True):
+-                added += 1
+-        for nodes in self.sri_cuts:
+-            if master.add_subset_row_cut(nodes):
+-                added += 1
+-        for nodes in self.sec_cuts:
+-            # Form 2.1 is always global
+-            if master.add_sec_cut(nodes, rhs=1.0, facet_form="2.1"):
+-                added += 1
+-        # Re-inject Edge Clique cuts from the global pool.
+-        for edge_tuple in self.edge_clique_cuts:
+-            if master.add_edge_clique_cut(edge_tuple[0], edge_tuple[1]):
+-                added += 1
+-
+-        # Re-inject LCI cuts — recompute route coefficients from node_alphas using the
+-        # current master's route list.  The stale coefficients stored at discovery time
+-        # reference route indices from the discovery B&B node; at a descendant node the
+-        # master may have a different route pool, so those indices are meaningless.
+-        for node_set, lci_data in self.lci_cuts.items():
+-            if len(lci_data) == 3:
+-                rhs, _stale_coefficients, node_alphas = lci_data
+-            else:
+-                rhs, _stale_coefficients = lci_data  # type: ignore[misc]
+-                node_alphas = {}
+-            # Retrieve the source arc stored at discovery time (None for node-capacity LCI).
+-            lci_arc: Optional[Tuple[int, int]] = self.lci_arcs.get(node_set)
+-            new_coefficients: Dict[int, float] = {}
+-            for idx, route in enumerate(master.routes):  # type: ignore[union-attr]
+-                alpha_k = sum(node_alphas.get(n, 1.0 if n in node_set else 0.0) for n in route.node_coverage if n != 0)
+-                if alpha_k > 1e-6:
+-                    new_coefficients[idx] = alpha_k
+-            if master.add_lci_cut(list(node_set), rhs, new_coefficients, node_alphas=node_alphas, arc=lci_arc):
+-                added += 1
+-
+-        # Re-inject Multistar cuts.  Coefficients are recomputed from current route pool
+-        # because route indices shift across B&B nodes (column deletion/addition).
+-        added += 1 if self._inject_multistar_cut(master) else 0
+-        return added
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/pricing/smoothing.py b/logic/src/policies/helpers/solvers_and_matheuristics/pricing/smoothing.py
+index 5941ae8f0..c699f2b74 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/pricing/smoothing.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/pricing/smoothing.py
+@@ -6,9 +6,7 @@ or any other matheuristic that embeds a BPC pricing subproblem.
+ 
+ Attributes:
+ -----------
+-dssr_pricing_wrapper          — DSSR-wrapped RCSPP solve (Righini & Salani 2008).
+-reduced_cost_arc_fixing       — Pricing-graph arc elimination (Irnich et al. 2010).
+-apply_reduced_cost_edge_fixing — LP-bound edge fixing on the master (legacy).
++apply_reduced_cost_edge_fixing — LP-bound edge fixing on the master.
+ detect_cycles                 — Find repeated vertices in a route.
+ is_solution_integer           — Test integrality of a master LP solution.
+ solve_pricing_step            — Phase II positive-RC column generation.
+@@ -20,19 +18,14 @@ Example:
+ 
+ References
+ ----------
+-Righini & Salani (2008) Networks 51(3):155-170  — DSSR.
+ Irnich, Desaulniers, Desrosiers, Hadjar (2010) EJOR 211(1):75-87 — arc fixing.
+-Wentges (1997) — Dual smoothing used inside solve_pricing_step.
+ """
+ 
+ from __future__ import annotations
+ 
+ import logging
+-import time
+ from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
+ 
+-import numpy as np
+-
+ from logic.src.policies.helpers.solvers_and_matheuristics.branching import AnyBranchingConstraint
+ from logic.src.policies.helpers.solvers_and_matheuristics.common import Route
+ from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
+@@ -227,15 +220,12 @@ def solve_pricing_step(
+     optimality_gap: float = 1e-4,
+     rc_tolerance: float = 1e-5,
+     timeout: Optional[float] = None,
+-    use_dssr: bool = False,
+-    dssr_max_iters: int = 8,
+     exact_mode: bool = False,
+ ) -> Tuple[int, bool]:
+     """Generate profitable columns for Phase II column generation.
+ 
+     Resolves the LP dual signal into RCSPP pricing calls, adding all routes
+-    with reduced cost above *rc_tolerance* to the master.  Optionally wraps
+-    the RCSPP with DSSR (Righini & Salani 2008) for tighter elementarity.
++    with reduced cost above *rc_tolerance* to the master.
+ 
+     Args:
+         master:                Master problem in Phase II.
+@@ -245,8 +235,6 @@ def solve_pricing_step(
+         optimality_gap:        Convergence tolerance on reduced cost.
+         rc_tolerance:          Minimum reduced cost to accept a column.
+         timeout:               Per-call wall-clock limit.
+-        use_dssr:              Whether to wrap the RCSPP with DSSR.
+-        dssr_max_iters:        Maximum DSSR refinement iterations.
+         exact_mode:            Forwarded to the RCSPP (disables neighbourhood truncation).
+ 
+     Returns:
+@@ -303,18 +291,7 @@ def solve_pricing_step(
+         timeout=timeout,
+     )
+ 
+-    if use_dssr:
+-        routes = dssr_pricing_wrapper(
+-            pricing_solver=pricing_solver,
+-            node_duals=dual_dict,
+-            max_dssr_iters=dssr_max_iters,
+-            max_routes=max_routes,
+-            forced_nodes=forced_nodes,
+-            rf_conflicts=rf_conflicts,
+-            timeout=timeout,
+-        )
+-    else:
+-        routes = pricing_solver.solve(**solver_kwargs)
++    routes = pricing_solver.solve(**solver_kwargs)
+ 
+     added = 0
+     for route in routes:
+@@ -326,180 +303,6 @@ def solve_pricing_step(
+     return added, pricing_exhausted
+ 
+ 
+-# ---------------------------------------------------------------------------
+-# DSSR — Decremental State-Space Relaxation
+-# ---------------------------------------------------------------------------
+-
+-
+-def dssr_pricing_wrapper(
+-    pricing_solver: Any,
+-    node_duals: Dict[int, Any],
+-    max_routes: int,
+-    forced_nodes: Optional[Set[int]] = None,
+-    rf_conflicts: Optional[Dict] = None,
+-    forbidden_arcs: Optional[FrozenSet] = None,
+-    required_successors: Optional[Dict] = None,
+-    required_predecessors: Optional[Dict] = None,
+-    timeout: Optional[float] = None,
+-    max_dssr_iters: int = 8,
+-) -> List[Any]:
+-    """Decremental State-Space Relaxation (DSSR) pricing wrapper.
+-
+-    Righini & Salani (2008, Networks 51:155-170): iteratively tightens the
+-    ng-route relaxation by adding the set of revisited vertices to the
+-    elementarity memory, until all returned paths are elementary.
+-
+-    Algorithm
+-    ---------
+-    1. Solve the relaxed RCSPP with current ng-memory.
+-    2. If all returned paths are elementary → done.
+-    3. Find the *critical set* Π = vertices visited > once on any path.
+-    4. Augment ng-memory: for each v ∈ Π, add Π to N_v.
+-    5. Re-solve.  Repeat until elementary or *max_dssr_iters* reached.
+-    6. Restore original ng-memory before returning.
+-
+-    Args:
+-        pricing_solver:        RCSPPSolver instance.
+-        node_duals:            Current LP dual values {node → π_v}.
+-        rcc_duals:             RCC dual values.
+-        sri_duals:             SRI dual values.
+-        max_routes:            Maximum routes to return per iteration.
+-        forced_nodes:          Nodes forced in by branching.
+-        rf_conflicts:          Ryan-Foster together/apart constraints.
+-        forbidden_arcs:        Arcs eliminated by branching or arc-fixing.
+-        required_successors:   Required arc successor constraints.
+-        required_predecessors: Required arc predecessor constraints.
+-        timeout:               Total wall-clock budget for all DSSR iterations.
+-        max_dssr_iters:        Maximum refinement iterations.
+-
+-    Returns:
+-        List of Route objects; all elementary when DSSR converges.
+-    """
+-    t0 = time.perf_counter()
+-
+-    # Snapshot the current ng-memory so we can restore it after DSSR
+-    original_memory: Dict[int, Set[int]] = {v: set(mem) for v, mem in getattr(pricing_solver, "_ng_memory", {}).items()}
+-
+-    routes: List[Any] = []
+-    for _ in range(max_dssr_iters):
+-        elapsed = time.perf_counter() - t0
+-        remaining = (timeout - elapsed) if timeout else None
+-
+-        # node_duals may be either a plain dict or a composite dual dict
+-        _dual_arg = node_duals if isinstance(node_duals, dict) else {"node_duals": node_duals}
+-        routes = pricing_solver.solve(
+-            dual_values=_dual_arg,
+-            max_routes=max_routes,
+-            forced_nodes=forced_nodes,
+-            rf_conflicts=rf_conflicts,
+-            timeout=remaining,
+-        )
+-
+-        if not routes:
+-            break
+-
+-        # Find vertices revisited on any returned path
+-        critical: Set[int] = set()
+-        for route in routes:
+-            seen: Dict[int, int] = {}
+-            for v in route.nodes:
+-                seen[v] = seen.get(v, 0) + 1
+-            for v, cnt in seen.items():
+-                if cnt > 1:
+-                    critical.add(v)
+-
+-        if not critical:
+-            break  # All paths elementary — done
+-
+-        # Augment ng-memory for every critical vertex
+-        ng_mem: Optional[Dict] = getattr(pricing_solver, "_ng_memory", None)
+-        if ng_mem is None:
+-            break
+-
+-        for v in critical:
+-            ng_mem[v] = ng_mem.get(v, set()) | critical
+-
+-        pricing_solver._ng_memory = ng_mem
+-
+-    # Restore original ng-memory so sibling nodes are unaffected
+-    if hasattr(pricing_solver, "_ng_memory") and original_memory:
+-        pricing_solver._ng_memory = original_memory
+-
+-    return routes
+-
+-
+-# ---------------------------------------------------------------------------
+-# Reduced-cost arc fixing
+-# ---------------------------------------------------------------------------
+-
+-
+-def reduced_cost_arc_fixing(
+-    pricing_solver: Any,
+-    master_lp_bound: float,
+-    incumbent_value: float,
+-    n_nodes: int,
+-    dist_matrix: np.ndarray,
+-    wastes: Dict[int, float],
+-    node_duals: Dict[int, float],
+-    R: float,
+-    C: float,
+-    tol: float = 1e-6,
+-) -> int:
+-    """Eliminate pricing-graph arcs whose minimum reduced cost exceeds the gap.
+-
+-    For each arc (i, j), computes a conservative lower bound on the reduced
+-    cost of any route traversing (i, j):
+-
+-        lb(i,j) = R·w_i − π_i − C·d_{ij}    (arc contribution)
+-                  − C·d_{j,0}                  (cheapest return to depot)
+-
+-    If lb(i,j) > LP_bound − incumbent, the arc cannot appear in any
+-    improving column and is added to ``pricing_solver._forbidden_arcs``.
+-
+-    This is a *conservative* bound (ignores future profits along the path),
+-    so it is always valid — it never eliminates optimal arcs.
+-
+-    Args:
+-        pricing_solver:  RCSPPSolver; ``_forbidden_arcs`` is updated in-place.
+-        master_lp_bound: Current LP relaxation value.
+-        incumbent_value: Best known integer solution value.
+-        n_nodes:         Number of customer nodes (depot excluded).
+-        dist_matrix:     (n+1)×(n+1) distance matrix.
+-        wastes:          Node waste amounts {node → waste}.
+-        node_duals:      LP dual values {node → π_v}.
+-        R:               Revenue per unit waste.
+-        C:               Cost per unit distance.
+-        tol:             Numerical tolerance.
+-
+-    Returns:
+-        Number of arcs newly eliminated.
+-
+-    References:
+-        Irnich, Desaulniers, Desrosiers, Hadjar (2010) EJOR 211(1):75-87.
+-    """
+-    if master_lp_bound <= incumbent_value + tol:
+-        return 0
+-
+-    gap = master_lp_bound - incumbent_value
+-
+-    if not hasattr(pricing_solver, "_forbidden_arcs"):
+-        pricing_solver._forbidden_arcs = set()
+-
+-    depot = 0
+-    fixed = 0
+-    for i in range(1, n_nodes + 1):
+-        for j in range(n_nodes + 1):
+-            if i == j or (i, j) in pricing_solver._forbidden_arcs:
+-                continue
+-            rc_ij = R * wastes.get(i, 0.0) - node_duals.get(i, 0.0) - C * dist_matrix[i, j]
+-            completion = -C * dist_matrix[j, depot]
+-            if rc_ij + completion > gap + tol:
+-                pricing_solver._forbidden_arcs.add((i, j))
+-                fixed += 1
+-
+-    return fixed
+-
+-
+ def apply_reduced_cost_edge_fixing(
+     master: VRPPMasterProblem,
+     pricing_solver: Any,
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/search/cutting_planes.py b/logic/src/policies/helpers/solvers_and_matheuristics/search/cutting_planes.py
+index 50a7b11b9..9dca07fdf 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/search/cutting_planes.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/search/cutting_planes.py
+@@ -51,7 +51,6 @@ from typing import Any, Dict, FrozenSet, List, Optional, Set, Tuple
+ 
+ import gurobipy as gp
+ import numpy as np
+-from gurobipy import GRB as _GRB
+ 
+ from logic.src.policies.helpers.solvers_and_matheuristics.master_problem import VRPPMasterProblem
+ from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
+@@ -1497,25 +1496,11 @@ def create_cutting_plane_engine(  # noqa: C901
+         if sep_engine is None:
+             raise ValueError("Cover engine requires sep_engine parameter")
+         return KnapsackCoverEngine(v_model, sep_engine)
+-    elif engine_name == "min_cut":
+-        return MinCutInequalityEngine(v_model)
+-    elif engine_name == "triangle_clique":
+-        dist_matrix = kwargs.get("dist_matrix")
+-        route_budget = kwargs.get("route_budget", float("inf"))
+-        return TriangleCliqueCutEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget)
+     elif engine_name == "limited_memory_rank1":
+         max_subset = kwargs.get("max_subset_size", 5)
+         return LimitedMemoryRank1CutEngine(v_model, max_subset_size=max_subset)
+-    elif engine_name == "node_profit_bound":
+-        return NodeProfitBoundEngine(v_model)
+-    elif engine_name == "path_elimination":
+-        dist_matrix = kwargs.get("dist_matrix")
+-        route_budget = kwargs.get("route_budget", float("inf"))
+-        return PathEliminationEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget)
+     elif engine_name in ("all", "composite"):
+         engines = []
+-        dist_matrix = kwargs.get("dist_matrix")
+-        route_budget = kwargs.get("route_budget", float("inf"))
+         if sep_engine is not None:
+             engines.append(RoundedCapacityCutEngine(v_model, sep_engine))
+         engines.append(SubsetRowCutEngine(v_model))  # type: ignore[arg-type]
+@@ -1528,11 +1513,7 @@ def create_cutting_plane_engine(  # noqa: C901
+             engines.append(KnapsackCoverEngine(v_model, sep_engine))  # type: ignore[arg-type]
+             engines.append(RoundedMultistarCutEngine(v_model, sep_engine))  # type: ignore[arg-type]
+         # ── Tier 1 + selection-routing duality cuts ──────────────────────
+-        engines.append(MinCutInequalityEngine(v_model))  # type: ignore[arg-type]
+-        engines.append(TriangleCliqueCutEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget))
+         engines.append(LimitedMemoryRank1CutEngine(v_model, max_subset_size=5))
+-        engines.append(NodeProfitBoundEngine(v_model))  # type: ignore[arg-type]
+-        engines.append(PathEliminationEngine(v_model, dist_matrix=dist_matrix, route_budget=route_budget))
+ 
+         comp = CompositeCuttingPlaneEngine(engines)  # type: ignore[arg-type]
+         return comp
+@@ -1546,11 +1527,7 @@ def create_cutting_plane_engine(  # noqa: C901
+             "saturated_arc_lci",
+             "multistar",
+             "cover",
+-            "min_cut",
+-            "triangle_clique",
+             "limited_memory_rank1",
+-            "node_profit_bound",
+-            "path_elimination",
+             "all",
+             "composite",
+         ]
+@@ -1562,284 +1539,6 @@ def create_cutting_plane_engine(  # noqa: C901
+ # =============================================================================
+ 
+ 
+-class MinCutInequalityEngine(CuttingPlaneEngine):
+-    r"""Min-Cut Inequalities for VRPP (Poggi, Viana, Uchoa 2010).
+-
+-    For each optional customer v with fractional LP visit value y*_v ∈ (0,1),
+-    the inequality enforces that the total arc-flow entering the time-cluster
+-    of v must be at least y*_v:
+-
+-        Σ_{r : v ∈ route_r} λ_r  ≥  y_v
+-
+-    This is equivalent to the min-cut inequality on the time-indexed extended
+-    formulation: the minimum cut between depot and any time-copy of v equals
+-    y_v, so fractional solutions where flow "leaks" through v without a
+-    coherent path are pruned.
+-
+-    Since the set-partitioning master already has  Σ_r a_{vr} λ_r = y_v
+-    as a constraint for mandatory nodes and  Σ_r a_{vr} λ_r ≤ y_v  for
+-    optional ones, violation occurs when the sum over *all* routes visiting v
+-    is strictly less than the node-visitation LP value y_v — indicating that
+-    fractional routes are double-counting v without a flow-consistent path.
+-
+-    In practice in the SP formulation this manifests as: the LP is fractionally
+-    routing through v on multiple partially-selected routes whose combined λ
+-    is below y_v (the cover constraint allows ≤ 1 for optional nodes).
+-    We add the cut  Σ_r a_{vr} λ_r ≥ y_v  to enforce flow consistency.
+-
+-    Attributes:
+-        v_model: The VRPP model.
+-    """
+-
+-    def __init__(self, v_model: "VRPPModel"):
+-        """
+-        Args:
+-            v_model: The VRPP model.
+-        """
+-        self.v_model = v_model
+-
+-    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+-        """
+-        Args:
+-            master: The master problem.
+-            max_cuts: The maximum number of cuts to add.
+-            kwargs: Additional arguments.
+-
+-        Returns:
+-            int: The number of cuts added.
+-        """
+-        if master.model is None or not master.lambda_vars:
+-            return 0
+-
+-        node_visits = master.get_node_visitation()
+-        added = 0
+-        tol = 1e-4
+-
+-        # For each optional node whose LP visit value is strictly fractional,
+-        # check whether the sum of lambda values of covering routes is below y_v.
+-        for node, y_v in node_visits.items():
+-            if y_v < tol or y_v > 1.0 - tol:
+-                continue  # integer or near-zero — no cut needed
+-
+-            # Sum of λ_r over routes visiting this node
+-            try:
+-                cover_sum = (
+-                    sum(
+-                        var.X
+-                        for idx, var in enumerate(master.lambda_vars)
+-                        if var.X > 1e-9 and node in master.routes[idx].node_coverage
+-                    )
+-                    if master.lambda_vars
+-                    else 0.0
+-                )
+-            except (AttributeError, gp.GurobiError):
+-                cover_sum = 0.0
+-
+-            violation = y_v - cover_sum
+-            if violation < tol:
+-                continue
+-
+-            # Add cut:  Σ_{r: v ∈ r} λ_r  ≥  y_v
+-            # In Gurobi terms on the master: add a GEQ constraint with coeff 1.0
+-            # on each λ_r that visits node, RHS = y_v (as a tightening to 1.0 for stability).
+-            # We register it as a node-cover lower-bound constraint.
+-            if hasattr(master, "add_min_cut_constraint"):
+-                success = master.add_min_cut_constraint(node, violation)
+-            elif master.model is not None:
+-                # Fallback: tighten the optional cover constraint RHS directly
+-                constr = master.model.getConstrByName(f"coverage_{node}")
+-                if constr is not None:
+-                    constr.Sense = _GRB.GREATER_EQUAL
+-                    constr.RHS = max(float(constr.RHS), y_v - violation * 0.5)
+-                    success = True
+-                else:
+-                    success = False
+-            else:
+-                success = False
+-
+-            if success:
+-                added += 1
+-                if added >= max_cuts:
+-                    break
+-
+-        return added
+-
+-    def get_name(self) -> str:
+-        """
+-        Return the name of the cut engine.
+-
+-        Args:
+-            None
+-
+-        Returns:
+-            str: The name of the cut engine.
+-        """
+-        return "min_cut"
+-
+-
+-class TriangleCliqueCutEngine(CuttingPlaneEngine):
+-    r"""Triangle Clique Cuts for TOP/VRPP (Poggi, Viana, Uchoa 2010).
+-
+-    For a triple S = {i, j, k} of customers, define a compatibility graph G'
+-    on time-indexed arc pairs. Two arcs a₁=(u₁,w₁) and a₂=(u₂,w₂) are
+-    INCOMPATIBLE if they cannot both appear on the same feasible route due to
+-    time/capacity conflicts. A maximum-weight stable set on G' yields:
+-
+-        Σ_{r : a ∈ route_r, a ∈ stable_set} λ_r  ≤  1
+-
+-    In the route-based SP formulation (without explicit time-index), we
+-    approximate triangle clique cuts as **pairwise conflict cuts** on the y
+-    (node-visitation) variables.
+-
+-    Two nodes i and j are CONFLICTING if no feasible route can visit both
+-    given the capacity and distance constraints:
+-        q_i + q_j > Q        (capacity conflict)
+-        or d(0,i) + d(i,j) + d(j,0) > L * C  (would exceed budget)
+-
+-    For conflicting pairs, the cut is:
+-        y_i + y_j  ≤  1
+-
+-    For conflicting triples {i,j,k} where each pair conflicts:
+-        y_i + y_j + y_k  ≤  1   (clique cut)
+-
+-    These are equivalent to the stable-set formulation on the incompatibility
+-    graph projected onto the y-variables.
+-
+-    References:
+-        Pessoa, Poggi, Uchoa (2009) Networks 54:167-177.
+-        Poggi, Viana, Uchoa (2010) ATMOS.
+-        El-Hajj, Dang, Moukrim (2016) Computers & Operations Research 74:21-30.
+-
+-    Attributes:
+-        v_model: The VRPP model.
+-        dist_matrix: The distance matrix.
+-        route_budget: The route budget.
+-        _conflict_pairs: Cached list of conflicting pairs.
+-    """
+-
+-    def __init__(
+-        self, v_model: "VRPPModel", dist_matrix: Optional[np.ndarray] = None, route_budget: float = float("inf")
+-    ):
+-        """
+-        Args:
+-            v_model: The VRPP model.
+-            dist_matrix: The distance matrix.
+-            route_budget: The route budget.
+-        """
+-        self.v_model = v_model
+-        self.dist_matrix = dist_matrix
+-        self.route_budget = route_budget  # maximum route cost / time budget
+-        self._conflict_pairs: Optional[List[Tuple[int, int]]] = None  # cached
+-
+-    def _build_conflict_pairs(self, capacity: float) -> List[Tuple[int, int]]:
+-        """
+-        Build list of (i,j) pairs that cannot coexist on any feasible route.
+-
+-        Args:
+-            capacity: The capacity of the vehicle.
+-
+-        Returns:
+-            List[Tuple[int, int]]: List of conflicting pairs.
+-        """
+-        if self._conflict_pairs is not None:
+-            return self._conflict_pairs
+-
+-        pairs: List[Tuple[int, int]] = []
+-        n = self.v_model.n_nodes
+-        wastes = {i: self.v_model.get_node_demand(i) for i in range(1, n)}
+-
+-        for i in range(1, n):
+-            for j in range(i + 1, n):
+-                # Capacity conflict
+-                if wastes.get(i, 0.0) + wastes.get(j, 0.0) > capacity + 1e-6:
+-                    pairs.append((i, j))
+-                    continue
+-                # Distance conflict (only if dist_matrix provided)
+-                if self.dist_matrix is not None and self.route_budget < float("inf"):
+-                    d0i = self.dist_matrix[0, i] if i < self.dist_matrix.shape[0] else 0
+-                    dij = (
+-                        self.dist_matrix[i, j] if i < self.dist_matrix.shape[0] and j < self.dist_matrix.shape[1] else 0
+-                    )
+-                    dj0 = self.dist_matrix[j, 0] if j < self.dist_matrix.shape[0] else 0
+-                    if d0i + dij + dj0 > self.route_budget + 1e-6:
+-                        pairs.append((i, j))
+-
+-        self._conflict_pairs = pairs
+-        return pairs
+-
+-    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+-        """
+-        Add triangle clique cuts to the master problem.
+-
+-        Args:
+-            master: The master problem.
+-            max_cuts: The maximum number of cuts to add.
+-            kwargs: Additional arguments.
+-
+-        Returns:
+-            int: The number of cuts added.
+-        """
+-        if master.model is None:
+-            return 0
+-
+-        capacity = self.v_model.capacity if hasattr(self.v_model, "capacity") else float("inf")
+-        node_visits = master.get_node_visitation()
+-        conflict_pairs = self._build_conflict_pairs(capacity)
+-
+-        added = 0
+-
+-        # Pairwise conflict cuts: y_i + y_j ≤ 1 for conflicting (i,j)
+-        for i, j in conflict_pairs:
+-            yi = node_visits.get(i, 0.0)
+-            yj = node_visits.get(j, 0.0)
+-            violation = yi + yj - 1.0
+-            if violation < 1e-4:
+-                continue
+-
+-            success = master.add_conflict_cut(i, j, violation) if hasattr(master, "add_conflict_cut") else False
+-            if success:
+-                added += 1
+-                if added >= max_cuts:
+-                    return added
+-
+-        # Triangle clique cuts: y_i + y_j + y_k ≤ 1 for mutually conflicting triples
+-        conflict_set = set(conflict_pairs)
+-        n = self.v_model.n_nodes
+-        for i in range(1, n):
+-            for j in range(i + 1, n):
+-                if (i, j) not in conflict_set:
+-                    continue
+-                for k in range(j + 1, n):
+-                    if (i, k) not in conflict_set or (j, k) not in conflict_set:
+-                        continue
+-                    yi = node_visits.get(i, 0.0)
+-                    yj = node_visits.get(j, 0.0)
+-                    yk = node_visits.get(k, 0.0)
+-                    violation = yi + yj + yk - 1.0
+-                    if violation < 1e-4:
+-                        continue
+-                    if hasattr(master, "add_clique_cut"):
+-                        success = master.add_clique_cut([i, j, k], violation)
+-                        if success:
+-                            added += 1
+-                            if added >= max_cuts:
+-                                return added
+-
+-        return added
+-
+-    def get_name(self) -> str:
+-        """
+-        Return the name of the cut engine.
+-
+-        Args:
+-            None
+-
+-        Returns:
+-            str: The name of the cut engine.
+-        """
+-        return "triangle_clique"
+-
+-
+ class LimitedMemoryRank1CutEngine(CuttingPlaneEngine):
+     r"""Limited-Memory Rank-1 Cuts for VRPP (Pecin et al. 2017).
+ 
+@@ -1967,248 +1666,3 @@ class LimitedMemoryRank1CutEngine(CuttingPlaneEngine):
+         return "limited_memory_rank1"
+ 
+ 
+-class NodeProfitBoundEngine(CuttingPlaneEngine):
+-    r"""Profit Upper-Bound Cuts for VRPP (Dang, El-Hajj, Moukrim 2013).
+-
+-    Enforces that the profit achievable by visiting a subset S within the
+-    vehicle's capacity cannot exceed a structural upper bound derived from
+-    the knapsack relaxation of the selection problem.
+-
+-    For a subset S of optional nodes with total demand d(S) > Q:
+-        Σ_{v ∈ S} p_v · y_v  ≤  max_profit(S, Q)
+-
+-    where max_profit(S, Q) is the optimal value of the fractional knapsack
+-    on {(p_v, q_v)}_{v ∈ S} with capacity Q.
+-
+-    In cut form (linearised over the master variables):
+-        Σ_{r : route_r ⊆ S} profit_r · λ_r  ≤  max_profit(S, Q)
+-
+-    Also adds **mandatory customer fixing**: if the LP objective minus the
+-    dual contribution of node v being unvisited (y_v = 0) still dominates
+-    the current best lower bound, fix y_v = 1 as a valid tightening.
+-
+-    References:
+-        Dang, El-Hajj, Moukrim (2013) Computers & OR 40(12):2751-2760.
+-        Archetti, Speranza, Vigo (2014) VRPP chapter.
+-
+-    Attributes:
+-        v_model: The VRPP model.
+-    """
+-
+-    def __init__(self, v_model: "VRPPModel"):
+-        """
+-        Args:
+-            v_model: The VRPP model.
+-        """
+-        self.v_model = v_model
+-
+-    def _fractional_knapsack(self, items: List[Tuple[float, float]], capacity: float) -> float:
+-        """
+-        Solve fractional knapsack: items = [(profit, weight), …].
+-
+-        Args:
+-            items: List of tuples (profit, weight).
+-            capacity: The capacity of the knapsack.
+-
+-        Returns:
+-            float: The optimal value of the fractional knapsack.
+-        """
+-        items_sorted = sorted(items, key=lambda x: x[0] / max(x[1], 1e-9), reverse=True)
+-        total = 0.0
+-        rem = capacity
+-        for p, w in items_sorted:
+-            if rem <= 0:
+-                break
+-            take = min(w, rem)
+-            total += p * take / max(w, 1e-9)
+-            rem -= take
+-        return total
+-
+-    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+-        """
+-        Add node profit bound cuts to the master problem.
+-
+-        Args:
+-            master: The master problem.
+-            max_cuts: The maximum number of cuts to add.
+-            kwargs: Additional arguments.
+-
+-        Returns:
+-            int: The number of cuts added.
+-        """
+-        if master.model is None:
+-            return 0
+-
+-        capacity = self.v_model.capacity if hasattr(self.v_model, "capacity") else float("inf")
+-        n = self.v_model.n_nodes - 1
+-        node_visits = master.get_node_visitation()
+-        R = getattr(self.v_model, "revenue_per_kg", 1.0)
+-        added = 0
+-        tol = 1e-4
+-
+-        # Build list of fractional optional nodes
+-        frac_nodes = [
+-            (v, node_visits.get(v, 0.0)) for v in range(1, n + 1) if tol < node_visits.get(v, 0.0) < 1.0 - tol
+-        ]
+-
+-        # Find subsets where total demand > Q (they must be pruned)
+-        # Use greedy: sort by demand, accumulate until demand > Q
+-        demands = [(v, self.v_model.get_node_demand(v), R * self.v_model.get_node_demand(v)) for v, _ in frac_nodes]
+-
+-        # Try subsets that are "tight" on capacity
+-        for start in range(len(demands)):
+-            subset = []
+-            total_demand = 0.0
+-            items = []
+-            for i in range(start, len(demands)):
+-                v, d, p = demands[i]
+-                total_demand += d
+-                subset.append(v)
+-                items.append((p, d))
+-                if total_demand > capacity + tol:
+-                    # This subset violates knapsack; compute UB
+-                    ub = self._fractional_knapsack(items, capacity)
+-                    # LP value for this subset
+-                    lp_val = sum(p_val * node_visits.get(v_idx, 0.0) for v_idx, _, p_val in demands[start : i + 1])
+-                    violation = lp_val - ub
+-                    if violation > tol and hasattr(master, "add_profit_bound_cut"):
+-                        success = master.add_profit_bound_cut(subset, ub, violation)
+-                        if success:
+-                            added += 1
+-                            if added >= max_cuts:
+-                                return added
+-                    break
+-
+-        return added
+-
+-    def get_name(self) -> str:
+-        """
+-        Return the name of the cut engine.
+-
+-        Args:
+-            None
+-
+-        Returns:
+-            str: The name of the cut engine.
+-        """
+-        return "node_profit_bound"
+-
+-
+-class PathEliminationEngine(CuttingPlaneEngine):
+-    r"""Path Elimination Constraints for VRPP (Fischetti et al. 1997; El-Hajj et al. 2016).
+-
+-    For any partial path P = (0, v₁, …, v_k) that is provably infeasible
+-    (capacity overflow, budget exceeded, clique conflict), add:
+-
+-        Σ_{(i,j) ∈ A(P)} x_{ij}  ≤  |A(P)| - 1
+-
+-    This forbids P from appearing in any route without changing the dimension
+-    of the pricing subproblem labels (the cut is robust — expressed on arcs).
+-
+-    Violations are detected by scanning fractional arc flows for paths whose
+-    capacity or budget sum is inadmissible.
+-
+-    Attributes:
+-        v_model: The VRPP model.
+-        dist_matrix: The distance matrix.
+-        route_budget: The route budget.
+-    """
+-
+-    def __init__(
+-        self, v_model: "VRPPModel", dist_matrix: Optional[np.ndarray] = None, route_budget: float = float("inf")
+-    ):
+-        """
+-        Args:
+-            v_model: The VRPP model.
+-            dist_matrix: The distance matrix.
+-            route_budget: The route budget.
+-        """
+-        self.v_model = v_model
+-        self.dist_matrix = dist_matrix
+-        self.route_budget = route_budget
+-
+-    def _is_path_infeasible(self, path: List[int], capacity: float) -> bool:
+-        """
+-        Return True if path (depot-rooted) violates capacity or budget.
+-
+-        Args:
+-            path: The path to check.
+-            capacity: The capacity of the vehicle.
+-
+-        Returns:
+-            bool: True if the path is infeasible, False otherwise.
+-        """
+-        total_demand = sum(self.v_model.get_node_demand(v) for v in path if v != 0)
+-        if total_demand > capacity + 1e-6:
+-            return True
+-        if self.dist_matrix is not None and self.route_budget < float("inf"):
+-            full = [0] + [v for v in path if v != 0] + [0]
+-            dist = sum(
+-                self.dist_matrix[full[i], full[i + 1]]
+-                for i in range(len(full) - 1)
+-                if full[i] < self.dist_matrix.shape[0] and full[i + 1] < self.dist_matrix.shape[1]
+-            )
+-            if dist > self.route_budget + 1e-6:
+-                return True
+-        return False
+-
+-    def separate_and_add_cuts(self, master: "VRPPMasterProblem", max_cuts: int, **kwargs) -> int:
+-        """
+-        Add path elimination cuts to the master problem.
+-
+-        Args:
+-            master: The master problem.
+-            max_cuts: The maximum number of cuts to add.
+-            kwargs: Additional arguments.
+-
+-        Returns:
+-            int: The number of cuts added.
+-        """
+-        if master.model is None:
+-            return 0
+-
+-        capacity = self.v_model.capacity if hasattr(self.v_model, "capacity") else float("inf")
+-        arc_usage = master.get_edge_usage(only_elementary=True) if hasattr(master, "get_edge_usage") else {}
+-        if not arc_usage:
+-            return 0
+-
+-        added = 0
+-        tol = 1e-4
+-
+-        # Find high-flow arcs and check 2-arc paths (i,j,k) for infeasibility
+-        high_flow_arcs = [(arc, flow) for arc, flow in arc_usage.items() if flow > tol and arc[0] != 0]
+-        high_flow_arcs.sort(key=lambda x: x[1], reverse=True)
+-
+-        checked: set = set()
+-        for (u, v), f_uv in high_flow_arcs[:20]:  # check top arcs only
+-            for (v2, w), f_vw in high_flow_arcs[:20]:
+-                if v2 != v or w == 0:
+-                    continue
+-                path_key = (u, v, w)
+-                if path_key in checked:
+-                    continue
+-                checked.add(path_key)
+-
+-                path = [0, u, v, w]
+-                if self._is_path_infeasible(path, capacity):
+-                    violation = f_uv + f_vw - 1.0  # Σ x_e ≤ |arcs| - 1 = 1
+-                    if violation > tol and hasattr(master, "add_path_elimination_cut"):
+-                        success = master.add_path_elimination_cut([(0, u), (u, v), (v, w)], violation)
+-                        if success:
+-                            added += 1
+-                            if added >= max_cuts:
+-                                return added
+-
+-        return added
+-
+-    def get_name(self) -> str:
+-        """
+-        Return the name of the cut engine.
+-
+-        Args:
+-            None
+-
+-        Returns:
+-            str: The name of the cut engine.
+-        """
+-        return "path_elimination"
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/separation/engine.py b/logic/src/policies/helpers/solvers_and_matheuristics/separation/engine.py
+index 511f298d9..5fa42681f 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/separation/engine.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/separation/engine.py
+@@ -27,7 +27,7 @@ Example:
+ 
+ from __future__ import annotations
+ 
+-from typing import Dict, List, Optional, Set, Tuple
++from typing import Dict, List, Optional, Set
+ 
+ import networkx as nx
+ import numpy as np
+@@ -36,7 +36,6 @@ from scipy.sparse.csgraph import connected_components, maximum_flow
+ 
+ from logic.src.policies.helpers.solvers_and_matheuristics.separation.inequality import (
+     CapacityCut,
+-    CombInequality,
+     Inequality,
+     PCSubtourEliminationCut,
+ )
+@@ -61,7 +60,6 @@ class SeparationEngine:
+ 
+     # Global toggle for comb inequality separation
+     # Set to False to disable custom comb cuts and rely on Gurobi's internal heuristics
+-    USE_COMB_CUTS = False
+ 
+     # Task 12c: Period for running expensive exact separation at non-root nodes.
+     # Set to 1 for exhaustive separation every iteration.
+@@ -195,52 +193,6 @@ class SeparationEngine:
+         violated.sort()  # Sort by violation descending
+         return violated[:max_cuts]
+ 
+-    def separate(
+-        self,
+-        x_vals: np.ndarray,
+-        y_vals: Optional[np.ndarray] = None,
+-        max_cuts: int = 100,
+-        iteration: int = 0,
+-    ) -> List[Inequality]:
+-        """
+-        Main separation procedure for VRPP (legacy interface).
+-
+-        This method is maintained for backward compatibility but is not used
+-        in the true Branch-and-Cut callback. Use separate_integer() or
+-        separate_fractional() instead.
+-
+-        Args:
+-            x_vals: Fractional edge values from LP solution (indexed by edge list).
+-            y_vals: Fractional node visit values from LP solution (optional).
+-            max_cuts: Maximum number of cuts to return.
+-            iteration: Current iteration number (for adaptive strategies).
+-
+-        Returns:
+-            List of violated inequalities sorted by degree of violation.
+-        """
+-        self.pool = []
+-
+-        # Step 1: Separate subtour elimination constraints (SECs)
+-        self._separate_subtours_heuristic(x_vals, y_vals)
+-
+-        # Step 2: Separate capacity cuts (heuristic and exact)
+-        self._separate_capacity_cuts(x_vals, y_vals)
+-
+-        # Step 3: Exact subtour separation (max-flow based) - expensive, run periodically
+-        if iteration % 5 == 0:
+-            self._separate_pcsec_exact(x_vals, y_vals)
+-            self._separate_capacity_cuts_maxflow_heuristic(x_vals, y_vals)
+-
+-        # Step 4: Comb inequalities (heuristic) - advanced cuts
+-        # DISABLED: Gurobi's internal clique/cover cuts are preferred
+-        if self.USE_COMB_CUTS and iteration % 10 == 0:
+-            self._separate_comb_heuristic(x_vals, y_vals)
+-
+-        # Filter and return most violated cuts
+-        violated = [ineq for ineq in self.pool if ineq.violation > 0.01]
+-        violated.sort()  # Sort by violation descending
+-        return violated[:max_cuts]
+-
+     def _separate_subtours_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+         """Heuristic subtour elimination using connected components and greedy expansion.
+ 
+@@ -671,301 +623,6 @@ class SeparationEngine:
+ 
+         return visited
+ 
+-    def _separate_comb_heuristic(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+-        """Heuristic comb inequality separation.
+-
+-        **NOTE: This method is DISABLED by default (USE_COMB_CUTS = False).**
+-
+-        Algorithm (Fischetti et al. 1997, Theorem 2.3):
+-        1. Identifies candidate handles from high-degree nodes in support graph.
+-        2. Grows handles using greedy BFS.
+-        3. Finds teeth that have exactly one node in the handle.
+-        4. Evaluates violation and adds to pool.
+-
+-        Args:
+-            x_vals: Edge values.
+-            y_vals: Node visit values.
+-        """
+-
+-        # In VRPP, comb inequalities are less common and tricky with node selection
+-        # For now, skip if any node in support graph for this handle/teeth is unvisited
+-        # This is a simplification.
+-        # Build support graph with edges that have significant fractional values
+-        threshold = 0.3
+-        support_edges = []
+-        edge_weights: Dict[Tuple[int, int], float] = {}
+-
+-        for idx, (i, j) in enumerate(self.model.edges):
+-            if x_vals[idx] >= threshold:
+-                support_edges.append((i, j))
+-                edge_weights[(i, j)] = x_vals[idx]
+-                edge_weights[(j, i)] = x_vals[idx]
+-
+-        if len(support_edges) < 3:
+-            return
+-
+-        # Build adjacency list from support edges
+-        adjacency: Dict[int, List[int]] = {i: [] for i in range(self.model.n_nodes)}
+-        for i, j in support_edges:
+-            adjacency[i].append(j)
+-            adjacency[j].append(i)
+-
+-        # Find candidate handles: nodes with high degree in support graph
+-        high_degree_nodes = []
+-        for node in range(self.model.n_nodes):
+-            if len(adjacency[node]) >= 3:
+-                high_degree_nodes.append((node, len(adjacency[node])))
+-
+-        # Sort by degree descending
+-        high_degree_nodes.sort(key=lambda x: x[1], reverse=True)
+-
+-        # Try multiple handle seeds
+-        max_attempts = min(10, len(high_degree_nodes))
+-        for attempt in range(max_attempts):
+-            if attempt >= len(high_degree_nodes):
+-                break
+-
+-            seed_node = high_degree_nodes[attempt][0]
+-
+-            # Grow handle using BFS from seed
+-            handle = self._grow_handle(seed_node, adjacency, edge_weights, max_size=15)
+-
+-            if len(handle) < 3:
+-                continue
+-
+-            # Find teeth for this handle
+-            teeth = self._find_teeth_for_handle(handle, adjacency, edge_weights)
+-
+-            if len(teeth) < 3 or len(teeth) % 2 == 0:
+-                # Need odd number of teeth >= 3 for valid comb
+-                continue
+-
+-            # Compute violation
+-            violation = self._compute_comb_violation(handle, teeth, x_vals)
+-
+-            if violation > 0.01:
+-                self.pool.append(CombInequality(handle, teeth, violation))
+-
+-    def _grow_handle(
+-        self,
+-        seed: int,
+-        adjacency: Dict[int, List[int]],
+-        edge_weights: Dict[Tuple[int, int], float],
+-        max_size: int = 15,
+-    ) -> Set[int]:
+-        """
+-        Grow a handle from a seed node using greedy BFS.
+-
+-        Args:
+-            seed: Starting node for handle.
+-            adjacency: Adjacency list from support graph.
+-            edge_weights: Edge weights (fractional x values).
+-            max_size: Maximum handle size.
+-
+-        Returns:
+-            Set of nodes forming the handle.
+-        """
+-        handle = {seed}
+-        candidates = set(adjacency[seed])
+-
+-        while len(handle) < max_size and candidates:
+-            # Find candidate with strongest connection to handle
+-            best_node = None
+-            best_connection_strength = -1.0
+-
+-            for candidate in candidates:
+-                if candidate in handle:
+-                    continue
+-
+-                # Sum of edge weights connecting candidate to handle
+-                connection_strength = sum(
+-                    edge_weights.get((candidate, h), 0.0) for h in handle if (candidate, h) in edge_weights
+-                )
+-
+-                if connection_strength > best_connection_strength:
+-                    best_connection_strength = connection_strength
+-                    best_node = candidate
+-
+-            if best_node is None or best_connection_strength < 0.2:
+-                break
+-
+-            # Add to handle
+-            handle.add(best_node)
+-
+-            # Update candidates
+-            for neighbor in adjacency[best_node]:
+-                if neighbor not in handle:
+-                    candidates.add(neighbor)
+-
+-        return handle
+-
+-    def _find_teeth_for_handle(
+-        self,
+-        handle: Set[int],
+-        adjacency: Dict[int, List[int]],
+-        edge_weights: Dict[Tuple[int, int], float],
+-    ) -> List[Set[int]]:
+-        """
+-        Find teeth for a given handle.
+-
+-        A tooth T_j must satisfy:
+-        - |T_j ∩ H| = 1 (exactly one node in handle)
+-        - |T_j| >= 3 (at least 3 nodes total)
+-        - T_j forms a connected component
+-
+-        Args:
+-            handle: Handle node set.
+-            adjacency: Adjacency list.
+-            edge_weights: Edge weights.
+-
+-        Returns:
+-            List of teeth (each tooth is a set of nodes).
+-        """
+-        teeth: List[Set[int]] = []
+-
+-        # For each node in the handle, try to grow a tooth from it
+-        for anchor in handle:
+-            tooth = self._grow_tooth(anchor, handle, adjacency, edge_weights)
+-
+-            if tooth is None:
+-                continue
+-
+-            # Validate tooth
+-            intersection = tooth & handle
+-            if len(intersection) != 1:
+-                continue
+-
+-            if len(tooth) < 3:
+-                continue
+-
+-            # Check it's not a duplicate
+-            is_duplicate = any(tooth == existing_tooth for existing_tooth in teeth)
+-            if is_duplicate:
+-                continue
+-
+-            teeth.append(tooth)
+-
+-            # Limit number of teeth
+-            if len(teeth) >= 7:
+-                break
+-
+-        return teeth
+-
+-    def _grow_tooth(
+-        self,
+-        anchor: int,
+-        handle: Set[int],
+-        adjacency: Dict[int, List[int]],
+-        edge_weights: Dict[Tuple[int, int], float],
+-        max_size: int = 7,
+-    ) -> Optional[Set[int]]:
+-        """
+-        Grow a tooth from an anchor node in the handle.
+-
+-        The tooth starts with the anchor (which is in handle) and grows
+-        by adding nodes outside the handle that are well-connected.
+-
+-        Args:
+-            anchor: Node in handle to anchor the tooth.
+-            handle: Handle node set.
+-            adjacency: Adjacency list.
+-            edge_weights: Edge weights.
+-            max_size: Maximum tooth size.
+-
+-        Returns:
+-            Tooth node set, or None if no valid tooth found.
+-        """
+-        # Start tooth with the anchor
+-        tooth = {anchor}
+-
+-        # Find neighbors of anchor that are NOT in handle
+-        external_neighbors = [neighbor for neighbor in adjacency[anchor] if neighbor not in handle]
+-
+-        if not external_neighbors:
+-            return None
+-
+-        # Greedily add nodes outside the handle
+-        candidates = set(external_neighbors)
+-
+-        while len(tooth) < max_size and candidates:
+-            # Find best candidate to add
+-            best_node = None
+-            best_connection = -1.0
+-
+-            for candidate in candidates:
+-                if candidate in handle or candidate in tooth:
+-                    continue
+-
+-                # Connection strength to current tooth nodes (excluding anchor)
+-                connection = sum(edge_weights.get((candidate, t), 0.0) for t in tooth if (candidate, t) in edge_weights)
+-
+-                if connection > best_connection:
+-                    best_connection = connection
+-                    best_node = candidate
+-
+-            if best_node is None or best_connection < 0.15:
+-                break
+-
+-            tooth.add(best_node)
+-
+-            # Update candidates
+-            for neighbor in adjacency[best_node]:
+-                if neighbor not in handle and neighbor not in tooth:
+-                    candidates.add(neighbor)
+-
+-        # Valid tooth must have at least 3 nodes
+-        if len(tooth) < 3:
+-            return None
+-
+-        return tooth
+-
+-    def _compute_comb_violation(
+-        self,
+-        handle: Set[int],
+-        teeth: List[Set[int]],
+-        x_vals: np.ndarray,
+-    ) -> float:
+-        """
+-        Compute the degree of violation for a comb inequality.
+-
+-        Comb inequality:
+-        ∑_{e ∈ E(H)} x_e + ∑_{j=1}^{s} ∑_{e ∈ E(T_j)} x_e ≤ |H| + ∑_{j} |T_j| - (s+1)/2
+-
+-        Args:
+-            handle: Handle node set.
+-            teeth: List of teeth.
+-            x_vals: Fractional edge values.
+-
+-        Returns:
+-            Degree of violation (LHS - RHS).
+-        """
+-        # Compute LHS: sum of edges in handle and teeth
+-        lhs = 0.0
+-
+-        # Edges in handle
+-        handle_edges = self.model.edges_in_set(handle)
+-        for edge in handle_edges:
+-            edge_idx = self.model.edge_to_idx.get(tuple(sorted(edge)))
+-            if edge_idx is not None:
+-                lhs += x_vals[edge_idx]
+-
+-        # Edges in teeth
+-        for tooth in teeth:
+-            tooth_edges = self.model.edges_in_set(tooth)
+-            for edge in tooth_edges:
+-                edge_idx = self.model.edge_to_idx.get(tuple(sorted(edge)))
+-                if edge_idx is not None:
+-                    lhs += x_vals[edge_idx]
+-
+-        # Compute RHS
+-        s = len(teeth)
+-        rhs = len(handle) + sum(len(t) for t in teeth) - (s + 1) / 2.0
+-
+-        # Violation
+-        violation = lhs - rhs
+-
+-        return violation
+-
+     def _separate_gsec_h2(self, x_vals: np.ndarray, y_vals: Optional[np.ndarray]) -> None:
+         """Kruskal-based Heuristic (GSEC_H2) for GSEC separation.
+ 
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/vrpp_model.py b/logic/src/policies/helpers/solvers_and_matheuristics/vrpp_model.py
+index c4a0cfc09..ad72c7fb9 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/vrpp_model.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/vrpp_model.py
+@@ -220,39 +220,6 @@ class VRPPModel:
+         """
+         return sum(self.get_node_demand(i) for i in node_set if i != self.depot)
+ 
+-    def validate_tour(self, tour: List[int]) -> Tuple[bool, str]:
+-        """
+-        Validate that a tour satisfies VRPP constraints.
+-
+-        Args:
+-            tour: Sequence of node indices representing the tour.
+-
+-        Returns:
+-            Tuple of (is_valid, error_message).
+-        """
+-        if not tour or tour[0] != self.depot or tour[-1] != self.depot:
+-            return False, "Tour must start and end at depot (node 0)"
+-
+-        # Check capacity constraint
+-        total_load = sum(self.get_node_demand(i) for i in tour[1:-1])
+-        if total_load > self.capacity:
+-            return False, f"Capacity violated: {total_load:.2f} > {self.capacity:.2f}"
+-
+-        # Check mandatory nodes
+-        tour_set = set(tour)
+-        missing_mandatory = self.mandatory_nodes - tour_set
+-        if missing_mandatory:
+-            return False, f"Mandatory nodes not visited: {missing_mandatory}"
+-
+-        # Check for cycles (no node visited more than once except depot)
+-        visited_counts: Dict[int, int] = {}
+-        for node in tour[1:-1]:  # Exclude depot returns
+-            visited_counts[node] = visited_counts.get(node, 0) + 1
+-            if visited_counts[node] > 1:
+-                return False, f"Node {node} visited {visited_counts[node]} times"
+-
+-        return True, "Valid VRPP tour"
+-
+     def compute_tour_profit(self, tour: List[int]) -> float:
+         """Compute the total profit of a tour.
+ 
+@@ -275,14 +242,3 @@ class VRPPModel:
+         travel_cost = total_distance * self.C
+ 
+         return revenue - travel_cost
+-
+-    def compute_tour_cost(self, tour: List[int]) -> float:
+-        """Compute the total travel distance/cost of a tour.
+-
+-        Args:
+-            tour: Sequence of node IDs.
+-
+-        Returns:
+-            Total distance-based travel cost.
+-        """
+-        return sum(self.cost_matrix[tour[i], tour[i + 1]] for i in range(len(tour) - 1))
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/params.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/params.py
+index 51f65b611..f167ca35b 100644
+--- a/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/params.py
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/params.py
+@@ -29,7 +29,6 @@ class BPCParams:
+         cutting_planes (str): Cut type (rcc, etc).
+         branching_strategy (str): Branching rule (divergence, etc).
+         max_cg_iterations (int): Max CG rounds per node.
+-        max_cut_iterations (int): Max cut rounds per node.
+         max_cuts_per_iteration (int): Max cuts added per round.
+         max_routes_per_pricing (int): Max columns added per pricing call.
+         max_bb_nodes (int): Global node limit.
+@@ -40,7 +39,6 @@ class BPCParams:
+         enable_heuristic_rcc_separation (bool): Whether to enable fractional RCC separation.
+         enable_comb_cuts (bool): Whether to enable heuristic comb inequalities.
+         cut_orthogonality_threshold (float): Cosine similarity ceiling for cut filtering.
+-        use_spatial_partitioning (bool): Enable spatial domain partitioning.
+         enable_strong_branching_heuristic (bool): Use fast divergence-based branching.
+         enable_column_pool_deduplication (bool): Whether to enable column pool deduplication.
+         rc_tolerance (float): Minimum reduced cost to accept a new column.
+@@ -56,18 +54,13 @@ class BPCParams:
+         lr_op_time_limit (float): Time limit for OP solver in LR.
+         lr_pre_pruning_depth_limit (int): Max depth for LR.
+         lr_warm_start_cg (bool): Seed CG with LR result.
+-        knapsack_proc_selection (bool): Process mandatory node selection with knapsack problem.
+         enable_node_visitation_branching (bool): Enable hierarchical node-visitation branching.
+-        enable_dssr (bool): Enable Decremental State-Space Relaxation in pricing.
+-        dssr_max_iters (int): Maximum DSSR refinement iterations per pricing call.
+-        enable_reduced_cost_arc_fixing (bool): Enable reduced-cost arc elimination from pricing graph.
+         route_budget (float): Maximum route cost/distance budget for separation.
+     """
+ 
+     time_limit: float = 60.0
+     profit_aware_operators: bool = False
+     vrpp: bool = True
+-    knapsack_proc_selection: bool = True
+     seed: Optional[int] = None
+     search_strategy: str = "depth_first"
+     # Bug #1 fix: paper §4 uses Lifted Cover Inequalities on saturated arcs as its
+@@ -78,7 +71,6 @@ class BPCParams:
+     cutting_planes: str = "saturated_arc_lci"
+     branching_strategy: str = "divergence"
+     max_cg_iterations: int = 50
+-    max_cut_iterations: int = 5
+     max_cuts_per_iteration: int = 5
+     max_routes_per_pricing: int = 5
+     max_bb_nodes: int = 1000
+@@ -89,7 +81,6 @@ class BPCParams:
+     enable_heuristic_rcc_separation: bool = True
+     enable_comb_cuts: bool = False
+     cut_orthogonality_threshold: float = 0.8
+-    use_spatial_partitioning: bool = False
+     # Disabled by default. The current implementation is a heuristic proxy
+     # that returns the top pre-sorted divergence candidate without solving
+     # any child LP relaxations. When True, it bypasses fleet-size and
+@@ -149,14 +140,11 @@ class BPCParams:
+     Directly resolves the VRPP profit-selection × routing duality by branching
+     on which nodes to visit (Boussier, Feillet, Gendreau 2007; Pessoa et al. 2020)."""
+ 
+-    enable_dssr: bool = True
+     """Enable Decremental State-Space Relaxation in pricing (Righini, Salani 2008).
+     Iteratively adds cycled vertices to ng-memory until returned paths are elementary."""
+ 
+-    dssr_max_iters: int = 8
+     """Maximum DSSR refinement iterations per pricing call."""
+ 
+-    enable_reduced_cost_arc_fixing: bool = True
+     """Enable reduced-cost arc elimination from pricing graph (Irnich et al. 2010).
+     Arcs whose min reduced cost exceeds the LP-incumbent gap are pruned."""
+ 
+diff --git a/logic/test/unit/policies/helpers/test_cutting_planes.py b/logic/test/unit/policies/helpers/test_cutting_planes.py
+index 9ef125cd3..c33749b59 100644
+--- a/logic/test/unit/policies/helpers/test_cutting_planes.py
++++ b/logic/test/unit/policies/helpers/test_cutting_planes.py
+@@ -12,15 +12,11 @@ from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes
+     EdgeCliqueCutEngine,
+     KnapsackCoverEngine,
+     LimitedMemoryRank1CutEngine,
+-    MinCutInequalityEngine,
+-    NodeProfitBoundEngine,
+-    PathEliminationEngine,
+     PhysicalCapacityLCIEngine,
+     RoundedCapacityCutEngine,
+     RoundedMultistarCutEngine,
+     SaturatedArcLCIEngine,
+     SubsetRowCutEngine,
+-    TriangleCliqueCutEngine,
+     create_cutting_plane_engine,
+ )
+ from logic.src.policies.helpers.solvers_and_matheuristics.separation import (
+@@ -264,40 +260,6 @@ def test_rounded_multistar_cut_engine(base_vrpp_model: VRPPModel) -> None:
+         added = engine.separate_and_add_cuts(master, 10)
+         assert added >= 0
+ 
+-def test_min_cut_inequality_engine(base_vrpp_model: VRPPModel) -> None:
+-    engine = MinCutInequalityEngine(base_vrpp_model)
+-    assert engine.get_name() == "min_cut"
+-
+-    master = MagicMock()
+-    master.model = MagicMock()
+-    master.get_node_visitation.return_value = {1: 0.5}
+-
+-    r1 = Route(nodes=[1], cost=1.0, revenue=2.0, load=10.0, node_coverage={1})
+-    master.routes = [r1]
+-
+-    var1 = MagicMock()
+-    var1.X = 0.2
+-    master.lambda_vars = [var1]
+-
+-    # Call with add_min_cut_constraint success
+-    master.add_min_cut_constraint.return_value = True
+-    added = engine.separate_and_add_cuts(master, 10)
+-    assert added == 1
+-
+-def test_triangle_clique_cut_engine(base_vrpp_model: VRPPModel) -> None:
+-    engine = TriangleCliqueCutEngine(base_vrpp_model)
+-    assert engine.get_name() == "triangle_clique"
+-
+-    master = MagicMock()
+-    master.model = MagicMock()
+-    master.get_node_visitation.return_value = {1: 0.6, 2: 0.6, 3: 0.6}
+-
+-    master.add_conflict_cut.return_value = True
+-    master.add_clique_cut.return_value = True
+-
+-    added = engine.separate_and_add_cuts(master, 10)
+-    assert added >= 0
+-
+ def test_limited_memory_rank_1_cut_engine(base_vrpp_model: VRPPModel) -> None:
+     engine = LimitedMemoryRank1CutEngine(base_vrpp_model)
+     assert engine.get_name() == "limited_memory_rank1"
+@@ -317,46 +279,18 @@ def test_limited_memory_rank_1_cut_engine(base_vrpp_model: VRPPModel) -> None:
+     added = engine.separate_and_add_cuts(master, 10)
+     assert added >= 0
+ 
+-def test_node_profit_bound_engine(base_vrpp_model: VRPPModel) -> None:
+-    engine = NodeProfitBoundEngine(base_vrpp_model)
+-    assert engine.get_name() == "node_profit_bound"
+-
+-    master = MagicMock()
+-    master.model = MagicMock()
+-    master.get_node_visitation.return_value = {1: 0.5, 2: 0.5}
+-
+-    master.add_profit_bound_cut.return_value = True
+-    added = engine.separate_and_add_cuts(master, 10)
+-    assert added >= 0
+-
+-def test_path_elimination_engine(base_vrpp_model: VRPPModel) -> None:
+-    engine = PathEliminationEngine(base_vrpp_model)
+-    assert engine.get_name() == "path_elimination"
+-
+-    master = MagicMock()
+-    master.model = MagicMock()
+-    # high-flow arcs
+-    master.get_edge_usage.return_value = {(1, 2): 0.8, (2, 3): 0.8}
+-
+-    master.add_path_elimination_cut.return_value = True
+-    added = engine.separate_and_add_cuts(master, 10)
+-    assert added >= 0
+-
+ def test_create_cutting_plane_engine(base_vrpp_model: VRPPModel) -> None:
+     sep_engine = SeparationEngine(base_vrpp_model)
+ 
+     # Test creation of all valid names
+     for name in ["rcc", "sri", "edge_clique", "fleet_cover", "physical_lci",
+-                 "saturated_arc_lci", "multistar", "cover", "min_cut",
+-                 "triangle_clique", "limited_memory_rank1", "node_profit_bound",
+-                 "path_elimination", "all", "composite"]:
++                 "saturated_arc_lci", "multistar", "cover",
++                 "limited_memory_rank1", "all", "composite"]:
+         engine = create_cutting_plane_engine(name, base_vrpp_model, sep_engine=sep_engine)
+         assert engine is not None
+         assert engine.get_name() in ["rcc", "sri", "edge_clique", "fleet_cover",
+                                     "physical_lci", "saturated_arc_lci", "multistar",
+-                                    "cover", "min_cut", "triangle_clique",
+-                                    "limited_memory_rank1", "node_profit_bound",
+-                                    "path_elimination", "composite"]
++                                    "cover", "limited_memory_rank1", "composite"]
+ 
+     with pytest.raises(ValueError):
+         create_cutting_plane_engine("invalid_name", base_vrpp_model)
+diff --git a/logic/test/unit/policies/helpers/test_separation_engine.py b/logic/test/unit/policies/helpers/test_separation_engine.py
+index 3f19fe660..179962c4c 100644
+--- a/logic/test/unit/policies/helpers/test_separation_engine.py
++++ b/logic/test/unit/policies/helpers/test_separation_engine.py
+@@ -218,53 +218,6 @@ def test_separate_gsec_h2(base_vrpp_model: VRPPModel) -> None:
+     engine._separate_gsec_h2(x_vals, y_vals=None)
+     assert len(engine.pool) >= 0
+ 
+-def test_separate_comb_heuristic(base_vrpp_model: VRPPModel) -> None:
+-    engine = SeparationEngine(base_vrpp_model)
+-    adjacency = {
+-        0: [1, 2],
+-        1: [0, 2, 3],
+-        2: [0, 1, 4],
+-        3: [1, 5],
+-        4: [2, 5],
+-        5: [3, 4]
+-    }
+-    edge_weights = {
+-        (0, 1): 0.5, (1, 0): 0.5,
+-        (0, 2): 0.5, (2, 0): 0.5,
+-        (1, 2): 0.6, (2, 1): 0.6,
+-        (1, 3): 0.7, (3, 1): 0.7,
+-        (2, 4): 0.8, (4, 2): 0.8,
+-        (3, 5): 0.9, (5, 3): 0.9,
+-        (4, 5): 0.9, (5, 4): 0.9,
+-    }
+-
+-    # Test _grow_handle
+-    handle = engine._grow_handle(seed=1, adjacency=adjacency, edge_weights=edge_weights, max_size=4)
+-    assert len(handle) > 0
+-    assert 1 in handle
+-
+-    # Test _find_teeth_for_handle
+-    teeth = engine._find_teeth_for_handle(handle=handle, adjacency=adjacency, edge_weights=edge_weights)
+-    assert isinstance(teeth, list)
+-
+-    # Test _grow_tooth
+-    tooth = engine._grow_tooth(anchor=1, handle={1, 2}, adjacency=adjacency, edge_weights=edge_weights)
+-    assert tooth is None or len(tooth) >= 3
+-
+-    # Test _compute_comb_violation
+-    x_vals = np.ones(15) * 0.5
+-    violation = engine._compute_comb_violation(handle={1, 2}, teeth=[{1, 3, 5}], x_vals=x_vals)
+-    assert isinstance(violation, float)
+-
+-    # Run _separate_comb_heuristic directly
+-    engine._separate_comb_heuristic(x_vals, np.ones(5))
+-
+-    # Test legacy separate interface that calls comb cuts if enabled
+-    engine.USE_COMB_CUTS = True
+-    engine._separate_comb_heuristic(x_vals, np.ones(5))
+-    cuts = engine.separate(x_vals, np.ones(5), iteration=10)
+-    assert isinstance(cuts, list)
+-
+ def test_strengthen_pool_facet_selection(base_vrpp_model: VRPPModel) -> None:
+     engine = SeparationEngine(base_vrpp_model)
+     x_vals = np.ones(15) * 0.5

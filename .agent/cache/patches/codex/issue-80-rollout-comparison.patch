@@ -1,0 +1,431 @@
+diff --git a/logic/src/pipeline/rl/common/base/data.py b/logic/src/pipeline/rl/common/base/data.py
+index c34e4d6c2..f1d4b669e 100644
+--- a/logic/src/pipeline/rl/common/base/data.py
++++ b/logic/src/pipeline/rl/common/base/data.py
+@@ -285,6 +285,10 @@ class DataMixin:
+                     val_data = cast(Any, gen)(batch_size=n_val)
+                     self.val_dataset = TensorDictDataset(val_data)
+                     assert self.val_dataset is not None
++            baseline = getattr(self, "baseline", None)
++            if hasattr(baseline, "configure_comparison"):
++                # Use training graph/distribution, independent of eval_graphs.
++                baseline.configure_comparison(self.env, max(2, n_train), int(_cfg_get(self.cfg, "seed", 0) or 0))
+         else:
+             pass
+ 
+diff --git a/logic/src/pipeline/rl/common/base/module.py b/logic/src/pipeline/rl/common/base/module.py
+index 4825bf7e7..bec8710a8 100644
+--- a/logic/src/pipeline/rl/common/base/module.py
++++ b/logic/src/pipeline/rl/common/base/module.py
+@@ -253,7 +253,7 @@ class RL4COLitModule(DataMixin, OptimizationMixin, StepMixin, pl.LightningModule
+     def on_train_epoch_end(self):
+         """Update baseline and regenerate dataset."""
+         if hasattr(self.baseline, "epoch_callback"):
+-            # For RolloutBaseline, we pass val_dataset for the T-test
++            # RolloutBaseline owns its promotion pool; validation stays reporting-only.
+             self.baseline.epoch_callback(
+                 self.policy,
+                 self.current_epoch,
+diff --git a/logic/src/pipeline/rl/common/baselines/rollout.py b/logic/src/pipeline/rl/common/baselines/rollout.py
+index 014842506..8bcced1f9 100644
+--- a/logic/src/pipeline/rl/common/baselines/rollout.py
++++ b/logic/src/pipeline/rl/common/baselines/rollout.py
+@@ -14,15 +14,17 @@ Example:
+ from __future__ import annotations
+ 
+ import copy
+-from typing import Any, Optional, cast
++import random
++from typing import Any, Dict, Optional, cast
+ 
++import numpy as np
+ import torch
+ from scipy import stats
+ from torch import nn
+ from torch.utils.data import DataLoader, Dataset
+ 
+ from logic.src.constants.routing import DEFAULT_ROLLOUT_BATCH_SIZE
+-from logic.src.data.datasets import BaselineDataset, tensordict_collate_fn
++from logic.src.data.datasets import BaselineDataset, TensorDictDataset, tensordict_collate_fn
+ from logic.src.tracking.logging.pylogger import get_pylogger
+ from logic.src.utils.data.rl_utils import safe_td_copy
+ from logic.src.utils.functions.rl import ensure_tensordict
+@@ -68,6 +70,13 @@ class RolloutBaseline(Baseline):
+         self.update_every = update_every
+         self.bl_alpha = bl_alpha
+ 
++        self.comparison_dataset = None
++        # The environment is runtime state, not a trainable child module.
++        object.__setattr__(self, "comparison_env", None)
++        self.comparison_seed = 0
++        self.comparison_generation = 0
++        self.comparison_size = 0
++        self._comparison_restored = False
+         self.baseline_policy = None
+         if policy is not None:
+             self.setup(policy)
+@@ -84,6 +93,66 @@ class RolloutBaseline(Baseline):
+             for param in self.baseline_policy.parameters():
+                 param.requires_grad = False
+ 
++    def configure_comparison(self, env: Any, sample_size: int, seed: int = 0) -> None:
++        """Create a private pool using the training environment's distribution.
++
++        Reporting validation graphs and their datasets are never used for
++        promotion. The pool size stays fixed across accepted replacements.
++        """
++        if sample_size < 2:
++            raise ValueError("Rollout comparison requires at least two instances")
++        if self.comparison_env is not None:
++            # A second Trainer.fit must not reset a pool retained after rejection
++            # or generated after a promotion. Construct a new baseline for a
++            # different training distribution, rather than silently reusing it.
++            return
++        object.__setattr__(self, "comparison_env", copy.deepcopy(env))
++        if not self._comparison_restored:
++            self.comparison_size = sample_size
++            self.comparison_seed = int(seed)
++            self.comparison_generation = 0
++        self.comparison_dataset = self._generate_comparison(self.comparison_generation)
++
++    def get_extra_state(self) -> Dict[str, int]:
++        """Save the deterministic pool identity without storing all instances."""
++        return {"seed": self.comparison_seed, "generation": self.comparison_generation, "size": self.comparison_size}
++
++    def set_extra_state(self, state: Dict[str, int]) -> None:
++        """Recreate the saved pool lazily after the environment is configured."""
++        if state.get("size", 0) >= 2:
++            self.comparison_seed = state["seed"]
++            self.comparison_generation = state["generation"]
++            self.comparison_size = state["size"]
++            self.comparison_dataset = None
++            self._comparison_restored = True
++
++    def _load_from_state_dict(self, state_dict, prefix, *args, **kwargs):
++        # Checkpoints predating the private pool contain only policy weights.
++        state_dict.setdefault(prefix + "_extra_state", {})
++        super()._load_from_state_dict(state_dict, prefix, *args, **kwargs)
++
++    def _generate_comparison(self, generation: int) -> Dataset:
++        """Generate reproducibly without consuming the training RNG streams."""
++        generator = copy.deepcopy(self.comparison_env.generator)
++        seed = self.comparison_seed + generation
++        if hasattr(generator, "rng"):
++            generator.rng = np.random.default_rng(seed)
++        if isinstance(getattr(generator, "generator", None), torch.Generator):
++            device = getattr(generator.generator, "device", "cpu")
++            generator.generator = torch.Generator(device=device).manual_seed(seed)
++        # Some generators use global RNGs in addition to their private streams.
++        py_state, np_state = random.getstate(), np.random.get_state()
++        try:
++            with torch.random.fork_rng():
++                torch.manual_seed(seed)
++                random.seed(seed)
++                np.random.seed(seed % (2**32))
++                data = generator(batch_size=self.comparison_size)
++        finally:
++            random.setstate(py_state)
++            np.random.set_state(np_state)
++        return TensorDictDataset(data)
++
+     def train(self, mode: bool = True) -> RolloutBaseline:
+         """Override train to keep baseline_policy in eval mode.
+ 
+@@ -292,26 +361,45 @@ class RolloutBaseline(Baseline):
+             val_dataset: Dataset for evaluation.
+             env: Environment instance.
+         """
+-        if (epoch + 1) % self.update_every == 0:
+-            if (
+-                val_dataset is not None
+-                and len(val_dataset) > 0
+-                and self.baseline_policy is not None
+-                and env is not None
+-            ):
+-                # Evaluate candidate
+-                candidate_vals = self._rollout(policy, val_dataset, env)
+-                candidate_mean = candidate_vals.mean().item()
+-
+-                # Evaluate baseline
+-                baseline_vals = self._rollout(self.baseline_policy, val_dataset, env)
+-                baseline_mean = baseline_vals.mean().item()
+-
+-                # T-test for significance
+-                t_stat, p_val = stats.ttest_rel(candidate_vals.cpu().numpy(), baseline_vals.cpu().numpy())
+-
+-                if candidate_mean > baseline_mean and p_val / 2 < self.bl_alpha:
+-                    print(f"Update baseline: {baseline_mean:.4f} -> {candidate_mean:.4f} (p={p_val / 2:.4f})")
+-                    self.setup(policy)
+-            else:
+-                self.setup(policy)
++        # val_dataset/env remain accepted for API compatibility; reporting
++        # validation must never become the promotion pool implicitly.
++        if (epoch + 1) % self.update_every != 0:
++            return
++        if self.comparison_dataset is None and self.comparison_env is not None and self._comparison_restored:
++            self.comparison_dataset = self._generate_comparison(self.comparison_generation)
++        if self.comparison_dataset is None or self.comparison_env is None or self.baseline_policy is None:
++            logger.warning("Skipping rollout promotion: comparison pool or baseline is not initialized")
++            return
++        if hasattr(self.comparison_env, "to"):
++            object.__setattr__(self, "comparison_env", self.comparison_env.to(next(policy.parameters()).device))
++        was_training = policy.training
++        strategies = {key: getattr(policy, key) for key in ("strategy", "_strategy") if hasattr(policy, key)}
++        try:
++            candidate_vals = self._rollout(policy, self.comparison_dataset, self.comparison_env).reshape(-1)
++            baseline_vals = self._rollout(self.baseline_policy, self.comparison_dataset, self.comparison_env).reshape(
++                -1
++            )
++        finally:
++            policy.train(was_training)
++            for key, value in strategies.items():
++                setattr(policy, key, value)
++        if (
++            candidate_vals.shape != baseline_vals.shape
++            or candidate_vals.numel() != self.comparison_size
++            or not torch.isfinite(candidate_vals).all()
++            or not torch.isfinite(baseline_vals).all()
++        ):
++            logger.warning("Skipping rollout promotion: invalid paired rewards")
++            return
++        candidate_mean, baseline_mean = candidate_vals.mean().item(), baseline_vals.mean().item()
++        if candidate_mean <= baseline_mean:
++            return
++        _, p_val = stats.ttest_rel(candidate_vals.cpu().numpy(), baseline_vals.cpu().numpy())
++        if np.isfinite(p_val) and p_val / 2 < self.bl_alpha:
++            # Prepare first: failed generation must not partially promote policy.
++            next_generation = self.comparison_generation + 1
++            dataset = self._generate_comparison(next_generation)
++            self.setup(policy)
++            self.comparison_dataset = dataset
++            self.comparison_generation = next_generation
++            logger.info(f"Update baseline: {baseline_mean:.4f} -> {candidate_mean:.4f} (p={p_val / 2:.4f})")
+diff --git a/logic/src/pipeline/rl/common/baselines/warmup.py b/logic/src/pipeline/rl/common/baselines/warmup.py
+index 2b932a90c..aa01540db 100644
+--- a/logic/src/pipeline/rl/common/baselines/warmup.py
++++ b/logic/src/pipeline/rl/common/baselines/warmup.py
+@@ -63,6 +63,11 @@ class WarmupBaseline(Baseline):
+         self.warmup_baseline = ExponentialBaseline(beta=beta, exp_beta=exp_beta)
+         self.alpha = 0.0
+ 
++    def configure_comparison(self, env: Any, sample_size: int, seed: int = 0) -> None:
++        """Forward private comparison setup to a rollout target, if present."""
++        if hasattr(self.baseline, "configure_comparison"):
++            self.baseline.configure_comparison(env, sample_size, seed)
++
+     def eval(self, td: TensorDict, reward: torch.Tensor, env: Optional[Any] = None) -> torch.Tensor:  # type: ignore[override]
+         """
+         Compute blended baseline value based on warmup progress.
+diff --git a/logic/test/unit/pipeline/rl/common/test_baselines.py b/logic/test/unit/pipeline/rl/common/test_baselines.py
+index ad34aa3bd..a86dc288a 100644
+--- a/logic/test/unit/pipeline/rl/common/test_baselines.py
++++ b/logic/test/unit/pipeline/rl/common/test_baselines.py
+@@ -97,6 +97,13 @@ class TestBaselines:
+             ],
+         )
+ 
++        # Promotion uses a private generated pool, never reporting validation.
++        from types import SimpleNamespace
++
++        comparison_env = SimpleNamespace(
++            generator=lambda batch_size: TensorDict({"x": torch.zeros(batch_size, 1)}, [batch_size])
++        )
++        bl.configure_comparison(comparison_env, 3, seed=7)
+         mock_setup = mocker.patch.object(bl, "setup")
+ 
+         val_dataset = [1, 2, 3]  # Dummy
+diff --git a/logic/test/unit/pipeline/rl/common/test_rollout_comparison.py b/logic/test/unit/pipeline/rl/common/test_rollout_comparison.py
+new file mode 100644
+index 000000000..1a647390d
+--- /dev/null
++++ b/logic/test/unit/pipeline/rl/common/test_rollout_comparison.py
+@@ -0,0 +1,173 @@
++"""Promotion lifecycle regressions: validation is never a training decision pool."""
++
++from types import SimpleNamespace
++from unittest.mock import patch
++
++import numpy as np
++import pytest
++import torch
++from logic.src.pipeline.rl.common.baselines import RolloutBaseline, WarmupBaseline
++from logic.src.pipeline.rl.core.reinforce import REINFORCE
++from omegaconf import OmegaConf
++from tensordict import TensorDict
++
++pytestmark = [pytest.mark.unit, pytest.mark.fast]
++
++
++def generate(batch_size):
++    return TensorDict({"x": torch.rand(batch_size, 1)}, [batch_size])
++
++
++def make_baseline():
++    policy = torch.nn.Linear(1, 1)
++    baseline = RolloutBaseline(policy)
++    env = SimpleNamespace(generator=generate, batch_size=[2], name="vrpp")
++    baseline.configure_comparison(env, 3, seed=123)
++    return policy, baseline, env
++
++
++@pytest.mark.parametrize(
++    "delta,accepted",
++    [
++        (torch.tensor([1.0, 1.0, 1.3]), True),
++        (torch.tensor([-1.0, -1.0, -1.3]), False),
++        (torch.tensor([0.1, -0.1, 0.0]), False),
++    ],
++)
++def test_promotion_refresh_only_after_significant_improvement(delta, accepted):
++    policy, baseline, env = make_baseline()
++    previous = baseline.comparison_dataset
++    frozen = baseline.baseline_policy
++    reporting = [7, 8, 9]
++    rewards = torch.tensor([1.1, 1.0, 1.2])
++    with patch.object(baseline, "_rollout", side_effect=[rewards + delta, rewards]) as rollout:
++        baseline.epoch_callback(policy, 0, reporting, env)
++    assert (baseline.comparison_dataset is not previous) == accepted
++    assert (baseline.baseline_policy is not frozen) == accepted
++    assert baseline.comparison_generation == int(accepted)
++    for call in rollout.call_args_list:
++        assert call.args[1] is previous
++        assert call.args[2] is baseline.comparison_env
++        assert call.args[2] is not env
++    assert reporting == [7, 8, 9]
++    assert policy.training
++
++
++def test_no_comparison_does_not_replace_frozen_policy():
++    policy = torch.nn.Linear(1, 1)
++    baseline = RolloutBaseline(policy)
++    frozen = baseline.baseline_policy
++    with torch.no_grad():
++        policy.weight.add_(100)
++    baseline.epoch_callback(policy, 0)
++    assert baseline.baseline_policy is frozen
++    assert not torch.equal(frozen.weight, policy.weight)
++
++
++def test_seeded_refresh_and_global_rng_isolation():
++    state = torch.random.get_rng_state().clone()
++    numpy_state = np.random.get_state()
++    policy = torch.nn.Linear(1, 1)
++    # Capture after policy initialization consumes its own random values.
++    state = torch.random.get_rng_state().clone()
++    env = SimpleNamespace(generator=generate)
++    a, b = RolloutBaseline(policy), RolloutBaseline(policy)
++    a.configure_comparison(env, 3, 123)
++    b.configure_comparison(env, 3, 123)
++    assert torch.equal(a.comparison_dataset.data["x"], b.comparison_dataset.data["x"])
++    assert torch.equal(a._generate_comparison(1).data["x"], b._generate_comparison(1).data["x"])
++    assert not torch.equal(a.comparison_dataset.data["x"], a._generate_comparison(1).data["x"])
++    assert torch.equal(state, torch.random.get_rng_state())
++    assert np.array_equal(numpy_state[1], np.random.get_state()[1])
++
++
++@pytest.mark.parametrize("warmup", [0, 2])
++def test_multigraph_reporting_is_separate_and_worse_candidate_rejected(warmup):
++    env = SimpleNamespace(name="vrpp", generator=generate, batch_size=[2])
++    reporting_env = SimpleNamespace(name="other", generator=generate, batch_size=[2])
++    cfg = OmegaConf.create(
++        {
++            "seed": 7,
++            "task": "train",
++            "train": {"env": {"graph": {"n_samples": 3}, "eval_graphs": [{"num_loc": 20, "n_samples": 5}]}},
++        }
++    )
++    model = REINFORCE(env=env, policy=torch.nn.Linear(1, 1), baseline="rollout", cfg=cfg, bl_warmup_epochs=warmup)
++    with patch(
++        "logic.src.pipeline.rl.common.base.data._create_eval_env_and_gen", return_value=(reporting_env, generate)
++    ):
++        model.setup("fit")
++    baseline = model.baseline.baseline if isinstance(model.baseline, WarmupBaseline) else model.baseline
++    assert model.val_dataset is None
++    reporting = model.val_datasets[0]
++    assert len(reporting) == 5 and len(baseline.comparison_dataset) == 3
++    assert baseline.comparison_env.name == "vrpp"
++    frozen = baseline.baseline_policy
++    with patch.object(baseline, "_rollout", side_effect=[torch.zeros(3), torch.ones(3)]):
++        model.on_train_epoch_end()
++    assert baseline.baseline_policy is frozen
++    assert model.val_datasets[0] is reporting
++
++
++def test_invalid_rewards_and_failed_generation_do_not_promote():
++    policy, baseline, _ = make_baseline()
++    frozen, dataset = baseline.baseline_policy, baseline.comparison_dataset
++    with patch.object(baseline, "_rollout", side_effect=[torch.tensor([float("nan"), 2.0, 3.0]), torch.ones(3)]):
++        baseline.epoch_callback(policy, 0)
++    assert baseline.baseline_policy is frozen
++    with (
++        patch.object(baseline, "_rollout", side_effect=[torch.tensor([2.1, 2.0, 2.5]), torch.tensor([1.1, 1.0, 1.2])]),
++        patch.object(baseline, "_generate_comparison", side_effect=RuntimeError("generator failed")),
++        pytest.raises(RuntimeError, match="generator failed"),
++    ):
++        baseline.epoch_callback(policy, 0)
++    assert baseline.baseline_policy is frozen and baseline.comparison_dataset is dataset
++
++
++@pytest.mark.parametrize("load_before_setup", [False, True])
++def test_checkpoint_restores_comparison_identity(load_before_setup):
++    policy, original, env = make_baseline()
++    original.comparison_generation = 3
++    original.comparison_dataset = original._generate_comparison(3)
++    restored = RolloutBaseline(policy)
++    if load_before_setup:
++        restored.load_state_dict(original.state_dict())
++        restored.configure_comparison(env, 7, seed=99)
++    else:
++        restored.configure_comparison(env, 7, seed=99)
++        restored.load_state_dict(original.state_dict())
++    with patch.object(restored, "_rollout", side_effect=[torch.zeros(3), torch.ones(3)]):
++        restored.epoch_callback(policy, 0)
++    assert restored.comparison_generation == 3
++    assert torch.equal(original.comparison_dataset.data["x"], restored.comparison_dataset.data["x"])
++    old_checkpoint = {k: v for k, v in original.state_dict().items() if k != "_extra_state"}
++    restored.load_state_dict(old_checkpoint, strict=True)
++
++
++@pytest.mark.parametrize("promote", [False, True])
++def test_repeated_setup_keeps_pool_identity(promote):
++    policy, baseline, env = make_baseline()
++    candidate = torch.tensor([2.1, 2.0, 2.5]) if promote else torch.zeros(3)
++    with patch.object(baseline, "_rollout", side_effect=[candidate, torch.tensor([1.1, 1.0, 1.2])]):
++        baseline.epoch_callback(policy, 0)
++    dataset = baseline.comparison_dataset
++    generation = baseline.comparison_generation
++    baseline.configure_comparison(env, 3, seed=123)
++    assert baseline.comparison_dataset is dataset
++    assert baseline.comparison_generation == generation
++
++
++def test_real_vrpp_pool_and_greedy_rollout():
++    from logic.src.envs.routing.vrpp import VRPPEnv
++    from logic.src.models.core.attention_model.policy import AttentionModelPolicy
++
++    env = VRPPEnv(num_loc=5, batch_size=2, device="cpu")
++    env.NAME = env.name
++    policy = AttentionModelPolicy(env_name="vrpp", embed_dim=16, hidden_dim=32, n_encode_layers=1, n_heads=2)
++    baseline = RolloutBaseline(policy)
++    baseline.configure_comparison(env, 3, seed=123)
++    data = baseline.comparison_dataset.data.clone()
++    rewards = baseline._rollout(baseline.baseline_policy, baseline.comparison_dataset, baseline.comparison_env)
++    assert rewards.shape == (3,)
++    assert torch.isfinite(rewards).all()
++    assert torch.equal(data["locs"], baseline.comparison_dataset.data["locs"])
+diff --git a/logic/test/unit/pipeline/test_lit_module.py b/logic/test/unit/pipeline/test_lit_module.py
+index b2a917418..5a3d111b6 100644
+--- a/logic/test/unit/pipeline/test_lit_module.py
++++ b/logic/test/unit/pipeline/test_lit_module.py
+@@ -88,8 +88,9 @@ def test_lit_module_setup_fit(lit_setup):
+     mock_data_train = TensorDict({"loc": torch.randn(4, 5, 2)}, batch_size=[4])
+     mock_data_val = TensorDict({"loc": torch.randn(2, 5, 2)}, batch_size=[2])
+ 
+-    # Use side_effect to return different data for train and val calls
+-    lit_setup.env.generator.side_effect = [mock_data_train, mock_data_val]
++    # Training, fixed reporting validation, then the independent rollout pool.
++    mock_data_comparison = TensorDict({"loc": torch.randn(10, 5, 2)}, batch_size=[10])
++    lit_setup.env.generator.side_effect = [mock_data_train, mock_data_val, mock_data_comparison]
+ 
+     lit_setup.setup("fit")
+     assert lit_setup.train_dataset is not None

@@ -1,0 +1,225 @@
+diff --git a/logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py b/logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py
+new file mode 100644
+index 000000000..f5121a51b
+--- /dev/null
++++ b/logic/test/unit/policies/mandatory_selection/test_scalar_vector_selector_parity.py
+@@ -0,0 +1,122 @@
++"""M-cursor-03: scalar 1-based IDs equal the vectorized mask on the same fills."""
++
++from typing import List, Optional
++
++import numpy as np
++import pytest
++import torch
++from logic.src.interfaces.context.selection_context import SelectionContext
++from logic.src.policies.mandatory_selection.selection_last_minute import LastMinuteSelection
++from logic.src.policies.mandatory_selection.selection_lookahead import LookaheadSelection
++from logic.src.policies.mandatory_selection.selection_service_level import ServiceLevelSelection
++from logic.src.policies.vector.selection.last_minute import LastMinuteSelector
++from logic.src.policies.vector.selection.lookahead import LookaheadSelector
++from logic.src.policies.vector.selection.service_level import ServiceLevelSelector
++
++pytestmark = [pytest.mark.unit, pytest.mark.fast]
++
++
++def _percent_to_vector(values: List[float]) -> torch.Tensor:
++    """Customer percents → fraction fills with a depot column prepended."""
++    return torch.tensor([[0.0] + [v / 100.0 for v in values]], dtype=torch.float32)
++
++
++def _ids_from_mask(mask: torch.Tensor) -> List[int]:
++    """Vectorized [B, N] mask (index 0 = depot) → 1-based customer IDs."""
++    return (mask[0, 1:].nonzero(as_tuple=True)[0] + 1).tolist()
++
++
++def _scalar_context(
++    fills: List[float],
++    threshold: float = 0.0,
++    rates: Optional[List[float]] = None,
++    stds: Optional[List[float]] = None,
++    horizon_days: int = 1,
++    current_collection_day: int = 0,
++) -> SelectionContext:
++    n = len(fills)
++    return SelectionContext(
++        bin_ids=np.arange(n),
++        current_fill=np.array(fills, dtype=np.float64),
++        accumulation_rates=None if rates is None else np.array(rates, dtype=np.float64),
++        std_deviations=None if stds is None else np.array(stds, dtype=np.float64),
++        threshold=threshold,
++        horizon_days=horizon_days,
++        current_collection_day=current_collection_day,
++    )
++
++
++def test_last_minute_scalar_ids_match_vectorized_mask():
++    fills = [50.0, 70.0, 95.0]
++    threshold = 70.0
++    scalar_ids, _ = LastMinuteSelection().select_bins(_scalar_context(fills, threshold=threshold))
++    mask = LastMinuteSelector(threshold=threshold).select(_percent_to_vector(fills))
++    assert scalar_ids == [2, 3]
++    assert _ids_from_mask(mask) == scalar_ids
++    assert mask[0, 0].item() is False
++
++
++def test_service_level_scalar_ids_match_vectorized_mask():
++    fills = [95.0, 50.0, 80.0]
++    rates = [5.0, 5.0, 30.0]
++    stds = [1.0, 1.0, 1.0]
++    z = 0.84
++    horizon = 1
++    ctx = _scalar_context(fills, threshold=z, rates=rates, stds=stds, horizon_days=horizon)
++    scalar_ids, _ = ServiceLevelSelection().select_bins(ctx)
++    mask = ServiceLevelSelector(confidence_factor=z, horizon_days=horizon).select(
++        _percent_to_vector(fills),
++        accumulation_rates=_percent_to_vector(rates),
++        std_deviations=_percent_to_vector(stds),
++    )
++    assert scalar_ids == _ids_from_mask(mask)
++    assert 1 in scalar_ids  # 95 + 5 + 0.84 ≥ 100
++    assert 2 not in scalar_ids
++    assert 3 in scalar_ids  # 80 + 30 + 0.84 ≥ 100
++    assert mask[0, 0].item() is False
++
++
++def test_service_level_horizon_two_matches_when_both_are_set():
++    fills = [70.0, 40.0]
++    rates = [10.0, 10.0]
++    stds = [0.0, 0.0]
++    z = 0.84
++    ctx = _scalar_context(fills, threshold=z, rates=rates, stds=stds, horizon_days=2)
++    scalar_ids, _ = ServiceLevelSelection().select_bins(ctx)
++    mask = ServiceLevelSelector(confidence_factor=z, horizon_days=2).select(
++        _percent_to_vector(fills),
++        accumulation_rates=_percent_to_vector(rates),
++        std_deviations=_percent_to_vector(stds),
++    )
++    # 70 + 2*10 = 90 < 100; 40 + 2*10 = 60 < 100 → empty
++    assert scalar_ids == []
++    assert _ids_from_mask(mask) == []
++
++
++def test_lookahead_seed_and_bundle_match():
++    # Paper witness: fills (80, 40, 95), rates (25, 20, 10) → seed {1,3}, bundle {2}.
++    fills = [80.0, 40.0, 95.0]
++    rates = [25.0, 20.0, 10.0]
++    ctx = _scalar_context(fills, rates=rates, current_collection_day=0)
++    scalar_ids, _ = LookaheadSelection().select_bins(ctx)
++    mask = LookaheadSelector(current_collection_day=0).select(
++        _percent_to_vector(fills),
++        accumulation_rates=_percent_to_vector(rates),
++        current_collection_day=0,
++    )
++    assert set(scalar_ids) == {1, 2, 3}
++    assert set(_ids_from_mask(mask)) == set(scalar_ids)
++    assert mask[0, 0].item() is False
++
++
++def test_lookahead_empty_seed_is_empty_on_both_sides():
++    fills = [10.0, 20.0]
++    rates = [5.0, 8.0]
++    ctx = _scalar_context(fills, rates=rates)
++    scalar_ids, _ = LookaheadSelection().select_bins(ctx)
++    mask = LookaheadSelector().select(
++        _percent_to_vector(fills),
++        accumulation_rates=_percent_to_vector(rates),
++    )
++    assert scalar_ids == []
++    assert _ids_from_mask(mask) == []
+diff --git a/logic/test/unit/policies/test_reward_profit_parity.py b/logic/test/unit/policies/test_reward_profit_parity.py
+new file mode 100644
+index 000000000..187495550
+--- /dev/null
++++ b/logic/test/unit/policies/test_reward_profit_parity.py
+@@ -0,0 +1,91 @@
++"""M-cursor-02: lock the three profit formulas and the conversion between them.
++
++Training ``VRPP.get_costs``, the simulator ``Bins.collect`` profit, and the
++classical-solver ``revenue_scaled`` helper use three unit systems. Merging
++them would rescale RL rewards and crosses other lanes' files; this test
++records the identities so a later merge cannot drift silently.
++"""
++
++import pytest
++import torch
++from logic.src.constants.tasks import COST_KM, REVENUE_KG
++from logic.src.envs.tasks.vrpp import VRPP
++from logic.src.pipeline.simulations.repository.base import SimulationRepository
++
++pytestmark = [pytest.mark.unit, pytest.mark.fast]
++
++# Plastic / Rio Maior, matching the paper's archived logs.
++_PLASTIC_R = 0.65 * 898 / 1000  # 0.5837 €/kg
++_C = 1.0  # €/km
++_VOLUME = 2.5
++_DENSITY = 19.0
++_CAP_KG = _VOLUME * _DENSITY  # 47.5 kg at 100 % fill
++
++
++def _sim_profit(fill_percent, km, revenue_kg=_PLASTIC_R, volume=_VOLUME, density=_DENSITY, cost_km=_C):
++    kg = (fill_percent / 100.0) * volume * density
++    return kg * revenue_kg - km * cost_km
++
++
++def _policy_scaled_profit(fill_percent, km, revenue_kg=_PLASTIC_R, volume=_VOLUME, density=_DENSITY, cost_km=_C):
++    # base_routing_policy: R_scaled = revenue_kg * density * volume / 100  (€ per 1 % fill)
++    revenue_scaled = revenue_kg * (density * volume / 100.0)
++    return fill_percent * revenue_scaled - km * cost_km
++
++
++def test_area_params_match_the_paper_plastic_coefficients():
++    _q, revenue, density, expenses, volume = SimulationRepository.get_area_params("riomaior", "plastic")
++    assert revenue == pytest.approx(_PLASTIC_R)
++    assert density == pytest.approx(_DENSITY)
++    assert expenses == pytest.approx(_C)
++    assert volume == pytest.approx(_VOLUME)
++
++
++def test_simulator_and_policy_scaled_profit_agree():
++    """The 190 kg / 96.167 km archived day: profit = 14.736."""
++    fill_percent = 190.0 / _CAP_KG * 100.0  # mass as equivalent fill of one 47.5 kg bin
++    km = 96.167
++    sim = _sim_profit(fill_percent, km)
++    scaled = _policy_scaled_profit(fill_percent, km)
++    assert sim == pytest.approx(0.5837 * 190.0 - 96.167, abs=1e-3)
++    assert sim == pytest.approx(14.736, abs=1e-3)
++    assert scaled == pytest.approx(sim)
++
++
++def test_training_get_costs_is_the_legacy_unit_proxy():
++    """VRPP.get_costs uses COST_KM=REVENUE_KG=1.0 on fraction waste, not €/kg."""
++    assert COST_KM == 1.0
++    assert REVENUE_KG == 1.0
++    dataset = {
++        "depot": torch.tensor([[0.0, 0.0]]),
++        "loc": torch.tensor([[[1.0, 0.0]]]),
++        "waste": torch.tensor([[1.0]]),  # full bin as a fraction (typical training)
++        "cost_km": COST_KM,
++        "revenue_kg": REVENUE_KG,
++    }
++    pi = torch.tensor([[0, 1, 0]])
++    neg_profit, cost_dict, _ = VRPP.get_costs(dataset, pi, cw_dict=None)
++    # Euclidean length 2.0; waste 1.0 → neg_profit = 2*1 - 1*1 = 1.0
++    assert cost_dict["waste"].item() == pytest.approx(1.0)
++    assert cost_dict["length"].item() == pytest.approx(2.0)
++    assert neg_profit.item() == pytest.approx(1.0)
++
++
++def test_training_proxy_does_not_equal_simulator_profit_on_the_same_numbers():
++    """Same 1.0 fraction-full bin, 2 km: sim uses R=0.5837 and 47.5 kg, training does not."""
++    km = 2.0
++    waste_frac = 1.0
++    training_neg = km * COST_KM - waste_frac * REVENUE_KG
++    sim = _sim_profit(100.0, km)
++    assert training_neg == pytest.approx(1.0)
++    assert sim == pytest.approx(_CAP_KG * _PLASTIC_R - km * _C)
++    assert abs(sim - (-training_neg)) > 1.0  # magnitudes are not interchangeable
++
++
++def test_conversion_identity_from_fraction_waste_to_sim_profit():
++    """kg = waste_frac * volume * density recovers the simulator formula."""
++    waste_frac = 0.80
++    km = 10.0
++    kg = waste_frac * _VOLUME * _DENSITY
++    converted = kg * _PLASTIC_R - km * _C
++    assert converted == pytest.approx(_sim_profit(80.0, km))

@@ -1,0 +1,88 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.19, pytest-9.0.3, pluggy-1.6.0
+rootdir: /tmp/wsr-codex-integration-20260928
+configfile: pyproject.toml
+plugins: anyio-4.13.0, hydra-core-1.3.2, hypothesis-6.152.1, mock-3.15.1, cov-7.1.0
+collected 45 items
+
+logic/test/unit/pipeline/test_lit_module.py::test_lit_module_init PASSED [  2%]
+logic/test/unit/pipeline/test_lit_module.py::test_lit_module_save_weights 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.module: Saved sidecar args.json to /tmp/pytest-of-pkhunter/pytest-53/test_lit_module_save_weights0/args.json
+PASSED                                                                   [  4%]
+logic/test/unit/pipeline/test_lit_module.py::test_lit_module_configure_optimizers PASSED [  6%]
+logic/test/unit/pipeline/test_lit_module.py::test_lit_module_configure_schedulers PASSED [  8%]
+logic/test/unit/pipeline/test_lit_module.py::test_lit_module_setup_fit 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating training dataset (10 instances) on CPU...
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating validation dataset (512 instances) on CPU...
+PASSED                                                                   [ 11%]
+logic/test/unit/pipeline/rl/test_lit_module.py::TestRL4COLitModule::test_init PASSED [ 13%]
+logic/test/unit/pipeline/rl/test_lit_module.py::TestRL4COLitModule::test_shared_step PASSED [ 15%]
+logic/test/unit/pipeline/rl/test_lit_module.py::TestRL4COLitModule::test_configure_optimizers PASSED [ 17%]
+logic/test/unit/pipeline/rl/test_lit_module.py::TestRL4COLitModule::test_setup_fit 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating training dataset (10 instances) on CPU...
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating validation dataset (512 instances) on CPU...
+PASSED                                                                   [ 20%]
+logic/test/unit/pipeline/rl/test_lit_module.py::TestRL4COLitModule::test_dataloaders PASSED [ 22%]
+logic/test/unit/pipeline/rl/test_reinforce_new.py::TestREINFORCE::test_init PASSED [ 24%]
+logic/test/unit/pipeline/rl/test_reinforce_new.py::TestREINFORCE::test_calculate_loss_no_baseline PASSED [ 26%]
+logic/test/unit/pipeline/rl/test_reinforce_new.py::TestREINFORCE::test_calculate_loss_with_entropy PASSED [ 28%]
+logic/test/unit/pipeline/rl/test_reinforce_new.py::TestREINFORCE::test_calculate_loss_with_baseline_val PASSED [ 31%]
+logic/test/unit/pipeline/rl/test_reinforce_new.py::TestREINFORCE::test_on_before_optimizer_step PASSED [ 33%]
+logic/test/unit/pipeline/rl/test_reinforce_new.py::TestREINFORCE::test_on_before_optimizer_step_no_clip PASSED [ 35%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_promotion_refresh_only_after_significant_improvement[delta0-True] 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.baselines.rollout: Update baseline: 1.1000 -> 2.2000 (p=0.0041)
+PASSED                                                                   [ 37%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_promotion_refresh_only_after_significant_improvement[delta1-False] PASSED [ 40%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_promotion_refresh_only_after_significant_improvement[delta2-False] PASSED [ 42%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_no_comparison_does_not_replace_frozen_policy 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [ WARNING] logic.src.pipeline.rl.common.baselines.rollout: Skipping rollout promotion: comparison pool or baseline is not initialized
+PASSED                                                                   [ 44%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_seeded_refresh_and_global_rng_isolation PASSED [ 46%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_multigraph_reporting_is_separate_and_worse_candidate_rejected[0] 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating training dataset (3 instances) on CPU...
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating eval dataset (5 instances, 20 nodes) on CPU...
+PASSED                                                                   [ 48%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_multigraph_reporting_is_separate_and_worse_candidate_rejected[2] 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating training dataset (3 instances) on CPU...
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.base.data: Generating eval dataset (5 instances, 20 nodes) on CPU...
+PASSED                                                                   [ 51%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_invalid_rewards_and_failed_generation_do_not_promote 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [ WARNING] logic.src.pipeline.rl.common.baselines.rollout: Skipping rollout promotion: invalid paired rewards
+PASSED                                                                   [ 53%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_checkpoint_restores_comparison_identity[False] PASSED [ 55%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_checkpoint_restores_comparison_identity[True] PASSED [ 57%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_repeated_setup_keeps_pool_identity[False] PASSED [ 60%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_repeated_setup_keeps_pool_identity[True] 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.baselines.rollout: Update baseline: 1.1000 -> 2.2000 (p=0.0041)
+PASSED                                                                   [ 62%]
+logic/test/unit/pipeline/rl/common/test_rollout_comparison.py::test_real_vrpp_pool_and_greedy_rollout PASSED [ 64%]
+logic/test/unit/pipeline/rl/common/test_rollout_invocation.py::test_batch_dataset_parity_with_partial_last_batch[ModernPolicy] PASSED [ 66%]
+logic/test/unit/pipeline/rl/common/test_rollout_invocation.py::test_batch_dataset_parity_with_partial_last_batch[LegacyPolicy] PASSED [ 68%]
+logic/test/unit/pipeline/rl/common/test_rollout_invocation.py::test_modern_requires_environment_but_legacy_batch_does_not PASSED [ 71%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_no_baseline PASSED [ 73%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_exponential_baseline PASSED [ 75%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_rollout_baseline_init PASSED [ 77%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_rollout_baseline_eval PASSED [ 80%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_rollout_baseline_callback 
+-------------------------------- live log call ---------------------------------
+2026-09-28 17:27:47 [    INFO] logic.src.pipeline.rl.common.baselines.rollout: Update baseline: 1.1000 -> 2.2000 (p=0.0041)
+PASSED                                                                   [ 82%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_critic_baseline PASSED [ 84%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_warmup_baseline PASSED [ 86%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_pomo_baseline PASSED [ 88%]
+logic/test/unit/pipeline/rl/common/test_baselines.py::TestBaselines::test_get_baseline PASSED [ 91%]
+logic/test/unit/models/test_baselines_expanded.py::test_exponential_baseline_updates PASSED [ 93%]
+logic/test/unit/models/test_baselines_expanded.py::test_rollout_baseline_setup PASSED [ 95%]
+logic/test/unit/models/test_baselines_expanded.py::test_warmup_baseline_transition PASSED [ 97%]
+logic/test/unit/models/test_baselines_expanded.py::test_get_baseline_factory PASSED [100%]
+
+============================== 45 passed in 0.44s ==============================

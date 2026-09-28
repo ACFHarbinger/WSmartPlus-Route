@@ -1,0 +1,2120 @@
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/lns.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/lns.py
+index 78f70cac7..e62fa1d64 100644
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/lns.py
++++ b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/lns.py
+@@ -26,7 +26,11 @@ import numpy as np
+ 
+ from logic.src.tracking.viz_mixin import PolicyVizMixin
+ 
+-from .operators import cluster_removal, greedy_insertion, random_removal, regret_2_insertion, worst_removal
++from logic.src.policies.helpers.operators.destroy_ruin.cluster import cluster_removal
++from logic.src.policies.helpers.operators.destroy_ruin.random import random_removal
++from logic.src.policies.helpers.operators.destroy_ruin.worst import worst_removal
++from logic.src.policies.helpers.operators.recreate_repair.greedy import greedy_profit_insertion
++from logic.src.policies.helpers.operators.recreate_repair.regret import regret_2_profit_insertion
+ from .params import LNSParams
+ 
+ 
+@@ -89,6 +93,7 @@ class LNSSolver(PolicyVizMixin):
+         self.params = params
+         self.mandatory_nodes = mandatory_nodes
+         self.random = random.Random(seed) if seed is not None else random.Random()
++        self.np_random = np.random.default_rng(seed)
+ 
+         self.n_nodes = len(dist_matrix) - 1
+         self.nodes = list(range(1, self.n_nodes + 1))
+@@ -96,29 +101,29 @@ class LNSSolver(PolicyVizMixin):
+         # Operator registry
+         self.destroy_ops = [
+             lambda r, n: random_removal(r, n, rng=self.random),
+-            lambda r, n: worst_removal(r, n, self.dist_matrix),
++            lambda r, n: worst_removal(r, n, self.dist_matrix, p=3.0, rng=self.np_random),
+             lambda r, n: cluster_removal(r, n, self.dist_matrix, self.nodes, rng=self.random),
+         ]
+         self.repair_ops = [
+-            lambda r, n: greedy_insertion(
++            lambda r, n: greedy_profit_insertion(
+                 r,
+                 n,
+                 self.dist_matrix,
+                 self.wastes,
+                 self.capacity,
+                 R=self.R,
++                C=self.C,
+                 mandatory_nodes=self.mandatory_nodes,
+-                cost_unit=self.C,
+             ),
+-            lambda r, n: regret_2_insertion(
++            lambda r, n: regret_2_profit_insertion(
+                 r,
+                 n,
+                 self.dist_matrix,
+                 self.wastes,
+                 self.capacity,
+                 R=self.R,
++                C=self.C,
+                 mandatory_nodes=self.mandatory_nodes,
+-                cost_unit=self.C,
+             ),
+         ]
+ 
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/local_search.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/local_search.py
+index 609f4e0cc..e08d6058c 100644
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/local_search.py
++++ b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/local_search.py
+@@ -27,15 +27,17 @@ import numpy as np
+ 
+ from logic.src.tracking.viz_mixin import PolicyVizMixin
+ 
+-from .operators import (
++from logic.src.policies.helpers.operators.intra_route_local_search.k_opt import (
+     move_2opt_intra,
+-    move_2opt_star,
+     move_3opt_intra,
++)
++from logic.src.policies.helpers.operators.intra_route_local_search.relocate import (
+     move_or_opt,
+     move_relocate,
+-    move_swap,
+-    move_swap_star,
+ )
++from logic.src.policies.helpers.operators.intra_route_local_search.swap import move_swap
++from logic.src.policies.helpers.operators.inter_route_local_search.k_opt_star import move_2opt_star
++from logic.src.policies.helpers.operators.inter_route_local_search.swap_star import move_swap_star
+ 
+ 
+ class LocalSearch(PolicyVizMixin, ABC):
+@@ -334,7 +336,7 @@ class LocalSearch(PolicyVizMixin, ABC):
+         Perform or-opt move.
+ 
+         Args:
+-            u: Node to move.
++            u: Node to move (unused, derived from r_u/p_u by shared operator).
+             chain_len: Length of the chain to move.
+             r_u: Route index of node u.
+             p_u: Position index of node u.
+@@ -342,7 +344,7 @@ class LocalSearch(PolicyVizMixin, ABC):
+         Returns:
+             bool: Whether the move was successful.
+         """
+-        return move_or_opt(self, u, chain_len, r_u, p_u)
++        return move_or_opt(self, r_u, p_u, chain_len)
+ 
+ 
+ class ACOLocalSearch(LocalSearch):
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/__init__.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/__init__.py
+deleted file mode 100644
+index a5e6a358c..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/__init__.py
++++ /dev/null
+@@ -1,95 +0,0 @@
+-"""
+-HGS Local Search operators package.
+-
+-This package provides a comprehensive suite of local search operators for VRP:
+-- Move operators: relocate, swap
+-- Route operators: 2-opt, 3-opt, 2-opt*, swap*
+-- Perturbation operators: perturb, kick
+-- Destroy operators: random, worst, cluster, shaw, string removal (SISR)
+-- Repair operators: greedy, regret-2, regret-k, blink insertion (SISR)
+-- Exchange operators: or-opt, cross-exchange, ejection chain, λ-interchange
+-
+-Attributes:
+-    cluster_removal: Removal of clusters of nodes.
+-    random_removal: Removal of random nodes.
+-    shaw_removal: Removal of nodes based on Shaw's heuristic.
+-    string_removal: Removal of contiguous sequences of nodes (strings).
+-    worst_removal: Removal of worst nodes.
+-    move_or_opt: Exchange operator for or-opt.
+-    move_relocate: Move operator for relocating nodes.
+-    move_swap: Move operator for swapping nodes.
+-    move_2opt_intra: 2-opt intra-route operator.
+-    move_2opt_star: 2-opt star intra-route operator.
+-    move_3opt_intra: 3-opt intra-route operator.
+-    move_swap_star: Swap star intra-route operator.
+-    perturb: Perturbation operator.
+-    kick: Kick operator.
+-    greedy_insertion: Greedy insertion repair operator.
+-    regret_2_insertion: 2-regret insertion repair operator.
+-    regret_k_insertion: k-regret insertion repair operator.
+-    greedy_insertion_with_blinks: Greedy insertion repair operator with blinks.
+-
+-Example:
+-    >>> from logic.src.policies.operators.destroy import random_removal
+-    >>> new_routes = random_removal(routes, dist_matrix)
+-"""
+-
+-# Destroy operators
+-from .destroy_operators import (
+-    cluster_removal,
+-    random_removal,
+-    shaw_removal,
+-    string_removal,
+-    worst_removal,
+-)
+-
+-# Exchange operators
+-from .exchange_operators import (
+-    move_or_opt,
+-)
+-
+-# Move operators
+-from .move_operators import move_relocate, move_swap
+-
+-# Repair operators
+-from .repair_operators import (
+-    greedy_insertion,
+-    greedy_insertion_with_blinks,
+-    regret_2_insertion,
+-    regret_k_insertion,
+-)
+-
+-# Route operators
+-from .route_operators import (
+-    move_2opt_intra,
+-    move_2opt_star,
+-    move_3opt_intra,
+-    move_swap_star,
+-)
+-
+-__all__ = [
+-    # Move
+-    "move_relocate",
+-    "move_swap",
+-    # Route
+-    "move_2opt_intra",
+-    "move_2opt_star",
+-    "move_3opt_intra",
+-    "move_swap_star",
+-    # Perturbation
+-    "perturb",
+-    "kick",
+-    # Destroy
+-    "random_removal",
+-    "worst_removal",
+-    "cluster_removal",
+-    "shaw_removal",
+-    "string_removal",
+-    # Repair
+-    "greedy_insertion",
+-    "regret_2_insertion",
+-    "regret_k_insertion",
+-    "greedy_insertion_with_blinks",
+-    # Exchange
+-    "move_or_opt",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/__init__.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/__init__.py
+deleted file mode 100644
+index 3d7369e5d..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/__init__.py
++++ /dev/null
+@@ -1,31 +0,0 @@
+-"""
+-Destroy Operators Package.
+-
+-This package contains implementations of removal heuristics for ALNS, including
+-random, worst-case, cluster-based, Shaw (relatedness), and string removal.
+-
+-Attributes:
+-    random_removal (function): Random removal heuristic.
+-    worst_removal (function): Worst-cost removal heuristic.
+-    cluster_removal (function): Cluster-based removal heuristic.
+-    shaw_removal (function): Shaw relatedness removal heuristic.
+-    string_removal (function): String removal heuristic.
+-
+-Example:
+-    >>> from logic.src.policies.operators.destroy import random_removal
+-    >>> routes, removed = random_removal(routes, n=5)
+-"""
+-
+-from .cluster import cluster_removal
+-from .random import random_removal
+-from .shaw import shaw_removal
+-from .string import string_removal
+-from .worst import worst_removal
+-
+-__all__ = [
+-    "random_removal",
+-    "worst_removal",
+-    "cluster_removal",
+-    "shaw_removal",
+-    "string_removal",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/cluster.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/cluster.py
+deleted file mode 100644
+index a27f64a76..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/cluster.py
++++ /dev/null
+@@ -1,93 +0,0 @@
+-"""
+-Cluster Removal Operator Module.
+-
+-This module implements the cluster removal heuristic, which removes a cluster of
+-nodes based on spatial proximity, effectively acting as a variant of Shaw removal.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.destroy.cluster import cluster_removal
+-    >>> routes, removed = cluster_removal(routes, n_remove=5, dist_matrix=d, nodes=all_nodes)
+-"""
+-
+-from random import Random
+-from typing import List, Optional, Tuple
+-
+-import numpy as np
+-
+-from .random import random_removal
+-
+-
+-def cluster_removal(
+-    routes: List[List[int]],
+-    n_remove: int,
+-    dist_matrix: np.ndarray,
+-    nodes: List[int],
+-    rng: Optional[Random] = None,
+-) -> Tuple[List[List[int]], List[int]]:
+-    """
+-    Remove a cluster of nodes based on spatial proximity (Shaw Removal variant).
+-
+-    Args:
+-        routes (List[List[int]]): Current routes.
+-        n_remove (int): Number of nodes to remove.
+-        dist_matrix (np.ndarray): Distance matrix.
+-        nodes (List[int]): List of all node IDs.
+-        rng (Optional[Random]): Random number generator.
+-
+-    Returns:
+-        Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
+-    """
+-    # Pick a random node, remove it and its k nearest neighbors
+-    if not any(routes):
+-        return routes, []
+-
+-    if rng is None:
+-        rng = Random()
+-
+-    # Pick seed
+-    seed_route_idx = rng.randint(0, len(routes) - 1)
+-    if not routes[seed_route_idx]:
+-        return random_removal(routes, n_remove, rng=rng)
+-
+-    seed_node = rng.choice(routes[seed_route_idx])
+-
+-    removed = [seed_node]
+-
+-    # Get all nodes current pos
+-    node_map = {}
+-    for r_idx, r in enumerate(routes):
+-        for n_idx, node in enumerate(r):
+-            node_map[node] = (r_idx, n_idx)
+-
+-    # Find neighbors
+-    candidates = []
+-    for v in nodes:
+-        if v == seed_node or v not in node_map:
+-            continue
+-        dist = dist_matrix[seed_node][v]
+-        candidates.append((v, dist))
+-
+-    # Sort by distance, then node ID for deterministic tie-breaking
+-    candidates.sort(key=lambda x: (x[1], x[0]))
+-
+-    target_nodes = [x[0] for x in candidates[: n_remove - 1]]
+-    removed.extend(target_nodes)
+-
+-    # Now remove them from routes
+-    to_remove_locs = []
+-    for node in removed:
+-        if node in node_map:
+-            to_remove_locs.append((*node_map[node], node))
+-
+-    to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
+-
+-    final_removed = []
+-    for r_idx, n_idx, node in to_remove_locs:
+-        routes[r_idx].pop(n_idx)
+-        final_removed.append(node)
+-
+-    routes = [r for r in routes if r]
+-    return routes, final_removed
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/random.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/random.py
+deleted file mode 100644
+index 9008386ae..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/random.py
++++ /dev/null
+@@ -1,60 +0,0 @@
+-"""
+-Random Removal Operator Module.
+-
+-This module implements the random removal heuristic, which simply removes
+-a specified number of nodes chosen uniformly at random.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.destroy.random import random_removal
+-    >>> routes, removed = random_removal(routes, n_remove=5)
+-"""
+-
+-from random import Random
+-from typing import List, Optional, Tuple
+-
+-
+-def random_removal(
+-    routes: List[List[int]], n_remove: int, rng: Optional[Random] = None
+-) -> Tuple[List[List[int]], List[int]]:
+-    """
+-    Remove nodes randomly from the solution.
+-
+-    Selects `n_remove` nodes uniformly at random from the current routes
+-    and removes them.
+-
+-    Args:
+-        routes: The current solution (list of routes).
+-        n_remove: Number of nodes to remove.
+-        rng: Random number generator.
+-
+-    Returns:
+-        Tuple[List[List[int]], List[int]]: A tuple containing the
+-        modified routes (with nodes removed) and a list of removed node IDs.
+-    """
+-    removed = []
+-    # Flatten
+-    all_nodes = []
+-    for r_idx, r in enumerate(routes):
+-        for n_idx, node in enumerate(r):
+-            all_nodes.append((r_idx, n_idx, node))
+-
+-    if n_remove >= len(all_nodes):
+-        return [[]], [n for _, _, n in all_nodes]
+-
+-    if rng is None:
+-        rng = Random()
+-    targets = rng.sample(all_nodes, n_remove)
+-
+-    # Sort targets by r_idx, n_idx desc to pop safely
+-    targets.sort(key=lambda x: (x[0], x[1]), reverse=True)
+-
+-    for r_idx, n_idx, node in targets:
+-        routes[r_idx].pop(n_idx)
+-        removed.append(node)
+-
+-    # Clean empty routes
+-    routes = [r for r in routes if r]
+-    return routes, removed
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/shaw.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/shaw.py
+deleted file mode 100644
+index 0d5b22d11..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/shaw.py
++++ /dev/null
+@@ -1,151 +0,0 @@
+-"""
+-Shaw Removal (Relatedness) Operator Module.
+-
+-This module implements the Shaw removal heuristic, which removes nodes that are
+-similar (related) to a seed node based on distance, time, and waste.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.destroy.shaw import shaw_removal
+-    >>> routes, removed = shaw_removal(routes, n_remove=5, dist_matrix=d, ...)
+-"""
+-
+-from random import Random
+-from typing import Any, Dict, List, Optional, Tuple
+-
+-import numpy as np
+-
+-
+-def shaw_removal(  # noqa: C901
+-    routes: List[List[int]],
+-    n_remove: int,
+-    dist_matrix: np.ndarray,
+-    nodes: List[int],
+-    wastes: Optional[List[int]] = None,
+-    waste_dict: Optional[Dict[Any, Any]] = None,
+-    time_windows: Optional[Dict[Any, Any]] = None,
+-    relatedness_weights: Tuple[float, float, float] = (0.5, 0.3, 0.2),
+-    randomization_factor: float = 2.0,
+-    phi: float = 9.0,
+-    chi: float = 3.0,
+-    psi: float = 2.0,
+-    rng: Optional[Random] = None,
+-) -> Tuple[List[List[int]], List[int]]:
+-    """
+-    Shaw Removal: Remove related customers based on multi-criteria similarity.
+-
+-    Relatedness R(i,j) = phi * d(i,j) + chi * |T_i - T_j| + psi * |q_i - q_j|
+-
+-    Customers that are "similar" (close in space, time, and waste) are removed
+-    together, maximizing the potential for rearrangement during repair.
+-
+-    Args:
+-        routes: Current routes.
+-        n_remove: Number of nodes to remove.
+-        dist_matrix: Distance matrix.
+-        nodes: List of all node identifiers.
+-        wastes: List of wastes for each node (optional).
+-        waste_dict: Node waste dictionary {node: waste} (optional).
+-        time_windows: Time window dict {node: (earliest, latest)} (optional).
+-        relatedness_weights: Weights for (dist, time, waste) - deprecated/unused if phi/chi/psi used directly.
+-        randomization_factor: Power for randomized selection (higher = more random).
+-        phi: Distance weight in relatedness.
+-        chi: Time window weight in relatedness.
+-        psi: waste weight in relatedness.
+-        rng: Random number generator.
+-
+-    Returns:
+-        Tuple[List[List[int]], List[int]]: Modified routes and removed nodes.
+-    """
+-    if not any(routes) or n_remove <= 0:
+-        return routes, []
+-
+-    waste = waste_dict or {}
+-    time_windows = time_windows or {}
+-
+-    # Build node map
+-    node_map = {}
+-    all_nodes = []
+-    for r_idx, route in enumerate(routes):
+-        for pos, node in enumerate(route):
+-            node_map[node] = (r_idx, pos)
+-            all_nodes.append(node)
+-
+-    if not all_nodes:
+-        return routes, []
+-
+-    if rng is None:
+-        rng = Random()
+-
+-    # Pick random seed
+-    seed: int = rng.choice(all_nodes)
+-    removed: List[int] = [seed]
+-
+-    # Normalize distance for relatedness calculation
+-    max_dist: float = float(np.max(dist_matrix)) if np.max(dist_matrix) > 0 else 1.0
+-    max_waste: float = float(max(waste.values())) if waste else 1.0
+-    max_tw: float = 1.0
+-    if time_windows:
+-        tw_spans = [tw[1] - tw[0] for tw in time_windows.values() if tw]
+-        max_tw = float(max(tw_spans)) if tw_spans else 1.0
+-
+-    while len(removed) < n_remove and len(removed) < len(all_nodes):
+-        # Calculate relatedness to already-removed nodes
+-        relatedness_scores: List[Tuple[int, float]] = []
+-
+-        for node in all_nodes:
+-            if node in removed or node not in node_map:
+-                continue
+-
+-            # Average relatedness to all removed nodes
+-            total_rel: float = 0.0
+-            for rem_node in removed:
+-                # Distance component
+-                dist_rel: float = float(dist_matrix[node, rem_node]) / max_dist if max_dist > 0 else 0.0
+-
+-                # Waste/waste component
+-                waste_rel: float = 0.0
+-                if waste:
+-                    waste_rel = float(abs(waste.get(node, 0.0) - waste.get(rem_node, 0.0))) / max_waste
+-
+-                # Time window component
+-                tw_rel: float = 0.0
+-                if time_windows:
+-                    tw_node = time_windows.get(node, (0.0, max_tw))
+-                    tw_rem = time_windows.get(rem_node, (0.0, max_tw))
+-                    tw_rel = float(abs(tw_node[0] - tw_rem[0])) / max_tw
+-
+-                rel: float = phi * dist_rel + chi * tw_rel + psi * waste_rel
+-                total_rel += rel
+-
+-            avg_rel: float = total_rel / len(removed)
+-            relatedness_scores.append((node, avg_rel))
+-
+-        if not relatedness_scores:
+-            break
+-
+-        # Sort by relatedness (lower = more related), then node ID for deterministic tie-breaking
+-        relatedness_scores.sort(key=lambda x: (x[1], x[0]))
+-
+-        # Randomized selection using power law
+-        # y^p where y is uniform [0,1], p is randomization_factor
+-        y = rng.random()
+-        idx = int((y**randomization_factor) * len(relatedness_scores))
+-        idx = min(idx, len(relatedness_scores) - 1)
+-        selected_node = relatedness_scores[idx][0]
+-        removed.append(selected_node)
+-
+-    # Remove from routes
+-    to_remove_locs = [(node_map[n][0], node_map[n][1], n) for n in removed if n in node_map]
+-    to_remove_locs.sort(key=lambda x: (x[0], x[1]), reverse=True)
+-
+-    final_removed = []
+-    for r_idx, pos, node in to_remove_locs:
+-        if pos < len(routes[r_idx]) and routes[r_idx][pos] == node:
+-            routes[r_idx].pop(pos)
+-            final_removed.append(node)
+-
+-    routes = [r for r in routes if r]
+-    return routes, final_removed
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/string.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/string.py
+deleted file mode 100644
+index cdccf524f..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/string.py
++++ /dev/null
+@@ -1,159 +0,0 @@
+-"""
+-String Removal Operator Module.
+-
+-This module implements the string removal heuristic, which removes contiguous
+-sequences (strings) of nodes from routes to preserve local structure while
+-creating gaps for re-insertion.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.destroy.string import string_removal
+-    >>> routes, removed = string_removal(routes, n_remove=5, ...)
+-"""
+-
+-from random import Random
+-from typing import List, Optional, Tuple
+-
+-import numpy as np
+-
+-
+-def string_removal(
+-    routes: List[List[int]],
+-    n_remove: int,
+-    dist_matrix: np.ndarray,
+-    max_string_len: int = 4,
+-    avg_string_len: float = 3.0,
+-    rng: Optional[Random] = None,
+-) -> Tuple[List[List[int]], List[int]]:
+-    """
+-    Remove contiguous strings of customers to induce spatial slack.
+-
+-    The key insight of SISR is that removing adjacent customers creates a large
+-    contiguous "hole" in the route, providing maneuverability for reinsertion.
+-    This also reduces the number of re-insertions needed compared to random removal.
+-
+-    Args:
+-        routes: Current routes.
+-        n_remove: Number of nodes to remove.
+-        dist_matrix: Distance matrix (used for propagation).
+-        max_string_len: Maximum length of a string to remove.
+-        avg_string_len: Average string length (unused, kept for API compatibility).
+-        rng: Random number generator.
+-
+-    Returns:
+-        Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
+-    """
+-    if not any(routes) or n_remove <= 0:
+-        return routes, []
+-
+-    removed: List[int] = []
+-    max_iter = n_remove * 3  # Prevent infinite loops
+-    iterations = 0
+-
+-    if rng is None:
+-        rng = Random()
+-
+-    while len(removed) < n_remove and iterations < max_iter:
+-        iterations += 1
+-
+-        # Pick a random seed from remaining nodes
+-        available_routes = [(i, r) for i, r in enumerate(routes) if r]
+-        if not available_routes:
+-            break
+-
+-        r_idx, route = rng.choice(available_routes)
+-        if not route:
+-            continue
+-
+-        # Pick seed position
+-        seed_pos = rng.randint(0, len(route) - 1)
+-        seed_node = route[seed_pos]
+-
+-        if seed_node in removed:
+-            continue
+-
+-        # Determine string length (geometric-like distribution)
+-        # L ~ 1 + geometric(1/avg_string_len)
+-        string_len = 1
+-        while string_len < max_string_len and rng.random() < (1 - 1 / avg_string_len):
+-            string_len += 1
+-
+-        # Don't remove more than needed
+-        remaining = n_remove - len(removed)
+-        string_len = min(string_len, remaining, len(route))
+-
+-        # Extract string starting at seed_pos
+-        start = seed_pos
+-        end = min(seed_pos + string_len, len(route))
+-        string_nodes = route[start:end]
+-
+-        # Remove string from route (reverse order to maintain indices)
+-        for pos in range(end - 1, start - 1, -1):
+-            node = routes[r_idx].pop(pos)
+-            removed.append(node)
+-
+-        # Propagate to neighbors: remove strings from adjacent routes
+-        if len(removed) < n_remove and string_nodes:
+-            _propagate_string_removal(routes, removed, dist_matrix, string_nodes, n_remove, max_string_len)
+-
+-    # Clean empty routes
+-    routes = [r for r in routes if r]
+-    return routes, removed
+-
+-
+-def _propagate_string_removal(
+-    routes: List[List[int]],
+-    removed: List[int],
+-    dist_matrix: np.ndarray,
+-    seed_nodes: List[int],
+-    n_remove: int,
+-    max_string_len: int,
+-) -> None:
+-    """
+-    Propagate string removal to neighboring routes.
+-
+-    After removing a string, look at the spatial neighbors of the removed nodes
+-    and remove strings from their routes as well. This creates a concentrated
+-    "disaster zone" across multiple routes.
+-
+-    Args:
+-        routes: Partial routes.
+-        removed: List of removed node IDs.
+-        dist_matrix: Distance matrix.
+-        seed_nodes: Seed nodes for string removal.
+-        n_remove: Target number of removals.
+-        max_string_len: Maximum length of a string to remove.
+-    """
+-    # Find neighbors of removed string
+-    neighbor_candidates = []
+-    for seed in seed_nodes:
+-        if seed >= len(dist_matrix):
+-            continue
+-        distances = dist_matrix[seed]
+-        for node_id in range(1, len(distances)):
+-            if node_id not in removed and node_id not in seed_nodes:
+-                neighbor_candidates.append((node_id, distances[node_id]))
+-
+-    # Sort by distance, then node ID for deterministic tie-breaking
+-    neighbor_candidates.sort(key=lambda x: (x[1], x[0]))
+-
+-    # Take closest neighbors
+-    for neighbor, _ in neighbor_candidates[:3]:
+-        if len(removed) >= n_remove:
+-            break
+-
+-        # Find which route contains this neighbor
+-        for _r_idx, route in enumerate(routes):
+-            if neighbor in route:
+-                pos = route.index(neighbor)
+-                # Remove a small string around this neighbor
+-                string_len = min(2, len(route), n_remove - len(removed))
+-                start = max(0, pos - string_len // 2)
+-                end = min(len(route), start + string_len)
+-
+-                for p in range(end - 1, start - 1, -1):
+-                    if route[p] not in removed:
+-                        removed.append(route.pop(p))
+-                break
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/worst.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/worst.py
+deleted file mode 100644
+index f9e81cae5..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy/worst.py
++++ /dev/null
+@@ -1,71 +0,0 @@
+-"""
+-Worst Removal Operator Module.
+-
+-This module implements the worst removal heuristic, which removes the nodes
+-that cause the highest increase in the objective function (cost/distance).
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.destroy.worst import worst_removal
+-    >>> routes, removed = worst_removal(routes, n_remove=5, dist_matrix=d)
+-"""
+-
+-from typing import List, Tuple
+-
+-import numpy as np
+-
+-
+-def worst_removal(routes: List[List[int]], n_remove: int, dist_matrix: np.ndarray) -> Tuple[List[List[int]], List[int]]:
+-    """
+-    Remove nodes that contribute most to the current routing cost.
+-
+-    Calculates the 'cost saving' of removing each node (detour cost) and
+-    removes those with the highest savings (greedy approach).
+-
+-    Args:
+-        routes: Current routes.
+-        n_remove: Number of nodes to remove.
+-        dist_matrix: Distance matrix.
+-
+-    Returns:
+-        Tuple[List[List[int]], List[int]]: Partial routes and list of removed node IDs.
+-    """
+-    # Remove nodes that contribute most to the cost
+-    costs = []
+-    for r_idx, route in enumerate(routes):
+-        if len(route) == 0:
+-            continue
+-
+-        for i, node in enumerate(route):
+-            # Calc cost without this node
+-            # Prev -> Next
+-            prev = 0 if i == 0 else route[i - 1]
+-            nex = 0 if i == len(route) - 1 else route[i + 1]
+-
+-            # We save dist(prev, node) + dist(node, nex)
+-            saved = dist_matrix[prev][node] + dist_matrix[node][nex]
+-            # We add dist(prev, nex)
+-            added = dist_matrix[prev][nex]
+-
+-            # Savings = saved - added
+-            savings = saved - added
+-            costs.append((r_idx, i, node, savings))
+-
+-    # Highest savings first, then tie-break by node ID
+-    costs.sort(key=lambda x: (x[3], x[2]), reverse=True)
+-    removed = []
+-
+-    # One-shot greedy:
+-    targets = costs[:n_remove]
+-    # Sort by index desc
+-    targets.sort(key=lambda x: (x[0], x[1]), reverse=True)
+-
+-    for r_idx, n_idx, node, _ in targets:
+-        if n_idx < len(routes[r_idx]) and routes[r_idx][n_idx] == node:
+-            routes[r_idx].pop(n_idx)
+-            removed.append(node)
+-
+-    routes = [r for r in routes if r]
+-    return routes, removed
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy_operators.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy_operators.py
+deleted file mode 100644
+index d1be54c7e..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/destroy_operators.py
++++ /dev/null
+@@ -1,33 +0,0 @@
+-"""
+-Destroy Operators Module.
+-
+-This module exposes the various destroy (removal) operators used in the
+-Adaptive Large Neighborhood Search (ALNS) algorithm.
+-
+-Attributes:
+-    random_removal (function): Randomly removes nodes.
+-    worst_removal (function): Removes nodes with highest cost contribution.
+-    cluster_removal (function): Removes spatially clustered nodes.
+-    shaw_removal (function): Removes related nodes (distance/time/waste).
+-    string_removal (function): Removes contiguous sequences of nodes.
+-
+-Example:
+-    >>> from logic.src.policies.operators import destroy_operators
+-    >>> routes, removed = destroy_operators.random_removal(routes, n=5)
+-"""
+-
+-from .destroy import (
+-    cluster_removal,
+-    random_removal,
+-    shaw_removal,
+-    string_removal,
+-    worst_removal,
+-)
+-
+-__all__ = [
+-    "random_removal",
+-    "worst_removal",
+-    "cluster_removal",
+-    "shaw_removal",
+-    "string_removal",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange/__init__.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange/__init__.py
+deleted file mode 100644
+index 28b0595fd..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange/__init__.py
++++ /dev/null
+@@ -1,22 +0,0 @@
+-"""
+-Exchange Operators Package.
+-
+-This package contains operator implementations for exchanging segments between routes,
+-including Cross-Exchange, Ejection Chains, and Lambda-Interchange.
+-
+-Attributes:
+-    move_or_opt (function): Or-opt operator for relocating chains.
+-    cross_exchange (function): Exchange segments between two routes.
+-    ejection_chain (function): Compound displacement for fleet reduction.
+-    lambda_interchange (function): Generalized exchange operator.
+-
+-Example:
+-    >>> from logic.src.policies.operators.exchange import cross_exchange
+-    >>> improved = cross_exchange(ls, r_a=0, ...)
+-"""
+-
+-from .or_opt import move_or_opt
+-
+-__all__ = [
+-    "move_or_opt",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange/or_opt.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange/or_opt.py
+deleted file mode 100644
+index 7ad32f71a..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange/or_opt.py
++++ /dev/null
+@@ -1,109 +0,0 @@
+-"""
+-Or-opt Operator Module.
+-
+-This module implements the Or-opt operator for local search, which tries to
+-relocate chains of 1 to 3 consecutive nodes to better positions in the solution.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.exchange.or_opt import move_or_opt
+-    >>> improved = move_or_opt(ls, node=5, chain_len=2, r_idx=0, pos=1)
+-"""
+-
+-from typing import Any
+-
+-
+-def move_or_opt(
+-    ls: Any,
+-    node: int,
+-    chain_len: int,
+-    r_idx: int,
+-    pos: int,
+-) -> bool:
+-    """
+-    Or-opt: Relocate a chain of consecutive nodes to the best position.
+-
+-    Moves a sequence of 1-3 consecutive customers to another position,
+-    either within the same route or to a different route. Particularly
+-    effective when customers are geographically clustered.
+-
+-    Args:
+-        ls: LocalSearch instance with routes, distance matrix, waste, etc.
+-        node: Starting node of the chain.
+-        chain_len: Length of chain to move (1, 2, or 3).
+-        r_idx: Route index containing the chain.
+-        pos: Position of the starting node in the route.
+-
+-    Returns:
+-        bool: True if an improving move was found and applied.
+-    """
+-    route = ls.routes[r_idx]
+-    if pos + chain_len > len(route):
+-        return False
+-
+-    # Extract chain
+-    chain = route[pos : pos + chain_len]
+-    chain_waste = sum(ls.waste.get(n, 0) for n in chain)
+-
+-    # Calculate removal cost
+-    prev_node = route[pos - 1] if pos > 0 else 0
+-    next_node = route[pos + chain_len] if pos + chain_len < len(route) else 0
+-    removal_gain = ls.d[prev_node, chain[0]] + ls.d[chain[-1], next_node] - ls.d[prev_node, next_node]
+-
+-    best_delta = 0.0
+-    best_insertion = None  # (route_idx, insert_pos)
+-
+-    # Try all positions in all routes
+-    for target_r_idx, target_route in enumerate(ls.routes):
+-        # Check capacity
+-        if target_r_idx != r_idx:
+-            target_load = ls._calc_load_fresh(target_route)
+-            if target_load + chain_waste > ls.Q:
+-                continue
+-
+-        # Try all insertion positions
+-        for insert_pos in range(len(target_route) + 1):
+-            # Skip positions that would just reinsert at same spot
+-            if target_r_idx == r_idx and insert_pos in range(pos, pos + chain_len + 1):
+-                continue
+-
+-            ins_prev = target_route[insert_pos - 1] if insert_pos > 0 else 0
+-            ins_next = target_route[insert_pos] if insert_pos < len(target_route) else 0
+-
+-            # Adjust for removal if same route
+-            if target_r_idx == r_idx and insert_pos > pos + chain_len:
+-                # Actually insert at insert_pos - chain_len after removal
+-                temp_route = route[:pos] + route[pos + chain_len :]
+-                adj_pos = insert_pos - chain_len
+-                ins_prev = temp_route[adj_pos - 1] if adj_pos > 0 else 0
+-                ins_next = temp_route[adj_pos] if adj_pos < len(temp_route) else 0
+-
+-            insertion_cost = ls.d[ins_prev, chain[0]] + ls.d[chain[-1], ins_next] - ls.d[ins_prev, ins_next]
+-
+-            delta = insertion_cost - removal_gain
+-
+-            if delta < best_delta - 1e-6:
+-                best_delta = delta
+-                best_insertion = (target_r_idx, insert_pos)
+-
+-    # Apply best move
+-    if best_insertion is not None:
+-        target_r, ins_pos = best_insertion
+-
+-        # Remove chain from original route
+-        del ls.routes[r_idx][pos : pos + chain_len]
+-
+-        # Adjust insertion position if same route and after removal point
+-        if target_r == r_idx and ins_pos > pos + chain_len:
+-            ins_pos -= chain_len
+-
+-        # Insert chain
+-        for i, n in enumerate(chain):
+-            ls.routes[target_r].insert(ins_pos + i, n)
+-
+-        ls._update_map({r_idx, target_r})
+-        return True
+-
+-    return False
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange_operators.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange_operators.py
+deleted file mode 100644
+index a7459cdb1..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/exchange_operators.py
++++ /dev/null
+@@ -1,25 +0,0 @@
+-"""
+-Exchange operators for VRP local search.
+-
+-This module contains advanced inter-route and intra-route operators:
+-- Or-opt: Relocate chains of consecutive nodes
+-- Cross-Exchange: Swap segments between routes (λ-interchange)
+-- Ejection Chain: Compound displacement for fleet reduction
+-
+-(Refactored to point to `logic.src.policies.operators.exchange` package)
+-
+-Attributes:
+-    or_opt_operators: Set of or-opt operators.
+-
+-Example:
+-    >>> from logic.src.policies.operators.exchange import move_or_opt
+-    >>> new_routes = move_or_opt(routes, dist_matrix)
+-"""
+-
+-from .exchange import (
+-    move_or_opt,
+-)
+-
+-__all__ = [
+-    "move_or_opt",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/__init__.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/__init__.py
+deleted file mode 100644
+index 10011adb6..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/__init__.py
++++ /dev/null
+@@ -1,22 +0,0 @@
+-"""
+-Move Operators Package.
+-
+-This package contains operator implementations for moving nodes within or
+-between routes (relocate and swap).
+-
+-Attributes:
+-    move_relocate (function): Relocate operator.
+-    move_swap (function): Swap operator.
+-
+-Example:
+-    >>> from logic.src.policies.operators.move import move_relocate
+-    >>> improved = move_relocate(ls, u=1, v=2, ...)
+-"""
+-
+-from .relocate import move_relocate
+-from .swap import move_swap
+-
+-__all__ = [
+-    "move_relocate",
+-    "move_swap",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/relocate.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/relocate.py
+deleted file mode 100644
+index c1bb19173..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/relocate.py
++++ /dev/null
+@@ -1,61 +0,0 @@
+-"""
+-Relocate Operator Module.
+-
+-This module implements the relocate operator, which moves a single node
+-from its current position to a new position (after another node) in the
+-same or a different route.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.move.relocate import move_relocate
+-    >>> improved = move_relocate(ls, u=1, v=2, r_u=0, p_u=1, r_v=0, p_v=5)
+-"""
+-
+-
+-def move_relocate(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+-    """
+-    Relocate operator: move node u to a position after node v.
+-
+-    Removes node u from route r_u and inserts it immediately after node v
+-    in route r_v. Can be inter-route or intra-route. Only applies the move
+-    if it improves total cost by a threshold margin.
+-
+-    Args:
+-        ls: LocalSearch instance containing routes and distance matrix.
+-        u: Node to relocate.
+-        v: Node after which u will be inserted.
+-        r_u: Index of the route containing u.
+-        p_u: Position of u in route r_u.
+-        r_v: Index of the route containing v (target route).
+-        p_v: Position of v in route r_v.
+-
+-    Returns:
+-        bool: True if the relocation was applied (improving), False otherwise.
+-    """
+-    if r_u == r_v and (p_u == p_v + 1):
+-        return False
+-    dem_u = ls.waste.get(u, 0)
+-
+-    if r_u != r_v and ls._get_load_cached(r_v) + dem_u > ls.Q:
+-        return False
+-
+-    route_u = ls.routes[r_u]
+-    route_v = ls.routes[r_v]
+-    prev_u = route_u[p_u - 1] if p_u > 0 else 0
+-    next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
+-    v_next = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
+-
+-    delta = -ls.d[prev_u, u] - ls.d[u, next_u] + ls.d[prev_u, next_u]
+-    delta -= ls.d[v, v_next]
+-    delta += ls.d[v, u] + ls.d[u, v_next]
+-
+-    if delta * ls.C < -1e-4:
+-        ls.routes[r_u].pop(p_u)
+-        if r_u == r_v and p_u < p_v:
+-            p_v -= 1
+-        ls.routes[r_v].insert(p_v + 1, u)
+-        ls._update_map({r_u, r_v})
+-        return True
+-    return False
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/swap.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/swap.py
+deleted file mode 100644
+index da5099975..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move/swap.py
++++ /dev/null
+@@ -1,64 +0,0 @@
+-"""
+-Swap Operator Module.
+-
+-This module implements the swap operator, which exchanges the positions of
+-two nodes, either within the same route or between two different routes.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.move.swap import move_swap
+-    >>> improved = move_swap(ls, u=1, v=2, r_u=0, p_u=1, r_v=1, p_v=3)
+-"""
+-
+-
+-def move_swap(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+-    """
+-    Swap operator: exchange positions of nodes u and v.
+-
+-    Swaps node u (in route r_u) with node v (in route r_v). Can be
+-    inter-route or intra-route swap. Only applies the move if it
+-    improves total cost by a threshold margin.
+-
+-    Args:
+-        ls: LocalSearch instance containing routes and distance matrix.
+-        u: First node to swap.
+-        v: Second node to swap.
+-        r_u: Index of the route containing u.
+-        p_u: Position of u in route r_u.
+-        r_v: Index of the route containing v.
+-        p_v: Position of v in route r_v.
+-
+-    Returns:
+-        bool: True if the swap was applied (improving), False otherwise.
+-    """
+-    if r_u == r_v and abs(p_u - p_v) <= 1:
+-        return False
+-
+-    dem_u = ls.waste.get(u, 0)
+-    dem_v = ls.waste.get(v, 0)
+-
+-    if r_u != r_v:
+-        if ls._get_load_cached(r_u) - dem_u + dem_v > ls.Q:
+-            return False
+-        if ls._get_load_cached(r_v) - dem_v + dem_u > ls.Q:
+-            return False
+-
+-    route_u = ls.routes[r_u]
+-    route_v = ls.routes[r_v]
+-
+-    prev_u = route_u[p_u - 1] if p_u > 0 else 0
+-    next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
+-    prev_v = route_v[p_v - 1] if p_v > 0 else 0
+-    next_v = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
+-
+-    delta = -ls.d[prev_u, u] - ls.d[u, next_u] - ls.d[prev_v, v] - ls.d[v, next_v]
+-    delta += ls.d[prev_u, v] + ls.d[v, next_u] + ls.d[prev_v, u] + ls.d[u, next_v]
+-
+-    if delta * ls.C < -1e-4:
+-        ls.routes[r_u][p_u] = v
+-        ls.routes[r_v][p_v] = u
+-        ls._update_map({r_u, r_v})
+-        return True
+-    return False
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move_operators.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move_operators.py
+deleted file mode 100644
+index 40d4fdc8e..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/move_operators.py
++++ /dev/null
+@@ -1,24 +0,0 @@
+-"""
+-Move Operators Module.
+-
+-This module exposes the move-based local search operators (relocate and swap)
+-used in the Hybrid Genetic Search (HGS) algorithm.
+-
+-Attributes:
+-    move_relocate (function): Moving a node to a new position.
+-    move_swap (function): Swapping two nodes.
+-
+-Example:
+-    >>> from logic.src.policies.operators import move_operators
+-    >>> improved = move_operators.move_relocate(ls, u=1, v=2, ...)
+-"""
+-
+-from .move import (
+-    move_relocate,
+-    move_swap,
+-)
+-
+-__all__ = [
+-    "move_relocate",
+-    "move_swap",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/__init__.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/__init__.py
+deleted file mode 100644
+index 4e40f6757..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/__init__.py
++++ /dev/null
+@@ -1,27 +0,0 @@
+-"""
+-Repair Operators Package.
+-
+-This package contains operator implementations for repairing (re-inserting nodes into)
+-partial solutions. Includes greedy and regret-based heuristics.
+-
+-Attributes:
+-    greedy_insertion (function): Best single-move insertion.
+-    greedy_insertion_with_blinks (function): Randomized greedy insertion.
+-    regret_2_insertion (function): Insertion maximizing difference between best and 2nd best.
+-    regret_k_insertion (function): General k-regret insertion.
+-
+-Example:
+-    >>> from logic.src.policies.operators.repair import greedy_insertion
+-    >>> new_routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
+-"""
+-
+-from .greedy import greedy_insertion
+-from .greedy_blink import greedy_insertion_with_blinks
+-from .regret import regret_2_insertion, regret_k_insertion
+-
+-__all__ = [
+-    "greedy_insertion",
+-    "regret_2_insertion",
+-    "regret_k_insertion",
+-    "greedy_insertion_with_blinks",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/greedy.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/greedy.py
+deleted file mode 100644
+index f22b415f2..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/greedy.py
++++ /dev/null
+@@ -1,118 +0,0 @@
+-"""
+-Greedy Insertion Operator Module.
+-
+-This module implements the greedy insertion heuristic, which iteratively inserts
+-unassigned nodes into the position that minimizes the immediate cost increase.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.repair.greedy import greedy_insertion
+-    >>> routes = greedy_insertion(routes, removed, dist_matrix, wastes, capacity)
+-"""
+-
+-from typing import Dict, List, Optional
+-
+-import numpy as np
+-
+-
+-def greedy_insertion(
+-    routes: List[List[int]],
+-    removed_nodes: List[int],
+-    dist_matrix: np.ndarray,
+-    wastes: Dict[int, float],
+-    capacity: float,
+-    R: Optional[float] = None,
+-    mandatory_nodes: Optional[List[int]] = None,
+-    cost_unit: float = 1.0,
+-    expand_pool: bool = True,
+-) -> List[List[int]]:
+-    """
+-    Insert removed nodes into their best (cheapest) positions greedily.
+-
+-    Iterates through all unassigned nodes and all possible insertion positions,
+-    finding the globally cheapest insertion and applying it. Repeats until all
+-    nodes are inserted OR skipping occurs based on profitability (VRPP).
+-
+-    Args:
+-        routes: Partial routes.
+-        removed_nodes: List of unassigned node indices.
+-        dist_matrix: Distance matrix.
+-        wastes: waste look-up.
+-        capacity: Vehicle capacity.
+-        R: Revenue multiplier (Optional). If provided, insertion is skipped if cost > revenue.
+-        mandatory_nodes: List of mandatory node indices.
+-        cost_unit: Cost per distance unit.
+-        expand_pool: Whether to expand the pool of candidates to all unvisited nodes.
+-
+-    Returns:
+-        List[List[int]]: New routes after insertion.
+-    """
+-    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
+-    # Calculate current loads and track visited nodes
+-    loads = []
+-    visited = set()
+-    for route in routes:
+-        loads.append(sum(wastes.get(node, 0) for node in route))
+-        visited.update(route)
+-
+-    if expand_pool:
+-        # All unvisited nodes (including those previously removed) are candidates
+-        n_nodes = len(dist_matrix) - 1
+-        unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+-    else:
+-        unassigned = sorted(list(removed_nodes))  # Sort for deterministic ties
+-
+-    while unassigned:
+-        best_cost = float("inf")
+-        best_node = -1
+-        best_route_idx = -1
+-        best_pos = -1
+-
+-        for node in unassigned:
+-            node_waste = wastes.get(node, 0)
+-            revenue = node_waste * R if R is not None else float("inf")
+-            is_mandatory = node in mandatory_nodes_set
+-
+-            for i, route in enumerate(routes):
+-                if loads[i] + node_waste > capacity:
+-                    continue
+-
+-                for pos in range(len(route) + 1):
+-                    # Cost increase: d(i-1, node) + d(node, i) - d(i-1, i)
+-                    prev = route[pos - 1] if pos > 0 else 0
+-                    nxt = route[pos] if pos < len(route) else 0
+-
+-                    cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+-
+-                    if cost < best_cost:
+-                        # VRPP check: skip if cost * cost_unit > revenue and not mandatory
+-                        if R is not None and cost * cost_unit > revenue and not is_mandatory:
+-                            continue
+-
+-                        best_cost = cost
+-                        best_node = node
+-                        best_route_idx = i
+-                        best_pos = pos
+-
+-        if best_node != -1:
+-            routes[best_route_idx].insert(best_pos, best_node)
+-            loads[best_route_idx] += wastes.get(best_node, 0)
+-            unassigned.remove(best_node)
+-        else:
+-            # If no feasible insertions are found, we must handle any remaining mandatory nodes
+-            # by creating new routes if necessary, but ALNS usually relies on destroy/repair loops.
+-            # For VRPP, we allow skipping non-mandatory nodes.
+-            # If there are remaining mandatory nodes, we should probably try to create new routes.
+-            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
+-            if mandatory_remaining:
+-                node = mandatory_remaining[0]
+-                routes.append([node])
+-                loads.append(wastes.get(node, 0))
+-                unassigned.remove(node)
+-            else:
+-                # No more mandatory nodes and no more profitable/feasible insertions
+-                break
+-
+-    return routes
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/greedy_blink.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/greedy_blink.py
+deleted file mode 100644
+index 09144c894..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/greedy_blink.py
++++ /dev/null
+@@ -1,101 +0,0 @@
+-"""
+-Greedy Blink Insertion Operator Module.
+-
+-This module implements the 'Greedy with Blinks' insertion heuristic. It is a
+-randomized version of greedy insertion where the algorithm 'blinks' (skips)
+-the best position with some probability, encouraging diversity.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.repair.greedy_blink import greedy_insertion_with_blinks
+-    >>> routes = greedy_insertion_with_blinks(routes, removed, dist_matrix, wastes, capacity, blink_rate=0.1)
+-"""
+-
+-from random import Random
+-from typing import Dict, List, Optional
+-
+-import numpy as np
+-
+-
+-def greedy_insertion_with_blinks(
+-    routes: List[List[int]],
+-    removed_nodes: List[int],
+-    dist_matrix: np.ndarray,
+-    wastes: Dict[int, float],
+-    capacity: float,
+-    blink_rate: float = 0.1,
+-    rng: Optional[Random] = None,
+-) -> List[List[int]]:
+-    """
+-    Greedy insertion with randomized skips ('blinks').
+-
+-    Similar to standard greedy insertion, but during the selection of the best
+-    position, the algorithm may skip the absolute best option with probability
+-    `blink_rate` and choose the second best, and so on.
+-
+-    Args:
+-        routes: Partial routes.
+-        removed_nodes: Nodes to reinsert.
+-        dist_matrix: Distance matrix.
+-        wastes: wastes.
+-        capacity: Capacity.
+-        blink_rate: Probability of skipping a check.
+-        rng: Random number generator.
+-
+-    Returns:
+-        Routes with all nodes reinserted.
+-    """
+-    loads = []
+-    for route in routes:
+-        loads.append(sum(wastes.get(n, 0) for n in route))
+-
+-    if rng is None:
+-        rng = Random()
+-
+-    # Reinsert in random order
+-    rng.shuffle(removed_nodes)
+-
+-    for node in removed_nodes:
+-        waste = wastes.get(node, 0)
+-        best_cost = float("inf")
+-        best_r_idx = -1
+-        best_pos = -1
+-
+-        # Check existing routes
+-        for r_idx, route in enumerate(routes):
+-            if loads[r_idx] + waste > capacity:
+-                continue
+-
+-            for pos in range(len(route) + 1):
+-                # Blink check
+-                if rng.random() < blink_rate:
+-                    continue
+-
+-                prev = 0 if pos == 0 else route[pos - 1]
+-                nex = 0 if pos == len(route) else route[pos]
+-
+-                cost = dist_matrix[prev][node] + dist_matrix[node][nex] - dist_matrix[prev][nex]
+-
+-                if cost < best_cost:
+-                    best_cost = cost
+-                    best_r_idx = r_idx
+-                    best_pos = pos
+-
+-        # Check new route
+-        new_route_cost = dist_matrix[0][node] + dist_matrix[node][0]
+-        if new_route_cost < best_cost:
+-            best_cost = new_route_cost
+-            best_r_idx = len(routes)
+-            best_pos = 0
+-
+-        # Apply
+-        if best_r_idx == len(routes):
+-            routes.append([node])
+-            loads.append(waste)
+-        else:
+-            routes[best_r_idx].insert(best_pos, node)
+-            loads[best_r_idx] += waste
+-
+-    return routes
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/regret.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/regret.py
+deleted file mode 100644
+index 87a073178..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair/regret.py
++++ /dev/null
+@@ -1,193 +0,0 @@
+-"""
+-Regret Insertion Operator Module.
+-
+-This module implements the Regret-k insertion heuristic for VRP repair.
+-It calculates a regret value for each unassigned node based on the cost difference
+-between its best and k-th best insertion positions.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.repair.regret import RegretInsertion
+-    >>> operator = RegretInsertion(k=2)
+-    >>> new_routes = operator.repair(destroyed_routes, unassigned_nodes)
+-"""
+-
+-from typing import Dict, List, Optional
+-
+-import numpy as np
+-
+-
+-def regret_2_insertion(
+-    routes: List[List[int]],
+-    removed_nodes: List[int],
+-    dist_matrix: np.ndarray,
+-    wastes: Dict[int, float],
+-    capacity: float,
+-    R: Optional[float] = None,
+-    mandatory_nodes: Optional[List[int]] = None,
+-    cost_unit: float = 1.0,
+-) -> List[List[int]]:
+-    """
+-    Insert removed nodes based on the regret-2 criterion.
+-    Regret-2 Insertion Heuristic.
+-
+-    Prioritizes inserting nodes that would be much more expensive to insert
+-    later (high regret = cost difference between best and 2nd best option).
+-
+-    Args:
+-        routes: Partial routes.
+-        removed_nodes: Nodes to be re-inserted.
+-        dist_matrix: Distance matrix.
+-        wastes: waste look-up.
+-        capacity: Vehicle capacity.
+-        R: Revenue multiplier (Optional).
+-        mandatory_nodes: Optional list of mandatory node indices.
+-        cost_unit: Cost unit (Optional).
+-
+-    Returns:
+-        List[List[int]]: New routes after insertion.
+-    """
+-    return regret_k_insertion(
+-        routes,
+-        removed_nodes,
+-        dist_matrix,
+-        wastes,
+-        capacity,
+-        k=2,
+-        R=R,
+-        mandatory_nodes=mandatory_nodes,
+-        cost_unit=cost_unit,
+-    )
+-
+-
+-def regret_k_insertion(  # noqa: C901
+-    routes: List[List[int]],
+-    removed_nodes: List[int],
+-    dist_matrix: np.ndarray,
+-    wastes: Dict[int, float],
+-    capacity: float,
+-    k: int = 2,
+-    R: Optional[float] = None,
+-    mandatory_nodes: Optional[List[int]] = None,
+-    cost_unit: float = 1.0,
+-) -> List[List[int]]:
+-    """
+-    Insert removed nodes using the regret-k heuristic.
+-
+-    Computes the 'regret' for each unassigned node, defined as the difference
+-    between the cost of the best insertion and the k-th best insertion. Node
+-    with the maximum regret is inserted first into its best position.
+-
+-    Args:
+-        routes: Partial routes.
+-        removed_nodes: Nodes to be re-inserted.
+-        dist_matrix: Distance matrix.
+-        wastes: waste look-up.
+-        capacity: Vehicle capacity.
+-        k: Regret degree (2, 3, etc.).
+-        R: Revenue multiplier (Optional).
+-        mandatory_nodes: Optional list of mandatory node indices.
+-        cost_unit: Cost unit (Optional).
+-
+-    Returns:
+-        List[List[int]]: New routes after insertion.
+-    """
+-    mandatory_nodes_set = set(mandatory_nodes) if mandatory_nodes else set()
+-    # Calculate current loads and track visited
+-    loads = []
+-    visited = set()
+-    for route in routes:
+-        loads.append(sum(wastes.get(node, 0) for node in route))
+-        visited.update(route)
+-
+-    # All unvisited nodes (including those previously removed) are candidates
+-    n_nodes = len(dist_matrix) - 1
+-    unassigned = sorted(list(set(range(1, n_nodes + 1)) - visited))
+-
+-    while unassigned:
+-        all_candidates = []
+-        unprofitable_nodes = []
+-
+-        for node in unassigned:
+-            waste = wastes.get(node, 0)
+-            node_options = []
+-
+-            for r_idx, route in enumerate(routes):
+-                if loads[r_idx] + waste > capacity:
+-                    continue
+-
+-                for pos in range(len(route) + 1):
+-                    prev = route[pos - 1] if pos > 0 else 0
+-                    nxt = route[pos] if pos < len(route) else 0
+-                    cost = dist_matrix[prev, node] + dist_matrix[node, nxt] - dist_matrix[prev, nxt]
+-                    node_options.append((cost, r_idx, pos))
+-
+-            # New route option
+-            new_cost = dist_matrix[0][node] + dist_matrix[node][0]
+-            node_options.append((new_cost, len(routes), 0))
+-
+-            # Sort options by cost, then r_idx, then pos for deterministic tie-breaking
+-            node_options.sort(key=lambda x: (x[0], x[1], x[2]))
+-
+-            # VRPP Logic
+-            best_cost = node_options[0][0]
+-            if R is not None:
+-                revenue = waste * R
+-                if best_cost * cost_unit > revenue and node not in mandatory_nodes_set:
+-                    unprofitable_nodes.append(node)
+-                    continue
+-
+-            # Calculate regret
+-            if len(node_options) >= k:
+-                # Regret = cost_at_k - cost_at_1
+-                regret = node_options[k - 1][0] - node_options[0][0]
+-            elif len(node_options) > 1:
+-                # If fewer than k options, regret is diff between last and first
+-                regret = node_options[-1][0] - node_options[0][0]
+-            else:
+-                # Only one option (or none), max priority
+-                regret = float("inf")
+-
+-            best_option = node_options[0] if node_options else (float("inf"), -1, -1)
+-            all_candidates.append((regret, node, best_option))
+-
+-        # Remove unprofitable nodes from unassigned
+-        for node in unprofitable_nodes:
+-            unassigned.remove(node)
+-
+-        if not all_candidates:
+-            # No feasible/profitable insertions left
+-            # For remaining mandatory nodes, we'll hit this break and need to handle them
+-            mandatory_remaining = [n for n in unassigned if n in mandatory_nodes_set]
+-            if mandatory_remaining:
+-                node = mandatory_remaining[0]
+-                routes.append([node])
+-                loads.append(wastes.get(node, 0))
+-                unassigned.remove(node)
+-                continue
+-            else:
+-                break
+-
+-        # Pick node with max regret, tie-break by node ID
+-        all_candidates.sort(key=lambda x: (x[0], x[1]), reverse=True)
+-        _, best_node, (cost, r_idx, pos) = all_candidates[0]
+-
+-        if r_idx == -1:
+-            # Cannot insert node anywhere
+-            unassigned.remove(best_node)
+-            continue
+-
+-        # Apply insertion
+-        waste = wastes.get(best_node, 0)
+-        if r_idx == len(routes):
+-            routes.append([best_node])
+-            loads.append(waste)
+-        else:
+-            routes[r_idx].insert(pos, best_node)
+-            loads[r_idx] += waste
+-
+-        unassigned.remove(best_node)
+-
+-    return routes
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair_operators.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair_operators.py
+deleted file mode 100644
+index a6ae41e3e..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/repair_operators.py
++++ /dev/null
+@@ -1,30 +0,0 @@
+-"""
+-Repair Operators Module.
+-
+-This module exposes the repair (insertion) operators used to reconstruct
+-partial solutions in the ALNS algorithm.
+-
+-Attributes:
+-    greedy_insertion (function): Cheapest insertion.
+-    regret_2_insertion (function): 2-regret insertion.
+-    regret_k_insertion (function): k-regret insertion.
+-    greedy_insertion_with_blinks (function): Randomized greedy insertion.
+-
+-Example:
+-    >>> from logic.src.policies.operators import repair_operators
+-    >>> routes = repair_operators.greedy_insertion(routes, removed, ...)
+-"""
+-
+-from .repair import (
+-    greedy_insertion,
+-    greedy_insertion_with_blinks,
+-    regret_2_insertion,
+-    regret_k_insertion,
+-)
+-
+-__all__ = [
+-    "greedy_insertion",
+-    "regret_2_insertion",
+-    "regret_k_insertion",
+-    "greedy_insertion_with_blinks",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/__init__.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/__init__.py
+deleted file mode 100644
+index 85216140a..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/__init__.py
++++ /dev/null
+@@ -1,28 +0,0 @@
+-"""
+-Route Operators Package.
+-
+-This package contains operator implementations for improving individual routes
+-or swapping nodes between routes to reduce total cost.
+-
+-Attributes:
+-    move_swap_star (function): Best insertion swap between two routes.
+-    move_2opt_star (function): Exchange tails between two routes.
+-    move_2opt_intra (function): Reverse a market segment within a route.
+-    move_3opt_intra (function): Reconnect three segments within a route.
+-
+-Example:
+-    >>> from logic.src.policies.operators.route import move_2opt_intra
+-    >>> improved = move_2opt_intra(ls, u=1, v=2, ...)
+-"""
+-
+-from .swap_star import move_swap_star
+-from .three_opt_intra import move_3opt_intra
+-from .two_opt_intra import move_2opt_intra
+-from .two_opt_star import move_2opt_star
+-
+-__all__ = [
+-    "move_swap_star",
+-    "move_2opt_star",
+-    "move_2opt_intra",
+-    "move_3opt_intra",
+-]
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/swap_star.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/swap_star.py
+deleted file mode 100644
+index 72922da77..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/swap_star.py
++++ /dev/null
+@@ -1,107 +0,0 @@
+-"""
+-Swap Star Operator Module.
+-
+-This module implements the Swap* operator (inter-route swap) for VRP.
+-It attempts to swap two nodes between different routes to improve the objective.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.route.swap_star import SwapStar
+-    >>> operator = SwapStar(...)
+-    >>> new_solution = operator.apply(solution)
+-
+-Removes u from route r_u and v from route r_v, then reinserts each node
+-into the other route at the best position. Only applies the move if it
+-improves the total cost by a threshold margin.
+-
+-Args:
+-    ls: LocalSearch instance containing routes and distance matrix.
+-    u: Node to remove from route r_u.
+-    v: Node to remove from route r_v.
+-    r_u: Index of the route containing u.
+-    p_u: Position of u in route r_u.
+-    r_v: Index of the route containing v.
+-    p_v: Position of v in route r_v.
+-
+-Returns:
+-    bool: True if the swap was applied (improving), False otherwise.
+-"""
+-
+-
+-def move_swap_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+-    """SWAP* inter-route operator: swap nodes u and v between different routes.
+-
+-    Removes u from route r_u and v from route r_v, then reinserts each node
+-    into the other route at the best position. Only applies the move if it
+-    improves the total cost by a threshold margin.
+-
+-    Args:
+-        ls: LocalSearch instance containing routes and distance matrix.
+-        u: Node to remove from route r_u.
+-        v: Node to remove from route r_v.
+-        r_u: Index of the route containing u.
+-        p_u: Position of u in route r_u.
+-        r_v: Index of the route containing v.
+-        p_v: Position of v in route r_v.
+-
+-    Returns:
+-        bool: True if the swap was applied (improving), False otherwise.
+-    """
+-    waste_u = ls.waste.get(u, 0)
+-    waste_v = ls.waste.get(v, 0)
+-
+-    route_u = ls.routes[r_u]
+-    route_v = ls.routes[r_v]
+-
+-    prev_u = route_u[p_u - 1] if p_u > 0 else 0
+-    next_u = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
+-    gain_rem_u = ls.d[prev_u, u] + ls.d[u, next_u] - ls.d[prev_u, next_u]
+-
+-    prev_v = route_v[p_v - 1] if p_v > 0 else 0
+-    next_v = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
+-    gain_rem_v = ls.d[prev_v, v] + ls.d[v, next_v] - ls.d[prev_v, next_v]
+-
+-    temp_rv = route_v[:]
+-    temp_rv.pop(p_v)
+-    if ls._calc_load_fresh(temp_rv) + waste_u > ls.Q:
+-        return False
+-
+-    best_delta_u = float("inf")
+-    best_pos_u = -1
+-
+-    for pos in range(len(temp_rv) + 1):
+-        prev = temp_rv[pos - 1] if pos > 0 else 0
+-        nxt = temp_rv[pos] if pos < len(temp_rv) else 0
+-        delta = ls.d[prev, u] + ls.d[u, nxt] - ls.d[prev, nxt]
+-        if delta < best_delta_u:
+-            best_delta_u = delta
+-            best_pos_u = pos
+-
+-    temp_ru = route_u[:]
+-    temp_ru.pop(p_u)
+-    if ls._calc_load_fresh(temp_ru) + waste_v > ls.Q:
+-        return False
+-
+-    best_delta_v = float("inf")
+-    best_pos_v = -1
+-
+-    for pos in range(len(temp_ru) + 1):
+-        prev = temp_ru[pos - 1] if pos > 0 else 0
+-        nxt = temp_ru[pos] if pos < len(temp_ru) else 0
+-        delta = ls.d[prev, v] + ls.d[v, nxt] - ls.d[prev, nxt]
+-        if delta < best_delta_v:
+-            best_delta_v = delta
+-            best_pos_v = pos
+-
+-    total_delta = -gain_rem_u - gain_rem_v + best_delta_u + best_delta_v
+-
+-    if total_delta * ls.C < -1e-4:
+-        ls.routes[r_u] = temp_ru
+-        ls.routes[r_u].insert(best_pos_v, v)
+-        ls.routes[r_v] = temp_rv
+-        ls.routes[r_v].insert(best_pos_u, u)
+-        ls._update_map({r_u, r_v})
+-        return True
+-    return False
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/three_opt_intra.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/three_opt_intra.py
+deleted file mode 100644
+index a94c8eb26..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/three_opt_intra.py
++++ /dev/null
+@@ -1,85 +0,0 @@
+-"""
+-3-opt Intra-Route Operator Module.
+-
+-This module implements the 3-opt intra-route operator, which removes three edges
+-from a route and reconnects the resulting segments in a new order to reduce
+-the total tour length.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.route.three_opt_intra import move_3opt_intra
+-    >>> improved = move_3opt_intra(ls, u, v, r_u, p_u, r_v, p_v)
+-"""
+-
+-from random import Random
+-
+-
+-def move_3opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int, rng: Random) -> bool:
+-    """
+-    3-opt intra-route operator: reconnect three segments within a route.
+-
+-    Randomly selects a third cut point and evaluates all 3-opt reconnection
+-    patterns. Applies the best improving move if found.
+-
+-    Args:
+-        ls: LocalSearch instance containing routes and distance matrix.
+-        u: First cut point node.
+-        v: Second cut point node.
+-        r_u: Index of the route.
+-        p_u: Position of u in the route.
+-        r_v: Index of the route (unused but required for signature).
+-        p_v: Position of v in the route.
+-        rng: Random number generator.
+-
+-    Returns:
+-        bool: True if a 3-opt move was applied (improving), False otherwise.
+-    """
+-    route = ls.routes[r_u]
+-    if len(route) < 4:
+-        return False
+-    if p_u > p_v:
+-        p_u, p_v = p_v, p_u
+-        u, v = v, u
+-
+-    for _ in range(5):
+-        p_w = rng.randint(0, len(route) - 1)
+-        if p_w in {p_u, p_v, p_u + 1, p_v + 1, p_u - 1, p_v - 1}:
+-            continue
+-
+-        idx = sorted([p_u, p_v, p_w])
+-        i, j, k = idx[0], idx[1], idx[2]
+-
+-        A, B = route[i], route[i + 1] if i < len(route) - 1 else 0
+-        C, D = route[j], route[j + 1] if j < len(route) - 1 else 0
+-        E, F = route[k], route[k + 1] if k < len(route) - 1 else 0
+-
+-        d_base = ls.d[A, B] + ls.d[C, D] + ls.d[E, F]
+-
+-        g4 = d_base - (ls.d[A, C] + ls.d[B, E] + ls.d[D, F])
+-        g5 = d_base - (ls.d[A, D] + ls.d[E, B] + ls.d[C, F])
+-        g6 = d_base - (ls.d[A, D] + ls.d[E, C] + ls.d[B, F])
+-        g7 = d_base - (ls.d[A, E] + ls.d[D, B] + ls.d[C, F])
+-
+-        gains = [g4, g5, g6, g7]
+-        best_g = max(gains)
+-        if best_g * ls.C > 1e-4:
+-            case = gains.index(best_g)
+-            s1 = route[: i + 1]
+-            s2 = route[i + 1 : j + 1]
+-            s3 = route[j + 1 : k + 1]
+-            s4 = route[k + 1 :]
+-
+-            if case == 0:
+-                route[:] = s1 + s2[::-1] + s3[::-1] + s4
+-            elif case == 1:
+-                route[:] = s1 + s3 + s2 + s4
+-            elif case == 2:
+-                route[:] = s1 + s3 + s2[::-1] + s4
+-            elif case == 3:
+-                route[:] = s1 + s3[::-1] + s2 + s4
+-
+-            ls._update_map({r_u})
+-            return True
+-    return False
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/two_opt_intra.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/two_opt_intra.py
+deleted file mode 100644
+index 75f2b3382..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/two_opt_intra.py
++++ /dev/null
+@@ -1,51 +0,0 @@
+-"""
+-2-opt Intra-Route Operator Module.
+-
+-This module implements the 2-opt intra-route operator, which reverses a segment
+-of a route to eliminate crossing edges and reduce total tour length.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.route.two_opt_intra import move_2opt_intra
+-    >>> improved = move_2opt_intra(ls, u, v, r_u, p_u, r_v, p_v)
+-"""
+-
+-
+-def move_2opt_intra(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+-    """
+-    2-opt intra-route operator: reverse a segment within a route.
+-
+-    Reverses the segment between positions p_u+1 and p_v (inclusive)
+-    in route r_u. Only applies the move if it reduces total cost.
+-
+-    Args:
+-        ls: LocalSearch instance containing routes and distance matrix.
+-        u: Start node of the segment (edge u->next_u broken).
+-        v: End node of the segment (edge v->next_v broken).
+-        r_u: Index of the route (must equal r_v for intra-route).
+-        p_u: Position of u in the route.
+-        r_v: Index of the route (unused but required for signature).
+-        p_v: Position of v in the route.
+-
+-    Returns:
+-        bool: True if the reversal was applied (improving), False otherwise.
+-    """
+-    if p_u >= p_v:
+-        return False
+-    if p_u + 1 == p_v:
+-        return False
+-
+-    route = ls.routes[r_u]
+-    u_next = route[p_u + 1]
+-    v_next = route[p_v + 1] if p_v < len(route) - 1 else 0
+-
+-    delta = -ls.d[u, u_next] - ls.d[v, v_next] + ls.d[u, v] + ls.d[u_next, v_next]
+-
+-    if delta * ls.C < -1e-4:
+-        segment = route[p_u + 1 : p_v + 1]
+-        route[p_u + 1 : p_v + 1] = segment[::-1]
+-        ls._update_map({r_u})
+-        return True
+-    return False
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/two_opt_star.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/two_opt_star.py
+deleted file mode 100644
+index d4a78cf6b..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route/two_opt_star.py
++++ /dev/null
+@@ -1,62 +0,0 @@
+-"""
+-2-opt* Inter-Route Operator Module.
+-
+-This module implements the 2-opt* operator, which exchanges the tails of two
+-different routes. It is a powerful operator for reducing the number of routes
+-and balancing loads.
+-
+-Attributes:
+-    None
+-
+-Example:
+-    >>> from logic.src.policies.operators.route.two_opt_star import move_2opt_star
+-    >>> improved = move_2opt_star(ls, u, v, r_u, p_u, r_v, p_v)
+-"""
+-
+-
+-def move_2opt_star(ls, u: int, v: int, r_u: int, p_u: int, r_v: int, p_v: int) -> bool:
+-    """
+-    2-opt* inter-route operator: exchange tails between two routes.
+-
+-    Cuts route r_u after node u and route r_v after node v, then swaps
+-    the tails. New routes become (start_u + tail_v) and (start_v + tail_u).
+-
+-    Args:
+-        ls: LocalSearch instance.
+-        u: Cut point in route r_u.
+-        v: Cut point in route r_v.
+-        r_u: Index of the first route.
+-        p_u: Position of u in route r_u.
+-        r_v: Index of the second route.
+-        p_v: Position of v in route r_v.
+-
+-    Returns:
+-        bool: True if the exchange was applied (improving), False otherwise.
+-    """
+-    route_u = ls.routes[r_u]
+-    route_v = ls.routes[r_v]
+-
+-    tail_u = route_u[p_u + 1 :]
+-    tail_v = route_v[p_v + 1 :]
+-
+-    l_head_u = ls._calc_load_fresh(route_u[: p_u + 1])
+-    l_head_v = ls._calc_load_fresh(route_v[: p_v + 1])
+-    l_tail_u = ls._get_load_cached(r_u) - l_head_u
+-    l_tail_v = ls._get_load_cached(r_v) - l_head_v
+-
+-    if l_head_u + l_tail_v > ls.Q or l_head_v + l_tail_u > ls.Q:
+-        return False
+-
+-    u_next = route_u[p_u + 1] if p_u < len(route_u) - 1 else 0
+-    v_next = route_v[p_v + 1] if p_v < len(route_v) - 1 else 0
+-
+-    delta = -ls.d[u, u_next] - ls.d[v, v_next] + ls.d[u, v_next] + ls.d[v, u_next]
+-
+-    if delta * ls.C < -1e-4:
+-        new_ru = route_u[: p_u + 1] + tail_v
+-        new_rv = route_v[: p_v + 1] + tail_u
+-        ls.routes[r_u] = new_ru
+-        ls.routes[r_v] = new_rv
+-        ls._update_map({r_u, r_v})
+-        return True
+-    return False
+diff --git a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route_operators.py b/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route_operators.py
+deleted file mode 100644
+index 070131660..000000000
+--- a/logic/src/policies/route_construction/meta_heuristics/pheromone_guided_cooperative_large_neighborhood_search/operators/route_operators.py
++++ /dev/null
+@@ -1,38 +0,0 @@
+-"""
+-Route-based local search operators for HGS.
+-
+-(Refactored to point to `logic.src.policies.operators.route` package)
+-
+-Attributes:
+-    move_swap_star: Swap two nodes in the same route.
+-    move_2opt_star: 2-opt move between two routes.
+-    move_2opt_intra: 2-opt move within a route.
+-    move_3opt_intra: 3-opt move within a route.
+-
+-Example:
+-    >>> from logic.src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.route_operators import move_2opt_intra, move_2opt_star, move_3opt_intra, move_swap_star
+-
+-    >>> routes = [[1, 2], [3, 4]]
+-    >>> move_2opt_intra(routes, 0, 0, 1)
+-    [[1, 2], [3, 4]]
+-    >>> move_2opt_star(routes, 0, 1)
+-    [[1, 3], [2, 4]]
+-    >>> move_3opt_intra(routes, 0, 0, 1, 1)
+-    [[1, 2], [3, 4]]
+-    >>> move_swap_star(routes, 0, 1)
+-    [[1, 3], [2, 4]]
+-"""
+-
+-from .route import (
+-    move_2opt_intra,
+-    move_2opt_star,
+-    move_3opt_intra,
+-    move_swap_star,
+-)
+-
+-__all__ = [
+-    "move_swap_star",
+-    "move_2opt_star",
+-    "move_2opt_intra",
+-    "move_3opt_intra",
+-]

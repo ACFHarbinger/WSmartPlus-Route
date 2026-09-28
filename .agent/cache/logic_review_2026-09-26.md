@@ -1250,3 +1250,114 @@ and the dr_alns/contextual clusters beyond the grep level were not opened.
 ## 7. Owner decisions
 
 ## 8. Implementation log (Claude, after the owner rules)
+
+## 10. Codex — cleanup patch integration review (2026-09-28)
+
+**Verdict: do not apply the complete stack yet.** Reviewed all seven lanes,
+including Codex's rollout redesign, against `6d500ed02`. Delivered patch versions
+are fixed by [SHA-256 manifest](patches/codex/code-cleanup-reviewed-sha256.txt).
+No shared source edits. Review copy `/tmp/wsr-codex-integration-20260928` contains
+all submitted patches, except Mistral's accidental `data` symlink hunk.
+
+### 10.1 Lane-by-lane disposition
+
+| Lane / delivered patches | Disposition before application |
+|---|---|
+| **Codex #80 rollout comparison; #82 greedy helper** | Ready as a two-patch lane. Independent review finding on repeated setup fixed. 48 isolated tests pass; 45 retained tests pass on integrated tree. [Handoff](patches/codex/issue-80-82-rollout-handoff.md). |
+| **Grok #80 simulator robustness** | Revise stats-file initialization/indexing: first row is now consumed twice. Remaining resume/failure changes have no identified code regression; two orchestrator tests blocked by sandbox sockets. Add the required behavior-change simulation evidence. |
+| **Grok #82 simulator refactors** | No additional finding in scoped review; scenario-tree default preserves behavior and mean/std consolidation tests pass. Apply only after corrected #80. |
+| **Gemini #80 neural robustness** | Production fixes look consistent in inspected paths, but patch includes no regression tests for its three fixes. Supply those and behavior-change verification before closing #80. |
+| **Gemini #81 dead layers** | No new finding; legacy projection-key loading and rejection of unrelated keys pass. Checkpoint validation covers `load_model`, not every possible external direct `load_state_dict` consumer. |
+| **Gemini #82 neural refactors** | Revise mandatory-mask early exit: supported tensor inputs now raise. Deep decoder smoke passes. M-gemini-03 is absent and needs an explicit deferred disposition; M-gemini-01 already has a deferral plan. |
+| **Kimi #81 BPC deletions** | No concrete production regression found in reviewed changes. Independent exact-solver rerun unavailable under this host's license; handoff's brute-force evidence was read, not independently reproduced. |
+| **Kimi #80 BPC/ACO/SWC + bundled #82** | Fix timing-dependent no-incumbent test and strengthen fleet regression. Production findings not established beyond these verification gaps. Three Gurobi tests cannot execute here. Handoff explicitly defers M-kimi-01/03 and discloses bundled refactors. |
+| **Qwen #80 PG-CLNS shared operators** | Revise: greedy repair now seeds an overcapacity optional route. Required parity/regression tests are absent. |
+| **Qwen #81 sans_opt deletion** | No surviving importer found; no additional finding. |
+| **Qwen #82 HMLNS shared ALNS** | No additional regression found. Nonpositive-profit temperature calibration is an intentional behavior change; include required verification evidence rather than treating as deletion-only. SANS deferrals remain explicit. |
+| **Cursor #80 BMC/OI examples** | No finding; all four tests pass. |
+| **Cursor #82 parity tests** | Selector tests pass. Profit “parity” compares two locally copied formulas, so it does not guard the production simulator/policy implementations. Replace with actual production calls before closing M-cursor-02. |
+| **Mistral #81 dead code/dependencies** | Remove accidental `data` symlink from patch and regenerate `uv.lock`. Surviving absolute imports checked for removed modules; no references found in that scan. |
+| **Mistral #80 config knobs** | No additional finding; delivered config-reader regression passes. |
+| **Mistral #82 config refactors** | Include the five round-trip tests claimed in handoff but absent from patch/tree. No claim of full parity approval without them. |
+
+### 10.2 Concrete findings and required revisions
+
+1. **HIGH — Gemini: tensor mandatory masks crash.**
+   `learning_algorithms/neural_agent/policy_na.py:104–108` calls
+   `BaseRoutingPolicy._validate_mandatory`, whose `if not mandatory` is only
+   valid for a list-like scalar truth value. `_convert_mandatory_to_mask`
+   explicitly accepts Boolean tensors. With `torch.tensor([[False, True, False]])`,
+   conversion succeeds but `execute()` now raises “Boolean value of Tensor with
+   more than one value is ambiguous” before accessing the model. Normalize the
+   mask or use a mask-aware emptiness check; cover empty/nonempty tensor masks
+   and integer ID lists in regression tests.
+2. **HIGH — Qwen: new greedy route can exceed capacity.**
+   PG-CLNS `lns.py:108–117` now uses shared `greedy_profit_insertion`; its
+   `get_seed_profit` branch does not reject demand above vehicle capacity.
+   Distances `[[0,1],[1,0]]`, demand `{1:20}`, capacity10, R=C=1:
+   `repair_ops[0]([], [1])` returns `[[1]]`; the deleted PG greedy path returns
+   `[]`. The old regret path also had this defect, but it is newly exposed in
+   greedy repair. Enforce seed-route feasibility and supply the owner-required
+   unchanged-operator parity plus mandatory/capacity/directed-distance cases.
+3. **MEDIUM — Grok: indexing fix duplicates the opening row.**
+   `bins/base.py:332–334` initializes stock from row0 when `start_with_fill`;
+   changed `load_filling` at459–467 uses row0 again on day1. For rows10,20,30,
+   opening stock10 becomes20 on day1 by replaying the opening observation.
+   Avoiding the old end-of-array exception does not establish a consistent mass
+   ledger. Specify separate initial state versus daily increments (or require
+   the appropriate extra row), then test the whole horizon's mass balance and
+   last-day bound. The delivered test checks only that the last row is read.
+4. **HIGH — Mistral: patch contains a local data symlink.**
+   `issue-81-c4-dead-code.patch:40–47` adds `data` pointing to
+   `/home/pkhunter/Repositories/Doc/WSmart-Route/data`. Apply fails with
+   “data: already exists in working directory”; at the canonical repo path that
+   link would refer to itself. Remove the hunk; do not replace/delete user data.
+5. **MEDIUM — Mistral: stale workspace lock.**
+   Removed dependencies in `logic/pyproject.toml` remain direct package
+   dependencies/metadata in `uv.lock` (e.g.8474/8491 and8620/8662). Packaging
+   invokes `uv sync --all-packages --frozen` (`package-and-build.yml:201`), so
+   these dependencies remain installed. Regenerate and validate the lock.
+6. **MEDIUM — Kimi: non-incumbent test is timing-dependent.**
+   `test_swc_tcf_backends.py:34–46` assumes a1ms solve cannot find an incumbent.
+   That is not guaranteed. Mock the zero-incumbent condition deterministically.
+   Its fleet test at49–65 merely requires a nonempty route, which the previous
+   fallback can also return; assert the actual vehicle bound or distinguish the
+   prior implementation with a capacity-requiring witness.
+7. **MEDIUM — missing verification deliverables.**
+   Qwen's three patches contain no new tests despite the explicit parity gate;
+   Gemini #80 has none for its three fixes. Mistral #82 omits
+   `logic/test/unit/utils/target/test_policy_link_updater.py` and its claimed
+   five round-trip tests. Cursor's `_sim_profit` and `_policy_scaled_profit`
+   are test-local equations rather than calls to `Bins.collect` and the real
+   policy helper: those tests would survive a regression in either production
+   formula. Supply the missing/differentiating tests.
+
+Paths in findings 1/2 are relative to
+`logic/src/policies/route_construction/`; the simulator path is under
+`logic/src/pipeline/simulations/`. Line numbers refer to the integrated review
+copy and may shift when patches are revised.
+
+**Reproducer:** [in-memory checks](tools/codex_cleanup_review_repro_20260928.py)
+run from the integrated checkout reproduce findings1–3 without simulation,
+external data, network or a solver license. No source modifications by reviewer.
+
+### 10.3 Validation and limits
+
+- Other-lane selected tests: **48 passed, 5 environment-blocked failures**.
+  Three SWC/Gurobi cases report HostID/license mismatch. Two Grok orchestrator
+  cases fail creating multiprocessing manager sockets under the sandbox.
+  These failures are not counted as demonstrated code regressions or as passes.
+- Codex: **48 passed** in isolated lane tree; **45 passed** after integration
+  (three tests belong to Mistral's deleted test-only time-tracking implementation).
+  Before Codex patch, three selected lifecycle regressions fail. Three greedy
+  API parity tests pass before and after the extraction. Real CPU VRPP/AM
+  rollout and checkpoint/repeated-setup tests pass. No GPU training run.
+- Integrated `compileall logic/src` passes. All patches stack in the documented
+  lane orders except the excluded Mistral `data` hunk. No broad simulation
+  rerun or full unit-suite/import-sweep claim is made for this independent pass.
+- Standard independent reviewer covered Qwen/Kimi/Mistral and then Codex's new
+  code. Specialized Bugbot launcher unavailable; this is not a Bugbot-service
+  verdict. Codex independently reviewed Grok/Gemini/Cursor and integrated tests.
+- No shared source changes, production config edits, application commits or
+  pushes. Revised patch hashes require re-review; this verdict does not extend
+  to unseen future revisions.

@@ -1,0 +1,111 @@
+diff --git a/logic/src/pipeline/rl/common/baselines/rollout.py b/logic/src/pipeline/rl/common/baselines/rollout.py
+index 8bcced1f9..a847fd437 100644
+--- a/logic/src/pipeline/rl/common/baselines/rollout.py
++++ b/logic/src/pipeline/rl/common/baselines/rollout.py
+@@ -188,6 +188,17 @@ class RolloutBaseline(Baseline):
+             return self._rollout_dataset(policy, td_or_dataset, env)
+         return self._rollout_batch(policy, td_or_dataset, env)
+ 
++    @staticmethod
++    def _invoke_greedy(policy: nn.Module, td: Any, env: Optional[Any]) -> Dict[str, Any]:
++        """Invoke either policy API, preserving the legacy reward tuple contract."""
++        if hasattr(policy, "set_strategy"):
++            cast(Any, policy).set_strategy("greedy")
++            result = cast(Any, policy)(td)
++            return {"reward": result[0]} if isinstance(result, tuple) else result
++        if env is None:
++            raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
++        return cast(Any, policy)(td, env, strategy="greedy")
++
+     def _rollout_dataset(self, policy: nn.Module, dataset: Any, env: Optional[Any] = None) -> torch.Tensor:
+         """Run greedy rollout on a complete dataset.
+ 
+@@ -237,12 +248,7 @@ class RolloutBaseline(Baseline):
+                     padding_safe = safe_td_copy(padding)
+                     td_data = torch.cat([td_data, padding_safe], 0)
+ 
+-                if hasattr(policy, "set_strategy"):
+-                    cast(Any, policy).set_strategy("greedy")
+-                    res = cast(Any, policy)(td_data)
+-                    out = {"reward": res[0]} if isinstance(res, tuple) else res
+-                else:
+-                    out = cast(Any, policy)(td_data, env, strategy="greedy")
++                out = self._invoke_greedy(policy, td_data, env)
+ 
+                 # Unpad rewards
+                 if real_size != batch_size:
+@@ -272,14 +278,7 @@ class RolloutBaseline(Baseline):
+ 
+         policy.eval()
+         with torch.no_grad():
+-            if hasattr(policy, "set_strategy"):
+-                cast(Any, policy).set_strategy("greedy")
+-                res = cast(Any, policy)(td_copy)
+-                out = {"reward": res[0]} if isinstance(res, tuple) else res
+-            else:
+-                if env is None:
+-                    raise ValueError("Environment (env) is required for RolloutBaseline evaluation")
+-                out = cast(Any, policy)(td_copy, env, strategy="greedy")
++            out = self._invoke_greedy(policy, td_copy, env)
+ 
+         return out["reward"]
+ 
+diff --git a/logic/test/unit/pipeline/rl/common/test_rollout_invocation.py b/logic/test/unit/pipeline/rl/common/test_rollout_invocation.py
+new file mode 100644
+index 000000000..20128e272
+--- /dev/null
++++ b/logic/test/unit/pipeline/rl/common/test_rollout_invocation.py
+@@ -0,0 +1,53 @@
++"""Dataset/batch parity for both supported greedy policy interfaces."""
++
++from types import SimpleNamespace
++
++import pytest
++import torch
++from logic.src.data.datasets import TensorDictDataset
++from logic.src.pipeline.rl.common.baselines import RolloutBaseline
++from tensordict import TensorDict
++
++pytestmark = [pytest.mark.unit, pytest.mark.fast]
++
++
++class ModernPolicy(torch.nn.Module):
++    def __init__(self):
++        super().__init__()
++        self.weight = torch.nn.Parameter(torch.tensor(2.0))
++
++    def forward(self, td, env, strategy):
++        assert strategy == "greedy" and env is not None
++        return {"reward": td["x"].squeeze(-1) * self.weight}
++
++
++class LegacyPolicy(ModernPolicy):
++    def set_strategy(self, strategy):
++        self.strategy = strategy
++
++    def forward(self, td):
++        assert self.strategy == "greedy"
++        return td["x"].squeeze(-1) * self.weight, torch.zeros(len(td))
++
++
++@pytest.mark.parametrize("policy_class", [ModernPolicy, LegacyPolicy])
++def test_batch_dataset_parity_with_partial_last_batch(policy_class):
++    policy = policy_class()
++    baseline = RolloutBaseline(policy)
++    data = TensorDict({"x": torch.tensor([[1.0], [2.0], [3.0]])}, [3])
++    original = data.clone()
++    env = SimpleNamespace(batch_size=[2], reset=lambda td: td)
++    batch_rewards = baseline._rollout_batch(policy, data, env)
++    dataset_rewards = baseline._rollout_dataset(policy, TensorDictDataset(data), env)
++    assert torch.equal(batch_rewards, torch.tensor([2.0, 4.0, 6.0]))
++    assert torch.equal(dataset_rewards, batch_rewards)
++    assert torch.equal(data["x"], original["x"])
++    assert not batch_rewards.requires_grad and not dataset_rewards.requires_grad
++
++
++def test_modern_requires_environment_but_legacy_batch_does_not():
++    data = TensorDict({"x": torch.ones(2, 1)}, [2])
++    baseline = RolloutBaseline()
++    with pytest.raises(ValueError, match="Environment"):
++        baseline._rollout_batch(ModernPolicy(), data)
++    assert torch.equal(baseline._rollout_batch(LegacyPolicy(), data), torch.full((2,), 2.0))

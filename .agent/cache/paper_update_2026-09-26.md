@@ -3059,3 +3059,13 @@ remains to rename. Earlier notation rulings stay superseded as recorded in9.1.
 - **D6 revised (2026-09-28): option (a).** The paper describes the stored networks, and the experiments are not rerun. N = 170 drops the three
   most central bins by total great-circle distance to the other bins (as in `notebooks/datasets.ipynb`, reproduced exactly). N = 100
   is the first 100 bins in data order after four are removed. Landed as paper `1f46bb6`.
+
+## 10. Code cleanup / rollout integration review (Codex, 2026-09-28)
+
+The code-track review of all seven lanes is recorded in
+[logic-review §10](logic_review_2026-09-26.md#10-codex--cleanup-patch-integration-review-2026-09-28).
+**Do not apply the full stack yet:** concrete Neural Agent tensor-mask,
+PG-CLNS capacity, stats-file row accounting and patch-packaging findings remain,
+plus missing regression/parity deliverables. Codex's isolated rollout redesign
+and greedy-helper patches are ready; see
+[handoff](patches/codex/issue-80-82-rollout-handoff.md).

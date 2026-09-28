@@ -1,0 +1,282 @@
+diff --git a/logic/src/models/core/attention_model/deep_decoder_policy.py b/logic/src/models/core/attention_model/deep_decoder_policy.py
+index b00bf74a3..910209115 100644
+--- a/logic/src/models/core/attention_model/deep_decoder_policy.py
++++ b/logic/src/models/core/attention_model/deep_decoder_policy.py
+@@ -15,24 +15,19 @@ Example:
+ 
+ from __future__ import annotations
+ 
+-from typing import Any, Dict, Optional
++from typing import Any
+ 
+-import torch
+-from tensordict import TensorDict
+-
+-from logic.src.envs.base.base import RL4COEnvBase
+-from logic.src.models.common.autoregressive.policy import AutoregressivePolicy
++from logic.src.models.core.attention_model.policy import AttentionModelPolicy
+ from logic.src.models.subnets.decoders.gat import DeepGATDecoder
+-from logic.src.models.subnets.embeddings import get_init_embedding
+-from logic.src.models.subnets.encoders.gat import GraphAttentionEncoder
+ 
+ 
+-class DeepDecoderPolicy(AutoregressivePolicy):
++class DeepDecoderPolicy(AttentionModelPolicy):
+     """Routing policy with multi-layer attention construction.
+ 
+-    Uses a standard GAT encoder but employs a DeepGATDecoder, which applies
+-    multiple layers of cross-attention between the current state and node
+-    embeddings at each decoding step.
++    Inherits the autoregressive decoding pipeline from AttentionModelPolicy
++    while employing a DeepGATDecoder, which applies multiple layers of
++    cross-attention between the current state and node embeddings at each
++    decoding step.
+ 
+     Attributes:
+         encoder (GraphAttentionEncoder): Graph feature extractor.
+@@ -40,7 +35,6 @@ class DeepDecoderPolicy(AutoregressivePolicy):
+         init_embedding (nn.Module): Problem-specific latent projection.
+     """
+ 
+-    encoder: GraphAttentionEncoder
+     decoder: DeepGATDecoder
+ 
+     def __init__(
+@@ -68,15 +62,12 @@ class DeepDecoderPolicy(AutoregressivePolicy):
+             dropout_rate: Dropout probability.
+             kwargs: Additional keyword arguments.
+         """
+-        super().__init__(env_name=env_name, embed_dim=embed_dim)
+-
+-        self.init_embedding = get_init_embedding(env_name, embed_dim)
+-
+-        self.encoder = GraphAttentionEncoder(
+-            n_heads=n_heads,
++        super().__init__(
++            env_name=env_name,
+             embed_dim=embed_dim,
+-            feed_forward_hidden=hidden_dim,
+-            n_layers=n_encode_layers,
++            hidden_dim=hidden_dim,
++            n_encode_layers=n_encode_layers,
++            n_heads=n_heads,
+             normalization=normalization,
+             dropout_rate=dropout_rate,
+             **kwargs,
+@@ -91,95 +82,3 @@ class DeepDecoderPolicy(AutoregressivePolicy):
+             dropout_rate=dropout_rate,
+             **kwargs,
+         )
+-
+-    def forward(
+-        self,
+-        td: TensorDict,
+-        env: Optional[RL4COEnvBase] = None,
+-        strategy: str = "sampling",
+-        num_starts: int = 1,
+-        actions: Optional[torch.Tensor] = None,
+-        **kwargs: Any,
+-    ) -> Dict[str, Any]:
+-        """Executes the deep constructive decoding pass.
+-
+-        Args:
+-            td: TensorDict containing problem instance data.
+-            env: Environment managing problem physics.
+-            strategy: Decoding strategy identifier (e.g., "greedy", "sampling").
+-            num_starts: Number of parallel construction starts.
+-            actions: Optional pre-selected actions for teacher forcing.
+-            kwargs: Additional keyword arguments.
+-
+-        Returns:
+-            Dict[str, Any]: Policy outputs including rewards, log-probs, and actions.
+-
+-        Raises:
+-            AssertionError: If sub-components or env_name are uninitialized.
+-        """
+-        # 1. Initialize latent node representations
+-        init_embeds = self.init_embedding(td)
+-
+-        # 2. Extract global graph features
+-        assert self.encoder is not None, "Encoder is not initialized"
+-        embeddings = self.encoder(init_embeds)
+-
+-        # 3. Cache constant encoding for step-wise construction
+-        assert self.decoder is not None, "Decoder is not initialized"
+-        fixed = self.decoder._precompute(embeddings)
+-
+-        # 4. Sequential construction loop
+-        log_likelihood: float | torch.Tensor = 0.0
+-        entropy: float | torch.Tensor = 0.0
+-        output_actions = []
+-        step_idx = 0
+-
+-        while not td["done"].all():
+-            assert env is not None, "Environment must be provided for step-wise construction."
+-            assert self.env_name is not None, "env_name must be set"
+-            from logic.src.utils.data import TensorDictStateWrapper
+-
+-            state_wrapper = TensorDictStateWrapper(td, self.env_name)
+-
+-            # Masked attention over nodes
+-            logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
+-
+-            # Flatten head dimension if present
+-            if logits.dim() == 3:
+-                logits = logits[:, 0, :] if logits.size(1) > 1 else logits.squeeze(1)
+-
+-            # Invert validity mask (DeepDecoder returns invalid=True)
+-            if mask.dim() == 3:
+-                mask = mask.squeeze(1)
+-            valid_mask = ~mask
+-
+-            if actions is not None:
+-                # Teachers forcing for evaluation/distillation
+-                action = actions[:, step_idx]
+-                probs = torch.softmax(logits.masked_fill(~valid_mask, float("-inf")), dim=-1)
+-                log_p = torch.log(probs.gather(1, action.unsqueeze(-1)) + 1e-10).squeeze(-1)
+-            else:
+-                # Stochastic or deterministic selection
+-                action, log_p, entropy_step = self._select_action(logits, valid_mask, strategy)
+-                if isinstance(entropy_step, torch.Tensor):
+-                    entropy = entropy + entropy_step
+-
+-            # Transition to next step
+-            td["action"] = action
+-            td = env.step(td)["next"].clone()
+-
+-            log_likelihood = log_likelihood + log_p
+-            output_actions.append(action)
+-            step_idx += 1
+-
+-        # Calculate final solution reward
+-        constructed_actions = torch.stack(output_actions, dim=1)
+-        reward = env.get_reward(td, constructed_actions)
+-
+-        return {
+-            "reward": reward,
+-            "log_likelihood": log_likelihood,
+-            "actions": constructed_actions,
+-            "entropy": entropy,
+-            "td": td,
+-        }
+diff --git a/logic/src/models/core/attention_model/policy.py b/logic/src/models/core/attention_model/policy.py
+index 616d812a8..c1a81c85e 100644
+--- a/logic/src/models/core/attention_model/policy.py
++++ b/logic/src/models/core/attention_model/policy.py
+@@ -172,6 +172,10 @@ class AttentionModelPolicy(AutoregressivePolicy):
+             # Get logits from decoder (mask=True for invalid)
+             logits, mask = self.decoder._get_log_p(fixed, state_wrapper)
+ 
++            # Flatten head dimension if present (e.g. DeepGATDecoder)
++            if logits.dim() == 3:
++                logits = logits[:, 0, :] if logits.size(1) > 1 else logits.squeeze(1)
++
+             # Invert mask for _select_action (expects True=VALID)
+             if mask.dim() == 3:
+                 mask = mask.squeeze(1)
+diff --git a/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py b/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py
+index 5825fb703..18c2074e7 100644
+--- a/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py
++++ b/logic/src/policies/route_construction/learning_algorithms/neural_agent/policy_na.py
+@@ -13,7 +13,7 @@ Example:
+     >>> route, cost, _ = policy.execute(model_env=env, model_ls=ls, ...)
+ """
+ 
+-from typing import Any, Dict, List, Optional, Tuple
++from typing import Any, Dict, List, Optional, Tuple, Type
+ 
+ import torch
+ 
+@@ -58,6 +58,15 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
+         super().__init__(config)
+         self._params_logged = False
+ 
++    @classmethod
++    def _config_class(cls) -> Optional[Type[Any]]:
++        """Return the dataclass type for this policy's config."""
++        return NeuralParams
++
++    def _get_config_key(self) -> str:
++        """Return the config key for this policy."""
++        return "na"
++
+     def execute(
+         self, **kwargs: Any
+     ) -> Tuple[List[int], float, float, Optional[SearchContext], Optional[MultiDayContext]]:
+@@ -92,6 +101,12 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
+                 - Optional[SearchContext]: Updated search context.
+                 - Optional[MultiDayContext]: Updated multi-period context.
+         """
++        if "mandatory" in kwargs and kwargs["mandatory"] is not None:
++            early_exit = self._validate_mandatory(kwargs["mandatory"])
++            if early_exit is not None:
++                tour, cost, profit = early_exit
++                return tour, cost, profit, kwargs.get("search_context"), kwargs.get("multi_day_context")
++
+         model_env = kwargs["model_env"]
+         model_ls = kwargs["model_ls"]
+         bins = kwargs["bins"]
+@@ -101,9 +116,11 @@ class NeuralAgentPolicy(BaseRoutingPolicy):
+         hrl_manager = kwargs.get("hrl_manager")
+ 
+         # 1. Initialize type-safe Params
+-        # NeuralPolicy typically receives configuration via kwargs["config"] or initialization
+-        values = kwargs.get("config", {}).get("na", {})
+-        params = NeuralParams.from_config(self._config or values)
++        if self._config is not None and isinstance(self._config, NeuralParams):
++            params = self._config
++        else:
++            values = kwargs.get("config", {}).get(self._get_config_key(), kwargs.get("config", {}))
++            params = NeuralParams.from_config(self._config or values)
+ 
+         model_data, graph, profit_vars = model_ls
+         agent = NeuralAgent(model_env)
+diff --git a/logic/test/unit/models/subnets/test_deep_decoder.py b/logic/test/unit/models/subnets/test_deep_decoder.py
+index 653bcb398..c456ab5b3 100644
+--- a/logic/test/unit/models/subnets/test_deep_decoder.py
++++ b/logic/test/unit/models/subnets/test_deep_decoder.py
+@@ -9,7 +9,6 @@ from logic.src.models.subnets.decoders.gat.decoder import DeepGATDecoder
+ pytestmark = [pytest.mark.unit, pytest.mark.fast]
+ 
+ 
+-
+ def test_deep_decoder_init():
+     """Verify initialization of DeepGATDecoder."""
+     model = DeepGATDecoder(embed_dim=16, hidden_dim=16, n_heads=2, n_layers=1)
+@@ -50,8 +49,6 @@ def test_deep_decoder_get_log_p():
+ 
+     from unittest.mock import MagicMock
+ 
+-
+-
+     state = MagicMock()
+     # Mock current node (1 per batch)
+     state.get_current_node.return_value = torch.zeros(batch, 1, dtype=torch.long)
+@@ -73,3 +70,27 @@ def test_deep_decoder_slicing():
+     sliced = fixed[0:2]
+     assert sliced.node_embeddings.shape == (2, 5, 16)
+     assert sliced.context_node_projected.shape == (2, 1, 16)
++
++
++def test_deep_decoder_policy_forward():
++    """Verify DeepDecoderPolicy forward pass using inherited AttentionModelPolicy loop (M-gemini-02)."""
++    from logic.src.envs.routing.vrpp import VRPPEnv
++    from logic.src.models.core.attention_model.deep_decoder_policy import DeepDecoderPolicy
++
++    env = VRPPEnv(num_loc=5)
++    env.NAME = env.name
++    td = env.reset(batch_size=[2])
++
++    policy = DeepDecoderPolicy(
++        env_name="vrpp",
++        embed_dim=32,
++        hidden_dim=32,
++        n_encode_layers=1,
++        n_decode_layers=1,
++        n_heads=2,
++    )
++    out = policy(td, env, strategy="greedy")
++    assert "actions" in out
++    assert "reward" in out
++    assert "log_likelihood" in out
++    assert out["actions"].shape[0] == 2

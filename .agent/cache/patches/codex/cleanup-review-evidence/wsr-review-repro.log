@@ -1,0 +1,15 @@
+/home/pkhunter/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-5l653707 because there was an issue with the default path (/home/pkhunter/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch/cuda/__init__.py:1112: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_geometric/__init__.py:4: UserWarning: An issue occurred while importing 'torch-scatter'. Disabling its usage. Stacktrace: Could not load this library: /home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_scatter/_scatter_cuda.so
+  import torch_geometric.typing
+
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_geometric/__init__.py:4: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: Could not load this library: /home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_sparse/_spmm_cuda.so
+  import torch_geometric.typing
+
+Grok initial stock: [10.0]
+Grok day-1 stock: [20.0] day-1 row: [10.0]
+Qwen greedy repair: [[1]] load=20, capacity=10
+Gemini supported tensor mask now fails before model access: Boolean value of Tensor with more than one value is ambiguous

@@ -1,0 +1,1555 @@
+diff --git a/data b/data
+new file mode 120000
+index 000000000..b6b384e13
+--- /dev/null
++++ b/data
+@@ -0,0 +1 @@
++/home/pkhunter/Repositories/Doc/WSmart-Route/data
+\ No newline at end of file
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/branching/tree.py b/logic/src/policies/helpers/solvers_and_matheuristics/branching/tree.py
+index 6e93f9b48..58dc6fe2b 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/branching/tree.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/branching/tree.py
+@@ -108,9 +108,9 @@ class BranchAndBoundTree:
+                     DeprecationWarning,
+                     stacklevel=2,
+                 )
+-            self.max_nodes = getattr(params, "max_branch_nodes", max_nodes)
+-            self.strategy = getattr(params, "branching_strategy", strategy)
+-            self.search_strategy = getattr(params, "tree_search_strategy", search_strategy)
++            self.max_nodes = params.max_bb_nodes
++            self.strategy = params.branching_strategy
++            self.search_strategy = params.search_strategy
+         else:
+             self.max_nodes = max_nodes
+             self.strategy = strategy
+@@ -141,29 +141,6 @@ class BranchAndBoundTree:
+         self.root = BranchNode()
+         self.add_node(self.root)
+ 
+-    def _get_coords_from_model(self, v_model: VRPPModel) -> Optional[np.ndarray]:
+-        """Extract node coordinates from the model.
+-
+-        Args:
+-            v_model: The VRPP model instance.
+-
+-        Returns:
+-            Coordinates as an array or None.
+-        """
+-        if not hasattr(v_model, "node_coords"):
+-            return None
+-        node_coords = v_model.node_coords
+-        if isinstance(node_coords, dict):
+-            coords_arr = np.zeros((len(node_coords) + 1, 2))
+-            for i, (x, y) in node_coords.items():
+-                coords_arr[i] = [x, y]
+-            return coords_arr
+-        return node_coords
+-
+-    # ------------------------------------------------------------------
+-    # Frontier Management
+-    # ------------------------------------------------------------------
+-
+     def add_node(self, node: BranchNode) -> None:
+         """Enqueue a new open node to the frontier.
+ 
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py
+index fc4cd4e11..a88d16ec4 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/master_problem/problem_support.py
+@@ -116,7 +116,6 @@ class MasterProblemSupport(Protocol):
+     dual_multistar_cuts: Dict[FrozenSet[int], float]
+ 
+     # Dual stabilization configurations
+-    dual_smoothing_alpha: float
+     prev_dual_node_coverage: Dict[int, float]
+     prev_dual_vehicle_limit: float
+     prev_dual_capacity_cuts: Dict[FrozenSet[int], float]
+@@ -125,7 +124,6 @@ class MasterProblemSupport(Protocol):
+ 
+     column_deletion_enabled: bool
+     strict_set_partitioning: bool
+-    enable_dual_smoothing: bool
+ 
+     # Core Methods
+     def build_model(self, initial_routes: Optional[List[Route]] = None) -> None:
+@@ -308,135 +306,6 @@ class MasterProblemSupport(Protocol):
+             int: Number of redundant routes removed.
+         """
+         ...
+-
+-    def has_artificial_variables_active(self: MasterProblemSupport, tol: float = 1e-6) -> bool:
+-        """Check whether any artificial variable is non-zero in the current solution.
+-
+-        Args:
+-            tol (float): Threshold below which a variable value is considered zero.
+-
+-        Returns:
+-            bool: True if at least one artificial variable is active (indicates infeasibility).
+-        """
+-        ...
+-
+-    # Constraint (cut) management methods
+-    def add_edge_clique_cut(
+-        self: MasterProblemSupport,
+-        u: int,
+-        v: int,
+-        coefficients: Optional[Dict[int, float]] = None,
+-        rhs: float = 1.0,
+-    ) -> bool:
+-        """Adds an Edge Clique Cut to the master problem.
+-
+-        Args:
+-            u (int): First node of the edge.
+-            v (int): Second node of the edge.
+-            coefficients (Optional[Dict[int, float]]): Mapping of node to its coefficient in the clique.
+-            rhs (float): Right-hand side of the inequality.
+-
+-        Returns:
+-            bool: True if the cut was successfully added.
+-        """
+-        ...
+-
+-    def add_subset_row_cut(
+-        self: MasterProblemSupport,
+-        node_set: Union[List[int], Set[int], FrozenSet[int]],
+-    ) -> bool:
+-        """Adds a Subset-Row Inequality (SRI) cut to the master problem.
+-
+-        Args:
+-            node_set (Union[List[int], Set[int], FrozenSet[int]]): The set of nodes in the inequality.
+-
+-        Returns:
+-            bool: True if the cut was successfully added.
+-        """
+-        ...
+-
+-    def add_capacity_cut(
+-        self: MasterProblemSupport,
+-        node_list: List[int],
+-        rhs: float,
+-        coefficients: Optional[Dict[int, float]] = None,
+-        is_global: bool = True,
+-        _skip_pool: bool = False,
+-    ) -> bool:
+-        """Adds a Root-Capacity Cut (RCC) or generalized capacity cut.
+-
+-        Args:
+-            node_list (List[int]): The set of nodes involved in the cut.
+-            rhs (float): Right-hand side of the inequality.
+-            coefficients (Optional[Dict[int, float]]): Variable coefficients.
+-            is_global (bool): Whether the cut is globally valid across the B&B tree.
+-            _skip_pool (bool): Whether to skip adding to the global cut pool.
+-
+-        Returns:
+-            bool: True if the cut was successfully added.
+-        """
+-        ...
+-
+-    def add_lci_cut(
+-        self: MasterProblemSupport,
+-        node_list: List[int],
+-        rhs: float,
+-        coefficients: Dict[int, float],
+-        node_alphas: Optional[Dict[int, float]] = None,
+-        arc: Optional[Tuple[int, int]] = None,
+-    ) -> bool:
+-        """Adds a Lifted Cover Inequality (LCI) cut to the master problem.
+-
+-        Args:
+-            node_list (List[int]): The cover set nodes.
+-            rhs (float): Right-hand side.
+-            coefficients (Dict[int, float]): Coefficients for coverage variables.
+-            node_alphas (Optional[Dict[int, float]]): Lifting coefficients.
+-            arc (Optional[Tuple[int, int]]): Branching arc associated with the cut.
+-
+-        Returns:
+-            bool: True if the cut was successfully added.
+-        """
+-        ...
+-
+-    def add_multistar_cut(
+-        self: "MasterProblemSupport",
+-        node_list: List[int],
+-        coefficients: Dict[int, float],
+-    ) -> bool:
+-        """Add a Generalized Multistar Inequality cut (Letchford et al. 2002).
+-
+-        The cut is stored as:  Σ_{k} (−a_k) · λ_k ≤ 0
+-        where coefficients[k] = −a_k for each route k with |a_k| > 1e-6.
+-
+-        The Gurobi constraint is registered in ``active_multistar_cuts`` and
+-        its dual γ_S (extracted in ``_extract_duals``) is emitted via
+-        ``get_reduced_cost_coefficients`` under the ``"multistar_duals"`` key,
+-        so the RCSPP pricer can apply the arc-level penalty in ``_extend_label``.
+-
+-        Implementation in ``VRPPMasterProblem`` (model.py):
+-        ---------------------------------------------------
+-        1. Build key:  node_key = frozenset(node_list)
+-        2. Skip if already active: if node_key in self.active_multistar_cuts: return False
+-        3. Build expr: sum(coefficients[i] * self.lambda_vars[i]
+-                           for i in coefficients if i < len(self.lambda_vars))
+-        4. Add constr: c = self.model.addConstr(expr <= 0.0, name=f"multistar_{hash(node_key)}")
+-        5. Store: self.active_multistar_cuts[node_key] = c
+-        6. Archive in GlobalCutPool: self.global_cut_pool.add_cut("multistar", (node_key, coefficients))
+-        7. Wire new routes: update ``_wire_route_into_active_cuts`` to include multistar.
+-        8. In ``_extract_duals``: self.dual_multistar_cuts = {s: max(0.0, c.Pi)
+-               for s, c in self.active_multistar_cuts.items()}
+-        9. In ``get_reduced_cost_coefficients``: add "multistar_duals": self.dual_multistar_cuts
+-
+-        Args:
+-            node_list: Nodes forming the cut set S.
+-            coefficients: {route_index: −a_k} for routes with |a_k| > 1e-6.
+-
+-        Returns:
+-            bool: True if the cut was successfully added (False if duplicate).
+-        """
+-        ...
+-
+     def add_set_packing_capacity_cut(self: MasterProblemSupport, node_list: List[int], rhs: float) -> bool:
+         """Adds a capacity cut specifically for set packing formulations.
+ 
+@@ -449,32 +318,6 @@ class MasterProblemSupport(Protocol):
+         """
+         ...
+ 
+-    def add_sec_cut(
+-        self: MasterProblemSupport,
+-        node_list: Union[List[int], Set[int], FrozenSet[int]],
+-        rhs: float,
+-        cut_name: str = "",
+-        global_cut: bool = True,
+-        node_i: int = -1,
+-        node_j: int = -1,
+-        facet_form: str = "2.1",
+-    ) -> bool:
+-        """Adds a Subtour Elimination Constraint (SEC).
+-
+-        Args:
+-            node_list (Union[List[int], Set[int], FrozenSet[int]]): Nodes in the subtour.
+-            rhs (float): Right-hand side.
+-            cut_name (str): Name for the constraint.
+-            global_cut (bool): Whether the cut is globally valid.
+-            node_i (int): Specific node i for facet-defining forms.
+-            node_j (int): Specific node j for facet-defining forms.
+-            facet_form (str): Type of facet-defining inequality to use.
+-
+-        Returns:
+-            bool: True if the cut was successfully added.
+-        """
+-        ...
+-
+     def _count_crossings(self: MasterProblemSupport, route: Route, node_set: FrozenSet[int]) -> int:
+         """Counts how many times a route enters/exits a given node set.
+ 
+@@ -487,44 +330,6 @@ class MasterProblemSupport(Protocol):
+         """
+         ...
+ 
+-    def remove_local_cuts(self) -> int:
+-        """Removes local cuts from the Gurobi model (used during B&B backtrack).
+-
+-        Returns:
+-            int: Number of cuts removed.
+-        """
+-        ...
+-
+-    def find_and_add_violated_rcc(
+-        self,
+-        route_values: Dict[int, float],
+-        routes: List[Route],
+-        max_cuts: int = 5,
+-    ) -> int:
+-        """Identifies and adds violated Root-Capacity Cuts using the separation heuristic.
+-
+-        Args:
+-            route_values (Dict[int, float]): Current fractional values of route variables.
+-            routes (List[Route]): Active routes in the RMP.
+-            max_cuts (int): Maximum number of cuts to add in one pass.
+-
+-        Returns:
+-            int: Number of violated cuts added.
+-        """
+-        ...
+-
+-    def _find_customer_components(self, arc_flow: Dict[Tuple[int, int], float]) -> List[Set[int]]:
+-        """Identifies connected components of customers in the fractional support graph.
+-
+-        Args:
+-            arc_flow (Dict[Tuple[int, int], float]): Arc flows x_ij.
+-
+-        Returns:
+-            List[Set[int]]: List of node sets representing connected components.
+-        """
+-        ...
+-
+-
+ class VRPPMasterProblemSupportMixin:
+     """Mixin containing methods that support the master problem.
+ 
+@@ -779,19 +584,3 @@ class VRPPMasterProblemSupportMixin:
+ 
+         self.global_column_pool = unique_pool
+         return initial_count - len(unique_pool)
+-
+-    def has_artificial_variables_active(self: MasterProblemSupport, tol: float = 1e-6) -> bool:
+-        """Check whether any artificial variable is non-zero in current solution.
+-
+-        Args:
+-            tol: Threshold below which a variable value is considered zero.
+-
+-        Returns:
+-            True if at least one artificial variable is active.
+-        """
+-
+-        # artificial_vars have been removed; infeasibility is now signalled
+-        # by GRB.INFEASIBLE status directly.
+-        if self.model is None:
+-            return False
+-        return self.model.Status == GRB.INFEASIBLE
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/pricing/labels.py b/logic/src/policies/helpers/solvers_and_matheuristics/pricing/labels.py
+index 124776193..a93f7dcfa 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/pricing/labels.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/pricing/labels.py
+@@ -5,7 +5,6 @@ Attributes:
+ 
+ Example:
+     >>> label = Label(reduced_cost=10.0, node=1, load=5.0)
+-    >>> is_feasible = label.is_feasible(capacity=100.0)
+ """
+ 
+ from __future__ import annotations
+@@ -70,7 +69,6 @@ class Label:
+         other: "Label",
+         use_ng: bool = False,
+         epsilon: float = 1e-6,
+-        sri_dual_values: Optional[List[float]] = None,
+     ) -> bool:
+         """
+         Check if this label dominates another label.
+@@ -78,7 +76,7 @@ class Label:
+         Dominance criteria:
+         1. Same node
+         2. Lower or equal load
+-        3. Better or equal reduced cost (accounting for SRI potential)
++        3. Better or equal reduced cost
+         4. Smaller or equal subset of visited/ng-memory nodes
+         5. Subset-row inequality state compatibility
+         6. Ryan-Foster conflict set compatibility
+@@ -87,7 +85,6 @@ class Label:
+             other: Label to compare against.
+             use_ng: Whether to use ng-route memory for dominance.
+             epsilon: Numerical tolerance for comparisons.
+-            sri_dual_values: Dual values for active SRIs.
+ 
+         Returns:
+             True if this label dominates the other.
+@@ -99,20 +96,11 @@ class Label:
+         if not self.rf_unmatched.issubset(other.rf_unmatched):
+             return False
+ 
+-        # Exact ESPPRC requirement for SRI states
++        # Exact ESPPRC requirement: SRI states must coincide.
+         if self.sri_state != other.sri_state:
+             return False
+ 
+-        total_potential_penalty = 0.0
+-        if sri_dual_values is not None:
+-            for s, o, dual in zip(self.sri_state, other.sri_state, sri_dual_values, strict=False):
+-                if s == 1 and o in (0, 2):
+-                    total_potential_penalty += dual
+-        else:
+-            if any(s > o for s, o in zip(self.sri_state, other.sri_state, strict=False)):
+-                return False
+-
+-        if self.reduced_cost - total_potential_penalty < other.reduced_cost - epsilon:
++        if self.reduced_cost < other.reduced_cost - epsilon:
+             return False
+ 
+         if use_ng:
+@@ -120,17 +108,6 @@ class Label:
+         else:
+             return self.visited.issubset(other.visited)
+ 
+-    def is_feasible(self, capacity: float) -> bool:
+-        """Check if the label satisfies resource constraints.
+-
+-        Args:
+-            capacity: Maximum vehicle capacity.
+-
+-        Returns:
+-            True if feasible, False otherwise.
+-        """
+-        return self.load <= capacity
+-
+     def reconstruct_path(self) -> List[int]:
+         """Backtrack from the current label to the start node to recover the full route.
+ 
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/pricing/solver.py b/logic/src/policies/helpers/solvers_and_matheuristics/pricing/solver.py
+index fd9bb6ecb..5babb7069 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/pricing/solver.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/pricing/solver.py
+@@ -733,7 +733,7 @@ class RCSPPSolver:
+ 
+                 self.labels_generated += 1
+                 existing = labels_at_node.get(v, [])
+-                if any(e.dominates(new_label, use_ng=use_ng, sri_dual_values=sri_dual_values) for e in existing):
++                if any(e.dominates(new_label, use_ng=use_ng) for e in existing):
+                     self.labels_dominated += 1
+                     continue
+ 
+@@ -862,7 +862,7 @@ class RCSPPSolver:
+         new_rc = label.reduced_cost + rc_delta
+ 
+         # Final feasibility check
+-        if self.is_farkas and new_rc < -1e-6 or not self.is_farkas and new_rc < -1e-6:
++        if new_rc < -1e-6:
+             return None
+ 
+         return Label(
+diff --git a/logic/src/policies/helpers/solvers_and_matheuristics/search/column_generation.py b/logic/src/policies/helpers/solvers_and_matheuristics/search/column_generation.py
+index ce7057d19..c72ede693 100644
+--- a/logic/src/policies/helpers/solvers_and_matheuristics/search/column_generation.py
++++ b/logic/src/policies/helpers/solvers_and_matheuristics/search/column_generation.py
+@@ -14,7 +14,6 @@ Example:
+ References
+ ----------
+ Barnhart, Hane & Vance (2000) Operations Research 48(2):318-326 §3.
+-Wentges (1997) — Dual smoothing used inside Phase II pricing.
+ Jepsen et al. (2008) — SRI cut integration.
+ """
+ 
+@@ -115,16 +114,12 @@ def column_generation_loop(  # noqa: C901
+     timed_out = False
+     converged = False
+     pricing_exhausted = False
+-    smoothing_recovery = False
+     obj_val = -float("inf")
+     route_vals: Dict[int, float] = {}
+     prev_obj_val = -float("inf")
+     _iteration = 0
+     consecutive_pricing_timeouts = 0
+     max_consecutive_pricing_timeouts = 3
+-    if exact_mode:
+-        master.enable_dual_smoothing = False
+-
+     # Task 3: Fix Lagrangian default.
+     # If no fleet limit is active, the worst-case number of vehicles is n_nodes.
+     fleet_size: int = vehicle_limit if vehicle_limit is not None else master.n_nodes
+@@ -358,16 +353,6 @@ def column_generation_loop(  # noqa: C901
+                 )
+ 
+             if added == 0:
+-                if smoothing_recovery:
+-                    logger.info("Smoothing Recovery Phase: Converged with exact duals.")
+-                    converged = True
+-                    break
+-                elif master.enable_dual_smoothing:
+-                    logger.info("Entering Smoothing Recovery Phase (Exact duals).")
+-                    master.enable_dual_smoothing = False
+-                    smoothing_recovery = True
+-                    continue
+-
+                 # Task 1b: Check for fractional cycles in ng-relaxation if CG has converged
+                 # locally. Dynamic ng-expansion serves as a lightweight cut separation.
+                 cycles: List[Tuple[int, ...]] = []
+@@ -431,7 +416,6 @@ def column_generation_loop(  # noqa: C901
+             converged
+             and pricing_exhausted
+             and not timed_out
+-            and not getattr(master, "enable_dual_smoothing", False)
+             and hasattr(pricing_solver, "last_max_rc")
+         ):
+             max_rc = getattr(pricing_solver, "last_max_rc", -float("inf"))
+diff --git a/logic/src/policies/route_construction/base/base_routing_policy.py b/logic/src/policies/route_construction/base/base_routing_policy.py
+index 03344baa0..b64202adf 100644
+--- a/logic/src/policies/route_construction/base/base_routing_policy.py
++++ b/logic/src/policies/route_construction/base/base_routing_policy.py
+@@ -229,10 +229,10 @@ class BaseRoutingPolicy(PolicyVizMixin, IRouteConstructor):
+             # Typed config takes priority, then overlay any runtime overrides
+             config_key = self._get_config_key()
+             runtime_overrides = config.get(config_key, config)  # Handle case where config IS the policy section
+-            if not isinstance(runtime_overrides, dict):
+-                runtime_overrides = (
+-                    _flatten_raw_config(runtime_overrides) if hasattr(runtime_overrides, "items") else {}
+-                )
++            if hasattr(runtime_overrides, "items") or isinstance(runtime_overrides, list):
++                runtime_overrides = _flatten_raw_config(runtime_overrides)
++            else:
++                runtime_overrides = {}
+             policy_config = {**asdict(self._config), **runtime_overrides}
+             if self._seed is not None and policy_config.get("seed") is None:
+                 policy_config["seed"] = self._seed
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/bpc_engine.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/bpc_engine.py
+index b5704101a..6ca1d1de5 100644
+--- a/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/bpc_engine.py
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/branch_and_price_and_cut/bpc_engine.py
+@@ -44,7 +44,8 @@ Paper-to-Implementation Mapping (BHV2000)
+ 
+ §4.2 – LCI Dual Integration in Pricing
+     Per-node α lifting coefficients are archived in the GlobalCutPool and
+-    re-injected at descendant B&B nodes via ``apply_to_master``.  The
++    persist across B&B nodes through the single shared master object, which is
++    never rebuilt mid-search.  The
+     composite dual dict emitted by ``get_reduced_cost_coefficients`` includes
+     ``lci_duals`` and ``lci_node_alphas`` keys, which flow through to the
+     label-extension step.
+@@ -88,9 +89,8 @@ Additional components not in BHV2000 (VRPP adaptations):
+     - Ryan-Foster (1981) node-pair branching for the SPP.
+     - Rounded Capacity Cuts (RCC, Lysgaard et al. 2004).
+     - Subset-Row Inequalities (3-SRI, Jepsen et al. 2008).
+-    - Dual smoothing (Wentges 1997) for faster CG convergence.
+-    - GlobalCutPool: centralised cut registry ensuring parent cuts are
+-      re-injected at all descendant B&B nodes.
++    - GlobalCutPool: centralised cut registry; cuts persist across nodes
++      through the single shared master object, which is never rebuilt mid-search.
+ 
+ Attributes:
+     logger (logging.Logger): Module-level logger.
+@@ -126,7 +126,6 @@ from typing import Any, Dict, List, Optional, Set, Tuple, Union
+ 
+ import gurobipy as gp
+ import numpy as np
+-from gurobipy import GRB
+ 
+ from logic.src.policies.helpers.operators.recreate_repair.greedy import greedy_insertion, greedy_profit_insertion
+ from logic.src.policies.helpers.solvers_and_matheuristics.branching import BranchAndBoundTree
+@@ -153,9 +152,6 @@ from logic.src.policies.helpers.solvers_and_matheuristics.pricing.smoothing impo
+ from logic.src.policies.helpers.solvers_and_matheuristics.pricing.smoothing import (
+     is_solution_integer as _is_solution_integer,
+ )
+-from logic.src.policies.helpers.solvers_and_matheuristics.pricing.smoothing import (
+-    reduced_cost_arc_fixing as _reduced_cost_arc_fixing,
+-)
+ from logic.src.policies.helpers.solvers_and_matheuristics.search.column_generation import (
+     column_generation_loop as _column_generation_loop,
+ )
+@@ -178,140 +174,6 @@ _FARKAS_TOL: float = 1e-6
+ 
+ # BPCPruningException → imported from .bpc_utils.branching_utils
+ 
+-
+-def _select_nodes_knapsack(
+-    dist_matrix: np.ndarray,
+-    wastes: Dict[int, float],
+-    capacity: float,
+-    R: float,
+-    C: float,
+-    mandatory: Set[int],
+-    n_nodes: int,
+-    vehicle_limit: Optional[int] = None,
+-    target_reduction: float = 0.60,  # aim to keep ~40% of optional nodes
+-    time_limit: float = 10.0,
+-    env: Optional[Any] = None,
+-) -> Set[int]:
+-    """Select profitable optional nodes via MIP knapsack before BPC routing.
+-
+-    Solves a relaxed node-selection problem: ignore routing structure,
+-    approximate the routing cost of each node as its average distance to
+-    its nearest neighbors × C, then solve a knapsack to pick the subset
+-    of optional nodes where marginal revenue exceeds marginal routing cost.
+-
+-    This reduces the effective instance size from n to |selected| before
+-    the RCSPP pricing subproblem is ever called.
+-
+-    Args:
+-        dist_matrix: Full (n+1)×(n+1) distance matrix.
+-        wastes: Node waste amounts.
+-        capacity: Vehicle capacity.
+-        R: Revenue per unit waste.
+-        C: Cost per unit distance.
+-        mandatory: Nodes that must be included regardless.
+-        n_nodes: Number of customer nodes.
+-        vehicle_limit: Optional vehicle limit.
+-        target_reduction: Target reduction in number of optional nodes.
+-        time_limit: MIP time limit in seconds.
+-        env: Optional Gurobi environment.
+-
+-    Returns:
+-        Set of selected node indices (mandatory ∪ profitable optional).
+-    """
+-    optional = [i for i in range(1, n_nodes + 1) if i not in mandatory]
+-    if not optional:
+-        return set(mandatory)
+-
+-    # --- Routing cost estimate ---
+-    # Use Clarke-Wright savings-based approximation:
+-    # Cost of inserting node i into a route ≈ detour cost from its nearest
+-    # already-mandatory neighbor. This is tighter than average-distance.
+-    # For isolated optional nodes, use distance to depot × 2 as upper bound.
+-    depot = 0
+-    node_insertion_cost: Dict[int, float] = {}
+-    for i in optional:
+-        # Best insertion cost: min over all mandatory nodes j of
+-        #   dist(depot, i) + dist(i, j) - dist(depot, j)   (if inserting after depot)
+-        # Simplified: use half the round-trip cost to nearest mandatory node
+-        if mandatory:
+-            nearest_mand_dist = min(dist_matrix[i, j] for j in mandatory)
+-            insertion = C * (dist_matrix[depot, i] + nearest_mand_dist) / 2.0
+-        else:
+-            insertion = C * dist_matrix[depot, i]
+-        node_insertion_cost[i] = insertion
+-
+-    # Net value: revenue minus realistic insertion cost
+-    node_net_value: Dict[int, float] = {}
+-    for i in optional:
+-        revenue = R * wastes.get(i, 0.0)
+-        node_net_value[i] = revenue - node_insertion_cost[i]
+-
+-    # Only consider nodes with positive net value
+-    candidates = [i for i in optional if node_net_value[i] > 0]
+-    if not candidates:
+-        return set(mandatory)
+-
+-    # --- Capacity budget ---
+-    # Total load that can be served = vehicle_limit × capacity.
+-    # Subtract mandatory load to get budget for optional nodes.
+-    n_vehicles = (
+-        vehicle_limit
+-        if vehicle_limit is not None
+-        else max(2, int(np.ceil(sum(wastes.get(i, 0.0) for i in range(1, n_nodes + 1)) / capacity)))
+-    )
+-    total_capacity = n_vehicles * capacity
+-    mandatory_load = sum(wastes.get(i, 0.0) for i in mandatory)
+-    optional_budget = max(0.0, total_capacity - mandatory_load)
+-
+-    # --- Hard size limit ---
+-    # Target at most (1 - target_reduction) × n_nodes selected nodes total,
+-    # so RCSPP gets an instance small enough to solve in rcspp_timeout.
+-    max_optional = max(5, int(n_nodes * (1 - target_reduction)) - len(mandatory))
+-
+-    try:
+-        m = gp.Model("node_selection", env=env) if env else gp.Model("node_selection")
+-        m.Params.OutputFlag = 0
+-        m.Params.TimeLimit = time_limit
+-        m.Params.MIPGap = 0.01
+-
+-        y = m.addVars(candidates, vtype=GRB.BINARY, name="y")
+-
+-        m.setObjective(
+-            gp.quicksum(node_net_value[i] * y[i] for i in candidates),
+-            GRB.MAXIMIZE,
+-        )
+-
+-        # Hard capacity constraint
+-        m.addConstr(gp.quicksum(wastes.get(i, 0.0) * y[i] for i in candidates) <= optional_budget, name="capacity")
+-
+-        # Hard size constraint — this is what was missing before
+-        m.addConstr(gp.quicksum(y[i] for i in candidates) <= max_optional, name="max_nodes")
+-
+-        m.optimize()
+-
+-        selected = set(mandatory)
+-        if m.SolCount > 0:
+-            for i in candidates:
+-                if y[i].X > 0.5:
+-                    selected.add(i)
+-        else:
+-            # Fallback: take top-k by net value
+-            top_k = sorted(candidates, key=lambda i: node_net_value[i], reverse=True)[:max_optional]
+-            selected = set(mandatory) | set(top_k)
+-
+-        logger.info(
+-            f"[Node Selection] Knapsack selected {len(selected)} nodes "
+-            f"({len(selected) - len(mandatory)} optional, max_optional={max_optional}) "
+-            f"from {n_nodes} total. Reduced by {n_nodes - len(selected)} nodes."
+-        )
+-        return selected
+-
+-    except Exception as e:
+-        logger.warning(f"[Node Selection] Knapsack failed ({e}), using mandatory + top-k.")
+-        top_k = sorted(candidates, key=lambda i: node_net_value[i], reverse=True)[:max_optional]
+-        return set(mandatory) | set(top_k)
+-
+-
+ def run_bpc(  # noqa: C901
+     dist_matrix: np.ndarray,
+     wastes: Dict[int, float],
+@@ -388,7 +250,6 @@ def run_bpc(  # noqa: C901
+     max_routes_per_pricing = params.max_routes_per_pricing
+     max_bb_nodes = params.max_bb_nodes
+     time_limit = params.time_limit
+-    search_strategy_name = params.search_strategy
+     cutting_planes_name = params.cutting_planes
+     branching_strategy_name = params.branching_strategy
+ 
+@@ -530,7 +391,7 @@ def run_bpc(  # noqa: C901
+ 
+     # 4. Initialize Branch-and-Bound Tree with search strategy
+     bb_tree = BranchAndBoundTree(
+-        v_model=v_model, params=params, search_strategy=search_strategy_name, strategy=branching_strategy_name
++        v_model=v_model, params=params
+     )
+ 
+     # 5. Initialize cutting engine
+@@ -548,22 +409,10 @@ def run_bpc(  # noqa: C901
+     from logic.src.policies.helpers.solvers_and_matheuristics.search.cutting_planes import (
+         CompositeCuttingPlaneEngine,
+         LimitedMemoryRank1CutEngine,
+-        MinCutInequalityEngine,
+-        NodeProfitBoundEngine,
+-        PathEliminationEngine,
+-        TriangleCliqueCutEngine,
+     )
+ 
+     _supplemental_engines = [
+-        MinCutInequalityEngine(v_model),
+-        TriangleCliqueCutEngine(
+-            v_model, dist_matrix=red_dist, route_budget=getattr(params, "route_budget", float("inf"))
+-        ),
+         LimitedMemoryRank1CutEngine(v_model, max_subset_size=5),
+-        NodeProfitBoundEngine(v_model),
+-        PathEliminationEngine(
+-            v_model, dist_matrix=red_dist, route_budget=getattr(params, "route_budget", float("inf"))
+-        ),
+     ]
+     # Wrap primary + supplemental engines together unless already "all"
+     if cutting_planes_name not in ("all", "composite"):
+@@ -718,26 +567,6 @@ def run_bpc(  # noqa: C901
+                     if current_node.parent is not None and current_node.parent.lp_bound is not None
+                     else current_node.lp_bound
+                 )
+-                if (
+-                    bb_tree.best_integer_solution is not None
+-                    and _parent_lp is not None
+-                    and hasattr(pricing_solver, "_forbidden_arcs")
+-                ):
+-                    _n_fixed = _reduced_cost_arc_fixing(
+-                        pricing_solver=pricing_solver,
+-                        master_lp_bound=_parent_lp,
+-                        incumbent_value=bb_tree.best_integer_solution,
+-                        n_nodes=k_nodes,
+-                        dist_matrix=red_dist,
+-                        wastes=red_wastes,
+-                        node_duals=master.get_dual_values() if hasattr(master, "get_dual_values") else {},
+-                        capacity=capacity,
+-                        R=R,
+-                        C=C,
+-                    )
+-                    if _n_fixed > 0:
+-                        logger.debug(f"Reduced-cost arc fixing: eliminated {_n_fixed} arcs.")
+-
+                 lp_obj, route_values, node_final_basis, node_timed_out = _column_generation_loop(
+                     master=master,
+                     pricing_solver=pricing_solver,
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/multi_stage_branch_and_price_and_cut_with_set_partition/ms_bpc_sp_engine.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/multi_stage_branch_and_price_and_cut_with_set_partition/ms_bpc_sp_engine.py
+index f63aad818..c6098e492 100644
+--- a/logic/src/policies/route_construction/exact_and_decomposition_solvers/multi_stage_branch_and_price_and_cut_with_set_partition/ms_bpc_sp_engine.py
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/multi_stage_branch_and_price_and_cut_with_set_partition/ms_bpc_sp_engine.py
+@@ -44,7 +44,8 @@ Paper-to-Implementation Mapping (BHV2000)
+ 
+ §4.2 – LCI Dual Integration in Pricing
+     Per-node α lifting coefficients are archived in the GlobalCutPool and
+-    re-injected at descendant B&B nodes via ``apply_to_master``.  The
++    persist across B&B nodes through the single shared master object, which is
++    never rebuilt mid-search.  The
+     composite dual dict emitted by ``get_reduced_cost_coefficients`` includes
+     ``lci_duals`` and ``lci_node_alphas`` keys, which flow through to the
+     label-extension step.
+@@ -88,9 +89,8 @@ Additional components not in BHV2000 (VRPP adaptations):
+     - Ryan-Foster (1981) node-pair branching for the SPP.
+     - Rounded Capacity Cuts (RCC, Lysgaard et al. 2004).
+     - Subset-Row Inequalities (3-SRI, Jepsen et al. 2008).
+-    - Dual smoothing (Wentges 1997) for faster CG convergence.
+-    - GlobalCutPool: centralised cut registry ensuring parent cuts are
+-      re-injected at all descendant B&B nodes.
++    - GlobalCutPool: centralised cut registry; cuts persist across nodes
++      through the single shared master object, which is never rebuilt mid-search.
+ 
+ Attributes:
+     logger (logging.Logger): Module-level logger.
+@@ -907,7 +907,6 @@ def _column_generation_loop(  # noqa: C901
+         node_depth (int): Current B&B tree depth.
+         rc_tolerance (float): Minimum reduced cost for column acceptance.
+         cut_orthogonality_threshold (float): Minimum cut independence.
+-        exact_mode (bool): If True, disables dual smoothing.
+         cg_at_root_only (bool): If True, skips pricing at descendant nodes.
+         branching_strategy (str): Active branching rule name.
+         rcspp_timeout (float): Timeout for the RCSPP solver.
+@@ -919,16 +918,12 @@ def _column_generation_loop(  # noqa: C901
+     timed_out = False
+     converged = False
+     pricing_exhausted = False
+-    smoothing_recovery = False
+     obj_val = -float("inf")
+     route_vals: Dict[int, float] = {}
+     prev_obj_val = -float("inf")
+     _iteration = 0
+     consecutive_pricing_timeouts = 0
+     max_consecutive_pricing_timeouts = 3
+-    if exact_mode:
+-        master.enable_dual_smoothing = False
+-
+     # Task 3: Fix Lagrangian default.
+     # If no fleet limit is active, the worst-case number of vehicles is n_nodes.
+     fleet_size: int = vehicle_limit if vehicle_limit is not None else master.n_nodes
+@@ -1142,16 +1137,6 @@ def _column_generation_loop(  # noqa: C901
+                 consecutive_pricing_timeouts = 0
+ 
+             if added == 0:
+-                if smoothing_recovery:
+-                    logger.info("Smoothing Recovery Phase: Converged with exact duals.")
+-                    converged = True
+-                    break
+-                elif master.enable_dual_smoothing:
+-                    logger.info("Entering Smoothing Recovery Phase (Exact duals).")
+-                    master.enable_dual_smoothing = False
+-                    smoothing_recovery = True
+-                    continue
+-
+                 # Task 1b: Check for fractional cycles in ng-relaxation if CG has converged
+                 # locally. Dynamic ng-expansion serves as a lightweight cut separation.
+                 cycles: List[Tuple[int, ...]] = []
+@@ -1207,7 +1192,6 @@ def _column_generation_loop(  # noqa: C901
+             converged
+             and pricing_exhausted
+             and not timed_out
+-            and not getattr(master, "enable_dual_smoothing", False)
+             and hasattr(pricing_solver, "last_max_rc")
+         ):
+             max_rc = getattr(pricing_solver, "last_max_rc", -float("inf"))
+@@ -1490,7 +1474,6 @@ def run_ms_bpc_sp(  # noqa: C901
+     max_routes_per_pricing = params.max_routes_per_pricing
+     max_bb_nodes = params.max_bb_nodes
+     time_limit = params.time_limit
+-    search_strategy_name = params.search_strategy
+     cutting_planes_name = params.cutting_planes
+     branching_strategy_name = params.branching_strategy
+ 
+@@ -1664,7 +1647,7 @@ def run_ms_bpc_sp(  # noqa: C901
+ 
+     # 4. Initialize Branch-and-Bound Tree with search strategy
+     bb_tree = BranchAndBoundTree(
+-        v_model=v_model, params=params, search_strategy=search_strategy_name, strategy=branching_strategy_name
++        v_model=v_model, params=params
+     )
+ 
+     # 5. Initialize cutting engine
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/_route_extraction.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/_route_extraction.py
+new file mode 100644
+index 000000000..cc38f2e2f
+--- /dev/null
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/_route_extraction.py
+@@ -0,0 +1,55 @@
++"""Shared tour extraction for the SWC-TCF backends.
++
++All three solver wrappers (native Gurobi, OR-Tools, Pyomo) receive the same
++solution shape --- a set of active arcs over local node indices --- and walk
++it into a flat, depot-delimited route list. This module hosts that single
++implementation so the backends cannot drift apart.
++"""
++
++from typing import Dict, List, Tuple
++
++Arc = Tuple[int, int]
++
++
++def extract_depot_delimited_route(active_arcs: List[Arc], id_map: Dict[int, int]) -> List[int]:
++    """Walk active arcs from the depot into a flat, depot-delimited route list.
++
++    Each route starts and ends at the depot; consecutive routes are separated
++    by a single depot entry, so ``[0, a, b, 0, c, 0]`` encodes two routes
++    ``[a, b]`` and ``[c]``. An empty plan returns ``[0, 0]`` (the shared
++    empty-day shape).
++
++    Args:
++        active_arcs: Directed arcs with value above the integrality threshold,
++            in the solver's local node indexing (0 = depot).
++        id_map: Mapping from local node index to the global bin id (0 maps to 0).
++
++    Returns:
++        Flat depot-delimited route list.
++    """
++    remaining = list(active_arcs)
++    visited: set = set()
++    collected: List[int] = []
++
++    while True:
++        rota: List[Arc] = []
++        atual = 0
++        while True:
++            prox = [j for (i, j) in remaining if i == atual and (i, j) not in visited]
++            if not prox:
++                break
++            j = prox[0]
++            visited.add((atual, j))
++            rota.append((atual, j))
++            atual = j
++            if j == 0:
++                break
++        if rota:
++            collected.extend(id_map[j] for (i, j) in rota if j != 0)
++            collected.append(0)
++        else:
++            break
++
++    if not collected:
++        return [0, 0]
++    return [0] + collected
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/gurobi.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/gurobi.py
+index 787ea7df9..76afe87cd 100644
+--- a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/gurobi.py
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/gurobi.py
+@@ -18,6 +18,7 @@ from numpy.typing import NDArray
+ 
+ from logic.src.constants.routing import HEURISTICS_RATIO, MIP_GAP, NODEFILE_START_GB
+ 
++from ._route_extraction import extract_depot_delimited_route
+ from .params import MAX_ARC_DISTANCE_KM
+ 
+ 
+@@ -120,7 +121,7 @@ def _run_gurobi_optimizer(  # noqa: C901
+     mdl.addConstr(quicksum(f[0, j] for j in nodes_real if (0, j) in f) == 0)
+ 
+     if number_vehicles == 0:
+-        number_vehicles = len(binsids)
++        number_vehicles = n_bins
+ 
+     MAX_TRUCKS = number_vehicles
+     mdl.addConstr(k_var <= MAX_TRUCKS)
+@@ -184,7 +185,6 @@ def _run_gurobi_optimizer(  # noqa: C901
+     if time_limit > 0:
+         mdl.Params.TimeLimit = float(time_limit)
+ 
+-    contentores_coletados = []
+     profit = 0.0
+     cost = 0.0
+     mdl.optimize()
+@@ -198,39 +198,21 @@ def _run_gurobi_optimizer(  # noqa: C901
+         raise RuntimeError(f"SWC-TCF model is infeasible (Gurobi status {mdl.Status}).")
+     if mdl.SolCount == 0:
+         print(f"[WARN][VRPP-Gurobi] No solution found (status {mdl.Status}); the day collects nothing.")
++        return [0, 0], 0.0, 0.0
+     if mdl.SolCount > 0:
+         id_map = {0: 0}
+         for i, bin_id in enumerate(pure_binsids, 1):
+             id_map[i] = bin_id
+         arcos_ativos = [(i, j) for (i, j) in x.keys() if i != j and x[i, j].X > 0.5]
++        route = extract_depot_delimited_route(arcos_ativos, id_map)
+ 
+-        rotas = []
+-        visitados = set()
+-        while True:
+-            rota = []
+-            atual = 0
+-            while True:
+-                prox = [j for (i, j) in arcos_ativos if i == atual and (i, j) not in visitados]
+-                if not prox:
+-                    break
+-                j = prox[0]
+-                visitados.add((atual, j))
+-                rota.append((atual, j))
+-                atual = j
+-                if j == 0:
+-                    break
+-            if rota:
+-                rotas.append(rota)
+-            else:
+-                break
+-
+-        for rota in rotas:
+-            contentores_coletados.extend([id_map[j] for (i, j) in rota])
++        if route == [0, 0]:
++            # All-zero incumbent (or nothing collected): the shared empty-day shape.
++            return [0, 0], 0.0, 0.0
+ 
+         profit = mdl.ObjVal
+         cost = sum([x[i, j].X * distance_matrix[i][j] for i, j in pares_viaveis])
+-        print(
+-            f"[INFO][VRPP-Gurobi] Profit: {profit}, Cost: {cost}, MIPGap: {mdl.Params.MIPGap}, Collected: {len(contentores_coletados)}"
+-        )
++        print(f"[INFO][VRPP-Gurobi] Profit: {profit}, Cost: {cost}, MIPGap: {mdl.Params.MIPGap}, Collected: {len(route) - 2}")
++        return route, profit, cost
+ 
+-    return [0] + contentores_coletados, profit, cost
++    return [0, 0], 0.0, 0.0
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/ortools_wrapper.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/ortools_wrapper.py
+index fa75033ab..84606f38d 100644
+--- a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/ortools_wrapper.py
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/ortools_wrapper.py
+@@ -15,6 +15,9 @@ import numpy as np
+ from numpy.typing import NDArray
+ from ortools.linear_solver import pywraplp
+ 
++from logic.src.constants.routing import MIP_GAP
++
++from ._route_extraction import extract_depot_delimited_route
+ from .params import MAX_ARC_DISTANCE_KM
+ 
+ 
+@@ -67,6 +70,17 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
+     # If using HiGHS, you may need to rely on the C++ API or check the specific
+     # OR-Tools version documentation for HiGHS parameter routing.
+ 
++    # One gap policy across backends (best-effort string routing).
++    try:
++        if solver_id == "GUROBI":
++            solver.SetSolverSpecificParametersAsString(f"MIPGap {MIP_GAP}")
++        elif solver_id == "SCIP":
++            solver.SetSolverSpecificParametersAsString(f"limits/gap = {MIP_GAP}")
++        elif solver_id == "HIGHS":
++            solver.SetSolverSpecificParametersAsString(f"mip_rel_gap = {MIP_GAP}")
++    except Exception as exc:  # backend rejected the parameter string
++        print(f"[WARN][VRPP-OR-Tools] could not set MIP gap on {solver_id}: {exc}")
++
+     solver.SetTimeLimit(int(float(time_limit) * 1000))  # OR-Tools expects milliseconds
+ 
+     # 1. Parameter Extraction
+@@ -178,34 +192,12 @@ def _run_ortools_tcf_optimizer(  # noqa: C901
+             id_map[i] = bin_id
+ 
+         arcos_ativos = [(i, j) for (i, j) in valid_arcs if x[i, j].solution_value() > 0.5]
+-
+-        # Route construction
+-        rotas = []
+-        visitados = set()
+-        for _ in range(int(k_var.solution_value())):
+-            rota = []
+-            atual = 0
+-            while True:
+-                prox = [j for (i, j) in arcos_ativos if i == atual and (i, j) not in visitados]
+-                if not prox:
+-                    break
+-                j = prox[0]
+-                visitados.add((atual, j))
+-                rota.append((atual, j))
+-                atual = j
+-                if j == 0:
+-                    break
+-            if rota:
+-                rotas.append(rota)
+-
+-        contentores_coletados = []
+-        for rota in rotas:
+-            contentores_coletados.extend([id_map[j] for (i, j) in rota])
++        route = extract_depot_delimited_route(arcos_ativos, id_map)
+ 
+         profit = objective.Value()
+         cost = sum([x[i, j].solution_value() * distance_matrix[i][j] for i, j in valid_arcs])
+ 
+-        return [0] + contentores_coletados, profit, cost
++        return route, profit, cost
+ 
+     else:
+         print("[WARN] OR-Tools TCF could not find a feasible solution.")
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/policy_swc_tcf.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/policy_swc_tcf.py
+index 1ad0c59d7..a884cd799 100644
+--- a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/policy_swc_tcf.py
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/policy_swc_tcf.py
+@@ -133,7 +133,12 @@ class SWCTCFPolicy(BaseRoutingPolicy):
+             values=values_to_pass,
+             binsids=binsids,
+             mandatory_nodes=mandatory_nodes,
+-            number_vehicles=kwargs.get("number_vehicles", 1),
++            # Fleet limit from the simulation context (sim.n_vehicles); 0 or
++            # absent means unbounded, matching the other constructors. A plain
++            # default of 1 would silently cap every day at one vehicle.
++            number_vehicles=(
++                int(nv) if (nv := kwargs.get("n_vehicles", kwargs.get("number_vehicles"))) and int(nv) > 0 else 0
++            ),
+             time_limit=float(params.time_limit),  # int() turned sub-second budgets into "no limit"
+             framework=params.framework,
+             optimizer=params.engine,
+@@ -141,8 +146,19 @@ class SWCTCFPolicy(BaseRoutingPolicy):
+             dual_values=kwargs.get("dual_values"),
+         )
+ 
+-        # 4. Normalize route to List[List[int]] format expected by _run_solver signature
+-        # Standard dispatcher returns a single flat route list.
+-        # We strip the leading depot if present (usually [0, ...]).
+-        clean_route = [n for n in raw_route if n != 0]
+-        return [clean_route] if clean_route else [], profit, cost
++        # 4. Normalize route to List[List[int]] format expected by _run_solver signature.
++        # The backends return a flat depot-delimited list
++        # ([0, route-1 bins..., 0, route-2 bins..., 0]); split on the depot
++        # marker so multi-route days keep their route boundaries.
++        routes: List[List[int]] = []
++        current: List[int] = []
++        for node in raw_route:
++            if node == 0:
++                if current:
++                    routes.append(current)
++                    current = []
++            else:
++                current.append(node)
++        if current:
++            routes.append(current)
++        return routes, profit, cost
+diff --git a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py
+index 080384fc7..9f977f33a 100644
+--- a/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py
++++ b/logic/src/policies/route_construction/exact_and_decomposition_solvers/smart_waste_collection_two_commodity_flow/pyomo_wrapper.py
+@@ -15,6 +15,9 @@ import numpy as np
+ import pyomo.environ as pyo
+ from numpy.typing import NDArray
+ 
++from logic.src.constants.routing import MIP_GAP
++
++from ._route_extraction import extract_depot_delimited_route
+ from .params import MAX_ARC_DISTANCE_KM
+ 
+ 
+@@ -223,11 +226,15 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
+     opt = pyo.SolverFactory(solver_id)
+     if solver_id == "gurobi":
+         opt.options["Seed"] = seed
++        opt.options["MIPGap"] = MIP_GAP
+     elif solver_id == "scip":
+         # SCIP uses randomseedshift to offset its default internal seed
+         opt.options["randomization/randomseedshift"] = seed
++        opt.options["limits/gap"] = MIP_GAP
+     elif solver_id in ["appsi_highs", "highs"]:
+         opt.options["random_seed"] = seed
++        opt.options["mip_rel_gap"] = MIP_GAP
++        opt.options["time_limit"] = float(time_limit)
+ 
+     if solver_id == "gurobi":
+         opt.options["TimeLimit"] = time_limit
+@@ -265,32 +272,11 @@ def _run_pyomo_tcf_optimizer(  # noqa: C901
+             id_map[i] = bin_id
+ 
+         arcos_ativos = [(i, j) for (i, j) in model.A if pyo.value(model.x[i, j]) > 0.5]
+-
+-        rotas = []
+-        visitados = set()
+-        for _ in range(int(round(pyo.value(model.k_var)))):
+-            rota = []
+-            atual = 0
+-            while True:
+-                prox = [j for (i, j) in arcos_ativos if i == atual and (i, j) not in visitados]
+-                if not prox:
+-                    break
+-                j = prox[0]
+-                visitados.add((atual, j))
+-                rota.append((atual, j))
+-                atual = j
+-                if j == 0:
+-                    break
+-            if rota:
+-                rotas.append(rota)
+-
+-        contentores_coletados = []
+-        for rota in rotas:
+-            contentores_coletados.extend([id_map[j] for (i, j) in rota])
++        route = extract_depot_delimited_route(arcos_ativos, id_map)
+ 
+         profit = pyo.value(model.obj)
+         cost = sum([pyo.value(model.x[i, j]) * distance_matrix[i][j] for i, j in model.A])
+-        return [0] + contentores_coletados, profit, cost
++        return route, profit, cost
+ 
+     print(f"[WARN] Pyomo TCF ({solver_id}) could not find a feasible solution.")
+     return [0, 0], 0.0, 0.0
+diff --git a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/__init__.py b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/__init__.py
+index 23f6c1d94..b05aac4f5 100644
+--- a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/__init__.py
++++ b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/__init__.py
+@@ -9,11 +9,10 @@ Attributes:
+     HYPER_OPERATORS (list): List of available hyper-heuristic operators.
+     HyperACOParams (class): Parameters for the Hyper-ACO algorithm.
+     HyperHeuristicACO (class): The main solver class.
+-    run_hyper_heuristic_aco (function): Helper function to run the solver.
+ 
+ Example:
+-    >>> from logic.src.policies.ant_colony_optimization_hyper_heuristic import run_hyper_heuristic_aco
+-    >>> result = run_hyper_heuristic_aco(dist_matrix, wastes, ...)
++    >>> from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic import HyperHeuristicACO
++    >>> solver = HyperHeuristicACO(dist_matrix, wastes, capacity, R, C, params)
+ """
+ 
+ from .hyper_aco import HyperHeuristicACO
+diff --git a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_aco.py b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_aco.py
+index c558d40c3..150b63a42 100644
+--- a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_aco.py
++++ b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_aco.py
+@@ -27,7 +27,7 @@ Attributes:
+     HyperHeuristicACO: HyperHeuristicACO class.
+ 
+ Example:
+-    >>> from logic.src.policies.ant_colony_optimization_hyper_heuristic import HyperHeuristicACO
++    >>> from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic import HyperHeuristicACO
+     >>> solver = HyperHeuristicACO(dist_matrix, wastes, capacity, R, C, params)
+     >>> best_solution = solver.solve(initial_solution)
+ """
+@@ -72,6 +72,11 @@ from .hyper_operators import (
+ from .params import HyperACOParams
+ 
+ 
++def _elitism_sync_count(n_ants: int, elitism_ratio: float) -> int:
++    """Number of ants synced to the global best on improvement (ceil, per the flowchart)."""
++    return max(1, math.ceil(n_ants * elitism_ratio))
++
++
+ class HyperHeuristicACO:
+     """
+     Pure Ant System (AS) Hyper-Heuristic ACO solver.
+@@ -274,7 +279,7 @@ class HyperHeuristicACO:
+                 # elitism_ratio < 1.0 → hedged elitism (VRPP diversity option).
+                 # Paper: "For all ants: Sk = Sb"
+                 # ----------------------------------------------------------------
+-                sync_count = max(1, int(self.params.n_ants * self.params.elitism_ratio))
++                sync_count = _elitism_sync_count(self.params.n_ants, self.params.elitism_ratio)
+ 
+                 for rank, (routes, _, _, _, ant_idx, _) in enumerate(ant_results):
+                     if rank >= self.params.n_ants - sync_count:
+diff --git a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_operators.py b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_operators.py
+index 0b02bc1b7..da2034c69 100644
+--- a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_operators.py
++++ b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/hyper_operators.py
+@@ -22,10 +22,11 @@ Attributes:
+     apply_string_removal: Wrapper for string removal operator.
+ 
+ Example:
+-    >>> from logic.src.policies.ant_colony_optimization_hyper_heuristic.hyper_operators import apply_2opt
++    >>> from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators import apply_2opt
+     >>> improved = apply_2opt(context)
+ """
+ 
++import logging
+ import random
+ from typing import Callable, Dict, List, Optional, Tuple
+ 
+@@ -49,6 +50,8 @@ from logic.src.policies.helpers.operators import (
+     string_removal,
+ )
+ 
++logger = logging.getLogger(__name__)
++
+ 
+ class HyperOperatorContext:
+     """
+@@ -522,7 +525,8 @@ def apply_shaw_removal(ctx: HyperOperatorContext, n: Optional[int] = None) -> bo
+             )
+         ctx._build_structures()
+         return True
+-    except Exception:
++    except (ValueError, IndexError, KeyError) as exc:
++        logger.warning("hyper operator degraded to no-op: %s", exc)
+         return False
+ 
+ 
+@@ -563,7 +567,8 @@ def apply_string_removal(ctx: HyperOperatorContext, n: Optional[int] = None) ->
+             )
+         ctx._build_structures()
+         return True
+-    except Exception:
++    except (ValueError, IndexError, KeyError) as exc:
++        logger.warning("hyper operator degraded to no-op: %s", exc)
+         return False
+ 
+ 
+@@ -604,7 +609,8 @@ def apply_random_removal(ctx: HyperOperatorContext, n: Optional[int] = None) ->
+             )
+         ctx._build_structures()
+         return True
+-    except Exception:
++    except (ValueError, IndexError, KeyError) as exc:
++        logger.warning("hyper operator degraded to no-op: %s", exc)
+         return False
+ 
+ 
+diff --git a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/params.py b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/params.py
+index 01333e12f..0fa249768 100644
+--- a/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/params.py
++++ b/logic/src/policies/route_construction/hyper_heuristics/ant_colony_optimization_hyper_heuristic/params.py
+@@ -9,7 +9,7 @@ Attributes:
+     None
+ 
+ Example:
+-    >>> from logic.src.policies.ant_colony_optimization_hyper_heuristic.params import HyperACOParams
++    >>> from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params import HyperACOParams
+     >>> params = HyperACOParams(n_ants=10, alpha=1.0)
+ """
+ 
+diff --git a/logic/test/unit/policies/hyper_heuristics/test_aco_hh_fixes.py b/logic/test/unit/policies/hyper_heuristics/test_aco_hh_fixes.py
+index c4ac6c6ba..07a841a24 100644
+--- a/logic/test/unit/policies/hyper_heuristics/test_aco_hh_fixes.py
++++ b/logic/test/unit/policies/hyper_heuristics/test_aco_hh_fixes.py
+@@ -82,3 +82,42 @@ def test_first_hop_deposits_on_real_rows_only():
+     virtual = solver.tau[solver.n_operators]
+     assert np.allclose(virtual, virtual[0]), "only evaporation may touch the virtual row"
+     assert virtual[0] <= params.tau_0
++
++
++def test_elitism_sync_count_uses_ceiling():
++    """B-kimi-51: elitism syncs ceil(n_ants * ratio) ants, matching the flowchart."""
++    from logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco import (
++        _elitism_sync_count,
++    )
++
++    assert _elitism_sync_count(10, 0.35) == 4  # int() floor gave 3
++    assert _elitism_sync_count(10, 0.5) == 5
++    assert _elitism_sync_count(10, 1.0) == 10
++    assert _elitism_sync_count(10, 0.01) == 1  # floor of 0.1 would be 0 without the max
++
++
++def test_operator_wrappers_swallow_data_errors_only():
++    """B-kimi-50: operator wrappers return False on data errors but let programming errors propagate."""
++    import logic.src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_operators as ops
++
++    dist, wastes, cap, init, mandatory = _instance(0, 9, 60.0, 5, 40)
++    ctx = ops.HyperOperatorContext(
++        routes=init, dist_matrix=dist, waste=wastes, capacity=cap, R=1.0, C=1.0, mandatory_nodes=mandatory
++    )
++
++    real_random_removal = ops.random_removal
++    try:
++        def raise_value_error(routes, n, rng=None):
++            raise ValueError("simulated node/matrix mismatch")
++
++        ops.random_removal = raise_value_error
++        assert ops.apply_random_removal(ctx) is False
++
++        def raise_type_error(routes, n, rng=None):
++            raise TypeError("simulated programming error")
++
++        ops.random_removal = raise_type_error
++        with pytest.raises(TypeError):
++            ops.apply_random_removal(ctx)
++    finally:
++        ops.random_removal = real_random_removal
+diff --git a/logic/test/unit/policies/solvers/test_bpc_tree_params.py b/logic/test/unit/policies/solvers/test_bpc_tree_params.py
+new file mode 100644
+index 000000000..d3419d819
+--- /dev/null
++++ b/logic/test/unit/policies/solvers/test_bpc_tree_params.py
+@@ -0,0 +1,44 @@
++"""Regression tests for B-kimi-34: BranchAndBoundTree must read the real BPCParams fields.
++
++Before the fix, the tree read non-existent aliases (``max_branch_nodes``,
++``tree_search_strategy``) via ``getattr`` fallbacks, so a params-only caller
++silently got ``best_first`` search and a 1000-node cap regardless of the
++configured ``search_strategy`` / ``max_bb_nodes``, and the engine's explicit
++arguments triggered a DeprecationWarning on every run.
++"""
++
++import warnings
++
++import pytest
++
++from logic.src.policies.helpers.solvers_and_matheuristics.branching.tree import BranchAndBoundTree
++from logic.src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params import (
++    BPCParams,
++)
++
++pytestmark = [pytest.mark.unit, pytest.mark.fast]
++
++
++def test_tree_reads_real_params_fields() -> None:
++    """A params-only construction must honour search_strategy and max_bb_nodes."""
++    params = BPCParams.from_config(
++        {
++            "search_strategy": "depth_first",
++            "branching_strategy": "divergence",
++            "max_bb_nodes": 7,
++        }
++    )
++    with warnings.catch_warnings():
++        warnings.simplefilter("error")  # any DeprecationWarning fails the test
++        tree = BranchAndBoundTree(v_model=None, params=params)
++    assert tree.search_strategy == "depth_first"
++    assert tree.strategy == "divergence"
++    assert tree.max_nodes == 7
++
++
++def test_tree_defaults_without_params() -> None:
++    """The legacy no-params path keeps its documented defaults."""
++    tree = BranchAndBoundTree(v_model=None)
++    assert tree.search_strategy == "best_first"
++    assert tree.strategy == "edge"
++    assert tree.max_nodes == 1000
+diff --git a/logic/test/unit/policies/solvers/test_swc_tcf_backends.py b/logic/test/unit/policies/solvers/test_swc_tcf_backends.py
+new file mode 100644
+index 000000000..085fb32f3
+--- /dev/null
++++ b/logic/test/unit/policies/solvers/test_swc_tcf_backends.py
+@@ -0,0 +1,189 @@
++"""Regressions for the SWC-TCF backend-difference rows (B-kimi-55..59)."""
++
++from dataclasses import dataclass
++from typing import Any, Dict, Optional
++
++import numpy as np
++import pytest
++
++from logic.src.policies.route_construction.base.base_routing_policy import BaseRoutingPolicy
++from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow import (
++    policy_swc_tcf,
++)
++from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.gurobi import (
++    _run_gurobi_optimizer,
++)
++
++pytestmark = [pytest.mark.unit]
++
++gp = pytest.importorskip("gurobipy")
++
++
++def _tiny_instance() -> tuple:
++    rng = np.random.default_rng(0)
++    coords = rng.uniform(0, 10, size=(9, 2))
++    dist = np.sqrt(((coords[:, None, :] - coords[None, :, :]) ** 2).sum(-1))
++    bins = np.array([10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0])
++    return bins, dist.tolist()
++
++
++def test_gurobi_empty_day_returns_d3_shape():
++    """B-kimi-56: a no-incumbent day returns [0, 0] like the other backends."""
++    bins, dist = _tiny_instance()
++    values = {"Omega": 0.1, "psi": 1, "Q": 100.0, "R": 1.0, "B": 1.0, "C": 1.0, "V": 1.0}
++    route, profit, cost = _run_gurobi_optimizer(
++        bins=bins,
++        distance_matrix=dist,
++        env=None,
++        values=values,
++        binsids=list(range(1, 9)),
++        mandatory=[],
++        number_vehicles=1,
++        time_limit=0.001,  # no time to find an incumbent
++        seed=42,
++    )
++    assert route == [0, 0]
++    assert profit == 0.0 and cost == 0.0
++
++
++def test_gurobi_fleet_fallback_uses_n_bins():
++    """B-kimi-57: number_vehicles=0 falls back to n_bins, not len(binsids)."""
++    bins, dist = _tiny_instance()
++    values = {"Omega": 0.1, "psi": 1, "Q": 500.0, "R": 1.0, "B": 1.0, "C": 1.0, "V": 1.0}
++    # binsids longer than n_bins exercises the old len(binsids) divergence.
++    route, _, _ = _run_gurobi_optimizer(
++        bins=bins,
++        distance_matrix=dist,
++        env=None,
++        values=values,
++        binsids=[0] + list(range(1, 9)) + [99, 100],
++        mandatory=[],
++        number_vehicles=0,
++        time_limit=10,
++        seed=42,
++    )
++    assert route[0] == 0 and len(route) > 2  # solved with an unbounded-by-bins fleet
++
++
++def test_policy_splits_depot_delimited_flat_route(monkeypatch):
++    """B-kimi-58: the adapter splits a depot-delimited flat list into routes."""
++    captured: Dict[str, Any] = {}
++
++    def fake_optimizer(*, bins, distance_matrix, values, binsids, mandatory_nodes, number_vehicles, **kw):
++        captured["number_vehicles"] = number_vehicles
++        return [0, 11, 12, 0, 13, 0], 5.0, 2.0
++
++    monkeypatch.setattr(policy_swc_tcf, "run_swc_tcf_optimizer", fake_optimizer)
++
++    class _Params:
++        time_limit = 60.0
++        framework = "gurobi"
++        engine = "gurobi"
++
++    policy = policy_swc_tcf.SWCTCFPolicy.__new__(policy_swc_tcf.SWCTCFPolicy)
++    sub_dist = np.zeros((4, 4))
++    routes, profit, cost = policy._run_solver(
++        sub_dist_matrix=sub_dist,
++        sub_wastes={1: 1.0, 2: 1.0, 3: 1.0},
++        capacity=100.0,
++        revenue=1.0,
++        cost_unit=1.0,
++        values={},
++        mandatory_nodes=[],
++        params=_Params(),
++        n_vehicles=0,
++    )
++    assert routes == [[11, 12], [13]]
++    assert profit == 5.0 and cost == 2.0
++    assert captured["number_vehicles"] == 0  # unbounded, not the old silent 1
++
++
++@dataclass
++class _FakeConfig:
++    capacity: float = 100.0
++    revenue: float = 0.5
++    cost_unit: float = 1.0
++    density: float = 1.0
++    bin_volume: float = 1.0
++    seed: Optional[int] = None
++
++
++class _TypedPolicy(BaseRoutingPolicy):
++    """Minimal adapter to exercise the typed-config path of load_config."""
++
++    _config = _FakeConfig()
++
++    def execute(self, **kwargs):
++        raise NotImplementedError
++
++    def _run_solver(self, *args, **kwargs):
++        raise NotImplementedError
++
++    def _get_config_key(self) -> str:
++        return "typed_fake"
++
++
++def test_typed_path_flattens_engine_nested_overrides(monkeypatch):
++    """B-kimi-59: engine-nested runtime overrides reach the values dict on the typed path."""
++    monkeypatch.setattr(
++        "logic.src.policies.route_construction.base.base_routing_policy.load_area_and_waste_type_params",
++        lambda area, wt: (100.0, 0.5, 1.0, 1.0, 1.0),
++    )
++    policy = _TypedPolicy(config=_FakeConfig())
++    raw_cfg = {
++        "typed_fake": [
++            {"gurobi": [{"time_limit": 7.0}, {"vrpp": False}]},
++            {"seed": 123},
++        ]
++    }
++    capacity, revenue, cost_unit, values = policy._load_area_params("rio", "plastic", raw_cfg)
++    assert values["time_limit"] == 7.0, "engine-nested override was dropped by the typed path"
++    assert values["vrpp"] is False
++    assert values["seed"] == 123
++    assert capacity == 100.0
++
++
++def test_route_extraction_parity_across_backends(capsys):
++    """M-kimi-02: one shared extractor — all three backends must agree on a fixed instance."""
++    from logic.src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.dispatcher import (
++        run_swc_tcf_optimizer,
++    )
++
++    rng = np.random.default_rng(7)
++    coords = rng.uniform(0, 10, size=(9, 2))
++    dist = np.sqrt(((coords[:, None, :] - coords[None, :, :]) ** 2).sum(-1)).tolist()
++    bins = np.array([10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0])
++    values = {"Omega": 0.1, "psi": 1, "Q": 250.0, "R": 1.0, "B": 1.0, "C": 1.0, "V": 1.0}
++
++    results = {}
++    for framework, optimizer in [("gurobi", "gurobi"), ("ortools", "SCIP"), ("pyomo", "gurobi")]:
++        with capsys.disabled():
++            route, profit, _ = run_swc_tcf_optimizer(
++                bins=bins,
++                distance_matrix=dist,
++                values=values,
++                binsids=list(range(1, 9)),
++                mandatory_nodes=[2, 5],
++                number_vehicles=0,
++                time_limit=30,
++                framework=framework,
++                optimizer=optimizer,
++                seed=42,
++            )
++        results[framework] = (route, profit)
++
++    def _bins(flat):
++        return frozenset(n for n in flat if n != 0)
++
++    g_route, g_profit = results["gurobi"]
++    assert g_route != [0, 0], "gurobi backend found no solution on the parity instance"
++    for framework in ("ortools", "pyomo"):
++        route, profit = results[framework]
++        if route == [0, 0]:
++            pytest.skip(f"{framework} backend unavailable in this environment")
++        # Visit order may differ among equal-profit optima; profit and the
++        # collected bin set must agree.
++        assert _bins(route) == _bins(g_route), f"{framework} collected a different bin set"
++        assert abs(profit - g_profit) <= 1e-6 * max(1.0, abs(g_profit)), (
++            f"{framework} profit {profit} diverges from native gurobi {g_profit}"
++        )

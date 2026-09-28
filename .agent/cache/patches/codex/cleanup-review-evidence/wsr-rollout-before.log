@@ -1,0 +1,36 @@
+FFF                                                                      [100%]
+=================================== FAILURES ===================================
+______________ test_no_comparison_does_not_replace_frozen_policy _______________
+../test_codex_rollout_before.py:63: in test_no_comparison_does_not_replace_frozen_policy
+    assert baseline.baseline_policy is frozen
+E   assert Linear(in_features=1, out_features=1, bias=True) is Linear(in_features=1, out_features=1, bias=True)
+E    +  where Linear(in_features=1, out_features=1, bias=True) = RolloutBaseline(\n  (baseline_policy): Linear(in_features=1, out_features=1, bias=True)\n).baseline_policy
+____ test_multigraph_reporting_is_separate_and_worse_candidate_rejected[0] _____
+../test_codex_rollout_before.py:103: in test_multigraph_reporting_is_separate_and_worse_candidate_rejected
+    assert len(reporting) == 5 and len(baseline.comparison_dataset) == 3
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch/nn/modules/module.py:1967: in __getattr__
+    raise AttributeError(
+E   AttributeError: 'RolloutBaseline' object has no attribute 'comparison_dataset'
+----------------------------- Captured stdout call -----------------------------
+Generating training dataset (3 instances) on CPU...
+Generating eval dataset (5 instances, 20 nodes) on CPU...
+------------------------------ Captured log call -------------------------------
+INFO     logic.src.pipeline.rl.common.base.data:rank_zero.py:42 Generating training dataset (3 instances) on CPU...
+INFO     logic.src.pipeline.rl.common.base.data:rank_zero.py:42 Generating eval dataset (5 instances, 20 nodes) on CPU...
+____ test_multigraph_reporting_is_separate_and_worse_candidate_rejected[2] _____
+../test_codex_rollout_before.py:103: in test_multigraph_reporting_is_separate_and_worse_candidate_rejected
+    assert len(reporting) == 5 and len(baseline.comparison_dataset) == 3
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch/nn/modules/module.py:1967: in __getattr__
+    raise AttributeError(
+E   AttributeError: 'RolloutBaseline' object has no attribute 'comparison_dataset'
+----------------------------- Captured stdout call -----------------------------
+Generating training dataset (3 instances) on CPU...
+Generating eval dataset (5 instances, 20 nodes) on CPU...
+------------------------------ Captured log call -------------------------------
+INFO     logic.src.pipeline.rl.common.base.data:rank_zero.py:42 Generating training dataset (3 instances) on CPU...
+INFO     logic.src.pipeline.rl.common.base.data:rank_zero.py:42 Generating eval dataset (5 instances, 20 nodes) on CPU...
+=========================== short test summary info ============================
+FAILED ../test_codex_rollout_before.py::test_no_comparison_does_not_replace_frozen_policy
+FAILED ../test_codex_rollout_before.py::test_multigraph_reporting_is_separate_and_worse_candidate_rejected[0]
+FAILED ../test_codex_rollout_before.py::test_multigraph_reporting_is_separate_and_worse_candidate_rejected[2]
+3 failed, 10 deselected in 6.69s

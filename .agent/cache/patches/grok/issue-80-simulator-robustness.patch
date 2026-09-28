@@ -1,0 +1,612 @@
+diff --git a/logic/src/pipeline/features/test/orchestrator/__init__.py b/logic/src/pipeline/features/test/orchestrator/__init__.py
+index 1dafaeb52..613d2b9d9 100644
+--- a/logic/src/pipeline/features/test/orchestrator/__init__.py
++++ b/logic/src/pipeline/features/test/orchestrator/__init__.py
+@@ -164,7 +164,7 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
+         data_size: Number of available data points for the area.
+         device: Torch device for neural models.
+     """
+-    from logic.src.pipeline.simulations.day_context import resolve_policy_display_name, to_slug
++    from logic.src.pipeline.simulations.day_context import policy_result_key
+ 
+     sim = cfg.sim
+     log_file = setup_logger_redirection(echo_to_terminal=True)
+@@ -205,8 +205,11 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
+         shared_metrics = manager.dict()
+ 
+         raw_policies = sim.full_policies
+-        policies = [to_slug(resolve_policy_display_name(p, sim)[1]) for p in raw_policies]
+-        sample_idx_dict: Dict[str, List[int]] = {pol: list(range(sim.graph.n_samples)) for pol in raw_policies}
++        # Resume logs and workers are keyed by the display slug (ctx.pol_name),
++        # not the raw expander id. Both the initial sample lists and the resume
++        # filter use that same key, in policy order.
++        policies = [policy_result_key(p, sim) for p in raw_policies]
++        sample_idx_dict: Dict[str, List[int]] = {pol: list(range(sim.graph.n_samples)) for pol in policies}
+ 
+         # ── Config snapshot ─────────────────────────────────────────────────────
+         # Persist the fully-resolved Hydra config (including all CLI overrides)
+@@ -350,6 +353,11 @@ def simulator_testing(cfg: Config, data_size: int, device: Any) -> None:  # noqa
+             data_distribution=sim.data_distribution,
+             run_name=sim.run_name,
+         )
++        failed_records = [dict(row) for row in _failed_log]
++        if failed_records:
++            # SystemExit is not an Exception, so the engine does not rewrite it
++            # into a successful return. The process exit code is 1.
++            raise SystemExit(f"{len(failed_records)} simulation sample(s) failed")
+     finally:
+         with contextlib.suppress(Exception):
+             manager.shutdown()
+diff --git a/logic/src/pipeline/features/test/orchestrator/parallel_runner.py b/logic/src/pipeline/features/test/orchestrator/parallel_runner.py
+index d79281a84..c2d815898 100644
+--- a/logic/src/pipeline/features/test/orchestrator/parallel_runner.py
++++ b/logic/src/pipeline/features/test/orchestrator/parallel_runner.py
+@@ -170,9 +170,13 @@ def execute_and_monitor_tasks(
+         sample_id = result.pop("sample_id", None)
+         if not (isinstance(result, dict) and success):
+             error_policy = result.get("policy", "unknown")
+-            error_sample = result.get("sample_id", "unknown")
++            error_sample = sample_id if sample_id is not None else result.get("sample", "unknown")
+             error_msg = result.get("error", "Unknown error")
+             print(f"Simulation failed: {error_policy} #{error_sample} - {error_msg}")
++            result["policy"] = error_policy
++            result["sample"] = error_sample
++            result["sample_id"] = error_sample
++            result["error"] = error_msg
+             failed_log.append(result)
+             return
+ 
+diff --git a/logic/src/pipeline/features/test/orchestrator/results_handler.py b/logic/src/pipeline/features/test/orchestrator/results_handler.py
+index 1df6483cb..72626a2ae 100644
+--- a/logic/src/pipeline/features/test/orchestrator/results_handler.py
++++ b/logic/src/pipeline/features/test/orchestrator/results_handler.py
+@@ -92,15 +92,15 @@ def aggregate_final_results(log_tmp: Any, cfg: Config, lock: Any) -> Tuple[Dict[
+                 log_full[key].extend(list(val))
+ 
+             for pol_name in policy_names:
+-                if log_full[pol_name]:
+-                    log[pol_name] = [statistics.mean(v) for v in zip(*log_full[pol_name], strict=False)]
+-                    log_std[pol_name] = [
+-                        statistics.stdev(v) if len(log_full[pol_name]) > 1 else 0.0
+-                        for v in zip(*log_full[pol_name], strict=False)
+-                    ]
+-                else:
+-                    log[pol_name] = [0.0] * len(udef.SIM_METRICS)
+-                    log_std[pol_name] = [0.0] * len(udef.SIM_METRICS)
++                # A policy with no successful sample is omitted. An all-zero mean
++                # would be written as if the policy had run (DS-18).
++                if not log_full[pol_name]:
++                    continue
++                log[pol_name] = [statistics.mean(v) for v in zip(*log_full[pol_name], strict=False)]
++                log_std[pol_name] = [
++                    statistics.stdev(v) if len(log_full[pol_name]) > 1 else 0.0
++                    for v in zip(*log_full[pol_name], strict=False)
++                ]
+ 
+             _log_sim_metrics(log, log_std)
+             return log, log_std
+diff --git a/logic/src/pipeline/simulations/bins/base.py b/logic/src/pipeline/simulations/bins/base.py
+index 7eeeb64b5..3206a7a97 100644
+--- a/logic/src/pipeline/simulations/bins/base.py
++++ b/logic/src/pipeline/simulations/bins/base.py
+@@ -458,8 +458,12 @@ class Bins:
+         Returns:
+             The processed filling tuple.
+         """
+-        todaysfilling = self.waste_fills[day] if self.start_with_fill else self.waste_fills[day - 1]
+-        noisyfilling = self.noisy_waste_fills[day] if self.start_with_fill else self.noisy_waste_fills[day - 1]
++        # Row 0 is the opening level when start_with_fill is set. The daily
++        # increment is waste_fills[day - 1] either way, so a sample with one row
++        # per simulated day is not indexed one past its last row.
++        row = day - 1
++        todaysfilling = self.waste_fills[row]
++        noisyfilling = self.noisy_waste_fills[row]
+         return self._process_filling(todaysfilling, noisyfilling)
+ 
+     def __setDistribution(self, param1, param2):
+diff --git a/logic/src/pipeline/simulations/day_context.py b/logic/src/pipeline/simulations/day_context.py
+index 50c889608..9fbad581a 100644
+--- a/logic/src/pipeline/simulations/day_context.py
++++ b/logic/src/pipeline/simulations/day_context.py
+@@ -52,7 +52,34 @@ def _registered_constructor_keys() -> Tuple[str, ...]:
+         names = os.listdir(policies_dir)
+     except OSError:  # pragma: no cover - frozen builds without configs fall back to the token heuristic
+         return ()
+-    return tuple(sorted(n[len("policy_") : -len(".yaml")] for n in names if n.startswith("policy_") and n.endswith(".yaml")))
++    return tuple(
++        sorted(n[len("policy_") : -len(".yaml")] for n in names if n.startswith("policy_") and n.endswith(".yaml"))
++    )
++
++
++# Tokens that name a selector or an improvement stage, not a route constructor.
++_STRUCTURAL_NAME_TOKENS = frozenset({"ms", "ri", "none", "custom", "new", "og"})
++
++
++def _matching_constructor(parts: List[str]) -> Optional[str]:
++    """Longest registered constructor key inside an expanded policy id.
++
++    ``alns`` and ``hgs`` are constructors, so they are not skipped. Selection
++    tokens such as ``regular`` are not constructor keys and do not win.
++
++    Args:
++        parts: Underscore tokens of the policy id.
++
++    Returns:
++        The constructor key, or None when the registry has no match.
++    """
++    keys = set(_registered_constructor_keys())
++    for width in range(len(parts), 0, -1):
++        for start in range(len(parts) - width + 1):
++            candidate = "_".join(parts[start : start + width])
++            if candidate in keys and candidate not in _STRUCTURAL_NAME_TOKENS:
++                return candidate
++    return None
+ 
+ 
+ def get_canonical_policy_name(policy_name: str, known_keys: Optional[Iterable[str]] = None) -> str:
+@@ -351,12 +378,14 @@ def get_full_policy_name(pol_name: str, config: Dict[str, Any]) -> str:
+         # If it looks expanded (e.g., 'ms_regular_alns_ri_none'), try to extract the middle
+         parts = base_id.split("_")
+         if "ms" in parts or "ri" in parts:
+-            # It's already expanded, try to find the 'constructor' part
+-            # This is a bit heuristic but should work for most cases
+-            for p in parts:
+-                if p not in ["ms", "ri", "none", "custom", "alns", "hgs", "new", "og"]:
+-                    base_id = p
+-                    break
++            matched = _matching_constructor(parts)
++            if matched is not None:
++                base_id = matched
++            else:
++                for part in parts:
++                    if part not in _STRUCTURAL_NAME_TOKENS:
++                        base_id = part
++                        break
+ 
+     # 3. Extract Route Improvement
+     ri = config.get("route_improvement")
+@@ -470,7 +499,7 @@ class SimulationDayContext(Mapping):
+     overflows: int = 0
+     day: int = 0
+     model_env: Any = None
+-    model_ls: Tuple[Any, ...] = (None,)
++    model_ls: Tuple[Any, ...] = (None, None, None)
+     n_vehicles: int = 1
+     area: str = ""
+     realtime_log_path: Optional[str] = None
+diff --git a/logic/src/pipeline/simulations/simulator.py b/logic/src/pipeline/simulations/simulator.py
+index 9de059cb7..555d0bce1 100644
+--- a/logic/src/pipeline/simulations/simulator.py
++++ b/logic/src/pipeline/simulations/simulator.py
+@@ -506,6 +506,17 @@ def sequential_simulations(  # noqa: C901
+                     # Always append to log_full to support uniform aggregation logic
+                     log_full[pol_name].append(lg)
+                     log[pol_name] = lg
++                else:
++                    err = result_dict if isinstance(result_dict, dict) else {}
++                    failed_log.append(
++                        {
++                            "policy": err.get("policy", pol_name),
++                            "sample": sample_id,
++                            "sample_id": sample_id,
++                            "error": err.get("error", "simulation failed"),
++                            "traceback": err.get("traceback", ""),
++                        }
++                    )
+ 
+                 # Final update for this sample
+                 if display:
+@@ -514,9 +525,17 @@ def sequential_simulations(  # noqa: C901
+                     )
+                     overall_progress.update()
+ 
+-            except CheckpointError:
+-                # Skip broken checkpoints
+-                pass
++            except CheckpointError as checkpoint_error:
++                err = checkpoint_error.error_result if isinstance(checkpoint_error.error_result, dict) else {}
++                failed_log.append(
++                    {
++                        "policy": err.get("policy", pol_name),
++                        "sample": sample_id,
++                        "sample_id": sample_id,
++                        "error": err.get("error", str(checkpoint_error)),
++                        "traceback": err.get("traceback", ""),
++                    }
++                )
+             except BaseException as e:
+                 # If it's an Optuna pruning signal, re-raise it immediately
+                 if "optuna" in sys.modules:
+@@ -537,6 +556,7 @@ def sequential_simulations(  # noqa: C901
+                     {
+                         "policy": pol_name,
+                         "sample": sample_id,
++                        "sample_id": sample_id,
+                         "error": str(e),
+                         "traceback": traceback.format_exc(),
+                     }
+@@ -552,15 +572,15 @@ def sequential_simulations(  # noqa: C901
+                     str(ROOT_DIR),
+                     sim.graph.n_days,
+                     sim.graph.num_loc,
+-                    sim.output_dir, # pyrefly: ignore [bad-argument-type]
++                    sim.output_dir,  # pyrefly: ignore [bad-argument-type]
+                     sim.graph.area,
+                     sim.graph.waste_type,
+-                    sim.data_distribution, # pyrefly: ignore [bad-argument-type]
+-                    _run_name, # pyrefly: ignore [bad-argument-count]
+-                    nsamples=sim.graph.n_samples, # pyrefly: ignore [bad-keyword-argument]
+-                    policies=[pol_name], # pyrefly: ignore [bad-keyword-argument]
+-                    keys=SIM_METRICS, # pyrefly: ignore [bad-keyword-argument]
+-                    lock=lock, # pyrefly: ignore [bad-keyword-argument]
++                    sim.data_distribution,  # pyrefly: ignore [bad-argument-type]
++                    _run_name,  # pyrefly: ignore [bad-argument-count]
++                    nsamples=sim.graph.n_samples,  # pyrefly: ignore [bad-keyword-argument]
++                    policies=[pol_name],  # pyrefly: ignore [bad-keyword-argument]
++                    keys=SIM_METRICS,  # pyrefly: ignore [bad-keyword-argument]
++                    lock=lock,  # pyrefly: ignore [bad-keyword-argument]
+                 )
+                 if res_log:
+                     log.update(res_log)
+diff --git a/logic/src/pipeline/simulations/states/running.py b/logic/src/pipeline/simulations/states/running.py
+index 2de8e3242..ac0caf7a6 100644
+--- a/logic/src/pipeline/simulations/states/running.py
++++ b/logic/src/pipeline/simulations/states/running.py
+@@ -41,6 +41,26 @@ if TYPE_CHECKING:
+     from .base import SimulationContext
+ 
+ 
++def pad_model_ls(model_tup: Optional[tuple]) -> tuple:
++    """Return at least three model slots.
++
++    Neural-agent execution unpacks ``(model_data, graph, profit_vars)`` and the
++    branch-and-price policy indexes the same three positions. A missing or short
++    tuple must not raise ``ValueError`` before the policy runs.
++
++    Args:
++        model_tup: Models loaded for this sample, or None.
++
++    Returns:
++        The original tuple when it already has three or more entries, otherwise
++        padded with None.
++    """
++    items = tuple(model_tup) if model_tup else ()
++    if len(items) >= 3:
++        return items
++    return items + (None,) * (3 - len(items))
++
++
+ class RunningState(SimState):
+     """State handles the day-by-day simulation loop.
+ 
+@@ -62,7 +82,9 @@ class RunningState(SimState):
+             f"log_realtime_{sim.data_distribution}_{graph.n_samples}N.jsonl",
+         )
+ 
+-        ctx.tic = time.perf_counter() + ctx.run_time
++        # Stored elapsed is already spent. Subtract it so the next interval is
++        # that elapsed time plus new work, not a negative clock (DS-17).
++        ctx.tic = time.perf_counter() - ctx.run_time
+ 
+         try:
+             assert ctx.checkpoint is not None
+@@ -167,7 +189,7 @@ class RunningState(SimState):
+             graph_size=sim.graph.num_loc,
+             full_policy=ctx.pol_name,
+             policy_name=ctx.pol_name,
+-            display_name=display_name, # pyrefly: ignore [bad-argument-type]
++            display_name=display_name,  # pyrefly: ignore [bad-argument-type]
+             bins=ctx.bins,
+             new_data=ctx.new_data,
+             coords=ctx.coords,
+@@ -175,7 +197,7 @@ class RunningState(SimState):
+             overflows=ctx.overflows,
+             day=day,
+             model_env=ctx.model_env,
+-            model_ls=ctx.model_tup or (None, None),
++            model_ls=pad_model_ls(ctx.model_tup),
+             n_vehicles=sim.n_vehicles,
+             area=sim.graph.area,
+             realtime_log_path=realtime_log_path,
+@@ -202,7 +224,9 @@ class RunningState(SimState):
+             time_matrix=getattr(ctx, "time_matrix", None),
+             avg_speed_kmh=float(getattr(ctx, "avg_speed_kmh", 35.0)),
+             service_time_h=float(getattr(ctx, "service_time_h", 1.5 / 60.0)),
+-            vehicle_capacity=float(getattr(ctx, "vehicle_capacity", 100.0) if getattr(ctx, "vehicle_capacity", None) is not None else 100.0),
++            vehicle_capacity=float(
++                getattr(ctx, "vehicle_capacity", 100.0) if getattr(ctx, "vehicle_capacity", None) is not None else 100.0
++            ),
+         )
+ 
+     def _update_ctx_from_day_context(self, ctx, day_context):
+@@ -246,5 +270,5 @@ class RunningState(SimState):
+                     "policy": ctx.pol_name,
+                     "sample_id": ctx.sample_id,
+                 }
+-                return cumulative_metrics # pyrefly: ignore [bad-return]
++                return cumulative_metrics  # pyrefly: ignore [bad-return]
+         return {}
+diff --git a/logic/test/unit/pipeline/simulations/test_simulator_robustness.py b/logic/test/unit/pipeline/simulations/test_simulator_robustness.py
+new file mode 100644
+index 000000000..a3ef3ef93
+--- /dev/null
++++ b/logic/test/unit/pipeline/simulations/test_simulator_robustness.py
+@@ -0,0 +1,278 @@
++"""Regression tests for simulator resume, failure, and naming bugs (issue 80)."""
++
++from unittest.mock import MagicMock, patch
++
++import numpy as np
++import pytest
++import torch
++from logic.src.configs import Config
++from logic.src.configs.envs.graph import GraphConfig
++from logic.src.configs.tasks.sim import SimConfig
++from logic.src.pipeline.features.test.orchestrator.parallel_runner import execute_and_monitor_tasks
++from logic.src.pipeline.features.test.orchestrator.results_handler import aggregate_final_results
++from logic.src.pipeline.simulations.checkpoints import CheckpointError
++from logic.src.pipeline.simulations.day_context import get_full_policy_name, policy_result_key
++from logic.src.pipeline.simulations.simulator import sequential_simulations
++from logic.src.pipeline.simulations.states.running import RunningState, pad_model_ls
++from logic.test.unit.pipeline.simulations.test_states import _make_test_cfg
++
++pytestmark = [pytest.mark.unit, pytest.mark.fast]
++
++
++@pytest.fixture
++def ctx_vars():
++    """Shared resources the running state reads off the context."""
++    return {"lock": MagicMock(), "counter": MagicMock(), "overall_progress": MagicMock(), "tqdm_pos": 0}
++
++
++def _orch_cfg(**overrides) -> Config:
++    """Minimal orchestrator config. Defaults match the existing feature tests."""
++    graph = GraphConfig(area="mixrmbac", num_loc=20, waste_type="glass")
++    sim = SimConfig(
++        policies=["alns"],
++        full_policies=["alns"],
++        data_distribution="unif",
++        days=1,
++        seed=42,
++        output_dir="test_out",
++        n_samples=1,
++        resume=False,
++        cpu_cores=1,
++        graph=graph,
++    )
++    for key, value in overrides.items():
++        if hasattr(sim, key):
++            setattr(sim, key, value)
++        elif hasattr(sim.graph, key):
++            setattr(sim.graph, key, value)
++    cfg = Config()
++    cfg.sim = sim
++    return cfg
++
++
++def test_pad_model_ls_is_a_three_tuple():
++    """NA unpacks three slots. A missing model must not be a 1- or 2-tuple."""
++    assert pad_model_ls(None) == (None, None, None)
++    assert pad_model_ls((1, 2)) == (1, 2, None)
++    assert pad_model_ls((1, 2, 3, 4)) == (1, 2, 3, 4)
++
++
++@patch("logic.src.pipeline.simulations.states.running.run_day")
++@patch("logic.src.pipeline.simulations.states.running.checkpoint_manager")
++def test_resume_clock_adds_stored_elapsed(mock_cp_manager, mock_run_day, ctx_vars):
++    """A resumed run's next elapsed time is stored time plus new work."""
++    from logic.src.pipeline.simulations.states import FinishingState, SimulationContext
++
++    cfg = _make_test_cfg()
++    cfg.sim.graph.n_days = 1
++    ctx = SimulationContext(cfg, torch.device("cpu"), [0], 0, 0, "w", ctx_vars)
++    ctx.bins = MagicMock()
++    ctx.dist_tup = (MagicMock(), MagicMock(), MagicMock(), MagicMock())
++    ctx.checkpoint = MagicMock()
++    ctx.start_day = 1
++    ctx.daily_log = {"profit": []}
++    ctx.run_time = 12.5
++    ctx.model_tup = None
++
++    clock = {"t": 1000.0}
++    mock_hook = MagicMock()
++    mock_cp_manager.return_value.__enter__.return_value = mock_hook
++    mock_day_ctx = MagicMock()
++    mock_day_ctx.new_data = MagicMock()
++    mock_day_ctx.coords = MagicMock()
++    mock_day_ctx.bins = ctx.bins
++    mock_day_ctx.overflows = 0
++    mock_day_ctx.daily_log = {"profit": 10.0}
++    mock_day_ctx.output_dict = {}
++    mock_day_ctx.cached = []
++
++    def _advance(_day_ctx):
++        clock["t"] = 1003.0
++        return mock_day_ctx
++
++    mock_run_day.side_effect = _advance
++
++    with patch("logic.src.pipeline.simulations.states.running.time.perf_counter", lambda: clock["t"]):
++        RunningState().handle(ctx)
++
++    assert isinstance(ctx.current_state, FinishingState)
++    elapsed = mock_hook.after_day.call_args_list[0][0][0]
++    assert elapsed == pytest.approx(15.5)
++    assert elapsed > 0
++    handed = mock_run_day.call_args[0][0].model_ls
++    assert len(handed) >= 3
++    assert handed[:3] == (None, None, None)
++
++
++def test_expanded_id_keeps_alns_constructor():
++    """ms_regular_alns_ri_none names the ALNS constructor, not an empty slot."""
++    name = get_full_policy_name(
++        "ms_regular_alns_ri_none",
++        {"mandatory_selection": "regular", "route_improvement": "none"},
++    )
++    assert name.split(" + ")[1] == "ALNS"
++
++
++def test_unexpanded_display_name_stays_the_full_id():
++    """Ids without an ms/ri token keep the previous display string."""
++    name = get_full_policy_name("lookahead_alns_bmc_fast_tsp", {})
++    assert "LOOKAHEAD_ALNS_BMC_FAST_TSP" in name
++
++
++def test_start_with_fill_uses_last_row_on_the_last_day(basic_bins):
++    """A sample with one row per day is addressable on day n_days."""
++    n_days = 3
++    n_bins = basic_bins.n
++    fills = np.arange(n_days * n_bins, dtype=float).reshape(n_days, n_bins)
++    basic_bins.start_with_fill = True
++    basic_bins.waste_fills = fills
++    basic_bins.noisy_waste_fills = fills.copy()
++    basic_bins.real_c = fills[0].copy()
++    basic_bins.c = fills[0].copy()
++
++    basic_bins.load_filling(n_days)
++
++    assert np.array_equal(basic_bins.history[-1], fills[-1])
++
++
++def test_failed_policy_is_not_an_all_zero_mean():
++    """No successful sample means the policy is absent, not a zero vector."""
++    cfg = _orch_cfg()
++    cfg.sim.graph.n_samples = 2
++    slug = policy_result_key("alns", cfg.sim)
++    log_tmp = {slug: []}
++
++    log, log_std = aggregate_final_results(log_tmp, cfg, lock=None)
++
++    assert slug not in log
++    assert log_std is not None
++    assert slug not in log_std
++
++
++def test_partial_samples_average_only_successes():
++    """A failed sibling sample does not pull the mean toward zero."""
++    cfg = _orch_cfg()
++    cfg.sim.graph.n_samples = 2
++    slug = policy_result_key("alns", cfg.sim)
++    log_tmp = {slug: [[2.0, 4.0]]}
++
++    log, _log_std = aggregate_final_results(log_tmp, cfg, lock=None)
++
++    assert log[slug] == [2.0, 4.0]
++
++
++@patch("logic.src.pipeline.simulations.simulator.SimulationContext")
++def test_sequential_checkpoint_error_is_recorded(mock_context, tmp_path):
++    """A CheckpointError is a failed sample, not a skipped one."""
++    cfg = _orch_cfg()
++    cfg.tracking.no_progress_bar = True
++    instance = mock_context.return_value
++    instance.run.side_effect = CheckpointError({"error": "disk", "policy": "alns"})
++
++    with patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path)):
++        log, _log_std, failed = sequential_simulations(cfg, torch.device("cpu"), [None], [[0]], "weights", lock=None)
++
++    assert len(failed) == 1
++    assert failed[0]["sample_id"] == 0
++    assert failed[0]["error"] == "disk"
++    assert not any(isinstance(vals, list) and vals and all(v == 0 for v in vals) for vals in log.values())
++
++
++@patch("logic.src.pipeline.simulations.simulator.SimulationContext")
++def test_sequential_unsuccessful_result_is_recorded(mock_context, tmp_path):
++    """A day loop that stores an error result still reaches failed_log."""
++    cfg = _orch_cfg()
++    cfg.tracking.no_progress_bar = True
++    mock_context.return_value.run.return_value = {
++        "success": False,
++        "policy": "alns",
++        "error": "day failed",
++    }
++
++    with patch("logic.src.pipeline.simulations.simulator.ROOT_DIR", str(tmp_path)):
++        _log, _log_std, failed = sequential_simulations(cfg, torch.device("cpu"), [None], [[0]], "weights", lock=None)
++
++    assert failed[0]["sample_id"] == 0
++    assert failed[0]["error"] == "day failed"
++
++
++def test_parallel_failure_keeps_sample_id():
++    """The failure record still carries the sample id after it is popped."""
++    cfg = _orch_cfg()
++    cfg.tracking.no_progress_bar = True
++
++    class _Pool:
++        def apply_async(self, fn, args=None, callback=None):
++            callback({"success": False, "sample_id": 4, "policy": "alns", "error": "boom"})
++            task = MagicMock()
++            task.ready.return_value = True
++            task.get.return_value = None
++            return task
++
++    class _Manager:
++        def dict(self):
++            return {}
++
++        def list(self):
++            return []
++
++    with (
++        patch("logic.src.pipeline.features.test.orchestrator.parallel_runner.monitor_tasks_until_complete"),
++        patch("logic.src.pipeline.features.test.orchestrator.parallel_runner.collect_all_task_results"),
++    ):
++        _log, _log_std, failed = execute_and_monitor_tasks(
++            _Pool(),
++            cfg,
++            torch.device("cpu"),
++            [(None, 4, 0)],
++            "weights",
++            1,
++            MagicMock(),
++            _Manager(),
++            None,
++            {},
++        )
++
++    assert failed[0]["sample_id"] == 4
++    assert failed[0]["sample"] == 4
++
++
++def test_resume_filters_by_display_slug():
++    """Resume looks up the same slug the log file uses, and drops finished samples."""
++    from logic.src.pipeline.features.test import simulator_testing
++
++    cfg = _orch_cfg(n_samples=2, resume=True, cpu_cores=1)
++    cfg.sim.graph.n_samples = 2
++    slug = policy_result_key("alns", cfg.sim)
++
++    def _finished(**_kwargs):
++        return [{slug: [0]}]
++
++    with (
++        patch("logic.src.pipeline.features.test.orchestrator.sequential_simulations") as mock_seq,
++        patch("logic.src.pipeline.features.test.orchestrator.runs_per_policy", side_effect=_finished),
++        patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui"),
++        patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics"),
++    ):
++        mock_seq.return_value = ({slug: [1.0]}, None, [])
++        simulator_testing(cfg, 20, torch.device("cpu"))
++
++    sample_idx_ls = mock_seq.call_args[0][3]
++    assert sample_idx_ls == [[1]]
++
++
++def test_any_failed_sample_exits_nonzero():
++    """A recorded failure is a non-zero process status."""
++    from logic.src.pipeline.features.test import simulator_testing
++
++    cfg = _orch_cfg()
++    with (
++        patch("logic.src.pipeline.features.test.orchestrator.sequential_simulations") as mock_seq,
++        patch("logic.src.pipeline.features.test.orchestrator.send_final_output_to_gui"),
++        patch("logic.src.pipeline.features.test.orchestrator.display_log_metrics"),
++    ):
++        mock_seq.return_value = ({}, None, [{"policy": "alns", "sample": 0, "error": "boom"}])
++        with pytest.raises(SystemExit) as excinfo:
++            simulator_testing(cfg, 20, torch.device("cpu"))
++
++    assert excinfo.value.code != 0
