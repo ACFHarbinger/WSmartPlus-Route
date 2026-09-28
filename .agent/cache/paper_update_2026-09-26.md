@@ -3019,3 +3019,39 @@ Status: ✓ = already fixed on our branch; ◐ = partly; ✗ = open (text); ⚙ 
 - **D6:** the Rio Maior networks: **N = 100 are the 100 bins closest to the depot, and N = 170 the 170 farthest**. The two overlap heavily
   because the area has only a little more than 170 bins, and the split guarantees that every bin appears in at least one network.
 - **D7:** **remove** the Rio Maior driver readings from the Conclusion.
+
+### 9.2 Codex — issue #89 / H6 and integrated Round H review (2026-09-28)
+
+**H6 delivered as patches, not applied to the shared paper.** Full apply order,
+source evidence, numeric checks and review findings:
+[H6 handoff](patches/codex/issue-89-h6-handoff.md).
+
+| Requirement | Result / evidence |
+|---|---|
+| D5 kg lost | Six tables regenerated; same filtering/balancing as other metrics. Constructor means range30.3–100.4kg; selection means1.2–81.1kg. Lost mass is distinct from overflow bin-days. |
+| Runtime and replication | All36 archived configs: constructor60s, simulator seed42; PG inner30s. Explicit CPU/nested/retry qualifications, one algorithm-seed setting, no independent replicates. BPC fallback frequency unavailable. |
+| 90-day accounting | 174raw pairs, three90-day exclusions and six missing filtered30-day counterparts, leaving165. Six approximately-threefold constructors named; SWC exception and ALNS absence explicit. |
+| Results and Conclusion | No direct overflow incentive qualified by indirect construction effects. Runtime ratio descriptive. Three future priorities only; H4 removes driver readings. |
+| Figures and appendix | Three raw granular figures moved to appendix; raw caveats retained. PNG results table removed from document. Main graphics regenerated for canonical variant labels. |
+| H1–H5 integration | H2 had five overlapping hunks with H1. Integrated patch records resolution; H6 repairs B-density collision, residual phi/tau and n/N inconsistencies, incorrect model overflow timing, and remaining American spelling. |
+| Build | 53pages, no undefined references/citations, two inherited overfull boxes and no new ones. Six tables visually inspected. |
+
+**Review remains open on three findings:**
+
+- **MEDIUM, abstract:** absence of an overflow penalty does not imply that no
+  constructor has a reason to visit a full remote bin. Profit, mandatory
+  selection and SWC's threshold provide counterexamples to that universal wording.
+- **MEDIUM, “Model and simulator”:** even with no overflow, deposit-before-route
+  and collect-before-deposit need not produce the same collected mass or stock.
+  The agreement claim is false. A separate
+  [front-half correction proposal](patches/codex/issue-89-front-review-proposal.patch)
+  addresses both prose issues without changing Hector's model/proofs.
+- **MEDIUM, H2/D6:** exact54/100 and167/170 ranking matches contradict the owner's
+  closest/farthest description. Attach a reproducible matrix/index calculation
+  and reconcile it with the owner; the new sampled-triangle statistic also needs
+  its sampling seed and tolerance. Codex has not independently certified those
+  new measurements. This is not a blanket evidence approval of H2 or of the new
+  front-half literature reduction.
+
+D1(a) removes the old appendix example altogether, so no old visit-set `S^t`
+remains to rename. Earlier notation rulings stay superseded as recorded in9.1.

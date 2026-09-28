@@ -1,0 +1,59 @@
+diff --git a/paper.tex b/paper.tex
+index fd9d9cf..6861f2c 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -683,7 +683,7 @@ variables are in kilograms.}\label{tab:mp-notation}
+ \multicolumn{3}{@{}l}{\textbf{Sets}}\\
+ $B$, $V$, $E$ & & bins $\{1,\dots,N\}$; nodes $\{0\}\cup B\cup\{N+1\}$;
+   pairs of distinct nodes except $\{0,N+1\}$ \\
+-$\Gamma(i)$ & & neighbours of node $i$ \\
++$\Gamma(i)$ & & neighbors of node $i$ \\
+ $\mathcal{D}$, $\mathcal{D}^{+}$ & & decision days $\{1,\dots,D\}$; state days
+   $\{1,\dots,D+1\}$ \\
+ \midrule
+@@ -1091,7 +1091,7 @@ without forcing. Second, the model is solved in percent of bin capacity, with
+ revenue and payload rescaled accordingly, and arcs longer than
+ $6{,}000$\,km are dropped before solving. The saved configurations use the
+ native Gurobi backend with a 60\,s time limit, a $1\%$ MIP gap, and
+-$\Omega = 0.1$\,€ per vehicle inside the optimisation; the benchmark's
++$\Omega = 0.1$\,€ per vehicle inside the optimization; the benchmark's
+ reported profit carries no per-vehicle term ($\Omega = 0$ in the accounting
+ of Sect.~\ref{sec:protocol}). On a timeout the solver returns its best
+ incumbent.
+@@ -1130,7 +1130,7 @@ arc-cost adjustments; rounded-capacity, subset-row, multi-star and
+ edge-clique separation is also wired, while the minimum-cut, triangle-clique
+ and node-profit engines are inert in the reviewed revision (they are
+ constructed but never add a cut). The saved configurations use depth-first
+-search, at most $2{,}000$ branch nodes, ng-neighbourhoods of size $12$, a
++search, at most $2{,}000$ branch nodes, ng-neighborhoods of size $12$, a
+ $15$\,s pricing timeout, at most $50$ routes per pricing round, and at most
+ $150$ column-generation iterations; they also enable a strong-branching
+ heuristic subsequently found to produce suboptimal plans
+@@ -1227,9 +1227,9 @@ reversed, followed by a final pass over the removed pool. Reversing the sweep
+ can reach moves hidden by the first order.
+ 
+ \paragraph{Pheromone-Guided Cooperative Large Neighborhood Search (PG-CLNS).}
+-An original design --- inspired by the Hybrid Volleyball Premier League (HVPL)
+-algorithm first introduced in~\cite{Sun2023HVPL} --- which combines population-level
+-route construction with per-round refinement. Construction is ant-colony-based,
++An HVPL-inspired variant that combines population-level
++route construction with per-round refinement, drawing on the Hybrid Volleyball
++Premier League framework of~\cite{Sun2023HVPL}. Construction is ant-colony-based,
+ with pheromone deposited on \emph{edges} of the bin graph, so that road segments
+ appearing in good solutions are more likely to be chosen again; only the global
+ best solution deposits into the shared trail each round, keeping the signal focused,
+@@ -2129,12 +2129,8 @@ constraint were imposed (Sect.~\ref{sec:protocol}), the archive does not establi
+ given number of vehicles within a working shift. Nor does it certify
+ per-trip capacity feasibility: the route-accounting discrepancy and the
+ future-only capacity safeguard are discussed in
+-Sects.~\ref{sec:protocol} and~\ref{sec:provenance}. This study also did not explore the uncertainty that comes from
+-the difference between noisy bin fill sensor readings and the actual bin fill values 
+-the drivers check once they arrive at the location, although the data provided does 
+-include both sensor and driver readings for one of the regions (i.e., Rio Maior) 
+-and the simulator is being built to accommodate different sources of noise --- like 
+-Gaussian noise --- being present in the bin fill data that is given as input 
++Sects.~\ref{sec:protocol} and~\ref{sec:provenance}. This study also did not explore the uncertainty that comes from noisy bin fill sensor readings, and the simulator is being built to accommodate
++different sources of noise --- like Gaussian noise --- being present in the bin fill data that is given as input 
+ to the routing policies. Four SWC-TCF runs had anomalously low collected tonnage at the largest,
+ heavier-load setting; whole-cell exclusion prevented their removal from
+ favoring any constructor or policy stage, but removed that setting from

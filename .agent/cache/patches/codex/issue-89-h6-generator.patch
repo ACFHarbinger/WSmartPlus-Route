@@ -1,0 +1,308 @@
+diff --git a/logic/gen/gen_paper_latex.py b/logic/gen/gen_paper_latex.py
+--- a/logic/gen/gen_paper_latex.py
++++ b/logic/gen/gen_paper_latex.py
+@@ -276,12 +276,11 @@
+     whose 90-day scenarios are a different, self-favouring subset.
+ 
+     It does not identify a horizon effect for the full design. A configuration
+-    reached 90 days precisely because its 30-day result put it on the Pareto
+-    front, and there are no replicated seeds from which to estimate the
+-    resulting selection effect. The paired difference is therefore descriptive
++    belongs to a non-factorial 90-day subset whose selection rule remains
++    pending recovery; no replicated seeds identify the selection effect. The paired difference is therefore descriptive
+     of the selected configurations only.
+     """
+-    wide = clean.pivot_table(index=CONFIG_KEYS, columns="horizon", values=["kgkm", "overflows", "km", "time"])
++    wide = clean.pivot_table(index=CONFIG_KEYS, columns="horizon", values=["kgkm", "overflows", "km", "time", "kg_lost"])
+     wide = wide.dropna()
+     if wide.empty:
+         return wide
+@@ -377,6 +376,7 @@
+     ("overflows", "mean", 1, "min"),
+     ("overflows", "median", 1, "min"),
+     ("km", "mean", 0, "min"),
++    ("kg_lost", "mean", 1, "min"),
+     ("time", "mean", 0, "min"),
+ ]
+ 
+@@ -386,8 +386,8 @@
+ #: headline metrics span a mean/median pair under one centered label, with the
+ #: mean/median distinction carried by a second header row rather than by a
+ #: literal "med." column label competing with the numbers for space.
+-METRIC_GROUP_HEADERS = [mc("Runs"), mc("kg/km", 2), mc("Overflows", 2), mc("km"), mc("Time (s)")]
+-METRIC_GROUP_SUBHEADERS = ["", "mean", "median", "mean", "median", "", ""]
++METRIC_GROUP_HEADERS = [mc("Runs"), mc("kg/km", 2), mc("Overflows", 2), mc("km"), mc("Lost (kg)"), mc("Time (s)")]
++METRIC_GROUP_SUBHEADERS = ["", "mean", "median", "mean", "median", "", "mean", ""]
+ 
+ 
+ def table_constructors(clean: pd.DataFrame, horizon: int, cfg: dict) -> str:
+@@ -399,12 +399,14 @@
+     agg.index = [display_name(c, cfg) for c in agg.index]
+     return render_template(
+         "paper_results_table.tex.j2",
++        tabcolsep=2,
+         label=f"tab:constructors{horizon}",
+         caption=cfg["captions"]["constructors"].format(horizon=horizon, runs=len(sub)),
+         first_header=cfg["headers"]["constructor"],
+         headers=METRIC_GROUP_HEADERS,
+         subheaders=METRIC_GROUP_SUBHEADERS,
+         column_spec="l" + "r" * len(CONSTRUCTOR_SPEC),
++        size=r"\footnotesize",
+         rows=build_rows(agg, CONSTRUCTOR_SPEC),
+         note=cfg["notes"]["constructors"].format(runs_per=int(counts.min())),
+     )
+@@ -419,6 +421,7 @@
+     agg.index = [cfg["variant_labels"].get(v, v) for v in agg.index]
+     return render_template(
+         "paper_results_table.tex.j2",
++        tabcolsep=2,
+         label=f"tab:strategies{horizon}",
+         caption=cfg["captions"]["strategies"].format(horizon=horizon),
+         first_header=cfg["headers"]["strategy"],
+@@ -442,7 +445,7 @@
+     """
+     sub = clean[clean.horizon == horizon]
+     keys = [k for k in CONFIG_KEYS if k != "improver"]
+-    wide = sub.pivot_table(index=keys, columns="improver", values=["kgkm", "km", "overflows", "time"])
++    wide = sub.pivot_table(index=keys, columns="improver", values=["kgkm", "km", "overflows", "time", "kg_lost"])
+     return wide.dropna()
+ 
+ 
+@@ -470,6 +473,7 @@
+         )
+     return render_template(
+         "paper_results_table.tex.j2",
++        tabcolsep=2,
+         label=f"tab:improvers{horizon}",
+         caption=cfg["captions"]["improvers"].format(horizon=horizon, pairs=len(pairs)),
+         first_header=cfg["headers"]["metric"],
+@@ -495,16 +499,20 @@
+                     fmt(grp[("kgkm", 90)].mean(), 2),
+                     fmt(grp[("overflows", 30)].mean(), 1),
+                     fmt(grp[("overflows", 90)].mean(), 1),
++                    fmt(grp[("kg_lost", 30)].mean(), 1),
++                    fmt(grp[("kg_lost", 90)].mean(), 1),
+                 ],
+             }
+         )
+     return render_template(
+         "paper_results_table.tex.j2",
++        tabcolsep=2,
+         label="tab:horizon",
+         caption=cfg["captions"]["horizon"].format(pairs=len(paired)),
+         first_header=cfg["headers"]["constructor"],
+         headers=mc_list(cfg["headers"]["horizon"]),
+-        column_spec="lrrrrr",
++        column_spec="lrrrrrrr",
++        size=r"\footnotesize",
+         rows=rows,
+         note=cfg["notes"]["horizon"],
+     )
+@@ -517,6 +525,7 @@
+         ("kgkm", "mean", 2, "none"),
+         ("overflows", "mean", 1, "none"),
+         ("km", "mean", 0, "none"),
++        ("kg_lost", "mean", 1, "none"),
+         ("time", "mean", 0, "none"),
+     ]
+     primary = clean[clean.horizon == horizon]
+@@ -524,20 +533,21 @@
+     dist["level"] = dist["dist"].map(lambda value: f"Demand: {value}")
+     network = balance_marginal(primary, "network").copy()
+     network["level"] = network.apply(
+-        lambda row: f"Network: {row.city} ($N={row.N}$)", axis=1
++        lambda row: f"{row.city} ($N={row.N}$)", axis=1
+     )
+     frame = pd.concat([dist, network], ignore_index=True)
+     agg = aggregate(frame, "level", metrics)
+     order = [
+         "Demand: Empirical",
+         "Demand: Gamma-3",
+-        "Network: Rio Maior ($N=100$)",
+-        "Network: Rio Maior ($N=170$)",
+-        "Network: Figueira da Foz ($N=350$)",
++        "Rio Maior ($N=100$)",
++        "Rio Maior ($N=170$)",
++        "Figueira da Foz ($N=350$)",
+     ]
+     agg = agg.reindex(order)
+     return render_template(
+         "paper_results_table.tex.j2",
++        tabcolsep=2,
+         label="tab:scenarios30",
+         caption=cfg["captions"]["scenarios"].format(horizon=horizon),
+         first_header=cfg["headers"]["scenario_factor"],
+@@ -555,7 +565,8 @@
+         return ""
+     rows = []
+     for _, r in degenerate.sort_values("shortfall", ascending=False).iterrows():
+-        variant = f"{r.strategy}{r.cf}{r.sl_var}"
++        variant_key = f"{r.strategy}{r.cf}{r.sl_var}"
++        variant = cfg["variant_labels_short"].get(variant_key, variant_key)
+         rows.append(
+             {
+                 "label": tex_escape(display_name(r.constructor, cfg)),
+@@ -569,16 +580,18 @@
+                     fmt(r.kg, 0),
+                     f"{r.shortfall:.0%}".replace("%", r"\%"),
+                     fmt(r.overflows, 0),
++                    fmt(r.kg_lost, 1),
+                 ],
+             }
+         )
+     return render_template(
+         "paper_results_table.tex.j2",
++        tabcolsep=2,
+         label="tab:excluded",
+         caption=cfg["captions"]["excluded"],
+         first_header=cfg["headers"]["constructor_short"],
+         headers=mc_list(cfg["headers"]["excluded"]),
+-        column_spec="lllrrrr",
++        column_spec="lllrrrrr",
+         size=r"\footnotesize",
+         rows=rows,
+         note=cfg["notes"]["excluded"].format(threshold=int(SHORTFALL_THRESHOLD * 100)),
+diff --git a/logic/gen/json/paper_latex_config.json b/logic/gen/json/paper_latex_config.json
+--- a/logic/gen/json/paper_latex_config.json
++++ b/logic/gen/json/paper_latex_config.json
+@@ -12,22 +12,22 @@
+     "SLSL2"
+   ],
+   "variant_labels": {
+-    "LMCF90": "Last-Minute (CF90)",
+-    "LMCF70": "Last-Minute (CF70)",
+-    "LA": "Look-Ahead",
+-    "SLSL1": "Service-Level (SL1)",
+-    "SLSL2": "Service-Level (SL2)"
+-  },
+-  "variant_labels_short": {
+-    "LMCF90": "LM90",
+-    "LMCF70": "LM70",
++    "LMCF90": "LM-CF90",
++    "LMCF70": "LM-CF70",
+     "LA": "LA",
+     "SLSL1": "SL1",
+     "SLSL2": "SL2"
+   },
++  "variant_labels_short": {
++    "LMCF90": "LM-CF90",
++    "LMCF70": "LM-CF70",
++    "LA": "LA",
++    "SLSL1": "SL1",
++    "SLSL2": "SL2"
++  },
+   "headers": {
+-    "constructor": "Route constructor",
+-    "strategy": "Selection strategy",
++    "constructor": "Constructor",
++    "strategy": "Selection",
+     "metric": "Metric",
+     "improver": [
+       "CLS",
+@@ -38,18 +38,21 @@
+     ],
+     "horizon": [
+       "Pairs",
+-      "kg/km 30d",
+-      "kg/km 90d",
+-      "Ovf. 30d",
+-      "Ovf. 90d"
++      "\\shortstack{kg/km\\\\30d}",
++      "\\shortstack{kg/km\\\\90d}",
++      "\\shortstack{Ovf.\\\\30d}",
++      "\\shortstack{Ovf.\\\\90d}",
++      "\\shortstack{Lost kg\\\\30d}",
++      "\\shortstack{Lost kg\\\\90d}"
+     ],
+     "excluded": [
+-      "$\\tau$",
++      "$D$",
+       "Scenario",
+       "Policy",
+       "kg",
+       "Short.",
+-      "Ovf."
++      "Ovf.",
++      "Lost (kg)"
+     ],
+     "constructor_short": "Constructor",
+     "scenario_factor": "Scenario factor",
+@@ -58,14 +61,16 @@
+       "kg/km",
+       "Overflows",
+       "km",
++      "Lost (kg)",
+       "Time (s)"
+     ]
+   },
+   "metric_labels": {
+     "kgkm": "Efficiency (kg/km)",
+-    "km": "Distance travelled (km)",
++    "km": "Distance traveled (km)",
+     "overflows": "Overflow events",
+-    "time": "Runtime (s)"
++    "time": "Runtime (s)",
++    "kg_lost": "Waste lost (kg)"
+   },
+   "improver_metrics": [
+     [
+@@ -80,6 +85,11 @@
+     ],
+     [
+       "overflows",
++      1,
++      "min"
++    ],
++    [
++      "kg_lost",
+       1,
+       "min"
+     ],
+@@ -91,19 +101,19 @@
+   ],
+   "captions": {
+     "constructors": "Route constructor performance at the {horizon}-day horizon over the balanced factorial grid ({runs} runs). Best value per column in bold.",
+-    "strategies": "Mandatory-selection variants at the {horizon}-day horizon, ordered by observed collection efficiency, over the slices in which all five variants were run. Efficiency, overflow risk, distance and runtime all order monotonically along the observed efficiency--service trade-off.",
++    "strategies": "Mandatory-selection variants at the {horizon}-day horizon over shared policy slices. Waste lost is reported alongside efficiency, overflow events, distance and runtime.",
+     "improvers": "Classical Local Search against Fast-TSP at the {horizon}-day horizon over {pairs} matched-demand configuration pairs.",
+     "horizon": "Horizon sensitivity, computed on the {pairs} selected policy configurations observed at both horizons and compared against themselves.",
+     "scenarios": "Demand-process and network marginals at the {horizon}-day horizon, each restricted to policy slices shared by every level of the factor being compared.",
+     "excluded": "Runs excluded from all aggregate statistics as degenerate rather than merely poor."
+   },
+   "notes": {
+-    "constructors": "Means and medians over the scenarios that survive the integrity filter. Every constructor faced the identical demand realisation within each scenario and contributes the same {runs_per} runs: the scenario cells containing the degenerate runs of Table~\\ref{{tab:excluded}} were dropped for all constructors, not only for the one that failed them, so no constructor is averaged over a subset that flatters it. Medians are reported alongside means because a single extreme scenario can move a mean substantially at this sample size.",
+-    "strategies": "CF70/CF90 are Last-Minute critical-fill thresholds of 70\\% and 90\\%; SL1/SL2 are Service-Level projection horizons of one and two days. Restricted to the slices shared by all five variants so that the marginal means are comparable: the excluded runs of Table~\\ref{tab:excluded} removed the study's hardest scenario cell from Look-Ahead and Service-Level (SL2) but not from the other three variants, which would otherwise have flattered them. Medians are reported alongside means.",
+-    "improvers": "Each pair has the same constructor, strategy, region and demand realisation, with a different configured improver. This is not a controlled improver treatment: upstream constructor outcomes also differ in some pairs, so the deltas are descriptive associations rather than causal effects. Win counts exclude ties, which are reported separately.",
+-    "horizon": "The 90-day archive is a selected, non-factorial subset; its selection rule is pending recovery of the run records, and Pareto-only carry-forward is not established (Sect.~\\ref{sec:provenance}). Configurations are compared against themselves across horizons, not used to rank constructors at 90 days. The paired values describe this selected subset and do not estimate a horizon effect for the full factorial design.",
+-    "scenarios": "The demand rows use the 216 policy slices present under both processes; the network rows use the 136 policy slices present on all three networks. Balancing prevents exclusions confined to Gamma-3 at $N=350$ from making the remaining levels look artificially better or worse.",
+-    "excluded": "$\\tau$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Runs below their scenario median by more than {threshold}\\% are excluded. The three 30-day logs contain all 30 daily records but last collect on days 16, 16 and 22; later full bins keep contributing overflow events. The 90-day raw log is pending recovery, so its termination and last collection day are not established. These are anomalous policy outputs; neither a crash nor truncated logging follows from the tonnage gap alone."
++    "constructors": "Means and medians over the scenarios that survive the integrity filter. Every constructor faced the identical demand realization within each scenario and contributes the same {runs_per} runs: the scenario cells containing the degenerate runs of Table~\\ref{{tab:excluded}} were dropped for all constructors, not only for the one that failed them, so no constructor is averaged over a subset that flatters it. Medians are reported alongside means because a single extreme scenario can move a mean substantially at this sample size. Lost (kg) reports mean cumulative discarded mass per run; it is distinct from overflow bin-days.",
++    "strategies": "LM-CF70/LM-CF90 are Last-Minute critical-fill thresholds of 70\\% and 90\\%; SL1/SL2 are Service-Level projection horizons of one and two days. Restricted to the slices shared by all five variants so that the marginal means are comparable: the excluded runs of Table~\\ref{tab:excluded} removed the study's hardest scenario cell from Look-Ahead and Service-Level (SL2) but not from the other three variants, which would otherwise have flattered them. Medians are reported alongside means. Lost (kg) reports mean cumulative discarded mass per run; it is distinct from overflow bin-days.",
++    "improvers": "Each pair has the same constructor, strategy, region and demand realization, with a different configured improver. This is not a controlled improver treatment: upstream constructor outcomes also differ in some pairs, so the deltas are descriptive associations rather than causal effects. Win counts exclude ties, which are reported separately. Waste lost is cumulative discarded mass per run.",
++    "horizon": "The 90-day archive is a selected, non-factorial subset; its selection rule is pending recovery of the run records, and Pareto-only carry-forward is not established (Sect.~\\ref{sec:provenance}). Configurations are compared against themselves across horizons, not used to rank constructors at 90 days. The paired values describe this selected subset and do not estimate a horizon effect for the full factorial design. Lost (kg) reports mean cumulative discarded mass per run; it is distinct from overflow bin-days.",
++    "scenarios": "The demand rows use the 216 policy slices present under both processes; the network rows use the 136 policy slices present on all three networks. Balancing prevents exclusions confined to Gamma-3 at $N=350$ from making the remaining levels look artificially better or worse. Lost (kg) reports mean cumulative discarded mass per run; it is distinct from overflow bin-days.",
++    "excluded": "$D$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Runs below their scenario median by more than {threshold}\\% are excluded. The three 30-day logs contain all 30 daily records but last collect on days 16, 16 and 22; later full bins keep contributing overflow events. The 90-day raw log is pending recovery, so its termination and last collection day are not established. These are anomalous policy outputs; neither a crash nor truncated logging follows from the tonnage gap alone. Lost (kg) is the cumulative discarded mass in each excluded run."
+   },
+   "figure_titles": {
+     "pareto": "Efficiency against service failures ({horizon}-day horizon)",
+@@ -136,7 +146,7 @@
+         "color": "#0066cc",
+         "fill": "#f2f7fd",
+         "members": [
+-          "Last-Minute (CF70, CF90)",
++          "Last-Minute (LM-CF70, LM-CF90)",
+           "Look-Ahead",
+           "Service-Level (SL1, SL2)"
+         ],
+diff --git a/logic/gen/jinja/paper_results_table.tex.j2 b/logic/gen/jinja/paper_results_table.tex.j2
+--- a/logic/gen/jinja/paper_results_table.tex.j2
++++ b/logic/gen/jinja/paper_results_table.tex.j2
+@@ -19,7 +19,7 @@
+ % `size` lets an individual table step down further when its cells hold text
+ % rather than numbers.
+ << size | default('\\small') >>
+-\setlength{\tabcolsep}{4pt}
++\setlength{\tabcolsep}{<< tabcolsep | default(4) >>pt}
+ \begin{tabular}{<< column_spec >>}
+ \toprule
+ << first_header >><% for h in headers %> & \multicolumn{<< h.span >>}{c}{<< h.text >>}<% endfor %> \\

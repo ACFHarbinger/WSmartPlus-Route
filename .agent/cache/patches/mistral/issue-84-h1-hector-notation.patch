@@ -1,0 +1,266 @@
+diff --git a/Tables/results_excluded.tex b/Tables/results_excluded.tex
+index 6125965..e4e2921 100644
+--- a/Tables/results_excluded.tex
++++ b/Tables/results_excluded.tex
+@@ -22,7 +22,7 @@
+ \setlength{\tabcolsep}{4pt}
+ \begin{tabular}{lllrrrr}
+ \toprule
+-Constructor & \multicolumn{1}{c}{$\tau$} & \multicolumn{1}{c}{Scenario} & \multicolumn{1}{c}{Policy} & \multicolumn{1}{c}{kg} & \multicolumn{1}{c}{Short.} & \multicolumn{1}{c}{Ovf.} \\
++Constructor & \multicolumn{1}{c}{$D$} & \multicolumn{1}{c}{Scenario} & \multicolumn{1}{c}{Policy} & \multicolumn{1}{c}{kg} & \multicolumn{1}{c}{Short.} & \multicolumn{1}{c}{Ovf.} \\
+ \midrule
+ SWC-TCF & 90 & FF 350 & Gamma-3/LA/FTSP & 31,164 & 86\% & 23,886 \\
+ SWC-TCF & 30 & FF 350 & Gamma-3/LA/FTSP & 37,065 & 47\% & 2,166 \\
+@@ -33,7 +33,7 @@ SWC-TCF & 30 & FF 350 & Gamma-3/SLSL2/FTSP & 51,086 & 30\% & 757 \\
+ 
+ \vspace{0.4em}
+ \begin{minipage}{\linewidth}
+-\footnotesize $\tau$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Runs below their scenario median by more than 20\% are excluded. The three 30-day logs contain all 30 daily records but last collect on days 16, 16 and 22; later full bins keep contributing overflow events. The 90-day raw log is pending recovery, so its termination and last collection day are not established. These are anomalous policy outputs; neither a crash nor truncated logging follows from the tonnage gap alone.
++\footnotesize $D$ is the horizon in days and ``FF 350'' the Figueira da Foz network at $N=350$. Runs below their scenario median by more than 20\% are excluded. The three 30-day logs contain all 30 daily records but last collect on days 16, 16 and 22; later full bins keep contributing overflow events. The 90-day raw log is pending recovery, so its termination and last collection day are not established. These are anomalous policy outputs; neither a crash nor truncated logging follows from the tonnage gap alone.
+ \end{minipage}
+ 
+ \end{table}
+diff --git a/paper.tex b/paper.tex
+index fd9d9cf..91a057e 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -934,15 +934,15 @@ spanning exact methods, meta-heuristics and hyper-heuristics, and two route impr
+ 
+ \subsection{Mandatory Selection Strategies}
+ 
+-All three strategies decide from the sensed fill $\hat{w}_i^t$, which in
++All three strategies decide from the sensed fill $\hat{w}_{i,d}$, which in
+ the runs reported here equals the capped post-arrival decision level
+-$\min\{E_i,w_i^t+a_i^t\}$ because
++$\min\{\mathit{Cap}_i,w_{i,d}+a_{i,d}\}$ because
+ sensing noise was disabled (Sect.~\ref{sec:protocol}). They never
+ observe the generating distribution or its parameters. Mean and
+ standard-deviation estimates $\hat{\mu}_i$ and $\hat{\sigma}_i$ are
+ maintained online from the increments seen so far; no precomputed
+ statistics file is supplied. Each strategy returns a mandatory set
+-$\mathcal{M}^t$. Every constructor must visit that set
++$\mathcal{M}_d$. Every constructor must visit that set
+ (Sect.~\ref{sec:constructors}): this supplies the policy-side service requirement. It need not select
+ the same bins as the model threshold~\eqref{eq:mp-psi}. The model's threshold $\psi$ is
+ a different symbol. In the archived SWC-TCF configuration $\psi = 1$,
+@@ -956,11 +956,11 @@ is an outcome of each policy, measured rather than constrained.
+ The implementation stores fill as a percentage of capacity. Two of the
+ rules below are written with the equivalent ratio
+ \begin{equation}
+-    \hat{\rho}_i^t \;=\; \hat{w}_i^t / E_i \;\in\; [0,1],
++    \hat{\rho}_{i,d} \;=\; \hat{w}_{i,d} / \mathit{Cap}_i \;\in\; [0,1],
+ \end{equation}
+ so that a last-minute cut of $70$~percent is $\mathrm{CF}=0.70$.
+ Last-Minute compares the stored percent against $70$ or $90$ directly;
+-it does not divide a kilogram reading by $E_i$. The three strategies
++it does not divide a kilogram reading by $\mathit{Cap}_i$. The three strategies
+ span the conceptual space rather than exhausting it: one reactive, one
+ statistical, and one that projects forward to a collection date.
+ 
+@@ -972,7 +972,7 @@ $80\%$ of capacity). A bin becomes mandatory when its sensed fill
+ crosses a critical-fill threshold, in isolation from every other bin
+ and from any estimate of how fast it is filling. Formally
+ \begin{equation}
+-    i \in \mathcal{M}^t \iff \hat{\rho}_i^t \;\ge\; \mathrm{CF},
++    i \in \mathcal{M}_d \iff \hat{\rho}_{i,d} \;\ge\; \mathrm{CF},
+ \end{equation}
+ with $\mathrm{CF}\in\{0.70,0.90\}$ (CF70 and CF90). The implementation
+ compares the stored percent against $70$ and $90$ and uses
+@@ -991,16 +991,16 @@ deviation $\hat{\sigma}_i$ from the days observed so far, and flags
+ bin $i$ as mandatory when a conservative projection $\nu$ days ahead
+ already meets capacity:
+ \begin{equation}
+-    100\,\hat{\rho}_i^t + \nu\hat{\mu}_i + z\,\nu\hat{\sigma}_i \;\ge\; 100,
++    100\,\hat{\rho}_{i,d} + \nu\hat{\mu}_i + z\,\nu\hat{\sigma}_i \;\ge\; 100,
+ \end{equation}
+ where $\hat{\mu}_i$ and $\hat{\sigma}_i$ are in fill-percentage points
+ per day, $z = 0.84$ is the archived safety coefficient (the
+ rounded standard-normal quantile for an $80\%$ one-sided bound), and
+ $\nu\in\{1,2\}$ is the archived projection depth (SL1 and SL2). The
+ kilogram form
+-$\hat{w}_i^t + \nu\hat{\mu}_i^{\mathrm{kg}} + z \nu
+-\hat{\sigma}_i^{\mathrm{kg}} \ge E_i$ is the same statement after
+-scaling the increments by $E_i/100$. The depth $\nu$ is a per-strategy constant, distinct from the number
++$\hat{w}_{i,d} + \nu\hat{\mu}_i^{\mathrm{kg}} + z \nu
++\hat{\sigma}_i^{\mathrm{kg}} \ge \mathit{Cap}_i$ is the same statement after
++scaling the increments by $\mathit{Cap}_i/100$. The depth $\nu$ is a per-strategy constant, distinct from the number
+ of bins $n$.
+ 
+ Two properties of this rule shape the results and are worth stating
+@@ -1023,9 +1023,9 @@ Introduced alongside SANS in~\cite{jorge2022hybrid}, Look-Ahead uses
+ only the running mean $\hat{\mu}_i$. It has two steps.
+ 
+ \emph{Seed.} After the day's fill has already been applied, bin $i$
+-enters $\mathcal{M}^t$ when
++enters $\mathcal{M}_d$ when
+ \begin{equation}
+-    100\,\hat{\rho}_i^t + \hat{\mu}_i \;\ge\; 100.
++    100\,\hat{\rho}_{i,d} + \hat{\mu}_i \;\ge\; 100.
+ \end{equation}
+ That seed is exactly the Service-Level rule at $z = 0$ and $\nu = 1$:
+ the bin is predicted to reach capacity after one more mean increment
+@@ -1034,9 +1034,9 @@ projection is the linear running mean.
+ 
+ \emph{Bundle.} If the seed set is nonempty, those bins are notionally
+ emptied and the earliest day on which any of them would overflow
+-again from empty is the next collection day $t^{\star}$. Every other
++again from empty is the next collection day $d^{\star}$. Every other
+ bin whose projected fill would meet capacity \emph{before}
+-$t^{\star}$ is added to $\mathcal{M}^t$. If the seed is empty, the
++$d^{\star}$ is added to $\mathcal{M}_d$. If the seed is empty, the
+ mandatory set is empty: Look-Ahead never forces a visit on a quiet
+ day. The projection is indexed from the current day.
+ 
+@@ -1078,13 +1078,13 @@ zero-demand bins. The implemented flow model has no separate cuts for
+ these cycles; in the model of Sect.~\ref{sec:prob-milp} they are ruled out by
+ Assumption~\ref{as:mp-pos}. The visit binary
+ $g_i$ is first-class, so the objective $R \sum_i w_i g_i - C \sum_{i,j}
+-d_{ij} x_{ij} - \Omega k$ trades revenue against travel and a per-vehicle
++\dist_{ij} x_{ij} - \Omega k$ trades revenue against travel and a per-vehicle
+ charge directly, with no retrofit beyond the profitable-subset objective.
+ 
+ Two adaptations matter for reproduction. First, the source model's
+ overflow-count constraint is not implemented: the service level enters
+ through the bins released by mandatory selection, and every bin whose sensed
+-fill reaches $\psi E_i$ is forced ($g_i = 1$); in the reported configurations
++fill reaches $\psi \mathit{Cap}_i$ is forced ($g_i = 1$); in the reported configurations
+ $\psi = 1$, so only full bins are forced beyond the mandatory set, and if the
+ forced set itself is infeasible for the fleet the solver retries once
+ without forcing. Second, the model is solved in percent of bin capacity, with
+@@ -1290,12 +1290,11 @@ modification to the operator it selects.
+ An ant walks this operator graph, applying each move it steps onto to the working
+ solution. The next operator is drawn with probability
+ \begin{equation}
+-    p_{sh} = \frac{{[\phi_{sh}]}^{\alpha}{[\eta_{sh}]}^{\beta}}
+-                  {\sum_{k \in \mathcal{H}} {[\phi_{sk}]}^{\alpha}{[\eta_{sk}]}^{\beta}},
++    p_{sh} = \frac{{[\tau_{sh}]}^{\alpha}{[\eta_{sh}]}^{\beta}}
++                  {\sum_{k \in \mathcal{H}} {[\tau_{sk}]}^{\alpha}{[\eta_{sk}]}^{\beta}},
+ \end{equation}
+-where $\phi_{sh}$ is the pheromone on the transition from state $s$ to
+-heuristic $h$ (Chen et al.\ write $\tau_{ij}$; we use $\phi$ to avoid the
+-clash with the horizon length $\tau$), $\eta_{sh}$ is heuristic information
++where $\tau_{sh}$ is the pheromone on the transition from state $s$ to
++heuristic $h$, $\eta_{sh}$ is heuristic information
+ about $h$'s likely efficacy, and $\alpha,\beta$ weight the two. A walk is
+ evaluated when it completes: if it improved the solution, a deposit
+ $\Delta\phi = Q_{\mathrm{dep}} + I_k / L_k$ is laid along the transitions it
+@@ -1354,7 +1353,7 @@ waste, while pointing logits are computed via multi-head dot products scaled by
+ the square root of the head dimension and averaged across heads before applying
+ tanh clipping with a clipping magnitude of 10. Dynamic action masking enforces
+ mandatory selection by excluding the depot until every node in the mandatory
+-set $\mathcal{M}^t$ has been visited, and masks visited as well as
++set $\mathcal{M}_d$ has been visited, and masks visited as well as
+ nonpositive-waste optional bins; it does not enforce vehicle capacity. Decoding
+ proceeds either greedily or by temperature-controlled sampling.
+ 
+@@ -1410,16 +1409,17 @@ Sect.~\ref{sec:res-improvers} compares configurations using the two improvers.
+ 
+ Each simulated day executes a fixed cycle (Fig.~\ref{fig:sim_loop}).
+ Today's arrival is added to the residual from yesterday and the level is capped
+-at bin capacity $E_i$. Overflow and lost mass are scored on that
++at bin capacity $\mathit{Cap}_i$. Overflow and lost mass are scored on that
+ post-arrival, pre-collection state. The selection strategy then reads the true
+ level and flags mandatory bins; the constructor builds a tour and the improver
+ refines it; the tour is executed and the collected waste recorded; the day is
+ logged and the residual level carried forward.
+-The formulation uses the same fill-before-collection order, but retains
+-excess mass. In the simulator, the decision level is
+-$\min\{E_i,w_i^t+a_i^t\}$ and lost mass is
+-$\ell_i^t=\max\{0,w_i^t+a_i^t-E_i\}$. After collection,
+-$w_i^{t+1}=w_i^t+a_i^t-\ell_i^t-q_i^t$. Thus $w_i^t$ denotes
++The formulation of Sect.~\ref{sec:prob-milp} instead collects before the
++day's deposits arrive, and it keeps the excess at the site instead of
++capping the level. In the simulator, the decision level is
++$\min\{\mathit{Cap}_i,w_{i,d}+a_{i,d}\}$ and lost mass is
++$\ell_{i,d}=\max\{0,w_{i,d}+a_{i,d}-\mathit{Cap}_i\}$. After collection,
++$w_{i,d+1}=w_{i,d}+a_{i,d}-\ell_{i,d}-q_{i,d}$. Thus $w_{i,d}$ denotes
+ the opening residual, not the post-arrival decision level.
+ A shift-length check sits between improvement and execution and does not
+ apply to the VRPP setting used in these runs.
+@@ -1432,18 +1432,18 @@ Four properties of the loop bear on how the results should be read.
+ \begin{figure}
+     \centering
+     \includegraphics[width=\linewidth]{Images/Results/Generated/simulation_loop.png}
+-    \caption{The daily multi-period simulation cycle, for $t\in T=\{1,\ldots,\tau\}$.
+-    The arrival is added and capped at $E_i$ before the policy runs. The overflow
+-    indicator $o_i^t$ is one when that decision level equals $E_i$, and the lost
+-    mass $\ell_i^t$ is only the part of today's arrival above $E_i$.
+-    The simulator can add sensor noise $\epsilon_{i,t}\sim\mathcal{N}(0,\sigma^2)$;
++    \caption{The daily multi-period simulation cycle, for $d\in\mathcal{D}=\{1,\ldots,D\}$.
++    The arrival is added and capped at $\mathit{Cap}_i$ before the policy runs. The overflow
++    indicator $o_{i,d}$ is one when that decision level equals $\mathit{Cap}_i$, and the lost
++    mass $\ell_{i,d}$ is only the part of today's arrival above $\mathit{Cap}_i$.
++    The simulator can add sensor noise $\epsilon_{i,d}\sim\mathcal{N}(0,\sigma^2)$;
+     every run reported here sets $\sigma=0$, so the policy reads the capped post-arrival level.  The greyed sensor panel marks that unused capability.
+     The three policy stages are drawn from separate registries. Execution empties
+     visited bins and prices the driven direction of the road matrix. It does not,
+     in the VRPP setting used here, reject a tour whose load exceeds $Q$.
+     Logged profit is $R$ times collected kilograms minus $C$ times kilometres,
+     with no per-vehicle charge. Sample efficiency is total kilograms over total
+-    kilometres. The residual level, not a fresh draw, carries into day $t+1$.}\label{fig:sim_loop}
++    kilometres. The residual level, not a fresh draw, carries into day $d+1$.}\label{fig:sim_loop}
+ \end{figure}
+ 
+ \emph{Comparisons are paired on the arrival sequence, not on the bin levels.}
+@@ -1455,7 +1455,7 @@ stream and the online predictor of future fill. With the reported sensor noise
+ at zero, the policy reads the true post-arrival level. That level is not the
+ stored arrival: it is the arrival added to whatever residual the same policy
+ left the day before. What is shared is the sequence of arrivals. Kilograms
+-still collectable are not, because mass above $E_i$ is lost. Collected tonnage
++still collectable are not, because mass above $\mathit{Cap}_i$ is lost. Collected tonnage
+ is comparable because the arrivals match. The archived dataset file itself is
+ not in this tree; its provenance is pending recovery.
+ 
+@@ -1469,11 +1469,11 @@ The running mean and variance of arrivals observed so far are what a selection
+ strategy can use; the generator's parameters are not passed in.
+ 
+ \emph{Overflow is a bin-day at capacity; loss is the mass that did not fit.}
+-After today's arrival is added, the level is capped at $E_i$. The indicator
+-$o_i^t$ is one for a bin whose level is then at capacity, including
++After today's arrival is added, the level is capped at $\mathit{Cap}_i$. The indicator
++$o_{i,d}$ is one for a bin whose level is then at capacity, including
+ a bin that receives no new waste and a bin that is emptied later the same day.
+-Lost mass $\ell_i^t$ is only the part of today's arrival above $E_i$. A day
+-with no arrival contributes zero loss even when $o_i^t=1$. An unvisited bin
++Lost mass $\ell_{i,d}$ is only the part of today's arrival above $\mathit{Cap}_i$. A day
++with no arrival contributes zero loss even when $o_{i,d}=1$. An unvisited bin
+ that stays full therefore adds one overflow every subsequent day, and adds
+ lost kilograms only on days when waste actually arrives.
+ Sample efficiency is total collected kilograms divided by total kilometres.
+@@ -1481,9 +1481,9 @@ The daily ratio, collected kilograms over that day's kilometres, is a
+ different number and is not the reported sample efficiency.
+ 
+ \emph{Dispatch is single-depot, and the reported runs set no fleet cap.}
+-The mandatory set $\mathcal{M}^t$ is recomputed each day from the true level.
++The mandatory set $\mathcal{M}_d$ is recomputed each day from the true level.
+ The archived configurations set the vehicle limit to zero, which the fleet-aware
+-constructors read as no configured cap, so $k^t$ is however many routes the
++constructors read as no configured cap, so $|\mathcal{A}_d|$ is however many routes the
+ policy returns. Logged profit charges $C$ per kilometre and no per-vehicle cost.
+ That logged account is separate from any penalty a constructor may use inside
+ its own search. Dividing the day's collected mass by $Q$ and rounding up is a
+@@ -1528,10 +1528,11 @@ separate from the cartographic basemap.
+     the ODbL~\cite{OpenStreetMapData}.}\label{fig:networks}
+ \end{figure}
+ 
+-Each bin has a physical capacity of $2.5\,\mathrm{m^3}$. Converting the sensed
+-fill ratio $\hat{\rho}_i^t\in[0,1]$ (Sect.~\ref{sec:methodology}) to mass uses
+-a loose, uncompacted material density $B$ of $19\,\mathrm{kg/m^3}$ at Rio Maior and
+-$20\,\mathrm{kg/m^3}$ at Figueira da Foz, so $E_i = 2.5B$. Independently, per-route payload capacities $Q$ are $3{,}500\,\mathrm{kg}$ and $2{,}500\,\mathrm{kg}$ respectively. The two
++Each bin has a physical volume of $2.5\,\mathrm{m^3}$. Converting the sensed
++fill ratio $\hat{\rho}_{i,d}\in[0,1]$ (Sect.~\ref{sec:methodology}) to mass uses
++a loose, uncompacted material density of $19\,\mathrm{kg/m^3}$ at Rio Maior and
++$20\,\mathrm{kg/m^3}$ at Figueira da Foz, so a full bin holds
++$\mathit{Cap}_i = 47.5$\,kg and $50$\,kg respectively. Independently, per-route payload capacities $Q$ are $3{,}500\,\mathrm{kg}$ and $2{,}500\,\mathrm{kg}$ respectively. The two
+ coefficients of Eq.~\eqref{eq:profit_function} are $R = 0.5837$~€/kg for
+ plastic --- a $65\%$ recovered-material share of a €898/tonne reference market
+ price --- and $C = 1$~€/km. Every archived daily log matches these values
+@@ -1549,7 +1550,7 @@ parametric model against real observations:
+           $3$ in blocks of five bins, and scale alternates between $8$ and
+           $6$. The four unclipped pair means are $8$, $6$, $18$ and $24$
+           percentage points, with variances $64$, $36$, $108$ and $192$.
+-          The kilogram arrival is that draw times $E_i/100$. This is a
++          The kilogram arrival is that draw times $\mathit{Cap}_i/100$. This is a
+           realised draw. It is not the expected kg/day used in the
+           formulation. The archived runs name a shared dataset file; that
+           file was not re-opened here, so the clipping and the calendar

@@ -1,0 +1,25 @@
+diff --git a/paper.tex b/paper.tex
+index fd9d9cf..efc8bea 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -1007,8 +1007,8 @@ Two properties of this rule shape the results and are worth stating
+ plainly. First, the deviation term scales \emph{linearly} in $\nu$ rather
+ than as $\sqrt{\nu}$. Under independent daily increments $\sqrt{\nu}$ would
+ be the matching aggregation, so the implemented rule is deliberately
+-conservative relative to an i.i.d.\ projection; the linear buffer also exceeds the square-root buffer for positively
+-correlated increments with equal marginal variance. No coverage guarantee
++conservative relative to an i.i.d.\ projection. Simulated demand is
++independent day to day, so this is configured conservatism, not a serial-correlation fix. No coverage guarantee
+ is established for the online estimates used here. Second, and consequently, the two variants
+ do not hold conservatism fixed: because both the drift and the
+ deviation terms scale with $\nu$, SL2 carries exactly twice SL1's safety
+@@ -1047,8 +1047,7 @@ projection. The related forecasting rules do not establish a monotone ordering
+ of their selected sets: LA adds a separate bundling step. The ordering in
+ Sect.~\ref{sec:res-strategies} is an empirical result for the tested
+ configurations, not a consequence proved by these formulas. Look-Ahead has no
+-threshold variant, so it contributes fewer configurations than LM or
+-SL to the experimental grid.
++threshold or depth split, so it is one variant; every variant is crossed equally.
+ 
+ \subsection{Route Constructors}\label{sec:constructors}
+ 

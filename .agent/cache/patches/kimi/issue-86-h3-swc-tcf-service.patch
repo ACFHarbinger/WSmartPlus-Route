@@ -1,0 +1,39 @@
+diff --git a/paper.tex b/paper.tex
+index 91a057e..50a2d1e 100644
+--- a/paper.tex
++++ b/paper.tex
+@@ -544,7 +544,9 @@ service constraint of~\cite{RAMOS2018146} is printed as an upper bound on the
+ number of soon-to-overflow bins that may be collected; with no overflow allowed,
+ collecting none of them satisfies it. Only the reverse reading, a bound on the
+ bins left uncollected, reproduces the published results. It is the reading
+-used here and in SWC-TCF.}
++used here. The SWC-TCF constructor does not implement the overflow count in
++either reading; it keeps only the threshold $\psi$
++(Sect.~\ref{sec:constructors}).}
+ 
+ \paragraph{The problem.} Given the initial states, the MPTP chooses a plan
+ $\mathcal{A}_d\in\mathcal{F}(\bm{w}_d)$ for every day so as to
+@@ -595,7 +597,8 @@ no bin overflows. The selection rules of Sect.~\ref{sec:methodology} do not
+ enforce $\delta$ or $\psi$: overflow is an outcome of each policy, measured and
+ not constrained, and the service parameters enter this paper through the
+ characterization of Proposition~\ref{prop:mp-sigma} and through SWC-TCF, the one
+-constructor that carries the service constraints of~\cite{RAMOS2018146}.
++constructor that carries the source's threshold $\psi$ --- its overflow count is
++not implemented (Sect.~\ref{sec:constructors}).
+ 
+ \paragraph{Position among related problems.} Table~\ref{tab:mp-compare} sets
+ the MPTP against its antecedents. Against the mVRPP
+@@ -823,6 +826,13 @@ schedules of the MPTP, with the same objective value
+ %      cost (its delta and psi values are no longer promised in Sect. 3). Sect. 3 says the MPTP has
+ %      none; the current Methodology text says SWC-TCF has one -- confirm in
+ %      the code and make the two agree.
++%      RESOLVED (H3, Kimi 2026-09-28): code confirmed --- the archived SWC-TCF
++%      configuration puts Omega = 0.1 inside its own optimisation, while the
++%      model's daily profit and the reported accounting have no vehicle term;
++%      the Methodology text states both, and the front-half claims that
++%      SWC-TCF carries the source's service constraints now read: psi only,
++%      no overflow count (service-level footnote and "Model and simulator"
++%      paragraph).
+ %  (4) sec:constructors or sec:experiments must state the time budget of every
+ %      constructor (Sect. 1 says exact methods return best-found solutions).
+ %  (5) sec:protocol: waste above capacity is lost and the level capped;

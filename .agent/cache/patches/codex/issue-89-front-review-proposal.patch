@@ -1,0 +1,38 @@
+diff --git a/paper.tex b/paper.tex
+--- a/paper.tex
++++ b/paper.tex
+@@ -117,8 +117,9 @@
+ sizes. In this design the selection variants span a wider range of mean
+ efficiency (3.8--7.4\,kg/km) than the constructors (5.4--6.7\,kg/km), and the
+ formulation shows why overflow control rests with selection: the daily objective
+-carries no overflow penalty, so no constructor has a reason to serve a full but
+-remote bin.
++carries no overflow penalty, so profitability alone does not guarantee service
++to a full but remote bin. Mandatory selection and constructor-specific
++constraints can still require that service.
+ 
+ \keywords{Multi-Period Profitable Tour Problem \and Smart Waste Collection
+ \and Vehicle Routing with Profits \and Simulation Framework \and
+@@ -586,14 +587,16 @@
+ decision and may be zero.
+ 
+ \paragraph{Model and simulator.} The simulator of Sect.~\ref{sec:methodology}
+-executes the plans against the same state evolution, with three differences a
+-reader should keep in view. It tracks fill levels as percentages of capacity;
++uses a different event order: it deposits waste before collection, whereas the
++model collects before deposition. This changes the available mass even when
++no bin overflows. It also tracks fill levels as percentages of capacity;
+ all bins of a network share one capacity in kilograms
+ (Sect.~\ref{sec:experiments}), so the two scales differ by a constant factor.
+-It records waste above capacity as lost and caps the level
+-(Sect.~\ref{sec:protocol}), where the model keeps the excess at the site; the
+-two accounts agree until a bin first overflows, and they agree throughout when
+-no bin overflows. The selection rules of Sect.~\ref{sec:methodology} do not
++The simulator records waste above capacity as lost and caps the level,
++where the model keeps the excess at the site. Its overflow count includes
++exactly full bins before collection, whereas the model tests strictly
++above-capacity stock after collection and deposition
++(Sect.~\ref{sec:protocol}). The selection rules of Sect.~\ref{sec:methodology} do not
+ enforce $\delta$ or $\psi$: overflow is an outcome of each policy, measured and
+ not constrained, and the service parameters enter this paper through the
+ characterization of Proposition~\ref{prop:mp-sigma} and through SWC-TCF, the one
