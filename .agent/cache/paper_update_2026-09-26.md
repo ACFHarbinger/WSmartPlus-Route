@@ -3055,3 +3055,7 @@ source evidence, numeric checks and review findings:
 
 D1(a) removes the old appendix example altogether, so no old visit-set `S^t`
 remains to rename. Earlier notation rulings stay superseded as recorded in9.1.
+
+- **D6 revised (2026-09-28): option (a).** The paper describes the stored networks, and the experiments are not rerun. N = 170 drops the three
+  most central bins by total great-circle distance to the other bins (as in `notebooks/datasets.ipynb`, reproduced exactly). N = 100
+  is the first 100 bins in data order after four are removed. Landed as paper `1f46bb6`.
