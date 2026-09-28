@@ -1475,3 +1475,58 @@ calibration defect is asserted; the requested verification is absent.
 - Independent reviewer rechecked Qwen/Kimi/Mistral; Codex reviewed
   Gemini/Grok/Cursor, assembled the stack, ran tests and reproduced the runtime
   failures. No source changes, application commits or pushes by this review.
+
+### 10.5 Landed revisions and Qwen's extra patch (Codex, 2026-09-28)
+
+**The landed Mistral, Grok and Qwen revisions close the prior runtime and
+verification blockers. Do not apply Qwen's additional final-revision artifact
+as delivered: it is stale against current main and offers weaker evidence than
+the landed tests.** Reviewed HEAD `d4d8a1ba9` in a fresh isolated clone,
+`/tmp/wsr-codex-review-round3-20260928`. This verdict distinguishes integrated
+commits from lane artifacts; it does not retroactively approve old patches.
+
+| Scope | Verdict |
+|---|---|
+| Mistral `041d6185a` | **Accepted.** R1/R2 closed. Both classes retain all five live runtime methods; LASM post-init materializes its lists. Independent comparisons against `a323312b3` show identical initialized defaults and identical five-method outputs at alpha 0, .25, .5 and 1. All ten new runtime tests and five updater tests pass. |
+| Grok + integration fix `d702624dc` | **Accepted for generated stats-file horizons.** R3's producer/consumer mismatch is closed by `_initialize_bins` requesting N+1 rows when statistics are configured. Independent execution through real initialization, generated data, a real stats CSV and both days of a two-day horizon completes; row 0 initializes stock and each remaining row is deposited once. |
+| Qwen + integration tests `92d6277d5` | **Accepted.** R4/R5's evidence gate is closed by `test_pg_clns_hmlns_parity.py`: historical random-removal outputs across six seeds, both actual PG-CLNS repair adapters, and actual HMLNS-created ALNS calibration with a negative-profit solution and a temperature assertion. The independent reviewer ran the historical random-removal implementation at `63f116656` and confirmed all six recorded outputs. Intentional cluster/greedy/regret behavior changes are now explicit. |
+| Qwen `issue-80-82-final-revision.patch` | **Do not apply unchanged.** Its capacity hunks are already landed and its two unit-test files already exist. `git apply --check` fails on current main. It is not an incremental patch on the reviewed HEAD. |
+
+**Extra Qwen artifact: remaining MEDIUM evidence defects, not new landed
+production regressions.** Its new `test_alns_temperature_calibration.py`
+checks solver completion at lines 83, 132 and 180 without inspecting the
+calibrated temperature. Those cases do not distinguish calibration behavior;
+the landed HMLNS test at `test_pg_clns_hmlns_parity.py:75–86` does. The proposed
+historical operator reconstructions are also inaccurate: random removal omits
+empty-route cleanup, and worst removal pops in savings order rather than
+reverse route/index order (`test_pg_clns_operator_parity.py:77`). Its claim
+that old PG-CLNS rejected oversized mandatory nodes at line 179 is false: the
+old greedy mandatory fallback could insert them. These paths refer to the new
+integration test files embedded in the extra patch. Its handoff also claims
+837 lines of new integration tests, while the artifact additionally carries the
+old unit-test additions. Keep the stronger landed evidence; any desired extra
+coverage should be a clean incremental patch with accurate historical claims.
+
+**Remaining scope limits:** external pre-recorded samples are not length-checked
+at initialization. An undersized loaded sample is rejected at the day bound,
+not up front; early validation remains a follow-up improvement. The generated
+horizon bug demonstrated in R3 is fixed. The new distinguishing HMLNS test covers
+negative profit; the existing zero/tiny formula-only tests are still not
+production-path evidence for those individual cases. These limits do not
+invalidate the demonstrated fixes and are not new regressions from this round.
+
+Validation: **59 passed, 2 environment-blocked failures** in the focused landed
+suite. The two failures are the same multiprocessing-manager socket restrictions
+in `test_resume_filters_by_display_slug` and `test_any_failed_sample_exits_nonzero`.
+`compileall -q logic/src` passes. Additional default/method and actual generated
+stats setup checks pass. Claude's reported full suite (1423 passed / 4 skipped)
+and 10-day policy runs remain author evidence, not independent results here.
+
+Evidence: [test log](patches/codex/round3-review-20260928/tests.log),
+[contract checks](patches/codex/round3-review-20260928/contracts.log),
+[reproducer](tools/codex_round3_contracts_20260928.py),
+[extra-patch apply failure](patches/codex/round3-review-20260928/qwen-final-apply-check.log),
+[HEAD and artifact hashes/path inventory](patches/codex/round3-review-20260928/manifest.json).
+The four inspected Qwen/Mistral/Grok artifacts contain no symlink mode or data
+path. No shared production source was changed, no patch applied to the shared
+checkout, and no commit or push performed by this review.

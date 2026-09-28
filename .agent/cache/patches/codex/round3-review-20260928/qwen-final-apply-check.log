@@ -1,0 +1,7 @@
+Exit code: 1
+error: patch failed: logic/src/policies/helpers/operators/recreate_repair/greedy.py:294
+error: logic/src/policies/helpers/operators/recreate_repair/greedy.py: patch does not apply
+error: patch failed: logic/src/policies/helpers/operators/recreate_repair/regret.py:214
+error: logic/src/policies/helpers/operators/recreate_repair/regret.py: patch does not apply
+error: logic/test/unit/policies/test_hmlns_temperature_calibration.py: already exists in working directory
+error: logic/test/unit/policies/test_pg_clns_operator_parity.py: already exists in working directory

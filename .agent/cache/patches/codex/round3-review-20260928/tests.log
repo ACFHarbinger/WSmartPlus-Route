@@ -1,0 +1,227 @@
+============================= test session starts ==============================
+platform linux -- Python 3.10.19, pytest-9.0.3, pluggy-1.6.0
+rootdir: /tmp/wsr-codex-review-round3-20260928
+configfile: pyproject.toml
+plugins: anyio-4.13.0, hydra-core-1.3.2, hypothesis-6.152.1, mock-3.15.1, cov-7.1.0
+collected 61 items
+
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_egh_stage_budgets_sums_to_time_limit PASSED [  1%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_egh_derived_scalars PASSED [  3%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_egh_as_alns_values_dict_shape PASSED [  4%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_egh_dispatcher_builds_alns_params PASSED [  6%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_egh_from_config_object_roundtrip PASSED [  8%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_lasm_post_init_materializes_lists PASSED [  9%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_lasm_lists_are_iterable PASSED [ 11%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_lasm_explicit_lists_are_kept PASSED [ 13%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_lasm_stage_budgets_and_alns_dict PASSED [ 14%]
+logic/test/unit/policies/test_egh_lasm_params_runtime.py::test_lasm_from_config_object_roundtrip PASSED [ 16%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_update_mandatory_selection_roundtrip PASSED [ 18%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_update_route_improvement_roundtrip PASSED [ 19%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_listing_helpers PASSED [ 21%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_unknown_key_raises PASSED [ 22%]
+logic/test/unit/utils/target/test_policy_link_updater.py::test_dry_run_does_not_write PASSED [ 24%]
+logic/test/unit/configs/test_config_fields_are_read.py::test_tracking_config_fields_are_all_read PASSED [ 26%]
+logic/test/unit/configs/test_config_fields_are_read.py::test_sa_config_fields_are_all_read PASSED [ 27%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_random_removal_matches_the_previous_pg_clns_implementation[0] PASSED [ 29%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_random_removal_matches_the_previous_pg_clns_implementation[1] PASSED [ 31%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_random_removal_matches_the_previous_pg_clns_implementation[2] PASSED [ 32%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_random_removal_matches_the_previous_pg_clns_implementation[3] PASSED [ 34%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_random_removal_matches_the_previous_pg_clns_implementation[4] PASSED [ 36%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_random_removal_matches_the_previous_pg_clns_implementation[5] PASSED [ 37%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_pg_clns_repair_rejects_a_bin_above_capacity_and_serves_mandatory_bins PASSED [ 39%]
+logic/test/unit/policies/test_pg_clns_hmlns_parity.py::test_hmlns_calibrates_through_the_canonical_alns_even_with_negative_profit PASSED [ 40%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestRandomRemovalParity::test_deterministic_with_seed PASSED [ 42%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestRandomRemovalParity::test_removes_correct_count PASSED [ 44%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestClusterRemovalParity::test_removes_at_least_one_node PASSED [ 45%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestWorstRemovalRandomization::test_randomized_with_p3 PASSED [ 47%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestCapacityChecks::test_greedy_profit_rejects_over_capacity PASSED [ 49%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestCapacityChecks::test_greedy_profit_accepts_within_capacity PASSED [ 50%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestCapacityChecks::test_mandatory_node_over_capacity_skipped PASSED [ 52%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestMandatoryNodeHandling::test_mandatory_node_inserted_even_if_unprofitable PASSED [ 54%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestMandatoryNodeHandling::test_optional_node_skipped_if_unprofitable PASSED [ 55%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestDirectedDistance::test_profit_insertion_uses_revenue_minus_cost PASSED [ 57%]
+logic/test/unit/policies/test_pg_clns_operator_parity.py::TestRegretInsertion::test_regret_profit_rejects_over_capacity PASSED [ 59%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_positive_profit PASSED [ 60%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_zero_profit PASSED [ 62%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_negative_profit PASSED [ 63%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSTemperatureCalibration::test_calibration_with_tiny_profit PASSED [ 65%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSBehaviorChange::test_old_behavior_would_skip_calibration PASSED [ 67%]
+logic/test/unit/policies/test_hmlns_temperature_calibration.py::TestHMLNSBehaviorChange::test_new_behavior_always_calibrates PASSED [ 68%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_pad_model_ls_is_a_three_tuple PASSED [ 70%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_resume_clock_adds_stored_elapsed PASSED [ 72%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_expanded_id_keeps_alns_constructor PASSED [ 73%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_unexpanded_display_name_stays_the_full_id PASSED [ 75%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_stats_file_horizon_keeps_opening_row_out_of_the_deposits PASSED [ 77%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_failed_policy_is_not_an_all_zero_mean PASSED [ 78%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_partial_samples_average_only_successes PASSED [ 80%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_sequential_checkpoint_error_is_recorded PASSED [ 81%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_sequential_unsuccessful_result_is_recorded PASSED [ 83%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_parallel_failure_keeps_sample_id PASSED [ 85%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_resume_filters_by_display_slug FAILED [ 86%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_any_failed_sample_exits_nonzero FAILED [ 88%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_simulator_requests_one_extra_row_with_a_stats_file PASSED [ 90%]
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_generated_stats_horizon_runs_every_day_without_replaying_row_zero PASSED [ 91%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_scenario_tree_is_built_by_default PASSED [ 93%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_scenario_tree_skips_when_adapter_opts_out PASSED [ 95%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_finishing_writes_samples_and_daily_only PASSED [ 96%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_sequential_loop_does_not_write_mean PASSED [ 98%]
+logic/test/unit/pipeline/simulations/test_simulator_refactors.py::test_display_log_metrics_is_the_mean_writer PASSED [100%]
+
+=================================== FAILURES ===================================
+_____________________ test_resume_filters_by_display_slug ______________________
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py:272: in test_resume_filters_by_display_slug
+    simulator_testing(cfg, 20, torch.device("cpu"))
+        _finished  = <function test_resume_filters_by_display_slug.<locals>._finished at 0x7577b32a76d0>
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        mock_seq   = <MagicMock name='sequential_simulations' id='129156963507728'>
+        simulator_testing = <function simulator_testing at 0x7577b32371c0>
+        slug       = 'none_alns_none'
+logic/src/pipeline/features/test/orchestrator/__init__.py:202: in simulator_testing
+    manager = mp.Manager()
+        _shutdown_handler = <function simulator_testing.<locals>._shutdown_handler at 0x7577c6436320>
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        data_size  = 20
+        device     = device(type='cpu')
+        log_file   = '/tmp/wsr-codex-review-round3-20260928/logs/simulations/2026-09-28_22-06-48.log'
+        original_stderr = <_io.TextIOWrapper name="<_io.FileIO name=10 mode='rb+' closefd=True>" mode='r+' encoding='utf-8'>
+        policy_result_key = <function policy_result_key at 0x7577be222170>
+        sim        = SimConfig(policies=['alns'], full_policies=['alns'], data_distribution='unif', problem='vrpp', shift_hours=7.0, avg_sp... gapik_file=None, stats_filepath=None, data_dir=None, run_name='run20260928_220648', policy_configs={}, config_path={})
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/context.py:57: in Manager
+    m.start()
+        SyncManager = <class 'multiprocessing.managers.SyncManager'>
+        m          = <multiprocessing.managers.SyncManager object at 0x7577b2ed6590>
+        self       = <multiprocessing.context.DefaultContext object at 0x7577f8b12bf0>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py:566: in start
+    self._address = reader.recv()
+        ident      = '1'
+        initargs   = ()
+        initializer = None
+        reader     = <multiprocessing.connection.Connection object at 0x7577b2ed63e0>
+        self       = <multiprocessing.managers.SyncManager object at 0x7577b2ed6590>
+        writer     = <multiprocessing.connection.Connection object at 0x7577b2ed6410>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:250: in recv
+    buf = self._recv_bytes()
+        self       = <multiprocessing.connection.Connection object at 0x7577b2ed63e0>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:414: in _recv_bytes
+    buf = self._recv(4)
+        maxsize    = None
+        self       = <multiprocessing.connection.Connection object at 0x7577b2ed63e0>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:383: in _recv
+    raise EOFError
+E   EOFError
+        buf        = <_io.BytesIO object at 0x7578af9f0180>
+        chunk      = b''
+        handle     = 22
+        n          = 0
+        read       = <built-in function read>
+        remaining  = 4
+        self       = <multiprocessing.connection.Connection object at 0x7577b2ed63e0>
+        size       = 4
+----------------------------- Captured stdout call -----------------------------
+                          Simulation Policies Summary                           
+┏━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━┓
+┃     │                │        │ Selection      │ Route          │            ┃
+┃ Idx │ Policy Name    │ Engine │ Strategy       │ Improvement    │ Acceptance ┃
+┠─────┼────────────────┼────────┼────────────────┼────────────────┼────────────┨
+┃   1 │ None + ALNS +  │ CUSTOM │ None           │ None           │ None       ┃
+┃     │ None           │        │                │                │            ┃
+┗━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━┛
+
+
+----------------------------- Captured stderr call -----------------------------
+Logging simulation output to: /tmp/wsr-codex-review-round3-20260928/logs/simulations/2026-09-28_22-06-48.log
+Process SyncManager-1:
+Traceback (most recent call last):
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 591, in _run_server
+    server = cls._Server(registry, address, authkey, serializer)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 156, in __init__
+    self.listener = Listener(address=address, backlog=16)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 448, in __init__
+    self._listener = SocketListener(address, family, backlog)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 588, in __init__
+    self._socket.setsockopt(socket.SOL_SOCKET,
+PermissionError: [Errno 1] Operation not permitted
+_____________________ test_any_failed_sample_exits_nonzero _____________________
+logic/test/unit/pipeline/simulations/test_simulator_robustness.py:290: in test_any_failed_sample_exits_nonzero
+    simulator_testing(cfg, 20, torch.device("cpu"))
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        excinfo    = <ExceptionInfo for raises contextmanager>
+        mock_seq   = <MagicMock name='sequential_simulations' id='129156964628128'>
+        simulator_testing = <function simulator_testing at 0x7577b32371c0>
+logic/src/pipeline/features/test/orchestrator/__init__.py:202: in simulator_testing
+    manager = mp.Manager()
+        _shutdown_handler = <function simulator_testing.<locals>._shutdown_handler at 0x7577c649fd00>
+        cfg        = Config(train=TrainConfig(batch_size=256, val_dataset=None, num_workers=4, data_distribution=None, seed=42, precision='...ry_n_epochs=0), seed=42, device='cuda', experiment_name=None, task='train', run_name=None, start=0, p={}, callbacks={})
+        data_size  = 20
+        device     = device(type='cpu')
+        log_file   = '/tmp/wsr-codex-review-round3-20260928/logs/simulations/2026-09-28_22-06-48.log'
+        original_stderr = <_io.TextIOWrapper name="<_io.FileIO name=10 mode='rb+' closefd=True>" mode='r+' encoding='utf-8'>
+        policy_result_key = <function policy_result_key at 0x7577be222170>
+        sim        = SimConfig(policies=['alns'], full_policies=['alns'], data_distribution='unif', problem='vrpp', shift_hours=7.0, avg_sp... gapik_file=None, stats_filepath=None, data_dir=None, run_name='run20260928_220648', policy_configs={}, config_path={})
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/context.py:57: in Manager
+    m.start()
+        SyncManager = <class 'multiprocessing.managers.SyncManager'>
+        m          = <multiprocessing.managers.SyncManager object at 0x7577b2fe94b0>
+        self       = <multiprocessing.context.DefaultContext object at 0x7577f8b12bf0>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py:566: in start
+    self._address = reader.recv()
+        ident      = '2'
+        initargs   = ()
+        initializer = None
+        reader     = <multiprocessing.connection.Connection object at 0x7577b2fe9180>
+        self       = <multiprocessing.managers.SyncManager object at 0x7577b2fe94b0>
+        writer     = <multiprocessing.connection.Connection object at 0x7577b2fe92a0>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:250: in recv
+    buf = self._recv_bytes()
+        self       = <multiprocessing.connection.Connection object at 0x7577b2fe9180>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:414: in _recv_bytes
+    buf = self._recv(4)
+        maxsize    = None
+        self       = <multiprocessing.connection.Connection object at 0x7577b2fe9180>
+/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py:383: in _recv
+    raise EOFError
+E   EOFError
+        buf        = <_io.BytesIO object at 0x7577b32f8e50>
+        chunk      = b''
+        handle     = 21
+        n          = 0
+        read       = <built-in function read>
+        remaining  = 4
+        self       = <multiprocessing.connection.Connection object at 0x7577b2fe9180>
+        size       = 4
+----------------------------- Captured stdout call -----------------------------
+                          Simulation Policies Summary                           
+┏━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━━━━━┯━━━━━━━━━━━━┓
+┃     │                │        │ Selection      │ Route          │            ┃
+┃ Idx │ Policy Name    │ Engine │ Strategy       │ Improvement    │ Acceptance ┃
+┠─────┼────────────────┼────────┼────────────────┼────────────────┼────────────┨
+┃   1 │ None + ALNS +  │ CUSTOM │ None           │ None           │ None       ┃
+┃     │ None           │        │                │                │            ┃
+┗━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━━━━━┷━━━━━━━━━━━━┛
+
+
+----------------------------- Captured stderr call -----------------------------
+Logging simulation output to: /tmp/wsr-codex-review-round3-20260928/logs/simulations/2026-09-28_22-06-48.log
+Process SyncManager-2:
+Traceback (most recent call last):
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 314, in _bootstrap
+    self.run()
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/process.py", line 108, in run
+    self._target(*self._args, **self._kwargs)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 591, in _run_server
+    server = cls._Server(registry, address, authkey, serializer)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/managers.py", line 156, in __init__
+    self.listener = Listener(address=address, backlog=16)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 448, in __init__
+    self._listener = SocketListener(address, family, backlog)
+  File "/home/pkhunter/.local/share/uv/python/cpython-3.10.19-linux-x86_64-gnu/lib/python3.10/multiprocessing/connection.py", line 588, in __init__
+    self._socket.setsockopt(socket.SOL_SOCKET,
+PermissionError: [Errno 1] Operation not permitted
+=========================== short test summary info ============================
+FAILED logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_resume_filters_by_display_slug - EOFError
+FAILED logic/test/unit/pipeline/simulations/test_simulator_robustness.py::test_any_failed_sample_exits_nonzero - EOFError
+========================= 2 failed, 59 passed in 1.81s =========================

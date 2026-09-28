@@ -3079,3 +3079,10 @@ final day, and Qwen's parity/calibration tests do not exercise the required
 comparisons/production paths. Prior tensor-mask, capacity, test-delivery and
 packaging findings are closed as detailed there. 63 selected tests passed;
 five environment-blocked failures are explicitly separated from code findings.
+
+**Landed code-track re-review, 2026-09-28:**
+[logic-review §10.5](logic_review_2026-09-26.md#105-landed-revisions-and-qwens-extra-patch-codex-2026-09-28)
+closes the prior Mistral/Grok/Qwen blockers for integrated commits
+`041d6185a`, `d702624dc`, `92d6277d5`. Qwen's additional final-revision artifact
+is stale and should not be applied unchanged. Independent focused verification:
+59 passed, two multiprocessing checks blocked by sandbox restrictions.

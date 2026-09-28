@@ -1,0 +1,36 @@
+/home/pkhunter/.config/matplotlib is not a writable directory
+Matplotlib created a temporary cache directory at /tmp/matplotlib-0vpc6xfg because there was an issue with the default path (/home/pkhunter/.config/matplotlib); it is highly recommended to set the MPLCONFIGDIR environment variable to a writable directory, in particular to speed up the import of Matplotlib and to better support multiprocessing.
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch/cuda/__init__.py:1112: UserWarning: Can't initialize NVML
+  raw_cnt = _raw_device_count_nvml()
+
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_geometric/__init__.py:4: UserWarning: An issue occurred while importing 'torch-scatter'. Disabling its usage. Stacktrace: Could not load this library: /home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_scatter/_scatter_cuda.so
+  import torch_geometric.typing
+
+/home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_geometric/__init__.py:4: UserWarning: An issue occurred while importing 'torch-sparse'. Disabling its usage. Stacktrace: Could not load this library: /home/pkhunter/.cache/wsr-main-venv/lib/python3.10/site-packages/torch_sparse/_spmm_cuda.so
+  import torch_geometric.typing
+
+Set parameter Username
+Set parameter Username
+Set parameter LicenseID to value 2805822
+Set parameter LicenseID to value 2805822
+fix_and_optimize: Gurobi license check failed (HostID mismatch (licensed to 16a79e9e, hostid is 0)); route improver will no-op.
+Set parameter Username
+Set parameter Username
+Set parameter LicenseID to value 2805822
+Set parameter LicenseID to value 2805822
+set_cover: Gurobi license check failed (HostID mismatch (licensed to 16a79e9e, hostid is 0)); route improver will no-op.
+Set parameter Username
+Set parameter Username
+Set parameter LicenseID to value 2805822
+Set parameter LicenseID to value 2805822
+set_partitioning: Gurobi license check failed (HostID mismatch (licensed to 16a79e9e, hostid is 0)); route improver will no-op.
+Set parameter Username
+Set parameter Username
+Set parameter LicenseID to value 2805822
+Set parameter LicenseID to value 2805822
+set_partitioning_polish: Gurobi license check failed (HostID mismatch (licensed to 16a79e9e, hostid is 0)); route improver will no-op.
+ExactGuidedHeuristicParams initialized defaults and five runtime methods match original at four alpha values
+LASMPipelineParams initialized defaults and five runtime methods match original at four alpha values
+
+[INFO] Generating data...
+gamma1 actual setup + statistics + two daily deposits: three rows, opening used once, horizon completes

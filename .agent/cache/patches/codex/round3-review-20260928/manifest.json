@@ -1,0 +1,58 @@
+{
+  "head": "d4d8a1ba98d55090043cd8bf768f2d6a65530450",
+  "patches": [
+    {
+      "path": "qwen/issue-80-82-final-revision.patch",
+      "sha256": "5d5c8ad26843f54559fcc280fe33fab0fe97a13fb809168ee394430d633fac4e",
+      "paths": [
+        "logic/src/policies/helpers/operators/recreate_repair/greedy.py",
+        "logic/src/policies/helpers/operators/recreate_repair/regret.py",
+        "logic/test/integration/policies/test_alns_temperature_calibration.py",
+        "logic/test/integration/policies/test_pg_clns_operator_parity.py",
+        "logic/test/unit/policies/test_hmlns_temperature_calibration.py",
+        "logic/test/unit/policies/test_pg_clns_operator_parity.py"
+      ]
+    },
+    {
+      "path": "mistral/issue-82-c5-config-refactors-revision.patch",
+      "sha256": "0e9aa9d5c57089b7fd9b30c920ce8ab27b78bf61f2a715ad510a21f376ce7866",
+      "paths": [
+        ".gitignore",
+        "logic/controllers/cli/tgt_parser.py",
+        "logic/src/policies/route_construction/learning_matheuristic_algorithms/learning_allocated_sequential_matheuristic/params.py",
+        "logic/src/policies/route_construction/matheuristics/exact_guided_heuristic/params.py",
+        "logic/src/utils/target/__init__.py",
+        "logic/src/utils/target/ms_updater.py",
+        "logic/src/utils/target/policy_link_updater.py",
+        "logic/src/utils/target/ri_updater.py",
+        "logic/test/unit/policies/test_egh_lasm_params_runtime.py",
+        "logic/test/unit/utils/target/test_policy_link_updater.py"
+      ]
+    },
+    {
+      "path": "grok/issue-80-simulator-robustness.patch",
+      "sha256": "fefa28eb96a15866b8013a1c3d04c8a5a058e764ad4e6c010f19b0504f37b046",
+      "paths": [
+        "logic/src/pipeline/features/test/orchestrator/__init__.py",
+        "logic/src/pipeline/features/test/orchestrator/parallel_runner.py",
+        "logic/src/pipeline/features/test/orchestrator/results_handler.py",
+        "logic/src/pipeline/simulations/bins/base.py",
+        "logic/src/pipeline/simulations/day_context.py",
+        "logic/src/pipeline/simulations/simulator.py",
+        "logic/src/pipeline/simulations/states/initializing.py",
+        "logic/src/pipeline/simulations/states/running.py",
+        "logic/test/unit/pipeline/simulations/test_simulator_robustness.py"
+      ]
+    },
+    {
+      "path": "grok/issue-82-simulator-refactors.patch",
+      "sha256": "e5caf732dcd88c2705a0beca64829ef6e669abccc8d917606ca1a205f26fcae8",
+      "paths": [
+        "logic/src/pipeline/simulations/simulator.py",
+        "logic/src/pipeline/simulations/actions/route_construction.py",
+        "logic/src/pipeline/simulations/states/finishing.py",
+        "logic/test/unit/pipeline/simulations/test_simulator_refactors.py"
+      ]
+    }
+  ]
+}
