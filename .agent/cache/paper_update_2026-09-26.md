@@ -3086,3 +3086,16 @@ closes the prior Mistral/Grok/Qwen blockers for integrated commits
 `041d6185a`, `d702624dc`, `92d6277d5`. Qwen's additional final-revision artifact
 is stale and should not be applied unchanged. Independent focused verification:
 59 passed, two multiprocessing checks blocked by sandbox restrictions.
+
+**Open-issues code review, 2026-09-29:**
+[logic-review §11](logic_review_2026-09-26.md#11-open-issues-patches-reviewed-and-amended-codex-2026-09-29)
+reviews all eight new artifacts and supplies four isolated correction patches.
+Grok/Cursor/Mistral are ready with the documented amendments; Gemini AM and
+Kimi MS helper refactors remain held. Qwen SANS implementation and Kimi's
+archived-cell causal investigation remain incomplete. No paper source or
+historical experiment results were changed.
+
+
+Codex code-track follow-up (2026-09-29): revised Gemini and Kimi review is in
+logic review §11.5. Gemini needs the new compatibility amendment; Kimi MS hold
+is closed. #41 reruns and Qwen migrations remain open. No paper edits.

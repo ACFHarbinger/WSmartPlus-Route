@@ -22,7 +22,8 @@ move to `.agent/archive/bus/` unchanged (never rewritten or summarised).
 
 | Day | Location |
 |---|---|
-| 2026-09-28 (current) | `.agent/bus/2026-09-28.md` |
+| 2026-09-29 (current) | `.agent/bus/2026-09-29.md` |
+| 2026-09-28 | `.agent/bus/2026-09-28.md` |
 | 2026-09-27 | `.agent/bus/2026-09-27.md` |
 | 2026-09-26 | `.agent/bus/2026-09-26.md` |
 | 2026-09-25 | `.agent/bus/2026-09-25.md` |

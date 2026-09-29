@@ -1530,3 +1530,401 @@ Evidence: [test log](patches/codex/round3-review-20260928/tests.log),
 The four inspected Qwen/Mistral/Grok artifacts contain no symlink mode or data
 path. No shared production source was changed, no patch applied to the shared
 checkout, and no commit or push performed by this review.
+
+## 11. Open-issues patches reviewed and amended (Codex, 2026-09-29)
+
+**Review scope:** all eight patches announced in the September 29 bus, based
+on `dfb049e7e`; shared HEAD `461c9fd28`. All apply together. Exact submitted
+[hashes and paths](patches/codex/open-review-20260929/submitted-manifest.json)
+are frozen for this verdict. Safety checks found no data path, symlink mode or
+paper edits. Grok's status plumbing necessarily also touches the SWC wrappers,
+constants and logging; these are part of the explicit instrumentation task.
+No source edits were made in the shared checkout.
+
+### 11.1 Verdicts and delivered corrections
+
+| Lane / delivery | Review verdict |
+|---|---|
+| Grok #90 external row check | **Ready.** Checks both actual/noisy sample lengths before copying opening stock. The simulator passes the horizon; three regression cases pass. |
+| Grok #41 instrumentation | **Ready with Codex amendment.** Submitted status could leak from the previous day if filling/selection failed; it also hid the initial infeasibility after a successful retry. Both fixed, with fail-before evidence and an actual SCIP retry test. |
+| Cursor #61 | **Ready with Codex amendment.** The submitted overflow slice broke valid singleton and customer-only capacity thresholds. Correction preserves broadcasting and removes a depot threshold only when present. Two regression cases added; no further concrete finding in controller/data changes. |
+| Mistral #57 | **Ready for integration review with Codex amendment; live runner remains unverified.** Corrected workflow admission, pre-checkout authentication/submodule selection, detached-HEAD public push, shell argument handling and artifact action compatibility. |
+| Kimi #90 shared SWC preparation | **No additional finding; license-limited verification.** Pure shared-data construction and pinned-value checks pass. Three solver-dependent cases cannot run with this environment's Gurobi license. Negative fleet values now mean unbounded consistently; zero/unbounded is the supported caller path reviewed. |
+| Kimi #90 MS helper extraction | **HOLD.** Importing the entire shared CG loop also changes the diverged pricing and cycle helpers reached through its globals; leaving local definitions in the file does not preserve their use. See 11.3. |
+| Kimi #41 report | **Investigation remains open.** The one-vehicle defect was real, but the archived causal chain is not proven and the retry analysis is incorrect for the reviewed code. Corrected assessment delivered. |
+| Gemini #90 AM unification | **HOLD.** A proxy deepcopy crash is fixed separately, but temporal prediction, historical embedding behavior and nested checkpoint compatibility still fail the refactor gate. See 11.2. |
+| Qwen #90 SANS | **Incomplete.** Thirteen tests provide smoke/invariant coverage; neither requested migration was implemented. The directory-semantics argument is contradicted by existing shared perturbation helpers. See 11.3. |
+
+[Amendment handoff](patches/codex/open-issues-review-handoff-20260929.md),
+[amendment hashes](patches/codex/open-review-20260929/amendments.json).
+The three integration-ready amendments apply with their parent lanes on the
+base without either held architecture refactor. The Gemini deepcopy amendment
+is diagnostic/development-only until the parent patch's other blockers close.
+
+### 11.2 Concrete implementation findings
+
+1. **HIGH — Gemini: temporal model behavior is bypassed.** The replacement
+   `attention_model/model.py:342–356` delegates the RL4CO path to the policy
+   superclass, bypassing `TemporalAttentionModel._get_initial_embeddings`.
+   A real-environment probe records zero calls to that hook. This drops temporal
+   prediction/fusion from that path. The new parity test compares the replacement
+   to current `AttentionModelPolicy`, not the historical model being replaced.
+2. **HIGH — Gemini: historical embedding/checkpoint compatibility is not
+   established.** On concatenated input the old context embedder projects the
+   depot through its node projection; the replacement uses the separate depot
+   projection. Equalized weights still yield different depot embeddings
+   (review witness maximum absolute difference 0.932884 with seed 123). Thus the claimed
+   embedder deferral is not effective in the AM replacement. Nonzero-horizon
+   base AM also changes node-weight width (horizon 3, embed_dim 8: `(8,6)` to
+   `(8,3)`). Separately, remapping only in public `load_state_dict` does not run
+   when a parent Lightning/nn.Module recursively restores `policy.*` keys;
+   historical nested keys are rejected. Preserve the old contract or explicitly
+   scope/defer the migration and supply actual historical checkpoint/output tests.
+3. **HIGH — Gemini proxy cannot be deep-copied after access. Fixed in the
+   isolated amendment.** Delegated lookup recursively probes `_target` while
+   reconstructing an uninitialized proxy, causing `RecursionError`. Explicit
+   deepcopy and guarded target access now preserve the cloned model's internal
+   alias and independent weights. This matters for rollout baseline copies.
+4. **HIGH — Cursor singleton overflow thresholds crash. Fixed in amendment.**
+   `swcvrp.py:188` sliced every rank-2 limit with `[...,1:]`; valid `[B,1]`
+   becomes empty, and `[B,N]` customer-only limits lose a customer. Check width
+   against depot-inclusive `real_waste` first. Tests cover both layouts with
+   multiple batches.
+5. **MEDIUM — Grok can log yesterday's success for today's fill failure.
+   Fixed in amendment.** Status was reset only inside RouteConstructionAction;
+   FillAction and selection execute first. A second-day fill ValueError was
+   recorded as `gurobi:OPTIMAL` from the preceding day. Reset at `run_day` entry.
+6. **MEDIUM — Grok drops the first status on forced-visit retries. Fixed in
+   amendment.** All three backends published only the last solve. Actual SCIP
+   with two mandatory 100-unit bins, capacity 100 and one vehicle first becomes
+   infeasible, then relaxes forcing and collects one bin optimally. Submitted
+   logging reports only OPTIMAL, hiding the diagnostic event requested by #41.
+   The amendment records `ortools:INFEASIBLE -> ortools:OPTIMAL` (and equivalent
+   sequences in the other backends) without changing solver decisions.
+7. **HIGH — GitLab/mirror execution errors, corrected in amendment.** Top-level
+   workflow rules excluded `algo-export*` pushes even though the job admitted
+   them. Test jobs authenticated in `before_script`, after runner submodule
+   checkout, and `recursive` included Overleaf despite the claimed exclusion.
+   The correction admits export pushes, uses `pre_get_sources_script` and
+   allowlists the runtime submodule. Public sync now pushes sanitized
+   `HEAD:refs/heads/main` from detached checkout and is main-only. Export
+   arguments use a Bash array instead of `eval`, preserving literal values.
+   Newly selected stock artifact v4 is not a valid general mirror replacement;
+   mirror workflows now explicitly use their host's v3 action, including the
+   existing export artifact steps. See official
+   [GitLab hook syntax](https://docs.gitlab.com/ci/yaml/#hookspre_get_sources_script),
+   [submodule filtering](https://docs.gitlab.com/ci/runners/git_submodules/),
+   [Forgejo artifact compatibility](https://forgejo.org/docs/latest/user/actions/advanced-features/#artifacts)
+   and [upstream artifact support limits](https://github.com/actions/upload-artifact).
+   URL availability and YAML parsing alone do not establish runtime compatibility.
+
+Gemini semantic evidence: [reproducer](tools/codex_gemini_semantic_review_20260929.py),
+[execution log](patches/codex/open-review-20260929/gemini-semantic.log).
+
+### 11.3 Evidence and completion gaps
+
+**HIGH — Kimi MS extraction changes the helper dependency graph.**
+`ms_bpc_sp_engine.py` imports `column_generation_loop`; that function resolves
+`solve_farkas_pricing_step`, `solve_pricing_step` and `_detect_cycles` from the
+shared module, not the MS-local definitions. The latter were explicitly called
+“diverged twins untouched” in the handoff. The cycle witness `[5,6,5]` returns
+`[(5,6,5)]` locally and `[(5,0,2)]` through the replacement loop. The receiving
+`expand_ng_neighborhoods` treats tuple entries as node IDs, so this affects
+neighborhood expansion, not merely diagnostic formatting. Pricing also changes
+Farkas/exhaustion rules. Retain the local loop or parameterize its helper
+contracts and test those divergent paths before claiming parity.
+[Executable dependency witness](tools/codex_ms_dependency_review_20260929.py),
+[output](patches/codex/open-review-20260929/ms-review.log).
+The supplied brute-force tool records **profits rounded to six decimals**, not
+bit-identical full solutions, and reports only 17/24 matching the oracle. Those
+reported unchanged pre-existing fleet gaps do not prove this dependency change
+safe. The reviewer could not independently run the licensed exact suite.
+
+**Kimi #41: corrected the assessment rather than claiming a solver fix.**
+The retry removes the same list containing mandatory and threshold constraints;
+the report's claim that mandatory constraints survive it is false for the
+reviewed code. A zero plan is not feasible while forcing is active, and later
+feasibility does not rule out a time limit without an incumbent. Empty selection
+can trigger a non-VRPP constructor skip. Archived day-specific causal claims
+need actual configuration/revision and load/status evidence. See the delivered
+[reviewed assessment](patches/codex/issue-41-reviewed-assessment.md). No licensed
+Figueira horizon rerun was performed, so #41 is not closed.
+
+**Qwen: smoke tests are not a completed SANS migration.** The patch changes only
+`test_sans_operators.py`. It compares the same implementation with itself for
+determinism; there is no migrated implementation against which parity can be
+shown. The report says shared helpers are exclusively improving local search,
+but `helpers/operators/perturbation_shaking/` and `evolutionary_mutation/`
+already exist. Moving perturbation code does not require turning it into hill
+climbing. The delivered tests only import intra-route operators despite the
+handoff's inter-route claim; the handoff says ten tests/no patch while the actual
+delivery is a thirteen-test patch. Keep this as optional smoke coverage, correct
+the handoff, and leave M-qwen-02 / SANS M-cursor-01 open for implementation or an
+explicit owner deferral. No algorithm rewrite was attempted by this review.
+
+### 11.4 Validation and limits
+
+- Submitted stack selected suite: **43 passed, three environment failures**.
+  Expanded suite after the review amendments: **78 passed, three environment
+  failures**, all the same Gurobi HostID mismatch. These are not code failures
+  or passes. [Final log](patches/codex/open-review-20260929/final-tests.log).
+- Status regressions fail before (two failures), then their related batch
+  passes 11/11. Model/environment amendment files pass 15/15; fail-before crash
+  evidence is stored separately. These counts overlap the final run and must
+  not be added together. Passing smoke tests do not clear the held refactors.
+- Compileall passes. Focused Ruff check passes. GitLab embedded schema/list
+  validation passes for main/export scenarios; all eight shell blocks pass
+  syntax checks; an actual shell argument test preserves quoted values without
+  executing their contents. No real CI runner, credential operation, artifact
+  upload, public push, full-suite claim or broad simulation run.
+- All artifact paths and modes were checked before packaging. Amendment
+  apply-check evidence is in
+  [ready-stack log](patches/codex/open-review-20260929/ready-stack-apply.log).
+  Only coordination/evidence artifacts were published in the shared checkout.
+  No changes to restored data, production configuration in the shared tree,
+  paper submodules, application commits or remote pushes.
+
+
+### 11.5 Revised Gemini and Kimi artifacts — Codex follow-up, 2026-09-29
+
+This section supersedes the Gemini and MS-helper holds in §11 for the exact
+revisions below. Other lane verdicts remain as previously recorded. Review and
+source edits ran in `/tmp/wsr-codex-open-revision-20260929`; only coordination
+records and patch/evidence artifacts were written to the shared checkout.
+
+**Gemini: ready with the new compatibility amendment.** Reviewed author patch
+SHA-256 `3c5083305bd6bea27ac5e2e1a67730694f2986283792e97800d0ff548cb52ced`.
+The revision fixes temporal-hook dispatch, horizon width, nested checkpoint
+remapping and deepcopy. Three remaining compatibility failures were corrected:
+
+- **HIGH:** removing depot overwrite globally also changed canonical
+  `AttentionModelPolicy` checkpoints. Canonical VRPP/CVRPP/WCVRP depot
+  projections now retain their previous defaults; only legacy `AttentionModel`
+  explicitly selects the historical node projection for concatenated depots.
+  Deterministic pre-fix depot error was 5 in each shared embedder.
+- **HIGH:** the legacy factory constructor silently changed default activation
+  from `ActivationConfig()` GELU to ReLU. An actual original-model probe loaded
+  identical weights: initial embeddings matched, encoder max difference was
+  0.3541065 and 8/21 greedy action entries differed for seed 7. The amendment
+  restores all legacy activation defaults while preserving explicit overrides.
+- **MEDIUM:** WCVRP with horizon 3 and `temporal_features=False` raised a linear
+  shape error (2x3 versus 6x8). Restore historical zero-padding to the configured
+  width; compare directly against the old context embedder.
+
+Apply [issue-90-am-compatibility-review-amendment.patch](patches/codex/issue-90-am-compatibility-review-amendment.patch)
+**after this revised Gemini patch**. Amendment SHA-256:
+`a28a2f453f760469ca9a697ae3978c6a1fdc8b2da02522cd3e3e78820a5cd4f1`.
+The old `issue-90-am-deepcopy-review-amendment.patch` is superseded and must not
+be stacked: Gemini already integrated that correction.
+
+Validation includes actual base-commit `AttentionModel` execution loaded from
+`dfb049e7e`, an explicit real component factory, strict old-checkpoint loading,
+and three seeds with three VRPP instances each. Greedy actions, rewards and log
+probabilities match after the fix (tolerance 1e-6; embeddings/encoder max error
+0). This is sampled VRPP legacy-path evidence, not universal parity across
+all factories, environments or training trajectories. The earlier new-policy
+versus new-model test is now explicitly a comparison in the same compatibility
+mode, not evidence that their historical depot semantics were identical.
+
+**Kimi MS helper revision: prior dependency hold closed.** Reviewed SHA-256
+`967e2db4967a3f98515957f39b116c6695d41caaac27e6e42ca40124450c7ae1`.
+The column-generation loop remains local and calls the local divergent pricing
+helpers. AST comparison against the base confirms all nine retained top-level
+functions are unchanged. Six remaining aliases include the shared fleet-bound
+constraint handling already described by the lane; do not describe every
+alias as text-identical. Kimi's unrounded gate records profits, not full routes:
+its reported 0/24 changed values means profit equality. The 17/24 brute-force
+oracle result still leaves pre-existing fleet-limit discrepancies; accepting
+this refactor does not certify solver exactness. The 24-case gate was not
+independently rerun by Codex in this follow-up.
+
+**Kimi #41 remains open.** The revised report records setup blockers and no
+instrumented archived-cell results. Its residual claims that forced sets
+“always fit” and the failure chain “cannot occur” are too broad: increasing
+fleet count only removes the aggregate fleet-capacity bound, and does not
+prove feasibility under individual demands, arcs or other constraints. Use the
+qualified [Codex assessment](patches/codex/issue-41-reviewed-assessment.md);
+do not close #41 or infer a proven historical cause. Qwen's two SANS migrations
+also remain open; the unchanged patch provides smoke tests only.
+
+**Independent verification and integration:**
+
+- Revised stack before the new amendment: 59 tests passed, including MS and
+  all SWC backend tests. Gurobi works in this environment; the previous HostID
+  failures are no longer a blocker for these tests.
+- Final model/loader suite after all compatibility fixes: **53 passed**.
+  Its focused parity subset has 23 tests; these counts overlap.
+- Scoped Ruff passes for the five amended files and Kimi's changed modules.
+- All eight lane patches plus four current Codex amendments apply to
+  `dfb049e7e`; all five amended blobs match the tested tree. This application
+  check includes Qwen smoke coverage and does not approve its incomplete tasks.
+- Artifact inventories exclude data, paper paths and symlink modes. No shared
+  production changes, CI runner execution, archived-cell simulation, push or
+  full repository test-suite claim.
+
+Exact manifests, logs and the historical forward reproducer are in
+[open-revision-review-20260929](patches/codex/open-revision-review-20260929/).
+
+
+### 11.6 Qwen SANS relocation review — 2026-09-29
+
+The new `issue-90-mqwen-02-sans-operators-to-helpers.patch`
+(`c717bf2bcd758274c9c084812b974258868505a362562adfc039ef795b450816`)
+now performs a real seven-module relocation. This supersedes the prior
+“smoke tests only” finding for the new artifact. **Request changes:** use the
+assigned existing `helpers/operators/perturbation_shaking` hierarchy or obtain
+an explicit architectural ruling; fix 37 scoped Ruff errors; correct stale
+examples and coverage claims. The `_run_solver()` migration remains open.
+
+Independent verification: seven byte-identical modules, 44 tests passed and
+2,880 old/new operator comparisons passed (routes, results and RNG state).
+No runtime stale imports found. The new patch replaces the earlier Qwen test
+patch; do not stack both new-file additions. See
+[full review](patches/codex/issue-90-qwen-review.md) and
+[evidence](patches/codex/qwen-review-20260929/). No shared source edits.
+
+
+### 11.7 Qwen relocation revision accepted — 2026-09-29
+
+**M-qwen-02 ready:** revised patch SHA-256
+`8c782f6c8bc9d955e8351921cb444f4c4bb21f90647cad7cbb47d22107107c8f`
+closes §11.6 relocation findings. Destination now follows
+`helpers/operators/perturbation_shaking/sans/`; lint and old import examples
+are corrected. Independently: 44 tests pass, scoped Ruff passes, seven module
+ASTs match base except module docstrings, and 2,880 behavior/RNG comparisons
+pass. No stale namespace references remain. Complete revised stack applies.
+
+Replace earlier Qwen patch versions; no Codex amendment needed. The separate
+SANS `_run_solver()` migration remains open and already authorized by the brief;
+only deferral needs an owner ruling. Do not close all of #90. See
+[review update](patches/codex/issue-90-qwen-review.md) and
+[evidence](patches/codex/qwen-revision-review-20260929/). Shared sources untouched.
+
+
+### 11.8 Qwen combined SANS migration held — 2026-09-29
+
+Combined patch `613460519e4b5a675463e08746b7fd54f23b243f5b8fa428e8a9b5b23c49b877`
+is **held**. The added adapter mixes subset mandatory IDs with original global
+bins/matrix and returns global routes to the base's local-to-global mapper.
+Independent old/new execute probe: mandatory `[3]` becomes `[1]` in subset
+mode; returning global `[0,3,0]` crashes with IndexError. The adapter also drops
+`new_data`, changing the legacy engine's prepared-dataframe input. The 44 tests
+pass but bypass the adapter; migration parity tests are missing. Two unused
+imports fail Ruff. See [review](patches/codex/issue-90-qwen-migration-review.md)
+and [evidence](patches/codex/qwen-migration-review-20260929/).
+
+Standalone operator relocation `8c782f6c...107c8f` remains accepted; its patch
+content is identical within the combined delivery. M-cursor-01 remains open.
+
+
+### 11.9 Qwen final-named migration revision — hold remains
+
+Reviewed `84d04c705bfd7559dc7faef0d8a4d7f3dfcd7184fcf21652c41e87f62016919c`.
+Mandatory-only mapping and legacy `new_data` forwarding are fixed. Optional
+nodes outside the subset still leak through `global_to_local.get(node,node)`:
+with mandatory `[3]`, dispatcher `[0,1,3,0]` becomes `[0,3,3,0]`, and
+`[0,2,3,0]` raises IndexError. **Hold remains.** 49 tests pass, but the subset
+test bypasses the base's final mapping and the legacy test supplies no
+`new_data`. Required old/new policy parity remains absent. Two Ruff errors
+are in the new integration test. See [updated review](patches/codex/issue-90-qwen-migration-review.md)
+and [evidence](patches/codex/qwen-final-review-20260929/).
+Standalone operator relocation remains approved; shared sources untouched.
+
+
+### 11.10 Qwen migration v2 held — route/profit inconsistency
+
+Reviewed `fd6f3fbd8a6986fa259fce55d43f58f6b113555f46d4dcd837082cf5dde6d577`.
+v2 filters non-subset nodes from the solved tour while retaining solver profit.
+With mandatory `[3]`, unit economics/distances and fills `[10,20,30]`, solver
+`[0,2,3,0]` / profit47 becomes `[0,3,0]` / cost2 / profit47; correct route profit
+is28. **HIGH, hold remains.** Preserve historical full-bin/identity mapping
+for the parity refactor or explicitly implement a consistently restricted
+problem; do not post-filter routes. Integration assertions remain unchanged
+and do not establish old/new policy parity. All49 tests and scoped Ruff pass.
+See [review](patches/codex/issue-90-qwen-migration-review.md) and
+[evidence](patches/codex/qwen-v2-review-20260929/).
+Standalone operator relocation remains approved; shared sources untouched.
+
+
+### 11.11 Qwen v3: implementation blockers closed, parity acceptance pending
+
+Reviewed `70e594cbcdf798597ebba10f796d72342a9e470e709ba912bef2129a0d7e79f4`.
+Full-bin identity mapping now preserves every prior failing tour/profit witness;
+legacy `new_data` remains forwarded. 49 tests and scoped Ruff pass. Actual new
+engine matches base in four seeded synthetic comparisons. Legacy matching
+empty tours are failure fallbacks: instrumented old/new `find_solutions` both
+raise IndexError on default `combination='best'` (pre-existing). This does not
+prove successful legacy parity. Tests still bypass the full-bin override and
+omit actual `new_data`; required persisted old/new and real-instance parity
+remain pending. No new production bug found in this delta. See
+[review](patches/codex/issue-90-qwen-migration-review.md) and
+[evidence](patches/codex/qwen-v3-review-20260929/).
+
+
+### 11.12 Qwen v4: legacy verification still false-positive
+
+Reviewed `a7a1b613be5d9c77f409374f29252879f4151581eb22308f6a8423d483c86a72`.
+Production unchanged from v3. The revised exact legacy test passes while real
+`find_solutions` raises `KeyError('vehicle_capacity')`; dispatcher returns
+`[0,0]`, accepted by `len(tour)>=2`. The tuple only bypasses the prior string
+index error. Pre-existing Q/R versus vehicle_capacity/E contract mismatch is
+not a new migration regression, but successful legacy parity is still absent.
+49 tests and changed-file Ruff pass. Remaining execute-level/new_data/old-new
+and real-instance gates unchanged. See [review](patches/codex/issue-90-qwen-migration-review.md)
+and [evidence](patches/codex/qwen-v4-review-20260929/). Acceptance pending.
+
+
+### 11.13 Qwen v5 held: zero-volume legacy contract and timeout
+
+Reviewed `816b80918a60ab25834b42fe6524b6cc00e09da7571613cd744d756474f735f0`.
+New `E=params.V` is zero in ordinary/test calls, zeroing legacy stock/revenue
+while output profit still uses positive fill revenue. Keys alone do not repair
+the unit contract. Exact authored legacy test times out45s; diagnostic stack
+is in initial route uncrossing, before annealing's deadline check.48 tests pass,
+legacy separately uncompleted; changed-file Ruff passes. Adapter unchanged
+from v3; prior mapping fixes remain verified. Required parity tests still absent.
+See [review](patches/codex/issue-90-qwen-migration-review.md) and
+[evidence](patches/codex/qwen-v5-review-20260929/). Combined patch held.
+
+
+### 11.14 Qwen v6 held — legacy objective units and skipped parity
+
+Reviewed `a99c5cf8106428b98b5bdbb90d5f82f12b53f301eb8d2a145e8f0a70c1574fcf`.
+Area volume fixes E=0 but double-applies density/volume to already-scaled
+revenue. Controlled one-bin witness: legacy objective revenue100000 versus
+reported revenue100 for identical visit; stock50000. Existing mandatory[1]
+also reaches legacy solver as[2]. Repair contract units/IDs explicitly.
+48 tests pass,1 legacy test skipped; two W293 Ruff errors. Skip does not close
+parity gate, and no required old/new/real-instance evidence was added.
+See [review](patches/codex/issue-90-qwen-migration-review.md) and
+[evidence](patches/codex/qwen-v6-review-20260929/). Adapter unchanged fromv3;
+standalone operator relocation remains approved.
+
+
+### 11.15 Qwen v7 held — percentage units and override regression
+
+Reviewed `4041ccc2ecfde9780e46dee1985826aeb44a856ca3f5e7307354fe6fd876eca4`.
+Mandatory-ID increment and Ruff findings closed. Raw R still leaves missing
+/100 conversion: stock50000 instead of500kg, objective revenue10000 versus
+reported100 in the one-bin witness. New independent area reload also bypasses
+merged revenue overrides: doubling resolved revenue doubles reported100->200
+but leaves objective10000 unchanged. Both HIGH.48 pass,1 legacy skipped;
+parity gate remains pending. See [review](patches/codex/issue-90-qwen-migration-review.md)
+and [evidence](patches/codex/qwen-v7-review-20260929/). Shared sources untouched.
+
+
+### 11.16 Codex implemented SANS corrections at owner request
+
+Delivered `codex/issue-90-sans-reviewed-complete.patch`
+(`099f4c1839d2535b94d112ef949a2c3b777e5036fe428539fdc9310d263e7a1f`),
+replacing Qwen SANS patches, plus two optional additive amendments for v7.
+Percentage units/resolved overrides now agree; legacy uncrossing terminates on
+the failing collinear fixture; operator probability length and global-RNG use
+are repaired; all routes/caller fields survive; failures are surfaced. Replaced
+weak/skipped tests: **59 passed, no skips**, scoped Ruff passes, three fail-before
+regressions verified, eight actual-engine seeded adapter comparisons pass.
+Complete and additive patch paths match tested sources; full reviewed stack
+applies. No shared production edits. [Handoff](patches/codex/issue-90-sans-fix-handoff.md)
+records intentional engine behavior changes, unsupported preset-name errors,
+and the unrun archived real-instance/performance gate. Evidence:
+[files](patches/codex/sans-fix-20260929/).
