@@ -1,7 +1,0 @@
-- sim.policies=[aco_hh,alns,bpc,hgs,pg_clns,psoma,sans,swc_tcf]
-- sim.n_samples=1
-- sim.graph.area=figueiradafoz
-- sim.graph.num_loc=350
-- sim.data_distribution=gamma3
-- sim.cpu_cores=20
-- tasks=test_sim
