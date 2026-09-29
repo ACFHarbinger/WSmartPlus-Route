@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -568,7 +566,7 @@ Latitude, Longitude</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.datasets.web.dashboard_crawler._find_todos_os_locais_table">
-<span class="sig-prename descclassname"><span class="pre">src.data.datasets.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_find_todos_os_locais_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bs4.BeautifulSoup</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">bs4.BeautifulSoup</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.datasets.web.dashboard_crawler._find_todos_os_locais_table" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.data.datasets.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_find_todos_os_locais_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">soup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.datasets.web.dashboard_crawler._find_todos_os_locais_table" title="Link to this definition">#</a></dt>
 <dd><p>Locate the ‘Todos os Locais’ table inside the dashboard HTML.</p>
 <p>Strategy: find the flow-section whose tab-bar contains a button with the
 text ‘Todos os Locais’, then pick the tab-content inside that section
@@ -577,7 +575,7 @@ whose table header includes ‘Viagem / Origem’.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.datasets.web.dashboard_crawler._parse_table">
-<span class="sig-prename descclassname"><span class="pre">src.data.datasets.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_parse_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bs4.BeautifulSoup</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.datasets.web.dashboard_crawler._parse_table" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.data.datasets.web.dashboard_crawler.</span></span><span class="sig-name descname"><span class="pre">_parse_table</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pandas.DataFrame</span></span></span><a class="headerlink" href="#src.data.datasets.web.dashboard_crawler._parse_table" title="Link to this definition">#</a></dt>
 <dd><p>Convert a BeautifulSoup table into a cleaned DataFrame.</p>
 </dd></dl>
 

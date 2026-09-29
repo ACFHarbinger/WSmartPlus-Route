@@ -62,17 +62,6 @@
 
 ````
 
-````{py:attribute} iterations_per_temp
-:canonical: src.configs.policies.sa.SAConfig.iterations_per_temp
-:type: int
-:value: >
-   100
-
-```{autodoc2-docstring} src.configs.policies.sa.SAConfig.iterations_per_temp
-```
-
-````
-
 ````{py:attribute} nb_granular
 :canonical: src.configs.policies.sa.SAConfig.nb_granular
 :type: int

@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -466,7 +464,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.parent"><code class="docutils literal notranslate"><span class="pre">Label.parent</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.sri_state"><code class="docutils literal notranslate"><span class="pre">Label.sri_state</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.dominates"><code class="docutils literal notranslate"><span class="pre">Label.dominates()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible"><code class="docutils literal notranslate"><span class="pre">Label.is_feasible()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.reconstruct_path"><code class="docutils literal notranslate"><span class="pre">Label.reconstruct_path()</span></code></a></li>
 </ul>
 </li>
@@ -491,8 +488,7 @@ document.write(`
 <p>Attributes:
 Label: Dynamic programming state for the RCSPP solver.</p>
 <p>Example:
-&gt;&gt;&gt; label = Label(reduced_cost=10.0, node=1, load=5.0)
-&gt;&gt;&gt; is_feasible = label.is_feasible(capacity=100.0)</p>
+&gt;&gt;&gt; label = Label(reduced_cost=10.0, node=1, load=5.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -576,13 +572,13 @@ sri_state (Tuple[int, …]): State for Subset-Row Inequalities.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.dominates">
-<span class="sig-name descname"><span class="pre">dominates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label" title="src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label"><span class="pre">src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sri_dual_values</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.dominates" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">dominates</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">other</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label" title="src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label"><span class="pre">src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label</span></a></span></em>, <em class="sig-param"><span class="n"><span class="pre">use_ng</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">epsilon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1e-06</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.dominates" title="Link to this definition">#</a></dt>
 <dd><p>Check if this label dominates another label.</p>
 <p>Dominance criteria:</p>
 <ol class="arabic simple">
 <li><p>Same node</p></li>
 <li><p>Lower or equal load</p></li>
-<li><p>Better or equal reduced cost (accounting for SRI potential)</p></li>
+<li><p>Better or equal reduced cost</p></li>
 <li><p>Smaller or equal subset of visited/ng-memory nodes</p></li>
 <li><p>Subset-row inequality state compatibility</p></li>
 <li><p>Ryan-Foster conflict set compatibility</p></li>
@@ -590,20 +586,9 @@ sri_state (Tuple[int, …]): State for Subset-Row Inequalities.</p>
 <p>Args:
 other: Label to compare against.
 use_ng: Whether to use ng-route memory for dominance.
-epsilon: Numerical tolerance for comparisons.
-sri_dual_values: Dual values for active SRIs.</p>
+epsilon: Numerical tolerance for comparisons.</p>
 <p>Returns:
 True if this label dominates the other.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible">
-<span class="sig-name descname"><span class="pre">is_feasible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible" title="Link to this definition">#</a></dt>
-<dd><p>Check if the label satisfies resource constraints.</p>
-<p>Args:
-capacity: Maximum vehicle capacity.</p>
-<p>Returns:
-True if feasible, False otherwise.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -678,7 +663,6 @@ List of node indices in the full path.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.parent"><code class="docutils literal notranslate"><span class="pre">Label.parent</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.sri_state"><code class="docutils literal notranslate"><span class="pre">Label.sri_state</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.dominates"><code class="docutils literal notranslate"><span class="pre">Label.dominates()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible"><code class="docutils literal notranslate"><span class="pre">Label.is_feasible()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.reconstruct_path"><code class="docutils literal notranslate"><span class="pre">Label.reconstruct_path()</span></code></a></li>
 </ul>
 </li>

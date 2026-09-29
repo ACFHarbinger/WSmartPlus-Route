@@ -62,17 +62,6 @@
 
 ````
 
-````{py:attribute} use_exact_separation
-:canonical: src.configs.policies.bc.BCConfig.use_exact_separation
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.policies.bc.BCConfig.use_exact_separation
-```
-
-````
-
 ````{py:attribute} max_cuts_per_round
 :canonical: src.configs.policies.bc.BCConfig.max_cuts_per_round
 :type: int

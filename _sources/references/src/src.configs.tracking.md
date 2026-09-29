@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.tracking.TrackingConfig
 ```
 
-````{py:attribute} wst_tracking_uri
-:canonical: src.configs.tracking.TrackingConfig.wst_tracking_uri
-:type: str
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tracking.TrackingConfig.wst_tracking_uri
-```
-
-````
-
 ````{py:attribute} mlflow_enabled
 :canonical: src.configs.tracking.TrackingConfig.mlflow_enabled
 :type: bool
@@ -73,17 +62,6 @@
 
 ````
 
-````{py:attribute} mlflow_run_name
-:canonical: src.configs.tracking.TrackingConfig.mlflow_run_name
-:type: typing.Optional[str]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.tracking.TrackingConfig.mlflow_run_name
-```
-
-````
-
 ````{py:attribute} ray_tune_storage_path
 :canonical: src.configs.tracking.TrackingConfig.ray_tune_storage_path
 :type: str
@@ -113,16 +91,6 @@
    False
 
 ```{autodoc2-docstring} src.configs.tracking.TrackingConfig.zenml_enabled
-```
-
-````
-
-````{py:attribute} zenml_store_url
-:canonical: src.configs.tracking.TrackingConfig.zenml_store_url
-:type: str
-:value: <Multiline-String>
-
-```{autodoc2-docstring} src.configs.tracking.TrackingConfig.zenml_store_url
 ```
 
 ````
@@ -222,17 +190,6 @@
    'INFO'
 
 ```{autodoc2-docstring} src.configs.tracking.TrackingConfig.log_level
-```
-
-````
-
-````{py:attribute} real_time_log
-:canonical: src.configs.tracking.TrackingConfig.real_time_log
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.tracking.TrackingConfig.real_time_log
 ```
 
 ````
@@ -376,17 +333,6 @@
    0
 
 ```{autodoc2-docstring} src.configs.tracking.TrackingConfig.viz_every_n_epochs
-```
-
-````
-
-````{py:attribute} profiler_buffer_size
-:canonical: src.configs.tracking.TrackingConfig.profiler_buffer_size
-:type: int
-:value: >
-   200
-
-```{autodoc2-docstring} src.configs.tracking.TrackingConfig.profiler_buffer_size
 ```
 
 ````

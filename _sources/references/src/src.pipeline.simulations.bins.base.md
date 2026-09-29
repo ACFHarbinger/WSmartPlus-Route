@@ -51,6 +51,14 @@
 
 ````
 
+````{py:method} _require_external_stats_rows(horizon: int) -> None
+:canonical: src.pipeline.simulations.bins.base.Bins._require_external_stats_rows
+
+```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins._require_external_stats_rows
+```
+
+````
+
 ````{py:method} is_stochastic() -> bool
 :canonical: src.pipeline.simulations.bins.base.Bins.is_stochastic
 
@@ -91,7 +99,7 @@
 
 ````
 
-````{py:method} set_sample_waste(sample_id: int) -> None
+````{py:method} set_sample_waste(sample_id: int, horizon: typing.Optional[int] = None) -> None
 :canonical: src.pipeline.simulations.bins.base.Bins.set_sample_waste
 
 ```{autodoc2-docstring} src.pipeline.simulations.bins.base.Bins.set_sample_waste

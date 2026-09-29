@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -486,7 +484,7 @@ the root LP relaxation starts with a strong set of columns.</p></li>
 <li><p>Return all routes produced by BPC into the shared RoutePool for the
 SP-merge stage.</p></li>
 </ol>
-<p>The BPC quality scales with <code class="docutils literal notranslate"><span class="pre">alpha</span></code> via two knobs exposed in PipelineParams:
+<p>The BPC quality scales with <code class="docutils literal notranslate"><span class="pre">alpha</span></code> via two knobs exposed in ExactGuidedHeuristicParams:
 ng_size     = ng_size_min + int(alpha * (ng_size_max − ng_size_min))
 max_bb_nodes = bb_min + int(alpha * (bb_max − bb_min))</p>
 <p>References:
@@ -544,7 +542,7 @@ wastes:          {local_node_id → fill_level}.
 capacity:        Vehicle capacity Q.
 R:               Revenue per unit waste.
 C:               Cost per unit distance.
-pipeline_params: PipelineParams carrying BPC configuration knobs.
+pipeline_params: ExactGuidedHeuristicParams carrying BPC configuration knobs.
 mandatory_nodes: Set of local indices that must be visited.
 time_limit:      Wall-clock budget in seconds.
 incumbent:       Best known profit from prior stages; used to seed

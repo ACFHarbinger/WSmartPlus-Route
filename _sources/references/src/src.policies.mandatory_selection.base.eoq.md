@@ -34,7 +34,7 @@
 ```
 ````
 
-````{py:function} resolve_trigger_threshold(context: logic.src.interfaces.context.SelectionContext, fill_ratios: numpy.ndarray) -> numpy.ndarray
+````{py:function} resolve_trigger_threshold(context: logic.src.interfaces.context.SelectionContext) -> numpy.ndarray
 :canonical: src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold
 
 ```{autodoc2-docstring} src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold

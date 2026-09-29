@@ -20,9 +20,7 @@ src.utils.functions.sampling
 src.utils.functions.tensors
 src.utils.functions.lexsort
 src.utils.functions.problem
-src.utils.functions.boolmask
 src.utils.functions.path
-src.utils.functions.monkey_patch
 ```
 
 ## Package Contents

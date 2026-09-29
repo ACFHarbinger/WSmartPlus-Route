@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -527,7 +525,8 @@ tour (List[int]): Initial tour sequence.
 kwargs: Context containing:
 distance_matrix (np.ndarray | torch.Tensor): Distance lookup.
 time_limit (float): Maximum time for TSP solve per segment (default 2.0).
-seed (int): Random seed for the solver.
+seed (int): Accepted but unused: fast-tsp has no seed, and trips above 20 bins
+(time-budgeted local search) are not repeatable; up to 20 bins it is exact (Held-Karp).
 wastes (Dict[int, float]): Bin mass dictionary.
 capacity (float): Vehicle capacity.</p>
 <p>Returns:

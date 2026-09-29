@@ -28,7 +28,6 @@ src.models.core.nargnn
 src.models.core.moe
 src.models.core.n2s
 src.models.core.glop
-src.models.core.dr_alns
 ```
 
 ## Package Contents

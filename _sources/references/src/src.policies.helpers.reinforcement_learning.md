@@ -26,6 +26,4 @@ src.policies.helpers.reinforcement_learning.reward
 
 src.policies.helpers.reinforcement_learning.alns_perturbation_context
 src.policies.helpers.reinforcement_learning.alns_sarsa
-src.policies.helpers.reinforcement_learning.evolution_cmab
-src.policies.helpers.reinforcement_learning.ks_aco_qlearning
 ```

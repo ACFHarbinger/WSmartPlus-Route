@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.configs.rl.core.pomo" href="src.configs.rl.core.pomo.html" />
-    <link rel="prev" title="src.configs.rl.core.dr_alns" href="src.configs.rl.core.dr_alns.html" />
+    <link rel="prev" title="src.configs.rl.core.symnco" href="src.configs.rl.core.symnco.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -457,7 +455,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig"><code class="docutils literal notranslate"><span class="pre">GRPOConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig.group_size"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.group_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epsilon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig.epochs"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epochs</span></code></a></li>
 </ul>
@@ -484,7 +481,6 @@ document.write(`
 GRPOConfig: Configuration for GRPO algorithm.</p>
 <p>Example:
 grpo_config = GRPOConfig(
-group_size=8,
 epsilon=0.2,
 epochs=3,
 )</p>
@@ -508,15 +504,8 @@ epochs=3,
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.rl.core.grpo.</span></span><span class="sig-name descname"><span class="pre">GRPOConfig</span></span><a class="headerlink" href="#src.configs.rl.core.grpo.GRPOConfig" title="Link to this definition">#</a></dt>
 <dd><p>GRPO specific configuration.</p>
 <p>Attributes:
-group_size: Number of trajectories to group together for gradient estimation.
 epsilon: Epsilon value for the algorithm.
 epochs: Number of epochs to train.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.core.grpo.GRPOConfig.group_size">
-<span class="sig-name descname"><span class="pre">group_size</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.rl.core.grpo.GRPOConfig.group_size" title="Link to this definition">#</a></dt>
-<dd><p>8</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.rl.core.grpo.GRPOConfig.epsilon">
 <span class="sig-name descname"><span class="pre">epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.core.grpo.GRPOConfig.epsilon" title="Link to this definition">#</a></dt>
@@ -547,12 +536,12 @@ epochs: Number of epochs to train.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.configs.rl.core.dr_alns.html"
+       href="src.configs.rl.core.symnco.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.dr_alns</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.symnco</span></code></p>
       </div>
     </a>
     <a class="right-next"
@@ -584,7 +573,6 @@ epochs: Number of epochs to train.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig"><code class="docutils literal notranslate"><span class="pre">GRPOConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig.group_size"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.group_size</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epsilon</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.core.grpo.GRPOConfig.epochs"><code class="docutils literal notranslate"><span class="pre">GRPOConfig.epochs</span></code></a></li>
 </ul>

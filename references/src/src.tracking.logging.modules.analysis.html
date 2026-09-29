@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -483,6 +481,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.runs_per_policy"><code class="docutils literal notranslate"><span class="pre">runs_per_policy()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.final_simulation_summary"><code class="docutils literal notranslate"><span class="pre">final_simulation_summary()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.display_simulation_summary_table"><code class="docutils literal notranslate"><span class="pre">display_simulation_summary_table()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.daily_row_is_visible"><code class="docutils literal notranslate"><span class="pre">daily_row_is_visible()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.display_per_policy_simulation_summary"><code class="docutils literal notranslate"><span class="pre">display_per_policy_simulation_summary()</span></code></a></li>
 </ul>
 </li>
@@ -552,7 +551,10 @@ final_simulation_summary: Print a formatted per-policy summary table.</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.display_simulation_summary_table" title="src.tracking.logging.modules.analysis.display_simulation_summary_table"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_simulation_summary_table</span></code></a></p></td>
 <td><p>Display a pretty comparative table of simulation results for multiple policies.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.display_per_policy_simulation_summary" title="src.tracking.logging.modules.analysis.display_per_policy_simulation_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_per_policy_simulation_summary</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.daily_row_is_visible" title="src.tracking.logging.modules.analysis.daily_row_is_visible"><code class="xref py py-obj docutils literal notranslate"><span class="pre">daily_row_is_visible</span></code></a></p></td>
+<td><p>Return whether one day belongs in the printed daily table.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.tracking.logging.modules.analysis.display_per_policy_simulation_summary" title="src.tracking.logging.modules.analysis.display_per_policy_simulation_summary"><code class="xref py py-obj docutils literal notranslate"><span class="pre">display_per_policy_simulation_summary</span></code></a></p></td>
 <td><p>Display detailed results for a single policy simulation run.</p></td>
 </tr>
 </tbody>
@@ -874,6 +876,21 @@ lock: Optional lock for thread-safe printing. Defaults to None.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.daily_row_is_visible">
+<span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">daily_row_is_visible</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">km_val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.daily_row_is_visible" title="Link to this definition">#</a></dt>
+<dd><p>Return whether one day belongs in the printed daily table.</p>
+<p>Days that travelled are always shown. A day that did not travel is shown
+when it still has a mandatory set or a solver status other than a skip or
+a plain success, so an empty tour does not erase that evidence.</p>
+<p>Args:
+km_val: Distance recorded for the day.
+mandatory: Mandatory bin ids recorded for the day.
+solver_status: Solver status recorded for the day.</p>
+<p>Returns:
+True when the row should be printed.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.tracking.logging.modules.analysis.display_per_policy_simulation_summary">
 <span class="sig-prename descclassname"><span class="pre">src.tracking.logging.modules.analysis.</span></span><span class="sig-name descname"><span class="pre">display_per_policy_simulation_summary</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">pol_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">aggregate_metrics</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">daily_log</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">title_prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'Results</span> <span class="pre">for'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lock</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.tracking.logging.modules.analysis.display_per_policy_simulation_summary" title="Link to this definition">#</a></dt>
 <dd><p>Display detailed results for a single policy simulation run.</p>
@@ -965,6 +982,7 @@ lock: Optional lock for thread-safe printing.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.runs_per_policy"><code class="docutils literal notranslate"><span class="pre">runs_per_policy()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.final_simulation_summary"><code class="docutils literal notranslate"><span class="pre">final_simulation_summary()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.display_simulation_summary_table"><code class="docutils literal notranslate"><span class="pre">display_simulation_summary_table()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.daily_row_is_visible"><code class="docutils literal notranslate"><span class="pre">daily_row_is_visible()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.tracking.logging.modules.analysis.display_per_policy_simulation_summary"><code class="docutils literal notranslate"><span class="pre">display_per_policy_simulation_summary()</span></code></a></li>
 </ul>
 </li>

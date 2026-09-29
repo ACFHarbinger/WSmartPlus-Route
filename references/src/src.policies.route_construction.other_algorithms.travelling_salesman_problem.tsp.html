@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -455,7 +453,10 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST"><code class="docutils literal notranslate"><span class="pre">_FAST_TSP_MAX_DIST</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route"><code class="docutils literal notranslate"><span class="pre">find_route()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost"><code class="docutils literal notranslate"><span class="pre">get_route_cost()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost"><code class="docutils literal notranslate"><span class="pre">get_path_cost()</span></code></a></li>
@@ -538,8 +539,34 @@ Hoos, H. H., &amp; Stützle, T. (2005).
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_FAST_TSP_MAX_DIST</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger" title="Link to this definition">#</a></dt>
+<dd><p>‘getLogger(…)’</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">_FAST_TSP_MAX_DIST</span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST" title="Link to this definition">#</a></dt>
+<dd><p>65535</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">find_route</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">C</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">to_collect</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">2.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">engine</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'fast_tsp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route" title="Link to this definition">#</a></dt>
@@ -553,7 +580,8 @@ find_tour has no seed and its time-budgeted search is not repeatable
 (different tours across runs on the same input).
 engine: Only “fast_tsp” is available in this export.</p>
 <p>Returns:
-List[int]: Tour starting and ending at depot. Format: [0, node1, node2, …, 0]</p>
+List[int]: Tour starting and ending at depot. Format: [0, node1, node2, …, 0].
+If fast_tsp fails, the input order <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">*to_collect,</span> <span class="pre">0]</span></code> is returned unchanged.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -695,7 +723,10 @@ float: Sum of distances between consecutive nodes in the tour.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST"><code class="docutils literal notranslate"><span class="pre">_FAST_TSP_MAX_DIST</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route"><code class="docutils literal notranslate"><span class="pre">find_route()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost"><code class="docutils literal notranslate"><span class="pre">get_route_cost()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost"><code class="docutils literal notranslate"><span class="pre">get_path_cost()</span></code></a></li>

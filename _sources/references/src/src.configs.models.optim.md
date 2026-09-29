@@ -117,15 +117,4 @@
 
 ````
 
-````{py:attribute} lr_min_decay
-:canonical: src.configs.models.optim.OptimConfig.lr_min_decay
-:type: float
-:value: >
-   1e-08
-
-```{autodoc2-docstring} src.configs.models.optim.OptimConfig.lr_min_decay
-```
-
-````
-
 `````

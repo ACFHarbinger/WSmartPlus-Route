@@ -15,10 +15,6 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`CutInfo <src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo>`
-  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo
-    :summary:
-    ```
 * - {py:obj}`GlobalCutPool <src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool>`
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool
     :summary:
@@ -26,58 +22,6 @@
 ````
 
 ### API
-
-`````{py:class} CutInfo
-:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo
-```
-
-````{py:attribute} type
-:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.type
-:type: str
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.type
-```
-
-````
-
-````{py:attribute} data
-:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.data
-:type: typing.Any
-:value: >
-   None
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.data
-```
-
-````
-
-````{py:attribute} active
-:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.active
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.active
-```
-
-````
-
-````{py:attribute} violation
-:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.violation
-:type: float
-:value: >
-   0.0
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.CutInfo.violation
-```
-
-````
-
-`````
 
 `````{py:class} GlobalCutPool()
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool
@@ -95,22 +39,6 @@
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.add_cut
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.add_cut
-```
-
-````
-
-````{py:method} _inject_multistar_cut(master: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport) -> bool
-:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool._inject_multistar_cut
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool._inject_multistar_cut
-```
-
-````
-
-````{py:method} apply_to_master(master: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport) -> int
-:canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.apply_to_master
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.pool.GlobalCutPool.apply_to_master
 ```
 
 ````

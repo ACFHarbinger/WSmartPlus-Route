@@ -21,7 +21,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_logger <src.policies.route_construction.base.factory._logger>`
+  - ```{autodoc2-docstring} src.policies.route_construction.base.factory._logger
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} _logger
+:canonical: src.policies.route_construction.base.factory._logger
+:value: >
+   'getLogger(...)'
+
+```{autodoc2-docstring} src.policies.route_construction.base.factory._logger
+```
+
+````
 
 `````{py:class} RouteConstructorFactory
 :canonical: src.policies.route_construction.base.factory.RouteConstructorFactory

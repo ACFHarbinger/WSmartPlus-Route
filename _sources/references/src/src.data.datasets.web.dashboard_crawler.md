@@ -99,14 +99,14 @@
 ```
 ````
 
-````{py:function} _find_todos_os_locais_table(soup: bs4.BeautifulSoup) -> typing.Optional[bs4.BeautifulSoup]
+````{py:function} _find_todos_os_locais_table(soup: typing.Any) -> typing.Optional[typing.Any]
 :canonical: src.data.datasets.web.dashboard_crawler._find_todos_os_locais_table
 
 ```{autodoc2-docstring} src.data.datasets.web.dashboard_crawler._find_todos_os_locais_table
 ```
 ````
 
-````{py:function} _parse_table(table: bs4.BeautifulSoup) -> pandas.DataFrame
+````{py:function} _parse_table(table: typing.Any) -> pandas.DataFrame
 :canonical: src.data.datasets.web.dashboard_crawler._parse_table
 
 ```{autodoc2-docstring} src.data.datasets.web.dashboard_crawler._parse_table

@@ -22,7 +22,6 @@ src.pipeline.features.eval.evaluators
 :titlesonly:
 :maxdepth: 1
 
-src.pipeline.features.eval.drift_detection
 src.pipeline.features.eval.validation
 src.pipeline.features.eval.zenml_eval_pipeline
 src.pipeline.features.eval.evaluate

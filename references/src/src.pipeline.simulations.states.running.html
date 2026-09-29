@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -455,7 +453,9 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.pad_model_ls"><code class="docutils literal notranslate"><span class="pre">pad_model_ls()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.RunningState"><code class="docutils literal notranslate"><span class="pre">RunningState</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.RunningState.handle"><code class="docutils literal notranslate"><span class="pre">RunningState.handle()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.RunningState._run_simulation_days"><code class="docutils literal notranslate"><span class="pre">RunningState._run_simulation_days()</span></code></a></li>
@@ -504,8 +504,33 @@ RunningState: State responsible for the simulation execution loop.</p>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.states.running.pad_model_ls" title="src.pipeline.simulations.states.running.pad_model_ls"><code class="xref py py-obj docutils literal notranslate"><span class="pre">pad_model_ls</span></code></a></p></td>
+<td><p>Return at least three model slots.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.states.running.pad_model_ls">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.running.</span></span><span class="sig-name descname"><span class="pre">pad_model_ls</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_tup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span></span></span><a class="headerlink" href="#src.pipeline.simulations.states.running.pad_model_ls" title="Link to this definition">#</a></dt>
+<dd><p>Return at least three model slots.</p>
+<p>Neural-agent execution unpacks <code class="docutils literal notranslate"><span class="pre">(model_data,</span> <span class="pre">graph,</span> <span class="pre">profit_vars)</span></code> and the
+branch-and-price policy indexes the same three positions. A missing or short
+tuple must not raise <code class="docutils literal notranslate"><span class="pre">ValueError</span></code> before the policy runs.</p>
+<p>Args:
+model_tup: Models loaded for this sample, or None.</p>
+<p>Returns:
+The original tuple when it already has three or more entries, otherwise
+padded with None.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.states.running.RunningState">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.states.running.</span></span><span class="sig-name descname"><span class="pre">RunningState</span></span><a class="headerlink" href="#src.pipeline.simulations.states.running.RunningState" title="Link to this definition">#</a></dt>
@@ -624,7 +649,9 @@ dlog: Daily log dictionary.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.pad_model_ls"><code class="docutils literal notranslate"><span class="pre">pad_model_ls()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.RunningState"><code class="docutils literal notranslate"><span class="pre">RunningState</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.RunningState.handle"><code class="docutils literal notranslate"><span class="pre">RunningState.handle()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.states.running.RunningState._run_simulation_days"><code class="docutils literal notranslate"><span class="pre">RunningState._run_simulation_days()</span></code></a></li>

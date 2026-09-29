@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -458,6 +456,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding.forward()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.init_node_embeddings"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding.init_node_embeddings()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -503,7 +502,7 @@ WCVRPInitEmbedding: Initial feature encoder for WCVRP instances.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.wcvrp.</span></span><span class="sig-name descname"><span class="pre">WCVRPInitEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.wcvrp.</span></span><span class="sig-name descname"><span class="pre">WCVRPInitEmbedding</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">node_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">legacy_depot_projection</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
 <p>Initial embedding for WCVRP problems.</p>
 <p>Projects static node features (coordinates and container fill levels)
@@ -514,15 +513,25 @@ depot_embed (nn.Linear): Specialized linear projection for depot location.</p>
 <p class="rubric">Initialization</p>
 <p>Initializes WCVRPInitEmbedding.</p>
 <p>Args:
-embed_dim: Internal embedding dimensionality.</p>
+embed_dim: Internal embedding dimensionality.
+node_dim: Base dimensionality of customer node features.
+temporal_horizon: Window size for temporal features (if &gt; 0).
+legacy_depot_projection: Use the historical AttentionModel node projection for a concatenated depot.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.forward" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">temporal_features</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.forward" title="Link to this definition">#</a></dt>
 <dd><p>Encodes WCVRP instance features into initial node embeddings.</p>
 <p>Args:
-td: TensorDict containing instance metadata (‘locs’, ‘waste’, ‘depot’).</p>
+td: TensorDict or dict containing instance metadata (‘locs’, ‘waste’, ‘depot’).
+temporal_features: Whether to include temporal features if horizon &gt; 0.</p>
 <p>Returns:
 torch.Tensor: Initial node embeddings of shape (batch, num_nodes, dim).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.init_node_embeddings">
+<span class="sig-name descname"><span class="pre">init_node_embeddings</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.init_node_embeddings" title="Link to this definition">#</a></dt>
+<dd><p>Alias for forward to support legacy context embedder interface.</p>
 </dd></dl>
 
 </dd></dl>
@@ -581,6 +590,7 @@ torch.Tensor: Initial node embeddings of shape (batch, num_nodes, dim).</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.forward"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding.forward()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.subnets.embeddings.wcvrp.WCVRPInitEmbedding.init_node_embeddings"><code class="docutils literal notranslate"><span class="pre">WCVRPInitEmbedding.init_node_embeddings()</span></code></a></li>
 </ul>
 </li>
 </ul>

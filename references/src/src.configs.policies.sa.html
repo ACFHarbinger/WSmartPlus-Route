@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -460,7 +458,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.initial_temperature"><code class="docutils literal notranslate"><span class="pre">SAConfig.initial_temperature</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.cooling_rate"><code class="docutils literal notranslate"><span class="pre">SAConfig.cooling_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.min_temperature"><code class="docutils literal notranslate"><span class="pre">SAConfig.min_temperature</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.iterations_per_temp"><code class="docutils literal notranslate"><span class="pre">SAConfig.iterations_per_temp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.nb_granular"><code class="docutils literal notranslate"><span class="pre">SAConfig.nb_granular</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">SAConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.seed"><code class="docutils literal notranslate"><span class="pre">SAConfig.seed</span></code></a></li>
@@ -500,8 +497,6 @@ SAConfig: Configuration for the Simulated Annealing policy.</p>
 0.95
 &gt;&gt;&gt; config.min_temperature
 0.01
-&gt;&gt;&gt; config.iterations_per_temp
-100
 &gt;&gt;&gt; config.nb_granular
 20
 &gt;&gt;&gt; config.time_limit
@@ -537,7 +532,6 @@ to ensure an initial acceptance probability of approx 0.8 for worsening moves.
 cooling_rate (float): Geometric cooling coefficient alpha in (0, 1).
 T_{k+1} = alpha * T_k.
 min_temperature (float): Termination temperature threshold T_{min}.
-iterations_per_temp (int): Length of the Markov chain L_k at each temperature step.
 Allows the system to reach thermal equilibrium before cooling.
 nb_granular (int): Number of neighborhood search granular moves to try at each
 temperature step.
@@ -564,12 +558,6 @@ acceptance_criterion: Acceptance criterion config for local search.</p>
 <dt class="sig sig-object py" id="src.configs.policies.sa.SAConfig.min_temperature">
 <span class="sig-name descname"><span class="pre">min_temperature</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.sa.SAConfig.min_temperature" title="Link to this definition">#</a></dt>
 <dd><p>0.01</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.sa.SAConfig.iterations_per_temp">
-<span class="sig-name descname"><span class="pre">iterations_per_temp</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.sa.SAConfig.iterations_per_temp" title="Link to this definition">#</a></dt>
-<dd><p>100</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -678,7 +666,6 @@ acceptance_criterion: Acceptance criterion config for local search.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.initial_temperature"><code class="docutils literal notranslate"><span class="pre">SAConfig.initial_temperature</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.cooling_rate"><code class="docutils literal notranslate"><span class="pre">SAConfig.cooling_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.min_temperature"><code class="docutils literal notranslate"><span class="pre">SAConfig.min_temperature</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.iterations_per_temp"><code class="docutils literal notranslate"><span class="pre">SAConfig.iterations_per_temp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.nb_granular"><code class="docutils literal notranslate"><span class="pre">SAConfig.nb_granular</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">SAConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.sa.SAConfig.seed"><code class="docutils literal notranslate"><span class="pre">SAConfig.seed</span></code></a></li>

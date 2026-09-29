@@ -13,7 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.policies.helpers.operators.crossover_recombination.pattern_and_itinerary
 src.policies.helpers.operators.crossover_recombination.ordered
 src.policies.helpers.operators.crossover_recombination.random_node_inheritance
 src.policies.helpers.operators.crossover_recombination.position_independent

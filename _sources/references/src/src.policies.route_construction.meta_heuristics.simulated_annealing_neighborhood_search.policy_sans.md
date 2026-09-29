@@ -54,18 +54,18 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````
 
-````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
-:canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy._run_solver
+````{py:method} _create_subset_problem(mandatory: typing.List[int], distance_matrix: typing.Any, bins: typing.Any, **kwargs: typing.Any) -> typing.Tuple[numpy.ndarray, typing.Dict[int, float], typing.List[int], typing.List[int]]
+:canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy._create_subset_problem
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy._run_solver
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy._create_subset_problem
 ```
 
 ````
 
-````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
-:canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy.execute
+````{py:method} _run_solver(sub_dist_matrix: numpy.ndarray, sub_wastes: typing.Dict[int, float], capacity: float, revenue: float, cost_unit: float, values: typing.Dict[str, typing.Any], mandatory_nodes: typing.List[int], **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float, float]
+:canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy._run_solver
 
-```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy.execute
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.policy_sans.SANSPolicy._run_solver
 ```
 
 ````

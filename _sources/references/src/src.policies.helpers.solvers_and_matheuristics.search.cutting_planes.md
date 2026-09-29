@@ -55,24 +55,8 @@
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.RoundedMultistarCutEngine
     :summary:
     ```
-* - {py:obj}`MinCutInequalityEngine <src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine>`
-  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine
-    :summary:
-    ```
-* - {py:obj}`TriangleCliqueCutEngine <src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine>`
-  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine
-    :summary:
-    ```
 * - {py:obj}`LimitedMemoryRank1CutEngine <src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.LimitedMemoryRank1CutEngine>`
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.LimitedMemoryRank1CutEngine
-    :summary:
-    ```
-* - {py:obj}`NodeProfitBoundEngine <src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine>`
-  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine
-    :summary:
-    ```
-* - {py:obj}`PathEliminationEngine <src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine>`
-  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine
     :summary:
     ```
 ````
@@ -464,78 +448,6 @@ Bases: {py:obj}`src.policies.helpers.solvers_and_matheuristics.search.cutting_pl
 ```
 ````
 
-`````{py:class} MinCutInequalityEngine(v_model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel)
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine
-
-Bases: {py:obj}`src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.CuttingPlaneEngine`
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine.__init__
-```
-
-````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine.separate_and_add_cuts
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine.separate_and_add_cuts
-```
-
-````
-
-````{py:method} get_name() -> str
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine.get_name
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.MinCutInequalityEngine.get_name
-```
-
-````
-
-`````
-
-`````{py:class} TriangleCliqueCutEngine(v_model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, dist_matrix: typing.Optional[numpy.ndarray] = None, route_budget: float = float('inf'))
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine
-
-Bases: {py:obj}`src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.CuttingPlaneEngine`
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine.__init__
-```
-
-````{py:method} _build_conflict_pairs(capacity: float) -> typing.List[typing.Tuple[int, int]]
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine._build_conflict_pairs
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine._build_conflict_pairs
-```
-
-````
-
-````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine.separate_and_add_cuts
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine.separate_and_add_cuts
-```
-
-````
-
-````{py:method} get_name() -> str
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine.get_name
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.TriangleCliqueCutEngine.get_name
-```
-
-````
-
-`````
-
 `````{py:class} LimitedMemoryRank1CutEngine(v_model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, max_subset_size: int = 5)
 :canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.LimitedMemoryRank1CutEngine
 
@@ -562,86 +474,6 @@ Bases: {py:obj}`src.policies.helpers.solvers_and_matheuristics.search.cutting_pl
 :canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.LimitedMemoryRank1CutEngine.get_name
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.LimitedMemoryRank1CutEngine.get_name
-```
-
-````
-
-`````
-
-`````{py:class} NodeProfitBoundEngine(v_model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel)
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine
-
-Bases: {py:obj}`src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.CuttingPlaneEngine`
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine.__init__
-```
-
-````{py:method} _fractional_knapsack(items: typing.List[typing.Tuple[float, float]], capacity: float) -> float
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine._fractional_knapsack
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine._fractional_knapsack
-```
-
-````
-
-````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine.separate_and_add_cuts
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine.separate_and_add_cuts
-```
-
-````
-
-````{py:method} get_name() -> str
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine.get_name
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.NodeProfitBoundEngine.get_name
-```
-
-````
-
-`````
-
-`````{py:class} PathEliminationEngine(v_model: logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel, dist_matrix: typing.Optional[numpy.ndarray] = None, route_budget: float = float('inf'))
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine
-
-Bases: {py:obj}`src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.CuttingPlaneEngine`
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine
-```
-
-```{rubric} Initialization
-```
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine.__init__
-```
-
-````{py:method} _is_path_infeasible(path: typing.List[int], capacity: float) -> bool
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine._is_path_infeasible
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine._is_path_infeasible
-```
-
-````
-
-````{py:method} separate_and_add_cuts(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, max_cuts: int, **kwargs) -> int
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine.separate_and_add_cuts
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine.separate_and_add_cuts
-```
-
-````
-
-````{py:method} get_name() -> str
-:canonical: src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine.get_name
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.search.cutting_planes.PathEliminationEngine.get_name
 ```
 
 ````

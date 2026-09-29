@@ -117,18 +117,10 @@
 
 ````
 
-````{py:method} dominates(other: src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label, use_ng: bool = False, epsilon: float = 1e-06, sri_dual_values: typing.Optional[typing.List[float]] = None) -> bool
+````{py:method} dominates(other: src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label, use_ng: bool = False, epsilon: float = 1e-06) -> bool
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.dominates
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.dominates
-```
-
-````
-
-````{py:method} is_feasible(capacity: float) -> bool
-:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.labels.Label.is_feasible
 ```
 
 ````

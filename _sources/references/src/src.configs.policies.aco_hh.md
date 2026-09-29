@@ -174,9 +174,9 @@
 
 ````{py:attribute} sequence_length
 :canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.sequence_length
-:type: int
+:type: typing.Optional[int]
 :value: >
-   5
+   None
 
 ```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.sequence_length
 ```
@@ -218,11 +218,22 @@
 
 ````{py:attribute} operators
 :canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.operators
-:type: typing.List[str]
+:type: typing.Optional[typing.List[str]]
 :value: >
-   'field(...)'
+   None
 
 ```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.operators
+```
+
+````
+
+````{py:attribute} time_weighted_visibility
+:canonical: src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_weighted_visibility
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_weighted_visibility
 ```
 
 ````

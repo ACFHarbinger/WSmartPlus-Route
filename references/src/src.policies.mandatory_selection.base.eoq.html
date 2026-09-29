@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -526,13 +524,15 @@ np.ndarray: Array of per-bin EOQ thresholds.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold">
-<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.eoq.</span></span><span class="sig-name descname"><span class="pre">resolve_trigger_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_ratios</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.policies.mandatory_selection.base.eoq.</span></span><span class="sig-name descname"><span class="pre">resolve_trigger_threshold</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.interfaces.context.SelectionContext</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.mandatory_selection.base.eoq.resolve_trigger_threshold" title="Link to this definition">#</a></dt>
 <dd><p>Return a boolean mask of bins whose fill meets the effective trigger.</p>
 <p>If <code class="docutils literal notranslate"><span class="pre">context.use_eoq_threshold</span></code> is True, the per-bin EOQ threshold is
-used; otherwise a uniform <code class="docutils literal notranslate"><span class="pre">context.threshold</span></code> is applied.</p>
+used; otherwise a uniform <code class="docutils literal notranslate"><span class="pre">context.threshold</span></code> is applied. The comparison
+is <code class="docutils literal notranslate"><span class="pre">fill</span> <span class="pre">&gt;=</span> <span class="pre">threshold</span></code> in absolute units (percent of capacity, like
+<code class="docutils literal notranslate"><span class="pre">context.current_fill</span></code> and the EOQ thresholds); a threshold of 70 is the
+ratio 0.70.</p>
 <p>Args:
-context (SelectionContext): The selection context.
-fill_ratios (np.ndarray): Normalized fill ratios (unused here but often passed).</p>
+context (SelectionContext): The selection context.</p>
 <p>Returns:
 np.ndarray: Boolean mask where True indicates a bin meets the trigger.</p>
 </dd></dl>

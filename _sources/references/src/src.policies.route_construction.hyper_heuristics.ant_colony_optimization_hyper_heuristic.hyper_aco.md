@@ -21,7 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_elitism_sync_count <src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco._elitism_sync_count>`
+  - ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco._elitism_sync_count
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:function} _elitism_sync_count(n_ants: int, elitism_ratio: float) -> int
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco._elitism_sync_count
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco._elitism_sync_count
+```
+````
 
 `````{py:class} HyperHeuristicACO(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Optional[src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams] = None, initial_solution: typing.Optional[typing.List[typing.List[int]]] = None, mandatory_nodes: typing.Optional[typing.List[int]] = None)
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO
@@ -111,6 +130,30 @@
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._calculate_routing_cost
+```
+
+````
+
+````{py:method} _deposit_pheromones(ant_results: typing.List[typing.Tuple[typing.List[typing.List[int]], float, float, typing.List[str], int, int]]) -> None
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._deposit_pheromones
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._deposit_pheromones
+```
+
+````
+
+````{py:method} _update_incumbent(ant_results: typing.List[typing.Tuple[typing.List[typing.List[int]], float, float, typing.List[str], int, int]], best_routes: typing.List[typing.List[int]], best_objective: float) -> typing.Tuple[typing.List[typing.List[int]], float, bool]
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._update_incumbent
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._update_incumbent
+```
+
+````
+
+````{py:method} _is_feasible(routes: typing.List[typing.List[int]]) -> bool
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._is_feasible
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.hyper_aco.HyperHeuristicACO._is_feasible
 ```
 
 ````

@@ -49,7 +49,43 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger>`
+  - ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger
+    :summary:
+    ```
+* - {py:obj}`_FAST_TSP_MAX_DIST <src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST>`
+  - ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} logger
+:canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger
+:value: >
+   'getLogger(...)'
+
+```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger
+```
+
+````
+
+````{py:data} _FAST_TSP_MAX_DIST
+:canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST
+:value: >
+   65535
+
+```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST
+```
+
+````
 
 ````{py:function} find_route(C, to_collect, time_limit=2.0, seed=42, engine='fast_tsp')
 :canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route

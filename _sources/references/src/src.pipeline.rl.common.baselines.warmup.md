@@ -37,6 +37,14 @@ Bases: {py:obj}`src.pipeline.rl.common.baselines.base.Baseline`
 ```{autodoc2-docstring} src.pipeline.rl.common.baselines.warmup.WarmupBaseline.__init__
 ```
 
+````{py:method} configure_comparison(env: typing.Any, sample_size: int, seed: int = 0) -> None
+:canonical: src.pipeline.rl.common.baselines.warmup.WarmupBaseline.configure_comparison
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.warmup.WarmupBaseline.configure_comparison
+```
+
+````
+
 ````{py:method} eval(td: tensordict.TensorDict, reward: torch.Tensor, env: typing.Optional[typing.Any] = None) -> torch.Tensor
 :canonical: src.pipeline.rl.common.baselines.warmup.WarmupBaseline.eval
 

@@ -117,28 +117,6 @@
 
 ````
 
-````{py:attribute} enable_scaler
-:canonical: src.configs.tasks.train.TrainConfig.enable_scaler
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.enable_scaler
-```
-
-````
-
-````{py:attribute} checkpoint_epochs
-:canonical: src.configs.tasks.train.TrainConfig.checkpoint_epochs
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.checkpoint_epochs
-```
-
-````
-
 ````{py:attribute} shrink_size
 :canonical: src.configs.tasks.train.TrainConfig.shrink_size
 :type: typing.Optional[int]
@@ -146,61 +124,6 @@
    None
 
 ```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.shrink_size
-```
-
-````
-
-````{py:attribute} route_improvement_epochs
-:canonical: src.configs.tasks.train.TrainConfig.route_improvement_epochs
-:type: int
-:value: >
-   0
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.route_improvement_epochs
-```
-
-````
-
-````{py:attribute} lr_route_improvement
-:canonical: src.configs.tasks.train.TrainConfig.lr_route_improvement
-:type: float
-:value: >
-   0.001
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.lr_route_improvement
-```
-
-````
-
-````{py:attribute} efficiency_weight
-:canonical: src.configs.tasks.train.TrainConfig.efficiency_weight
-:type: float
-:value: >
-   0.8
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.efficiency_weight
-```
-
-````
-
-````{py:attribute} overflow_weight
-:canonical: src.configs.tasks.train.TrainConfig.overflow_weight
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.overflow_weight
-```
-
-````
-
-````{py:attribute} eval_only
-:canonical: src.configs.tasks.train.TrainConfig.eval_only
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.tasks.train.TrainConfig.eval_only
 ```
 
 ````

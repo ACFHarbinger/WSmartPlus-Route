@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -468,8 +466,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSConfig.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSConfig.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.initial_penalty_capacity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.initial_penalty_capacity</span></code></a></li>
@@ -543,8 +539,6 @@ n_iterations_no_improvement: Max iterations without improvement.
 mutation_rate: Probability of applying local search to offspring.
 repair_probability: Probability of repairing infeasible offspring.
 crossover_rate: Probability of applying crossover.
-min_diversity: Minimum diversity threshold.
-diversity_change_rate: Rate at which alpha diversity changes.
 local_search_iterations: Number of local search iterations.
 max_vehicles: Maximum number of vehicles (0 for unlimited).
 initial_penalty_capacity: Initial penalty for capacity violations.
@@ -614,18 +608,6 @@ penalty_decrease: Multiplier for decreasing penalty.</p>
 <dt class="sig sig-object py" id="src.configs.rl.policies.hgs.HGSConfig.crossover_rate">
 <span class="sig-name descname"><span class="pre">crossover_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate" title="Link to this definition">#</a></dt>
 <dd><p>1.0</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.policies.hgs.HGSConfig.min_diversity">
-<span class="sig-name descname"><span class="pre">min_diversity</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs.HGSConfig.min_diversity" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate">
-<span class="sig-name descname"><span class="pre">diversity_change_rate</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate" title="Link to this definition">#</a></dt>
-<dd><p>0.05</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -724,8 +706,6 @@ penalty_decrease: Multiplier for decreasing penalty.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.mutation_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.mutation_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.repair_probability"><code class="docutils literal notranslate"><span class="pre">HGSConfig.repair_probability</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.crossover_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.crossover_rate</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.min_diversity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.min_diversity</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate"><code class="docutils literal notranslate"><span class="pre">HGSConfig.diversity_change_rate</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HGSConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.max_vehicles"><code class="docutils literal notranslate"><span class="pre">HGSConfig.max_vehicles</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.policies.hgs.HGSConfig.initial_penalty_capacity"><code class="docutils literal notranslate"><span class="pre">HGSConfig.initial_penalty_capacity</span></code></a></li>

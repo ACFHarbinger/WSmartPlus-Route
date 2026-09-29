@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -465,9 +463,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.delta"><code class="docutils literal notranslate"><span class="pre">VRPPModel.delta()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.edges_in_set"><code class="docutils literal notranslate"><span class="pre">VRPPModel.edges_in_set()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.total_demand"><code class="docutils literal notranslate"><span class="pre">VRPPModel.total_demand()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.validate_tour"><code class="docutils literal notranslate"><span class="pre">VRPPModel.validate_tour()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_profit"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_profit()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_cost()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -651,16 +647,6 @@ Sum of wastes for customer nodes in the set.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.validate_tour">
-<span class="sig-name descname"><span class="pre">validate_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">bool</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.validate_tour" title="Link to this definition">#</a></dt>
-<dd><p>Validate that a tour satisfies VRPP constraints.</p>
-<p>Args:
-tour: Sequence of node indices representing the tour.</p>
-<p>Returns:
-Tuple of (is_valid, error_message).</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_profit">
 <span class="sig-name descname"><span class="pre">compute_tour_profit</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_profit" title="Link to this definition">#</a></dt>
 <dd><p>Compute the total profit of a tour.</p>
@@ -669,16 +655,6 @@ Tuple of (is_valid, error_message).</p>
 tour: Sequence of node IDs.</p>
 <p>Returns:
 Calculated net profit.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost">
-<span class="sig-name descname"><span class="pre">compute_tour_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">float</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost" title="Link to this definition">#</a></dt>
-<dd><p>Compute the total travel distance/cost of a tour.</p>
-<p>Args:
-tour: Sequence of node IDs.</p>
-<p>Returns:
-Total distance-based travel cost.</p>
 </dd></dl>
 
 </dd></dl>
@@ -744,9 +720,7 @@ Total distance-based travel cost.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.delta"><code class="docutils literal notranslate"><span class="pre">VRPPModel.delta()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.edges_in_set"><code class="docutils literal notranslate"><span class="pre">VRPPModel.edges_in_set()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.total_demand"><code class="docutils literal notranslate"><span class="pre">VRPPModel.total_demand()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.validate_tour"><code class="docutils literal notranslate"><span class="pre">VRPPModel.validate_tour()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_profit"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_profit()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost"><code class="docutils literal notranslate"><span class="pre">VRPPModel.compute_tour_cost()</span></code></a></li>
 </ul>
 </li>
 </ul>

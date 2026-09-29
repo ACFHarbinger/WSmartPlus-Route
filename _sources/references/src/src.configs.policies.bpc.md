@@ -139,17 +139,6 @@
 
 ````
 
-````{py:attribute} max_cut_iterations
-:canonical: src.configs.policies.bpc.BPCConfig.max_cut_iterations
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.max_cut_iterations
-```
-
-````
-
 ````{py:attribute} max_cuts_per_iteration
 :canonical: src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration
 :type: int
@@ -260,17 +249,6 @@
 
 ````
 
-````{py:attribute} use_spatial_partitioning
-:canonical: src.configs.policies.bpc.BPCConfig.use_spatial_partitioning
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.use_spatial_partitioning
-```
-
-````
-
 ````{py:attribute} enable_strong_branching_heuristic
 :canonical: src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic
 :type: bool
@@ -289,17 +267,6 @@
    True
 
 ```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_column_pool_deduplication
-```
-
-````
-
-````{py:attribute} enable_hybrid_search
-:canonical: src.configs.policies.bpc.BPCConfig.enable_hybrid_search
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.configs.policies.bpc.BPCConfig.enable_hybrid_search
 ```
 
 ````

@@ -14,7 +14,6 @@
 :maxdepth: 1
 
 src.policies.route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.maco
-src.policies.route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.alns
 src.policies.route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.pheromones
 src.policies.route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.solver
 src.policies.route_construction.meta_heuristics.hybrid_memetic_large_neighborhood_search.params

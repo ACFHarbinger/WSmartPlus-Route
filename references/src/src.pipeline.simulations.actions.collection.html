@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -455,7 +453,12 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.trip_loads"><code class="docutils literal notranslate"><span class="pre">trip_loads()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.capacity_report"><code class="docutils literal notranslate"><span class="pre">capacity_report()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.CollectAction"><code class="docutils literal notranslate"><span class="pre">CollectAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.CollectAction.execute"><code class="docutils literal notranslate"><span class="pre">CollectAction.execute()</span></code></a></li>
 </ul>
@@ -496,8 +499,65 @@ CollectAction: Command to execute waste collection.</p>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.collection.trip_loads" title="src.pipeline.simulations.actions.collection.trip_loads"><code class="xref py py-obj docutils literal notranslate"><span class="pre">trip_loads</span></code></a></p></td>
+<td><p>Load of every depot-to-depot trip in <code class="docutils literal notranslate"><span class="pre">tour</span></code>, in percent-of-one-bin units.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.collection.capacity_report" title="src.pipeline.simulations.actions.collection.capacity_report"><code class="xref py py-obj docutils literal notranslate"><span class="pre">capacity_report</span></code></a></p></td>
+<td><p>Per-trip loads (percent and kg) of the true fill, and how many trips exceed the vehicle capacity.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.collection.logger" title="src.pipeline.simulations.actions.collection.logger"><code class="xref py py-obj docutils literal notranslate"><span class="pre">logger</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.collection.logger">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.collection.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.collection.logger" title="Link to this definition">#</a></dt>
+<dd><p>‘getLogger(…)’</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.collection.trip_loads">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.collection.</span></span><span class="sig-name descname"><span class="pre">trip_loads</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">fill_pct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.collection.trip_loads" title="Link to this definition">#</a></dt>
+<dd><p>Load of every depot-to-depot trip in <code class="docutils literal notranslate"><span class="pre">tour</span></code>, in percent-of-one-bin units.</p>
+<p>This is the unit the route constructors plan in: <code class="docutils literal notranslate"><span class="pre">load_area_and_waste_type_params</span></code>
+returns the vehicle capacity in percent of one bin too (3500 kg at Rio Maior plastic
+is 7368.4 %), so each value compares directly with it.</p>
+<p>Args:
+tour: Depot-framed tour <code class="docutils literal notranslate"><span class="pre">[0,</span> <span class="pre">...,</span> <span class="pre">0,</span> <span class="pre">...,</span> <span class="pre">0]</span></code>; internal zeros separate trips.
+fill_pct: Fill level of every bin in percent, 0-indexed by bin (node - 1).</p>
+<p>Returns:
+List[float]: One load per non-empty trip, in order.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.collection.capacity_report">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.collection.</span></span><span class="sig-name descname"><span class="pre">capacity_report</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity_pct</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.collection.capacity_report" title="Link to this definition">#</a></dt>
+<dd><p>Per-trip loads (percent and kg) of the true fill, and how many trips exceed the vehicle capacity.</p>
+<p>Args:
+tour: Depot-framed tour.
+bins: Bins object (<code class="docutils literal notranslate"><span class="pre">real_c</span></code> in percent, <code class="docutils literal notranslate"><span class="pre">volume</span></code>, <code class="docutils literal notranslate"><span class="pre">density</span></code>).
+capacity_pct: Vehicle capacity in percent-of-one-bin units.</p>
+<p>Returns:
+Tuple of (loads in percent, loads in kg, number of over-capacity trips).</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.collection.CollectAction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.collection.</span></span><span class="sig-name descname"><span class="pre">CollectAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.collection.CollectAction" title="Link to this definition">#</a></dt>
@@ -566,7 +626,12 @@ context: Shared dictionary containing simulation state.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.trip_loads"><code class="docutils literal notranslate"><span class="pre">trip_loads()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.capacity_report"><code class="docutils literal notranslate"><span class="pre">capacity_report()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.CollectAction"><code class="docutils literal notranslate"><span class="pre">CollectAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.collection.CollectAction.execute"><code class="docutils literal notranslate"><span class="pre">CollectAction.execute()</span></code></a></li>
 </ul>

@@ -26,7 +26,6 @@ src.envs.routing
 :maxdepth: 1
 
 src.envs.temporal
-src.envs.dr_alns
 src.envs.problems
 src.envs.tsp_kopt
 ```

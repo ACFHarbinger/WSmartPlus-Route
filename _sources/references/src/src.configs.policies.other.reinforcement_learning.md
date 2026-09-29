@@ -23,14 +23,6 @@
   - ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.TDLearningConfig
     :summary:
     ```
-* - {py:obj}`LinUCBConfig <src.configs.policies.other.reinforcement_learning.LinUCBConfig>`
-  - ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.LinUCBConfig
-    :summary:
-    ```
-* - {py:obj}`EvolutionaryCMABConfig <src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig>`
-  - ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig
-    :summary:
-    ```
 * - {py:obj}`RewardShapingConfig <src.configs.policies.other.reinforcement_learning.RewardShapingConfig>`
   - ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.RewardShapingConfig
     :summary:
@@ -41,10 +33,6 @@
     ```
 * - {py:obj}`ContextFeatureExtractorConfig <src.configs.policies.other.reinforcement_learning.ContextFeatureExtractorConfig>`
   - ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.ContextFeatureExtractorConfig
-    :summary:
-    ```
-* - {py:obj}`GPCMABConfig <src.configs.policies.other.reinforcement_learning.GPCMABConfig>`
-  - ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig
     :summary:
     ```
 * - {py:obj}`RLConfig <src.configs.policies.other.reinforcement_learning.RLConfig>`
@@ -313,143 +301,6 @@
 
 `````
 
-`````{py:class} LinUCBConfig
-:canonical: src.configs.policies.other.reinforcement_learning.LinUCBConfig
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.LinUCBConfig
-```
-
-````{py:attribute} alpha
-:canonical: src.configs.policies.other.reinforcement_learning.LinUCBConfig.alpha
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.LinUCBConfig.alpha
-```
-
-````
-
-````{py:attribute} feature_dim
-:canonical: src.configs.policies.other.reinforcement_learning.LinUCBConfig.feature_dim
-:type: int
-:value: >
-   8
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.LinUCBConfig.feature_dim
-```
-
-````
-
-````{py:attribute} lambda_prior
-:canonical: src.configs.policies.other.reinforcement_learning.LinUCBConfig.lambda_prior
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.LinUCBConfig.lambda_prior
-```
-
-````
-
-````{py:attribute} noise_variance
-:canonical: src.configs.policies.other.reinforcement_learning.LinUCBConfig.noise_variance
-:type: float
-:value: >
-   0.1
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.LinUCBConfig.noise_variance
-```
-
-````
-
-````{py:attribute} history_size
-:canonical: src.configs.policies.other.reinforcement_learning.LinUCBConfig.history_size
-:type: int
-:value: >
-   50
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.LinUCBConfig.history_size
-```
-
-````
-
-`````
-
-`````{py:class} EvolutionaryCMABConfig
-:canonical: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig
-```
-
-````{py:attribute} quality_weight
-:canonical: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.quality_weight
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.quality_weight
-```
-
-````
-
-````{py:attribute} improvement_weight
-:canonical: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.improvement_weight
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.improvement_weight
-```
-
-````
-
-````{py:attribute} diversity_weight
-:canonical: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.diversity_weight
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.diversity_weight
-```
-
-````
-
-````{py:attribute} novelty_weight
-:canonical: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.novelty_weight
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.novelty_weight
-```
-
-````
-
-````{py:attribute} reward_threshold
-:canonical: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.reward_threshold
-:type: float
-:value: >
-   1e-06
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.reward_threshold
-```
-
-````
-
-````{py:attribute} default_reward
-:canonical: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.default_reward
-:type: float
-:value: >
-   5.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig.default_reward
-```
-
-````
-
-`````
-
 `````{py:class} RewardShapingConfig
 :canonical: src.configs.policies.other.reinforcement_learning.RewardShapingConfig
 
@@ -540,17 +391,6 @@
    1e-06
 
 ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.RewardShapingConfig.improvement_threshold
-```
-
-````
-
-````{py:attribute} rewards_size
-:canonical: src.configs.policies.other.reinforcement_learning.RewardShapingConfig.rewards_size
-:type: int
-:value: >
-   20
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.RewardShapingConfig.rewards_size
 ```
 
 ````
@@ -648,17 +488,6 @@
 
 ````
 
-````{py:attribute} selection_threshold
-:canonical: src.configs.policies.other.reinforcement_learning.ContextFeatureExtractorConfig.selection_threshold
-:type: float
-:value: >
-   1e-09
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.ContextFeatureExtractorConfig.selection_threshold
-```
-
-````
-
 ````{py:attribute} lambda_prior
 :canonical: src.configs.policies.other.reinforcement_learning.ContextFeatureExtractorConfig.lambda_prior
 :type: float
@@ -727,80 +556,6 @@
 
 `````
 
-`````{py:class} GPCMABConfig
-:canonical: src.configs.policies.other.reinforcement_learning.GPCMABConfig
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig
-```
-
-````{py:attribute} beta
-:canonical: src.configs.policies.other.reinforcement_learning.GPCMABConfig.beta
-:type: float
-:value: >
-   2.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig.beta
-```
-
-````
-
-````{py:attribute} length_scale
-:canonical: src.configs.policies.other.reinforcement_learning.GPCMABConfig.length_scale
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig.length_scale
-```
-
-````
-
-````{py:attribute} signal_variance
-:canonical: src.configs.policies.other.reinforcement_learning.GPCMABConfig.signal_variance
-:type: float
-:value: >
-   1.0
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig.signal_variance
-```
-
-````
-
-````{py:attribute} noise_variance
-:canonical: src.configs.policies.other.reinforcement_learning.GPCMABConfig.noise_variance
-:type: float
-:value: >
-   0.1
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig.noise_variance
-```
-
-````
-
-````{py:attribute} max_history
-:canonical: src.configs.policies.other.reinforcement_learning.GPCMABConfig.max_history
-:type: int
-:value: >
-   500
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig.max_history
-```
-
-````
-
-````{py:attribute} super_arm_size
-:canonical: src.configs.policies.other.reinforcement_learning.GPCMABConfig.super_arm_size
-:type: int
-:value: >
-   1
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.GPCMABConfig.super_arm_size
-```
-
-````
-
-`````
-
 `````{py:class} RLConfig
 :canonical: src.configs.policies.other.reinforcement_learning.RLConfig
 
@@ -847,39 +602,6 @@
    None
 
 ```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.RLConfig.sarsa
-```
-
-````
-
-````{py:attribute} contextual
-:canonical: src.configs.policies.other.reinforcement_learning.RLConfig.contextual
-:type: src.configs.policies.other.reinforcement_learning.LinUCBConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.RLConfig.contextual
-```
-
-````
-
-````{py:attribute} gp_cmab
-:canonical: src.configs.policies.other.reinforcement_learning.RLConfig.gp_cmab
-:type: src.configs.policies.other.reinforcement_learning.GPCMABConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.RLConfig.gp_cmab
-```
-
-````
-
-````{py:attribute} evolution_cmab
-:canonical: src.configs.policies.other.reinforcement_learning.RLConfig.evolution_cmab
-:type: src.configs.policies.other.reinforcement_learning.EvolutionaryCMABConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.other.reinforcement_learning.RLConfig.evolution_cmab
 ```
 
 ````

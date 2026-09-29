@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PSOMAParticle(clients: typing.List[int], params: logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams, split_solver: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.LinearSplit)
+`````{py:class} PSOMAParticle(clients: typing.List[int], params: logic.src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.params.PSOMAParams, split_solver: logic.src.policies.route_construction.meta_heuristics.hybrid_genetic_search.split.LinearSplit, rng: typing.Optional[numpy.random.Generator] = None)
 :canonical: src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.particle_swarm_optimization_memetic_algorithm.particle.PSOMAParticle

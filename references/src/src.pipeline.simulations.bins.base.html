@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -459,6 +457,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins"><code class="docutils literal notranslate"><span class="pre">Bins</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.__get_stdev"><code class="docutils literal notranslate"><span class="pre">Bins.__get_stdev()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.set_statistics"><code class="docutils literal notranslate"><span class="pre">Bins.set_statistics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins._require_external_stats_rows"><code class="docutils literal notranslate"><span class="pre">Bins._require_external_stats_rows()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.is_stochastic"><code class="docutils literal notranslate"><span class="pre">Bins.is_stochastic()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.get_fill_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_fill_history()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.get_level_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_level_history()</span></code></a></li>
@@ -575,6 +574,16 @@ stats_file: Path to the statistics CSV file.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins._require_external_stats_rows">
+<span class="sig-name descname"><span class="pre">_require_external_stats_rows</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins._require_external_stats_rows" title="Link to this definition">#</a></dt>
+<dd><p>Reject a file-backed stats-file sample that cannot cover the horizon.</p>
+<p>Args:
+horizon: Number of simulated days.</p>
+<p>Raises:
+ValueError: The sample has fewer than <code class="docutils literal notranslate"><span class="pre">horizon</span> <span class="pre">+</span> <span class="pre">1</span></code> rows.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.is_stochastic">
 <span class="sig-name descname"><span class="pre">is_stochastic</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.is_stochastic" title="Link to this definition">#</a></dt>
 <dd><p>Checks if using stochastic filling.</p>
@@ -622,10 +631,14 @@ indices: Optional list or array of bin indices.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.bins.base.Bins.set_sample_waste">
-<span class="sig-name descname"><span class="pre">set_sample_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.set_sample_waste" title="Link to this definition">#</a></dt>
+<span class="sig-name descname"><span class="pre">set_sample_waste</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">horizon</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.bins.base.Bins.set_sample_waste" title="Link to this definition">#</a></dt>
 <dd><p>Sets current waste profile from dataset.</p>
 <p>Args:
-sample_id: Index of the waste sample to load.</p>
+sample_id: Index of the waste sample to load.
+horizon: Simulation length in days. When a stats file is in use and
+the sample comes from a file, the sample must hold <code class="docutils literal notranslate"><span class="pre">horizon</span> <span class="pre">+</span> <span class="pre">1</span></code>
+rows (row 0 is the opening level). Generated samples are sized
+by the caller and are not checked here.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -754,6 +767,7 @@ cf: Confidence factor for frequency calculation.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins"><code class="docutils literal notranslate"><span class="pre">Bins</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.__get_stdev"><code class="docutils literal notranslate"><span class="pre">Bins.__get_stdev()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.set_statistics"><code class="docutils literal notranslate"><span class="pre">Bins.set_statistics()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins._require_external_stats_rows"><code class="docutils literal notranslate"><span class="pre">Bins._require_external_stats_rows()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.is_stochastic"><code class="docutils literal notranslate"><span class="pre">Bins.is_stochastic()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.get_fill_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_fill_history()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.bins.base.Bins.get_level_history"><code class="docutils literal notranslate"><span class="pre">Bins.get_level_history()</span></code></a></li>

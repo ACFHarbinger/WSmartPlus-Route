@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -460,7 +458,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._FARKAS_TOL"><code class="docutils literal notranslate"><span class="pre">_FARKAS_TOL</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._select_nodes_knapsack"><code class="docutils literal notranslate"><span class="pre">_select_nodes_knapsack()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.run_bpc"><code class="docutils literal notranslate"><span class="pre">run_bpc()</span></code></a></li>
 </ul>
 </li>
@@ -497,10 +494,7 @@ heuristics and the Set Partitioning (SP) master formulation.</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._select_nodes_knapsack" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._select_nodes_knapsack"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_select_nodes_knapsack</span></code></a></p></td>
-<td><p>Select profitable optional nodes via MIP knapsack before BPC routing.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.run_bpc" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.run_bpc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_bpc</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.run_bpc" title="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.run_bpc"><code class="xref py py-obj docutils literal notranslate"><span class="pre">run_bpc</span></code></a></p></td>
 <td><p>Solve Waste-Collecting CVRP using exact Branch-and-Price-and-Cut.</p></td>
 </tr>
 </tbody>
@@ -533,32 +527,6 @@ heuristics and the Set Partitioning (SP) master formulation.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._FARKAS_TOL">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_FARKAS_TOL</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._FARKAS_TOL" title="Link to this definition">#</a></dt>
 <dd><p>1e-06</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._select_nodes_knapsack">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.</span></span><span class="sig-name descname"><span class="pre">_select_nodes_knapsack</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dist_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">wastes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">R</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">C</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">vehicle_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">target_reduction</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0.6</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_limit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">10.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._select_nodes_knapsack" title="Link to this definition">#</a></dt>
-<dd><p>Select profitable optional nodes via MIP knapsack before BPC routing.</p>
-<p>Solves a relaxed node-selection problem: ignore routing structure,
-approximate the routing cost of each node as its average distance to
-its nearest neighbors × C, then solve a knapsack to pick the subset
-of optional nodes where marginal revenue exceeds marginal routing cost.</p>
-<p>This reduces the effective instance size from n to |selected| before
-the RCSPP pricing subproblem is ever called.</p>
-<p>Args:
-dist_matrix: Full (n+1)×(n+1) distance matrix.
-wastes: Node waste amounts.
-capacity: Vehicle capacity.
-R: Revenue per unit waste.
-C: Cost per unit distance.
-mandatory: Nodes that must be included regardless.
-n_nodes: Number of customer nodes.
-vehicle_limit: Optional vehicle limit.
-target_reduction: Target reduction in number of optional nodes.
-time_limit: MIP time limit in seconds.
-env: Optional Gurobi environment.</p>
-<p>Returns:
-Set of selected node indices (mandatory ∪ profitable optional).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -647,7 +615,8 @@ Implementation: cutting_planes.py; dual integration: rcspp_dp.py:
 <code class="docutils literal notranslate"><span class="pre">_extend_label</span></code>.</p>
 <p>§4.2 – LCI Dual Integration in Pricing
 Per-node α lifting coefficients are archived in the GlobalCutPool and
-re-injected at descendant B&amp;B nodes via <code class="docutils literal notranslate"><span class="pre">apply_to_master</span></code>.  The
+persist across B&amp;B nodes through the single shared master object, which is
+never rebuilt mid-search.  The
 composite dual dict emitted by <code class="docutils literal notranslate"><span class="pre">get_reduced_cost_coefficients</span></code> includes
 <code class="docutils literal notranslate"><span class="pre">lci_duals</span></code> and <code class="docutils literal notranslate"><span class="pre">lci_node_alphas</span></code> keys, which flow through to the
 label-extension step.
@@ -686,9 +655,8 @@ Implementation: <code class="docutils literal notranslate"><span class="pre">_co
 - Ryan-Foster (1981) node-pair branching for the SPP.
 - Rounded Capacity Cuts (RCC, Lysgaard et al. 2004).
 - Subset-Row Inequalities (3-SRI, Jepsen et al. 2008).
-- Dual smoothing (Wentges 1997) for faster CG convergence.
-- GlobalCutPool: centralised cut registry ensuring parent cuts are
-re-injected at all descendant B&amp;B nodes.</p>
+- GlobalCutPool: centralised cut registry; cuts persist across nodes
+through the single shared master object, which is never rebuilt mid-search.</p>
 <p>Attributes:
 logger (logging.Logger): Module-level logger.
 _FARKAS_TOL (float): Numerical tolerance for Farkas pricing.</p>
@@ -769,7 +737,6 @@ for 0-1 integer programs.”</p></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._FARKAS_TOL"><code class="docutils literal notranslate"><span class="pre">_FARKAS_TOL</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine._select_nodes_knapsack"><code class="docutils literal notranslate"><span class="pre">_select_nodes_knapsack()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.bpc_engine.run_bpc"><code class="docutils literal notranslate"><span class="pre">run_bpc()</span></code></a></li>
 </ul>
 </li>

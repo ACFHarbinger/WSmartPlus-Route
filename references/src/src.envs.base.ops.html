@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -455,7 +453,9 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.as_batch_nodes"><code class="docutils literal notranslate"><span class="pre">as_batch_nodes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.OpsMixin"><code class="docutils literal notranslate"><span class="pre">OpsMixin</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.OpsMixin._make_spec"><code class="docutils literal notranslate"><span class="pre">OpsMixin._make_spec()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.OpsMixin.step"><code class="docutils literal notranslate"><span class="pre">OpsMixin.step()</span></code></a></li>
@@ -514,8 +514,32 @@ torch.Size([32])</p>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.envs.base.ops.as_batch_nodes" title="src.envs.base.ops.as_batch_nodes"><code class="xref py py-obj docutils literal notranslate"><span class="pre">as_batch_nodes</span></code></a></p></td>
+<td><p>Squeeze decoder node indices to shape <code class="docutils literal notranslate"><span class="pre">[B]</span></code> for gather/scatter.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.envs.base.ops.as_batch_nodes">
+<span class="sig-prename descclassname"><span class="pre">src.envs.base.ops.</span></span><span class="sig-name descname"><span class="pre">as_batch_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">index</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.base.ops.as_batch_nodes" title="Link to this definition">#</a></dt>
+<dd><p>Squeeze decoder node indices to shape <code class="docutils literal notranslate"><span class="pre">[B]</span></code> for gather/scatter.</p>
+<p>Decoders emit <code class="docutils literal notranslate"><span class="pre">[B]</span></code> or <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">1]</span></code>. Gathering a <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">N]</span></code> feature with a
+<code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">1,</span> <span class="pre">1]</span></code> index (the result of unsqueezing <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">1]</span></code> again) is a
+silent shape error.</p>
+<p>Args:
+index: Node-index tensor of shape <code class="docutils literal notranslate"><span class="pre">[]</span></code>, <code class="docutils literal notranslate"><span class="pre">[B]</span></code>, or <code class="docutils literal notranslate"><span class="pre">[B,</span> <span class="pre">1]</span></code>.</p>
+<p>Returns:
+Long tensor of shape <code class="docutils literal notranslate"><span class="pre">[B]</span></code>.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.envs.base.ops.OpsMixin">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.envs.base.ops.</span></span><span class="sig-name descname"><span class="pre">OpsMixin</span></span><a class="headerlink" href="#src.envs.base.ops.OpsMixin" title="Link to this definition">#</a></dt>
@@ -727,7 +751,9 @@ seed: Integer seed for random number generator.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.as_batch_nodes"><code class="docutils literal notranslate"><span class="pre">as_batch_nodes()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.OpsMixin"><code class="docutils literal notranslate"><span class="pre">OpsMixin</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.OpsMixin._make_spec"><code class="docutils literal notranslate"><span class="pre">OpsMixin._make_spec()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.base.ops.OpsMixin.step"><code class="docutils literal notranslate"><span class="pre">OpsMixin.step()</span></code></a></li>

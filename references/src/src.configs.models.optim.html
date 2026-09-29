@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -465,7 +463,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_critic"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_critic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_decay"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_decay</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_min_value"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_min_value</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_min_decay"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_min_decay</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -492,7 +489,7 @@ OptimConfig: Optimizer configuration.</p>
 &gt;&gt;&gt; from logic.src.configs.models import OptimConfig
 &gt;&gt;&gt; config = OptimConfig()
 &gt;&gt;&gt; print(config)
-OptimConfig(optimizer=’adam’, lr=0.0001, weight_decay=0.0, lr_scheduler=None, lr_scheduler_kwargs={}, lr_critic=0.0001, lr_decay=1.0, lr_min_value=0.0, lr_min_decay=1e-08)</p>
+OptimConfig(optimizer=’adam’, lr=0.0001, weight_decay=0.0, lr_scheduler=None, lr_scheduler_kwargs={}, lr_critic=0.0001, lr_decay=1.0, lr_min_value=0.0)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -566,12 +563,6 @@ lr_scheduler_kwargs: Keyword arguments for the LR scheduler.</p>
 <dd><p>0.0</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.models.optim.OptimConfig.lr_min_decay">
-<span class="sig-name descname"><span class="pre">lr_min_decay</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.models.optim.OptimConfig.lr_min_decay" title="Link to this definition">#</a></dt>
-<dd><p>1e-08</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -635,7 +626,6 @@ lr_scheduler_kwargs: Keyword arguments for the LR scheduler.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_critic"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_critic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_decay"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_decay</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_min_value"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_min_value</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.models.optim.OptimConfig.lr_min_decay"><code class="docutils literal notranslate"><span class="pre">OptimConfig.lr_min_decay</span></code></a></li>
 </ul>
 </li>
 </ul>

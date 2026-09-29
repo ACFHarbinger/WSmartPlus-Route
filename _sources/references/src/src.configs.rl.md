@@ -248,15 +248,4 @@ src.configs.rl.core
 
 ````
 
-````{py:attribute} dr_alns
-:canonical: src.configs.rl.RLConfig.dr_alns
-:type: src.configs.rl.core.dr_alns.DRALNSConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.rl.RLConfig.dr_alns
-```
-
-````
-
 `````

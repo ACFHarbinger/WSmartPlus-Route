@@ -65,8 +65,8 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.policies.helpers.reinforcement_learning.agents';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.policies.helpers.reinforcement_learning.agents.contextual" href="src.policies.helpers.reinforcement_learning.agents.contextual.html" />
-    <link rel="prev" title="src.policies.helpers.reinforcement_learning.features.context" href="src.policies.helpers.reinforcement_learning.features.context.html" />
+    <link rel="next" title="src.policies.helpers.reinforcement_learning.agents.bandits" href="src.policies.helpers.reinforcement_learning.agents.bandits.html" />
+    <link rel="prev" title="src.policies.helpers.reinforcement_learning.features.state" href="src.policies.helpers.reinforcement_learning.features.state.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -453,7 +451,6 @@ document.write(`
             </div>
             <nav aria-label="Page">
                 <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 </ul>
             </nav>
@@ -477,27 +474,12 @@ bandits: Sub-package containing Multi-Armed Bandit (MAB) implementations.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.policies.helpers.reinforcement_learning.agents.bandits import EpsilonGreedyAgent
 &gt;&gt;&gt; agent = EpsilonGreedyAgent(…)</p>
-<section id="subpackages">
-<h2>Subpackages<a class="headerlink" href="#subpackages" title="Link to this heading">#</a></h2>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.contextual.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual</span></code></a><ul>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual.gpcmab</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.contextual.linucb.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual.linucb</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.contextual.thompson.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual.thompson</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.contextual.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual.base</span></code></a></li>
-</ul>
-</li>
-</ul>
-</div>
-</section>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.bandits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.base</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.contextual_bandits.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual_bandits</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.policies.helpers.reinforcement_learning.agents.td_learning.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.td_learning</span></code></a></li>
 </ul>
 </div>
@@ -516,20 +498,20 @@ bandits: Sub-package containing Multi-Armed Bandit (MAB) implementations.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.helpers.reinforcement_learning.features.context.html"
+       href="src.policies.helpers.reinforcement_learning.features.state.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.features.context</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.features.state</span></code></p>
       </div>
     </a>
     <a class="right-next"
-       href="src.policies.helpers.reinforcement_learning.agents.contextual.html"
+       href="src.policies.helpers.reinforcement_learning.agents.bandits.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.contextual</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers.reinforcement_learning.agents.bandits</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>
@@ -549,7 +531,6 @@ bandits: Sub-package containing Multi-Armed Bandit (MAB) implementations.</p>
   </div>
   <nav class="bd-toc-nav page-toc">
     <ul class="visible nav section-nav flex-column">
-<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#subpackages">Subpackages</a></li>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#submodules">Submodules</a></li>
 </ul>
   </nav></div>

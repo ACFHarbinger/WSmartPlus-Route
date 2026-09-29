@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -468,7 +466,6 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.initial_credit"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.initial_credit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.is_stochastic"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.is_stochastic</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.max_demon_credit"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.max_demon_credit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.maximization"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.maximization</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.seed"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.seed</span></code></a></li>
 </ul>
@@ -510,7 +507,6 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig"><code class="docutils literal notranslate"><span class="pre">StepCountingConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit"><code class="docutils literal notranslate"><span class="pre">StepCountingConfig.step_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig.maximization"><code class="docutils literal notranslate"><span class="pre">StepCountingConfig.maximization</span></code></a></li>
 </ul>
 </li>
@@ -698,7 +694,6 @@ seed: Random seed for reproducibility.</p>
 <p>Attributes:
 initial_credit: Initial credit for the demon.
 is_stochastic: Whether the demon algorithm is stochastic.
-max_demon_credit: Maximum credit the demon can accumulate.
 maximization: Whether the problem is a maximization problem.
 seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
@@ -711,12 +706,6 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.is_stochastic">
 <span class="sig-name descname"><span class="pre">is_stochastic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.is_stochastic" title="Link to this definition">#</a></dt>
 <dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.max_demon_credit">
-<span class="sig-name descname"><span class="pre">max_demon_credit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.max_demon_credit" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -920,14 +909,7 @@ maximization: Whether the problem is a maximization problem.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.configs.policies.other.acceptance_criteria.</span></span><span class="sig-name descname"><span class="pre">StepCountingConfig</span></span><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig" title="Link to this definition">#</a></dt>
 <dd><p>Configuration for Step Counting Hill Climbing.</p>
 <p>Attributes:
-step_limit: Maximum number of steps to count.
 maximization: Whether the problem is a maximization problem.</p>
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit">
-<span class="sig-name descname"><span class="pre">step_limit</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit" title="Link to this definition">#</a></dt>
-<dd><p>100</p>
-</dd></dl>
-
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.other.acceptance_criteria.StepCountingConfig.maximization">
 <span class="sig-name descname"><span class="pre">maximization</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig.maximization" title="Link to this definition">#</a></dt>
@@ -1106,7 +1088,6 @@ params: The specific configuration object for the chosen method.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.initial_credit"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.initial_credit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.is_stochastic"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.is_stochastic</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.max_demon_credit"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.max_demon_credit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.maximization"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.maximization</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.seed"><code class="docutils literal notranslate"><span class="pre">DemonAlgorithmConfig.seed</span></code></a></li>
 </ul>
@@ -1148,7 +1129,6 @@ params: The specific configuration object for the chosen method.</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig"><code class="docutils literal notranslate"><span class="pre">StepCountingConfig</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit"><code class="docutils literal notranslate"><span class="pre">StepCountingConfig.step_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.other.acceptance_criteria.StepCountingConfig.maximization"><code class="docutils literal notranslate"><span class="pre">StepCountingConfig.maximization</span></code></a></li>
 </ul>
 </li>

@@ -119,10 +119,6 @@
   - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.LagrangianSelectionConfig
     :summary:
     ```
-* - {py:obj}`BernoulliSelectionConfig <src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig>`
-  - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
-    :summary:
-    ```
 * - {py:obj}`KMeansSectorSelectionConfig <src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig>`
   - ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig
     :summary:
@@ -190,6 +186,17 @@
    1.0
 
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig.confidence_factor
+```
+
+````
+
+````{py:attribute} horizon_days
+:canonical: src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig.horizon_days
+:type: int
+:value: >
+   1
+
+```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.ServiceLevelSelectionConfig.horizon_days
 ```
 
 ````
@@ -490,17 +497,6 @@
    10
 
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatoryManagerSelectionConfig.history_length
-```
-
-````
-
-````{py:attribute} manager_critical_threshold
-:canonical: src.configs.policies.other.mandatory_selection.MandatoryManagerSelectionConfig.manager_critical_threshold
-:type: float
-:value: >
-   0.9
-
-```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatoryManagerSelectionConfig.manager_critical_threshold
 ```
 
 ````
@@ -1011,25 +1007,6 @@ Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelection
 
 `````
 
-`````{py:class} BernoulliSelectionConfig
-:canonical: src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
-
-```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
-```
-
-````{py:attribute} p
-:canonical: src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p
-:type: float
-:value: >
-   0.5
-
-```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig.p
-```
-
-````
-
-`````
-
 `````{py:class} KMeansSectorSelectionConfig
 :canonical: src.configs.policies.other.mandatory_selection.KMeansSectorSelectionConfig
 
@@ -1356,17 +1333,6 @@ Bases: {py:obj}`src.configs.policies.other.mandatory_selection.KnapsackSelection
    'field(...)'
 
 ```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.lagrangian
-```
-
-````
-
-````{py:attribute} bernoulli
-:canonical: src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli
-:type: src.configs.policies.other.mandatory_selection.BernoulliSelectionConfig
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.policies.other.mandatory_selection.MandatorySelectionConfig.bernoulli
 ```
 
 ````

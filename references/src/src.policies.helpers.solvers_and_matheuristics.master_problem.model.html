@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -463,7 +461,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_lp_relaxation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_lp_relaxation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._handle_infeasibility"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._handle_infeasibility()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._extract_duals"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._extract_duals()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._apply_dual_smoothing"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._apply_dual_smoothing()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._add_column_to_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._add_column_to_model()</span></code></a></li>
@@ -682,23 +679,6 @@ Tuple of (-inf, {}) and populates self.farkas_duals.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._apply_dual_smoothing">
-<span class="sig-name descname"><span class="pre">_apply_dual_smoothing</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._apply_dual_smoothing" title="Link to this definition">#</a></dt>
-<dd><p>Apply Exponential Dual Smoothing to stabilize CG price signals.</p>
-<p>pi_smoothed = alpha * pi_current + (1 - alpha) * pi_prev</p>
-<p>WARNING: Smoothing modifies self.dual_node_coverage in-place.
-When active, the duals passed to pricing are NOT the true LP duals.
-This means:</p>
-<ul class="simple">
-<li><p>The Lagrangian upper bound (obj_val + K * max_rc) is not valid.</p></li>
-<li><p>CG convergence (added == 0) does not prove LP optimality.
-Only enable this flag when running in heuristic (non-exact) mode.</p></li>
-</ul>
-<p>Reference:
-Wentges (1997), Guyenne et al. (1994).</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_ip">
 <span class="sig-name descname"><span class="pre">solve_ip</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_ip" title="Link to this definition">#</a></dt>
 <dd><p>Solve the integer programme at the current B&amp;B node.</p>
@@ -879,7 +859,6 @@ cbasis: Constraint basis list.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_lp_relaxation"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_lp_relaxation()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._handle_infeasibility"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._handle_infeasibility()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._extract_duals"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._extract_duals()</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._apply_dual_smoothing"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._apply_dual_smoothing()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_ip"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.solve_ip()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.add_route"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem.add_route()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem._add_column_to_model"><code class="docutils literal notranslate"><span class="pre">VRPPMasterProblem._add_column_to_model()</span></code></a></li>

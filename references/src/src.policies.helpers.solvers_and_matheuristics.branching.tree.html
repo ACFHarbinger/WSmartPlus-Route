@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -459,7 +457,6 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.FrontierItem"><code class="docutils literal notranslate"><span class="pre">FrontierItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree._get_coords_from_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.add_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.get_next_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.get_next_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.is_empty"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.is_empty()</span></code></a></li>
@@ -567,16 +564,6 @@ params: Standardized B&amp;B parameters.
 max_nodes: Maximum number of nodes to explore.
 strategy: Branching strategy (‘divergence_spatial’, ‘edge’, ‘ryan_foster’).
 search_strategy: Search strategy (‘best_first’, ‘depth_first’).</p>
-<dl class="py method">
-<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model">
-<span class="sig-name descname"><span class="pre">_get_coords_from_model</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">v_model</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model" title="Link to this definition">#</a></dt>
-<dd><p>Extract node coordinates from the model.</p>
-<p>Args:
-v_model: The VRPP model instance.</p>
-<p>Returns:
-Coordinates as an array or None.</p>
-</dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node">
 <span class="sig-name descname"><span class="pre">add_node</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.policies.helpers.solvers_and_matheuristics.common.node.BranchNode</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node" title="Link to this definition">#</a></dt>
@@ -732,7 +719,6 @@ best bound, and incumbent value.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.FrontierItem"><code class="docutils literal notranslate"><span class="pre">FrontierItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree</span></code></a><ul class="nav section-nav flex-column">
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree._get_coords_from_model"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree._get_coords_from_model()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.add_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.add_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.get_next_node"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.get_next_node()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.branching.tree.BranchAndBoundTree.is_empty"><code class="docutils literal notranslate"><span class="pre">BranchAndBoundTree.is_empty()</span></code></a></li>

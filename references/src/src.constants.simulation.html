@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -465,7 +463,6 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.DAY_METRICS"><code class="docutils literal notranslate"><span class="pre">DAY_METRICS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.LOSS_KEYS"><code class="docutils literal notranslate"><span class="pre">LOSS_KEYS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.MAX_CAPACITY_PERCENT"><code class="docutils literal notranslate"><span class="pre">MAX_CAPACITY_PERCENT</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.MAX_LENGTHS"><code class="docutils literal notranslate"><span class="pre">MAX_LENGTHS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.VEHICLE_CAPACITY"><code class="docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.PROBLEMS"><code class="docutils literal notranslate"><span class="pre">PROBLEMS</span></code></a></li>
 </ul>
@@ -564,13 +561,10 @@ for the WSmart+ Route simulation engine. Used by:</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.simulation.MAX_CAPACITY_PERCENT" title="src.constants.simulation.MAX_CAPACITY_PERCENT"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAX_CAPACITY_PERCENT</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.simulation.MAX_LENGTHS" title="src.constants.simulation.MAX_LENGTHS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MAX_LENGTHS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.simulation.VEHICLE_CAPACITY" title="src.constants.simulation.VEHICLE_CAPACITY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.simulation.VEHICLE_CAPACITY" title="src.constants.simulation.VEHICLE_CAPACITY"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.simulation.PROBLEMS" title="src.constants.simulation.PROBLEMS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PROBLEMS</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.simulation.PROBLEMS" title="src.constants.simulation.PROBLEMS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PROBLEMS</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -619,12 +613,6 @@ for the WSmart+ Route simulation engine. Used by:</p>
 <dt class="sig sig-object py" id="src.constants.simulation.MAX_CAPACITY_PERCENT">
 <span class="sig-prename descclassname"><span class="pre">src.constants.simulation.</span></span><span class="sig-name descname"><span class="pre">MAX_CAPACITY_PERCENT</span></span><a class="headerlink" href="#src.constants.simulation.MAX_CAPACITY_PERCENT" title="Link to this definition">#</a></dt>
 <dd><p>100.0</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.constants.simulation.MAX_LENGTHS">
-<span class="sig-prename descclassname"><span class="pre">src.constants.simulation.</span></span><span class="sig-name descname"><span class="pre">MAX_LENGTHS</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.constants.simulation.MAX_LENGTHS" title="Link to this definition">#</a></dt>
-<dd><p>None</p>
 </dd></dl>
 
 <dl class="py data">
@@ -700,7 +688,6 @@ for the WSmart+ Route simulation engine. Used by:</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.DAY_METRICS"><code class="docutils literal notranslate"><span class="pre">DAY_METRICS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.LOSS_KEYS"><code class="docutils literal notranslate"><span class="pre">LOSS_KEYS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.MAX_CAPACITY_PERCENT"><code class="docutils literal notranslate"><span class="pre">MAX_CAPACITY_PERCENT</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.MAX_LENGTHS"><code class="docutils literal notranslate"><span class="pre">MAX_LENGTHS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.VEHICLE_CAPACITY"><code class="docutils literal notranslate"><span class="pre">VEHICLE_CAPACITY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.simulation.PROBLEMS"><code class="docutils literal notranslate"><span class="pre">PROBLEMS</span></code></a></li>
 </ul>

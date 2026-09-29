@@ -21,7 +21,29 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`logger <src.pipeline.simulations.actions.time_constraints.logger>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.actions.time_constraints.logger
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:data} logger
+:canonical: src.pipeline.simulations.actions.time_constraints.logger
+:value: >
+   'getLogger(...)'
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.time_constraints.logger
+```
+
+````
 
 `````{py:class} TimeConstraintAction
 :canonical: src.pipeline.simulations.actions.time_constraints.TimeConstraintAction
@@ -35,6 +57,15 @@ Bases: {py:obj}`src.pipeline.simulations.actions.base.SimulationAction`
 :canonical: src.pipeline.simulations.actions.time_constraints.TimeConstraintAction.execute
 
 ```{autodoc2-docstring} src.pipeline.simulations.actions.time_constraints.TimeConstraintAction.execute
+```
+
+````
+
+````{py:method} _split_over_capacity_trips(context: typing.Dict[str, typing.Any]) -> None
+:canonical: src.pipeline.simulations.actions.time_constraints.TimeConstraintAction._split_over_capacity_trips
+:staticmethod:
+
+```{autodoc2-docstring} src.pipeline.simulations.actions.time_constraints.TimeConstraintAction._split_over_capacity_trips
 ```
 
 ````

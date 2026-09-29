@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -459,8 +457,12 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network._OPTIONAL_STRATEGIES"><code class="docutils literal notranslate"><span class="pre">_OPTIONAL_STRATEGIES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network._METHOD_TO_ATTR"><code class="docutils literal notranslate"><span class="pre">_METHOD_TO_ATTR</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.haversine_distance"><code class="docutils literal notranslate"><span class="pre">haversine_distance()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.compute_distance_matrix"><code class="docutils literal notranslate"><span class="pre">compute_distance_matrix()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network._strategy_class"><code class="docutils literal notranslate"><span class="pre">_strategy_class()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.__getattr__"><code class="docutils literal notranslate"><span class="pre">__getattr__()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>
@@ -534,6 +536,12 @@ compute_distance_matrix(coords, method=”haversine”)</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.data.network.compute_distance_matrix" title="src.data.network.compute_distance_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">compute_distance_matrix</span></code></a></p></td>
 <td><p>Computes or loads cached pairwise distance matrix for bin locations.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.network._strategy_class" title="src.data.network._strategy_class"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_strategy_class</span></code></a></p></td>
+<td><p>Resolve a distance-method name to its strategy class.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.data.network.__getattr__" title="src.data.network.__getattr__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__getattr__</span></code></a></p></td>
+<td><p>Import optional distance backends only when they are requested.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -542,6 +550,12 @@ compute_distance_matrix(coords, method=”haversine”)</p>
 <h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.network._OPTIONAL_STRATEGIES" title="src.data.network._OPTIONAL_STRATEGIES"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_OPTIONAL_STRATEGIES</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.data.network._METHOD_TO_ATTR" title="src.data.network._METHOD_TO_ATTR"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_METHOD_TO_ATTR</span></code></a></p></td>
+<td></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.data.network.__all__" title="src.data.network.__all__"><code class="xref py py-obj docutils literal notranslate"><span class="pre">__all__</span></code></a></p></td>
 <td></td>
 </tr>
@@ -551,6 +565,18 @@ compute_distance_matrix(coords, method=”haversine”)</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py data">
+<dt class="sig sig-object py" id="src.data.network._OPTIONAL_STRATEGIES">
+<span class="sig-prename descclassname"><span class="pre">src.data.network.</span></span><span class="sig-name descname"><span class="pre">_OPTIONAL_STRATEGIES</span></span><a class="headerlink" href="#src.data.network._OPTIONAL_STRATEGIES" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.data.network._METHOD_TO_ATTR">
+<span class="sig-prename descclassname"><span class="pre">src.data.network.</span></span><span class="sig-name descname"><span class="pre">_METHOD_TO_ATTR</span></span><a class="headerlink" href="#src.data.network._METHOD_TO_ATTR" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.data.network.haversine_distance">
 <span class="sig-prename descclassname"><span class="pre">src.data.network.</span></span><span class="sig-name descname"><span class="pre">haversine_distance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">lat1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lat2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Series</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">lng2</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">pandas.Series</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.data.network.haversine_distance" title="Link to this definition">#</a></dt>
@@ -574,6 +600,18 @@ method: Distance calculation method (e.g., ‘haversine’, ‘gmaps’, ‘osm�
 kwargs: Additional arguments for the distance strategy.</p>
 <p>Returns:
 Distance matrix as a NumPy array.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.network._strategy_class">
+<span class="sig-prename descclassname"><span class="pre">src.data.network.</span></span><span class="sig-name descname"><span class="pre">_strategy_class</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.data.network._strategy_class" title="Link to this definition">#</a></dt>
+<dd><p>Resolve a distance-method name to its strategy class.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.network.__getattr__">
+<span class="sig-prename descclassname"><span class="pre">src.data.network.</span></span><span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.data.network.__getattr__" title="Link to this definition">#</a></dt>
+<dd><p>Import optional distance backends only when they are requested.</p>
 </dd></dl>
 
 <dl class="py data">
@@ -637,8 +675,12 @@ Distance matrix as a NumPy array.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network._OPTIONAL_STRATEGIES"><code class="docutils literal notranslate"><span class="pre">_OPTIONAL_STRATEGIES</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network._METHOD_TO_ATTR"><code class="docutils literal notranslate"><span class="pre">_METHOD_TO_ATTR</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.haversine_distance"><code class="docutils literal notranslate"><span class="pre">haversine_distance()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.compute_distance_matrix"><code class="docutils literal notranslate"><span class="pre">compute_distance_matrix()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network._strategy_class"><code class="docutils literal notranslate"><span class="pre">_strategy_class()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.__getattr__"><code class="docutils literal notranslate"><span class="pre">__getattr__()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.__all__"><code class="docutils literal notranslate"><span class="pre">__all__</span></code></a></li>
 </ul>
 </li>

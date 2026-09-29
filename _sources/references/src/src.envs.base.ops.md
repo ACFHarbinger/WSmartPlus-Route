@@ -21,7 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`as_batch_nodes <src.envs.base.ops.as_batch_nodes>`
+  - ```{autodoc2-docstring} src.envs.base.ops.as_batch_nodes
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:function} as_batch_nodes(index: torch.Tensor) -> torch.Tensor
+:canonical: src.envs.base.ops.as_batch_nodes
+
+```{autodoc2-docstring} src.envs.base.ops.as_batch_nodes
+```
+````
 
 `````{py:class} OpsMixin
 :canonical: src.envs.base.ops.OpsMixin

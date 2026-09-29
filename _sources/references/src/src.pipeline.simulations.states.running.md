@@ -21,7 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`pad_model_ls <src.pipeline.simulations.states.running.pad_model_ls>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.states.running.pad_model_ls
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:function} pad_model_ls(model_tup: typing.Optional[tuple]) -> tuple
+:canonical: src.pipeline.simulations.states.running.pad_model_ls
+
+```{autodoc2-docstring} src.pipeline.simulations.states.running.pad_model_ls
+```
+````
 
 `````{py:class} RunningState
 :canonical: src.pipeline.simulations.states.running.RunningState

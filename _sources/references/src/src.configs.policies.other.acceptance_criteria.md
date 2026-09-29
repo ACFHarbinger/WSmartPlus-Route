@@ -176,17 +176,6 @@
 
 ````
 
-````{py:attribute} max_demon_credit
-:canonical: src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.max_demon_credit
-:type: typing.Optional[float]
-:value: >
-   None
-
-```{autodoc2-docstring} src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.max_demon_credit
-```
-
-````
-
 ````{py:attribute} maximization
 :canonical: src.configs.policies.other.acceptance_criteria.DemonAlgorithmConfig.maximization
 :type: bool
@@ -487,17 +476,6 @@
 
 ```{autodoc2-docstring} src.configs.policies.other.acceptance_criteria.StepCountingConfig
 ```
-
-````{py:attribute} step_limit
-:canonical: src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit
-:type: int
-:value: >
-   100
-
-```{autodoc2-docstring} src.configs.policies.other.acceptance_criteria.StepCountingConfig.step_limit
-```
-
-````
 
 ````{py:attribute} maximization
 :canonical: src.configs.policies.other.acceptance_criteria.StepCountingConfig.maximization

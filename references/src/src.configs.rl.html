@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -477,7 +475,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.adaptive_imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.adaptive_imitation</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_alns"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_alns</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -524,7 +521,6 @@ max_grad_norm=1.0,
 <li class="toctree-l1"><a class="reference internal" href="src.configs.rl.core.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core</span></code></a><ul>
 <li class="toctree-l2"><a class="reference internal" href="src.configs.rl.core.sapo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.sapo</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.configs.rl.core.symnco.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.symnco</span></code></a></li>
-<li class="toctree-l2"><a class="reference internal" href="src.configs.rl.core.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.dr_alns</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.configs.rl.core.grpo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.grpo</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.configs.rl.core.pomo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.pomo</span></code></a></li>
 <li class="toctree-l2"><a class="reference internal" href="src.configs.rl.core.ppo.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.configs.rl.core.ppo</span></code></a></li>
@@ -678,12 +674,6 @@ and fall back to zero shaping.</p>
 <dd><p>‘field(…)’</p>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.rl.RLConfig.dr_alns">
-<span class="sig-name descname"><span class="pre">dr_alns</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><a class="reference internal" href="src.configs.rl.core.dr_alns.html#src.configs.rl.core.dr_alns.DRALNSConfig" title="src.configs.rl.core.dr_alns.DRALNSConfig"><span class="pre">src.configs.rl.core.dr_alns.DRALNSConfig</span></a></em><a class="headerlink" href="#src.configs.rl.RLConfig.dr_alns" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
-</dd></dl>
-
 </dd></dl>
 
 </section>
@@ -759,7 +749,6 @@ and fall back to zero shaping.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.imitation</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.gdpo"><code class="docutils literal notranslate"><span class="pre">RLConfig.gdpo</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.adaptive_imitation"><code class="docutils literal notranslate"><span class="pre">RLConfig.adaptive_imitation</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.rl.RLConfig.dr_alns"><code class="docutils literal notranslate"><span class="pre">RLConfig.dr_alns</span></code></a></li>
 </ul>
 </li>
 </ul>

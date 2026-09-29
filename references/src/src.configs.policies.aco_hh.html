@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -475,6 +473,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitist_weight"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.elitist_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.operators"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_weighted_visibility"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.time_weighted_visibility</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.mandatory_selection</span></code></a></li>
@@ -628,8 +627,8 @@ route_improvement: List of route improvement operations to apply.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.sequence_length">
-<span class="sig-name descname"><span class="pre">sequence_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.sequence_length" title="Link to this definition">#</a></dt>
-<dd><p>5</p>
+<span class="sig-name descname"><span class="pre">sequence_length</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.sequence_length" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -652,8 +651,14 @@ route_improvement: List of route improvement operations to apply.</p>
 
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.operators">
-<span class="sig-name descname"><span class="pre">operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.operators" title="Link to this definition">#</a></dt>
-<dd><p>‘field(…)’</p>
+<span class="sig-name descname"><span class="pre">operators</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.operators" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_weighted_visibility">
+<span class="sig-name descname"><span class="pre">time_weighted_visibility</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_weighted_visibility" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -753,6 +758,7 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.local_search_iterations"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.local_search_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.elitist_weight"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.elitist_weight</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.operators"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.operators</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.time_weighted_visibility"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.time_weighted_visibility</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.profit_aware_operators"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.profit_aware_operators</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aco_hh.HyperHeuristicACOConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">HyperHeuristicACOConfig.mandatory_selection</span></code></a></li>

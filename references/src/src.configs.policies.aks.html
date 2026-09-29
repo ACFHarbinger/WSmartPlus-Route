@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -467,7 +465,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.t_easy"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.t_easy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.epsilon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.time_limit_stage_1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.engine"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.framework"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.framework</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.mandatory_selection</span></code></a></li>
@@ -559,8 +556,7 @@ computational reproducibility across different runs. Defaults to 42.
 vrpp (bool): Whether the problem is a VRP with Profits.</p>
 <p class="rubric" id="id1">Adaptive Features (AKS)</p>
 <p>t_easy: float = 10.0
-epsilon: float = 0.1
-time_limit_stage_1: float = 0.2</p>
+epsilon: float = 0.1</p>
 <div class="highlight-none notranslate"><div class="highlight"><pre><span></span># Infrastructure
 engine (str): Identifier for the optimization engine. Use &quot;gurobi&quot; to
     invoke the project&#39;s native Gurobi-based AKS solver.
@@ -630,12 +626,6 @@ route_improvement (Optional[RouteImprovingConfig]): Optional configuration
 <dt class="sig sig-object py" id="src.configs.policies.aks.AdaptiveKernelSearchConfig.epsilon">
 <span class="sig-name descname"><span class="pre">epsilon</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.epsilon" title="Link to this definition">#</a></dt>
 <dd><p>0.1</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1">
-<span class="sig-name descname"><span class="pre">time_limit_stage_1</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1" title="Link to this definition">#</a></dt>
-<dd><p>0.2</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -727,7 +717,6 @@ route_improvement (Optional[RouteImprovingConfig]): Optional configuration
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.vrpp"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.vrpp</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.t_easy"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.t_easy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.epsilon"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.epsilon</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.time_limit_stage_1</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.engine"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.engine</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.framework"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.framework</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.aks.AdaptiveKernelSearchConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">AdaptiveKernelSearchConfig.mandatory_selection</span></code></a></li>

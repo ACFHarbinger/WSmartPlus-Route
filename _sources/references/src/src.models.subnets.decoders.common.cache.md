@@ -42,7 +42,7 @@
 
 ````{py:attribute} graph_context
 :canonical: src.models.subnets.decoders.common.cache.AttentionDecoderCache.graph_context
-:type: torch.Tensor
+:type: typing.Optional[torch.Tensor]
 :value: >
    None
 
@@ -94,7 +94,7 @@
 
 ````{py:property} context_node_projected
 :canonical: src.models.subnets.decoders.common.cache.AttentionDecoderCache.context_node_projected
-:type: torch.Tensor
+:type: typing.Optional[torch.Tensor]
 
 ```{autodoc2-docstring} src.models.subnets.decoders.common.cache.AttentionDecoderCache.context_node_projected
 ```

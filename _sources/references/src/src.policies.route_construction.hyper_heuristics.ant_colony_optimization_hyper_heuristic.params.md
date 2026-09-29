@@ -174,11 +174,33 @@
 
 ````{py:attribute} operators
 :canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.operators
-:type: typing.List[str]
+:type: typing.Optional[typing.List[str]]
 :value: >
-   'field(...)'
+   None
 
 ```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.operators
+```
+
+````
+
+````{py:attribute} sequence_length
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.sequence_length
+:type: typing.Optional[int]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.sequence_length
+```
+
+````
+
+````{py:attribute} time_weighted_visibility
+:canonical: src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.time_weighted_visibility
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.route_construction.hyper_heuristics.ant_colony_optimization_hyper_heuristic.params.HyperACOParams.time_weighted_visibility
 ```
 
 ````

@@ -83,26 +83,10 @@
 
 ````
 
-````{py:method} validate_tour(tour: typing.List[int]) -> typing.Tuple[bool, str]
-:canonical: src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.validate_tour
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.validate_tour
-```
-
-````
-
 ````{py:method} compute_tour_profit(tour: typing.List[int]) -> float
 :canonical: src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_profit
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_profit
-```
-
-````
-
-````{py:method} compute_tour_cost(tour: typing.List[int]) -> float
-:canonical: src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.vrpp_model.VRPPModel.compute_tour_cost
 ```
 
 ````

@@ -51,6 +51,10 @@
   - ```{autodoc2-docstring} src.tracking.logging.modules.analysis.display_simulation_summary_table
     :summary:
     ```
+* - {py:obj}`daily_row_is_visible <src.tracking.logging.modules.analysis.daily_row_is_visible>`
+  - ```{autodoc2-docstring} src.tracking.logging.modules.analysis.daily_row_is_visible
+    :summary:
+    ```
 * - {py:obj}`display_per_policy_simulation_summary <src.tracking.logging.modules.analysis.display_per_policy_simulation_summary>`
   - ```{autodoc2-docstring} src.tracking.logging.modules.analysis.display_per_policy_simulation_summary
     :summary:
@@ -286,6 +290,13 @@
 :canonical: src.tracking.logging.modules.analysis.display_simulation_summary_table
 
 ```{autodoc2-docstring} src.tracking.logging.modules.analysis.display_simulation_summary_table
+```
+````
+
+````{py:function} daily_row_is_visible(km_val: float, mandatory: typing.Any, solver_status: typing.Any) -> bool
+:canonical: src.tracking.logging.modules.analysis.daily_row_is_visible
+
+```{autodoc2-docstring} src.tracking.logging.modules.analysis.daily_row_is_visible
 ```
 ````
 

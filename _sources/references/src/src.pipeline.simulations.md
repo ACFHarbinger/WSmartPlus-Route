@@ -30,4 +30,5 @@ src.pipeline.simulations.states
 src.pipeline.simulations.day_context
 src.pipeline.simulations.simulator
 src.pipeline.simulations.failure_analyzer
+src.pipeline.simulations.solver_status
 ```

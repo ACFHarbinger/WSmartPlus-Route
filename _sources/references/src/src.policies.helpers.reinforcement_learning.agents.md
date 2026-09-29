@@ -7,15 +7,6 @@
 :allowtitles:
 ```
 
-## Subpackages
-
-```{toctree}
-:titlesonly:
-:maxdepth: 3
-
-src.policies.helpers.reinforcement_learning.agents.contextual
-```
-
 ## Submodules
 
 ```{toctree}
@@ -24,6 +15,5 @@ src.policies.helpers.reinforcement_learning.agents.contextual
 
 src.policies.helpers.reinforcement_learning.agents.bandits
 src.policies.helpers.reinforcement_learning.agents.base
-src.policies.helpers.reinforcement_learning.agents.contextual_bandits
 src.policies.helpers.reinforcement_learning.agents.td_learning
 ```

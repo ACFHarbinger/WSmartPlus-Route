@@ -66,7 +66,7 @@
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
     <link rel="next" title="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.policy_pg_clns" href="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.policy_pg_clns.html" />
-    <link rel="prev" title="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.exchange_operators" href="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.exchange_operators.html" />
+    <link rel="prev" title="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search" href="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
   </head>
@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4 current active"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -698,7 +696,7 @@ bool: Whether the move was successful.</p>
 <span class="sig-name descname"><span class="pre">_move_or_opt</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">chain_len</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">r_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p_u</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.local_search.LocalSearch._move_or_opt" title="Link to this definition">#</a></dt>
 <dd><p>Perform or-opt move.</p>
 <p>Args:
-u: Node to move.
+u: Node to move (unused, derived from r_u/p_u by shared operator).
 chain_len: Length of the chain to move.
 r_u: Route index of node u.
 p_u: Position index of node u.</p>
@@ -759,12 +757,12 @@ List of optimized routes.</p>
                   
 <div class="prev-next-area">
     <a class="left-prev"
-       href="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.exchange_operators.html"
+       href="src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.html"
        title="previous page">
       <i class="fa-solid fa-angle-left"></i>
       <div class="prev-next-info">
         <p class="prev-next-subtitle">previous</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators.exchange_operators</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search</span></code></p>
       </div>
     </a>
     <a class="right-next"

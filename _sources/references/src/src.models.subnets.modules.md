@@ -25,7 +25,6 @@ src.models.subnets.modules.dynamic_hyper_connection
 src.models.subnets.modules.polynet_attention
 src.models.subnets.modules.pointer_attn_moe
 src.models.subnets.modules.cross_attention
-src.models.subnets.modules.normalized_activation_function
 src.models.subnets.modules.mpnn_layer
 src.models.subnets.modules.moe_dispatcher
 src.models.subnets.modules.multi_head_attention
@@ -34,7 +33,6 @@ src.models.subnets.modules.adapter_base
 src.models.subnets.modules.efficient_graph_convolution
 src.models.subnets.modules.gated_graph_convolution
 src.models.subnets.modules.tsp_adapter
-src.models.subnets.modules.distance_graph_convolution
 src.models.subnets.modules.moe_layer
 src.models.subnets.modules.feed_forward
 src.models.subnets.modules.glop_factory

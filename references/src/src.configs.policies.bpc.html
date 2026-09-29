@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -467,7 +465,6 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cutting_planes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cutting_planes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BPCConfig.branching_strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cg_iterations"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cg_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cut_iterations"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cut_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cuts_per_iteration</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_routes_per_pricing"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_routes_per_pricing</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_bb_nodes</span></code></a></li>
@@ -478,10 +475,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_heuristic_rcc_separation"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_heuristic_rcc_separation</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_comb_cuts"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_comb_cuts</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cut_orthogonality_threshold"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cut_orthogonality_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_spatial_partitioning"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_spatial_partitioning</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_strong_branching_heuristic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_column_pool_deduplication"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_column_pool_deduplication</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_hybrid_search"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_hybrid_search</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.rc_tolerance"><code class="docutils literal notranslate"><span class="pre">BPCConfig.rc_tolerance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.exact_mode"><code class="docutils literal notranslate"><span class="pre">BPCConfig.exact_mode</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.strong_branching_size"><code class="docutils literal notranslate"><span class="pre">BPCConfig.strong_branching_size</span></code></a></li>
@@ -558,7 +553,6 @@ search_strategy: B&amp;B node selection strategy (‘best_first’ or ‘depth_f
 cutting_planes: Cutting plane family (‘rcc’, ‘sri’, ‘lci’, or ‘all’).
 branching_strategy: Branching rule (‘ryan_foster’, ‘edge’, or ‘divergence’).
 max_cg_iterations: Maximum iterations for column generation loop.
-max_cut_iterations: Maximum iterations for cutting plane loop per CG iteration.
 max_cuts_per_iteration: Maximum cuts to add per iteration.
 max_routes_per_pricing: Maximum routes to add per pricing call.
 max_bb_nodes: Maximum nodes to explore in the B&amp;B tree.
@@ -569,10 +563,8 @@ ng_neighborhood_size: Size of ng-neighborhoods for relaxation.
 enable_heuristic_rcc_separation: Whether to enable (heuristic) fractional RCC separation.
 enable_comb_cuts: Whether to enable heuristic comb inequalities.
 cut_orthogonality_threshold: Cosine similarity ceiling for cut filtering.
-use_spatial_partitioning: Whether to use spatial partitioning for branching.
 enable_strong_branching_heuristic: Whether to enable heuristic strong branching.
 enable_column_pool_deduplication: Whether to enable column pool deduplication.
-enable_hybrid_search: Whether to enable hybrid DFS/BFS search.
 rc_tolerance: Minimum reduced cost to accept a new column.
 exact_mode: Whether to enable strict exact management.
 strong_branching_size: Number of candidates for strong branching.
@@ -658,12 +650,6 @@ route_budget: Maximum route cost/distance budget for conflict-cut and path-elimi
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.max_cut_iterations">
-<span class="sig-name descname"><span class="pre">max_cut_iterations</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.max_cut_iterations" title="Link to this definition">#</a></dt>
-<dd><p>5</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration">
 <span class="sig-name descname"><span class="pre">max_cuts_per_iteration</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration" title="Link to this definition">#</a></dt>
 <dd><p>5</p>
@@ -724,12 +710,6 @@ route_budget: Maximum route cost/distance budget for conflict-cut and path-elimi
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.use_spatial_partitioning">
-<span class="sig-name descname"><span class="pre">use_spatial_partitioning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.use_spatial_partitioning" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
-</dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic">
 <span class="sig-name descname"><span class="pre">enable_strong_branching_heuristic</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic" title="Link to this definition">#</a></dt>
 <dd><p>False</p>
@@ -739,12 +719,6 @@ route_budget: Maximum route cost/distance budget for conflict-cut and path-elimi
 <dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.enable_column_pool_deduplication">
 <span class="sig-name descname"><span class="pre">enable_column_pool_deduplication</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.enable_column_pool_deduplication" title="Link to this definition">#</a></dt>
 <dd><p>True</p>
-</dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="src.configs.policies.bpc.BPCConfig.enable_hybrid_search">
-<span class="sig-name descname"><span class="pre">enable_hybrid_search</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.bpc.BPCConfig.enable_hybrid_search" title="Link to this definition">#</a></dt>
-<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -936,7 +910,6 @@ Set to vehicle travel-time limit if applicable.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cutting_planes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cutting_planes</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.branching_strategy"><code class="docutils literal notranslate"><span class="pre">BPCConfig.branching_strategy</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cg_iterations"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cg_iterations</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cut_iterations"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cut_iterations</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_cuts_per_iteration"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_cuts_per_iteration</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_routes_per_pricing"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_routes_per_pricing</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.max_bb_nodes"><code class="docutils literal notranslate"><span class="pre">BPCConfig.max_bb_nodes</span></code></a></li>
@@ -947,10 +920,8 @@ Set to vehicle travel-time limit if applicable.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_heuristic_rcc_separation"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_heuristic_rcc_separation</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_comb_cuts"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_comb_cuts</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.cut_orthogonality_threshold"><code class="docutils literal notranslate"><span class="pre">BPCConfig.cut_orthogonality_threshold</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.use_spatial_partitioning"><code class="docutils literal notranslate"><span class="pre">BPCConfig.use_spatial_partitioning</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_strong_branching_heuristic"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_strong_branching_heuristic</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_column_pool_deduplication"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_column_pool_deduplication</span></code></a></li>
-<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.enable_hybrid_search"><code class="docutils literal notranslate"><span class="pre">BPCConfig.enable_hybrid_search</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.rc_tolerance"><code class="docutils literal notranslate"><span class="pre">BPCConfig.rc_tolerance</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.exact_mode"><code class="docutils literal notranslate"><span class="pre">BPCConfig.exact_mode</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.bpc.BPCConfig.strong_branching_size"><code class="docutils literal notranslate"><span class="pre">BPCConfig.strong_branching_size</span></code></a></li>

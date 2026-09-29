@@ -35,16 +35,6 @@
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine.__init__
 ```
 
-````{py:attribute} USE_COMB_CUTS
-:canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine.USE_COMB_CUTS
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine.USE_COMB_CUTS
-```
-
-````
-
 ````{py:attribute} _EXACT_SEP_PERIOD
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._EXACT_SEP_PERIOD
 :value: >
@@ -67,14 +57,6 @@
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine.separate_fractional
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine.separate_fractional
-```
-
-````
-
-````{py:method} separate(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray] = None, max_cuts: int = 100, iteration: int = 0) -> typing.List[logic.src.policies.helpers.solvers_and_matheuristics.separation.inequality.Inequality]
-:canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine.separate
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine.separate
 ```
 
 ````
@@ -139,46 +121,6 @@
 :canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._extract_min_cut
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._extract_min_cut
-```
-
-````
-
-````{py:method} _separate_comb_heuristic(x_vals: numpy.ndarray, y_vals: typing.Optional[numpy.ndarray]) -> None
-:canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_comb_heuristic
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._separate_comb_heuristic
-```
-
-````
-
-````{py:method} _grow_handle(seed: int, adjacency: typing.Dict[int, typing.List[int]], edge_weights: typing.Dict[typing.Tuple[int, int], float], max_size: int = 15) -> typing.Set[int]
-:canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._grow_handle
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._grow_handle
-```
-
-````
-
-````{py:method} _find_teeth_for_handle(handle: typing.Set[int], adjacency: typing.Dict[int, typing.List[int]], edge_weights: typing.Dict[typing.Tuple[int, int], float]) -> typing.List[typing.Set[int]]
-:canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._find_teeth_for_handle
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._find_teeth_for_handle
-```
-
-````
-
-````{py:method} _grow_tooth(anchor: int, handle: typing.Set[int], adjacency: typing.Dict[int, typing.List[int]], edge_weights: typing.Dict[typing.Tuple[int, int], float], max_size: int = 7) -> typing.Optional[typing.Set[int]]
-:canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._grow_tooth
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._grow_tooth
-```
-
-````
-
-````{py:method} _compute_comb_violation(handle: typing.Set[int], teeth: typing.List[typing.Set[int]], x_vals: numpy.ndarray) -> float
-:canonical: src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._compute_comb_violation
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.separation.engine.SeparationEngine._compute_comb_violation
 ```
 
 ````

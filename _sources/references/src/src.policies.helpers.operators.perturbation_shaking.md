@@ -7,6 +7,15 @@
 :allowtitles:
 ```
 
+## Subpackages
+
+```{toctree}
+:titlesonly:
+:maxdepth: 3
+
+src.policies.helpers.operators.perturbation_shaking.sans
+```
+
 ## Submodules
 
 ```{toctree}

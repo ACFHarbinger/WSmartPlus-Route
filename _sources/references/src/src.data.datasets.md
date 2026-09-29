@@ -20,6 +20,18 @@ src.data.datasets.simulation
 
 ## Package Contents
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`__getattr__ <src.data.datasets.__getattr__>`
+  - ```{autodoc2-docstring} src.data.datasets.__getattr__
+    :summary:
+    ```
+````
+
 ### Data
 
 ````{list-table}
@@ -42,4 +54,11 @@ src.data.datasets.simulation
 ```{autodoc2-docstring} src.data.datasets.__all__
 ```
 
+````
+
+````{py:function} __getattr__(name: str) -> typing.Any
+:canonical: src.data.datasets.__getattr__
+
+```{autodoc2-docstring} src.data.datasets.__getattr__
+```
 ````

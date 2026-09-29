@@ -67,6 +67,43 @@ Bases: {py:obj}`src.pipeline.rl.common.baselines.base.Baseline`
 
 ````
 
+````{py:method} configure_comparison(env: typing.Any, sample_size: int, seed: int = 0) -> None
+:canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline.configure_comparison
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.rollout.RolloutBaseline.configure_comparison
+```
+
+````
+
+````{py:method} get_extra_state() -> typing.Dict[str, int]
+:canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline.get_extra_state
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.rollout.RolloutBaseline.get_extra_state
+```
+
+````
+
+````{py:method} set_extra_state(state: typing.Dict[str, int]) -> None
+:canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline.set_extra_state
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.rollout.RolloutBaseline.set_extra_state
+```
+
+````
+
+````{py:method} _load_from_state_dict(state_dict, prefix, *args, **kwargs)
+:canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline._load_from_state_dict
+
+````
+
+````{py:method} _generate_comparison(generation: int) -> torch.utils.data.Dataset
+:canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline._generate_comparison
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.rollout.RolloutBaseline._generate_comparison
+```
+
+````
+
 ````{py:method} train(mode: bool = True) -> src.pipeline.rl.common.baselines.rollout.RolloutBaseline
 :canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train
 
@@ -79,6 +116,15 @@ Bases: {py:obj}`src.pipeline.rl.common.baselines.base.Baseline`
 :canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout
 
 ```{autodoc2-docstring} src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout
+```
+
+````
+
+````{py:method} _invoke_greedy(policy: torch.nn.Module, td: typing.Any, env: typing.Optional[typing.Any]) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.rl.common.baselines.rollout.RolloutBaseline._invoke_greedy
+:staticmethod:
+
+```{autodoc2-docstring} src.pipeline.rl.common.baselines.rollout.RolloutBaseline._invoke_greedy
 ```
 
 ````

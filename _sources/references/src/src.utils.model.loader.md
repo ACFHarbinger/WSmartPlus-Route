@@ -50,7 +50,7 @@
 ````{py:data} _UNUSED_LEGACY_KEYS
 :canonical: src.utils.model.loader._UNUSED_LEGACY_KEYS
 :value: >
-   ('context_embedder.project_step_context.',)
+   ('context_embedder.project_step_context.', 'decoder.project_fixed_context.', 'project_fixed_context....
 
 ```{autodoc2-docstring} src.utils.model.loader._UNUSED_LEGACY_KEYS
 ```

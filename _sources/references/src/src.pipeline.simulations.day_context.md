@@ -27,6 +27,14 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_registered_constructor_keys <src.pipeline.simulations.day_context._registered_constructor_keys>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context._registered_constructor_keys
+    :summary:
+    ```
+* - {py:obj}`_matching_constructor <src.pipeline.simulations.day_context._matching_constructor>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context._matching_constructor
+    :summary:
+    ```
 * - {py:obj}`get_canonical_policy_name <src.pipeline.simulations.day_context.get_canonical_policy_name>`
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_canonical_policy_name
     :summary:
@@ -63,6 +71,14 @@
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.set_daily_waste
     :summary:
     ```
+* - {py:obj}`resolve_solver_status <src.pipeline.simulations.day_context.resolve_solver_status>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.resolve_solver_status
+    :summary:
+    ```
+* - {py:obj}`record_aborted_day <src.pipeline.simulations.day_context.record_aborted_day>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context.record_aborted_day
+    :summary:
+    ```
 * - {py:obj}`get_daily_results <src.pipeline.simulations.day_context.get_daily_results>`
   - ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_daily_results
     :summary:
@@ -73,9 +89,45 @@
     ```
 ````
 
+### Data
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_STRUCTURAL_NAME_TOKENS <src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS
+    :summary:
+    ```
+````
+
 ### API
 
-````{py:function} get_canonical_policy_name(policy_name: str) -> str
+````{py:function} _registered_constructor_keys() -> typing.Tuple[str, ...]
+:canonical: src.pipeline.simulations.day_context._registered_constructor_keys
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context._registered_constructor_keys
+```
+````
+
+````{py:data} _STRUCTURAL_NAME_TOKENS
+:canonical: src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS
+:value: >
+   'frozenset(...)'
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS
+```
+
+````
+
+````{py:function} _matching_constructor(parts: typing.List[str]) -> typing.Optional[str]
+:canonical: src.pipeline.simulations.day_context._matching_constructor
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context._matching_constructor
+```
+````
+
+````{py:function} get_canonical_policy_name(policy_name: str, known_keys: typing.Optional[typing.Iterable[str]] = None) -> str
 :canonical: src.pipeline.simulations.day_context.get_canonical_policy_name
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_canonical_policy_name
@@ -306,7 +358,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.model_ls
 :type: typing.Tuple[typing.Any, ...]
 :value: >
-   (None,)
+   (None, None, None)
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.model_ls
 ```
@@ -750,6 +802,16 @@ Bases: {py:obj}`collections.abc.Mapping`
 
 ````
 
+````{py:attribute} solver_status
+:canonical: src.pipeline.simulations.day_context.SimulationDayContext.solver_status
+:type: str
+:value: <Multiline-String>
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.solver_status
+```
+
+````
+
 ````{py:property} field_names
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.field_names
 
@@ -823,7 +885,21 @@ Bases: {py:obj}`collections.abc.Mapping`
 ```
 ````
 
-````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float, time: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, time_spent: typing.Optional[float] = None) -> typing.Dict[str, typing.Union[int, float, typing.List[typing.Union[int, str]]]]
+````{py:function} resolve_solver_status(published: typing.Optional[str], tour: typing.Optional[typing.List[int]], error: typing.Optional[BaseException] = None) -> str
+:canonical: src.pipeline.simulations.day_context.resolve_solver_status
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.resolve_solver_status
+```
+````
+
+````{py:function} record_aborted_day(context: typing.Any, error: BaseException) -> typing.Dict[str, typing.Any]
+:canonical: src.pipeline.simulations.day_context.record_aborted_day
+
+```{autodoc2-docstring} src.pipeline.simulations.day_context.record_aborted_day
+```
+````
+
+````{py:function} get_daily_results(total_collected: float, ncol: int, cost: float, tour: typing.List[int], day: int, new_overflows: int, sum_lost: float, coordinates: pandas.DataFrame, profit: float, time: float, mandatory_nodes: typing.Optional[typing.List[int]] = None, time_spent: typing.Optional[float] = None, solver_status: typing.Optional[str] = None) -> typing.Dict[str, typing.Any]
 :canonical: src.pipeline.simulations.day_context.get_daily_results
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.get_daily_results

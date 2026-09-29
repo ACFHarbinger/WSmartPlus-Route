@@ -13,7 +13,6 @@
 :titlesonly:
 :maxdepth: 1
 
-src.tracking.integrations.gradient_tracker
 src.tracking.integrations.filesystem
 src.tracking.integrations.data_lineage
 src.tracking.integrations.mlflow_bridge

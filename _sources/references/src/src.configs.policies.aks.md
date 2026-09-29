@@ -139,17 +139,6 @@
 
 ````
 
-````{py:attribute} time_limit_stage_1
-:canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.policies.aks.AdaptiveKernelSearchConfig.time_limit_stage_1
-```
-
-````
-
 ````{py:attribute} engine
 :canonical: src.configs.policies.aks.AdaptiveKernelSearchConfig.engine
 :type: str

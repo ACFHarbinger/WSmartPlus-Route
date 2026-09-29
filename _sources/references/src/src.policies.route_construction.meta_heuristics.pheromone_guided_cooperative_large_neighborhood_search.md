@@ -7,15 +7,6 @@
 :allowtitles:
 ```
 
-## Subpackages
-
-```{toctree}
-:titlesonly:
-:maxdepth: 3
-
-src.policies.route_construction.meta_heuristics.pheromone_guided_cooperative_large_neighborhood_search.operators
-```
-
 ## Submodules
 
 ```{toctree}

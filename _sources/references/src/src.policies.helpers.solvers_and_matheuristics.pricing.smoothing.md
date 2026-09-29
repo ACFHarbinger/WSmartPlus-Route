@@ -35,14 +35,6 @@
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.solve_pricing_step
     :summary:
     ```
-* - {py:obj}`dssr_pricing_wrapper <src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.dssr_pricing_wrapper>`
-  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.dssr_pricing_wrapper
-    :summary:
-    ```
-* - {py:obj}`reduced_cost_arc_fixing <src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.reduced_cost_arc_fixing>`
-  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.reduced_cost_arc_fixing
-    :summary:
-    ```
 * - {py:obj}`apply_reduced_cost_edge_fixing <src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.apply_reduced_cost_edge_fixing>`
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.apply_reduced_cost_edge_fixing
     :summary:
@@ -101,24 +93,10 @@
 ```
 ````
 
-````{py:function} solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, timeout: typing.Optional[float] = None, use_dssr: bool = False, dssr_max_iters: int = 8, exact_mode: bool = False) -> typing.Tuple[int, bool]
+````{py:function} solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.master_problem.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.branching.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, timeout: typing.Optional[float] = None, exact_mode: bool = False) -> typing.Tuple[int, bool]
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.solve_pricing_step
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.solve_pricing_step
-```
-````
-
-````{py:function} dssr_pricing_wrapper(pricing_solver: typing.Any, node_duals: typing.Dict[int, typing.Any], max_routes: int, forced_nodes: typing.Optional[typing.Set[int]] = None, rf_conflicts: typing.Optional[typing.Dict] = None, forbidden_arcs: typing.Optional[typing.FrozenSet] = None, required_successors: typing.Optional[typing.Dict] = None, required_predecessors: typing.Optional[typing.Dict] = None, timeout: typing.Optional[float] = None, max_dssr_iters: int = 8) -> typing.List[typing.Any]
-:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.dssr_pricing_wrapper
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.dssr_pricing_wrapper
-```
-````
-
-````{py:function} reduced_cost_arc_fixing(pricing_solver: typing.Any, master_lp_bound: float, incumbent_value: float, n_nodes: int, dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], node_duals: typing.Dict[int, float], R: float, C: float, tol: float = 1e-06) -> int
-:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.reduced_cost_arc_fixing
-
-```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.smoothing.reduced_cost_arc_fixing
 ```
 ````
 

@@ -14,5 +14,4 @@
 :maxdepth: 1
 
 src.policies.helpers.reinforcement_learning.features.state
-src.policies.helpers.reinforcement_learning.features.context
 ```

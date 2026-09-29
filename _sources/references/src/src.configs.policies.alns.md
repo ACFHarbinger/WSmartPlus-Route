@@ -66,7 +66,7 @@
 :canonical: src.configs.policies.alns.ALNSConfig.start_temp
 :type: float
 :value: >
-   100.0
+   0.0
 
 ```{autodoc2-docstring} src.configs.policies.alns.ALNSConfig.start_temp
 ```

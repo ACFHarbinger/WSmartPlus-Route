@@ -53,7 +53,7 @@
 
 ````
 
-````{py:function} _build_alns_params(pipeline_params: src.policies.route_construction.matheuristics.exact_guided_heuristic.params.PipelineParams, time_limit: float)
+````{py:function} _build_alns_params(pipeline_params: src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams, time_limit: float)
 :canonical: src.policies.route_construction.matheuristics.exact_guided_heuristic.dispatcher._build_alns_params
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.exact_guided_heuristic.dispatcher._build_alns_params
@@ -67,7 +67,7 @@
 ```
 ````
 
-````{py:function} run_pipeline(bins: numpy.typing.NDArray[numpy.float64], dist_matrix: typing.List[typing.List[float]], env, values: typing.Dict[str, typing.Any], binsids: typing.List[int], mandatory: typing.List[int], n_vehicles: int = 1, params: typing.Optional[src.policies.route_construction.matheuristics.exact_guided_heuristic.params.PipelineParams] = None, recorder=None) -> typing.Tuple[typing.List[int], float, float]
+````{py:function} run_pipeline(bins: numpy.typing.NDArray[numpy.float64], dist_matrix: typing.List[typing.List[float]], env, values: typing.Dict[str, typing.Any], binsids: typing.List[int], mandatory: typing.List[int], n_vehicles: int = 1, params: typing.Optional[src.policies.route_construction.matheuristics.exact_guided_heuristic.params.ExactGuidedHeuristicParams] = None, recorder=None) -> typing.Tuple[typing.List[int], float, float]
 :canonical: src.policies.route_construction.matheuristics.exact_guided_heuristic.dispatcher.run_pipeline
 
 ```{autodoc2-docstring} src.policies.route_construction.matheuristics.exact_guided_heuristic.dispatcher.run_pipeline

@@ -150,28 +150,6 @@
 
 ````
 
-````{py:attribute} min_diversity
-:canonical: src.configs.rl.policies.hgs.HGSConfig.min_diversity
-:type: float
-:value: >
-   0.2
-
-```{autodoc2-docstring} src.configs.rl.policies.hgs.HGSConfig.min_diversity
-```
-
-````
-
-````{py:attribute} diversity_change_rate
-:canonical: src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate
-:type: float
-:value: >
-   0.05
-
-```{autodoc2-docstring} src.configs.rl.policies.hgs.HGSConfig.diversity_change_rate
-```
-
-````
-
 ````{py:attribute} local_search_iterations
 :canonical: src.configs.rl.policies.hgs.HGSConfig.local_search_iterations
 :type: int

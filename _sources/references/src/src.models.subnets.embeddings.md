@@ -91,7 +91,7 @@ src.models.subnets.embeddings.matnet
 
 ````
 
-````{py:function} get_init_embedding(env_name: str, embed_dim: int = 128) -> torch.nn.Module
+````{py:function} get_init_embedding(env_name: str, embed_dim: int = 128, **kwargs: typing.Any) -> torch.nn.Module
 :canonical: src.models.subnets.embeddings.get_init_embedding
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.get_init_embedding

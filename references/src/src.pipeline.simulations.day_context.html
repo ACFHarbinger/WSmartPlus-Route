@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -456,7 +454,11 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._registered_constructor_keys"><code class="docutils literal notranslate"><span class="pre">_registered_constructor_keys()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS"><code class="docutils literal notranslate"><span class="pre">_STRUCTURAL_NAME_TOKENS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._matching_constructor"><code class="docutils literal notranslate"><span class="pre">_matching_constructor()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_canonical_policy_name"><code class="docutils literal notranslate"><span class="pre">get_canonical_policy_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._clean"><code class="docutils literal notranslate"><span class="pre">_clean()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.find_policy_keys"><code class="docutils literal notranslate"><span class="pre">find_policy_keys()</span></code></a></li>
@@ -522,6 +524,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.mandatory"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.mandatory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.time"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.time_spent"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.time_spent</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.solver_status"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.solver_status</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.field_names"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.field_names</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.__post_init__"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.__getitem__"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.__getitem__()</span></code></a></li>
@@ -533,6 +536,8 @@ document.write(`
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.set_daily_waste"><code class="docutils literal notranslate"><span class="pre">set_daily_waste()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.resolve_solver_status"><code class="docutils literal notranslate"><span class="pre">resolve_solver_status()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.record_aborted_day"><code class="docutils literal notranslate"><span class="pre">record_aborted_day()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_daily_results"><code class="docutils literal notranslate"><span class="pre">get_daily_results()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.run_day"><code class="docutils literal notranslate"><span class="pre">run_day()</span></code></a></li>
 </ul>
@@ -579,8 +584,14 @@ SimulationDayContext: Represents the context of a single simulation day.</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context._registered_constructor_keys" title="src.pipeline.simulations.day_context._registered_constructor_keys"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_registered_constructor_keys</span></code></a></p></td>
+<td><p>Return every route-constructor key, taken from <code class="docutils literal notranslate"><span class="pre">logic/configs/policies/policy_&lt;key&gt;.yaml</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context._matching_constructor" title="src.pipeline.simulations.day_context._matching_constructor"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_matching_constructor</span></code></a></p></td>
+<td><p>Longest registered constructor key inside an expanded policy id.</p></td>
+</tr>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.get_canonical_policy_name" title="src.pipeline.simulations.day_context.get_canonical_policy_name"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_canonical_policy_name</span></code></a></p></td>
-<td><p>Get canonical algorithm name for RNG seeding.</p></td>
+<td><p>Get the route-constructor key of a policy slug, used for RNG seeding.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context._clean" title="src.pipeline.simulations.day_context._clean"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean</span></code></a></p></td>
 <td><p>Clean a policy/strategy name for display.</p></td>
@@ -608,6 +619,12 @@ It combines keys found in the policy config with global simulation defaults.</p>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.set_daily_waste" title="src.pipeline.simulations.day_context.set_daily_waste"><code class="xref py py-obj docutils literal notranslate"><span class="pre">set_daily_waste</span></code></a></p></td>
 <td><p>Updates neural model input with current bin waste levels.</p></td>
 </tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.resolve_solver_status" title="src.pipeline.simulations.day_context.resolve_solver_status"><code class="xref py py-obj docutils literal notranslate"><span class="pre">resolve_solver_status</span></code></a></p></td>
+<td><p>Choose the status string written for one day.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.record_aborted_day" title="src.pipeline.simulations.day_context.record_aborted_day"><code class="xref py py-obj docutils literal notranslate"><span class="pre">record_aborted_day</span></code></a></p></td>
+<td><p>Write one daily record before a constructor exception leaves the day.</p></td>
+</tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context.get_daily_results" title="src.pipeline.simulations.day_context.get_daily_results"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_daily_results</span></code></a></p></td>
 <td><p>Formats raw simulation outputs into structured daily log dictionary.</p></td>
 </tr>
@@ -620,20 +637,64 @@ context: The simulation context for the day.</p></td>
 </table>
 </div>
 </section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS" title="src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_STRUCTURAL_NAME_TOKENS</span></code></a></p></td>
+<td></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.get_canonical_policy_name">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">get_canonical_policy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.get_canonical_policy_name" title="Link to this definition">#</a></dt>
-<dd><p>Get canonical algorithm name for RNG seeding.</p>
-<p>This extracts the base algorithm name from the policy string to ensure
-consistent seeding across different selection strategies.</p>
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context._registered_constructor_keys">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">_registered_constructor_keys</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context._registered_constructor_keys" title="Link to this definition">#</a></dt>
+<dd><p>Return every route-constructor key, taken from <code class="docutils literal notranslate"><span class="pre">logic/configs/policies/policy_&lt;key&gt;.yaml</span></code>.</p>
+<p>The file names are used instead of the live <code class="docutils literal notranslate"><span class="pre">RouteConstructorRegistry</span></code> because the registry
+only holds the adapters imported so far (SWC-TCF, for one, is imported lazily), which would
+make the seed depend on import order.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">_STRUCTURAL_NAME_TOKENS</span></span><a class="headerlink" href="#src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS" title="Link to this definition">#</a></dt>
+<dd><p>‘frozenset(…)’</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context._matching_constructor">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">_matching_constructor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">parts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context._matching_constructor" title="Link to this definition">#</a></dt>
+<dd><p>Longest registered constructor key inside an expanded policy id.</p>
+<p><code class="docutils literal notranslate"><span class="pre">alns</span></code> and <code class="docutils literal notranslate"><span class="pre">hgs</span></code> are constructors, so they are not skipped. Selection
+tokens such as <code class="docutils literal notranslate"><span class="pre">regular</span></code> are not constructor keys and do not win.</p>
 <p>Args:
-policy_name: Full policy name (e.g., ‘lookahead_ma_ts_custom_gamma3’)</p>
+parts: Underscore tokens of the policy id.</p>
 <p>Returns:
-Canonical name for seeding (e.g., ‘ma_ts’)</p>
+The constructor key, or None when the registry has no match.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.get_canonical_policy_name">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">get_canonical_policy_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">known_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Iterable</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.get_canonical_policy_name" title="Link to this definition">#</a></dt>
+<dd><p>Get the route-constructor key of a policy slug, used for RNG seeding.</p>
+<p>The seed must depend on the constructor only, so that the same constructor
+under different selectors or thresholds draws the same random stream, and
+different constructors under the same selector do not. The constructor is the
+leftmost-longest run of slug tokens that is a registered constructor key.</p>
+<p>Args:
+policy_name: Full policy slug (e.g., ‘last_minute_cf70_aco_hh_custom_cls’).
+known_keys: Constructor keys to match; defaults to the <code class="docutils literal notranslate"><span class="pre">policy_&lt;key&gt;.yaml</span></code> names.</p>
+<p>Returns:
+The constructor key (e.g., ‘aco_hh’). If no key matches, the slug with any
+leading selection tokens removed is returned.</p>
 <p>Examples:
-&gt;&gt;&gt; get_canonical_policy_name(‘lookahead_ma_ts_custom_gamma3’)
+&gt;&gt;&gt; get_canonical_policy_name(‘last_minute_cf70_aco_hh_custom_cls’, [‘aco_hh’, ‘alns’])
+‘aco_hh’
+&gt;&gt;&gt; get_canonical_policy_name(‘lookahead_ma_ts_custom_gamma3’, [‘ma’, ‘ma_ts’])
 ‘ma_ts’</p>
 </dd></dl>
 
@@ -866,7 +927,7 @@ time: Elapsed time for policy execution.
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.model_ls">
 <span class="sig-name descname"><span class="pre">model_ls</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.model_ls" title="Link to this definition">#</a></dt>
-<dd><p>(None,)</p>
+<dd><p>(None, None, None)</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -1106,6 +1167,11 @@ time: Elapsed time for policy execution.
 <dd><p>0.0</p>
 </dd></dl>
 
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.solver_status">
+<span class="sig-name descname"><span class="pre">solver_status</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><em class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">&lt;Multiline-String&gt;</span></em><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.solver_status" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
 <dl class="py property">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.SimulationDayContext.field_names">
 <em class="property"><span class="pre">property</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">field_names</span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.SimulationDayContext.field_names" title="Link to this definition">#</a></dt>
@@ -1192,8 +1258,35 @@ Updated model_data dictionary moved to the target device.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.resolve_solver_status">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">resolve_solver_status</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">published</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">BaseException</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.resolve_solver_status" title="Link to this definition">#</a></dt>
+<dd><p>Choose the status string written for one day.</p>
+<p>A status the solver already published wins. Otherwise an exception is
+named, an empty tour is <code class="docutils literal notranslate"><span class="pre">empty_tour</span></code>, and a returned route is <code class="docutils literal notranslate"><span class="pre">ok</span></code>.</p>
+<p>Args:
+published: Status noted by the constructor, if any.
+tour: Tour returned for the day.
+error: Exception that aborted the day, if the solver raised.</p>
+<p>Returns:
+The status token stored on the daily record.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.day_context.record_aborted_day">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">record_aborted_day</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">BaseException</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.record_aborted_day" title="Link to this definition">#</a></dt>
+<dd><p>Write one daily record before a constructor exception leaves the day.</p>
+<p>The sample still fails. The record keeps the mandatory set and the solver
+status so an empty or aborted day is not a blank log line.</p>
+<p>Args:
+context: The day context, used as a mapping.
+error: The exception that aborted the day.</p>
+<p>Returns:
+The daily record stored on <code class="docutils literal notranslate"><span class="pre">context[&quot;daily_log&quot;]</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.simulations.day_context.get_daily_results">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">get_daily_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_collected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_overflows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_lost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_spent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">float</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.get_daily_results" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.day_context.</span></span><span class="sig-name descname"><span class="pre">get_daily_results</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">total_collected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">ncol</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">cost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">day</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">new_overflows</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sum_lost</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">coordinates</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">pandas.DataFrame</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">profit</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">mandatory_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_spent</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">solver_status</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.day_context.get_daily_results" title="Link to this definition">#</a></dt>
 <dd><p>Formats raw simulation outputs into structured daily log dictionary.</p>
 <p>Args:
 total_collected: Total weight of waste collected (kg).
@@ -1208,7 +1301,8 @@ profit: Total profit from collected waste.
 time: Execution time of the routing policy (s).
 mandatory_nodes: Optional list of bin indices selected as mandatory
 before routing (iloc-based). Resolved to real IDs.
-time_spent: Optional total shift time spent on route and services (h).</p>
+time_spent: Optional total shift time spent on route and services (h).
+solver_status: Backend status for this day. An empty tour keeps it.</p>
 <p>Returns:
 Dictionary containing formatted daily metrics and the route.</p>
 </dd></dl>
@@ -1275,7 +1369,11 @@ The updated context after executing all daily actions.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._registered_constructor_keys"><code class="docutils literal notranslate"><span class="pre">_registered_constructor_keys()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._STRUCTURAL_NAME_TOKENS"><code class="docutils literal notranslate"><span class="pre">_STRUCTURAL_NAME_TOKENS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._matching_constructor"><code class="docutils literal notranslate"><span class="pre">_matching_constructor()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_canonical_policy_name"><code class="docutils literal notranslate"><span class="pre">get_canonical_policy_name()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context._clean"><code class="docutils literal notranslate"><span class="pre">_clean()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.find_policy_keys"><code class="docutils literal notranslate"><span class="pre">find_policy_keys()</span></code></a></li>
@@ -1341,6 +1439,7 @@ The updated context after executing all daily actions.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.mandatory"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.mandatory</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.time"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.time</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.time_spent"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.time_spent</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.solver_status"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.solver_status</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.field_names"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.field_names</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.__post_init__"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.__post_init__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.SimulationDayContext.__getitem__"><code class="docutils literal notranslate"><span class="pre">SimulationDayContext.__getitem__()</span></code></a></li>
@@ -1352,6 +1451,8 @@ The updated context after executing all daily actions.</p>
 </ul>
 </li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.set_daily_waste"><code class="docutils literal notranslate"><span class="pre">set_daily_waste()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.resolve_solver_status"><code class="docutils literal notranslate"><span class="pre">resolve_solver_status()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.record_aborted_day"><code class="docutils literal notranslate"><span class="pre">record_aborted_day()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.get_daily_results"><code class="docutils literal notranslate"><span class="pre">get_daily_results()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.day_context.run_day"><code class="docutils literal notranslate"><span class="pre">run_day()</span></code></a></li>
 </ul>

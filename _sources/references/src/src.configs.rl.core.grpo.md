@@ -29,17 +29,6 @@
 ```{autodoc2-docstring} src.configs.rl.core.grpo.GRPOConfig
 ```
 
-````{py:attribute} group_size
-:canonical: src.configs.rl.core.grpo.GRPOConfig.group_size
-:type: int
-:value: >
-   8
-
-```{autodoc2-docstring} src.configs.rl.core.grpo.GRPOConfig.group_size
-```
-
-````
-
 ````{py:attribute} epsilon
 :canonical: src.configs.rl.core.grpo.GRPOConfig.epsilon
 :type: float

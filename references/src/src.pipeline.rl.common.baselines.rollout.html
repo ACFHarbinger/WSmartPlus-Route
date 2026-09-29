@@ -180,7 +180,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.temporal.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.temporal</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.envs.dr_alns.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.dr_alns</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.problems.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.problems</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.envs.tsp_kopt.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tsp_kopt</span></code></a></li>
 </ul>
@@ -190,7 +189,6 @@
 <li class="toctree-l4"><a class="reference internal" href="src.policies.selection_and_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.selection_and_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.vector.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.vector</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_improvement.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_improvement</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="src.policies.context.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.context</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.route_construction.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.route_construction</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.helpers.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.helpers</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.policies.acceptance_criteria.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.policies.acceptance_criteria</span></code></a></li>
@@ -460,8 +458,14 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.setup"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.setup()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.configure_comparison"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.configure_comparison()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.get_extra_state"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.get_extra_state()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.set_extra_state"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.set_extra_state()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._load_from_state_dict"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._load_from_state_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._generate_comparison"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._generate_comparison()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.train()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._invoke_greedy"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._invoke_greedy()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_dataset"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_dataset()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_batch"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_batch()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.wrap_dataset"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.wrap_dataset()</span></code></a></li>
@@ -554,6 +558,37 @@ policy: Policy to use as initial baseline (will be copied).</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.configure_comparison">
+<span class="sig-name descname"><span class="pre">configure_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.configure_comparison" title="Link to this definition">#</a></dt>
+<dd><p>Create a private pool using the training environment’s distribution.</p>
+<p>Reporting validation graphs and their datasets are never used for
+promotion. The pool size stays fixed across accepted replacements.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.get_extra_state">
+<span class="sig-name descname"><span class="pre">get_extra_state</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.get_extra_state" title="Link to this definition">#</a></dt>
+<dd><p>Save the deterministic pool identity without storing all instances.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.set_extra_state">
+<span class="sig-name descname"><span class="pre">set_extra_state</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.set_extra_state" title="Link to this definition">#</a></dt>
+<dd><p>Recreate the saved pool lazily after the environment is configured.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline._load_from_state_dict">
+<span class="sig-name descname"><span class="pre">_load_from_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">args</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._load_from_state_dict" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline._generate_comparison">
+<span class="sig-name descname"><span class="pre">_generate_comparison</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">generation</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.utils.data.Dataset</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._generate_comparison" title="Link to this definition">#</a></dt>
+<dd><p>Generate reproducibly without consuming the training RNG streams.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train">
 <span class="sig-name descname"><span class="pre">train</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">mode</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline" title="src.pipeline.rl.common.baselines.rollout.RolloutBaseline"><span class="pre">src.pipeline.rl.common.baselines.rollout.RolloutBaseline</span></a></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train" title="Link to this definition">#</a></dt>
 <dd><p>Override train to keep baseline_policy in eval mode.</p>
@@ -578,6 +613,12 @@ td_or_dataset: TensorDict or Dataset to evaluate.
 env: Environment instance.</p>
 <p>Returns:
 Rewards from the rollout.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.rl.common.baselines.rollout.RolloutBaseline._invoke_greedy">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_invoke_greedy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.nn.Module</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._invoke_greedy" title="Link to this definition">#</a></dt>
+<dd><p>Invoke either policy API, preserving the legacy reward tuple contract.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -697,8 +738,14 @@ env: Environment instance.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.setup"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.setup()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.configure_comparison"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.configure_comparison()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.get_extra_state"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.get_extra_state()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.set_extra_state"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.set_extra_state()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._load_from_state_dict"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._load_from_state_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._generate_comparison"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._generate_comparison()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.train"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.train()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._invoke_greedy"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._invoke_greedy()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_dataset"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_dataset()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline._rollout_batch"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline._rollout_batch()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.baselines.rollout.RolloutBaseline.wrap_dataset"><code class="docutils literal notranslate"><span class="pre">RolloutBaseline.wrap_dataset()</span></code></a></li>

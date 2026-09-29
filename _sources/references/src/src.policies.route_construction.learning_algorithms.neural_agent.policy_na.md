@@ -37,6 +37,31 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 ```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy.__init__
 ```
 
+````{py:method} _config_class() -> typing.Optional[typing.Type[typing.Any]]
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._config_class
+:classmethod:
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._config_class
+```
+
+````
+
+````{py:method} _get_config_key() -> str
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._get_config_key
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._get_config_key
+```
+
+````
+
+````{py:method} _validate_mandatory(mandatory: typing.Any) -> typing.Optional[typing.Tuple[typing.List[int], float, float]]
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._validate_mandatory
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._validate_mandatory
+```
+
+````
+
 ````{py:method} execute(**kwargs: typing.Any) -> typing.Tuple[typing.List[int], float, float, typing.Optional[logic.src.interfaces.context.search_context.SearchContext], typing.Optional[logic.src.interfaces.context.multi_day_context.MultiDayContext]]
 :canonical: src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy.execute
 

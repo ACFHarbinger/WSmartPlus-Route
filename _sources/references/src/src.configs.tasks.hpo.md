@@ -95,17 +95,6 @@
 
 ````
 
-````{py:attribute} hop_range
-:canonical: src.configs.tasks.hpo.HPOConfig.hop_range
-:type: typing.List[float]
-:value: >
-   'field(...)'
-
-```{autodoc2-docstring} src.configs.tasks.hpo.HPOConfig.hop_range
-```
-
-````
-
 ````{py:attribute} fevals
 :canonical: src.configs.tasks.hpo.HPOConfig.fevals
 :type: int

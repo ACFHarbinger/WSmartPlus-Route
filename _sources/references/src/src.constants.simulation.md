@@ -43,10 +43,6 @@
   - ```{autodoc2-docstring} src.constants.simulation.MAX_CAPACITY_PERCENT
     :summary:
     ```
-* - {py:obj}`MAX_LENGTHS <src.constants.simulation.MAX_LENGTHS>`
-  - ```{autodoc2-docstring} src.constants.simulation.MAX_LENGTHS
-    :summary:
-    ```
 * - {py:obj}`VEHICLE_CAPACITY <src.constants.simulation.VEHICLE_CAPACITY>`
   - ```{autodoc2-docstring} src.constants.simulation.VEHICLE_CAPACITY
     :summary:
@@ -131,17 +127,6 @@
    100.0
 
 ```{autodoc2-docstring} src.constants.simulation.MAX_CAPACITY_PERCENT
-```
-
-````
-
-````{py:data} MAX_LENGTHS
-:canonical: src.constants.simulation.MAX_LENGTHS
-:type: typing.Dict[int, int]
-:value: >
-   None
-
-```{autodoc2-docstring} src.constants.simulation.MAX_LENGTHS
 ```
 
 ````

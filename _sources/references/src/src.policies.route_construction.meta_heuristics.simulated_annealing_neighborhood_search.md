@@ -18,7 +18,6 @@ src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood
 src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.select
 src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.search
 src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common
-src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.operators
 ```
 
 ## Submodules

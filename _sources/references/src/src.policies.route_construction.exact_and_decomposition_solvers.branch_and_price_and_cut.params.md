@@ -62,17 +62,6 @@
 
 ````
 
-````{py:attribute} knapsack_proc_selection
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.knapsack_proc_selection
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.knapsack_proc_selection
-```
-
-````
-
 ````{py:attribute} seed
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.seed
 :type: typing.Optional[int]
@@ -124,17 +113,6 @@
    50
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.max_cg_iterations
-```
-
-````
-
-````{py:attribute} max_cut_iterations
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.max_cut_iterations
-:type: int
-:value: >
-   5
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.max_cut_iterations
 ```
 
 ````
@@ -245,17 +223,6 @@
    0.8
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.cut_orthogonality_threshold
-```
-
-````
-
-````{py:attribute} use_spatial_partitioning
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_spatial_partitioning
-:type: bool
-:value: >
-   False
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.use_spatial_partitioning
 ```
 
 ````
@@ -432,39 +399,6 @@
    True
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.enable_node_visitation_branching
-```
-
-````
-
-````{py:attribute} enable_dssr
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.enable_dssr
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.enable_dssr
-```
-
-````
-
-````{py:attribute} dssr_max_iters
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.dssr_max_iters
-:type: int
-:value: >
-   8
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.dssr_max_iters
-```
-
-````
-
-````{py:attribute} enable_reduced_cost_arc_fixing
-:canonical: src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.enable_reduced_cost_arc_fixing
-:type: bool
-:value: >
-   True
-
-```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.branch_and_price_and_cut.params.BPCParams.enable_reduced_cost_arc_fixing
 ```
 
 ````
