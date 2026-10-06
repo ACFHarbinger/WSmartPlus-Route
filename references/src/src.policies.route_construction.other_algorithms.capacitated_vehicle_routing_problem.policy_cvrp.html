@@ -558,8 +558,8 @@ Tuple[List[List[int]], float, float]: A tuple containing:
 <p>This policy solves the problem of finding optimal routes for a fleet
 of vehicles to deliver or collect waste from a set of bins, subject
 to vehicle capacity constraints and mandatory collection requirements.
-It supports multiple engines, including OR-Tools and custom geometric
-heuristics (Clarke-Wright savings).</p>
+It supports OR-Tools (default), PyVRP and the Clarke-Wright savings
+heuristic (<code class="docutils literal notranslate"><span class="pre">engine:</span> <span class="pre">clarke_wright</span></code>).</p>
 <p>Args:
 kwargs: Context dictionary containing:
 - mandatory (List[int]): Global indices of bins to be collected.

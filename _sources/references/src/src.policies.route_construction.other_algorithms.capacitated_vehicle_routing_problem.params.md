@@ -33,7 +33,7 @@
 :canonical: src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params.CVRPParams.engine
 :type: str
 :value: >
-   'pyvrp'
+   'ortools'
 
 ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params.CVRPParams.engine
 ```

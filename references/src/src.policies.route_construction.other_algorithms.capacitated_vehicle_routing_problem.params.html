@@ -486,7 +486,7 @@ CVRPParams: Configuration parameters for the CVRP solver.</p>
 &gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem import CVRPParams
 &gt;&gt;&gt; params = CVRPParams()
 &gt;&gt;&gt; params
-CVRPParams(engine=’pyvrp’, time_limit=2.0, seed=42)</p>
+CVRPParams(engine=’ortools’, time_limit=2.0, seed=42)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -507,13 +507,13 @@ CVRPParams(engine=’pyvrp’, time_limit=2.0, seed=42)</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params.</span></span><span class="sig-name descname"><span class="pre">CVRPParams</span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params.CVRPParams" title="Link to this definition">#</a></dt>
 <dd><p>Configuration parameters for the CVRP solver.</p>
 <p>Attributes:
-engine: Optimization engine to use (‘pyvrp’ or ‘ortools’).
+engine: Optimization engine to use (‘ortools’, ‘pyvrp’ or ‘clarke_wright’).
 time_limit: Time limit for the solver in seconds.
 seed: Random seed for reproducibility.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params.CVRPParams.engine">
 <span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.params.CVRPParams.engine" title="Link to this definition">#</a></dt>
-<dd><p>‘pyvrp’</p>
+<dd><p>‘ortools’</p>
 </dd></dl>
 
 <dl class="py attribute">

@@ -491,8 +491,8 @@ with capacity constraints. It supports two solver backends:</p>
 <p>Attributes:
 None</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.policies.capacitated_vehicle_routing_problem.cvrp import find_routes
-&gt;&gt;&gt; routes = find_routes(dist_matrix, wastes, capacity, num_vehicles)</p>
+&gt;&gt;&gt; from logic.src.policies.route_construction.other_algorithms.capacitated_vehicle_routing_problem.cvrp import find_routes
+&gt;&gt;&gt; tour = find_routes(dist_matrix, wastes, capacity, to_collect, n_vehicles=0)</p>
 <p>Reference:
 Wouda, N. A., Lan, L., &amp; Kool, W.
 “PyVRP: a high-performance VRP solver package”, 2023.
