@@ -458,6 +458,7 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.device"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.__getstate__"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.__getstate__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.__setstate__"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.__setstate__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder._load_from_state_dict"><code class="docutils literal notranslate"><span class="pre">DACTDecoder._load_from_state_dict()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.forward"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.forward()</span></code></a></li>
 </ul>
 </li>
@@ -479,14 +480,21 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.dact.decoder">
 <span id="src-models-core-dact-decoder"></span><h1><a class="reference internal" href="#module-src.models.core.dact.decoder" title="src.models.core.dact.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.dact.decoder</span></code></a><a class="headerlink" href="#module-src.models.core.dact.decoder" title="Link to this heading">#</a></h1>
 <p>DACT Decoder implementation.</p>
-<p>This module implements the <code class="docutils literal notranslate"><span class="pre">DACTDecoder</span></code>, which selects node pairs (i, j) to
-perform local improvement moves (e.g., 2-opt) using a pairwise attention
-mechanism.</p>
+<p>This module implements the paper-faithful <code class="docutils literal notranslate"><span class="pre">DACTDecoder</span></code> (Ma et al., NeurIPS 2021),
+which selects node pairs (i, j) to perform local improvement moves (e.g., 2-opt)
+using dual-aspect collaborative representations (node aspect and position aspect).</p>
+<p>Architecture (§4.3, Eq. 11, Footnotes 6 &amp; 7):</p>
+<ul class="simple">
+<li><p>Max-pooling context augmentation for both node (h) and position (g) aspects.</p></li>
+<li><p>Multi-Head Compatibility (MHC) sub-layer (m=4 heads) producing proposal matrices.</p></li>
+<li><p>Feed-Forward Aggregation (FFA) 4-layer MLP (2m -&gt; 32 -&gt; 32 -&gt; 1) synthesizing proposals.</p></li>
+<li><p>Entropy control via C * tanh clipping (C=6) and diagonal identity masking.</p></li>
+</ul>
 <p>Attributes:
 DACTDecoder: Pairwise action decoder for iterative improvement.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.models.core.dact.decoder import DACTDecoder
-&gt;&gt;&gt; decoder = DACTDecoder(embed_dim=128)
+&gt;&gt;&gt; decoder = DACTDecoder(embed_dim=128, num_heads=4)
 &gt;&gt;&gt; log_p, actions = decoder(td, h, my_env)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
@@ -495,7 +503,7 @@ DACTDecoder: Pairwise action decoder for iterative improvement.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.dact.decoder.DACTDecoder" title="src.models.core.dact.decoder.DACTDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DACTDecoder</span></code></a></p></td>
-<td><p>DACT Pairwise Action Decoder.</p></td>
+<td><p>DACT Pairwise Action Decoder (Ma et al. NeurIPS 2021, §4.3).</p></td>
 </tr>
 </tbody>
 </table>
@@ -505,24 +513,34 @@ DACTDecoder: Pairwise action decoder for iterative improvement.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.dact.decoder.DACTDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dact.decoder.</span></span><span class="sig-name descname"><span class="pre">DACTDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dact.decoder.DACTDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dact.decoder.</span></span><span class="sig-name descname"><span class="pre">DACTDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dact.decoder.DACTDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.policy.ImprovementDecoder</span></code></p>
-<p>DACT Pairwise Action Decoder.</p>
-<p>Processes node embeddings to predict the optimal pair of indices for iterative
-improvement moves. It uses a cross-attention score matrix to evaluate all
-possible node combinations (i, j).</p>
+<p>DACT Pairwise Action Decoder (Ma et al. NeurIPS 2021, §4.3).</p>
+<p>Processes dual-aspect node embeddings to predict the optimal pair of indices
+for iterative improvement moves. It generates multi-head compatibility proposals
+from both node and position aspects, and synthesizes them using a feed-forward
+aggregation (FFA) MLP.</p>
 <p>Attributes:
-num_heads (int): count of attention heads.
-seed (int): Random seed for sampling stochasticity.
+embed_dim (int): Dimensionality of latent embeddings.
+num_heads (int): Count of attention heads in MHC (default: 4 per paper).
+tanh_clipping (float): Entropy control constant C (default: 6.0).
+seed (int): Random seed for action sampling.
 generator (torch.Generator): PRNG instance for reproducible sampling.
-project_q (nn.Linear): Transformation for query nodes.
-project_k (nn.Linear): Transformation for key nodes.
-scale (float): Attention score normalization factor.</p>
+W_h_local (nn.Linear): Local projection for node aspect.
+W_h_global (nn.Linear): Global max-pooling projection for node aspect.
+W_g_local (nn.Linear): Local projection for position aspect.
+W_g_global (nn.Linear): Global max-pooling projection for position aspect.
+project_qh (nn.Linear): Query projection for node aspect.
+project_kh (nn.Linear): Key projection for node aspect.
+project_qg (nn.Linear): Query projection for position aspect.
+project_kg (nn.Linear): Key projection for position aspect.
+ffa (nn.Sequential): 4-layer Feed-Forward Aggregation MLP (2m -&gt; 32 -&gt; 32 -&gt; 1).</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the DACT decoder.</p>
+<p>Initializes the paper-faithful DACT decoder.</p>
 <p>Args:
 embed_dim: Dimensionality of latent embeddings.
-num_heads: Number of attention heads.
+num_heads: Number of compatibility attention heads (paper default: 4).
+tanh_clipping: Clipping factor C for entropy control (paper default: 6.0).
 seed: Random seed for action sampling.
 kwargs: Additional keyword arguments.</p>
 <dl class="py property">
@@ -550,14 +568,20 @@ state: Serialized attribute map.</p>
 </dd></dl>
 
 <dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.dact.decoder.DACTDecoder._load_from_state_dict">
+<span class="sig-name descname"><span class="pre">_load_from_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unexpected_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_msgs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.dact.decoder.DACTDecoder._load_from_state_dict" title="Link to this definition">#</a></dt>
+<dd><p>Validates checkpoint keys against legacy generic decoder weights.</p>
+</dd></dl>
+
+<dl class="py method">
 <dt class="sig sig-object py" id="src.models.core.dact.decoder.DACTDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dact.decoder.DACTDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Predicts a node pair for an improvement operator.</p>
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dact.decoder.DACTDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Predicts a node pair for an improvement operator via Dual-Aspect MHC + FFA.</p>
 <p>Args:
 td: TensorDict containing problem instance data.
-embeddings: Contextual node features or feature tuple.
+embeddings: Contextual node features [B, N, d] or tuple (h, g).
 env: Environment managing problem physics.
-kwargs: Additional keyword arguments.</p>
+kwargs: Additional keyword arguments including ‘strategy’.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
 - log_p: Log-probability of the selected pair [B].
@@ -622,6 +646,7 @@ Tuple[torch.Tensor, torch.Tensor]:
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.device"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.__getstate__"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.__getstate__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.__setstate__"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.__setstate__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder._load_from_state_dict"><code class="docutils literal notranslate"><span class="pre">DACTDecoder._load_from_state_dict()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.decoder.DACTDecoder.forward"><code class="docutils literal notranslate"><span class="pre">DACTDecoder.forward()</span></code></a></li>
 </ul>
 </li>

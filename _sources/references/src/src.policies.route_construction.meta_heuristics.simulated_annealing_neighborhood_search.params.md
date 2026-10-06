@@ -130,7 +130,7 @@
 
 ````{py:attribute} combination
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.params.SANSParams.combination
-:type: str
+:type: typing.Union[str, typing.Tuple[float, ...]]
 :value: >
    'best'
 

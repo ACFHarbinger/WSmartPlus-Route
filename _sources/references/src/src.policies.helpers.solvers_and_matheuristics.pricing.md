@@ -37,7 +37,7 @@ src.policies.helpers.solvers_and_matheuristics.pricing.solver
 ````{py:data} __all__
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.__all__
 :value: >
-   ['Label', 'RCSPPSolver']
+   ['Label', 'PricingStatus', 'RCSPPSolver']
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.__all__
 ```

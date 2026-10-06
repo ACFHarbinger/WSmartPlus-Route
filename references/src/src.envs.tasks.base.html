@@ -457,6 +457,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem"><code class="docutils literal notranslate"><span class="pre">BaseProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.NAME"><code class="docutils literal notranslate"><span class="pre">BaseProblem.NAME</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.validate_tours"><code class="docutils literal notranslate"><span class="pre">BaseProblem.validate_tours()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.get_waste_with_depot"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_waste_with_depot()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.get_tour_length"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_tour_length()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.beam_search"><code class="docutils literal notranslate"><span class="pre">BaseProblem.beam_search()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.make_state"><code class="docutils literal notranslate"><span class="pre">BaseProblem.make_state()</span></code></a></li>
@@ -533,6 +534,21 @@ NAME: Name of the problem</p>
 pi: Tensor of tours to validate, shape (batch, sequence_length)</p>
 <p>Returns:
 bool: True if tours are valid, False otherwise</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.envs.tasks.base.BaseProblem.get_waste_with_depot">
+<em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">get_waste_with_depot</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">dataset</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pi</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.envs.tasks.base.BaseProblem.get_waste_with_depot" title="Link to this definition">#</a></dt>
+<dd><p>Extract waste tensor guaranteed to include depot at index 0.</p>
+<p>If dataset[‘waste’] has width N (lacks depot column), prepends a zero
+depot waste column. If it already has width N+1 (e.g. from env.reset),
+returns it directly without shifting customer indices.</p>
+<p>Args:
+dataset: Problem dataset containing ‘waste’, optionally ‘locs’,
+‘depot’, ‘visited’, or ‘num_loc’.
+pi: Optional tour tensor [batch, nodes].</p>
+<p>Returns:
+torch.Tensor: Waste tensor with depot at index 0.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -735,6 +751,7 @@ kwargs (Any): Additional keyword arguments.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem"><code class="docutils literal notranslate"><span class="pre">BaseProblem</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.NAME"><code class="docutils literal notranslate"><span class="pre">BaseProblem.NAME</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.validate_tours"><code class="docutils literal notranslate"><span class="pre">BaseProblem.validate_tours()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.get_waste_with_depot"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_waste_with_depot()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.get_tour_length"><code class="docutils literal notranslate"><span class="pre">BaseProblem.get_tour_length()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.beam_search"><code class="docutils literal notranslate"><span class="pre">BaseProblem.beam_search()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.envs.tasks.base.BaseProblem.make_state"><code class="docutils literal notranslate"><span class="pre">BaseProblem.make_state()</span></code></a></li>

@@ -21,6 +21,18 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_cls_operator_callables <src.policies.route_improvement.local_search._cls_operator_callables>`
+  - ```{autodoc2-docstring} src.policies.route_improvement.local_search._cls_operator_callables
+    :summary:
+    ```
+````
+
 ### API
 
 `````{py:class} ClassicalLocalSearchRouteImprover(**kwargs: typing.Any)
@@ -46,3 +58,10 @@ Bases: {py:obj}`logic.src.interfaces.IRouteImprovement`
 ````
 
 `````
+
+````{py:function} _cls_operator_callables(manager: typing.Any, operator_name: str) -> typing.List[typing.Callable[[], bool]]
+:canonical: src.policies.route_improvement.local_search._cls_operator_callables
+
+```{autodoc2-docstring} src.policies.route_improvement.local_search._cls_operator_callables
+```
+````

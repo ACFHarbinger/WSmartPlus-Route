@@ -63,6 +63,28 @@
 
 ````
 
+````{py:attribute} gurobi_threads
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.gurobi_threads
+:type: int
+:value: >
+   2
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.gurobi_threads
+```
+
+````
+
+````{py:attribute} gurobi_soft_mem_limit_gb
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.gurobi_soft_mem_limit_gb
+:type: float
+:value: >
+   5.0
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.gurobi_soft_mem_limit_gb
+```
+
+````
+
 ````{py:attribute} time_limit
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.time_limit
 :type: float

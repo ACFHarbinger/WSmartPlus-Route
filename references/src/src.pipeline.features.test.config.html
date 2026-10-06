@@ -453,8 +453,17 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config.expand_policy_configs"><code class="docutils literal notranslate"><span class="pre">expand_policy_configs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._SELECTION_KEYS"><code class="docutils literal notranslate"><span class="pre">_SELECTION_KEYS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._is_mapping"><code class="docutils literal notranslate"><span class="pre">_is_mapping()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._is_sequence"><code class="docutils literal notranslate"><span class="pre">_is_sequence()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._selection_keys_set_by"><code class="docutils literal notranslate"><span class="pre">_selection_keys_set_by()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._first_keyed_value"><code class="docutils literal notranslate"><span class="pre">_first_keyed_value()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._overwrite_key"><code class="docutils literal notranslate"><span class="pre">_overwrite_key()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._apply_caller_selection"><code class="docutils literal notranslate"><span class="pre">_apply_caller_selection()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._collapse_selection_variants"><code class="docutils literal notranslate"><span class="pre">_collapse_selection_variants()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._pin_variant_selection"><code class="docutils literal notranslate"><span class="pre">_pin_variant_selection()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._resolve_policy_cfg_path"><code class="docutils literal notranslate"><span class="pre">_resolve_policy_cfg_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._extract_variants"><code class="docutils literal notranslate"><span class="pre">_extract_variants()</span></code></a></li>
@@ -502,29 +511,61 @@ _clean_id: Clean an identifier string by removing a prefix and replacing undersc
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config.expand_policy_configs" title="src.pipeline.features.test.config.expand_policy_configs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">expand_policy_configs</span></code></a></p></td>
 <td><p>Expands policy names into full configuration paths and variants.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._pin_variant_selection" title="src.pipeline.features.test.config._pin_variant_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pin_variant_selection</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._is_mapping" title="src.pipeline.features.test.config._is_mapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_mapping</span></code></a></p></td>
+<td><p>Return whether <code class="docutils literal notranslate"><span class="pre">node</span></code> is a dict-like config node.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._is_sequence" title="src.pipeline.features.test.config._is_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_sequence</span></code></a></p></td>
+<td><p>Return whether <code class="docutils literal notranslate"><span class="pre">node</span></code> is a non-string sequence of config nodes.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._selection_keys_set_by" title="src.pipeline.features.test.config._selection_keys_set_by"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_selection_keys_set_by</span></code></a></p></td>
+<td><p>Names among the pinned selection keys that <code class="docutils literal notranslate"><span class="pre">node</span></code> already sets.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._first_keyed_value" title="src.pipeline.features.test.config._first_keyed_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_first_keyed_value</span></code></a></p></td>
+<td><p>Return the first value stored under <code class="docutils literal notranslate"><span class="pre">key</span></code> in a nested config.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._overwrite_key" title="src.pipeline.features.test.config._overwrite_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_overwrite_key</span></code></a></p></td>
+<td><p>Replace every occurrence of <code class="docutils literal notranslate"><span class="pre">key</span></code> in <code class="docutils literal notranslate"><span class="pre">node</span></code> with <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._apply_caller_selection" title="src.pipeline.features.test.config._apply_caller_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_caller_selection</span></code></a></p></td>
+<td><p>Copy selection keys the caller set onto every matching key in <code class="docutils literal notranslate"><span class="pre">final_cfg</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._collapse_selection_variants" title="src.pipeline.features.test.config._collapse_selection_variants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_collapse_selection_variants</span></code></a></p></td>
+<td><p>Keep one body per route/acceptance suffix when the caller set the selection.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._pin_variant_selection" title="src.pipeline.features.test.config._pin_variant_selection"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pin_variant_selection</span></code></a></p></td>
 <td><p>Recursively overwrite selection/acceptance entries with the variant-specific ones.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._resolve_policy_cfg_path" title="src.pipeline.features.test.config._resolve_policy_cfg_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_policy_cfg_path</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._resolve_policy_cfg_path" title="src.pipeline.features.test.config._resolve_policy_cfg_path"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_resolve_policy_cfg_path</span></code></a></p></td>
 <td><p>Resolve the YAML configuration path for a policy.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._extract_variants" title="src.pipeline.features.test.config._extract_variants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_variants</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._extract_variants" title="src.pipeline.features.test.config._extract_variants"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_extract_variants</span></code></a></p></td>
 <td><p>Extract policy variants from its configuration.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._find_inner_config" title="src.pipeline.features.test.config._find_inner_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_inner_config</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._find_inner_config" title="src.pipeline.features.test.config._find_inner_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_find_inner_config</span></code></a></p></td>
 <td><p>Find the list of configurations/variants within a policy config.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._parse_inner_components" title="src.pipeline.features.test.config._parse_inner_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_inner_components</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._parse_inner_components" title="src.pipeline.features.test.config._parse_inner_components"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_parse_inner_components</span></code></a></p></td>
 <td><p>Extract mandatory, acceptance criteria, and route improvement lists.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._apply_overrides" title="src.pipeline.features.test.config._apply_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_overrides</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._apply_overrides" title="src.pipeline.features.test.config._apply_overrides"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_apply_overrides</span></code></a></p></td>
 <td><p>Apply mandatory and acceptance criteria overrides to a deep-copied config.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._expand_dict_ms_list" title="src.pipeline.features.test.config._expand_dict_ms_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_expand_dict_ms_list</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._expand_dict_ms_list" title="src.pipeline.features.test.config._expand_dict_ms_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_expand_dict_ms_list</span></code></a></p></td>
 <td><p>Expand a dict-format mandatory_selection into a flat list of single-variant dicts.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._clean_id" title="src.pipeline.features.test.config._clean_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_id</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._clean_id" title="src.pipeline.features.test.config._clean_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_clean_id</span></code></a></p></td>
 <td><p>Clean a component ID from a path or string.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="data">
+<h3>Data<a class="headerlink" href="#data" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.features.test.config._SELECTION_KEYS" title="src.pipeline.features.test.config._SELECTION_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_SELECTION_KEYS</span></code></a></p></td>
+<td></td>
 </tr>
 </tbody>
 </table>
@@ -543,15 +584,87 @@ cfg: Root configuration object. Reads from <code class="docutils literal notrans
 and <code class="docutils literal notranslate"><span class="pre">cfg.sim.data_distribution</span></code>.</p>
 </dd></dl>
 
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._SELECTION_KEYS">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_SELECTION_KEYS</span></span><a class="headerlink" href="#src.pipeline.features.test.config._SELECTION_KEYS" title="Link to this definition">#</a></dt>
+<dd><p>(‘mandatory_selection’, ‘acceptance_criteria’)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._is_mapping">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_is_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._is_mapping" title="Link to this definition">#</a></dt>
+<dd><p>Return whether <code class="docutils literal notranslate"><span class="pre">node</span></code> is a dict-like config node.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._is_sequence">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_is_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._is_sequence" title="Link to this definition">#</a></dt>
+<dd><p>Return whether <code class="docutils literal notranslate"><span class="pre">node</span></code> is a non-string sequence of config nodes.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._selection_keys_set_by">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_selection_keys_set_by</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._selection_keys_set_by" title="Link to this definition">#</a></dt>
+<dd><p>Names among the pinned selection keys that <code class="docutils literal notranslate"><span class="pre">node</span></code> already sets.</p>
+<p>Args:
+node: Custom override tree from a <code class="docutils literal notranslate"><span class="pre">sim.policies</span></code> entry.</p>
+<p>Returns:
+Subset of <code class="docutils literal notranslate"><span class="pre">mandatory_selection</span></code> and <code class="docutils literal notranslate"><span class="pre">acceptance_criteria</span></code> present in <code class="docutils literal notranslate"><span class="pre">node</span></code>.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._first_keyed_value">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_first_keyed_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._first_keyed_value" title="Link to this definition">#</a></dt>
+<dd><p>Return the first value stored under <code class="docutils literal notranslate"><span class="pre">key</span></code> in a nested config.</p>
+<p>Args:
+node: Config tree to search.
+key: Key to look up.</p>
+<p>Returns:
+A deep copy of the first matching value, or <code class="docutils literal notranslate"><span class="pre">None</span></code> when absent.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._overwrite_key">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_overwrite_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">node</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._overwrite_key" title="Link to this definition">#</a></dt>
+<dd><p>Replace every occurrence of <code class="docutils literal notranslate"><span class="pre">key</span></code> in <code class="docutils literal notranslate"><span class="pre">node</span></code> with <code class="docutils literal notranslate"><span class="pre">value</span></code>.</p>
+<p>Args:
+node: Config tree updated in place.
+key: Key to replace.
+value: Value copied onto each occurrence.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._apply_caller_selection">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_apply_caller_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">final_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">overrides</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._apply_caller_selection" title="Link to this definition">#</a></dt>
+<dd><p>Copy selection keys the caller set onto every matching key in <code class="docutils literal notranslate"><span class="pre">final_cfg</span></code>.</p>
+<p>Args:
+final_cfg: Stored policy configuration, updated in place.
+overrides: Custom override tree from the <code class="docutils literal notranslate"><span class="pre">sim.policies</span></code> entry.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.features.test.config._collapse_selection_variants">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_collapse_selection_variants</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">variants</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._collapse_selection_variants" title="Link to this definition">#</a></dt>
+<dd><p>Keep one body per route/acceptance suffix when the caller set the selection.</p>
+<p>The yaml’s mandatory-selection prefix is dropped so the stored name does not
+claim a variant the caller replaced.</p>
+<p>Args:
+variants: <code class="docutils literal notranslate"><span class="pre">(prefix,</span> <span class="pre">suffix,</span> <span class="pre">config)</span></code> tuples from :func:<code class="docutils literal notranslate"><span class="pre">_extract_variants</span></code>.</p>
+<p>Returns:
+Variants with a single entry for each suffix and an empty selection prefix.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.pipeline.features.test.config._pin_variant_selection">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_pin_variant_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._pin_variant_selection" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.features.test.config.</span></span><span class="sig-name descname"><span class="pre">_pin_variant_selection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">var_cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">protected</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.features.test.config._pin_variant_selection" title="Link to this definition">#</a></dt>
 <dd><p>Recursively overwrite selection/acceptance entries with the variant-specific ones.</p>
 <p><code class="docutils literal notranslate"><span class="pre">var_cfg</span></code> (from :func:<code class="docutils literal notranslate"><span class="pre">_extract_variants</span></code>) carries <code class="docutils literal notranslate"><span class="pre">mandatory_selection</span></code> /
-<code class="docutils literal notranslate"><span class="pre">acceptance_criteria</span></code> already reduced to a single <code class="docutils literal notranslate"><span class="pre">[{file:</span> <span class="pre">variant}]</span></code> entry.</p>
+<code class="docutils literal notranslate"><span class="pre">acceptance_criteria</span></code> already reduced to a single <code class="docutils literal notranslate"><span class="pre">[{file:</span> <span class="pre">variant}]</span></code> entry.
+Keys in <code class="docutils literal notranslate"><span class="pre">protected</span></code> were set by the custom policy entry and are not replaced.</p>
 <p>Args:
 obj: Policy configuration (nested dicts / lists) to update in place.
-var_cfg: Variant configuration providing the pinned values.</p>
+var_cfg: Variant configuration providing the pinned values.
+protected: Selection keys the caller already set.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -685,8 +798,17 @@ Cleaned identifier.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config.expand_policy_configs"><code class="docutils literal notranslate"><span class="pre">expand_policy_configs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._SELECTION_KEYS"><code class="docutils literal notranslate"><span class="pre">_SELECTION_KEYS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._is_mapping"><code class="docutils literal notranslate"><span class="pre">_is_mapping()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._is_sequence"><code class="docutils literal notranslate"><span class="pre">_is_sequence()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._selection_keys_set_by"><code class="docutils literal notranslate"><span class="pre">_selection_keys_set_by()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._first_keyed_value"><code class="docutils literal notranslate"><span class="pre">_first_keyed_value()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._overwrite_key"><code class="docutils literal notranslate"><span class="pre">_overwrite_key()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._apply_caller_selection"><code class="docutils literal notranslate"><span class="pre">_apply_caller_selection()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._collapse_selection_variants"><code class="docutils literal notranslate"><span class="pre">_collapse_selection_variants()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._pin_variant_selection"><code class="docutils literal notranslate"><span class="pre">_pin_variant_selection()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._resolve_policy_cfg_path"><code class="docutils literal notranslate"><span class="pre">_resolve_policy_cfg_path()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.features.test.config._extract_variants"><code class="docutils literal notranslate"><span class="pre">_extract_variants()</span></code></a></li>

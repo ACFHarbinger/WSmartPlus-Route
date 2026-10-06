@@ -84,6 +84,28 @@
 
 ````
 
+````{py:attribute} gurobi_threads
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads
+:type: int
+:value: >
+   2
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads
+```
+
+````
+
+````{py:attribute} gurobi_soft_mem_limit_gb
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb
+:type: float
+:value: >
+   5.0
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb
+```
+
+````
+
 ````{py:attribute} framework
 :canonical: src.configs.policies.swc_tcf.SWCTCFConfig.framework
 :type: str

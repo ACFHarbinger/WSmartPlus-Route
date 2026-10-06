@@ -454,6 +454,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories._validate_input_directory"><code class="docutils literal notranslate"><span class="pre">_validate_input_directory()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories.encrypt_directory"><code class="docutils literal notranslate"><span class="pre">encrypt_directory()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories.decrypt_directory"><code class="docutils literal notranslate"><span class="pre">decrypt_directory()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories.encrypt_zip_directory"><code class="docutils literal notranslate"><span class="pre">encrypt_zip_directory()</span></code></a></li>
@@ -494,16 +495,19 @@ decrypt_zip: Decrypt a zip file and extract its contents.</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.security.directories.encrypt_directory" title="src.utils.security.directories.encrypt_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encrypt_directory</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.security.directories._validate_input_directory" title="src.utils.security.directories._validate_input_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_validate_input_directory</span></code></a></p></td>
+<td><p>Resolve an existing source directory before any output is created.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.security.directories.encrypt_directory" title="src.utils.security.directories.encrypt_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encrypt_directory</span></code></a></p></td>
 <td><p>Encrypt all files in a directory recursively.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.security.directories.decrypt_directory" title="src.utils.security.directories.decrypt_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decrypt_directory</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.security.directories.decrypt_directory" title="src.utils.security.directories.decrypt_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decrypt_directory</span></code></a></p></td>
 <td><p>Decrypt all .enc files in a directory recursively.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.security.directories.encrypt_zip_directory" title="src.utils.security.directories.encrypt_zip_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encrypt_zip_directory</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.security.directories.encrypt_zip_directory" title="src.utils.security.directories.encrypt_zip_directory"><code class="xref py py-obj docutils literal notranslate"><span class="pre">encrypt_zip_directory</span></code></a></p></td>
 <td><p>Zip a directory and then encrypt the resulting zip file.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.security.directories.decrypt_zip" title="src.utils.security.directories.decrypt_zip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decrypt_zip</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.security.directories.decrypt_zip" title="src.utils.security.directories.decrypt_zip"><code class="xref py py-obj docutils literal notranslate"><span class="pre">decrypt_zip</span></code></a></p></td>
 <td><p>Decrypt a zip file and extract its contents.</p></td>
 </tr>
 </tbody>
@@ -512,6 +516,12 @@ decrypt_zip: Decrypt a zip file and extract its contents.</p>
 </section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.utils.security.directories._validate_input_directory">
+<span class="sig-prename descclassname"><span class="pre">src.utils.security.directories.</span></span><span class="sig-name descname"><span class="pre">_validate_input_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">input_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">pathlib.Path</span></span></span><a class="headerlink" href="#src.utils.security.directories._validate_input_directory" title="Link to this definition">#</a></dt>
+<dd><p>Resolve an existing source directory before any output is created.</p>
+</dd></dl>
+
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.security.directories.encrypt_directory">
 <span class="sig-prename descclassname"><span class="pre">src.utils.security.directories.</span></span><span class="sig-name descname"><span class="pre">encrypt_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.security.directories.encrypt_directory" title="Link to this definition">#</a></dt>
@@ -523,21 +533,27 @@ output_dir (Union[str, os.PathLike], optional): Output directory. Defaults to in
 <p>Returns:
 list: List of encrypted data bytes for each file.</p>
 <p>Raises:
-Exception: If directory creation fails.</p>
+Exception: If directory creation fails.
+ValueError: If paths escape the roots or output is nested inside input.
+FileNotFoundError: If the input directory does not exist.
+NotADirectoryError: If the input path is not a directory.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.security.directories.decrypt_directory">
-<span class="sig-prename descclassname"><span class="pre">src.utils.security.directories.</span></span><span class="sig-name descname"><span class="pre">decrypt_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.security.directories.decrypt_directory" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.security.directories.</span></span><span class="sig-name descname"><span class="pre">decrypt_directory</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.security.directories.decrypt_directory" title="Link to this definition">#</a></dt>
 <dd><p>Decrypt all .enc files in a directory recursively.</p>
 <p>Args:
 key (bytes): The encryption key.
 input_dir (Union[str, os.PathLike]): Directory to decrypt.
 output_dir (Union[str, os.PathLike], optional): Output directory. Defaults to input_dir.</p>
 <p>Returns:
-list: List of decrypted string data for each file.</p>
+list: Decrypted strings for valid UTF-8 payloads, otherwise bytes.</p>
 <p>Raises:
-Exception: If directory creation fails.</p>
+Exception: If directory creation fails.
+ValueError: If paths escape the roots or output is nested inside input.
+FileNotFoundError: If the input directory does not exist.
+NotADirectoryError: If the input path is not a directory.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -550,18 +566,21 @@ input_dir (Union[str, os.PathLike]): Directory to zip and encrypt.
 output_enczip (Union[str, os.PathLike], optional): Output path for the encrypted zip.</p>
 <p>Returns:
 bytes: The encrypted zip data.</p>
+<p>Raises:
+FileNotFoundError: If the input directory does not exist.
+NotADirectoryError: If the input path is not a directory.</p>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.security.directories.decrypt_zip">
-<span class="sig-prename descclassname"><span class="pre">src.utils.security.directories.</span></span><span class="sig-name descname"><span class="pre">decrypt_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_enczip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.security.directories.decrypt_zip" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.security.directories.</span></span><span class="sig-name descname"><span class="pre">decrypt_zip</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input_enczip</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.security.directories.decrypt_zip" title="Link to this definition">#</a></dt>
 <dd><p>Decrypt a zip file and extract its contents.</p>
 <p>Args:
 key (bytes): The encryption key.
 input_enczip (Union[str, os.PathLike]): Path to the encrypted zip file.
 output_dir (Union[str, os.PathLike], optional): Directory to extract to.</p>
 <p>Returns:
-str: The decrypted data (raw string content of the zip file).</p>
+Union[str, bytes]: Decrypted ZIP payload (string if valid UTF-8, otherwise bytes).</p>
 </dd></dl>
 
 </section>
@@ -616,6 +635,7 @@ str: The decrypted data (raw string content of the zip file).</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories._validate_input_directory"><code class="docutils literal notranslate"><span class="pre">_validate_input_directory()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories.encrypt_directory"><code class="docutils literal notranslate"><span class="pre">encrypt_directory()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories.decrypt_directory"><code class="docutils literal notranslate"><span class="pre">decrypt_directory()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.security.directories.encrypt_zip_directory"><code class="docutils literal notranslate"><span class="pre">encrypt_zip_directory()</span></code></a></li>

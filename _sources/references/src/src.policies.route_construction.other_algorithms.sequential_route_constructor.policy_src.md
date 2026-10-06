@@ -70,7 +70,6 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._get_config_key
-:classmethod:
 
 ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.sequential_route_constructor.policy_src.SequentialRouteConstructor._get_config_key
 ```

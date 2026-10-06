@@ -326,7 +326,7 @@
 
 ````
 
-````{py:method} from_config(config: logic.src.configs.policies.HGSConfig) -> src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams
+````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams
 :canonical: src.policies.route_construction.meta_heuristics.hybrid_genetic_search.params.HGSParams.from_config
 :classmethod:
 

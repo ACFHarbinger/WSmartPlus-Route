@@ -53,6 +53,15 @@
 
 ````
 
+````{py:method} get_waste_with_depot(dataset: typing.Dict[str, typing.Any], pi: typing.Optional[torch.Tensor] = None) -> torch.Tensor
+:canonical: src.envs.tasks.base.BaseProblem.get_waste_with_depot
+:staticmethod:
+
+```{autodoc2-docstring} src.envs.tasks.base.BaseProblem.get_waste_with_depot
+```
+
+````
+
 ````{py:method} get_tour_length(dataset: typing.Dict[str, typing.Any], pi: torch.Tensor, dist_matrix: typing.Optional[torch.Tensor] = None) -> torch.Tensor
 :canonical: src.envs.tasks.base.BaseProblem.get_tour_length
 :staticmethod:

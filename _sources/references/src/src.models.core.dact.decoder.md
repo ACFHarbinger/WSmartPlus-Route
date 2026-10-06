@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} DACTDecoder(embed_dim: int = 128, num_heads: int = 8, seed: int = 42, **kwargs: typing.Any)
+`````{py:class} DACTDecoder(embed_dim: int = 128, num_heads: int = 4, tanh_clipping: float = 6.0, seed: int = 42, **kwargs: typing.Any)
 :canonical: src.models.core.dact.decoder.DACTDecoder
 
 Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementDecoder`
@@ -62,7 +62,15 @@ Bases: {py:obj}`logic.src.models.common.improvement.policy.ImprovementDecoder`
 
 ````
 
-````{py:method} forward(td: tensordict.TensorDict, embeddings: torch.Tensor | typing.Tuple[torch.Tensor, ...], env: logic.src.envs.base.base.RL4COEnvBase, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
+````{py:method} _load_from_state_dict(state_dict: typing.Dict[str, typing.Any], prefix: str, local_metadata: typing.Dict[str, typing.Any], strict: bool, missing_keys: list[str], unexpected_keys: list[str], error_msgs: list[str]) -> None
+:canonical: src.models.core.dact.decoder.DACTDecoder._load_from_state_dict
+
+```{autodoc2-docstring} src.models.core.dact.decoder.DACTDecoder._load_from_state_dict
+```
+
+````
+
+````{py:method} forward(td: tensordict.TensorDict, embeddings: typing.Union[torch.Tensor, typing.Tuple[torch.Tensor, ...]], env: logic.src.envs.base.base.RL4COEnvBase, **kwargs: typing.Any) -> typing.Tuple[torch.Tensor, torch.Tensor]
 :canonical: src.models.core.dact.decoder.DACTDecoder.forward
 
 ```{autodoc2-docstring} src.models.core.dact.decoder.DACTDecoder.forward

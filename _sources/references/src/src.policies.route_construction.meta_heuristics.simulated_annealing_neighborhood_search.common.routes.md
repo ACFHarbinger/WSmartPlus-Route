@@ -27,6 +27,10 @@
   - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings
     :summary:
     ```
+* - {py:obj}`_uncross_deadline_expired <src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._uncross_deadline_expired>`
+  - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._uncross_deadline_expired
+    :summary:
+    ```
 * - {py:obj}`uncross_arcs_in_routes <src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes.uncross_arcs_in_routes>`
   - ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes.uncross_arcs_in_routes
     :summary:
@@ -69,6 +73,13 @@
 :canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings
 
 ```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._remove_invalid_crossings
+```
+````
+
+````{py:function} _uncross_deadline_expired(values)
+:canonical: src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._uncross_deadline_expired
+
+```{autodoc2-docstring} src.policies.route_construction.meta_heuristics.simulated_annealing_neighborhood_search.common.routes._uncross_deadline_expired
 ```
 ````
 

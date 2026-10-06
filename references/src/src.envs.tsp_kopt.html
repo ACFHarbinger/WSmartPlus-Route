@@ -565,12 +565,20 @@ torch.Tensor: Initial tour.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.envs.tsp_kopt.TSPkoptEnv._step_instance">
 <span class="sig-name descname"><span class="pre">_step_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tensordict.TensorDict</span></span></span><a class="headerlink" href="#src.envs.tsp_kopt.TSPkoptEnv._step_instance" title="Link to this definition">#</a></dt>
-<dd><p>Apply k-opt move to the solution.
-Action: (idx1, idx2) - edges to swap for 2-opt.</p>
+<dd><p>Apply a 2-opt local search move to the solution.</p>
+<p>Action contract:
+The action tensor <code class="docutils literal notranslate"><span class="pre">td[&quot;action&quot;]</span></code> of shape <code class="docutils literal notranslate"><span class="pre">[batch,</span> <span class="pre">2]</span></code> specifies either:
+1. Node IDs (standard for neural improvement decoders): <code class="docutils literal notranslate"><span class="pre">action[b]</span> <span class="pre">=</span> <span class="pre">(node_u,</span> <span class="pre">node_v)</span></code>.
+The environment resolves each node ID to its current index in <code class="docutils literal notranslate"><span class="pre">solution[b]</span></code> and
+reverses the subpath between them (reversing slice <code class="docutils literal notranslate"><span class="pre">idx_min</span> <span class="pre">+</span> <span class="pre">1</span> <span class="pre">:</span> <span class="pre">idx_max</span> <span class="pre">+</span> <span class="pre">1</span></code>).
+2. Tour positions (explicit positional indexing): when <code class="docutils literal notranslate"><span class="pre">td[&quot;action_is_position&quot;]</span> <span class="pre">=</span> <span class="pre">True</span></code>
+for that batch element. No implicit positional fallback is allowed.
+Only two-column actions are supported. NeuOpt basis sequences and N2S
+request reinsertion require their own transition implementation.</p>
 <p>Args:
-td: TensorDict containing the state.</p>
+td: TensorDict containing ‘solution’ [batch, N] and ‘action’ [batch, 2].</p>
 <p>Returns:
-TensorDict containing the next state.</p>
+TensorDict: Updated state with the modified ‘solution’.</p>
 </dd></dl>
 
 <dl class="py method">

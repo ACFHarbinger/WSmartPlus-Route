@@ -592,7 +592,7 @@ Bases: {py:obj}`typing.Protocol`
 
 ````
 
-````{py:method} solve_ip() -> typing.Tuple[float, typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]]
+````{py:method} solve_ip(time_limit: typing.Optional[float] = None) -> typing.Tuple[float, typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]]
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.solve_ip
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.problem_support.MasterProblemSupport.solve_ip

@@ -54,6 +54,15 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````
 
+````{py:method} _build_config(raw_config: typing.Dict[str, typing.Any]) -> typing.Any
+:canonical: src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._build_config
+:classmethod:
+
+```{autodoc2-docstring} src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._build_config
+```
+
+````
+
 ````{py:method} _validate_mandatory(mandatory: typing.Any) -> typing.Optional[typing.Tuple[typing.List[int], float, float]]
 :canonical: src.policies.route_construction.learning_algorithms.neural_agent.policy_na.NeuralAgentPolicy._validate_mandatory
 

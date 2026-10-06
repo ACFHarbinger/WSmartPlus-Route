@@ -453,11 +453,13 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.local_search.ClassicalLocalSearchRouteImprover"><code class="docutils literal notranslate"><span class="pre">ClassicalLocalSearchRouteImprover</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.local_search.ClassicalLocalSearchRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">ClassicalLocalSearchRouteImprover.process()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.local_search._cls_operator_callables"><code class="docutils literal notranslate"><span class="pre">_cls_operator_callables()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -491,6 +493,17 @@ ClassicalLocalSearchRouteImprover: Unified local search improver class.</p>
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.local_search.ClassicalLocalSearchRouteImprover" title="src.policies.route_improvement.local_search.ClassicalLocalSearchRouteImprover"><code class="xref py py-obj docutils literal notranslate"><span class="pre">ClassicalLocalSearchRouteImprover</span></code></a></p></td>
 <td><p>Wrapper for classical local search operators.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_improvement.local_search._cls_operator_callables" title="src.policies.route_improvement.local_search._cls_operator_callables"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_cls_operator_callables</span></code></a></p></td>
+<td><p>Map yaml <code class="docutils literal notranslate"><span class="pre">ls_operator</span></code> names onto LocalSearchManager methods.</p></td>
 </tr>
 </tbody>
 </table>
@@ -535,6 +548,19 @@ kwargs (Any): Search context, including:
 Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.policies.route_improvement.local_search._cls_operator_callables">
+<span class="sig-prename descclassname"><span class="pre">src.policies.route_improvement.local_search.</span></span><span class="sig-name descname"><span class="pre">_cls_operator_callables</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">manager</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">operator_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_improvement.local_search._cls_operator_callables" title="Link to this definition">#</a></dt>
+<dd><p>Map yaml <code class="docutils literal notranslate"><span class="pre">ls_operator</span></code> names onto LocalSearchManager methods.</p>
+<p><code class="docutils literal notranslate"><span class="pre">2opt</span></code> (ri_cls.yaml) is intra-route 2-opt only. <code class="docutils literal notranslate"><span class="pre">all</span></code> / <code class="docutils literal notranslate"><span class="pre">multi</span></code> keep the
+previous sequential suite for callers that want it.</p>
+<p>Args:
+manager: LocalSearchManager instance.
+operator_name: Operator name from yaml or kwargs.</p>
+<p>Returns:
+Ordered list of zero-argument callables that return True on improvement.</p>
 </dd></dl>
 
 </section>
@@ -588,11 +614,13 @@ Tuple[List[int], ImprovementMetrics]: Refined tour and performance metrics.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.local_search.ClassicalLocalSearchRouteImprover"><code class="docutils literal notranslate"><span class="pre">ClassicalLocalSearchRouteImprover</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.local_search.ClassicalLocalSearchRouteImprover.process"><code class="docutils literal notranslate"><span class="pre">ClassicalLocalSearchRouteImprover.process()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_improvement.local_search._cls_operator_callables"><code class="docutils literal notranslate"><span class="pre">_cls_operator_callables()</span></code></a></li>
 </ul>
 </li>
 </ul>

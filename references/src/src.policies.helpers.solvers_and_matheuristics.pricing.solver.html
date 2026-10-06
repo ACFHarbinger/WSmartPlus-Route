@@ -457,6 +457,13 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus"><code class="docutils literal notranslate"><span class="pre">PricingStatus</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.EXHAUSTIVE"><code class="docutils literal notranslate"><span class="pre">PricingStatus.EXHAUSTIVE</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.HEURISTIC"><code class="docutils literal notranslate"><span class="pre">PricingStatus.HEURISTIC</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.PARTIAL"><code class="docutils literal notranslate"><span class="pre">PricingStatus.PARTIAL</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.TIMED_OUT"><code class="docutils literal notranslate"><span class="pre">PricingStatus.TIMED_OUT</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem"><code class="docutils literal notranslate"><span class="pre">_LCICoverItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem"><code class="docutils literal notranslate"><span class="pre">_MultistarItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code></a><ul class="nav section-nav flex-column">
@@ -519,7 +526,10 @@ profitable columns (routes) for the BPC Master Problem.</p>
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver" title="src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RCSPPSolver</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus" title="src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PricingStatus</span></code></a></p></td>
+<td><p>Explicit certification state of a pricing subproblem solve.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver" title="src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver"><code class="xref py py-obj docutils literal notranslate"><span class="pre">RCSPPSolver</span></code></a></p></td>
 <td><p>Exact / ng-relaxed solver for the Resource-Constrained Shortest Path Problem.</p></td>
 </tr>
 </tbody>
@@ -549,6 +559,39 @@ profitable columns (routes) for the BPC Master Problem.</p>
 <dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.solver.logger">
 <span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.pricing.solver.</span></span><span class="sig-name descname"><span class="pre">logger</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.logger" title="Link to this definition">#</a></dt>
 <dd><p>‘getLogger(…)’</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.policies.helpers.solvers_and_matheuristics.pricing.solver.</span></span><span class="sig-name descname"><span class="pre">PricingStatus</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">str</span></code>, <code class="xref py py-obj docutils literal notranslate"><span class="pre">enum.Enum</span></code></p>
+<p>Explicit certification state of a pricing subproblem solve.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.EXHAUSTIVE">
+<span class="sig-name descname"><span class="pre">EXHAUSTIVE</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.EXHAUSTIVE" title="Link to this definition">#</a></dt>
+<dd><p>‘exhaustive’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.HEURISTIC">
+<span class="sig-name descname"><span class="pre">HEURISTIC</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.HEURISTIC" title="Link to this definition">#</a></dt>
+<dd><p>‘heuristic’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.PARTIAL">
+<span class="sig-name descname"><span class="pre">PARTIAL</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.PARTIAL" title="Link to this definition">#</a></dt>
+<dd><p>‘partial’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.TIMED_OUT">
+<span class="sig-name descname"><span class="pre">TIMED_OUT</span></span><a class="headerlink" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.TIMED_OUT" title="Link to this definition">#</a></dt>
+<dd><p>‘timed_out’</p>
+</dd></dl>
+
 </dd></dl>
 
 <dl class="py data">
@@ -849,6 +892,13 @@ New label at next_node, or None if infeasible/pruned.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus"><code class="docutils literal notranslate"><span class="pre">PricingStatus</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.EXHAUSTIVE"><code class="docutils literal notranslate"><span class="pre">PricingStatus.EXHAUSTIVE</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.HEURISTIC"><code class="docutils literal notranslate"><span class="pre">PricingStatus.HEURISTIC</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.PARTIAL"><code class="docutils literal notranslate"><span class="pre">PricingStatus.PARTIAL</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.TIMED_OUT"><code class="docutils literal notranslate"><span class="pre">PricingStatus.TIMED_OUT</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem"><code class="docutils literal notranslate"><span class="pre">_LCICoverItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver._MultistarItem"><code class="docutils literal notranslate"><span class="pre">_MultistarItem</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver"><code class="docutils literal notranslate"><span class="pre">RCSPPSolver</span></code></a><ul class="nav section-nav flex-column">

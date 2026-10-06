@@ -458,6 +458,10 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.device"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.__getstate__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.__setstate__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._load_from_state_dict"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._load_from_state_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._compute_stream_scores"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._compute_stream_scores()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._get_tour_successor"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._get_tour_successor()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._compute_cyclic_rank_mask"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._compute_cyclic_rank_mask()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.forward"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.forward()</span></code></a></li>
 </ul>
 </li>
@@ -479,11 +483,34 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.neuopt.decoder">
 <span id="src-models-core-neuopt-decoder"></span><h1><a class="reference internal" href="#module-src.models.core.neuopt.decoder" title="src.models.core.neuopt.decoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.neuopt.decoder</span></code></a><a class="headerlink" href="#module-src.models.core.neuopt.decoder" title="Link to this heading">#</a></h1>
 <p>NeuOpt Decoder implementation.</p>
-<p>This module implements the <code class="docutils literal notranslate"><span class="pre">NeuOptDecoder</span></code>, which identifies high-quality
-local search moves by evaluating node-to-node transition probabilities
-conditioned on the global problem context.</p>
+<p>This module implements the paper-faithful <code class="docutils literal notranslate"><span class="pre">NeuOptDecoder</span></code> (Ma et al., NeurIPS 2023),
+which parameterizes a sequential basis-move factorized search move using a Recurrent
+Dual-Stream (RDS) architecture.</p>
+<p>Architecture (§4.1-4.2, Eq. 1, 2, 3):</p>
+<ul class="simple">
+<li><p>Recurrent Dual-Stream (RDS) factorization:</p>
+<ul>
+<li><p>Move stream (mu): models historical move decisions.</p></li>
+<li><p>Edge stream (lambda): models edge proposals.</p></li>
+</ul>
+</li>
+<li><p>Hidden states initialized via mean-pooled graph embedding: q0 = mean(h).</p></li>
+<li><p>First step inputs driven by learnable vectors o_hat, o_tilde.</p></li>
+<li><p>Second step inputs:</p>
+<ul>
+<li><p>Move stream: o2_mu = h[x1] (last selected move / anchor node).</p></li>
+<li><p>Edge stream: o2_lambda = h[x1] (introduced-edge lower-ranked endpoint = xa at step 2).</p></li>
+</ul>
+</li>
+<li><p>Dual-stream additive + multiplicative (Hadamard) attention with distinct primed and
+unprimed projections (Eq. 3):
+score_mu = tanh((q W^Q + h W^K) + (q W’^Q) * (h W’^K)) W^O
+score_lambda = tanh((q W^Q + h W^K) + (q W’^Q) * (h W’^K)) W^O</p></li>
+<li><p>Cyclic-rank feasibility constraint (Gamma[a, j] &lt;= Gamma[a, v], §4.1-4.2):
+Enforces sequential basis moves (S-move, I-move, E-move) and prevents invalid moves.</p></li>
+</ul>
 <p>Attributes:
-NeuOptDecoder: Pairwise action decoder for guided local search moves.</p>
+NeuOptDecoder: Recurrent Dual-Stream action decoder for k-opt moves.</p>
 <p>Example:
 &gt;&gt;&gt; decoder = NeuOptDecoder(embed_dim=128)
 &gt;&gt;&gt; log_p, actions = decoder(td, embeddings, env)</p>
@@ -494,7 +521,7 @@ NeuOptDecoder: Pairwise action decoder for guided local search moves.</p>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.neuopt.decoder.NeuOptDecoder" title="src.models.core.neuopt.decoder.NeuOptDecoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NeuOptDecoder</span></code></a></p></td>
-<td><p>NeuOpt Decoder for selecting improvement moves.</p></td>
+<td><p>NeuOpt Recurrent Dual-Stream (RDS) Decoder (Ma et al. NeurIPS 2023, §4.1-4.2).</p></td>
 </tr>
 </tbody>
 </table>
@@ -504,22 +531,36 @@ NeuOptDecoder: Pairwise action decoder for guided local search moves.</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.decoder.</span></span><span class="sig-name descname"><span class="pre">NeuOptDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.neuopt.decoder.</span></span><span class="sig-name descname"><span class="pre">NeuOptDecoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tanh_clipping</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">6.0</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">seed</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">42</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.decoder.ImprovementDecoder</span></code></p>
-<p>NeuOpt Decoder for selecting improvement moves.</p>
-<p>Employs a pairwise attention mechanism to compute the similarity between
-all node pairs in a batch, selecting the directed edge or move that promises
-the highest objective improvement.</p>
+<p>NeuOpt Recurrent Dual-Stream (RDS) Decoder (Ma et al. NeurIPS 2023, §4.1-4.2).</p>
+<p>Factorizes local search moves into sequential basis moves (S-move, I-move, E-move)
+conditioned on dual recurrent streams (move stream mu and edge stream lambda) with
+distinct primed/unprimed additive and Hadamard attention scoring.</p>
 <p>Attributes:
-project_q (nn.Linear): Dimensionality projector for query features.
-project_k (nn.Linear): Dimensionality projector for key features.
-scale (float): attention normalization constant.
-seed (int): RNG seed for reproducible move sampling.
-generator (torch.Generator): Local random search generator.</p>
+embed_dim (int): Dimensionality of latent embeddings.
+tanh_clipping (float): Entropy control constant C (default: 6.0).
+seed (int): RNG seed for sampling.
+generator (torch.Generator): PRNG instance for reproducible sampling.
+gru_mu (nn.GRUCell): Recurrent cell for move stream mu.
+gru_lambda (nn.GRUCell): Recurrent cell for edge stream lambda.
+init_o_mu (nn.Parameter): Learnable initial input vector o_hat for stream mu.
+init_o_lambda (nn.Parameter): Learnable initial input vector o_tilde for stream lambda.
+W_mu_q (nn.Linear): Unprimed query projection for stream mu.
+W_mu_k (nn.Linear): Unprimed key projection for stream mu.
+W_mu_q_prime (nn.Linear): Primed query projection for stream mu (Hadamard).
+W_mu_k_prime (nn.Linear): Primed key projection for stream mu (Hadamard).
+W_mu_o (nn.Linear): Output scoring projection for stream mu.
+W_lambda_q (nn.Linear): Unprimed query projection for stream lambda.
+W_lambda_k (nn.Linear): Unprimed key projection for stream lambda.
+W_lambda_q_prime (nn.Linear): Primed query projection for stream lambda (Hadamard).
+W_lambda_k_prime (nn.Linear): Primed key projection for stream lambda (Hadamard).
+W_lambda_o (nn.Linear): Output scoring projection for stream lambda.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the NeuOpt decoder.</p>
+<p>Initializes the paper-faithful NeuOpt RDS decoder.</p>
 <p>Args:
 embed_dim: Feature dimension of the input embeddings.
+tanh_clipping: Clipping factor C for entropy control (paper default: 6.0).
 seed: Random seed for move sampling.
 kwargs: Additional keyword arguments.</p>
 <dl class="py property">
@@ -547,18 +588,63 @@ state: Serialized dictionary of solver attributes.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Predicts a promising neighborhood move (idx1, idx2).</p>
+<dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder._load_from_state_dict">
+<span class="sig-name descname"><span class="pre">_load_from_state_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">state_dict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">prefix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">local_metadata</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strict</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unexpected_keys</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">error_msgs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder._load_from_state_dict" title="Link to this definition">#</a></dt>
+<dd><p>Validates checkpoint keys against legacy generic decoder weights.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder._compute_stream_scores">
+<span class="sig-name descname"><span class="pre">_compute_stream_scores</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">q_mu</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">q_lambda</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder._compute_stream_scores" title="Link to this definition">#</a></dt>
+<dd><p>Computes additive + Hadamard attention scores per Eq. (3).</p>
 <p>Args:
-td: TensorDict containing the problem and current solution state.
-embeddings: Node embeddings from the encoder.
-env: The environment defining the move validity and reward.
-kwargs: Additional keyword arguments including “strategy”.</p>
+q_mu: Hidden state of move stream [B, d].
+q_lambda: Hidden state of edge stream [B, d].
+h: Node embeddings [B, N, d].</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: (score_mu [B, N], score_lambda [B, N]).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder._get_tour_successor">
+<span class="sig-name descname"><span class="pre">_get_tour_successor</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder._get_tour_successor" title="Link to this definition">#</a></dt>
+<dd><p>Finds the tour successor node x_b = succ(x1) for the removed edge e_out(xa -&gt; xb).</p>
+<p>Args:
+td: TensorDict containing ‘solution’ [B, N].
+x1: Anchor node indices [B].
+bs: Batch size.
+n: Number of nodes.</p>
+<p>Returns:
+torch.Tensor: Successor node indices [B].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder._compute_cyclic_rank_mask">
+<span class="sig-name descname"><span class="pre">_compute_cyclic_rank_mask</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">x1</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">xj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder._compute_cyclic_rank_mask" title="Link to this definition">#</a></dt>
+<dd><p>Computes feasibility mask based on cyclic node rank Gamma[a, v] &gt;= Gamma[a, xj] (§4.1-4.2).</p>
+<p>Args:
+td: TensorDict containing problem state.
+x1: Selected anchor node xa [B].
+bs: Batch size.
+n: Number of nodes.
+xj: Upper-ranked endpoint xj of current Hamiltonian path [B]. Defaults to succ(x1).</p>
+<p>Returns:
+torch.Tensor: Boolean mask [B, N] where True indicates invalid nodes (rank &lt; rank(xj)).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.neuopt.decoder.NeuOptDecoder.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">embeddings</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.neuopt.decoder.NeuOptDecoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Predicts an improvement move via K-step RDS autoregressive basis-move decoding (§4.1-4.2).</p>
+<p>Args:
+td: TensorDict containing problem and current solution state.
+embeddings: Node embeddings from encoder [B, N, d].
+env: The environment defining move validity and reward.
+kwargs: Additional keyword arguments including ‘strategy’ and ‘k_basis’.</p>
 <p>Returns:
 Tuple[torch.Tensor, torch.Tensor]:
-- log_p: log-likelihood of the selected move [B].
-- actions: indices of nodes to modify [B, 2].</p>
+- log_p: Joint log-likelihood of the selected move [B].
+- actions: Indices of basis-move nodes [B, K].</p>
 </dd></dl>
 
 </dd></dl>
@@ -619,6 +705,10 @@ Tuple[torch.Tensor, torch.Tensor]:
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.device"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.device</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__getstate__"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.__getstate__()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.__setstate__"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.__setstate__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._load_from_state_dict"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._load_from_state_dict()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._compute_stream_scores"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._compute_stream_scores()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._get_tour_successor"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._get_tour_successor()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder._compute_cyclic_rank_mask"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder._compute_cyclic_rank_mask()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.neuopt.decoder.NeuOptDecoder.forward"><code class="docutils literal notranslate"><span class="pre">NeuOptDecoder.forward()</span></code></a></li>
 </ul>
 </li>

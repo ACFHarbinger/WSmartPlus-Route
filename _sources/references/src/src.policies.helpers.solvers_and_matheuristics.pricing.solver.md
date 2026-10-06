@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`PricingStatus <src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus>`
+  - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus
+    :summary:
+    ```
 * - {py:obj}`RCSPPSolver <src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver>`
   - ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.RCSPPSolver
     :summary:
@@ -52,6 +56,62 @@
 ```
 
 ````
+
+`````{py:class} PricingStatus()
+:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus
+
+Bases: {py:obj}`str`, {py:obj}`enum.Enum`
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus
+```
+
+```{rubric} Initialization
+```
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.__init__
+```
+
+````{py:attribute} EXHAUSTIVE
+:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.EXHAUSTIVE
+:value: >
+   'exhaustive'
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.EXHAUSTIVE
+```
+
+````
+
+````{py:attribute} HEURISTIC
+:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.HEURISTIC
+:value: >
+   'heuristic'
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.HEURISTIC
+```
+
+````
+
+````{py:attribute} PARTIAL
+:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.PARTIAL
+:value: >
+   'partial'
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.PARTIAL
+```
+
+````
+
+````{py:attribute} TIMED_OUT
+:canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.TIMED_OUT
+:value: >
+   'timed_out'
+
+```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.pricing.solver.PricingStatus.TIMED_OUT
+```
+
+````
+
+`````
 
 ````{py:data} _LCICoverItem
 :canonical: src.policies.helpers.solvers_and_matheuristics.pricing.solver._LCICoverItem

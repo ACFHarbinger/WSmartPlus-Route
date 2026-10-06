@@ -453,7 +453,9 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir"><code class="docutils literal notranslate"><span class="pre">_temporary_checkpoint_dir()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint"><code class="docutils literal notranslate"><span class="pre">SimulationCheckpoint</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint.get_simulation_info"><code class="docutils literal notranslate"><span class="pre">SimulationCheckpoint.get_simulation_info()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint.get_checkpoint_file"><code class="docutils literal notranslate"><span class="pre">SimulationCheckpoint.get_checkpoint_file()</span></code></a></li>
@@ -507,8 +509,31 @@ sample_id: The index of the current waste sample.</p></td>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir" title="src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_temporary_checkpoint_dir</span></code></a></p></td>
+<td><p>Return the mid-run checkpoint directory for one results directory.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.checkpoints.persistence.</span></span><span class="sig-name descname"><span class="pre">_temporary_checkpoint_dir</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir" title="Link to this definition">#</a></dt>
+<dd><p>Return the mid-run checkpoint directory for one results directory.</p>
+<p><code class="docutils literal notranslate"><span class="pre">output_dir</span></code> is the run’s results directory, which already includes
+<code class="docutils literal notranslate"><span class="pre">sim.run_name</span></code>. A relative <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> is stored under that
+directory, beside the final-artifact folder, so two runs of the same
+policy and sample do not share files. Completion clears only this live
+directory. An absolute <code class="docutils literal notranslate"><span class="pre">checkpoint_dir</span></code> is an explicit location and is
+used as a base with a stable results-directory namespace.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.checkpoints.persistence.</span></span><span class="sig-name descname"><span class="pre">SimulationCheckpoint</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">output_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">checkpoint_dir</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'temp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">policy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sample_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">0</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint" title="Link to this definition">#</a></dt>
@@ -646,7 +671,9 @@ True if the file was found and deleted.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir"><code class="docutils literal notranslate"><span class="pre">_temporary_checkpoint_dir()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint"><code class="docutils literal notranslate"><span class="pre">SimulationCheckpoint</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint.get_simulation_info"><code class="docutils literal notranslate"><span class="pre">SimulationCheckpoint.get_simulation_info()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint.get_checkpoint_file"><code class="docutils literal notranslate"><span class="pre">SimulationCheckpoint.get_checkpoint_file()</span></code></a></li>

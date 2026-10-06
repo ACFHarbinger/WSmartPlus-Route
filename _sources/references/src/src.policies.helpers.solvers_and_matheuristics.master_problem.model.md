@@ -91,7 +91,7 @@ Bases: {py:obj}`logic.src.policies.helpers.solvers_and_matheuristics.master_prob
 
 ````
 
-````{py:method} solve_ip() -> typing.Tuple[float, typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]]
+````{py:method} solve_ip(time_limit: typing.Optional[float] = None) -> typing.Tuple[float, typing.List[logic.src.policies.helpers.solvers_and_matheuristics.common.route.Route]]
 :canonical: src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_ip
 
 ```{autodoc2-docstring} src.policies.helpers.solvers_and_matheuristics.master_problem.model.VRPPMasterProblem.solve_ip

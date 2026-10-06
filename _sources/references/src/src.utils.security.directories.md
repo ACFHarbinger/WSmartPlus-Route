@@ -15,6 +15,10 @@
 :class: autosummary longtable
 :align: left
 
+* - {py:obj}`_validate_input_directory <src.utils.security.directories._validate_input_directory>`
+  - ```{autodoc2-docstring} src.utils.security.directories._validate_input_directory
+    :summary:
+    ```
 * - {py:obj}`encrypt_directory <src.utils.security.directories.encrypt_directory>`
   - ```{autodoc2-docstring} src.utils.security.directories.encrypt_directory
     :summary:
@@ -35,6 +39,13 @@
 
 ### API
 
+````{py:function} _validate_input_directory(input_dir: typing.Union[str, os.PathLike]) -> pathlib.Path
+:canonical: src.utils.security.directories._validate_input_directory
+
+```{autodoc2-docstring} src.utils.security.directories._validate_input_directory
+```
+````
+
 ````{py:function} encrypt_directory(key: bytes, input_dir: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> typing.List[bytes]
 :canonical: src.utils.security.directories.encrypt_directory
 
@@ -42,7 +53,7 @@
 ```
 ````
 
-````{py:function} decrypt_directory(key: bytes, input_dir: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> typing.List[str]
+````{py:function} decrypt_directory(key: bytes, input_dir: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> typing.List[typing.Union[str, bytes]]
 :canonical: src.utils.security.directories.decrypt_directory
 
 ```{autodoc2-docstring} src.utils.security.directories.decrypt_directory
@@ -56,7 +67,7 @@
 ```
 ````
 
-````{py:function} decrypt_zip(key: bytes, input_enczip: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> str
+````{py:function} decrypt_zip(key: bytes, input_enczip: typing.Union[str, os.PathLike], output_dir: typing.Optional[typing.Union[str, os.PathLike]] = None) -> typing.Union[str, bytes]
 :canonical: src.utils.security.directories.decrypt_zip
 
 ```{autodoc2-docstring} src.utils.security.directories.decrypt_zip

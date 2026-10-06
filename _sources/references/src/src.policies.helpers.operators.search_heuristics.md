@@ -19,6 +19,7 @@ src.policies.helpers.operators.search_heuristics._tour_construction
 src.policies.helpers.operators.search_heuristics._tour_improvement
 src.policies.helpers.operators.search_heuristics._objective
 src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun_two
+src.policies.helpers.operators.search_heuristics.destroy_repair_llh
 src.policies.helpers.operators.search_heuristics.lin_kernighan_helsgaun
 src.policies.helpers.operators.search_heuristics._tour_adapter
 src.policies.helpers.operators.search_heuristics.lin_kernighan
@@ -43,7 +44,7 @@ src.policies.helpers.operators.search_heuristics.lin_kernighan
 ````{py:data} __all__
 :canonical: src.policies.helpers.operators.search_heuristics.__all__
 :value: >
-   ['apply_ges', 'apply_lns', 'solve_lk', 'solve_lkh']
+   ['apply_ges', 'apply_lns', 'build_greedy_initial_routes', 'llh_cluster_greedy', 'llh_random_greedy',...
 
 ```{autodoc2-docstring} src.policies.helpers.operators.search_heuristics.__all__
 ```

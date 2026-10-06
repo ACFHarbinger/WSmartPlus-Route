@@ -82,7 +82,6 @@ Bases: {py:obj}`logic.src.policies.route_construction.base.base_routing_policy.B
 
 ````{py:method} _get_config_key() -> str
 :canonical: src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._get_config_key
-:classmethod:
 
 ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.adaptive_route_constructor_orchestrator.policy_arco.AdaptiveRouteConstructorOrchestrator._get_config_key
 ```

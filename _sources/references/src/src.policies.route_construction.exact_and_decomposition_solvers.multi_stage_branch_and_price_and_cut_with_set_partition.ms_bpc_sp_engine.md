@@ -67,6 +67,10 @@
   - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._FARKAS_TOL
     :summary:
     ```
+* - {py:obj}`_RELAX_RETRY_MAX_NODES <src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._RELAX_RETRY_MAX_NODES>`
+  - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._RELAX_RETRY_MAX_NODES
+    :summary:
+    ```
 * - {py:obj}`MSBPCSPPruningException <src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine.MSBPCSPPruningException>`
   - ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine.MSBPCSPPruningException
     :summary:
@@ -96,6 +100,16 @@
 
 ````
 
+````{py:data} _RELAX_RETRY_MAX_NODES
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._RELAX_RETRY_MAX_NODES
+:value: >
+   8
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._RELAX_RETRY_MAX_NODES
+```
+
+````
+
 ````{py:data} MSBPCSPPruningException
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine.MSBPCSPPruningException
 :value: >
@@ -113,7 +127,7 @@
 ```
 ````
 
-````{py:function} _solve_farkas_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5, timeout: float = 5.0) -> typing.Tuple[int, bool]
+````{py:function} _solve_farkas_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint], farkas_duals: typing.Any, max_routes: int = 5, timeout: float = 5.0, exact_mode: bool = False) -> typing.Tuple[int, bool]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._solve_farkas_pricing_step
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._solve_farkas_pricing_step
@@ -127,7 +141,7 @@
 ```
 ````
 
-````{py:function} _solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, timeout: typing.Optional[float] = None) -> typing.Tuple[int, bool]
+````{py:function} _solve_pricing_step(master: logic.src.policies.helpers.solvers_and_matheuristics.VRPPMasterProblem, pricing_solver: logic.src.policies.helpers.solvers_and_matheuristics.RCSPPSolver, branching_constraints: typing.Optional[typing.List[logic.src.policies.helpers.solvers_and_matheuristics.AnyBranchingConstraint]] = None, max_routes: int = 5, optimality_gap: float = 0.0001, rc_tolerance: float = 1e-05, timeout: typing.Optional[float] = None, exact_mode: bool = False) -> typing.Tuple[int, bool]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._solve_pricing_step
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine._solve_pricing_step
@@ -155,7 +169,7 @@
 ```
 ````
 
-````{py:function} run_ms_bpc_sp(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Optional[typing.Union[src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.params.MSBPCSPParams, typing.Dict[str, typing.Any]]] = None, mandatory_indices: typing.Optional[typing.Set[int]] = None, vehicle_limit: typing.Optional[int] = None, env: typing.Optional[typing.Any] = None, node_coords: typing.Optional[numpy.ndarray] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float]
+````{py:function} run_ms_bpc_sp(dist_matrix: numpy.ndarray, wastes: typing.Dict[int, float], capacity: float, R: float, C: float, params: typing.Optional[typing.Union[src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.params.MSBPCSPParams, typing.Dict[str, typing.Any]]] = None, mandatory_indices: typing.Optional[typing.Set[int]] = None, vehicle_limit: typing.Optional[int] = None, env: typing.Optional[typing.Any] = None, node_coords: typing.Optional[numpy.ndarray] = None, recorder: typing.Optional[logic.src.tracking.viz_mixin.PolicyStateRecorder] = None, _presel_retry: bool = False, _keep_all_nodes: bool = False, **kwargs: typing.Any) -> typing.Tuple[typing.List[typing.List[int]], float]
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine.run_ms_bpc_sp
 
 ```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.multi_stage_branch_and_price_and_cut_with_set_partition.ms_bpc_sp_engine.run_ms_bpc_sp

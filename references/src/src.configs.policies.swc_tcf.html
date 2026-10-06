@@ -460,6 +460,8 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.seed"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.engine"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_threads</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_soft_mem_limit_gb</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.framework"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.framework</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.route_improvement</span></code></a></li>
@@ -526,6 +528,8 @@ None</p>
 <p>Attributes:
 Omega: Fixed cost per vehicle used (EUR).
 psi: Fill fraction at or above which a bin is forced into the plan.
+gurobi_threads: Native Gurobi threads per solve (positive; independent of simulator workers).
+gurobi_soft_mem_limit_gb: Native Gurobi soft memory ceiling in decimal GB.
 time_limit: Maximum time in seconds for the solver.
 engine: Solver engine to use (‘gurobi’, ‘scip’, ‘highs’, or ‘cplex’).
 framework: Solver framework to use (‘ortools’, ‘pyomo’).
@@ -559,6 +563,18 @@ route_improvement: List of route improvement operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.engine">
 <span class="sig-name descname"><span class="pre">engine</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.engine" title="Link to this definition">#</a></dt>
 <dd><p>‘gurobi’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads">
+<span class="sig-name descname"><span class="pre">gurobi_threads</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads" title="Link to this definition">#</a></dt>
+<dd><p>2</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb">
+<span class="sig-name descname"><span class="pre">gurobi_soft_mem_limit_gb</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">float</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb" title="Link to this definition">#</a></dt>
+<dd><p>5.0</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -639,6 +655,8 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.time_limit"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.seed"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.seed</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.engine"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.engine</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_threads</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_soft_mem_limit_gb</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.framework"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.framework</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.route_improvement</span></code></a></li>

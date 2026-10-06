@@ -459,6 +459,32 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._find_key"><code class="docutils literal notranslate"><span class="pre">_find_key()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._EXPANDED_KEYS"><code class="docutils literal notranslate"><span class="pre">_EXPANDED_KEYS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._is_mapping"><code class="docutils literal notranslate"><span class="pre">_is_mapping()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._as_plain_dict"><code class="docutils literal notranslate"><span class="pre">_as_plain_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._is_non_string_sequence"><code class="docutils literal notranslate"><span class="pre">_is_non_string_sequence()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._unwrap_variant_value"><code class="docutils literal notranslate"><span class="pre">_unwrap_variant_value()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._file_yaml_pairs"><code class="docutils literal notranslate"><span class="pre">_file_yaml_pairs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._load_policy_yaml_section"><code class="docutils literal notranslate"><span class="pre">_load_policy_yaml_section()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._params_as_dict"><code class="docutils literal notranslate"><span class="pre">_params_as_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._make_acceptance_config"><code class="docutils literal notranslate"><span class="pre">_make_acceptance_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._acceptance_config_from_entry"><code class="docutils literal notranslate"><span class="pre">_acceptance_config_from_entry()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._inject_acceptance_into_config"><code class="docutils literal notranslate"><span class="pre">_inject_acceptance_into_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._live_ac_payload"><code class="docutils literal notranslate"><span class="pre">_live_ac_payload()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._AttrDict"><code class="docutils literal notranslate"><span class="pre">_AttrDict</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._AttrDict.__getattr__"><code class="docutils literal notranslate"><span class="pre">_AttrDict.__getattr__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._AttrDict.__setattr__"><code class="docutils literal notranslate"><span class="pre">_AttrDict.__setattr__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._attrify"><code class="docutils literal notranslate"><span class="pre">_attrify()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._ensure_mutable_config"><code class="docutils literal notranslate"><span class="pre">_ensure_mutable_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._pop_context_key"><code class="docutils literal notranslate"><span class="pre">_pop_context_key()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._append_context_list"><code class="docutils literal notranslate"><span class="pre">_append_context_list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._jsonable"><code class="docutils literal notranslate"><span class="pre">_jsonable()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._LIVE_CAPTURE_META"><code class="docutils literal notranslate"><span class="pre">_LIVE_CAPTURE_META</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._PAPER_CONSTRUCTORS"><code class="docutils literal notranslate"><span class="pre">_PAPER_CONSTRUCTORS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._constructor_from_policy_id"><code class="docutils literal notranslate"><span class="pre">_constructor_from_policy_id()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._set_live_capture_meta"><code class="docutils literal notranslate"><span class="pre">_set_live_capture_meta()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._record_live_params"><code class="docutils literal notranslate"><span class="pre">_record_live_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>
 </ul>
@@ -493,7 +519,10 @@ SimulationAction: Abstract base class for simulation actions.</p>
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base.SimulationAction" title="src.pipeline.simulations.actions.base.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationAction</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._AttrDict" title="src.pipeline.simulations.actions.base._AttrDict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_AttrDict</span></code></a></p></td>
+<td><p>Mapping compatibility for consumers supporting attribute-style config access.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base.SimulationAction" title="src.pipeline.simulations.actions.base.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">SimulationAction</span></code></a></p></td>
 <td><p>Abstract base class for simulation actions.</p></td>
 </tr>
 </tbody>
@@ -513,6 +542,63 @@ Handles dictionaries, ITraversable objects, and iterable sequences (lists, ListC
 Args:
 cfg: The configuration object to flatten.</p></td>
 </tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._is_mapping" title="src.pipeline.simulations.actions.base._is_mapping"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_mapping</span></code></a></p></td>
+<td><p>True for dict / DictConfig, not for strings, lists, or ListConfig.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._as_plain_dict" title="src.pipeline.simulations.actions.base._as_plain_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_as_plain_dict</span></code></a></p></td>
+<td><p>Shallow-convert a mapping (including OmegaConf) to a builtin dict.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._is_non_string_sequence" title="src.pipeline.simulations.actions.base._is_non_string_sequence"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_is_non_string_sequence</span></code></a></p></td>
+<td><p>True for list / tuple / ListConfig, not for mappings or strings.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._unwrap_variant_value" title="src.pipeline.simulations.actions.base._unwrap_variant_value"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_unwrap_variant_value</span></code></a></p></td>
+<td><p>Take a yaml variant that may be a string or a one-element list / ListConfig.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._file_yaml_pairs" title="src.pipeline.simulations.actions.base._file_yaml_pairs"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_file_yaml_pairs</span></code></a></p></td>
+<td><p>Return <code class="docutils literal notranslate"><span class="pre">[(file.yaml,</span> <span class="pre">variant),</span> <span class="pre">...]</span></code> for <code class="docutils literal notranslate"><span class="pre">{file:</span> <span class="pre">variant}</span></code> or <code class="docutils literal notranslate"><span class="pre">{file:</span> <span class="pre">[v,</span> <span class="pre">...]}</span></code>.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._load_policy_yaml_section" title="src.pipeline.simulations.actions.base._load_policy_yaml_section"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_load_policy_yaml_section</span></code></a></p></td>
+<td><p>Load <code class="docutils literal notranslate"><span class="pre">logic/configs/policies/&lt;file_key&gt;</span></code> and navigate into <code class="docutils literal notranslate"><span class="pre">variant</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._params_as_dict" title="src.pipeline.simulations.actions.base._params_as_dict"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_params_as_dict</span></code></a></p></td>
+<td><p>Convert dataclass / mapping params to a plain dict.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._make_acceptance_config" title="src.pipeline.simulations.actions.base._make_acceptance_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_make_acceptance_config</span></code></a></p></td>
+<td><p>Build the typed AcceptanceConfig the constructors already consume.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._acceptance_config_from_entry" title="src.pipeline.simulations.actions.base._acceptance_config_from_entry"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_acceptance_config_from_entry</span></code></a></p></td>
+<td><p>Resolve <code class="docutils literal notranslate"><span class="pre">acceptance_criteria</span></code> yaml / mapping to a typed AcceptanceConfig.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._inject_acceptance_into_config" title="src.pipeline.simulations.actions.base._inject_acceptance_into_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_inject_acceptance_into_config</span></code></a></p></td>
+<td><p>Write yaml acceptance params onto <code class="docutils literal notranslate"><span class="pre">acceptance_criterion</span></code> in <code class="docutils literal notranslate"><span class="pre">cfg</span></code>.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._live_ac_payload" title="src.pipeline.simulations.actions.base._live_ac_payload"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_live_ac_payload</span></code></a></p></td>
+<td><p>JSON-friendly snapshot of an AcceptanceConfig.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._attrify" title="src.pipeline.simulations.actions.base._attrify"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_attrify</span></code></a></p></td>
+<td><p>Recursively wrap dicts as <code class="docutils literal notranslate"><span class="pre">_AttrDict</span></code>; leave dataclasses intact.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._ensure_mutable_config" title="src.pipeline.simulations.actions.base._ensure_mutable_config"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_ensure_mutable_config</span></code></a></p></td>
+<td><p>Convert Hydra DictConfig policy blobs to a mutable mapping the day can mutate.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._pop_context_key" title="src.pipeline.simulations.actions.base._pop_context_key"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_pop_context_key</span></code></a></p></td>
+<td><p>Pop a key from a dict or <code class="docutils literal notranslate"><span class="pre">SimulationDayContext</span></code> (Mapping without <code class="docutils literal notranslate"><span class="pre">pop</span></code>).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._append_context_list" title="src.pipeline.simulations.actions.base._append_context_list"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_append_context_list</span></code></a></p></td>
+<td><p>Append to a list stored on a dict or day context (no <code class="docutils literal notranslate"><span class="pre">setdefault</span></code>).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._jsonable" title="src.pipeline.simulations.actions.base._jsonable"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_jsonable</span></code></a></p></td>
+<td><p>Best-effort conversion of dataclasses / numpy scalars for JSON capture.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._constructor_from_policy_id" title="src.pipeline.simulations.actions.base._constructor_from_policy_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_constructor_from_policy_id</span></code></a></p></td>
+<td><p>Longest paper-constructor key inside an expanded policy id.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._set_live_capture_meta" title="src.pipeline.simulations.actions.base._set_live_capture_meta"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_set_live_capture_meta</span></code></a></p></td>
+<td><p>Remember policy/variant/day for subsequent consumer JSONL records.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._record_live_params" title="src.pipeline.simulations.actions.base._record_live_params"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_record_live_params</span></code></a></p></td>
+<td><p>Append one JSONL record when <code class="docutils literal notranslate"><span class="pre">WSR_CAPTURE_STRATEGY_JSON</span></code> is set.</p></td>
+</tr>
 </tbody>
 </table>
 </div>
@@ -522,6 +608,12 @@ cfg: The configuration object to flatten.</p></td>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._EXPANDED_KEYS" title="src.pipeline.simulations.actions.base._EXPANDED_KEYS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_EXPANDED_KEYS</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._LIVE_CAPTURE_META" title="src.pipeline.simulations.actions.base._LIVE_CAPTURE_META"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_LIVE_CAPTURE_META</span></code></a></p></td>
+<td></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.base._PAPER_CONSTRUCTORS" title="src.pipeline.simulations.actions.base._PAPER_CONSTRUCTORS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_PAPER_CONSTRUCTORS</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -556,6 +648,186 @@ Args:
 cfg: The configuration object to flatten.</p>
 <p>Returns:
 A flattened dictionary of the configuration.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._is_mapping">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_is_mapping</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._is_mapping" title="Link to this definition">#</a></dt>
+<dd><p>True for dict / DictConfig, not for strings, lists, or ListConfig.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._as_plain_dict">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_as_plain_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._as_plain_dict" title="Link to this definition">#</a></dt>
+<dd><p>Shallow-convert a mapping (including OmegaConf) to a builtin dict.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._is_non_string_sequence">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_is_non_string_sequence</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._is_non_string_sequence" title="Link to this definition">#</a></dt>
+<dd><p>True for list / tuple / ListConfig, not for mappings or strings.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._unwrap_variant_value">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_unwrap_variant_value</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">val</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._unwrap_variant_value" title="Link to this definition">#</a></dt>
+<dd><p>Take a yaml variant that may be a string or a one-element list / ListConfig.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._file_yaml_pairs">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_file_yaml_pairs</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._file_yaml_pairs" title="Link to this definition">#</a></dt>
+<dd><p>Return <code class="docutils literal notranslate"><span class="pre">[(file.yaml,</span> <span class="pre">variant),</span> <span class="pre">...]</span></code> for <code class="docutils literal notranslate"><span class="pre">{file:</span> <span class="pre">variant}</span></code> or <code class="docutils literal notranslate"><span class="pre">{file:</span> <span class="pre">[v,</span> <span class="pre">...]}</span></code>.</p>
+<p>Args:
+item: A config item that may be a file-to-variant mapping.</p>
+<p>Returns:
+A list of (relative yaml path, variant name) pairs. Empty if <code class="docutils literal notranslate"><span class="pre">item</span></code> is not
+in that form.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._load_policy_yaml_section">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_load_policy_yaml_section</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">variant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._load_policy_yaml_section" title="Link to this definition">#</a></dt>
+<dd><p>Load <code class="docutils literal notranslate"><span class="pre">logic/configs/policies/&lt;file_key&gt;</span></code> and navigate into <code class="docutils literal notranslate"><span class="pre">variant</span></code>.</p>
+<p>A <code class="docutils literal notranslate"><span class="pre">default</span></code> variant that is not a top-level key descends into the sole
+mapping (lookahead yaml is keyed <code class="docutils literal notranslate"><span class="pre">lookahead:</span></code>, CLS yaml is keyed <code class="docutils literal notranslate"><span class="pre">default:</span></code>).</p>
+<p>Args:
+file_key: Path relative to <code class="docutils literal notranslate"><span class="pre">configs/policies</span></code>.
+variant: Named section, or <code class="docutils literal notranslate"><span class="pre">default</span></code> / empty to take the only child.</p>
+<p>Returns:
+The selected section as a plain dict (empty if the file cannot be read).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._params_as_dict">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_params_as_dict</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._params_as_dict" title="Link to this definition">#</a></dt>
+<dd><p>Convert dataclass / mapping params to a plain dict.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._make_acceptance_config">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_make_acceptance_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">method</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">params</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._make_acceptance_config" title="Link to this definition">#</a></dt>
+<dd><p>Build the typed AcceptanceConfig the constructors already consume.</p>
+<p>Args:
+method: Criterion name from yaml (<code class="docutils literal notranslate"><span class="pre">bmc</span></code>, <code class="docutils literal notranslate"><span class="pre">oi</span></code>, …).
+params: Mapping or dataclass of constructor kwargs.</p>
+<p>Returns:
+<code class="docutils literal notranslate"><span class="pre">AcceptanceConfig</span></code> with nested param dataclass for BMC / OI.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._acceptance_config_from_entry">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_acceptance_config_from_entry</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">raw</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._acceptance_config_from_entry" title="Link to this definition">#</a></dt>
+<dd><p>Resolve <code class="docutils literal notranslate"><span class="pre">acceptance_criteria</span></code> yaml / mapping to a typed AcceptanceConfig.</p>
+<p>Args:
+raw: Policy-level <code class="docutils literal notranslate"><span class="pre">acceptance_criteria</span></code> value.</p>
+<p>Returns:
+AcceptanceConfig or None if nothing is configured.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._inject_acceptance_into_config">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_inject_acceptance_into_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">cfg</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._inject_acceptance_into_config" title="Link to this definition">#</a></dt>
+<dd><p>Write yaml acceptance params onto <code class="docutils literal notranslate"><span class="pre">acceptance_criterion</span></code> in <code class="docutils literal notranslate"><span class="pre">cfg</span></code>.</p>
+<p>Constructors read <code class="docutils literal notranslate"><span class="pre">acceptance_criterion</span></code> (singular) and ignore the
+policy-level <code class="docutils literal notranslate"><span class="pre">acceptance_criteria:</span> <span class="pre">{file:</span> <span class="pre">[variant]}</span></code> key. Injecting the
+typed object here is what makes PSOMA / ALNS / HGS honour <code class="docutils literal notranslate"><span class="pre">ac_bmc.yaml</span></code>
+and <code class="docutils literal notranslate"><span class="pre">ac_oi.yaml</span></code>.</p>
+<p>Args:
+cfg: Mutable policy config (dict). DictConfig should already be converted.</p>
+<p>Returns:
+The injected AcceptanceConfig, or None.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._live_ac_payload">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_live_ac_payload</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">resolved</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._live_ac_payload" title="Link to this definition">#</a></dt>
+<dd><p>JSON-friendly snapshot of an AcceptanceConfig.</p>
+</dd></dl>
+
+<dl class="py class">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._AttrDict">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_AttrDict</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._AttrDict" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">dict</span></code></p>
+<p>Mapping compatibility for consumers supporting attribute-style config access.</p>
+<p class="rubric">Initialization</p>
+<p>Initialize self.  See help(type(self)) for accurate signature.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._AttrDict.__getattr__">
+<span class="sig-name descname"><span class="pre">__getattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._AttrDict.__getattr__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._AttrDict.__setattr__">
+<span class="sig-name descname"><span class="pre">__setattr__</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._AttrDict.__setattr__" title="Link to this definition">#</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._attrify">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_attrify</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._attrify" title="Link to this definition">#</a></dt>
+<dd><p>Recursively wrap dicts as <code class="docutils literal notranslate"><span class="pre">_AttrDict</span></code>; leave dataclasses intact.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._ensure_mutable_config">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_ensure_mutable_config</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._ensure_mutable_config" title="Link to this definition">#</a></dt>
+<dd><p>Convert Hydra DictConfig policy blobs to a mutable mapping the day can mutate.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._pop_context_key">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_pop_context_key</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._pop_context_key" title="Link to this definition">#</a></dt>
+<dd><p>Pop a key from a dict or <code class="docutils literal notranslate"><span class="pre">SimulationDayContext</span></code> (Mapping without <code class="docutils literal notranslate"><span class="pre">pop</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._append_context_list">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_append_context_list</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">item</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._append_context_list" title="Link to this definition">#</a></dt>
+<dd><p>Append to a list stored on a dict or day context (no <code class="docutils literal notranslate"><span class="pre">setdefault</span></code>).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._jsonable">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_jsonable</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._jsonable" title="Link to this definition">#</a></dt>
+<dd><p>Best-effort conversion of dataclasses / numpy scalars for JSON capture.</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._LIVE_CAPTURE_META">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_LIVE_CAPTURE_META</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">contextvars.ContextVar</span><span class="p"><span class="pre">[</span></span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.pipeline.simulations.actions.base._LIVE_CAPTURE_META" title="Link to this definition">#</a></dt>
+<dd><p>‘ContextVar(…)’</p>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._PAPER_CONSTRUCTORS">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_PAPER_CONSTRUCTORS</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._PAPER_CONSTRUCTORS" title="Link to this definition">#</a></dt>
+<dd><p>(‘ms_bpc_sp’, ‘pg_clns’, ‘swc_tcf’, ‘aco_hh’, ‘psoma’, ‘alns’, ‘hgs’, ‘bpc’, ‘na’)</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._constructor_from_policy_id">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_constructor_from_policy_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">policy_id</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._constructor_from_policy_id" title="Link to this definition">#</a></dt>
+<dd><p>Longest paper-constructor key inside an expanded policy id.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._set_live_capture_meta">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_set_live_capture_meta</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._set_live_capture_meta" title="Link to this definition">#</a></dt>
+<dd><p>Remember policy/variant/day for subsequent consumer JSONL records.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.pipeline.simulations.actions.base._record_live_params">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.base.</span></span><span class="sig-name descname"><span class="pre">_record_live_params</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">kind</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">payload</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.base._record_live_params" title="Link to this definition">#</a></dt>
+<dd><p>Append one JSONL record when <code class="docutils literal notranslate"><span class="pre">WSR_CAPTURE_STRATEGY_JSON</span></code> is set.</p>
+<p>Used by the live <code class="docutils literal notranslate"><span class="pre">main.py</span> <span class="pre">test_sim</span></code> check so captured MS / RI / AC
+parameters can be compared to yaml without constructing a policy from a
+plain dict.</p>
+<p>Args:
+kind: <code class="docutils literal notranslate"><span class="pre">mandatory_selection</span></code>, <code class="docutils literal notranslate"><span class="pre">route_improvement</span></code>, or <code class="docutils literal notranslate"><span class="pre">acceptance_criteria</span></code>.
+payload: JSON-serialisable snapshot of the live parameters.</p>
 </dd></dl>
 
 <dl class="py class">
@@ -634,6 +906,32 @@ context: Shared dictionary containing simulation state.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._find_key"><code class="docutils literal notranslate"><span class="pre">_find_key()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._EXPANDED_KEYS"><code class="docutils literal notranslate"><span class="pre">_EXPANDED_KEYS</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._flatten_config"><code class="docutils literal notranslate"><span class="pre">_flatten_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._is_mapping"><code class="docutils literal notranslate"><span class="pre">_is_mapping()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._as_plain_dict"><code class="docutils literal notranslate"><span class="pre">_as_plain_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._is_non_string_sequence"><code class="docutils literal notranslate"><span class="pre">_is_non_string_sequence()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._unwrap_variant_value"><code class="docutils literal notranslate"><span class="pre">_unwrap_variant_value()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._file_yaml_pairs"><code class="docutils literal notranslate"><span class="pre">_file_yaml_pairs()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._load_policy_yaml_section"><code class="docutils literal notranslate"><span class="pre">_load_policy_yaml_section()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._params_as_dict"><code class="docutils literal notranslate"><span class="pre">_params_as_dict()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._make_acceptance_config"><code class="docutils literal notranslate"><span class="pre">_make_acceptance_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._acceptance_config_from_entry"><code class="docutils literal notranslate"><span class="pre">_acceptance_config_from_entry()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._inject_acceptance_into_config"><code class="docutils literal notranslate"><span class="pre">_inject_acceptance_into_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._live_ac_payload"><code class="docutils literal notranslate"><span class="pre">_live_ac_payload()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._AttrDict"><code class="docutils literal notranslate"><span class="pre">_AttrDict</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._AttrDict.__getattr__"><code class="docutils literal notranslate"><span class="pre">_AttrDict.__getattr__()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._AttrDict.__setattr__"><code class="docutils literal notranslate"><span class="pre">_AttrDict.__setattr__()</span></code></a></li>
+</ul>
+</li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._attrify"><code class="docutils literal notranslate"><span class="pre">_attrify()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._ensure_mutable_config"><code class="docutils literal notranslate"><span class="pre">_ensure_mutable_config()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._pop_context_key"><code class="docutils literal notranslate"><span class="pre">_pop_context_key()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._append_context_list"><code class="docutils literal notranslate"><span class="pre">_append_context_list()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._jsonable"><code class="docutils literal notranslate"><span class="pre">_jsonable()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._LIVE_CAPTURE_META"><code class="docutils literal notranslate"><span class="pre">_LIVE_CAPTURE_META</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._PAPER_CONSTRUCTORS"><code class="docutils literal notranslate"><span class="pre">_PAPER_CONSTRUCTORS</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._constructor_from_policy_id"><code class="docutils literal notranslate"><span class="pre">_constructor_from_policy_id()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._set_live_capture_meta"><code class="docutils literal notranslate"><span class="pre">_set_live_capture_meta()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base._record_live_params"><code class="docutils literal notranslate"><span class="pre">_record_live_params()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction"><code class="docutils literal notranslate"><span class="pre">SimulationAction</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.simulations.actions.base.SimulationAction.execute"><code class="docutils literal notranslate"><span class="pre">SimulationAction.execute()</span></code></a></li>
 </ul>

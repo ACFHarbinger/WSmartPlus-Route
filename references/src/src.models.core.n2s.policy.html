@@ -453,8 +453,18 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy"><code class="docutils literal notranslate"><span class="pre">N2SPolicy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.execute_n2s_request_move"><code class="docutils literal notranslate"><span class="pre">execute_n2s_request_move()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.validate_pdp_solution"><code class="docutils literal notranslate"><span class="pre">validate_pdp_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.create_feasible_pdp_solution"><code class="docutils literal notranslate"><span class="pre">create_feasible_pdp_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy._update_n2s_history"><code class="docutils literal notranslate"><span class="pre">_update_n2s_history()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy._sync_n2s_caller"><code class="docutils literal notranslate"><span class="pre">_sync_n2s_caller()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy"><code class="docutils literal notranslate"><span class="pre">N2SPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy._setup_initial_pdp_solution"><code class="docutils literal notranslate"><span class="pre">N2SPolicy._setup_initial_pdp_solution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy.forward"><code class="docutils literal notranslate"><span class="pre">N2SPolicy.forward()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>
@@ -493,8 +503,73 @@ N2SPolicy: Collaborative Transformer policy for neighborhood search.</p>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.n2s.policy.execute_n2s_request_move" title="src.models.core.n2s.policy.execute_n2s_request_move"><code class="xref py py-obj docutils literal notranslate"><span class="pre">execute_n2s_request_move</span></code></a></p></td>
+<td><p>Executes paper-faithful N2S request removal and precedence-correct reinsertion (Li et al. 2021).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.models.core.n2s.policy.validate_pdp_solution" title="src.models.core.n2s.policy.validate_pdp_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">validate_pdp_solution</span></code></a></p></td>
+<td><p>Validates that all pickups precede their respective deliveries in the tour.</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.n2s.policy.create_feasible_pdp_solution" title="src.models.core.n2s.policy.create_feasible_pdp_solution"><code class="xref py py-obj docutils literal notranslate"><span class="pre">create_feasible_pdp_solution</span></code></a></p></td>
+<td><p>Generates a canonical precedence-feasible initial PDP solution for each instance in the batch.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.models.core.n2s.policy._update_n2s_history" title="src.models.core.n2s.policy._update_n2s_history"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_update_n2s_history</span></code></a></p></td>
+<td><p>Updates N2S removal history buffer and recency indicators (Li et al. 2021, Eq. 13).</p></td>
+</tr>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.n2s.policy._sync_n2s_caller" title="src.models.core.n2s.policy._sync_n2s_caller"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_sync_n2s_caller</span></code></a></p></td>
+<td><p>Copy the best start back without changing the caller’s batch dimensions.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
+<dl class="py function">
+<dt class="sig sig-object py" id="src.models.core.n2s.policy.execute_n2s_request_move">
+<span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">execute_n2s_request_move</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.n2s.policy.execute_n2s_request_move" title="Link to this definition">#</a></dt>
+<dd><p>Executes paper-faithful N2S request removal and precedence-correct reinsertion (Li et al. 2021).</p>
+<p>With action a_t = {(i+, i-), (j, k)}:</p>
+<ol class="arabic simple">
+<li><p>Removes request node pair (i+, i-) from the tour.</p></li>
+<li><p>Reinserts pickup node i+ after node j, and delivery node i- after node k
+in the residual tour, strictly maintaining pickup-before-delivery precedence.</p></li>
+</ol>
+<p>Args:
+solution: Current tour tensor [B, N].
+actions: Action tensor [B, 4] with rows [i+, i-, j, k]. Malformed actions raise ValueError.</p>
+<p>Returns:
+torch.Tensor: Modified tour tensor [B, N].</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.models.core.n2s.policy.validate_pdp_solution">
+<span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">validate_pdp_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partner_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_pickup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_delivery</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.n2s.policy.validate_pdp_solution" title="Link to this definition">#</a></dt>
+<dd><p>Validates that all pickups precede their respective deliveries in the tour.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.models.core.n2s.policy.create_feasible_pdp_solution">
+<span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">create_feasible_pdp_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">partner_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_pickup</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">is_delivery</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.n2s.policy.create_feasible_pdp_solution" title="Link to this definition">#</a></dt>
+<dd><p>Generates a canonical precedence-feasible initial PDP solution for each instance in the batch.</p>
+<p>In the resulting tour, all pickups precede their respective deliveries (e.g. [0, p1, …, pm, d1, …, dm]).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.models.core.n2s.policy._update_n2s_history">
+<span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">_update_n2s_history</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">history</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">move</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_queue</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">window_size</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.n2s.policy._update_n2s_history" title="Link to this definition">#</a></dt>
+<dd><p>Updates N2S removal history buffer and recency indicators (Li et al. 2021, Eq. 13).</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.models.core.n2s.policy._sync_n2s_caller">
+<span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">_sync_n2s_caller</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">orig_td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">out</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.n2s.policy._sync_n2s_caller" title="Link to this definition">#</a></dt>
+<dd><p>Copy the best start back without changing the caller’s batch dimensions.</p>
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.n2s.policy.N2SPolicy">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.n2s.policy.</span></span><span class="sig-name descname"><span class="pre">N2SPolicy</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">k_neighbors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">20</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.n2s.policy.N2SPolicy" title="Link to this definition">#</a></dt>
@@ -513,6 +588,29 @@ embed_dim: Dimensionality of the node features.
 num_heads: Number of attention heads.
 k_neighbors: Number of candidate neighbors per node.
 kwargs: Additional keyword arguments.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.n2s.policy.N2SPolicy._setup_initial_pdp_solution">
+<span class="sig-name descname"><span class="pre">_setup_initial_pdp_solution</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caller_had_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">caller_solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">has_explicit_pdp</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.models.core.n2s.policy.N2SPolicy._setup_initial_pdp_solution" title="Link to this definition">#</a></dt>
+<dd><p>Sets up and validates the initial precedence-feasible PDP tour.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.n2s.policy.N2SPolicy.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">strategy</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'greedy'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_starts</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">1</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_steps</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">phase</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'train'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">return_actions</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.n2s.policy.N2SPolicy.forward" title="Link to this definition">#</a></dt>
+<dd><p>Iteratively applies N2S refinement moves with evolving request-removal history (Eq. 13).</p>
+<p>Args:
+td: TensorDict containing problem instance and current solution.
+env: Refinement environment managing local search moves.
+strategy: Move selection strategy (“greedy”, “sampling”).
+num_starts: Number of parallel trajectories per instance.
+max_steps: Maximum number of improvement iterations.
+phase: Current phase (“train”, “val”, “test”).
+return_actions: Whether to include move history in output.
+kwargs: Additional keyword arguments.</p>
+<p>Returns:
+dict[str, Any]: Results including reward, log_likelihood, and actions.</p>
+</dd></dl>
+
 </dd></dl>
 
 </section>
@@ -566,8 +664,18 @@ kwargs: Additional keyword arguments.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy"><code class="docutils literal notranslate"><span class="pre">N2SPolicy</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.execute_n2s_request_move"><code class="docutils literal notranslate"><span class="pre">execute_n2s_request_move()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.validate_pdp_solution"><code class="docutils literal notranslate"><span class="pre">validate_pdp_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.create_feasible_pdp_solution"><code class="docutils literal notranslate"><span class="pre">create_feasible_pdp_solution()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy._update_n2s_history"><code class="docutils literal notranslate"><span class="pre">_update_n2s_history()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy._sync_n2s_caller"><code class="docutils literal notranslate"><span class="pre">_sync_n2s_caller()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy"><code class="docutils literal notranslate"><span class="pre">N2SPolicy</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy._setup_initial_pdp_solution"><code class="docutils literal notranslate"><span class="pre">N2SPolicy._setup_initial_pdp_solution()</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.n2s.policy.N2SPolicy.forward"><code class="docutils literal notranslate"><span class="pre">N2SPolicy.forward()</span></code></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

@@ -511,9 +511,14 @@ decrypt_file_data: Decrypt a file or data bytes using Fernet symmetric encryptio
 <span class="sig-prename descclassname"><span class="pre">src.utils.security.data.</span></span><span class="sig-name descname"><span class="pre">encode_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bytes</span></span></span><a class="headerlink" href="#src.utils.security.data.encode_data" title="Link to this definition">#</a></dt>
 <dd><p>Encodes various data types into bytes for encryption.</p>
 <p>Args:
-data (Any): Data to encode (str, int, float, list, dict, etc.).</p>
+data (Any): Data to encode (str, int, float, bytes, list, dict, etc.).</p>
 <p>Returns:
 bytes: Encoded byte representation.</p>
+<p>Note:
+This function encodes data for encryption. decrypt_file_data() returns a string
+if the decrypted bytes are valid UTF-8, otherwise returns raw bytes. This allows
+recovery of the encoded bytes; it does not reconstruct the original Python
+type. Single-precision float encoding may lose precision.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -530,14 +535,17 @@ bytes: The encrypted data.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.security.data.decrypt_file_data">
-<span class="sig-prename descclassname"><span class="pre">src.utils.security.data.</span></span><span class="sig-name descname"><span class="pre">decrypt_file_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="headerlink" href="#src.utils.security.data.decrypt_file_data" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.security.data.</span></span><span class="sig-name descname"><span class="pre">decrypt_file_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">key</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bytes</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">input</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">os.PathLike</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Union</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bytes</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.utils.security.data.decrypt_file_data" title="Link to this definition">#</a></dt>
 <dd><p>Decrypt a file or data bytes using Fernet symmetric encryption.</p>
 <p>Args:
 key (bytes): The encryption key.
 input (Union[str, os.PathLike, Any]): Path to encrypted file OR encrypted bytes.
 output_file (Union[str, os.PathLike], optional): Path to save decrypted content.</p>
 <p>Returns:
-str: The decrypted data (decoded as utf-8 string).</p>
+Union[str, bytes]: The decrypted data. Returns a string if the decrypted bytes
+are valid UTF-8, otherwise returns raw bytes. This allows round-trip
+encryption/decryption of payloads, not original Python object types.
+If output_file is supplied, its contents are the exact plaintext bytes.</p>
 </dd></dl>
 
 </section>

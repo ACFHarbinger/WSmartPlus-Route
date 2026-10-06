@@ -585,7 +585,7 @@ The initial overflow count is computed as sum(waste[1:] &gt;= max_waste[1:]).</p
 </ol>
 <p>Collection Mechanics:
 - At customer nodes (action != 0):
-* Collect min(waste_at_node, max_waste, remaining_capacity)
+* Collect min(waste_at_node, max_waste) (capacity is enforced via action mask)
 * Add collected amount to current_load and total_collected
 * Set bin waste level to 0 after collection
 - At depot (action == 0):

@@ -454,7 +454,12 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACAttLayer"><code class="docutils literal notranslate"><span class="pre">DACAttLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACAttLayer.forward"><code class="docutils literal notranslate"><span class="pre">DACAttLayer.forward()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACTEncoder"><code class="docutils literal notranslate"><span class="pre">DACTEncoder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACTEncoder._compute_cyclic_positions"><code class="docutils literal notranslate"><span class="pre">DACTEncoder._compute_cyclic_positions()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACTEncoder.forward"><code class="docutils literal notranslate"><span class="pre">DACTEncoder.forward()</span></code></a></li>
 </ul>
 </li>
@@ -476,24 +481,38 @@ document.write(`
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.models.core.dact.encoder">
 <span id="src-models-core-dact-encoder"></span><h1><a class="reference internal" href="#module-src.models.core.dact.encoder" title="src.models.core.dact.encoder"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.core.dact.encoder</span></code></a><a class="headerlink" href="#module-src.models.core.dact.encoder" title="Link to this heading">#</a></h1>
 <p>DACT Encoder implementation.</p>
-<p>This module provides the <code class="docutils literal notranslate"><span class="pre">DACTEncoder</span></code>, which implements the “Dual Aspect”
-encoding strategy. It processes the problem instance from two collaborative
-perspectives: the spatial location of nodes (node aspect) and their relative
-ordering in the current tour (solution aspect).</p>
+<p>This module provides the paper-faithful <code class="docutils literal notranslate"><span class="pre">DACTEncoder</span></code> (Ma et al., NeurIPS 2021, §4.1-4.2),
+which implements the Dual-Aspect Collaborative Transformer architecture. It maintains
+two distinct encoding streams throughout all stacked layers:</p>
+<ol class="arabic simple">
+<li><p>Node Feature Embeddings (NFEs, h): captures spatial coordinates and topology.</p></li>
+<li><p>Positional Feature Embeddings (PFEs, g): captures cyclic solution order.</p></li>
+</ol>
+<p>In each DAC layer (Eq. 5-10):</p>
+<ul class="simple">
+<li><p>Self-attention correlation matrices are computed individually from each aspect.</p></li>
+<li><p>Cross-aspect referential attention shares attention correlations as mutual references.</p></li>
+<li><p>Independent feed-forward sub-layers (FFN_h, FFN_g) and LayerNorm refine each aspect.</p></li>
+<li><p>The encoder returns a tuple (h, g) that flows directly to the DACTDecoder.</p></li>
+</ul>
 <p>Attributes:
+DACAttLayer: Dual-Aspect Collaborative Attention layer with referential attention.
 DACTEncoder: Neural encoder for collaborative node-position modelling.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.models.core.dact.encoder import DACTEncoder
 &gt;&gt;&gt; encoder = DACTEncoder(embed_dim=128)
-&gt;&gt;&gt; h = encoder(td)</p>
+&gt;&gt;&gt; h, g = encoder(td)</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
 <h3>Classes<a class="headerlink" href="#classes" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.dact.encoder.DACTEncoder" title="src.models.core.dact.encoder.DACTEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DACTEncoder</span></code></a></p></td>
-<td><p>DACT Dual Aspect Collaborative Encoder.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.models.core.dact.encoder.DACAttLayer" title="src.models.core.dact.encoder.DACAttLayer"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DACAttLayer</span></code></a></p></td>
+<td><p>Dual-Aspect Collaborative Attention (DAC-Att) Layer (Ma et al. 2021, §4.2).</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.models.core.dact.encoder.DACTEncoder" title="src.models.core.dact.encoder.DACTEncoder"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DACTEncoder</span></code></a></p></td>
+<td><p>DACT Dual-Aspect Collaborative Encoder (Ma et al. 2021).</p></td>
 </tr>
 </tbody>
 </table>
@@ -502,34 +521,75 @@ DACTEncoder: Neural encoder for collaborative node-position modelling.</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
+<dt class="sig sig-object py" id="src.models.core.dact.encoder.DACAttLayer">
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dact.encoder.</span></span><span class="sig-name descname"><span class="pre">DACAttLayer</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dact.encoder.DACAttLayer" title="Link to this definition">#</a></dt>
+<dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">torch.nn.Module</span></code></p>
+<p>Dual-Aspect Collaborative Attention (DAC-Att) Layer (Ma et al. 2021, §4.2).</p>
+<p>Simultaneously refines node feature embeddings (h) and positional feature
+embeddings (g) using cross-aspect referential attention (Eq. 7-10) and
+aspect-specific feed-forward networks (Eq. 5-6).</p>
+<p class="rubric">Initialization</p>
+<p>Initializes the DAC-Att layer.</p>
+<p>Args:
+embed_dim: Feature dimension of embeddings.
+num_heads: Number of attention heads (default: 4 per paper).</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.dact.encoder.DACAttLayer.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">g</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dact.encoder.DACAttLayer.forward" title="Link to this definition">#</a></dt>
+<dd><p>Refines both aspect embeddings via DAC-Att.</p>
+<p>Args:
+h: Node feature embeddings [B, N, d].
+g: Positional feature embeddings [B, N, d].</p>
+<p>Returns:
+Tuple[torch.Tensor, torch.Tensor]: (h_out [B, N, d], g_out [B, N, d]).</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="py class">
 <dt class="sig sig-object py" id="src.models.core.dact.encoder.DACTEncoder">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dact.encoder.</span></span><span class="sig-name descname"><span class="pre">DACTEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">8</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CPE'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.models.core.dact.encoder.</span></span><span class="sig-name descname"><span class="pre">DACTEncoder</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">embed_dim</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">128</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_layers</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">3</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">num_heads</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">4</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">pos_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'CPE'</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <code class="xref py py-obj docutils literal notranslate"><span class="pre">logic.src.models.common.improvement.encoder.ImprovementEncoder</span></code></p>
-<p>DACT Dual Aspect Collaborative Encoder.</p>
-<p>Combines static node features with dynamic solution-dependent features
-using a Transformer backbone. The solution aspect uses normalized
-positional indices to represent the current tour order.</p>
+<p>DACT Dual-Aspect Collaborative Encoder (Ma et al. 2021).</p>
+<p>Processes the problem instance from two separate, collaborative streams:</p>
+<ul class="simple">
+<li><p>Node aspect (coordinates and depot).</p></li>
+<li><p>Positional aspect (cyclic positional encoding of solution order).</p></li>
+</ul>
 <p>Attributes:
 node_init (nn.Linear): Initial projection for spatial coordinates.
-pos_embedding (nn.Module): Positional encoding for tour sequence.
-layers (nn.ModuleList): Collaborative Transformer stacking.</p>
+pos_init (nn.Linear): Initial projection for cyclic positional coordinates.
+layers (nn.ModuleList): Stack of DACAttLayer layers.</p>
 <p class="rubric">Initialization</p>
-<p>Initializes the DACT encoder.</p>
+<p>Initializes the paper-faithful DACT encoder.</p>
 <p>Args:
 embed_dim: Dimensionality of latent embeddings.
-num_layers: Number of transformer layers.
-num_heads: Number of attention heads.
-pos_type: Positional encoding method (e.g., “CPE”).
+num_layers: Number of collaborative transformer layers.
+num_heads: Number of attention heads (default: 4 per paper).
+pos_type: Positional encoding type.
 kwargs: Additional keyword arguments.</p>
 <dl class="py method">
-<dt class="sig sig-object py" id="src.models.core.dact.encoder.DACTEncoder.forward">
-<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder.forward" title="Link to this definition">#</a></dt>
-<dd><p>Encodes spatial nodes and their current tour positions.</p>
+<dt class="sig sig-object py" id="src.models.core.dact.encoder.DACTEncoder._compute_cyclic_positions">
+<span class="sig-name descname"><span class="pre">_compute_cyclic_positions</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">solution</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">torch.Tensor</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">n_nodes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">int</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder._compute_cyclic_positions" title="Link to this definition">#</a></dt>
+<dd><p>Computes multi-dimensional Cyclic Positional Encoding (CPE) per Ma et al. 2021, Eq. (4) &amp; (13).</p>
 <p>Args:
-td: TensorDict containing ‘locs’, ‘depot’, and ‘solution’ keys.
+solution: Tour sequence indices [B, N].
+n_nodes: Number of nodes in the problem instance.</p>
+<p>Returns:
+torch.Tensor: Multi-dimensional CPE features [B, N, embed_dim].</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="src.models.core.dact.encoder.DACTEncoder.forward">
+<span class="sig-name descname"><span class="pre">forward</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.models.core.dact.encoder.DACTEncoder.forward" title="Link to this definition">#</a></dt>
+<dd><p>Encodes problem instance into dual-aspect embeddings (h, g).</p>
+<p>Args:
+td: TensorDict containing ‘depot’, ‘locs’, and ‘solution’ keys.
 kwargs: Additional keyword arguments.</p>
 <p>Returns:
-torch.Tensor: Refined node embeddings [B, N+1, embed_dim].</p>
+Tuple[torch.Tensor, torch.Tensor]:
+- h: Refined node feature embeddings [B, N, d].
+- g: Refined positional feature embeddings [B, N, d].</p>
 </dd></dl>
 
 </dd></dl>
@@ -586,7 +646,12 @@ torch.Tensor: Refined node embeddings [B, N+1, embed_dim].</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACAttLayer"><code class="docutils literal notranslate"><span class="pre">DACAttLayer</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACAttLayer.forward"><code class="docutils literal notranslate"><span class="pre">DACAttLayer.forward()</span></code></a></li>
+</ul>
+</li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACTEncoder"><code class="docutils literal notranslate"><span class="pre">DACTEncoder</span></code></a><ul class="nav section-nav flex-column">
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACTEncoder._compute_cyclic_positions"><code class="docutils literal notranslate"><span class="pre">DACTEncoder._compute_cyclic_positions()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.models.core.dact.encoder.DACTEncoder.forward"><code class="docutils literal notranslate"><span class="pre">DACTEncoder.forward()</span></code></a></li>
 </ul>
 </li>

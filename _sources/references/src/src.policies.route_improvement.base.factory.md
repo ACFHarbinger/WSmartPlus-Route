@@ -29,7 +29,7 @@
 ```{autodoc2-docstring} src.policies.route_improvement.base.factory.RouteImproverFactory
 ```
 
-````{py:method} create(name: str) -> logic.src.interfaces.route_improvement.IRouteImprovement
+````{py:method} create(name: str, **kwargs: typing.Any) -> logic.src.interfaces.route_improvement.IRouteImprovement
 :canonical: src.policies.route_improvement.base.factory.RouteImproverFactory.create
 :staticmethod:
 

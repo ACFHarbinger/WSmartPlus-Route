@@ -119,7 +119,7 @@
 
 ````{py:attribute} combination
 :canonical: src.configs.policies.sans.SANSConfig.combination
-:type: typing.Optional[typing.Literal[a, b]]
+:type: typing.Optional[typing.List[float]]
 :value: >
    None
 

@@ -21,7 +21,26 @@
     ```
 ````
 
+### Functions
+
+````{list-table}
+:class: autosummary longtable
+:align: left
+
+* - {py:obj}`_temporary_checkpoint_dir <src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir>`
+  - ```{autodoc2-docstring} src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir
+    :summary:
+    ```
+````
+
 ### API
+
+````{py:function} _temporary_checkpoint_dir(output_dir: str, checkpoint_dir: str) -> str
+:canonical: src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir
+
+```{autodoc2-docstring} src.pipeline.simulations.checkpoints.persistence._temporary_checkpoint_dir
+```
+````
 
 `````{py:class} SimulationCheckpoint(output_dir: str, checkpoint_dir: str = 'temp', policy: str = '', sample_id: int = 0)
 :canonical: src.pipeline.simulations.checkpoints.persistence.SimulationCheckpoint

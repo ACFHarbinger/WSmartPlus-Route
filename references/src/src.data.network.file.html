@@ -453,11 +453,14 @@ document.write(`
                 <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file.FileStrategy"><code class="docutils literal notranslate"><span class="pre">FileStrategy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file.FileStrategy.calculate"><code class="docutils literal notranslate"><span class="pre">FileStrategy.calculate()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file._bin_id"><code class="docutils literal notranslate"><span class="pre">_bin_id()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file._matrix_for_bin_ids"><code class="docutils literal notranslate"><span class="pre">_matrix_for_bin_ids()</span></code></a></li>
 </ul>
 </li>
 </ul>
@@ -495,6 +498,20 @@ strategy.calculate(coords, dm_filepath=”distance_matrix.csv”)</p>
 </table>
 </div>
 </section>
+<section id="functions">
+<h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
+<div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
+<tbody>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.data.network.file._bin_id" title="src.data.network.file._bin_id"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_bin_id</span></code></a></p></td>
+<td><p>Normalise a header cell and a coordinate ID onto one comparable key.</p></td>
+</tr>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.data.network.file._matrix_for_bin_ids" title="src.data.network.file._matrix_for_bin_ids"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_matrix_for_bin_ids</span></code></a></p></td>
+<td><p>Return the square submatrix whose rows and columns follow <code class="docutils literal notranslate"><span class="pre">req_ids</span></code>.</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
@@ -515,6 +532,30 @@ kwargs: Additional arguments for the distance strategy.</p>
 np.ndarray: Loaded distance matrix.</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.network.file._bin_id">
+<span class="sig-prename descclassname"><span class="pre">src.data.network.file.</span></span><span class="sig-name descname"><span class="pre">_bin_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Any</span></span></span><a class="headerlink" href="#src.data.network.file._bin_id" title="Link to this definition">#</a></dt>
+<dd><p>Normalise a header cell and a coordinate ID onto one comparable key.</p>
+<p>Args:
+value: Raw id from a matrix header or a coordinate frame.</p>
+<p>Returns:
+An <code class="docutils literal notranslate"><span class="pre">int</span></code> when the value is an integral number, otherwise the original value.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="src.data.network.file._matrix_for_bin_ids">
+<span class="sig-prename descclassname"><span class="pre">src.data.network.file.</span></span><span class="sig-name descname"><span class="pre">_matrix_for_bin_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">matrix_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">req_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.data.network.file._matrix_for_bin_ids" title="Link to this definition">#</a></dt>
+<dd><p>Return the square submatrix whose rows and columns follow <code class="docutils literal notranslate"><span class="pre">req_ids</span></code>.</p>
+<p>Args:
+distance_matrix: Square distances aligned with <code class="docutils literal notranslate"><span class="pre">matrix_ids</span></code>.
+matrix_ids: Bin id of each row and column, in matrix order.
+req_ids: Bin ids to keep, in the order the caller asked for.</p>
+<p>Returns:
+Submatrix of shape <code class="docutils literal notranslate"><span class="pre">(len(req_ids),</span> <span class="pre">len(req_ids))</span></code>.</p>
+<p>Raises:
+ValueError: The body is not square, or a requested bin id is absent.</p>
 </dd></dl>
 
 </section>
@@ -568,11 +609,14 @@ np.ndarray: Loaded distance matrix.</p>
     <ul class="visible nav section-nav flex-column">
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#classes">Classes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file.FileStrategy"><code class="docutils literal notranslate"><span class="pre">FileStrategy</span></code></a><ul class="nav section-nav flex-column">
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file.FileStrategy.calculate"><code class="docutils literal notranslate"><span class="pre">FileStrategy.calculate()</span></code></a></li>
 </ul>
 </li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file._bin_id"><code class="docutils literal notranslate"><span class="pre">_bin_id()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.data.network.file._matrix_for_bin_ids"><code class="docutils literal notranslate"><span class="pre">_matrix_for_bin_ids()</span></code></a></li>
 </ul>
 </li>
 </ul>

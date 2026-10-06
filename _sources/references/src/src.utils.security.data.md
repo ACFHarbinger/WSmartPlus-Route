@@ -45,7 +45,7 @@
 ```
 ````
 
-````{py:function} decrypt_file_data(key: bytes, input: typing.Union[str, os.PathLike, typing.Any], output_file: typing.Optional[typing.Union[str, os.PathLike]] = None) -> str
+````{py:function} decrypt_file_data(key: bytes, input: typing.Union[str, os.PathLike, typing.Any], output_file: typing.Optional[typing.Union[str, os.PathLike]] = None) -> typing.Union[str, bytes]
 :canonical: src.utils.security.data.decrypt_file_data
 
 ```{autodoc2-docstring} src.utils.security.data.decrypt_file_data
