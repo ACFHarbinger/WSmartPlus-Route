@@ -22,6 +22,7 @@ src.utils.input
 src.utils.output
 src.utils.tasks
 src.utils.plotting
+src.utils.routing
 src.utils.security
 src.utils.data
 src.utils.infrastructure

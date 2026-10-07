@@ -213,6 +213,7 @@
 <li class="toctree-l4"><a class="reference internal" href="src.utils.output.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.output</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.tasks.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.tasks</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.plotting.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.plotting</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="src.utils.routing.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.routing</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.security.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.security</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.data.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.data</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="src.utils.infrastructure.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.infrastructure</span></code></a></li>
@@ -458,10 +459,7 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST"><code class="docutils literal notranslate"><span class="pre">_FAST_TSP_MAX_DIST</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route"><code class="docutils literal notranslate"><span class="pre">find_route()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost"><code class="docutils literal notranslate"><span class="pre">get_route_cost()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost"><code class="docutils literal notranslate"><span class="pre">get_path_cost()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix"><code class="docutils literal notranslate"><span class="pre">_trip_time_matrix()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour"><code class="docutils literal notranslate"><span class="pre">get_multi_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_partial_tour"><code class="docutils literal notranslate"><span class="pre">get_partial_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.dist_matrix_from_graph"><code class="docutils literal notranslate"><span class="pre">dist_matrix_from_graph()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.calculate_tour_cost"><code class="docutils literal notranslate"><span class="pre">calculate_tour_cost()</span></code></a></li>
@@ -514,25 +512,16 @@ Hoos, H. H., &amp; Stützle, T. (2005).
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route"><code class="xref py py-obj docutils literal notranslate"><span class="pre">find_route</span></code></a></p></td>
 <td><p>Find a TSP route through the depot and <code class="docutils literal notranslate"><span class="pre">to_collect</span></code> with fast_tsp.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_route_cost</span></code></a></p></td>
-<td><p>Calculate total distance cost of a tour.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path_cost</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_path_cost</span></code></a></p></td>
 <td><p>Calculate path cost in a NetworkX graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_trip_time_matrix</span></code></a></p></td>
-<td><p>Validate temporal resources and return directed travel hours.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_multi_tour</span></code></a></p></td>
-<td><p>Insert depot return trips to satisfy vehicle capacity and time budget constraints.</p></td>
-</tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_partial_tour" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_partial_tour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_partial_tour</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_partial_tour" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_partial_tour"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_partial_tour</span></code></a></p></td>
 <td><p>Reduce a tour to fit within vehicle capacity by removing bins with minimal waste.</p></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.dist_matrix_from_graph" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.dist_matrix_from_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dist_matrix_from_graph</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.dist_matrix_from_graph" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.dist_matrix_from_graph"><code class="xref py py-obj docutils literal notranslate"><span class="pre">dist_matrix_from_graph</span></code></a></p></td>
 <td><p>Compute all-pairs shortest path distances and paths from a NetworkX graph.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.calculate_tour_cost" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.calculate_tour_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_tour_cost</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.calculate_tour_cost" title="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.calculate_tour_cost"><code class="xref py py-obj docutils literal notranslate"><span class="pre">calculate_tour_cost</span></code></a></p></td>
 <td><p>Calculate the total distance of a given tour sequence.</p></td>
 </tr>
 </tbody>
@@ -585,19 +574,6 @@ If fast_tsp fails, the input order <code class="docutils literal notranslate"><s
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">get_route_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distancesC</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">tour</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost" title="Link to this definition">#</a></dt>
-<dd><p>Calculate total distance cost of a tour.</p>
-<p>Sums the edge distances along the tour path.
-Supports both NumPy arrays and PyTorch tensors.</p>
-<p>Args:
-distancesC (np.ndarray or torch.Tensor): Distance matrix
-tour (list or np.ndarray or torch.Tensor): Sequence of node IDs</p>
-<p>Returns:
-float: Total tour distance</p>
-</dd></dl>
-
-<dl class="py function">
 <dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost">
 <span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">get_path_cost</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">G</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">p</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost" title="Link to this definition">#</a></dt>
 <dd><p>Calculate path cost in a NetworkX graph.</p>
@@ -606,32 +582,6 @@ G (networkx.Graph): Graph with edge weights
 p (List[int]): Path as sequence of node IDs</p>
 <p>Returns:
 float: Total path cost (sum of edge weights)</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">_trip_time_matrix</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_speed_kmh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift_hours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_time_h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">numpy.ndarray</span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix" title="Link to this definition">#</a></dt>
-<dd><p>Validate temporal resources and return directed travel hours.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour">
-<span class="sig-prename descclassname"><span class="pre">src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.</span></span><span class="sig-name descname"><span class="pre">get_multi_tour</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">tour</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">bins_waste</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">max_capacity</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">float</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">distance_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">numpy.ndarray</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">shift_hours</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">avg_speed_kmh</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">service_time_h</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">time_matrix</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">numpy.ndarray</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour" title="Link to this definition">#</a></dt>
-<dd><p>Insert depot return trips to satisfy vehicle capacity and time budget constraints.</p>
-<p>Given a TSP tour that may violate capacity or duration limits, inserts depot visits (0)
-whenever cumulative load would exceed max_capacity or cumulative trip duration would
-exceed shift_hours. This converts a single long tour into multiple feasible depot round-trips.</p>
-<p>Args:
-tour: Initial TSP tour (format [0, …, 0]).
-bins_waste: Waste amounts for each customer bin (0-indexed).
-max_capacity: Vehicle capacity limit.
-distance_matrix: Distance matrix between all nodes including depot (0).
-shift_hours: Optional per-trip time budget in hours.
-avg_speed_kmh: Optional average vehicle speed in km/h.
-service_time_h: Optional service time per bin in hours.
-time_matrix: Optional directed travel times in hours, including depot.</p>
-<p>Returns:
-List[int]: Modified tour with depot returns inserted. Format: [0, …, 0, …, 0]</p>
 </dd></dl>
 
 <dl class="py function">
@@ -728,10 +678,7 @@ float: Sum of distances between consecutive nodes in the tour.</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._FAST_TSP_MAX_DIST"><code class="docutils literal notranslate"><span class="pre">_FAST_TSP_MAX_DIST</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route"><code class="docutils literal notranslate"><span class="pre">find_route()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost"><code class="docutils literal notranslate"><span class="pre">get_route_cost()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost"><code class="docutils literal notranslate"><span class="pre">get_path_cost()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix"><code class="docutils literal notranslate"><span class="pre">_trip_time_matrix()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour"><code class="docutils literal notranslate"><span class="pre">get_multi_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_partial_tour"><code class="docutils literal notranslate"><span class="pre">get_partial_tour()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.dist_matrix_from_graph"><code class="docutils literal notranslate"><span class="pre">dist_matrix_from_graph()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.calculate_tour_cost"><code class="docutils literal notranslate"><span class="pre">calculate_tour_cost()</span></code></a></li>

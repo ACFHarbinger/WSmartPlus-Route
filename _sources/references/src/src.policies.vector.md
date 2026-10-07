@@ -14,7 +14,6 @@
 :maxdepth: 3
 
 src.policies.vector.shared
-src.policies.vector.selection
 src.policies.vector.hgs_core
 src.policies.vector.operators
 ```

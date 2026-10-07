@@ -14,6 +14,7 @@
 :maxdepth: 3
 
 src.policies.mandatory_selection.base
+src.policies.mandatory_selection.vectorized
 ```
 
 ## Submodules

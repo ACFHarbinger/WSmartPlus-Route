@@ -19,20 +19,8 @@
   - ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.find_route
     :summary:
     ```
-* - {py:obj}`get_route_cost <src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost>`
-  - ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost
-    :summary:
-    ```
 * - {py:obj}`get_path_cost <src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost>`
   - ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost
-    :summary:
-    ```
-* - {py:obj}`_trip_time_matrix <src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix>`
-  - ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix
-    :summary:
-    ```
-* - {py:obj}`get_multi_tour <src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour>`
-  - ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour
     :summary:
     ```
 * - {py:obj}`get_partial_tour <src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_partial_tour>`
@@ -94,31 +82,10 @@
 ```
 ````
 
-````{py:function} get_route_cost(distancesC, tour)
-:canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost
-
-```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_route_cost
-```
-````
-
 ````{py:function} get_path_cost(G, p)
 :canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost
 
 ```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_path_cost
-```
-````
-
-````{py:function} _trip_time_matrix(distance_matrix: numpy.ndarray, time_matrix: typing.Optional[numpy.ndarray], avg_speed_kmh: typing.Optional[float], shift_hours: float, service_time_h: float) -> numpy.ndarray
-:canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix
-
-```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp._trip_time_matrix
-```
-````
-
-````{py:function} get_multi_tour(tour: typing.List[int], bins_waste: numpy.ndarray, max_capacity: float, distance_matrix: numpy.ndarray, shift_hours: typing.Optional[float] = None, avg_speed_kmh: typing.Optional[float] = None, service_time_h: typing.Optional[float] = None, time_matrix: typing.Optional[numpy.ndarray] = None) -> typing.List[int]
-:canonical: src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour
-
-```{autodoc2-docstring} src.policies.route_construction.other_algorithms.travelling_salesman_problem.tsp.get_multi_tour
 ```
 ````
 
