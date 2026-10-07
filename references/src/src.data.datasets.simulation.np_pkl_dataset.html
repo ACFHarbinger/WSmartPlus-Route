@@ -508,7 +508,7 @@ NumpyPickleDataset: Dataset wrapping legacy pickle simulation data.</p>
 <dd><p>Bases: <a class="reference internal" href="src.data.datasets.simulation.sim_dataset.html#src.data.datasets.simulation.sim_dataset.SimulationDataset" title="src.data.datasets.simulation.sim_dataset.SimulationDataset"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.data.datasets.simulation.sim_dataset.SimulationDataset</span></code></a></p>
 <p>Dataset wrapping legacy pickle simulation data.</p>
 <p>The old format is a list of tuples per sample, where each tuple is either:
-- (depot, locs, waste, noisy_waste, max_waste) for SWCVRP
+- (depot, locs, waste, noisy_waste, max_waste) (legacy stochastic datasets)
 - (depot, locs, waste, max_waste) for standard problems</p>
 <p>This class normalises access so that <strong>getitem</strong> always returns a dict
 with the same keys as NumpyDictDataset.</p>

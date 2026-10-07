@@ -478,7 +478,7 @@ document.write(`
                   
   <section class="tex2jax_ignore mathjax_ignore" id="module-src.pipeline.simulations.actions.time_constraints">
 <span id="src-pipeline-simulations-actions-time-constraints"></span><h1><a class="reference internal" href="#module-src.pipeline.simulations.actions.time_constraints" title="src.pipeline.simulations.actions.time_constraints"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.time_constraints</span></code></a><a class="headerlink" href="#module-src.pipeline.simulations.actions.time_constraints" title="Link to this heading">#</a></h1>
-<p>Make the final route vehicle-feasible after construction and improvement (CTOP: also shift-feasible).</p>
+<p>Make the final route vehicle-feasible after construction and improvement (TCMVPTP: also shift-feasible).</p>
 <section id="module-contents">
 <h2>Module Contents<a class="headerlink" href="#module-contents" title="Link to this heading">#</a></h2>
 <section id="classes">
@@ -486,7 +486,7 @@ document.write(`
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
 <tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.simulations.actions.time_constraints.TimeConstraintAction" title="src.pipeline.simulations.actions.time_constraints.TimeConstraintAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TimeConstraintAction</span></code></a></p></td>
-<td><p>Insert depot returns so every trip fits the vehicle (and, for CTOP, the shift).</p></td>
+<td><p>Insert depot returns so every trip fits the vehicle (and, for TCMVPTP, the shift).</p></td>
 </tr>
 </tbody>
 </table>
@@ -515,8 +515,8 @@ document.write(`
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.time_constraints.TimeConstraintAction">
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.pipeline.simulations.actions.time_constraints.</span></span><span class="sig-name descname"><span class="pre">TimeConstraintAction</span></span><a class="headerlink" href="#src.pipeline.simulations.actions.time_constraints.TimeConstraintAction" title="Link to this definition">#</a></dt>
 <dd><p>Bases: <a class="reference internal" href="src.pipeline.simulations.actions.base.html#src.pipeline.simulations.actions.base.SimulationAction" title="src.pipeline.simulations.actions.base.SimulationAction"><code class="xref py py-obj docutils literal notranslate"><span class="pre">src.pipeline.simulations.actions.base.SimulationAction</span></code></a></p>
-<p>Insert depot returns so every trip fits the vehicle (and, for CTOP, the shift).</p>
-<p>CTOP: capacity and per-trip time, on the observed fill, as before.
+<p>Insert depot returns so every trip fits the vehicle (and, for TCMVPTP, the shift).</p>
+<p>TCMVPTP: capacity and per-trip time, on the observed fill, as before.
 Other problems (owner decision 2026-09-27): capacity only, on the true fill that the
 vehicle actually loads. A trip that would overflow gets a depot return at the point
 where the next bin no longer fits; the order of visits is kept, and the extra
@@ -530,7 +530,7 @@ kilometres are counted because collection recomputes km from the final tour.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.pipeline.simulations.actions.time_constraints.TimeConstraintAction._split_over_capacity_trips">
 <em class="property"><span class="pre">static</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">_split_over_capacity_trips</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">context</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.simulations.actions.time_constraints.TimeConstraintAction._split_over_capacity_trips" title="Link to this definition">#</a></dt>
-<dd><p>Split every trip whose true load exceeds the vehicle capacity (non-CTOP problems).</p>
+<dd><p>Split every trip whose true load exceeds the vehicle capacity (non-TCMVPTP problems).</p>
 </dd></dl>
 
 </dd></dl>

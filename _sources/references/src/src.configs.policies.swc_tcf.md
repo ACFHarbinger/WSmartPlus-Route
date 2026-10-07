@@ -117,6 +117,83 @@
 
 ````
 
+````{py:attribute} formulation
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.formulation
+:type: str
+:value: >
+   'paper'
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.formulation
+```
+
+````
+
+````{py:attribute} depot_inflow
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.depot_inflow
+:type: str
+:value: >
+   'equal'
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.depot_inflow
+```
+
+````
+
+````{py:attribute} solver_tuning
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.solver_tuning
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.solver_tuning
+```
+
+````
+
+````{py:attribute} relax_forced_on_infeasible
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.relax_forced_on_infeasible
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.relax_forced_on_infeasible
+```
+
+````
+
+````{py:attribute} link_depot_arcs
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.link_depot_arcs
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.link_depot_arcs
+```
+
+````
+
+````{py:attribute} max_arc_distance_km
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.max_arc_distance_km
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.max_arc_distance_km
+```
+
+````
+
+````{py:attribute} warm_start
+:canonical: src.configs.policies.swc_tcf.SWCTCFConfig.warm_start
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.configs.policies.swc_tcf.SWCTCFConfig.warm_start
+```
+
+````
+
 ````{py:attribute} mandatory_selection
 :canonical: src.configs.policies.swc_tcf.SWCTCFConfig.mandatory_selection
 :type: typing.Optional[typing.List[src.configs.policies.other.mandatory_selection.MandatorySelectionConfig]]

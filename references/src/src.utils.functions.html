@@ -478,8 +478,7 @@ document.write(`
 safe_exp: Compute exponent with overflow/underflow protection.
 run_all_in_pool: Runs a function over a dataset in parallel.
 get_path_until_string: Truncates a path up to a specific directory component.
-is_wc_problem: Check if the problem is a Waste Collection (WC) variant.
-is_vrpp_problem: Check if the problem is a Vehicle Routing Problem with Profits (VRPP) variant.
+is_ptp_problem: Check if the problem is a Profitable Tour Problem (PTP) variant.
 is_tsp_problem: Check if the problem is a Traveling Salesperson Problem (TSP) variant.
 ensure_tensordict: Converts various input types to TensorDict.
 sample_many: Samples many solutions by repeated execution.
@@ -487,7 +486,7 @@ move_to: Recursively moves variables to the specified device.
 compute_in_batches: Computes a memory-heavy function in batches.
 do_batch_rep: Replicates a variable n times along the batch dimension.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.utils.functions import safe_exp, run_all_in_pool, get_path_until_string, is_wc_problem, is_vrpp_problem, is_tsp_problem, ensure_tensordict, sample_many, move_to, compute_in_batches, do_batch_rep
+&gt;&gt;&gt; from logic.src.utils.functions import safe_exp, run_all_in_pool, get_path_until_string, is_ptp_problem, is_tsp_problem, ensure_tensordict, sample_many, move_to, compute_in_batches, do_batch_rep
 &gt;&gt;&gt; # Mathematical utility
 &gt;&gt;&gt; safe_exp(1000)
 inf
@@ -501,9 +500,7 @@ inf
 &gt;&gt;&gt; get_path_until_string(path, “src”)
 ‘/home/user/project/src’
 &gt;&gt;&gt; # Problem type checking
-&gt;&gt;&gt; is_wc_problem(“wcvrp”)
-True
-&gt;&gt;&gt; is_vrpp_problem(“cvrpp”)
+&gt;&gt;&gt; is_ptp_problem(“mvptp”)
 True
 &gt;&gt;&gt; is_tsp_problem(“tsp”)
 True

@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.envs.tasks';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.envs.tasks.vrpp" href="src.envs.tasks.vrpp.html" />
+    <link rel="next" title="src.envs.tasks.irp" href="src.envs.tasks.irp.html" />
     <link rel="prev" title="src.envs.generators.cvrp" href="src.envs.generators.cvrp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -478,19 +478,16 @@ document.write(`
 ATSP: ATSP class
 BaseProblem: BaseProblem class
 CVRP: CVRP class
-CVRPP: CVRPP class
-CWCVRP: CWCVRP class
+MVPTP: MVPTP class
 IRP: IRP class
 OP: OP class
 PCTSP: PCTSP class
 PDP: PDP class
-SCWCVRP: SCWCVRP class
 SPCTSP: SPCTSP class
 ThOP: ThOP class
 TSP: TSP class
-CTOP: CTOP class
-VRPP: VRPP class
-WCVRP: WCVRP class</p>
+TCMVPTP: TCMVPTP class
+PTP: PTP class</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.envs import TSPEnv
 &gt;&gt;&gt; env = TSPEnv(num_nodes=20, generator_params={“num_nodes”: 20})</p>
@@ -498,21 +495,18 @@ WCVRP: WCVRP class</p>
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.vrpp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.irp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.irp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.spctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.spctsp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.cvrpp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.pctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.pctsp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.cwcvrp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.wcvrp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.tsp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.scwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.scwcvrp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.ctop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.ctop</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.pdp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.tcmvptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.tcmvptp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.op.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.op</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.thop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.thop</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.atsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.atsp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.ptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.ptp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.base</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.mvptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.mvptp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.tasks.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.cvrp</span></code></a></li>
 </ul>
 </div>
@@ -535,7 +529,7 @@ WCVRP: WCVRP class</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.envs.tasks.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.envs.tasks.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.envs.tasks.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘BaseProblem’, ‘COST_KM’, ‘REVENUE_KG’, ‘BIN_CAPACITY’, ‘VEHICLE_CAPACITY’, ‘VRPP’, ‘CVRPP’, ‘WCVRP…</p>
+<dd><p>[‘BaseProblem’, ‘COST_KM’, ‘REVENUE_KG’, ‘BIN_CAPACITY’, ‘VEHICLE_CAPACITY’, ‘PTP’, ‘MVPTP’, ‘IRP’, …</p>
 </dd></dl>
 
 </section>
@@ -563,11 +557,11 @@ WCVRP: WCVRP class</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.envs.tasks.vrpp.html"
+       href="src.envs.tasks.irp.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.vrpp</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.tasks.irp</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

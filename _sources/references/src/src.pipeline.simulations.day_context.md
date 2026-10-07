@@ -564,7 +564,7 @@ Bases: {py:obj}`collections.abc.Mapping`
 :canonical: src.pipeline.simulations.day_context.SimulationDayContext.problem
 :type: str
 :value: >
-   'vrpp'
+   'ptp'
 
 ```{autodoc2-docstring} src.pipeline.simulations.day_context.SimulationDayContext.problem
 ```

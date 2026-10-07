@@ -13,21 +13,18 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.routing.vrpp
 src.envs.routing.irp
 src.envs.routing.spctsp
-src.envs.routing.cvrpp
 src.envs.routing.pctsp
-src.envs.routing.cwcvrp
-src.envs.routing.wcvrp
 src.envs.routing.tsp
-src.envs.routing.ctop
 src.envs.routing.pdp
+src.envs.routing.tcmvptp
 src.envs.routing.op
 src.envs.routing.thop
 src.envs.routing.atsp
+src.envs.routing.ptp
+src.envs.routing.mvptp
 src.envs.routing.cvrp
-src.envs.routing.swcvrp
 ```
 
 ## Package Contents
@@ -82,7 +79,7 @@ src.envs.routing.swcvrp
 ````{py:data} __all__
 :canonical: src.envs.routing.__all__
 :value: >
-   ['RL4COEnvBase', 'ImprovementEnvBase', 'Generator', 'VRPPGenerator', 'WCVRPGenerator', 'IRPGenerator...
+   ['RL4COEnvBase', 'ImprovementEnvBase', 'Generator', 'PTPGenerator', 'IRPGenerator', 'ATSPGenerator',...
 
 ```{autodoc2-docstring} src.envs.routing.__all__
 ```

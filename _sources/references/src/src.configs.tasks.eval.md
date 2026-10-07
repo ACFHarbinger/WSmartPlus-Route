@@ -209,7 +209,7 @@
 :canonical: src.configs.tasks.eval.EvalConfig.problem
 :type: str
 :value: >
-   'cwcvrp'
+   'ptp'
 
 ```{autodoc2-docstring} src.configs.tasks.eval.EvalConfig.problem
 ```

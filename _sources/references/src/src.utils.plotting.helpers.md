@@ -70,7 +70,7 @@ Bases: {py:obj}`torch.nn.Module`
 
 `````
 
-````{py:function} load_model_instance(model_path, device, size=100, problem_name='wcvrp')
+````{py:function} load_model_instance(model_path, device, size=100, problem_name='ptp')
 :canonical: src.utils.plotting.helpers.load_model_instance
 
 ```{autodoc2-docstring} src.utils.plotting.helpers.load_model_instance

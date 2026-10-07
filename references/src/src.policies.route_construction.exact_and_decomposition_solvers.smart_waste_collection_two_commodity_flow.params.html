@@ -462,6 +462,13 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.gurobi_soft_mem_limit_gb"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.gurobi_soft_mem_limit_gb</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.time_limit"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.seed"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.formulation"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.formulation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.depot_inflow"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.depot_inflow</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.solver_tuning"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.solver_tuning</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.relax_forced_on_infeasible"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.relax_forced_on_infeasible</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.link_depot_arcs"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.link_depot_arcs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.max_arc_distance_km"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.max_arc_distance_km</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.warm_start"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.warm_start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.from_config"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.from_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.to_dict"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.to_dict()</span></code></a></li>
 </ul>
@@ -525,7 +532,22 @@ engine: Optimization engine to use (‘gurobi’, ‘scip’, ‘highs’, or �
 gurobi_threads: Native Gurobi threads per solve (positive; independent of simulator workers).
 gurobi_soft_mem_limit_gb: Native Gurobi soft memory ceiling in decimal GB.
 time_limit: Time limit for the solver in seconds.
-seed: Random seed for reproducibility.</p>
+seed: Random seed for reproducibility.
+formulation: Native Gurobi model. ‘paper’ (default) is the published SWCR model
+(Ramos et al., 2018, eqs. 6, 8, 11-15, 17-21; collectioncompare <code class="docutils literal notranslate"><span class="pre">policy_gurobi</span></code>).
+‘directed’ is the earlier directed two-commodity flow.</p>
+<div class="highlight-none notranslate"><div class="highlight"><pre><span></span>The options below are not part of the published model; each defaults to the
+original algorithm (native Gurobi only).
+
+depot_inflow: &#39;equal&#39; is eq. (15), sum y_i0 = Q k; &#39;le&#39; is the notebook&#39;s &lt;=.
+solver_tuning: MIPFocus/heuristics/cut/presolve settings and a 1% MIP gap.
+relax_forced_on_infeasible: re-solve without forced visits when infeasible.
+link_depot_arcs: add x[0, j] &lt;= g[j].
+max_arc_distance_km: drop arcs longer than this (None keeps every arc).
+warm_start: Clarke-Wright MIP starts (forced bins only; every bin with waste);
+    the best one is executed if Gurobi ends without a solution (#41).
+</pre></div>
+</div>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.framework">
 <span class="sig-name descname"><span class="pre">framework</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.framework" title="Link to this definition">#</a></dt>
@@ -560,6 +582,48 @@ seed: Random seed for reproducibility.</p>
 <dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.seed">
 <span class="sig-name descname"><span class="pre">seed</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.seed" title="Link to this definition">#</a></dt>
 <dd><p>42</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.formulation">
+<span class="sig-name descname"><span class="pre">formulation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.formulation" title="Link to this definition">#</a></dt>
+<dd><p>‘paper’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.depot_inflow">
+<span class="sig-name descname"><span class="pre">depot_inflow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.depot_inflow" title="Link to this definition">#</a></dt>
+<dd><p>‘equal’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.solver_tuning">
+<span class="sig-name descname"><span class="pre">solver_tuning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.solver_tuning" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.relax_forced_on_infeasible">
+<span class="sig-name descname"><span class="pre">relax_forced_on_infeasible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.relax_forced_on_infeasible" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.link_depot_arcs">
+<span class="sig-name descname"><span class="pre">link_depot_arcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.link_depot_arcs" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.max_arc_distance_km">
+<span class="sig-name descname"><span class="pre">max_arc_distance_km</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.max_arc_distance_km" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.warm_start">
+<span class="sig-name descname"><span class="pre">warm_start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.warm_start" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py method">
@@ -650,6 +714,13 @@ Dict[str, Any]: Dictionary of parameter values.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.gurobi_soft_mem_limit_gb"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.gurobi_soft_mem_limit_gb</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.time_limit"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.time_limit</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.seed"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.seed</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.formulation"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.formulation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.depot_inflow"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.depot_inflow</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.solver_tuning"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.solver_tuning</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.relax_forced_on_infeasible"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.relax_forced_on_infeasible</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.link_depot_arcs"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.link_depot_arcs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.max_arc_distance_km"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.max_arc_distance_km</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.warm_start"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.warm_start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.from_config"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.from_config()</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.to_dict"><code class="docutils literal notranslate"><span class="pre">SWCTCFParams.to_dict()</span></code></a></li>
 </ul>

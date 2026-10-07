@@ -13,21 +13,18 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.tasks.vrpp
 src.envs.tasks.irp
 src.envs.tasks.spctsp
-src.envs.tasks.cvrpp
 src.envs.tasks.pctsp
-src.envs.tasks.cwcvrp
-src.envs.tasks.wcvrp
 src.envs.tasks.tsp
-src.envs.tasks.scwcvrp
-src.envs.tasks.ctop
 src.envs.tasks.pdp
+src.envs.tasks.tcmvptp
 src.envs.tasks.op
 src.envs.tasks.thop
 src.envs.tasks.atsp
+src.envs.tasks.ptp
 src.envs.tasks.base
+src.envs.tasks.mvptp
 src.envs.tasks.cvrp
 ```
 
@@ -50,7 +47,7 @@ src.envs.tasks.cvrp
 ````{py:data} __all__
 :canonical: src.envs.tasks.__all__
 :value: >
-   ['BaseProblem', 'COST_KM', 'REVENUE_KG', 'BIN_CAPACITY', 'VEHICLE_CAPACITY', 'VRPP', 'CVRPP', 'WCVRP...
+   ['BaseProblem', 'COST_KM', 'REVENUE_KG', 'BIN_CAPACITY', 'VEHICLE_CAPACITY', 'PTP', 'MVPTP', 'IRP', ...
 
 ```{autodoc2-docstring} src.envs.tasks.__all__
 ```

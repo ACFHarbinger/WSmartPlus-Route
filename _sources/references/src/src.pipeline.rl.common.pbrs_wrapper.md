@@ -27,8 +27,8 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`get_potential_vrpp <src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp>`
-  - ```{autodoc2-docstring} src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp
+* - {py:obj}`get_potential_ptp <src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp>`
+  - ```{autodoc2-docstring} src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp
     :summary:
     ```
 * - {py:obj}`_get_potential_not_implemented <src.pipeline.rl.common.pbrs_wrapper._get_potential_not_implemented>`
@@ -69,10 +69,10 @@
 
 ````
 
-````{py:function} get_potential_vrpp(td: tensordict.TensorDict) -> torch.Tensor
-:canonical: src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp
+````{py:function} get_potential_ptp(td: tensordict.TensorDict) -> torch.Tensor
+:canonical: src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp
 
-```{autodoc2-docstring} src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp
+```{autodoc2-docstring} src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp
 ```
 ````
 

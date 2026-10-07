@@ -82,7 +82,7 @@ src.envs.tsp_kopt
 ````{py:data} __all__
 :canonical: src.envs.__all__
 :value: >
-   ['RL4COEnvBase', 'ImprovementEnvBase', 'Generator', 'VRPPGenerator', 'WCVRPGenerator', 'IRPGenerator...
+   ['RL4COEnvBase', 'ImprovementEnvBase', 'Generator', 'PTPGenerator', 'IRPGenerator', 'ATSPGenerator',...
 
 ```{autodoc2-docstring} src.envs.__all__
 ```

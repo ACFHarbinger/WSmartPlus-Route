@@ -13,11 +13,10 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.embeddings.edges.cvrpp
-src.models.subnets.embeddings.edges.wcvrp
 src.models.subnets.embeddings.edges.tsp
 src.models.subnets.embeddings.edges.none
 src.models.subnets.embeddings.edges.base
+src.models.subnets.embeddings.edges.mvptp
 ```
 
 ## Package Contents
@@ -74,7 +73,7 @@ src.models.subnets.embeddings.edges.base
 :canonical: src.models.subnets.embeddings.edges.__all__
 :type: list[str]
 :value: >
-   ['EdgeEmbedding', 'CVRPPEdgeEmbedding', 'NoEdgeEmbedding', 'TSPEdgeEmbedding', 'WCVRPEdgeEmbedding',...
+   ['EdgeEmbedding', 'MVPTPEdgeEmbedding', 'NoEdgeEmbedding', 'TSPEdgeEmbedding', 'EDGE_EMBEDDING_REGIS...
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.edges.__all__
 ```

@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} MDAMDecoder(embed_dim: int = 128, num_heads: int = 8, num_paths: int = 5, env_name: str = 'vrpp', mask_inner: bool = True, mask_logits: bool = True, eg_step_gap: int = 200, tanh_clipping: float = 10.0, train_strategy: str = 'sampling', val_strategy: str = 'greedy', test_strategy: str = 'greedy')
+`````{py:class} MDAMDecoder(embed_dim: int = 128, num_heads: int = 8, num_paths: int = 5, env_name: str = 'ptp', mask_inner: bool = True, mask_logits: bool = True, eg_step_gap: int = 200, tanh_clipping: float = 10.0, train_strategy: str = 'sampling', val_strategy: str = 'greedy', test_strategy: str = 'greedy')
 :canonical: src.models.subnets.decoders.mdam.decoder.MDAMDecoder
 
 Bases: {py:obj}`torch.nn.Module`

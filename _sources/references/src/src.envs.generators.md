@@ -13,17 +13,15 @@
 :titlesonly:
 :maxdepth: 1
 
-src.envs.generators.vrpp
 src.envs.generators.irp
 src.envs.generators.pctsp
-src.envs.generators.wcvrp
 src.envs.generators.tsp
-src.envs.generators.scwcvrp
-src.envs.generators.ctop
 src.envs.generators.pdp
+src.envs.generators.tcmvptp
 src.envs.generators.op
 src.envs.generators.thop
 src.envs.generators.atsp
+src.envs.generators.ptp
 src.envs.generators.base
 src.envs.generators.cvrp
 ```
@@ -81,7 +79,7 @@ src.envs.generators.cvrp
 ````{py:data} __all__
 :canonical: src.envs.generators.__all__
 :value: >
-   ['Generator', 'VRPPGenerator', 'WCVRPGenerator', 'SCWCVRPGenerator', 'TSPGenerator', 'IRPGenerator',...
+   ['Generator', 'PTPGenerator', 'TSPGenerator', 'IRPGenerator', 'ATSPGenerator', 'CVRPGenerator', 'OPG...
 
 ```{autodoc2-docstring} src.envs.generators.__all__
 ```

@@ -66,7 +66,7 @@
 :canonical: src.configs.tasks.sim.SimConfig.problem
 :type: str
 :value: >
-   'vrpp'
+   'ptp'
 
 ```{autodoc2-docstring} src.configs.tasks.sim.SimConfig.problem
 ```

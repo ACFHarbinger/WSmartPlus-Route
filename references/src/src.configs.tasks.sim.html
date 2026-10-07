@@ -513,7 +513,7 @@ sim_config = SimConfig(
 policies=[“alns”, “hgs”, “sans”, “aco_ks”, “aco_hh”, “pso”, “psoma”, “swc_tcf”, “na”],
 full_policies=[“alns”, “hgs”, “sans”, “aco_ks”, “aco_hh”, “pso”, “psoma”, “swc_tcf”, “na”],
 data_distribution=”gamma1”,
-problem=”vrpp”,
+problem=”ptp”,
 days=31,
 seed=42,
 output_dir=”output”,
@@ -560,7 +560,7 @@ config_path={},  # To be populated by expand_policy_configs
 policies: List of policy configurations to test on the WSR simulator.
 full_policies: Expanded policy names after config expansion (populated at runtime).
 data_distribution: Distribution to generate the bins daily waste fill.
-problem: Problem variant to simulate (e.g. ‘vrpp’, ‘cvrpp’, ‘wcvrp’, ‘cwcvrp’, ‘scwcvrp’, ‘ctop’).
+problem: Problem variant to simulate (e.g. ‘ptp’, ‘mvptp’, ‘tcmvptp’).
 days: Number of days to run the simulation for.
 seed: Random seed.
 output_dir: Name of WSR simulator test output directory.
@@ -603,7 +603,7 @@ config_path: Policy configuration paths populated by expand_policy_configs.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="src.configs.tasks.sim.SimConfig.problem">
 <span class="sig-name descname"><span class="pre">problem</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.tasks.sim.SimConfig.problem" title="Link to this definition">#</a></dt>
-<dd><p>‘vrpp’</p>
+<dd><p>‘ptp’</p>
 </dd></dl>
 
 <dl class="py attribute">

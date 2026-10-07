@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.models.subnets.embeddings.context';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.models.subnets.embeddings.context.vrpp" href="src.models.subnets.embeddings.context.vrpp.html" />
+    <link rel="next" title="src.models.subnets.embeddings.context.ptp" href="src.models.subnets.embeddings.context.ptp.html" />
     <link rel="prev" title="src.models.subnets.embeddings" href="src.models.subnets.embeddings.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -481,16 +481,15 @@ step features from node embeddings and environment state.</p>
 CONTEXT_EMBEDDING_REGISTRY (Dict[str, Any]): Mapping of environment names
 to their respective context embedding classes.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.models.subnets.embeddings.context import VRPPContextEmbedder
-&gt;&gt;&gt; embedder = VRPPContextEmbedder(embed_dim=128)</p>
+&gt;&gt;&gt; from logic.src.models.subnets.embeddings.context import PTPContextEmbedder
+&gt;&gt;&gt; embedder = PTPContextEmbedder(embed_dim=128)</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.context.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.vrpp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.context.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.cvrpp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.context.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.wcvrp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.context.ptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.ptp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.context.base.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.base</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.context.mvptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.mvptp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.models.subnets.embeddings.context.generic.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.generic</span></code></a></li>
 </ul>
 </div>
@@ -522,7 +521,7 @@ to their respective context embedding classes.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.models.subnets.embeddings.context.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.models.subnets.embeddings.context.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.models.subnets.embeddings.context.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘ContextEmbedder’, ‘CVRPPContextEmbedder’, ‘GenericContextEmbedder’, ‘VRPPContextEmbedder’, ‘WCVRPC…</p>
+<dd><p>[‘ContextEmbedder’, ‘MVPTPContextEmbedder’, ‘GenericContextEmbedder’, ‘PTPContextEmbedder’, ‘CONTEXT…</p>
 </dd></dl>
 
 </section>
@@ -550,11 +549,11 @@ to their respective context embedding classes.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.models.subnets.embeddings.context.vrpp.html"
+       href="src.models.subnets.embeddings.context.ptp.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.vrpp</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.models.subnets.embeddings.context.ptp</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

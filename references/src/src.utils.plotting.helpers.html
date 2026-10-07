@@ -563,13 +563,13 @@ Any: The output of the underlying model.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="src.utils.plotting.helpers.load_model_instance">
-<span class="sig-prename descclassname"><span class="pre">src.utils.plotting.helpers.</span></span><span class="sig-name descname"><span class="pre">load_model_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'wcvrp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.plotting.helpers.load_model_instance" title="Link to this definition">#</a></dt>
+<span class="sig-prename descclassname"><span class="pre">src.utils.plotting.helpers.</span></span><span class="sig-name descname"><span class="pre">load_model_instance</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">model_path</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">device</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">size</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">100</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_name</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'ptp'</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.plotting.helpers.load_model_instance" title="Link to this definition">#</a></dt>
 <dd><p>Loads a model for visualization with default architecture parameters.</p>
 <p>Args:
 model_path: Absolute or relative path to the .pt checkpoint.
 device: Device to load the model onto.
 size: Expected problem graph size. Defaults to 100.
-problem_name: Name of the problem environment. Defaults to ‘wcvrp’.</p>
+problem_name: Name of the problem environment. Defaults to ‘ptp’.</p>
 <p>Returns:
 nn.Module: The instantiated and loaded AttentionModel.</p>
 </dd></dl>

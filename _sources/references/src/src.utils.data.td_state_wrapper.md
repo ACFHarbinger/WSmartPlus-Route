@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} TensorDictStateWrapper(td: tensordict.TensorDict, problem_name: str = 'vrpp', env=None)
+`````{py:class} TensorDictStateWrapper(td: tensordict.TensorDict, problem_name: str = 'ptp', env=None)
 :canonical: src.utils.data.td_state_wrapper.TensorDictStateWrapper
 
 ```{autodoc2-docstring} src.utils.data.td_state_wrapper.TensorDictStateWrapper

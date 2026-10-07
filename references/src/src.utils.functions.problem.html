@@ -454,8 +454,7 @@ document.write(`
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_wc_problem"><code class="docutils literal notranslate"><span class="pre">is_wc_problem()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_vrpp_problem"><code class="docutils literal notranslate"><span class="pre">is_vrpp_problem()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_ptp_problem"><code class="docutils literal notranslate"><span class="pre">is_ptp_problem()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_tsp_problem"><code class="docutils literal notranslate"><span class="pre">is_tsp_problem()</span></code></a></li>
 </ul>
 </li>
@@ -476,14 +475,11 @@ document.write(`
 <span id="src-utils-functions-problem"></span><h1><a class="reference internal" href="#module-src.utils.functions.problem" title="src.utils.functions.problem"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.utils.functions.problem</span></code></a><a class="headerlink" href="#module-src.utils.functions.problem" title="Link to this heading">#</a></h1>
 <p>Problem-specific utility functions.</p>
 <p>Attributes:
-is_wc_problem: Check if the problem is a Waste Collection (WC) variant.
-is_vrpp_problem: Check if the problem is a Vehicle Routing Problem with Profits (VRPP) variant.
+is_ptp_problem: Check if the problem is a Profitable Tour Problem (PTP) variant.
 is_tsp_problem: Check if the problem is a Traveling Salesperson Problem (TSP) variant.</p>
 <p>Example:
-&gt;&gt;&gt; from logic.src.utils.functions import is_wc_problem, is_vrpp_problem, is_tsp_problem
-&gt;&gt;&gt; is_wc_problem(“wcvrp”)
-True
-&gt;&gt;&gt; is_vrpp_problem(“cvrpp”)
+&gt;&gt;&gt; from logic.src.utils.functions import is_ptp_problem, is_tsp_problem
+&gt;&gt;&gt; is_ptp_problem(“mvptp”)
 True
 &gt;&gt;&gt; is_tsp_problem(“tsp”)
 True</p>
@@ -493,13 +489,10 @@ True</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.problem.is_wc_problem" title="src.utils.functions.problem.is_wc_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_wc_problem</span></code></a></p></td>
-<td><p>Check if the problem is a Waste Collection (WC) variant.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.problem.is_ptp_problem" title="src.utils.functions.problem.is_ptp_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_ptp_problem</span></code></a></p></td>
+<td><p>Check if the problem is a Profitable Tour Problem (PTP) variant.</p></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.functions.problem.is_vrpp_problem" title="src.utils.functions.problem.is_vrpp_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_vrpp_problem</span></code></a></p></td>
-<td><p>Check if the problem is a Vehicle Routing Problem with Profits (VRPP) variant.</p></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.utils.functions.problem.is_tsp_problem" title="src.utils.functions.problem.is_tsp_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_tsp_problem</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.utils.functions.problem.is_tsp_problem" title="src.utils.functions.problem.is_tsp_problem"><code class="xref py py-obj docutils literal notranslate"><span class="pre">is_tsp_problem</span></code></a></p></td>
 <td><p>Check if the problem is a Traveling Salesperson Problem (TSP) variant.</p></td>
 </tr>
 </tbody>
@@ -509,23 +502,13 @@ True</p>
 <section id="api">
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py function">
-<dt class="sig sig-object py" id="src.utils.functions.problem.is_wc_problem">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.problem.</span></span><span class="sig-name descname"><span class="pre">is_wc_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.functions.problem.is_wc_problem" title="Link to this definition">#</a></dt>
-<dd><p>Check if the problem is a Waste Collection (WC) variant.</p>
+<dt class="sig sig-object py" id="src.utils.functions.problem.is_ptp_problem">
+<span class="sig-prename descclassname"><span class="pre">src.utils.functions.problem.</span></span><span class="sig-name descname"><span class="pre">is_ptp_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.functions.problem.is_ptp_problem" title="Link to this definition">#</a></dt>
+<dd><p>Check if the problem is a Profitable Tour Problem (PTP) variant.</p>
 <p>Args:
 problem: Problem instance or name string.</p>
 <p>Returns:
-bool: True if it’s a WC variant.</p>
-</dd></dl>
-
-<dl class="py function">
-<dt class="sig sig-object py" id="src.utils.functions.problem.is_vrpp_problem">
-<span class="sig-prename descclassname"><span class="pre">src.utils.functions.problem.</span></span><span class="sig-name descname"><span class="pre">is_vrpp_problem</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="headerlink" href="#src.utils.functions.problem.is_vrpp_problem" title="Link to this definition">#</a></dt>
-<dd><p>Check if the problem is a Vehicle Routing Problem with Profits (VRPP) variant.</p>
-<p>Args:
-problem: Problem instance or name string.</p>
-<p>Returns:
-bool: True if it’s a VRPP variant.</p>
+bool: True if it’s a PTP variant.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -590,8 +573,7 @@ bool: True if it’s a TSP variant.</p>
 <li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#module-contents">Module Contents</a><ul class="nav section-nav flex-column">
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#functions">Functions</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_wc_problem"><code class="docutils literal notranslate"><span class="pre">is_wc_problem()</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_vrpp_problem"><code class="docutils literal notranslate"><span class="pre">is_vrpp_problem()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_ptp_problem"><code class="docutils literal notranslate"><span class="pre">is_ptp_problem()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.utils.functions.problem.is_tsp_problem"><code class="docutils literal notranslate"><span class="pre">is_tsp_problem()</span></code></a></li>
 </ul>
 </li>

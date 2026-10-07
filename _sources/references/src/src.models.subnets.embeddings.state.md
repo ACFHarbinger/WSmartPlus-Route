@@ -13,11 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.embeddings.state.vrpp
-src.models.subnets.embeddings.state.cvrpp
-src.models.subnets.embeddings.state.wcvrp
 src.models.subnets.embeddings.state.env
-src.models.subnets.embeddings.state.swcvrp
+src.models.subnets.embeddings.state.ptp
+src.models.subnets.embeddings.state.mvptp
 ```
 
 ## Package Contents
@@ -55,7 +53,7 @@ src.models.subnets.embeddings.state.swcvrp
 :canonical: src.models.subnets.embeddings.state.__all__
 :type: list[str]
 :value: >
-   ['EnvState', 'VRPPState', 'WCVRPState', 'CVRPPState', 'SWCVRPState', 'STATE_EMBEDDING_REGISTRY']
+   ['EnvState', 'PTPState', 'MVPTPState', 'STATE_EMBEDDING_REGISTRY']
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.state.__all__
 ```

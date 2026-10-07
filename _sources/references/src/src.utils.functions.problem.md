@@ -15,12 +15,8 @@
 :class: autosummary longtable
 :align: left
 
-* - {py:obj}`is_wc_problem <src.utils.functions.problem.is_wc_problem>`
-  - ```{autodoc2-docstring} src.utils.functions.problem.is_wc_problem
-    :summary:
-    ```
-* - {py:obj}`is_vrpp_problem <src.utils.functions.problem.is_vrpp_problem>`
-  - ```{autodoc2-docstring} src.utils.functions.problem.is_vrpp_problem
+* - {py:obj}`is_ptp_problem <src.utils.functions.problem.is_ptp_problem>`
+  - ```{autodoc2-docstring} src.utils.functions.problem.is_ptp_problem
     :summary:
     ```
 * - {py:obj}`is_tsp_problem <src.utils.functions.problem.is_tsp_problem>`
@@ -31,17 +27,10 @@
 
 ### API
 
-````{py:function} is_wc_problem(problem: typing.Any) -> bool
-:canonical: src.utils.functions.problem.is_wc_problem
+````{py:function} is_ptp_problem(problem: typing.Any) -> bool
+:canonical: src.utils.functions.problem.is_ptp_problem
 
-```{autodoc2-docstring} src.utils.functions.problem.is_wc_problem
-```
-````
-
-````{py:function} is_vrpp_problem(problem: typing.Any) -> bool
-:canonical: src.utils.functions.problem.is_vrpp_problem
-
-```{autodoc2-docstring} src.utils.functions.problem.is_vrpp_problem
+```{autodoc2-docstring} src.utils.functions.problem.is_ptp_problem
 ```
 ````
 

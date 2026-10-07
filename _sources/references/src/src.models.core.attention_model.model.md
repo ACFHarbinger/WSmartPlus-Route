@@ -86,7 +86,7 @@
 
 `````
 
-`````{py:class} AttentionModel(embed_dim: int = 128, hidden_dim: int = 512, problem: typing.Any = 'vrpp', component_factory: typing.Optional[logic.src.models.subnets.factories.NeuralComponentFactory] = None, n_encode_layers: int = 3, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'avg', tanh_clipping: float = TANH_CLIPPING, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, temporal_horizon: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, predictor_layers: typing.Optional[int] = None, connection_type: str = 'residual', hyper_expansion: int = FEED_FORWARD_EXPANSION, decoder_type: str = 'attention', **kwargs: typing.Any)
+`````{py:class} AttentionModel(embed_dim: int = 128, hidden_dim: int = 512, problem: typing.Any = 'ptp', component_factory: typing.Optional[logic.src.models.subnets.factories.NeuralComponentFactory] = None, n_encode_layers: int = 3, n_encode_sublayers: typing.Optional[int] = None, n_decode_layers: typing.Optional[int] = None, dropout_rate: float = 0.1, aggregation: str = 'sum', aggregation_graph: str = 'avg', tanh_clipping: float = TANH_CLIPPING, mask_inner: bool = True, mask_logits: bool = True, mask_graph: bool = False, norm_config: typing.Optional[logic.src.configs.models.normalization.NormalizationConfig] = None, activation_config: typing.Optional[logic.src.configs.models.activation_function.ActivationConfig] = None, n_heads: int = 8, checkpoint_encoder: bool = False, shrink_size: typing.Optional[int] = None, pomo_size: int = 0, temporal_horizon: int = 0, spatial_bias: bool = False, spatial_bias_scale: float = 1.0, entropy_weight: float = 0.0, predictor_layers: typing.Optional[int] = None, connection_type: str = 'residual', hyper_expansion: int = FEED_FORWARD_EXPANSION, decoder_type: str = 'attention', **kwargs: typing.Any)
 :canonical: src.models.core.attention_model.model.AttentionModel
 
 Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolicy`, {py:obj}`logic.src.models.core.attention_model.decoding.DecodingMixin`
@@ -117,20 +117,11 @@ Bases: {py:obj}`logic.src.models.core.attention_model.policy.AttentionModelPolic
 
 ````
 
-````{py:property} is_vrpp
-:canonical: src.models.core.attention_model.model.AttentionModel.is_vrpp
+````{py:property} is_ptp
+:canonical: src.models.core.attention_model.model.AttentionModel.is_ptp
 :type: bool
 
-```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.is_vrpp
-```
-
-````
-
-````{py:property} is_wc
-:canonical: src.models.core.attention_model.model.AttentionModel.is_wc
-:type: bool
-
-```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.is_wc
+```{autodoc2-docstring} src.models.core.attention_model.model.AttentionModel.is_ptp
 ```
 
 ````

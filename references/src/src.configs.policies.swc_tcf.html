@@ -463,6 +463,13 @@ document.write(`
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_threads</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_soft_mem_limit_gb</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.framework"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.framework</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.formulation"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.formulation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.depot_inflow"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.depot_inflow</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.solver_tuning"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.solver_tuning</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.relax_forced_on_infeasible"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.relax_forced_on_infeasible</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.link_depot_arcs"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.link_depot_arcs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.max_arc_distance_km"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.max_arc_distance_km</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.warm_start"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.warm_start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.route_improvement</span></code></a></li>
 </ul>
@@ -533,6 +540,14 @@ gurobi_soft_mem_limit_gb: Native Gurobi soft memory ceiling in decimal GB.
 time_limit: Maximum time in seconds for the solver.
 engine: Solver engine to use (‘gurobi’, ‘scip’, ‘highs’, or ‘cplex’).
 framework: Solver framework to use (‘ortools’, ‘pyomo’).
+formulation: Native Gurobi model: ‘paper’ (published SWCR model, default) or ‘directed’.
+depot_inflow: ‘equal’ (eq. 15, default) or ‘le’ (collectioncompare notebook).
+solver_tuning: Optional Gurobi tuning (MIPFocus, cuts, 1% gap); off by default.
+relax_forced_on_infeasible: Optional re-solve without forced visits; off by default.
+link_depot_arcs: Optional x[0, j] &lt;= g[j]; off by default.
+max_arc_distance_km: Optional arc length cutoff; None keeps every arc.
+warm_start: Native Gurobi only; off by default. Loads Clarke-Wright MIP
+starts, which are not part of the published model (#41).
 mandatory_selection: List of mandatory strategy config files.
 route_improvement: List of route improvement operations to apply.</p>
 <dl class="py attribute">
@@ -581,6 +596,48 @@ route_improvement: List of route improvement operations to apply.</p>
 <dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.framework">
 <span class="sig-name descname"><span class="pre">framework</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.framework" title="Link to this definition">#</a></dt>
 <dd><p>‘ortools’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.formulation">
+<span class="sig-name descname"><span class="pre">formulation</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.formulation" title="Link to this definition">#</a></dt>
+<dd><p>‘paper’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.depot_inflow">
+<span class="sig-name descname"><span class="pre">depot_inflow</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.depot_inflow" title="Link to this definition">#</a></dt>
+<dd><p>‘equal’</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.solver_tuning">
+<span class="sig-name descname"><span class="pre">solver_tuning</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.solver_tuning" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.relax_forced_on_infeasible">
+<span class="sig-name descname"><span class="pre">relax_forced_on_infeasible</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.relax_forced_on_infeasible" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.link_depot_arcs">
+<span class="sig-name descname"><span class="pre">link_depot_arcs</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.link_depot_arcs" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.max_arc_distance_km">
+<span class="sig-name descname"><span class="pre">max_arc_distance_km</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">Optional</span><span class="p"><span class="pre">[</span></span><span class="pre">float</span><span class="p"><span class="pre">]</span></span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.max_arc_distance_km" title="Link to this definition">#</a></dt>
+<dd><p>None</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="src.configs.policies.swc_tcf.SWCTCFConfig.warm_start">
+<span class="sig-name descname"><span class="pre">warm_start</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></em><a class="headerlink" href="#src.configs.policies.swc_tcf.SWCTCFConfig.warm_start" title="Link to this definition">#</a></dt>
+<dd><p>False</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -658,6 +715,13 @@ route_improvement: List of route improvement operations to apply.</p>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_threads"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_threads</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.gurobi_soft_mem_limit_gb"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.gurobi_soft_mem_limit_gb</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.framework"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.framework</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.formulation"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.formulation</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.depot_inflow"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.depot_inflow</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.solver_tuning"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.solver_tuning</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.relax_forced_on_infeasible"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.relax_forced_on_infeasible</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.link_depot_arcs"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.link_depot_arcs</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.max_arc_distance_km"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.max_arc_distance_km</span></code></a></li>
+<li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.warm_start"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.warm_start</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.mandatory_selection"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.mandatory_selection</span></code></a></li>
 <li class="toc-h5 nav-item toc-entry"><a class="reference internal nav-link" href="#src.configs.policies.swc_tcf.SWCTCFConfig.route_improvement"><code class="docutils literal notranslate"><span class="pre">SWCTCFConfig.route_improvement</span></code></a></li>
 </ul>

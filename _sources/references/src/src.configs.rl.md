@@ -153,7 +153,7 @@ src.configs.rl.core
 :canonical: src.configs.rl.RLConfig.pbrs_potential
 :type: str
 :value: >
-   'vrpp'
+   'ptp'
 
 ```{autodoc2-docstring} src.configs.rl.RLConfig.pbrs_potential
 ```

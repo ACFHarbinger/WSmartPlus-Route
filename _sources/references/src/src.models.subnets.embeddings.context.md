@@ -13,10 +13,9 @@
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.embeddings.context.vrpp
-src.models.subnets.embeddings.context.cvrpp
-src.models.subnets.embeddings.context.wcvrp
+src.models.subnets.embeddings.context.ptp
 src.models.subnets.embeddings.context.base
+src.models.subnets.embeddings.context.mvptp
 src.models.subnets.embeddings.context.generic
 ```
 
@@ -55,7 +54,7 @@ src.models.subnets.embeddings.context.generic
 :canonical: src.models.subnets.embeddings.context.__all__
 :type: list[str]
 :value: >
-   ['ContextEmbedder', 'CVRPPContextEmbedder', 'GenericContextEmbedder', 'VRPPContextEmbedder', 'WCVRPC...
+   ['ContextEmbedder', 'MVPTPContextEmbedder', 'GenericContextEmbedder', 'PTPContextEmbedder', 'CONTEXT...
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.context.__all__
 ```

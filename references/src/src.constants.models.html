@@ -461,9 +461,8 @@ document.write(`
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.NODE_DIM"><code class="docutils literal notranslate"><span class="pre">NODE_DIM</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.STATIC_DIM"><code class="docutils literal notranslate"><span class="pre">STATIC_DIM</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.DEPOT_DIM"><code class="docutils literal notranslate"><span class="pre">DEPOT_DIM</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.WC_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">WC_STEP_CONTEXT_OFFSET</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.VRPP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">VRPP_STEP_CONTEXT_OFFSET</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.CVRPP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">CVRPP_STEP_CONTEXT_OFFSET</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.PTP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">PTP_STEP_CONTEXT_OFFSET</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.MVPTP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">MVPTP_STEP_CONTEXT_OFFSET</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.DEFAULT_TEMPORAL_HORIZON"><code class="docutils literal notranslate"><span class="pre">DEFAULT_TEMPORAL_HORIZON</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.TANH_CLIPPING"><code class="docutils literal notranslate"><span class="pre">TANH_CLIPPING</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.NORM_EPSILON"><code class="docutils literal notranslate"><span class="pre">NORM_EPSILON</span></code></a></li>
@@ -517,8 +516,7 @@ ENC_DEC_MODELS: List of models with separate encoder-decoder architecture
 NODE_DIM: Dimension of node features
 STATIC_DIM: Dimension of static coordinate features
 DEPOT_DIM: Dimension of depot coordinate features
-WC_STEP_CONTEXT_OFFSET: Offset for waste collection step context
-VRPP_STEP_CONTEXT_OFFSET: Offset for vehicle routing with profit problem step context
+PTP_STEP_CONTEXT_OFFSET: Offset for profitable tour problem step context
 DEFAULT_TEMPORAL_HORIZON: Default lookahead horizon for time-dependent models
 TANH_CLIPPING: Tanh clipping value for numerical stability
 NORM_EPSILON: Epsilon for normalization stability
@@ -557,31 +555,28 @@ True</p>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.DEPOT_DIM" title="src.constants.models.DEPOT_DIM"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEPOT_DIM</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.WC_STEP_CONTEXT_OFFSET" title="src.constants.models.WC_STEP_CONTEXT_OFFSET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">WC_STEP_CONTEXT_OFFSET</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.PTP_STEP_CONTEXT_OFFSET" title="src.constants.models.PTP_STEP_CONTEXT_OFFSET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">PTP_STEP_CONTEXT_OFFSET</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.VRPP_STEP_CONTEXT_OFFSET" title="src.constants.models.VRPP_STEP_CONTEXT_OFFSET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">VRPP_STEP_CONTEXT_OFFSET</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.MVPTP_STEP_CONTEXT_OFFSET" title="src.constants.models.MVPTP_STEP_CONTEXT_OFFSET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">MVPTP_STEP_CONTEXT_OFFSET</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.CVRPP_STEP_CONTEXT_OFFSET" title="src.constants.models.CVRPP_STEP_CONTEXT_OFFSET"><code class="xref py py-obj docutils literal notranslate"><span class="pre">CVRPP_STEP_CONTEXT_OFFSET</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.DEFAULT_TEMPORAL_HORIZON" title="src.constants.models.DEFAULT_TEMPORAL_HORIZON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_TEMPORAL_HORIZON</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.DEFAULT_TEMPORAL_HORIZON" title="src.constants.models.DEFAULT_TEMPORAL_HORIZON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_TEMPORAL_HORIZON</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.TANH_CLIPPING" title="src.constants.models.TANH_CLIPPING"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TANH_CLIPPING</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.TANH_CLIPPING" title="src.constants.models.TANH_CLIPPING"><code class="xref py py-obj docutils literal notranslate"><span class="pre">TANH_CLIPPING</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.NORM_EPSILON" title="src.constants.models.NORM_EPSILON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NORM_EPSILON</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.NORM_EPSILON" title="src.constants.models.NORM_EPSILON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NORM_EPSILON</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.NUMERICAL_EPSILON" title="src.constants.models.NUMERICAL_EPSILON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NUMERICAL_EPSILON</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.NUMERICAL_EPSILON" title="src.constants.models.NUMERICAL_EPSILON"><code class="xref py py-obj docutils literal notranslate"><span class="pre">NUMERICAL_EPSILON</span></code></a></p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.FEED_FORWARD_EXPANSION" title="src.constants.models.FEED_FORWARD_EXPANSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FEED_FORWARD_EXPANSION</span></code></a></p></td>
 <td></td>
 </tr>
-<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.FEED_FORWARD_EXPANSION" title="src.constants.models.FEED_FORWARD_EXPANSION"><code class="xref py py-obj docutils literal notranslate"><span class="pre">FEED_FORWARD_EXPANSION</span></code></a></p></td>
-<td></td>
-</tr>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.constants.models.DEFAULT_MOE_KWARGS" title="src.constants.models.DEFAULT_MOE_KWARGS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_MOE_KWARGS</span></code></a></p></td>
+<tr class="row-even"><td><p><a class="reference internal" href="#src.constants.models.DEFAULT_MOE_KWARGS" title="src.constants.models.DEFAULT_MOE_KWARGS"><code class="xref py py-obj docutils literal notranslate"><span class="pre">DEFAULT_MOE_KWARGS</span></code></a></p></td>
 <td></td>
 </tr>
 </tbody>
@@ -627,20 +622,14 @@ True</p>
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="src.constants.models.WC_STEP_CONTEXT_OFFSET">
-<span class="sig-prename descclassname"><span class="pre">src.constants.models.</span></span><span class="sig-name descname"><span class="pre">WC_STEP_CONTEXT_OFFSET</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.constants.models.WC_STEP_CONTEXT_OFFSET" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.constants.models.PTP_STEP_CONTEXT_OFFSET">
+<span class="sig-prename descclassname"><span class="pre">src.constants.models.</span></span><span class="sig-name descname"><span class="pre">PTP_STEP_CONTEXT_OFFSET</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.constants.models.PTP_STEP_CONTEXT_OFFSET" title="Link to this definition">#</a></dt>
 <dd><p>2</p>
 </dd></dl>
 
 <dl class="py data">
-<dt class="sig sig-object py" id="src.constants.models.VRPP_STEP_CONTEXT_OFFSET">
-<span class="sig-prename descclassname"><span class="pre">src.constants.models.</span></span><span class="sig-name descname"><span class="pre">VRPP_STEP_CONTEXT_OFFSET</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.constants.models.VRPP_STEP_CONTEXT_OFFSET" title="Link to this definition">#</a></dt>
-<dd><p>2</p>
-</dd></dl>
-
-<dl class="py data">
-<dt class="sig sig-object py" id="src.constants.models.CVRPP_STEP_CONTEXT_OFFSET">
-<span class="sig-prename descclassname"><span class="pre">src.constants.models.</span></span><span class="sig-name descname"><span class="pre">CVRPP_STEP_CONTEXT_OFFSET</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.constants.models.CVRPP_STEP_CONTEXT_OFFSET" title="Link to this definition">#</a></dt>
+<dt class="sig sig-object py" id="src.constants.models.MVPTP_STEP_CONTEXT_OFFSET">
+<span class="sig-prename descclassname"><span class="pre">src.constants.models.</span></span><span class="sig-name descname"><span class="pre">MVPTP_STEP_CONTEXT_OFFSET</span></span><em class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">int</span></em><a class="headerlink" href="#src.constants.models.MVPTP_STEP_CONTEXT_OFFSET" title="Link to this definition">#</a></dt>
 <dd><p>3</p>
 </dd></dl>
 
@@ -739,9 +728,8 @@ True</p>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.NODE_DIM"><code class="docutils literal notranslate"><span class="pre">NODE_DIM</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.STATIC_DIM"><code class="docutils literal notranslate"><span class="pre">STATIC_DIM</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.DEPOT_DIM"><code class="docutils literal notranslate"><span class="pre">DEPOT_DIM</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.WC_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">WC_STEP_CONTEXT_OFFSET</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.VRPP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">VRPP_STEP_CONTEXT_OFFSET</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.CVRPP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">CVRPP_STEP_CONTEXT_OFFSET</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.PTP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">PTP_STEP_CONTEXT_OFFSET</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.MVPTP_STEP_CONTEXT_OFFSET"><code class="docutils literal notranslate"><span class="pre">MVPTP_STEP_CONTEXT_OFFSET</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.DEFAULT_TEMPORAL_HORIZON"><code class="docutils literal notranslate"><span class="pre">DEFAULT_TEMPORAL_HORIZON</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.TANH_CLIPPING"><code class="docutils literal notranslate"><span class="pre">TANH_CLIPPING</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.constants.models.NORM_EPSILON"><code class="docutils literal notranslate"><span class="pre">NORM_EPSILON</span></code></a></li>

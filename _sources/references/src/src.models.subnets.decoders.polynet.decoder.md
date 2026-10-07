@@ -23,7 +23,7 @@
 
 ### API
 
-`````{py:class} PolyNetDecoder(k: int, encoder_type: str = 'AM', embed_dim: int = 128, poly_layer_dim: int = 256, num_heads: int = 8, env_name: str = 'vrpp', mask_inner: bool = True, out_bias: bool = False, linear_bias: bool = False, use_graph_context: bool = True, check_nan: bool = True)
+`````{py:class} PolyNetDecoder(k: int, encoder_type: str = 'AM', embed_dim: int = 128, poly_layer_dim: int = 256, num_heads: int = 8, env_name: str = 'ptp', mask_inner: bool = True, out_bias: bool = False, linear_bias: bool = False, use_graph_context: bool = True, check_nan: bool = True)
 :canonical: src.models.subnets.decoders.polynet.decoder.PolyNetDecoder
 
 Bases: {py:obj}`torch.nn.Module`

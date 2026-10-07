@@ -107,6 +107,83 @@
 
 ````
 
+````{py:attribute} formulation
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.formulation
+:type: str
+:value: >
+   'paper'
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.formulation
+```
+
+````
+
+````{py:attribute} depot_inflow
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.depot_inflow
+:type: str
+:value: >
+   'equal'
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.depot_inflow
+```
+
+````
+
+````{py:attribute} solver_tuning
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.solver_tuning
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.solver_tuning
+```
+
+````
+
+````{py:attribute} relax_forced_on_infeasible
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.relax_forced_on_infeasible
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.relax_forced_on_infeasible
+```
+
+````
+
+````{py:attribute} link_depot_arcs
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.link_depot_arcs
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.link_depot_arcs
+```
+
+````
+
+````{py:attribute} max_arc_distance_km
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.max_arc_distance_km
+:type: typing.Optional[float]
+:value: >
+   None
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.max_arc_distance_km
+```
+
+````
+
+````{py:attribute} warm_start
+:canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.warm_start
+:type: bool
+:value: >
+   False
+
+```{autodoc2-docstring} src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.warm_start
+```
+
+````
+
 ````{py:method} from_config(config: typing.Any) -> src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams
 :canonical: src.policies.route_construction.exact_and_decomposition_solvers.smart_waste_collection_two_commodity_flow.params.SWCTCFParams.from_config
 :classmethod:

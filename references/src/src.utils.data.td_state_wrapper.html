@@ -509,7 +509,7 @@ tensor([[False,  True], [ True, False]])</p>
 <h3>API<a class="headerlink" href="#api" title="Link to this heading">#</a></h3>
 <dl class="py class">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper">
-<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.data.td_state_wrapper.</span></span><span class="sig-name descname"><span class="pre">TensorDictStateWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'vrpp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper" title="Link to this definition">#</a></dt>
+<em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">src.utils.data.td_state_wrapper.</span></span><span class="sig-name descname"><span class="pre">TensorDictStateWrapper</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">problem_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ptp'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">env</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper" title="Link to this definition">#</a></dt>
 <dd><p>Wraps a TensorDict to expose methods expected by legacy model components (Decoders).</p>
 <p>Acts as a bridge between the new TensorDict state management and the
 legacy object-oriented state access patterns (e.g. state.get_mask()).</p>
@@ -553,7 +553,7 @@ The current node.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_profit">
 <span class="sig-name descname"><span class="pre">get_current_profit</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_profit" title="Link to this definition">#</a></dt>
-<dd><p>For VRPP: get cumulative collected waste.</p>
+<dd><p>For PTP: get cumulative collected waste.</p>
 <p>Returns:
 The cumulative collected waste.</p>
 </dd></dl>
@@ -561,7 +561,7 @@ The cumulative collected waste.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_efficiency">
 <span class="sig-name descname"><span class="pre">get_current_efficiency</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_current_efficiency" title="Link to this definition">#</a></dt>
-<dd><p>For WCVRP: get current efficiency.</p>
+<dd><p>Get current efficiency (legacy placeholder).</p>
 <p>Returns:
 The current efficiency.</p>
 </dd></dl>
@@ -569,7 +569,7 @@ The current efficiency.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_remaining_overflows">
 <span class="sig-name descname"><span class="pre">get_remaining_overflows</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.utils.data.td_state_wrapper.TensorDictStateWrapper.get_remaining_overflows" title="Link to this definition">#</a></dt>
-<dd><p>For WCVRP: get remaining overflows.</p>
+<dd><p>Get remaining overflows (legacy placeholder).</p>
 <p>Returns:
 The remaining overflows.</p>
 </dd></dl>

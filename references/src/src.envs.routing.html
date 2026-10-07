@@ -65,7 +65,7 @@
     <script>DOCUMENTATION_OPTIONS.pagename = 'references/src/src.envs.routing';</script>
     <link rel="index" title="Index" href="../../genindex.html" />
     <link rel="search" title="Search" href="../../search.html" />
-    <link rel="next" title="src.envs.routing.vrpp" href="src.envs.routing.vrpp.html" />
+    <link rel="next" title="src.envs.routing.irp" href="src.envs.routing.irp.html" />
     <link rel="prev" title="src.envs.tasks.cvrp" href="src.envs.tasks.cvrp.html" />
   <meta name="viewport" content="width=device-width, initial-scale=1"/>
   <meta name="docsearch:language" content="en"/>
@@ -480,8 +480,7 @@ document.write(`
 <p>This module provides RL4CO-style environment abstractions for
 combinatorial optimization problems.</p>
 <p>Attributes:
-WCVRPGenerator: Generator for Waste Collection VRP instances.
-VRPPGenerator: Generator for VRP with Profits instances.
+PTPGenerator: Generator for Profitable Tour Problem instances.
 Generator: Abstract base class for all instance generators.
 IRPGenerator: Generator for Inventory Routing Problem instances.
 ATSPGenerator: Generator for Asymmetric TSP instances.
@@ -490,34 +489,31 @@ OPGenerator: Generator for Orienteering Problem instances.
 PCTSPGenerator: Generator for Prize-Collecting TSP instances.
 PDPGenerator: Generator for Pickup and Delivery Problem instances.
 ThOPGenerator: Generator for Thief Orienteering Problem instances.
-CTOPGenerator: Generator for Capacitated Team Orienteering Problem instances.
+TCMVPTPGenerator: Generator for Time-Constrained Multi-Vehicle Profitable Tour Problem instances.
 RL4COEnvBase: Abstract base class for all routing environments.
 ImprovementEnvBase: Base class for improvement-based routing environments.
 ENV_REGISTRY: Mapping of problem name strings to their environment classes.
 get_env: Factory function that instantiates an environment by name.</p>
 <p>Example:
 &gt;&gt;&gt; from logic.src.envs.routing import get_env
-&gt;&gt;&gt; env = get_env(“vrpp”, num_loc=50)
+&gt;&gt;&gt; env = get_env(“ptp”, num_loc=50)
 &gt;&gt;&gt; td = env.reset()</p>
 <section id="submodules">
 <h2>Submodules<a class="headerlink" href="#submodules" title="Link to this heading">#</a></h2>
 <div class="toctree-wrapper compound">
 <ul>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.vrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.vrpp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.irp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.irp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.spctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.spctsp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.cvrpp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.cvrpp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.pctsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.pctsp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.cwcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.cwcvrp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.wcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.wcvrp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.tsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.tsp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.ctop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.ctop</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.pdp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.pdp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.tcmvptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.tcmvptp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.op.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.op</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.thop.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.thop</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.atsp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.atsp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.ptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.ptp</span></code></a></li>
+<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.mvptp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.mvptp</span></code></a></li>
 <li class="toctree-l1"><a class="reference internal" href="src.envs.routing.cvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.cvrp</span></code></a></li>
-<li class="toctree-l1"><a class="reference internal" href="src.envs.routing.swcvrp.html"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.swcvrp</span></code></a></li>
 </ul>
 </div>
 </section>
@@ -561,7 +557,7 @@ get_env: Factory function that instantiates an environment by name.</p>
 <span class="sig-prename descclassname"><span class="pre">src.envs.routing.</span></span><span class="sig-name descname"><span class="pre">get_env</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="o"><span class="pre">**</span></span><span class="n"><span class="pre">kwargs</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">logic.src.envs.base.base.RL4COEnvBase</span></span></span><a class="headerlink" href="#src.envs.routing.get_env" title="Link to this definition">#</a></dt>
 <dd><p>Factory function to get environment by name.</p>
 <p>Args:
-name: Environment name (vrpp, cvrpp, wcvrp, irp, atsp, cvrp, op, etc.)
+name: Environment name (ptp, mvptp, tcmvptp, irp, atsp, cvrp, op, etc.)
 kwargs: Environment configuration parameters.</p>
 <p>Returns:
 Initialized environment instance.</p>
@@ -572,7 +568,7 @@ ValueError: If environment name is not recognized.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="src.envs.routing.__all__">
 <span class="sig-prename descclassname"><span class="pre">src.envs.routing.</span></span><span class="sig-name descname"><span class="pre">__all__</span></span><a class="headerlink" href="#src.envs.routing.__all__" title="Link to this definition">#</a></dt>
-<dd><p>[‘RL4COEnvBase’, ‘ImprovementEnvBase’, ‘Generator’, ‘VRPPGenerator’, ‘WCVRPGenerator’, ‘IRPGenerator…</p>
+<dd><p>[‘RL4COEnvBase’, ‘ImprovementEnvBase’, ‘Generator’, ‘PTPGenerator’, ‘IRPGenerator’, ‘ATSPGenerator’,…</p>
 </dd></dl>
 
 </section>
@@ -600,11 +596,11 @@ ValueError: If environment name is not recognized.</p>
       </div>
     </a>
     <a class="right-next"
-       href="src.envs.routing.vrpp.html"
+       href="src.envs.routing.irp.html"
        title="next page">
       <div class="prev-next-info">
         <p class="prev-next-subtitle">next</p>
-        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.vrpp</span></code></p>
+        <p class="prev-next-title"><code class="xref py py-mod docutils literal notranslate"><span class="pre">src.envs.routing.irp</span></code></p>
       </div>
       <i class="fa-solid fa-angle-right"></i>
     </a>

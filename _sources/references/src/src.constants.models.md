@@ -39,16 +39,12 @@
   - ```{autodoc2-docstring} src.constants.models.DEPOT_DIM
     :summary:
     ```
-* - {py:obj}`WC_STEP_CONTEXT_OFFSET <src.constants.models.WC_STEP_CONTEXT_OFFSET>`
-  - ```{autodoc2-docstring} src.constants.models.WC_STEP_CONTEXT_OFFSET
+* - {py:obj}`PTP_STEP_CONTEXT_OFFSET <src.constants.models.PTP_STEP_CONTEXT_OFFSET>`
+  - ```{autodoc2-docstring} src.constants.models.PTP_STEP_CONTEXT_OFFSET
     :summary:
     ```
-* - {py:obj}`VRPP_STEP_CONTEXT_OFFSET <src.constants.models.VRPP_STEP_CONTEXT_OFFSET>`
-  - ```{autodoc2-docstring} src.constants.models.VRPP_STEP_CONTEXT_OFFSET
-    :summary:
-    ```
-* - {py:obj}`CVRPP_STEP_CONTEXT_OFFSET <src.constants.models.CVRPP_STEP_CONTEXT_OFFSET>`
-  - ```{autodoc2-docstring} src.constants.models.CVRPP_STEP_CONTEXT_OFFSET
+* - {py:obj}`MVPTP_STEP_CONTEXT_OFFSET <src.constants.models.MVPTP_STEP_CONTEXT_OFFSET>`
+  - ```{autodoc2-docstring} src.constants.models.MVPTP_STEP_CONTEXT_OFFSET
     :summary:
     ```
 * - {py:obj}`DEFAULT_TEMPORAL_HORIZON <src.constants.models.DEFAULT_TEMPORAL_HORIZON>`
@@ -145,35 +141,24 @@
 
 ````
 
-````{py:data} WC_STEP_CONTEXT_OFFSET
-:canonical: src.constants.models.WC_STEP_CONTEXT_OFFSET
+````{py:data} PTP_STEP_CONTEXT_OFFSET
+:canonical: src.constants.models.PTP_STEP_CONTEXT_OFFSET
 :type: int
 :value: >
    2
 
-```{autodoc2-docstring} src.constants.models.WC_STEP_CONTEXT_OFFSET
+```{autodoc2-docstring} src.constants.models.PTP_STEP_CONTEXT_OFFSET
 ```
 
 ````
 
-````{py:data} VRPP_STEP_CONTEXT_OFFSET
-:canonical: src.constants.models.VRPP_STEP_CONTEXT_OFFSET
-:type: int
-:value: >
-   2
-
-```{autodoc2-docstring} src.constants.models.VRPP_STEP_CONTEXT_OFFSET
-```
-
-````
-
-````{py:data} CVRPP_STEP_CONTEXT_OFFSET
-:canonical: src.constants.models.CVRPP_STEP_CONTEXT_OFFSET
+````{py:data} MVPTP_STEP_CONTEXT_OFFSET
+:canonical: src.constants.models.MVPTP_STEP_CONTEXT_OFFSET
 :type: int
 :value: >
    3
 
-```{autodoc2-docstring} src.constants.models.CVRPP_STEP_CONTEXT_OFFSET
+```{autodoc2-docstring} src.constants.models.MVPTP_STEP_CONTEXT_OFFSET
 ```
 
 ````

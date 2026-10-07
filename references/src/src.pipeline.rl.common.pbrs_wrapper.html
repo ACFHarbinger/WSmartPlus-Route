@@ -457,7 +457,7 @@ document.write(`
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp"><code class="docutils literal notranslate"><span class="pre">get_potential_vrpp()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp"><code class="docutils literal notranslate"><span class="pre">get_potential_ptp()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper._get_potential_not_implemented"><code class="docutils literal notranslate"><span class="pre">_get_potential_not_implemented()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper._POTENTIAL_REGISTRY"><code class="docutils literal notranslate"><span class="pre">_POTENTIAL_REGISTRY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_fn"><code class="docutils literal notranslate"><span class="pre">get_potential_fn()</span></code></a></li>
@@ -512,10 +512,10 @@ to a constant and provide no learning signal.
 </div>
 <p>Attributes:
 PBRSShaper:            Episode-level PBRS engine.
-get_potential_vrpp:    Potential function for VRPPEnv.
+get_potential_ptp:    Potential function for PTPEnv.
 get_potential_fn:      Factory that returns the correct Φ for an env name.</p>
 <p>Example:
-&gt;&gt;&gt; shaper = PBRSShaper(gamma=1.0, env_name=”vrpp”)
+&gt;&gt;&gt; shaper = PBRSShaper(gamma=1.0, env_name=”ptp”)
 &gt;&gt;&gt; shaper.record_initial(td_after_reset)
 &gt;&gt;&gt; shaped, F = shaper.apply(base_reward, final_td)</p>
 <section id="module-contents">
@@ -535,8 +535,8 @@ get_potential_fn:      Factory that returns the correct Φ for an env name.</p>
 <h3>Functions<a class="headerlink" href="#functions" title="Link to this heading">#</a></h3>
 <div class="pst-scrollable-table-container"><table class="autosummary longtable table table-left">
 <tbody>
-<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp" title="src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_potential_vrpp</span></code></a></p></td>
-<td><p>Potential function Φ(s) for VRPPEnv.</p></td>
+<tr class="row-odd"><td><p><a class="reference internal" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp" title="src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp"><code class="xref py py-obj docutils literal notranslate"><span class="pre">get_potential_ptp</span></code></a></p></td>
+<td><p>Potential function Φ(s) for PTPEnv.</p></td>
 </tr>
 <tr class="row-even"><td><p><a class="reference internal" href="#src.pipeline.rl.common.pbrs_wrapper._get_potential_not_implemented" title="src.pipeline.rl.common.pbrs_wrapper._get_potential_not_implemented"><code class="xref py py-obj docutils literal notranslate"><span class="pre">_get_potential_not_implemented</span></code></a></p></td>
 <td><p>Stub Φ returning zeros for unsupported environments.</p></td>
@@ -571,9 +571,9 @@ get_potential_fn:      Factory that returns the correct Φ for an env name.</p>
 </dd></dl>
 
 <dl class="py function">
-<dt class="sig sig-object py" id="src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp">
-<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.pbrs_wrapper.</span></span><span class="sig-name descname"><span class="pre">get_potential_vrpp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp" title="Link to this definition">#</a></dt>
-<dd><p>Potential function Φ(s) for VRPPEnv.</p>
+<dt class="sig sig-object py" id="src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp">
+<span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.pbrs_wrapper.</span></span><span class="sig-name descname"><span class="pre">get_potential_ptp</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">torch.Tensor</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp" title="Link to this definition">#</a></dt>
+<dd><p>Potential function Φ(s) for PTPEnv.</p>
 <p>Φ(s) = collected_waste / max_possible_waste  ∈  [0, 1]</p>
 <p>Properties:</p>
 <ul class="simple">
@@ -614,7 +614,7 @@ torch.Tensor: Zero tensor matching the batch size.</p>
 <span class="sig-prename descclassname"><span class="pre">src.pipeline.rl.common.pbrs_wrapper.</span></span><span class="sig-name descname"><span class="pre">get_potential_fn</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">env_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Callable</span><span class="p"><span class="pre">[</span></span><span class="p"><span class="pre">[</span></span><span class="pre">tensordict.TensorDict</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">torch.Tensor</span><span class="p"><span class="pre">]</span></span></span></span><a class="headerlink" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_fn" title="Link to this definition">#</a></dt>
 <dd><p>Return the potential function registered for <em>env_name</em>.</p>
 <p>Args:
-env_name: Name of the environment (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;vrpp&quot;</span></code>).</p>
+env_name: Name of the environment (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;ptp&quot;</span></code>).</p>
 <p>Returns:
 Callable that maps a TensorDict state → scalar potential tensor.</p>
 </dd></dl>
@@ -653,9 +653,9 @@ _phi_0:          Φ(s_0) recorded at the last <code class="docutils literal notr
 <p>Initialise the shaper.</p>
 <p>Args:
 gamma:          Discount factor γ. Pass <code class="docutils literal notranslate"><span class="pre">rl.gamma</span></code> from config.
-For non-discounted episodic tasks (VRPP/POMO/REINFORCE)
+For non-discounted episodic tasks (PTP/POMO/REINFORCE)
 this is typically <code class="docutils literal notranslate"><span class="pre">1.0</span></code>.
-env_name:       Environment name (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;vrpp&quot;</span></code>). Used to select
+env_name:       Environment name (e.g. <code class="docutils literal notranslate"><span class="pre">&quot;ptp&quot;</span></code>). Used to select
 the registered potential function.
 shaping_weight: Scale applied to F before adding to R_base (default 1.0).
 potential_fn:   Override the registered Φ with a custom callable.</p>
@@ -664,7 +664,7 @@ potential_fn:   Override the registered Φ with a custom callable.</p>
 <span class="sig-name descname"><span class="pre">record_initial</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">td</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">tensordict.TensorDict</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="headerlink" href="#src.pipeline.rl.common.pbrs_wrapper.PBRSShaper.record_initial" title="Link to this definition">#</a></dt>
 <dd><p>Record Φ(s_0) immediately after <code class="docutils literal notranslate"><span class="pre">env.reset()</span></code>.</p>
 <p>Must be called once per batch before <code class="docutils literal notranslate"><span class="pre">apply()</span></code>.</p>
-<p>For VRPPEnv this will always be <strong>0</strong> because <code class="docutils literal notranslate"><span class="pre">collected_waste</span></code> is
+<p>For PTPEnv this will always be <strong>0</strong> because <code class="docutils literal notranslate"><span class="pre">collected_waste</span></code> is
 initialised to zero at reset. The call is still required to ensure
 the batch dimension is captured correctly.</p>
 <p>Args:
@@ -679,9 +679,9 @@ td: The TensorDict returned by <code class="docutils literal notranslate"><span 
 <p><strong>γ is defined and applied here</strong>:
 shaping = γ · Φ(s_final) − Φ(s_0)</p>
 <p><strong>Φ(s) is formulated as</strong>:
-collected_waste / sum(waste)  for VRPPEnv  (see :func:<code class="docutils literal notranslate"><span class="pre">get_potential_vrpp</span></code>).</p>
+collected_waste / sum(waste)  for PTPEnv  (see :func:<code class="docutils literal notranslate"><span class="pre">get_potential_ptp</span></code>).</p>
 <p><strong>Terminal state handling</strong>:
-For VRPPEnv, <code class="docutils literal notranslate"><span class="pre">Φ(s_0)</span> <span class="pre">=</span> <span class="pre">0</span></code> (no waste collected at reset).
+For PTPEnv, <code class="docutils literal notranslate"><span class="pre">Φ(s_0)</span> <span class="pre">=</span> <span class="pre">0</span></code> (no waste collected at reset).
 <code class="docutils literal notranslate"><span class="pre">Φ(s_final)</span></code> is evaluated from <code class="docutils literal notranslate"><span class="pre">final_td[&quot;collected_waste&quot;]</span></code> after
 the complete tour; it is <strong>not</strong> forced to 0 because doing so would
 make F = 0 always (degenerate case for constructive RL).
@@ -767,7 +767,7 @@ str: String representation.</p>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#data">Data</a></li>
 <li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#api">API</a><ul class="nav section-nav flex-column">
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.logger"><code class="docutils literal notranslate"><span class="pre">logger</span></code></a></li>
-<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_vrpp"><code class="docutils literal notranslate"><span class="pre">get_potential_vrpp()</span></code></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_ptp"><code class="docutils literal notranslate"><span class="pre">get_potential_ptp()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper._get_potential_not_implemented"><code class="docutils literal notranslate"><span class="pre">_get_potential_not_implemented()</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper._POTENTIAL_REGISTRY"><code class="docutils literal notranslate"><span class="pre">_POTENTIAL_REGISTRY</span></code></a></li>
 <li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#src.pipeline.rl.common.pbrs_wrapper.get_potential_fn"><code class="docutils literal notranslate"><span class="pre">get_potential_fn()</span></code></a></li>

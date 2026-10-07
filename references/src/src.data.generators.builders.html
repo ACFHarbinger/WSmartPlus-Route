@@ -502,7 +502,7 @@ builder.set_area(“Rio Maior”)
 builder.set_focus_graph(“graph.pkl”, 20)
 builder.set_method(“random”)
 builder.set_num_days(1)
-builder.set_problem_name(“vrpp”)
+builder.set_problem_name(“ptp”)
 builder.set_noise(0.0, 0.0)
 builder.build()</p>
 <section id="module-contents">
@@ -646,7 +646,7 @@ Description of return value.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="src.data.generators.builders.VRPInstanceBuilder.set_problem_name">
 <span class="sig-name descname"><span class="pre">set_problem_name</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">problem_name</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span><a class="headerlink" href="#src.data.generators.builders.VRPInstanceBuilder.set_problem_name" title="Link to this definition">#</a></dt>
-<dd><p>Sets the name of the problem (e.g., ‘vrpp’, ‘wcvrp’).</p>
+<dd><p>Sets the name of the problem (e.g., ‘ptp’, ‘mvptp’).</p>
 <p>Args:
 problem_name: Description of problem_name.</p>
 <p>Returns:
@@ -673,7 +673,7 @@ dict: A dictionary of numpy arrays:
 - ‘depot’: np.ndarray of shape (dataset_size, coord_dim)
 - ‘locs’: np.ndarray of shape (dataset_size, problem_size, coord_dim)
 - ‘waste’: np.ndarray of shape (dataset_size, num_days, problem_size)
-- ‘noisy_waste’: np.ndarray of same shape as waste (equals waste when not SWCVRP)
+- ‘noisy_waste’: np.ndarray of same shape as waste (equals waste)
 - ‘max_waste’: np.ndarray of shape (dataset_size,)</p>
 </dd></dl>
 

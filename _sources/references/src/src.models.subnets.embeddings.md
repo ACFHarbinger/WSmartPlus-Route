@@ -25,12 +25,11 @@ src.models.subnets.embeddings.edges
 :titlesonly:
 :maxdepth: 1
 
-src.models.subnets.embeddings.vrpp
-src.models.subnets.embeddings.cvrpp
 src.models.subnets.embeddings.dynamic
-src.models.subnets.embeddings.wcvrp
 src.models.subnets.embeddings.static
 src.models.subnets.embeddings.matnet
+src.models.subnets.embeddings.ptp
+src.models.subnets.embeddings.mvptp
 ```
 
 ## Package Contents
@@ -102,7 +101,7 @@ src.models.subnets.embeddings.matnet
 :canonical: src.models.subnets.embeddings.__all__
 :type: list[str]
 :value: >
-   ['VRPPInitEmbedding', 'CVRPPInitEmbedding', 'WCVRPInitEmbedding', 'EnvState', 'VRPPState', 'CVRPPSta...
+   ['PTPInitEmbedding', 'MVPTPInitEmbedding', 'EnvState', 'PTPState', 'MVPTPState', 'ContextEmbedder', ...
 
 ```{autodoc2-docstring} src.models.subnets.embeddings.__all__
 ```

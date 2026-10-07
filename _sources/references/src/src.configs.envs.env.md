@@ -33,7 +33,7 @@
 :canonical: src.configs.envs.env.EnvConfig.name
 :type: str
 :value: >
-   'vrpp'
+   'ptp'
 
 ```{autodoc2-docstring} src.configs.envs.env.EnvConfig.name
 ```
